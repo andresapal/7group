@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /cv-docente/
+Disallow: /cv-profesional/
+Disallow: /resume/
+
+Sitemap: https://7group.site/sitemap.xml
