@@ -1,49 +1,50 @@
 <!DOCTYPE html>
-<html lang="es-US">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <!-- SEO PRINCIPAL -->
-<meta name="description" content="7Group develops artificial intelligence, business automation, logistics technology and digital transformation solutions for companies in the United States, with initial focus on Florida, Texas and Georgia.">
+  <meta name="description" content="7Group diseña e implementa soluciones de inteligencia artificial, automatización empresarial y tecnología logística para empresas en Florida, Texas y Georgia.">
+  <meta name="keywords" content="consultoría inteligencia artificial Florida, soluciones IA empresas Texas, automatización negocios Georgia, tecnología logística USA, transformación digital, business intelligence, machine learning, AI consulting Estados Unidos">
+  <meta name="author" content="7Group">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <link rel="canonical" href="https://7group.site/es/">
 
-<meta name="keywords" content="artificial intelligence consulting, AI business solutions, AI automation, logistics technology, business automation, digital transformation, AI consulting Florida, AI consulting Texas, AI consulting Georgia, business intelligence USA">
+  <!-- HREFLANG -->
+  <link rel="alternate" hreflang="en" href="https://7group.site/" />
+  <link rel="alternate" hreflang="es" href="https://7group.site/es/" />
+  <link rel="alternate" hreflang="x-default" href="https://7group.site/" />
 
-<meta name="author" content="7Group">
-<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <!-- GEO SEO -->
+  <meta name="geo.region" content="US-FL">
+  <meta name="geo.placename" content="Florida, Estados Unidos">
+  <meta name="ICBM" content="27.9944024,-81.7602544">
 
-<link rel="canonical" href="https://7group.site">
+  <!-- OPEN GRAPH -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://7group.site/es/">
+  <meta property="og:title" content="7Group | Inteligencia Artificial y Automatización Empresarial">
+  <meta property="og:description" content="Soluciones de IA, automatización empresarial y tecnología logística para empresas en Florida, Texas y Georgia.">
+  <meta property="og:site_name" content="7Group">
+  <meta property="og:image" content="https://7group.site/ciudad-datos.webp">
+  <meta property="og:image:secure_url" content="https://7group.site/ciudad-datos.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
 
-<!-- GEO SEO -->
-<meta name="geo.region" content="US">
-<meta name="geo.placename" content="United States">
-<meta name="ICBM" content="39.8283,-98.5795">
+  <!-- TWITTER -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="7Group | Inteligencia Artificial y Automatización Empresarial">
+  <meta name="twitter:description" content="Consultoría en IA, automatización y tecnología logística para el mercado de Estados Unidos.">
+  <meta name="twitter:image" content="https://7group.site/ciudad-datos.webp">
 
-<!-- OPEN GRAPH -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://7group.site">
-<meta property="og:title" content="7Group | Artificial Intelligence & Business Automation">
-<meta property="og:description" content="Artificial intelligence, business automation and logistics solutions for companies in Florida, Texas and Georgia.">
-<meta property="og:site_name" content="7Group">
-  
-<meta property="og:image" content="https://7group.site/logo4k.webp">
-<meta property="og:image:secure_url" content="https://7group.site/logo4k.webp">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+  <!-- GOOGLE / BING -->
+  <meta name="googlebot" content="index,follow">
+  <meta name="bingbot" content="index,follow">
+  <meta http-equiv="content-language" content="es">
 
-<meta name="twitter:image" content="https://7group.site/logo4k.webp">
+  <title>7Group | Inteligencia Artificial, Automatización Empresarial y Logística — Florida, Texas, Georgia</title>
 
-<!-- TWITTER -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="7Group | Artificial Intelligence & Business Automation">
-<meta name="twitter:description" content="AI consulting, business automation and logistics technology solutions for the United States market.">
-
-<!-- GOOGLE -->
-<meta name="googlebot" content="index,follow">
-<meta name="bingbot" content="index,follow">
-
-<!-- LANGUAGE -->
-<meta http-equiv="content-language" content="en-US">
-  <title>7Group | Artificial Intelligence, Business Automation & Logistics Solutions USA</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -83,14 +84,16 @@
     }
 
     .logo {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      color: #fff;
+      display: block;
       text-decoration: none;
+      line-height: 0;
     }
 
-    .logo span { color: var(--cyan); }
+    .logo img {
+      height: 36px;
+      width: auto;
+      display: block;
+    }
 
     nav ul {
       list-style: none;
@@ -108,6 +111,24 @@
 
     nav a:hover { color: #fff; }
 
+    /* LANGUAGE SWITCH */
+    .language-switch {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .language-switch a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 1px;
+      transition: 0.2s;
+    }
+
+    .language-switch a:hover { color: #fff; }
+    .language-switch a.active { color: #fff; font-weight: 600; }
+
     /* HERO */
     .hero-wrapper {
       position: relative;
@@ -117,15 +138,15 @@
       overflow: hidden;
     }
 
-    .hero-bg {
+    .hero-video {
       position: absolute;
       inset: 0;
-      background: url('ciudad-datos.webp') center center / cover no-repeat;
-      transform: scale(1.04);
-      transition: transform 8s ease-out;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      pointer-events: none;
     }
-
-    .hero-bg.loaded { transform: scale(1); }
 
     .hero-overlay {
       position: absolute;
@@ -136,6 +157,7 @@
         rgba(0,0,0,0.55) 55%,
         rgba(0,0,0,0.15) 100%
       );
+      z-index: 1;
     }
 
     .hero-content {
@@ -284,7 +306,7 @@
       line-height: 1.8;
     }
 
-    /* IMAGE BREAK — transicion */
+    /* IMAGE BREAK */
     .image-break {
       width: 100%;
       height: 520px;
@@ -424,6 +446,124 @@
       line-height: 1.5;
     }
 
+    /* CLIENTS CAROUSEL */
+    .clients-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--light);
+      overflow: hidden;
+    }
+
+    .clients-header {
+      padding: 0 48px;
+      margin-bottom: 52px;
+    }
+
+    .clients-header .section-label { margin-bottom: 16px; }
+
+    .clients-heading {
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 600;
+      letter-spacing: -0.8px;
+      line-height: 1.2;
+      max-width: 560px;
+    }
+
+    .clients-carousel {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .clients-carousel::before,
+    .clients-carousel::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 120px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .clients-carousel::before {
+      left: 0;
+      background: linear-gradient(to right, var(--white), transparent);
+    }
+
+    .clients-carousel::after {
+      right: 0;
+      background: linear-gradient(to left, var(--white), transparent);
+    }
+
+    .clients-track {
+      display: flex;
+      animation: scroll-clients 36s linear infinite;
+      width: max-content;
+    }
+
+    .clients-track.paused { animation-play-state: paused; }
+
+    @keyframes scroll-clients {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .client-item {
+      background: var(--white);
+      border-right: 1px solid var(--light);
+      padding: 48px 52px;
+      width: 440px;
+      flex-shrink: 0;
+      cursor: default;
+      transition: background 0.3s, opacity 0.3s;
+    }
+
+    .client-item.highlighted { background: #efefef; }
+
+    .client-item.dimmed { opacity: 0.35; }
+
+    .client-logo {
+      height: 44px;
+      width: auto;
+      max-width: 190px;
+      object-fit: contain;
+      filter: grayscale(100%) brightness(0.45);
+      margin-bottom: 28px;
+      display: block;
+      transition: filter 0.3s;
+    }
+
+    .client-item.highlighted .client-logo { filter: grayscale(100%) brightness(0.25); }
+
+    .client-item h4 {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 10px;
+    }
+
+    .client-item p {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.75;
+    }
+
+    .client-tag {
+      display: inline-block;
+      margin-top: 18px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gray);
+      border-bottom: 1px solid var(--light);
+      padding-bottom: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .clients-header { padding: 0 24px; }
+      .client-item { width: 300px; padding: 36px 28px; }
+    }
+
     /* CTA FINAL */
     .cta-final {
       text-align: center;
@@ -501,64 +641,64 @@
     }
   </style>
 
-<!-- SCHEMA.ORG -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  "name": "7Group",
-  "url": "https://7group.site",
-  "logo": "https://7group.site/logo4k.webp",
-  "description": "Artificial Intelligence, Business Automation, Logistics Technology and Digital Transformation solutions for companies in the United States.",
-  "areaServed": [
-    {
-      "@type": "State",
-      "name": "Florida"
-    },
-    {
-      "@type": "State",
-      "name": "Texas"
-    },
-    {
-      "@type": "State",
-      "name": "Georgia"
+  <!-- SCHEMA.ORG -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "7Group",
+    "url": "https://7group.site",
+    "logo": "https://7group.site/logo4k.webp",
+    "description": "Soluciones de Inteligencia Artificial, Automatización Empresarial, Tecnología Logística y Transformación Digital para empresas en Florida, Texas y Georgia.",
+    "areaServed": [
+      { "@type": "State", "name": "Florida" },
+      { "@type": "State", "name": "Texas" },
+      { "@type": "State", "name": "Georgia" }
+    ],
+    "serviceType": [
+      "Consultoría en Inteligencia Artificial",
+      "Automatización Empresarial",
+      "Tecnología Logística",
+      "Transformación Digital",
+      "Business Intelligence"
+    ],
+    "availableLanguage": ["Spanish", "English"],
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "US"
     }
-  ],
-  "serviceType": [
-    "Artificial Intelligence Consulting",
-    "Business Automation",
-    "Logistics Technology",
-    "Digital Transformation",
-    "Business Intelligence"
-  ],
-  "address": {
-    "@type": "PostalAddress",
-    "addressCountry": "US"
   }
-}
-</script>
+  </script>
 
 </head>
 <body>
 
   <!-- NAV -->
   <nav id="nav">
-    <a href="#" class="logo">7<span>group</span></a>
+    <a href="/" class="logo"><img src="../logo4k.webp" alt="7group" /></a>
     <ul>
       <li><a href="#soluciones">Soluciones</a></li>
       <li><a href="#nosotros">Nosotros</a></li>
       <li><a href="#contacto">Contacto</a></li>
     </ul>
+    <div class="language-switch">
+      <a href="/">EN</a>
+      <a href="/es/" class="active">ES</a>
+    </div>
   </nav>
 
   <!-- HERO -->
   <div class="hero-wrapper">
-    <div class="hero-bg" id="heroBg"></div>
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="../hero-bg.webm" type="video/webm">
+      <source src="../hero-bg.mp4" type="video/mp4">
+      <img src="../ciudad-datos.webp" alt="7Group Soluciones IA" />
+    </video>
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <p class="hero-tag">Inteligencia Artificial Aplicada</p>
       <h1>Deja de operar<br/>en <em>Excel</em><br/>y <em>WhatsApp.</em></h1>
-      <p>Diseñamos e implementamos soluciones de IA que optimizan tus tiempos y procesos operativos. Todo probado primero en nuestra propia operación.</p>
+      <p>Diseñamos e implementamos soluciones de IA que reducen tiempos, eliminan errores y escalan con tu operación. Todo validado en nuestra propia empresa.</p>
       <div class="cta-row">
         <a href="#contacto" class="btn-primary">Hablemos</a>
         <a href="#soluciones" class="cta-link">Ver soluciones →</a>
@@ -573,13 +713,13 @@
   <!-- PROBLEMA -->
   <section class="problema">
     <p class="section-label">El problema</p>
-    <h2>La mayoría de las PYMES operan con herramientas que no escalaron con ellas.</h2>
-    <p>Cotizaciones manuales, órdenes perdidas en chats, reportes que nadie lee a tiempo. No es falta de talento — es falta de infraestructura digital.</p>
+    <h2>La mayoría de las empresas operan con herramientas que no crecieron con ellas.</h2>
+    <p>Cotizaciones manuales, pedidos perdidos en chats, reportes que nadie lee a tiempo. No es un problema de personas — es un problema de infraestructura digital.</p>
   </section>
 
-  <!-- IMAGE BREAK — La transición -->
+  <!-- IMAGE BREAK -->
   <div class="image-break">
-    <img src="transicion.webp" alt="De Excel y WhatsApp a dashboards inteligentes" loading="lazy" />
+    <img src="../transicion.webp" alt="De Excel y WhatsApp a dashboards inteligentes" loading="lazy" />
     <span class="image-break-caption">Antes · Después</span>
   </div>
 
@@ -590,22 +730,22 @@
       <div class="solucion-card">
         <p class="card-num">01</p>
         <h3>Cotización Automática</h3>
-        <p>Genera cotizaciones precisas en segundos. Sin errores manuales, sin demoras. Tu equipo de ventas cierra más, más rápido.</p>
+        <p>Genera propuestas precisas en segundos. Sin errores, sin demoras. Tu equipo cierra más negocios con menos esfuerzo.</p>
       </div>
       <div class="solucion-card">
         <p class="card-num">02</p>
-        <h3>Gestión de Órdenes en Tiempo Real</h3>
-        <p>Visibilidad completa de cada orden, en cada etapa. Tus operadores actúan sobre datos, no sobre suposiciones.</p>
+        <h3>Control de Órdenes en Tiempo Real</h3>
+        <p>Visibilidad total de cada pedido, en cada etapa del proceso. Tus operadores toman decisiones con datos, no con suposiciones.</p>
       </div>
       <div class="solucion-card">
         <p class="card-num">03</p>
         <h3>Dashboards de Negocio</h3>
-        <p>Tus métricas más importantes, siempre actualizadas y en un solo lugar. Decisiones basadas en realidad, no en intuición.</p>
+        <p>Tus indicadores clave, siempre actualizados y centralizados. Deja de buscar datos y empieza a actuar sobre ellos.</p>
       </div>
       <div class="solucion-card">
         <p class="card-num">04</p>
-        <h3>Campañas Inteligentes</h3>
-        <p>Comunicación automatizada con tus clientes en el momento correcto. Más conversión, menos esfuerzo manual.</p>
+        <h3>Campañas Automatizadas</h3>
+        <p>Comunícate con tus clientes en el momento exacto, de forma automática. Más conversiones, menos gestión manual.</p>
       </div>
     </div>
   </section>
@@ -618,11 +758,11 @@
     <div class="nosotros-inner">
       <div class="nosotros-text">
         <h2>Empezamos resolviendo nuestro propio problema.</h2>
-        <p>Somos una startup que nació de una operación logística real. Construimos estas herramientas para nosotros primero — y funcionaron.</p>
-        <p>Cuando vimos el impacto, decidimos llevar lo que aprendimos a otras empresas. No vendemos software genérico: vendemos lo que nosotros mismos usamos para operar.</p>
+        <p>Somos una startup que nació dentro de una operación logística real. Construimos estas herramientas para nosotros primero — y transformaron nuestra operación.</p>
+        <p>Vimos el impacto y decidimos llevar lo aprendido a otras empresas. No ofrecemos software genérico: ofrecemos lo que nosotros mismos usamos para operar cada día.</p>
       </div>
       <div class="nosotros-image">
-        <img src="operador-futuro.webp" alt="Operador del futuro — dashboards en tiempo real" loading="lazy" />
+        <img src="../operador-futuro.webp" alt="El operador del futuro — dashboards en tiempo real" loading="lazy" />
       </div>
     </div>
     <div class="stats-bar">
@@ -641,10 +781,48 @@
     </div>
   </section>
 
+  <!-- CLIENTES -->
+  <div class="clients-section">
+    <div class="clients-header">
+      <p class="section-label">Quiénes confían en nosotros</p>
+      <h2 class="clients-heading">Empresas que ya operan con nuestra tecnología.</h2>
+    </div>
+    <div class="clients-carousel">
+      <div class="clients-track" id="clientsTrack">
+        <!-- Set 1 -->
+        <div class="client-item">
+          <img src="../logo-trasteosya.png" alt="Trasteos Ya" class="client-logo" />
+          <h4>Trasteos Ya</h4>
+          <p>Plataforma operativa completa: cotizador automático, órdenes de servicio, dashboards KPI, campañas, reseñas, geolocalización y app web + móvil.</p>
+          <span class="client-tag">Logística · Web · Mobile · IA</span>
+        </div>
+        <div class="client-item">
+          <img src="../logo-tygo.png" alt="TYGO" class="client-logo" />
+          <h4>TYGO</h4>
+          <p>Marketplace de carga con IA que conecta empresas con conductores en tiempo real. Subastas inteligentes, enrutamiento logístico y tracking en vivo.</p>
+          <span class="client-tag">Carga · Marketplace IA · Logística</span>
+        </div>
+        <!-- Set 2 — duplicado para loop continuo -->
+        <div class="client-item">
+          <img src="../logo-trasteosya.png" alt="Trasteos Ya" class="client-logo" />
+          <h4>Trasteos Ya</h4>
+          <p>Plataforma operativa completa: cotizador automático, órdenes de servicio, dashboards KPI, campañas, reseñas, geolocalización y app web + móvil.</p>
+          <span class="client-tag">Logística · Web · Mobile · IA</span>
+        </div>
+        <div class="client-item">
+          <img src="../logo-tygo.png" alt="TYGO" class="client-logo" />
+          <h4>TYGO</h4>
+          <p>Marketplace de carga con IA que conecta empresas con conductores en tiempo real. Subastas inteligentes, enrutamiento logístico y tracking en vivo.</p>
+          <span class="client-tag">Carga · Marketplace IA · Logística</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- CTA FINAL -->
   <div id="contacto" class="cta-final">
-    <h2>¿Listo para dejar el Excel?</h2>
-    <p>Cuéntanos cómo opera tu empresa. Nosotros encontramos dónde empezar.</p>
+    <h2>¿Listo para dejar el Excel atrás?</h2>
+    <p>Cuéntanos cómo opera tu empresa. Nosotros identificamos dónde está la mayor oportunidad.</p>
     <a href="https://wa.me/573143095194" target="_blank" class="wa-icon" aria-label="Escríbenos por WhatsApp">
       <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
@@ -665,11 +843,23 @@
       nav.classList.toggle('scrolled', window.scrollY > 60);
     });
 
-    // Hero background zoom-in on load
-    const heroBg = document.getElementById('heroBg');
-    window.addEventListener('load', () => {
-      setTimeout(() => heroBg.classList.add('loaded'), 100);
-    });
+    // Clients carousel — pause + highlight on hover
+    const track = document.getElementById('clientsTrack');
+    if (track) {
+      const items = track.querySelectorAll('.client-item');
+      items.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+          track.classList.add('paused');
+          items.forEach(i => { i.classList.remove('highlighted'); i.classList.add('dimmed'); });
+          item.classList.add('highlighted');
+          item.classList.remove('dimmed');
+        });
+        item.addEventListener('mouseleave', () => {
+          track.classList.remove('paused');
+          items.forEach(i => { i.classList.remove('highlighted'); i.classList.remove('dimmed'); });
+        });
+      });
+    }
   </script>
 
 </body>
