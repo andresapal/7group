@@ -639,6 +639,201 @@
       .stat-item { border-right: none; border-bottom: 1px solid var(--light); }
       .cta-final { padding: 80px 24px; }
       footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+      .plans-section { padding: 72px 24px; }
+      .plans-grid { grid-template-columns: 1fr; }
+    }
+
+    /* PLANS */
+    .plans-section {
+      padding: 120px 48px;
+      background: var(--white);
+      border-top: 1px solid var(--light);
+    }
+    .plans-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 24px;
+    }
+    .plans-heading {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      max-width: 600px;
+      margin-bottom: 64px;
+    }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--light);
+      border: 1px solid var(--light);
+    }
+    .plan-card {
+      background: var(--white);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .plan-card.featured {
+      background: var(--black);
+      color: var(--white);
+    }
+    .plan-tag {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+    .plan-card.featured .plan-tag { color: var(--cyan); }
+    .plan-name { font-size: 1.5rem; font-weight: 700; }
+    .plan-price { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .plan-price span { font-size: 0.95rem; font-weight: 400; color: var(--gray); }
+    .plan-card.featured .plan-price span { color: #999; }
+    .plan-divider { height: 1px; background: var(--light); }
+    .plan-card.featured .plan-divider { background: #333; }
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+    .plan-features li {
+      font-size: 0.9rem;
+      color: var(--gray);
+      padding-left: 18px;
+      position: relative;
+    }
+    .plan-features li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--cyan);
+      font-size: 0.8rem;
+    }
+    .plan-card.featured .plan-features li { color: #bbb; }
+    .plan-cta {
+      display: inline-block;
+      padding: 14px 28px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      border: 1.5px solid var(--black);
+      color: var(--black);
+      background: transparent;
+      text-align: center;
+    }
+    .plan-cta:hover { background: var(--black); color: var(--white); }
+    .plan-card.featured .plan-cta { border-color: var(--white); color: var(--white); }
+    .plan-card.featured .plan-cta:hover { background: var(--white); color: var(--black); }
+
+    /* HERO ROTATING */
+    #heroTitle, #heroSub { transition: opacity 0.5s ease; }
+    #heroTitle.fading, #heroSub.fading { opacity: 0; }
+
+    /* AI AGENTS */
+    .agents-heading {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 48px;
+      max-width: 500px;
+    }
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      background: var(--light);
+      border: 1px solid var(--light);
+    }
+    .agent-card {
+      background: var(--white);
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .agent-card-featured {
+      background: var(--black);
+      color: var(--white);
+    }
+    .agent-icon { font-size: 1.6rem; }
+    .agent-card h4 { font-size: 1rem; font-weight: 700; }
+    .agent-card p { font-size: 0.85rem; color: var(--gray); line-height: 1.5; }
+    .agent-card-featured p { color: #aaa; }
+    .agent-card-featured p em { color: var(--cyan); font-style: normal; }
+    @media (max-width: 768px) {
+      .agents-grid { grid-template-columns: 1fr 1fr; }
+      .agent-card-featured { grid-column: 1 / -1; }
+    }
+
+    /* PLANS STEPS */
+    .plans-step { margin-bottom: 64px; }
+    .step-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--light);
+    }
+    .pilot-banner, .impl-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 40px 48px;
+      border: 1px solid var(--light);
+      gap: 32px;
+    }
+    .impl-banner { background: var(--black); color: var(--white); }
+    .pilot-left h3, .impl-left h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+    .pilot-left p, .impl-left p { font-size: 0.9rem; color: var(--gray); max-width: 480px; }
+    .impl-left p { color: #999; }
+    .pilot-right, .impl-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .pilot-price { font-size: 2.5rem; font-weight: 700; }
+    .impl-price { font-size: 1.6rem; font-weight: 700; white-space: nowrap; }
+    .impl-price em { font-style: normal; font-size: 1rem; font-weight: 400; color: #999; }
+    .plan-cta-dark {
+      border-color: var(--white) !important;
+      color: var(--white) !important;
+    }
+    .plan-cta-dark:hover { background: var(--white) !important; color: var(--black) !important; }
+
+    /* EXTRAS */
+    .plans-extras {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      background: var(--light);
+      border: 1px solid var(--light);
+      margin-top: 2px;
+    }
+    .extra-card {
+      background: var(--white);
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .extra-card h4 { font-size: 1.2rem; font-weight: 700; }
+    .extra-card p { font-size: 0.9rem; color: var(--gray); flex: 1; }
+
+    @media (max-width: 768px) {
+      .pilot-banner, .impl-banner { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+      .pilot-right, .impl-right { align-items: flex-start; }
+      .plans-extras { grid-template-columns: 1fr; }
     }
   </style>
 
@@ -680,6 +875,7 @@
     <ul>
       <li><a href="#solutions">Solutions</a></li>
       <li><a href="#about">About</a></li>
+      <li><a href="#plans">Plans</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="language-switch">
@@ -697,8 +893,8 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <p class="hero-tag">Applied Artificial Intelligence</p>
-      <h1>Stop operating<br/>in <em>Excel</em><br/>and <em>WhatsApp.</em></h1>
-      <p>We design and implement AI solutions that optimize your time and operational processes. Everything tested first in our own operation.</p>
+      <h1 id="heroTitle" aria-live="polite">Stop operating<br>in <em>Excel</em><br>and <em>WhatsApp.</em></h1>
+      <p id="heroSub">We design and implement AI solutions that optimize your time and operational processes. Everything tested first in our own operation.</p>
       <div class="cta-row">
         <a href="#contact" class="btn-primary">Let's talk</a>
         <a href="#solutions" class="cta-link">See solutions →</a>
@@ -746,6 +942,41 @@
         <p class="card-num">04</p>
         <h3>Smart Campaigns</h3>
         <p>Automated communication with your customers at the right moment. More conversions, less manual effort.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- AI AGENTS -->
+  <section id="agents">
+    <p class="section-label">AI Agents</p>
+    <h2 class="agents-heading">Agents that work while you sleep.</h2>
+    <div class="agents-grid">
+      <div class="agent-card">
+        <span class="agent-icon">🚛</span>
+        <h4>Transport Agent</h4>
+        <p>Assigns vehicles, dispatches orders, and handles real-time status updates — automatically.</p>
+      </div>
+      <div class="agent-card">
+        <span class="agent-icon">📦</span>
+        <h4>Logistics Agent</h4>
+        <p>Optimizes routes, reassigns resources on cancellations, and reports to your client before they ask.</p>
+      </div>
+      <div class="agent-card">
+        <span class="agent-icon">⚡</span>
+        <h4>Cargo Generation Agent</h4>
+        <p>Turns inbound messages into quotes, closes deals, and follows up — without a salesperson.</p>
+      </div>
+      <div class="agent-card">
+        <span class="agent-icon">🏭</span>
+        <h4>Warehousing Agent</h4>
+        <p>Tracks inventory by voice or photo, alerts on minimums, and generates daily stock reports.</p>
+      </div>
+      <div class="agent-card agent-card-featured">
+        <span class="agent-icon">📊</span>
+        <h4>CEO / Manager Agent</h4>
+        <p>Ask your business anything: <em>"How's this week vs last week?"</em> — and get a real answer with data and a recommended action.</p>
       </div>
     </div>
   </section>
@@ -819,6 +1050,114 @@
     </div>
   </div>
 
+  <!-- PLANS -->
+  <section id="plans" class="plans-section">
+    <p class="plans-label">Pricing model</p>
+    <h2 class="plans-heading">Start free.<br>Scale when it works.</h2>
+
+    <!-- Step 1: Pilot -->
+    <div class="plans-step">
+      <div class="step-label">Step 1 — Free pilot</div>
+      <div class="pilot-banner">
+        <div class="pilot-left">
+          <h3>Try it free for 15 days</h3>
+          <p>5 automated workflows. No credit card. Your brand, your platform.</p>
+        </div>
+        <div class="pilot-right">
+          <span class="pilot-price">$0</span>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Start free →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Implementation -->
+    <div class="plans-step">
+      <div class="step-label">Step 2 — One-time implementation</div>
+      <div class="impl-banner">
+        <div class="impl-left">
+          <h3>White-label platform setup</h3>
+          <p>Full implementation of the platform under your brand. Includes quoting engine, service orders, KPI dashboard, team training, API integrations, and 90-day support.</p>
+        </div>
+        <div class="impl-right">
+          <span class="impl-price">From $3,500 <em>USD</em></span>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta plan-cta-dark">Schedule a call →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Monthly subscription -->
+    <div class="plans-step">
+      <div class="step-label">Step 3 — Monthly subscription</div>
+      <div class="plans-grid">
+
+        <div class="plan-card">
+          <p class="plan-tag">Starter</p>
+          <h3 class="plan-name">Core</h3>
+          <div class="plan-price">$350 <span>USD/mo</span></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>3 active modules</li>
+            <li>Up to 5 users</li>
+            <li>500 operations/month</li>
+            <li>Email support</li>
+            <li>Basic KPI dashboard</li>
+          </ul>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Get started →</a>
+        </div>
+
+        <div class="plan-card featured">
+          <p class="plan-tag">Most popular</p>
+          <h3 class="plan-name">Professional</h3>
+          <div class="plan-price">$700 <span>USD/mo</span></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>All core modules</li>
+            <li>Up to 20 users</li>
+            <li>Unlimited operations</li>
+            <li>AI chat agent</li>
+            <li>Advanced analytics</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Get started →</a>
+        </div>
+
+        <div class="plan-card">
+          <p class="plan-tag">Enterprise</p>
+          <h3 class="plan-name">Scale</h3>
+          <div class="plan-price">Custom <span>/ scoped</span></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>Unlimited users + modules</li>
+            <li>AI voice + chat agents</li>
+            <li>Multi-vertical deployment</li>
+            <li>Franchise / reseller license</li>
+            <li>Google Ads + Meta setup</li>
+            <li>Dedicated dev team</li>
+          </ul>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Let's talk →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Consulting + Commissions -->
+    <div class="plans-extras">
+      <div class="extra-card">
+        <p class="plan-tag">Technical consulting</p>
+        <h4>Need strategy, not software?</h4>
+        <p>We offer standalone consulting: process mapping, automation roadmap, AI implementation strategy. Billed by project or retainer.</p>
+        <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Talk to us →</a>
+      </div>
+      <div class="extra-card">
+        <p class="plan-tag">Partner program</p>
+        <h4>Sell it. Earn on every deal.</h4>
+        <p>Refer a client and earn commission on implementation + a recurring cut of their monthly subscription. Ideal for consultants, agencies, and business networks.</p>
+        <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Become a partner →</a>
+      </div>
+    </div>
+
+  </section>
+
   <!-- CTA FINAL -->
   <div id="contact" class="cta-final">
     <h2>Ready to leave Excel behind?</h2>
@@ -842,6 +1181,34 @@
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 60);
     });
+
+    // Hero rotating messages
+    const heroMessages = [
+      { title: 'Stop operating<br>in <em>Excel</em><br>and <em>WhatsApp.</em>', sub: 'We design and implement AI solutions that optimize your time and operational processes. Everything tested first in our own operation.' },
+      { title: 'Quote in seconds.<br>Close in minutes.<br><em>Deliver every time.</em>', sub: 'Automated quoting, real-time order management, and KPI dashboards — in one platform.' },
+      { title: 'One platform.<br>Every operation.<br><em>Zero chaos.</em>', sub: 'From quoting to delivery, fully automated and white-labeled for your brand.' },
+      { title: 'Your competitors<br>already automated.<br><em>Will you?</em>', sub: "The companies winning in logistics aren't working harder. They built smarter systems." },
+      { title: 'Built for logistics.<br><em>Proven in real operations.</em>', sub: "We didn't build this in a lab. We built it to run our own business — then opened it to yours." },
+      { title: 'AI agents that<br><em>work while you sleep.</em>', sub: 'Transport, logistics, cargo generation, warehousing, and CEO-level insights — fully automated.' }
+    ];
+    (function() {
+      const ht = document.getElementById('heroTitle');
+      const hs = document.getElementById('heroSub');
+      if (!ht || !hs) return;
+      let cur = 0, paused = false;
+      ht.addEventListener('mouseenter', () => paused = true);
+      ht.addEventListener('mouseleave', () => paused = false);
+      setInterval(() => {
+        if (paused) return;
+        cur = (cur + 1) % heroMessages.length;
+        ht.classList.add('fading'); hs.classList.add('fading');
+        setTimeout(() => {
+          ht.innerHTML = heroMessages[cur].title;
+          hs.textContent = heroMessages[cur].sub;
+          ht.classList.remove('fading'); hs.classList.remove('fading');
+        }, 500);
+      }, 4000);
+    })();
 
     // Clients carousel — pause + highlight on hover
     const track = document.getElementById('clientsTrack');

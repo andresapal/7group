@@ -638,6 +638,138 @@
       .stat-item { border-right: none; border-bottom: 1px solid var(--light); }
       .cta-final { padding: 80px 24px; }
       footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+      .plans-section { padding: 72px 24px; }
+      .plans-grid { grid-template-columns: 1fr; }
+    }
+
+    /* PLANS */
+    .plans-section {
+      padding: 120px 48px;
+      background: var(--white);
+      border-top: 1px solid var(--light);
+    }
+    .plans-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 24px;
+    }
+    .plans-heading {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      max-width: 600px;
+      margin-bottom: 64px;
+    }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--light);
+      border: 1px solid var(--light);
+    }
+    .plan-card {
+      background: var(--white);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .plan-card.featured { background: var(--black); color: var(--white); }
+    .plan-tag { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gray); }
+    .plan-card.featured .plan-tag { color: var(--cyan); }
+    .plan-name { font-size: 1.5rem; font-weight: 700; }
+    .plan-price { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .plan-price span { font-size: 0.95rem; font-weight: 400; color: var(--gray); }
+    .plan-card.featured .plan-price span { color: #999; }
+    .plan-divider { height: 1px; background: var(--light); }
+    .plan-card.featured .plan-divider { background: #333; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .plan-features li { font-size: 0.9rem; color: var(--gray); padding-left: 18px; position: relative; }
+    .plan-features li::before { content: '→'; position: absolute; left: 0; color: var(--cyan); font-size: 0.8rem; }
+    .plan-card.featured .plan-features li { color: #bbb; }
+    .plan-cta {
+      display: inline-block;
+      padding: 14px 28px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      border: 1.5px solid var(--black);
+      color: var(--black);
+      background: transparent;
+      text-align: center;
+    }
+    .plan-cta:hover { background: var(--black); color: var(--white); }
+    .plan-card.featured .plan-cta { border-color: var(--white); color: var(--white); }
+    .plan-card.featured .plan-cta:hover { background: var(--white); color: var(--black); }
+
+    /* HERO ROTATING */
+    #heroTitle, #heroSub { transition: opacity 0.5s ease; }
+    #heroTitle.fading, #heroSub.fading { opacity: 0; }
+
+    /* AI AGENTS */
+    .agents-heading { font-size: clamp(1.8rem, 3.5vw, 2.5rem); font-weight: 700; margin-bottom: 48px; max-width: 500px; }
+    .agents-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; background: var(--light); border: 1px solid var(--light); }
+    .agent-card { background: var(--white); padding: 36px 28px; display: flex; flex-direction: column; gap: 12px; }
+    .agent-card-featured { background: var(--black); color: var(--white); }
+    .agent-icon { font-size: 1.6rem; }
+    .agent-card h4 { font-size: 1rem; font-weight: 700; }
+    .agent-card p { font-size: 0.85rem; color: var(--gray); line-height: 1.5; }
+    .agent-card-featured p { color: #aaa; }
+    .agent-card-featured p em { color: var(--cyan); font-style: normal; }
+    @media (max-width: 768px) {
+      .agents-grid { grid-template-columns: 1fr 1fr; }
+      .agent-card-featured { grid-column: 1 / -1; }
+    }
+
+    .plans-step { margin-bottom: 64px; }
+    .step-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--light);
+    }
+    .pilot-banner, .impl-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 40px 48px;
+      border: 1px solid var(--light);
+      gap: 32px;
+    }
+    .impl-banner { background: var(--black); color: var(--white); }
+    .pilot-left h3, .impl-left h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+    .pilot-left p, .impl-left p { font-size: 0.9rem; color: var(--gray); max-width: 480px; }
+    .impl-left p { color: #999; }
+    .pilot-right, .impl-right { display: flex; flex-direction: column; align-items: flex-end; gap: 16px; flex-shrink: 0; }
+    .pilot-price { font-size: 2.5rem; font-weight: 700; }
+    .impl-price { font-size: 1.6rem; font-weight: 700; white-space: nowrap; }
+    .impl-price em { font-style: normal; font-size: 1rem; font-weight: 400; color: #999; }
+    .plan-cta-dark { border-color: var(--white) !important; color: var(--white) !important; }
+    .plan-cta-dark:hover { background: var(--white) !important; color: var(--black) !important; }
+    .plans-extras {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      background: var(--light);
+      border: 1px solid var(--light);
+      margin-top: 2px;
+    }
+    .extra-card { background: var(--white); padding: 40px; display: flex; flex-direction: column; gap: 16px; }
+    .extra-card h4 { font-size: 1.2rem; font-weight: 700; }
+    .extra-card p { font-size: 0.9rem; color: var(--gray); flex: 1; }
+
+    @media (max-width: 768px) {
+      .pilot-banner, .impl-banner { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+      .pilot-right, .impl-right { align-items: flex-start; }
+      .plans-extras { grid-template-columns: 1fr; }
     }
   </style>
 
@@ -679,6 +811,7 @@
     <ul>
       <li><a href="#soluciones">Soluciones</a></li>
       <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#planes">Planes</a></li>
       <li><a href="#contacto">Contacto</a></li>
     </ul>
     <div class="language-switch">
@@ -696,8 +829,8 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <p class="hero-tag">Inteligencia Artificial Aplicada</p>
-      <h1>Deja de operar<br/>en <em>Excel</em><br/>y <em>WhatsApp.</em></h1>
-      <p>Diseñamos e implementamos soluciones de IA que reducen tiempos, eliminan errores y escalan con tu operación. Todo validado en nuestra propia empresa.</p>
+      <h1 id="heroTitle" aria-live="polite">Deja de operar<br>en <em>Excel</em><br>y <em>WhatsApp.</em></h1>
+      <p id="heroSub">Diseñamos e implementamos soluciones de IA que reducen tiempos, eliminan errores y escalan con tu operación. Todo validado en nuestra propia empresa.</p>
       <div class="cta-row">
         <a href="#contacto" class="btn-primary">Hablemos</a>
         <a href="#soluciones" class="cta-link">Ver soluciones →</a>
@@ -745,6 +878,41 @@
         <p class="card-num">04</p>
         <h3>Campañas Automatizadas</h3>
         <p>Comunícate con tus clientes en el momento exacto, de forma automática. Más conversiones, menos gestión manual.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- AGENTES IA -->
+  <section id="agentes">
+    <p class="section-label">Agentes IA</p>
+    <h2 class="agents-heading">Agentes que trabajan mientras duermes.</h2>
+    <div class="agents-grid">
+      <div class="agent-card">
+        <span class="agent-icon">🚛</span>
+        <h4>Agente de Transporte</h4>
+        <p>Asigna vehículos, despacha órdenes y actualiza el estado en tiempo real — sin intervención humana.</p>
+      </div>
+      <div class="agent-card">
+        <span class="agent-icon">📦</span>
+        <h4>Agente de Logística</h4>
+        <p>Optimiza rutas, reasigna recursos ante cancelaciones y reporta al cliente antes de que pregunte.</p>
+      </div>
+      <div class="agent-card">
+        <span class="agent-icon">⚡</span>
+        <h4>Agente de Generación de Carga</h4>
+        <p>Convierte mensajes entrantes en cotizaciones, cierra negocios y hace seguimiento — sin vendedor.</p>
+      </div>
+      <div class="agent-card">
+        <span class="agent-icon">🏭</span>
+        <h4>Agente de Bodegaje</h4>
+        <p>Controla inventario por voz o foto, alerta sobre mínimos y genera reportes diarios de stock.</p>
+      </div>
+      <div class="agent-card agent-card-featured">
+        <span class="agent-icon">📊</span>
+        <h4>Agente CEO / Gerente</h4>
+        <p>Pregúntale a tu negocio lo que quieras: <em>"¿Cómo vamos esta semana vs la anterior?"</em> — respuesta real, con datos y acción sugerida.</p>
       </div>
     </div>
   </section>
@@ -818,6 +986,114 @@
     </div>
   </div>
 
+  <!-- PLANES -->
+  <section id="planes" class="plans-section">
+    <p class="plans-label">Modelo de precios</p>
+    <h2 class="plans-heading">Empieza gratis.<br>Escala cuando funcione.</h2>
+
+    <!-- Paso 1: Piloto -->
+    <div class="plans-step">
+      <div class="step-label">Paso 1 — Piloto gratuito</div>
+      <div class="pilot-banner">
+        <div class="pilot-left">
+          <h3>Prueba gratis por 15 días</h3>
+          <p>5 flujos automatizados. Sin tarjeta de crédito. Tu marca, tu plataforma.</p>
+        </div>
+        <div class="pilot-right">
+          <span class="pilot-price">$0</span>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Empezar gratis →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 2: Implementación -->
+    <div class="plans-step">
+      <div class="step-label">Paso 2 — Implementación única</div>
+      <div class="impl-banner">
+        <div class="impl-left">
+          <h3>Setup completo bajo tu marca</h3>
+          <p>Implementación de la plataforma con tu identidad visual. Incluye motor de cotizaciones, órdenes de servicio, dashboard de KPIs, capacitación del equipo, integraciones y 90 días de soporte.</p>
+        </div>
+        <div class="impl-right">
+          <span class="impl-price">Desde $10M <em>COP</em></span>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta plan-cta-dark">Agendar llamada →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 3: Suscripción mensual -->
+    <div class="plans-step">
+      <div class="step-label">Paso 3 — Suscripción mensual</div>
+      <div class="plans-grid">
+
+        <div class="plan-card">
+          <p class="plan-tag">Básico</p>
+          <h3 class="plan-name">Esencial</h3>
+          <div class="plan-price">$1.5M <span>COP/mes</span></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>3 módulos activos</li>
+            <li>Hasta 5 usuarios</li>
+            <li>500 operaciones/mes</li>
+            <li>Soporte por correo</li>
+            <li>Dashboard de KPIs básico</li>
+          </ul>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Comenzar →</a>
+        </div>
+
+        <div class="plan-card featured">
+          <p class="plan-tag">Más popular</p>
+          <h3 class="plan-name">Profesional</h3>
+          <div class="plan-price">$3M <span>COP/mes</span></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>Todos los módulos principales</li>
+            <li>Hasta 20 usuarios</li>
+            <li>Operaciones ilimitadas</li>
+            <li>Agente de IA conversacional</li>
+            <li>Analítica avanzada</li>
+            <li>Soporte prioritario</li>
+          </ul>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Comenzar →</a>
+        </div>
+
+        <div class="plan-card">
+          <p class="plan-tag">Empresarial</p>
+          <h3 class="plan-name">Escala</h3>
+          <div class="plan-price">A medida <span>/ por alcance</span></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>Usuarios y módulos ilimitados</li>
+            <li>Agentes de voz + IA</li>
+            <li>Despliegue multi-vertical</li>
+            <li>Licencia de franquicia / revendedor</li>
+            <li>Configuración Google Ads + Meta</li>
+            <li>Equipo de desarrollo dedicado</li>
+          </ul>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Hablemos →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Consultoría + Comisiones -->
+    <div class="plans-extras">
+      <div class="extra-card">
+        <p class="plan-tag">Consultoría técnica</p>
+        <h4>¿Necesitas estrategia, no solo software?</h4>
+        <p>Ofrecemos consultoría independiente: mapeo de procesos, hoja de ruta de automatización, estrategia de IA. Por proyecto o retainer mensual.</p>
+        <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Conversemos →</a>
+      </div>
+      <div class="extra-card">
+        <p class="plan-tag">Programa de socios</p>
+        <h4>Véndelo. Gana en cada cierre.</h4>
+        <p>Refiere un cliente y recibe comisión sobre la implementación más un porcentaje recurrente de su suscripción mensual. Ideal para consultores, agencias y redes de negocio.</p>
+        <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Ser socio →</a>
+      </div>
+    </div>
+
+  </section>
+
   <!-- CTA FINAL -->
   <div id="contacto" class="cta-final">
     <h2>¿Listo para dejar el Excel atrás?</h2>
@@ -841,6 +1117,34 @@
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 60);
     });
+
+    // Hero rotating messages
+    const heroMessages = [
+      { title: 'Deja de operar<br>en <em>Excel</em><br>y <em>WhatsApp.</em>', sub: 'Diseñamos e implementamos soluciones de IA que reducen tiempos, eliminan errores y escalan con tu operación. Todo validado en nuestra propia empresa.' },
+      { title: 'Cotiza en segundos.<br>Cierra en minutos.<br><em>Entrega siempre.</em>', sub: 'Motor de cotizaciones, gestión de órdenes en tiempo real y KPIs — en una sola plataforma.' },
+      { title: 'Una plataforma.<br>Toda la operación.<br><em>Cero caos.</em>', sub: 'De la cotización a la entrega, automatizado y con tu marca.' },
+      { title: 'Tu competencia<br>ya automatizó.<br><em>¿Y tú?</em>', sub: 'Las empresas que están ganando en logística no trabajan más duro. Construyeron sistemas más inteligentes.' },
+      { title: 'Construido para logística.<br><em>Probado en operación real.</em>', sub: 'No lo hicimos en un laboratorio. Lo construimos para operar nuestro propio negocio — y luego lo abrimos al tuyo.' },
+      { title: 'Agentes de IA que<br><em>trabajan mientras duermes.</em>', sub: 'Transporte, logística, generación de carga, bodegaje y gestión gerencial — 100% automatizados.' }
+    ];
+    (function() {
+      const ht = document.getElementById('heroTitle');
+      const hs = document.getElementById('heroSub');
+      if (!ht || !hs) return;
+      let cur = 0, paused = false;
+      ht.addEventListener('mouseenter', () => paused = true);
+      ht.addEventListener('mouseleave', () => paused = false);
+      setInterval(() => {
+        if (paused) return;
+        cur = (cur + 1) % heroMessages.length;
+        ht.classList.add('fading'); hs.classList.add('fading');
+        setTimeout(() => {
+          ht.innerHTML = heroMessages[cur].title;
+          hs.textContent = heroMessages[cur].sub;
+          ht.classList.remove('fading'); hs.classList.remove('fading');
+        }, 500);
+      }, 4000);
+    })();
 
     // Clients carousel — pause + highlight on hover
     const track = document.getElementById('clientsTrack');

@@ -57,6 +57,8 @@
     .hero-overlay { position: absolute; inset: 0; background: linear-gradient(105deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.58) 55%, rgba(0,0,0,0.18) 100%); z-index: 1; }
     .hero-content { position: relative; z-index: 2; padding: 120px 48px 80px; max-width: 1100px; margin: 0 auto; width: 100%; }
     .hero-tag { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 28px; }
+    #heroTitle, #heroSub { transition: opacity 0.5s ease; }
+    #heroTitle.fading, #heroSub.fading { opacity: 0; }
     .hero-content h1 { font-size: clamp(40px, 6vw, 80px); font-weight: 700; line-height: 1.04; letter-spacing: -2.5px; max-width: 780px; margin-bottom: 28px; color: #fff; }
     .hero-content h1 em { font-style: normal; color: rgba(255,255,255,0.35); }
     .hero-content > p { font-size: 17px; color: rgba(255,255,255,0.6); max-width: 500px; line-height: 1.75; margin-bottom: 48px; }
@@ -164,8 +166,8 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <p class="hero-tag">AI Solutions — Georgia</p>
-      <h1>Atlanta moves<br/>the Southeast.<br/><em>Your operations</em><br/>should lead it.</h1>
-      <p>We design and implement AI solutions for Georgia SMEs — from Atlanta's Perimeter to Savannah's port. Operations built for scale, not spreadsheets.</p>
+      <h1 id="heroTitle" aria-live="polite">Atlanta moves<br>the Southeast.<br><em>Your operations</em><br>should lead it.</h1>
+      <p id="heroSub">We design and implement AI solutions for Georgia SMEs — from Atlanta's Perimeter to Savannah's port. Operations built for scale, not spreadsheets.</p>
       <div class="cta-row">
         <a href="#contact" class="btn-primary">Let's talk</a>
         <a href="#solutions" class="cta-link">See solutions →</a>
@@ -253,6 +255,33 @@
   <script>
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 60); });
+
+    const heroMessages = [
+      { title: 'Atlanta moves<br>the Southeast.<br><em>Your operations</em><br>should lead it.', sub: "We design and implement AI solutions for Georgia SMEs — from Atlanta's Perimeter to Savannah's port. Operations built for scale, not spreadsheets." },
+      { title: 'Quote in seconds.<br>Close in minutes.<br><em>Deliver every time.</em>', sub: 'Automated quoting, real-time order management, and KPI dashboards — in one platform.' },
+      { title: 'One platform.<br>Every operation.<br><em>Zero chaos.</em>', sub: 'From quoting to delivery, fully automated and white-labeled for your brand.' },
+      { title: 'Your competitors<br>already automated.<br><em>Will you?</em>', sub: "The companies winning in logistics aren't working harder. They built smarter systems." },
+      { title: 'AI agents for<br><em>transport, logistics</em><br>and your CEO.', sub: 'From cargo generation to warehousing — AI agents that work while you sleep.' },
+      { title: 'Built for logistics.<br><em>Proven in real operations.</em>', sub: "We didn't build this in a lab. We built it to run our own business — then opened it to yours." }
+    ];
+    (function() {
+      const ht = document.getElementById('heroTitle');
+      const hs = document.getElementById('heroSub');
+      if (!ht || !hs) return;
+      let cur = 0, paused = false;
+      ht.addEventListener('mouseenter', () => paused = true);
+      ht.addEventListener('mouseleave', () => paused = false);
+      setInterval(() => {
+        if (paused) return;
+        cur = (cur + 1) % heroMessages.length;
+        ht.classList.add('fading'); hs.classList.add('fading');
+        setTimeout(() => {
+          ht.innerHTML = heroMessages[cur].title;
+          hs.textContent = heroMessages[cur].sub;
+          ht.classList.remove('fading'); hs.classList.remove('fading');
+        }, 500);
+      }, 4000);
+    })();
   </script>
 </body>
 </html>
