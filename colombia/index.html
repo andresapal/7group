@@ -290,6 +290,12 @@
       margin-bottom: 48px;
     }
 
+    /* MERCADO */
+    .market h2 { font-size: clamp(28px, 4vw, 48px); font-weight: 600; letter-spacing: -1px; line-height: 1.2; max-width: 700px; margin-bottom: 24px; }
+    .market p { font-size: 16px; color: var(--gray); max-width: 580px; line-height: 1.8; margin-bottom: 16px; }
+    .cities-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 40px; }
+    .city-chip { font-size: 12px; letter-spacing: 0.5px; color: var(--gray); border: 1px solid var(--light); padding: 8px 16px; background: var(--white); }
+
     /* PROBLEMA */
     .problema h2 {
       font-size: clamp(28px, 4vw, 48px);
@@ -717,7 +723,6 @@
     .agents-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; background: var(--light); border: 1px solid var(--light); }
     .agent-card { background: var(--white); padding: 36px 28px; display: flex; flex-direction: column; gap: 12px; }
     .agent-card-featured { background: var(--black); color: var(--white); }
-    .agent-icon { font-size: 1.6rem; }
     .agent-card h4 { font-size: 1rem; font-weight: 700; }
     .agent-card p { font-size: 0.85rem; color: var(--gray); line-height: 1.5; }
     .agent-card-featured p { color: #aaa; }
@@ -787,6 +792,11 @@
       { "@type": "City", "name": "Bogotá" },
       { "@type": "City", "name": "Medellín" },
       { "@type": "City", "name": "Cali" },
+      { "@type": "City", "name": "Barranquilla" },
+      { "@type": "City", "name": "Cartagena" },
+      { "@type": "City", "name": "Bucaramanga" },
+      { "@type": "City", "name": "Manizales" },
+      { "@type": "City", "name": "Pereira" },
       { "@type": "Country", "name": "Colombia" }
     ],
     "serviceType": [
@@ -845,6 +855,28 @@
     </div>
   </div>
 
+  <!-- MERCADO COLOMBIA -->
+  <section class="market">
+    <p class="section-label">Mercado colombiano</p>
+    <h2>Colombia tiene más de 1.6 millones de empresas. La mayoría aún opera en Excel y WhatsApp.</h2>
+    <p>Bogotá concentra el mayor ecosistema empresarial del país, pero Medellín lidera en innovación, Cali mueve el comercio del Pacífico, y ciudades intermedias crecen sin infraestructura digital. Las empresas que lleguen primero con automatización van a dominar su mercado.</p>
+    <p>Nosotros llevamos esa infraestructura a las pymes colombianas que están listas para operar diferente.</p>
+    <div class="cities-grid">
+      <span class="city-chip">Bogotá</span>
+      <span class="city-chip">Medellín</span>
+      <span class="city-chip">Cali</span>
+      <span class="city-chip">Barranquilla</span>
+      <span class="city-chip">Cartagena</span>
+      <span class="city-chip">Bucaramanga</span>
+      <span class="city-chip">Manizales</span>
+      <span class="city-chip">Pereira</span>
+      <span class="city-chip">Cúcuta</span>
+      <span class="city-chip">Ibagué</span>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
   <!-- PROBLEMA -->
   <section class="problema">
     <p class="section-label">El problema</p>
@@ -893,27 +925,22 @@
     <h2 class="agents-heading">Agentes que trabajan mientras duermes.</h2>
     <div class="agents-grid">
       <div class="agent-card">
-        <span class="agent-icon">🚛</span>
         <h4>Agente de Transporte</h4>
         <p>Asigna vehículos, despacha órdenes y actualiza el estado en tiempo real — sin intervención humana.</p>
       </div>
       <div class="agent-card">
-        <span class="agent-icon">📦</span>
         <h4>Agente de Logística</h4>
         <p>Optimiza rutas, reasigna recursos ante cancelaciones y reporta al cliente antes de que pregunte.</p>
       </div>
       <div class="agent-card">
-        <span class="agent-icon">⚡</span>
         <h4>Agente de Generación de Carga</h4>
         <p>Convierte mensajes entrantes en cotizaciones, cierra negocios y hace seguimiento — sin vendedor.</p>
       </div>
       <div class="agent-card">
-        <span class="agent-icon">🏭</span>
         <h4>Agente de Bodegaje</h4>
         <p>Controla inventario por voz o foto, alerta sobre mínimos y genera reportes diarios de stock.</p>
       </div>
       <div class="agent-card agent-card-featured">
-        <span class="agent-icon">📊</span>
         <h4>Agente CEO / Gerente</h4>
         <p>Pregúntale a tu negocio lo que quieras: <em>"¿Cómo vamos esta semana vs la anterior?"</em> — respuesta real, con datos y acción sugerida.</p>
       </div>

@@ -124,6 +124,90 @@
       .cta-final { padding: 80px 24px; }
       footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
     }
+
+    /* AI AGENTS */
+    .agents-heading { font-size: clamp(1.8rem, 3.5vw, 2.5rem); font-weight: 700; margin-bottom: 48px; max-width: 500px; }
+    .agents-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; background: var(--light); border: 1px solid var(--light); }
+    .agent-card { background: var(--white); padding: 36px 28px; display: flex; flex-direction: column; gap: 12px; }
+    .agent-card-featured { background: var(--black); color: var(--white); }
+    .agent-card h4 { font-size: 1rem; font-weight: 700; }
+    .agent-card p { font-size: 0.85rem; color: var(--gray); line-height: 1.5; }
+    .agent-card-featured p { color: #aaa; }
+    .agent-card-featured p em { color: var(--cyan); font-style: normal; }
+    @media (max-width: 768px) {
+      .agents-grid { grid-template-columns: 1fr 1fr; }
+      .agent-card-featured { grid-column: 1 / -1; }
+    }
+
+    /* PLANS */
+    .plans-section { padding: 120px 48px; background: var(--white); border-top: 1px solid var(--light); }
+    .plans-label { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gray); margin-bottom: 24px; }
+    .plans-heading { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; line-height: 1.1; max-width: 600px; margin-bottom: 64px; }
+    .plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--light); border: 1px solid var(--light); }
+    .plan-card { background: var(--white); padding: 48px 40px; display: flex; flex-direction: column; gap: 24px; }
+    .plan-card.featured { background: var(--black); color: var(--white); }
+    .plan-tag { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gray); }
+    .plan-card.featured .plan-tag { color: var(--cyan); }
+    .plan-name { font-size: 1.5rem; font-weight: 700; }
+    .plan-price { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .plan-price span { font-size: 0.95rem; font-weight: 400; color: var(--gray); }
+    .plan-card.featured .plan-price span { color: #999; }
+    .plan-divider { height: 1px; background: var(--light); }
+    .plan-card.featured .plan-divider { background: #333; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .plan-features li { font-size: 0.9rem; color: var(--gray); padding-left: 18px; position: relative; }
+    .plan-features li::before { content: '→'; position: absolute; left: 0; color: var(--cyan); font-size: 0.8rem; }
+    .plan-card.featured .plan-features li { color: #bbb; }
+    .plan-cta { display: inline-block; padding: 14px 28px; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.06em; text-decoration: none; text-transform: uppercase; transition: all 0.2s; border: 1.5px solid var(--black); color: var(--black); background: transparent; text-align: center; }
+    .plan-cta:hover { background: var(--black); color: var(--white); }
+    .plan-card.featured .plan-cta { border-color: var(--white); color: var(--white); }
+    .plan-card.featured .plan-cta:hover { background: var(--white); color: var(--black); }
+    .plans-step { margin-bottom: 64px; }
+    .step-label { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--light); }
+    .pilot-banner, .impl-banner { display: flex; justify-content: space-between; align-items: center; padding: 40px 48px; border: 1px solid var(--light); gap: 32px; }
+    .impl-banner { background: var(--black); color: var(--white); }
+    .pilot-left h3, .impl-left h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+    .pilot-left p, .impl-left p { font-size: 0.9rem; color: var(--gray); max-width: 480px; }
+    .impl-left p { color: #999; }
+    .pilot-right, .impl-right { display: flex; flex-direction: column; align-items: flex-end; gap: 16px; flex-shrink: 0; }
+    .pilot-price { font-size: 2.5rem; font-weight: 700; }
+    .impl-price { font-size: 1.6rem; font-weight: 700; white-space: nowrap; }
+    .impl-price em { font-style: normal; font-size: 1rem; font-weight: 400; color: #999; }
+    .plan-cta-dark { border-color: var(--white) !important; color: var(--white) !important; }
+    .plan-cta-dark:hover { background: var(--white) !important; color: var(--black) !important; }
+    .plans-extras { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--light); border: 1px solid var(--light); margin-top: 2px; }
+    .extra-card { background: var(--white); padding: 40px; display: flex; flex-direction: column; gap: 16px; }
+    .extra-card h4 { font-size: 1.2rem; font-weight: 700; }
+    .extra-card p { font-size: 0.9rem; color: var(--gray); flex: 1; }
+    @media (max-width: 768px) {
+      .plans-section { padding: 72px 24px; }
+      .plans-grid { grid-template-columns: 1fr; }
+      .pilot-banner, .impl-banner { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+      .pilot-right, .impl-right { align-items: flex-start; }
+      .plans-extras { grid-template-columns: 1fr; }
+    }
+
+    /* CLIENTS CAROUSEL */
+    .clients-section { padding: 80px 0; border-top: 1px solid var(--light); overflow: hidden; }
+    .clients-header { padding: 0 48px; margin-bottom: 52px; }
+    .clients-header .section-label { margin-bottom: 16px; }
+    .clients-heading { font-size: clamp(22px, 3vw, 34px); font-weight: 600; letter-spacing: -0.8px; line-height: 1.2; max-width: 560px; }
+    .clients-carousel { overflow: hidden; position: relative; }
+    .clients-carousel::before, .clients-carousel::after { content: ''; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2; pointer-events: none; }
+    .clients-carousel::before { left: 0; background: linear-gradient(to right, var(--white), transparent); }
+    .clients-carousel::after { right: 0; background: linear-gradient(to left, var(--white), transparent); }
+    .clients-track { display: flex; animation: scroll-clients 36s linear infinite; width: max-content; }
+    .clients-track.paused { animation-play-state: paused; }
+    @keyframes scroll-clients { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .client-item { background: var(--white); border-right: 1px solid var(--light); padding: 48px 52px; width: 440px; flex-shrink: 0; cursor: default; transition: background 0.3s, opacity 0.3s; }
+    .client-item.highlighted { background: #efefef; }
+    .client-item.dimmed { opacity: 0.35; }
+    .client-logo { height: 44px; width: auto; max-width: 190px; object-fit: contain; filter: grayscale(100%) brightness(0.45); margin-bottom: 28px; display: block; transition: filter 0.3s; }
+    .client-item.highlighted .client-logo { filter: grayscale(100%) brightness(0.25); }
+    .client-item h4 { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--black); margin-bottom: 10px; }
+    .client-item p { font-size: 14px; color: var(--gray); line-height: 1.75; }
+    .client-tag { display: inline-block; margin-top: 18px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray); border-bottom: 1px solid var(--light); padding-bottom: 2px; }
+    @media (max-width: 768px) { .clients-header { padding: 0 24px; } .client-item { width: 300px; padding: 36px 28px; } }
   </style>
 
   <script type="application/ld+json">
@@ -158,6 +242,7 @@
     <ul>
       <li><a href="#solutions">Solutions</a></li>
       <li><a href="#about">About</a></li>
+      <li><a href="#plans">Plans</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="language-switch">
@@ -235,6 +320,36 @@
 
   <hr class="divider" />
 
+  <!-- AI AGENTS -->
+  <section id="agents">
+    <p class="section-label">AI Agents</p>
+    <h2 class="agents-heading">Agents that work while you sleep.</h2>
+    <div class="agents-grid">
+      <div class="agent-card">
+        <h4>Transport Agent</h4>
+        <p>Assigns vehicles, dispatches orders, and updates status in real time — no human intervention required.</p>
+      </div>
+      <div class="agent-card">
+        <h4>Logistics Agent</h4>
+        <p>Optimizes routes, reassigns resources on cancellations, and notifies clients before they ask.</p>
+      </div>
+      <div class="agent-card">
+        <h4>Cargo Generation Agent</h4>
+        <p>Turns inbound messages into quotes, closes deals, and follows up — without a salesperson.</p>
+      </div>
+      <div class="agent-card">
+        <h4>Warehousing Agent</h4>
+        <p>Tracks inventory by voice or photo, alerts on minimums, and generates daily stock reports.</p>
+      </div>
+      <div class="agent-card agent-card-featured">
+        <h4>CEO / Manager Agent</h4>
+        <p>Ask your business anything: <em>"How are we doing this week vs last?"</em> — real answer, real data, suggested action.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
   <section id="about" class="nosotros">
     <p class="section-label">Who we are</p>
     <div class="nosotros-inner">
@@ -245,6 +360,141 @@
       </div>
       <div class="nosotros-image">
         <img src="../operador-futuro.webp" alt="AI operations dashboard" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- CLIENTS -->
+  <div class="clients-section">
+    <div class="clients-header">
+      <p class="section-label">Who trusts us</p>
+      <h2 class="clients-heading">Companies already running on our technology.</h2>
+    </div>
+    <div class="clients-carousel">
+      <div class="clients-track" id="clientsTrack">
+        <div class="client-item">
+          <img src="../logo-trasteosya.webp" alt="Trasteos Ya" class="client-logo" />
+          <h4>Trasteos Ya</h4>
+          <p>Full operations platform: automated quoting, service orders, KPI dashboards, campaigns, geolocation, and web + mobile app.</p>
+          <span class="client-tag">Logistics · Web · Mobile · AI</span>
+        </div>
+        <div class="client-item">
+          <img src="../logo-tygo.webp" alt="TYGO" class="client-logo" />
+          <h4>TYGO</h4>
+          <p>AI-powered freight marketplace connecting companies with drivers in real time. Smart auctions, logistics routing, and live tracking.</p>
+          <span class="client-tag">Freight · AI Marketplace · Logistics</span>
+        </div>
+        <div class="client-item">
+          <img src="../logo-trasteosya.webp" alt="Trasteos Ya" class="client-logo" />
+          <h4>Trasteos Ya</h4>
+          <p>Full operations platform: automated quoting, service orders, KPI dashboards, campaigns, geolocation, and web + mobile app.</p>
+          <span class="client-tag">Logistics · Web · Mobile · AI</span>
+        </div>
+        <div class="client-item">
+          <img src="../logo-tygo.webp" alt="TYGO" class="client-logo" />
+          <h4>TYGO</h4>
+          <p>AI-powered freight marketplace connecting companies with drivers in real time. Smart auctions, logistics routing, and live tracking.</p>
+          <span class="client-tag">Freight · AI Marketplace · Logistics</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANS -->
+  <section id="plans" class="plans-section">
+    <p class="plans-label">Pricing</p>
+    <h2 class="plans-heading">Start free.<br>Scale when it works.</h2>
+
+    <div class="plans-step">
+      <div class="step-label">Step 1 — Free pilot</div>
+      <div class="pilot-banner">
+        <div class="pilot-left">
+          <h3>Free for 15 days</h3>
+          <p>5 automated workflows. No credit card. Your brand, your platform.</p>
+        </div>
+        <div class="pilot-right">
+          <span class="pilot-price">$0</span>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Start free →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plans-step">
+      <div class="step-label">Step 2 — One-time setup</div>
+      <div class="impl-banner">
+        <div class="impl-left">
+          <h3>Full setup under your brand</h3>
+          <p>Platform implementation with your visual identity. Includes quoting engine, service orders, KPI dashboard, team training, integrations, and 90 days of support.</p>
+        </div>
+        <div class="impl-right">
+          <span class="impl-price">From $3,500 <em>USD</em></span>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta plan-cta-dark">Schedule a call →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plans-step">
+      <div class="step-label">Step 3 — Monthly subscription</div>
+      <div class="plans-grid">
+        <div class="plan-card">
+          <p class="plan-tag">Starter</p>
+          <h3 class="plan-name">Core</h3>
+          <div class="plan-price">$350 <span>USD/mo</span></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>3 active modules</li>
+            <li>Up to 5 users</li>
+            <li>500 operations/month</li>
+            <li>Email support</li>
+            <li>Basic KPI dashboard</li>
+          </ul>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Get started →</a>
+        </div>
+        <div class="plan-card featured">
+          <p class="plan-tag">Most popular</p>
+          <h3 class="plan-name">Professional</h3>
+          <div class="plan-price">$700 <span>USD/mo</span></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>All core modules</li>
+            <li>Up to 20 users</li>
+            <li>Unlimited operations</li>
+            <li>Conversational AI agent</li>
+            <li>Advanced analytics</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Get started →</a>
+        </div>
+        <div class="plan-card">
+          <p class="plan-tag">Enterprise</p>
+          <h3 class="plan-name">Scale</h3>
+          <div class="plan-price">Custom <span>/ by scope</span></div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>Unlimited users and modules</li>
+            <li>Voice + AI agents</li>
+            <li>Multi-vertical deployment</li>
+            <li>Franchise / reseller license</li>
+            <li>Google Ads + Meta setup</li>
+            <li>Dedicated dev team</li>
+          </ul>
+          <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Let's talk →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="plans-extras">
+      <div class="extra-card">
+        <p class="plan-tag">Technical consulting</p>
+        <h4>Need strategy, not just software?</h4>
+        <p>Process mapping, automation roadmap, AI strategy. By project or monthly retainer.</p>
+        <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Let's talk →</a>
+      </div>
+      <div class="extra-card">
+        <p class="plan-tag">Partner program</p>
+        <h4>Sell it. Earn on every close.</h4>
+        <p>Refer a client and earn a commission on the implementation plus a recurring percentage of their monthly subscription. Ideal for Florida consultants and agencies.</p>
+        <a href="https://wa.me/573143095194" target="_blank" class="plan-cta">Become a partner →</a>
       </div>
     </div>
   </section>
@@ -293,6 +543,22 @@
         }, 500);
       }, 4000);
     })();
+
+    const track = document.getElementById('clientsTrack');
+    if (track) {
+      const items = track.querySelectorAll('.client-item');
+      items.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+          track.classList.add('paused');
+          items.forEach(i => { i.classList.remove('highlighted'); i.classList.add('dimmed'); });
+          item.classList.add('highlighted'); item.classList.remove('dimmed');
+        });
+        item.addEventListener('mouseleave', () => {
+          track.classList.remove('paused');
+          items.forEach(i => { i.classList.remove('highlighted'); i.classList.remove('dimmed'); });
+        });
+      });
+    }
   </script>
 </body>
 </html>

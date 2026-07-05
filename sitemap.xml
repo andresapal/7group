@@ -1,46 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
-<url>
+  <url>
     <loc>https://7group.site/</loc>
-    <lastmod>2026-07-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-</url>
-
-<url>
-    <loc>https://7group.site/es/</loc>
-    <lastmod>2026-07-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-</url>
-
-<url>
-    <loc>https://7group.site/florida/</loc>
-    <lastmod>2026-07-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-</url>
-
-<url>
-    <loc>https://7group.site/georgia/</loc>
-    <lastmod>2026-07-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-</url>
-
-<url>
-    <loc>https://7group.site/texas/</loc>
-    <lastmod>2026-07-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-</url>
-
-<url>
-    <loc>https://7group.site/academia-lai/</loc>
-    <lastmod>2026-07-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://7group.site/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://7group.site/es/"/>
+    <xhtml:link rel="alternate" hreflang="es-CO" href="https://7group.site/colombia/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7group.site/"/>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-</url>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://7group.site/es/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://7group.site/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://7group.site/es/"/>
+    <xhtml:link rel="alternate" hreflang="es-CO" href="https://7group.site/colombia/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7group.site/"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://7group.site/colombia/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://7group.site/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://7group.site/es/"/>
+    <xhtml:link rel="alternate" hreflang="es-CO" href="https://7group.site/colombia/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7group.site/"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://7group.site/agentes/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://7group.site/agentes/"/>
+    <xhtml:link rel="alternate" hreflang="es-CO" href="https://7group.site/agentes/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7group.site/agentes/"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://7group.site/florida/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://7group.site/florida/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7group.site/"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://7group.site/georgia/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://7group.site/georgia/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7group.site/"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://7group.site/texas/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://7group.site/texas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7group.site/"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 
 </urlset>
