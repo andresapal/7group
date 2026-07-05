@@ -33,6 +33,15 @@
   </url>
 
   <url>
+    <loc>https://7group.site/pagos/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://7group.site/pagos/"/>
+    <xhtml:link rel="alternate" hreflang="es-CO" href="https://7group.site/pagos/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7group.site/pagos/"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://7group.site/agentes/</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://7group.site/agentes/"/>
     <xhtml:link rel="alternate" hreflang="es-CO" href="https://7group.site/agentes/"/>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mensaje enviado — 7group</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f5f5;
+      --gray: #6b6b6b;
+      --light: #e8e8e8;
+      --cyan: #5ee7f7;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--white);
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 60px;
+      border-bottom: 1px solid var(--light);
+      flex-shrink: 0;
+    }
+    .top-logo { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; color: var(--black); text-decoration: none; }
+
+    @media (max-width: 600px) { .top-bar { padding: 0 20px; } }
+
+    /* Cyan top bar — confirms success */
+    .success-bar {
+      height: 3px;
+      background: var(--cyan);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      animation: fade-up 0.4s ease both;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .check-icon {
+      width: 48px; height: 48px;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .check-icon svg { width: 22px; height: 22px; }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    h1 em { font-style: normal; color: var(--cyan); }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--gray);
+      line-height: 1.7;
+      margin-bottom: 48px;
+      max-width: 380px;
+    }
+
+    /* Next steps */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      background: var(--light);
+      border: 1px solid var(--light);
+      margin-bottom: 40px;
+    }
+
+    .next-step {
+      background: var(--white);
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .ns-num {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gray);
+      flex-shrink: 0;
+      margin-top: 2px;
+      min-width: 24px;
+    }
+
+    .ns-body {}
+
+    .ns-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 3px;
+    }
+
+    .ns-desc {
+      font-size: 0.82rem;
+      color: var(--gray);
+      line-height: 1.5;
+    }
+
+    /* WhatsApp fallback */
+    .wa-fallback {
+      font-size: 13px;
+      color: var(--gray);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .wa-fallback a {
+      color: var(--black);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid var(--black);
+    }
+
+    /* Bottom links */
+    .bottom-links {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .bottom-links a {
+      font-size: 13px;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .bottom-links a:hover { color: var(--black); }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="https://7group.site" class="top-logo">7group</a>
+  </div>
+  <div class="success-bar"></div>
+
+  <main>
+    <div class="card">
+
+      <div class="check-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+
+      <h1 id="greeting">¡Listo,<br><em>ya estamos<br>en contacto!</em></h1>
+      <p class="subtitle" id="subtitle">
+        Te abrimos WhatsApp con tu mensaje ya redactado. Recibimos tu consulta y te respondemos <strong>hoy mismo</strong> antes de las 6pm.
+      </p>
+
+      <div class="steps-list">
+        <div class="next-step">
+          <span class="ns-num">01</span>
+          <div class="ns-body">
+            <div class="ns-title">Enviaste tu mensaje por WhatsApp</div>
+            <div class="ns-desc">Tu información ya llegó a nuestro equipo con contexto completo.</div>
+          </div>
+        </div>
+        <div class="next-step">
+          <span class="ns-num">02</span>
+          <div class="ns-body">
+            <div class="ns-title">Revisamos tu operación</div>
+            <div class="ns-desc">Respondemos hoy con un diagnóstico inicial y la propuesta para tu caso.</div>
+          </div>
+        </div>
+        <div class="next-step">
+          <span class="ns-num">03</span>
+          <div class="ns-body">
+            <div class="ns-title">Piloto gratuito de 15 días</div>
+            <div class="ns-desc">Si avanzamos, activamos el primer agente en tu operación real sin costo.</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="wa-fallback">
+        ¿WhatsApp no se abrió automáticamente?
+        <a id="waLink" href="https://wa.me/573143095194" target="_blank">Toca aquí para abrir la conversación.</a>
+      </p>
+
+      <div class="bottom-links">
+        <a href="https://7group.site">← Volver al inicio</a>
+        <a href="https://7group.site/agentes/">Ver agentes</a>
+        <a href="https://7group.site/pagos/">Ver planes y precios</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const nombre  = params.get('nombre')  || '';
+    const empresa = params.get('empresa') || '';
+
+    if (nombre) {
+      document.getElementById('greeting').innerHTML =
+        `¡Listo,<br><em>${nombre}!</em>`;
+      document.getElementById('subtitle').innerHTML =
+        `Te abrimos WhatsApp con tu mensaje ya redactado, ${empresa ? `<strong>${empresa}</strong>` : 'tu empresa'} es lo que necesitamos. ` +
+        `Respondemos <strong>hoy mismo</strong> antes de las 6pm.`;
+    }
+
+    // If user came with a pre-built WA URL in sessionStorage, update the fallback link
+    // (not needed since WA opens on previous page, this is just the fallback)
+  </script>
+
+</body>
+</html>

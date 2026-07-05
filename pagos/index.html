@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planes y Precios — 7group</title>
+  <meta name="description" content="Planes de implementación de agentes de IA para tu empresa. Piloto gratuito 15 días, implementación desde $10M COP, suscripción mensual." />
+  <link rel="canonical" href="https://7group.site/pagos/" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f5f5;
+      --gray: #6b6b6b;
+      --light: #e8e8e8;
+      --cyan: #5ee7f7;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--white);
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--light);
+    }
+    .nav-back { font-size: 13px; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+    .nav-back:hover { color: var(--black); }
+    .nav-logo { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; color: var(--black); text-decoration: none; }
+    .nav-cta { font-size: 13px; font-weight: 600; color: var(--black); text-decoration: none; border: 1px solid var(--black); padding: 8px 18px; transition: background 0.2s, color 0.2s; }
+    .nav-cta:hover { background: var(--black); color: var(--white); }
+    @media (max-width: 600px) { nav { padding: 0 20px; } .nav-back { display: none; } }
+
+    main { flex: 1; }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 1200px; margin: 0 auto;
+      padding: 80px 48px 60px;
+    }
+    .hero-label { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gray); margin-bottom: 20px; }
+    .hero h1 { font-size: clamp(2.2rem, 4.5vw, 3.5rem); font-weight: 700; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 20px; max-width: 600px; }
+    .hero h1 em { font-style: normal; color: var(--cyan); }
+    .hero-sub { font-size: 1rem; color: var(--gray); line-height: 1.7; max-width: 480px; }
+    @media (max-width: 600px) { .hero { padding: 60px 20px 40px; } }
+
+    /* ── PLANS ── */
+    .plans-section { max-width: 1200px; margin: 0 auto; padding: 0 48px 80px; }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+      background: var(--light);
+      border: 1px solid var(--light);
+    }
+
+    .plan-card {
+      background: var(--white);
+      padding: 44px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .plan-card-featured {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .plan-badge {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 24px;
+    }
+
+    .plan-card-featured .plan-badge { color: #555; }
+
+    .plan-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 8px;
+    }
+
+    .plan-desc {
+      font-size: 0.83rem;
+      color: var(--gray);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+
+    .plan-card-featured .plan-desc { color: #777; }
+
+    .plan-price-block {
+      margin-bottom: 32px;
+    }
+
+    .plan-price {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .plan-price em { font-style: normal; color: var(--cyan); }
+
+    .plan-price-note {
+      font-size: 12px;
+      color: var(--gray);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .plan-card-featured .plan-price-note { color: #666; }
+
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+
+    .plan-features li {
+      font-size: 0.83rem;
+      color: var(--gray);
+      padding-left: 16px;
+      position: relative;
+      line-height: 1.45;
+    }
+
+    .plan-features li::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 7px;
+      width: 5px; height: 1px;
+      background: var(--gray);
+    }
+
+    .plan-card-featured .plan-features li { color: #777; }
+    .plan-card-featured .plan-features li::before { background: #444; }
+
+    .plan-cta {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 14px 24px;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      letter-spacing: 0.3px;
+      margin-top: auto;
+    }
+
+    .plan-cta-outline {
+      border: 1px solid var(--light);
+      color: var(--black);
+    }
+    .plan-cta-outline:hover { border-color: var(--black); }
+
+    .plan-cta-primary {
+      background: var(--white);
+      color: var(--black);
+    }
+    .plan-cta-primary:hover { background: var(--light); }
+
+    .plan-cta-secondary {
+      border: 1px solid #2a2a2a;
+      color: var(--white);
+    }
+    .plan-cta-secondary:hover { background: #1a1a1a; }
+
+    @media (max-width: 900px) {
+      .plans-grid { grid-template-columns: 1fr; }
+      .plans-section { padding: 0 20px 60px; }
+    }
+
+    /* ── PAYMENT INFO ── */
+    .payment-section {
+      background: var(--black);
+      color: var(--white);
+      padding: 80px 48px;
+    }
+
+    .payment-inner { max-width: 1200px; margin: 0 auto; }
+
+    .section-label { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: #444; margin-bottom: 20px; }
+
+    .payment-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 48px;
+      max-width: 500px;
+      color: var(--white);
+    }
+
+    .payment-methods {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      background: #1a1a1a;
+      border: 1px solid #1a1a1a;
+      margin-bottom: 48px;
+    }
+
+    .payment-method {
+      background: var(--black);
+      padding: 32px 28px;
+    }
+
+    .pm-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .pm-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .pm-desc {
+      font-size: 0.83rem;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .pm-pending {
+      display: inline-block;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #444;
+      border: 1px solid #222;
+      padding: 3px 8px;
+      margin-top: 10px;
+    }
+
+    .payment-note {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.7;
+      max-width: 560px;
+    }
+
+    @media (max-width: 700px) {
+      .payment-section { padding: 60px 20px; }
+      .payment-methods { grid-template-columns: 1fr; }
+    }
+
+    /* ── FAQ ── */
+    .faq-section { max-width: 1200px; margin: 0 auto; padding: 80px 48px; }
+
+    .faq-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 48px;
+    }
+
+    .faq-list { display: flex; flex-direction: column; gap: 2px; background: var(--light); border: 1px solid var(--light); }
+
+    .faq-item {
+      background: var(--white);
+      padding: 24px 28px;
+      cursor: pointer;
+    }
+
+    .faq-q {
+      font-size: 0.93rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .faq-toggle { font-size: 18px; color: var(--gray); flex-shrink: 0; transition: transform 0.2s; }
+
+    .faq-a {
+      font-size: 0.85rem;
+      color: var(--gray);
+      line-height: 1.7;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, margin-top 0.2s;
+    }
+
+    .faq-item.open .faq-a { max-height: 200px; margin-top: 12px; }
+    .faq-item.open .faq-toggle { transform: rotate(45deg); }
+
+    @media (max-width: 600px) { .faq-section { padding: 60px 20px; } }
+
+    /* ── FOOTER ── */
+    footer { padding: 32px 48px; border-top: 1px solid var(--light); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-logo { font-size: 14px; font-weight: 700; letter-spacing: -0.5px; color: var(--black); text-decoration: none; }
+    .footer-links { display: flex; gap: 28px; }
+    .footer-links a { font-size: 12px; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--black); }
+    .footer-copy { font-size: 12px; color: #bbb; }
+    @media (max-width: 600px) { footer { padding: 28px 20px; flex-direction: column; align-items: flex-start; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="https://7group.site/es/" class="nav-back">← 7group</a>
+    <a href="https://7group.site" class="nav-logo">7group</a>
+    <a href="https://7group.site/contacto.html" class="nav-cta">Hablar con un experto</a>
+  </nav>
+
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <p class="hero-label">Planes y precios</p>
+      <h1>Empieza gratis.<br>Paga cuando<br>veas <em>resultados.</em></h1>
+      <p class="hero-sub">Sin contratos largos, sin letra pequeña. Piloto gratuito de 15 días para que midas el impacto antes de comprometerte.</p>
+    </div>
+
+    <!-- PLANS -->
+    <section class="plans-section">
+      <div class="plans-grid">
+
+        <!-- PILOTO -->
+        <div class="plan-card">
+          <div class="plan-badge">01 · Piloto</div>
+          <div class="plan-name">Piloto Gratuito</div>
+          <p class="plan-desc">Activa el primer agente en tu operación real. Sin datos sintéticos, sin demos. Mides el impacto directo en tu negocio.</p>
+          <div class="plan-price-block">
+            <div class="plan-price">$0</div>
+            <div class="plan-price-note">15 días · Sin tarjeta de crédito<br>Sin compromiso de permanencia</div>
+          </div>
+          <ul class="plan-features">
+            <li>1 agente activo (a definir en diagnóstico)</li>
+            <li>Conexión a tus canales actuales (WA, correo)</li>
+            <li>Soporte directo durante el piloto</li>
+            <li>Informe de resultados al finalizar</li>
+          </ul>
+          <a href="https://7group.site/contacto.html" class="plan-cta plan-cta-outline">Iniciar piloto gratuito</a>
+        </div>
+
+        <!-- IMPLEMENTACIÓN — featured -->
+        <div class="plan-card plan-card-featured">
+          <div class="plan-badge">02 · Implementación</div>
+          <div class="plan-name">Implementación Completa</div>
+          <p class="plan-desc">Configuración, integración y puesta en marcha de los agentes en tu operación. Pago único.</p>
+          <div class="plan-price-block">
+            <div class="plan-price">Desde <em>$10M</em></div>
+            <div class="plan-price-note">COP · Pago único<br>Precio final según alcance</div>
+          </div>
+          <ul class="plan-features">
+            <li>Diagnóstico operacional completo</li>
+            <li>Configuración de agentes según tu negocio</li>
+            <li>Integración con ERP, CRM, WA y correo</li>
+            <li>Capacitación al equipo</li>
+            <li>30 días de soporte post-implementación</li>
+          </ul>
+          <a href="https://7group.site/contacto.html" class="plan-cta plan-cta-secondary">Solicitar propuesta</a>
+        </div>
+
+        <!-- SUSCRIPCIÓN -->
+        <div class="plan-card">
+          <div class="plan-badge">03 · Suscripción</div>
+          <div class="plan-name">Operación Continua</div>
+          <p class="plan-desc">Acceso mensual a la plataforma, los agentes activos, mejoras iterativas y soporte prioritario.</p>
+          <div class="plan-price-block">
+            <div class="plan-price">Desde $1.5M</div>
+            <div class="plan-price-note">COP / mes · Según número de agentes<br>$1.5M básico · $3M estándar · Custom</div>
+          </div>
+          <ul class="plan-features">
+            <li>Acceso completo a la plataforma</li>
+            <li>Todos los agentes activos</li>
+            <li>Mejoras y ajustes mensuales</li>
+            <li>Soporte prioritario por WhatsApp</li>
+            <li>Dashboard de resultados en tiempo real</li>
+          </ul>
+          <a href="https://7group.site/contacto.html" class="plan-cta plan-cta-outline">Ver opciones</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PAYMENT METHODS -->
+    <section class="payment-section">
+      <div class="payment-inner">
+        <p class="section-label">Métodos de pago</p>
+        <h2 class="payment-title">Pagos seguros,<br>sin complicaciones.</h2>
+        <div class="payment-methods">
+          <div class="payment-method">
+            <div class="pm-label">Disponible</div>
+            <div class="pm-title">Transferencia bancaria</div>
+            <p class="pm-desc">Pago directo a cuenta. Coordinamos los datos por WhatsApp una vez acordado el plan.</p>
+          </div>
+          <div class="payment-method">
+            <div class="pm-label">Disponible</div>
+            <div class="pm-title">Nequi / Daviplata</div>
+            <p class="pm-desc">Para pagos ágiles desde cualquier banco colombiano. Confirmación inmediata.</p>
+          </div>
+          <div class="payment-method">
+            <div class="pm-label">Disponible</div>
+            <div class="pm-title">ARQ Finance</div>
+            <p class="pm-desc">Pago digital desde la app ARQ. Rápido, seguro y con confirmación inmediata. Te enviamos el link de pago por WhatsApp al cerrar el trato.</p>
+            <a href="https://www.arqfinance.com/es-CO" target="_blank" rel="noopener" style="display:inline-block; margin-top:10px; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); text-decoration:none;">arqfinance.com →</a>
+          </div>
+          <div class="payment-method">
+            <div class="pm-label">Internacional · USD</div>
+            <div class="pm-title">ACH / Wire — Lead Bank</div>
+            <p class="pm-desc" style="margin-bottom:14px;">Para clientes en EE.UU. Transferencia directa a cuenta ARQ Finance.</p>
+            <table style="font-size:0.78rem; color:#555; border-collapse:collapse; width:100%; line-height:1.9;">
+              <tr><td style="color:#333; padding-right:14px;">Beneficiario</td><td>Andres Aparicio</td></tr>
+              <tr><td style="color:#333;">Banco</td><td>Lead Bank</td></tr>
+              <tr><td style="color:#333;">Account no.</td><td>213211970644</td></tr>
+              <tr><td style="color:#333;">Routing no.</td><td>101019644</td></tr>
+              <tr><td style="color:#333;">Tipo</td><td>Checking</td></tr>
+              <tr><td style="color:#333;">Fee wire</td><td>3 USD</td></tr>
+            </table>
+          </div>
+        </div>
+        <p class="payment-note">
+          Todos los pagos quedan respaldados con factura electrónica registrada en DIAN. Para empresas que requieren orden de compra, coordinamos el proceso sin inconvenientes.
+        </p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+      <h2 class="faq-title">Preguntas frecuentes</h2>
+      <div class="faq-list">
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            ¿El piloto realmente es gratis?
+            <span class="faq-toggle">+</span>
+          </div>
+          <p class="faq-a">Sí. 15 días sin costo, sin tarjeta de crédito y sin compromiso de continuar. Si al finalizar el piloto no ves impacto real en tu operación, no hay nada que pagar.</p>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            ¿Cuánto tarda la implementación?
+            <span class="faq-toggle">+</span>
+          </div>
+          <p class="faq-a">Entre 2 y 4 semanas dependiendo del alcance. El primer agente puede estar activo en menos de 10 días hábiles después de firmar.</p>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            ¿Necesito cambiar mi ERP o CRM actual?
+            <span class="faq-toggle">+</span>
+          </div>
+          <p class="faq-a">No. Los agentes se conectan a tus sistemas actuales. No hay migraciones, no hay reemplazos. Funcionamos sobre lo que ya tienes.</p>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            ¿Puedo cancelar la suscripción mensual?
+            <span class="faq-toggle">+</span>
+          </div>
+          <p class="faq-a">Sí, en cualquier momento con 15 días de aviso. No hay penalidades por cancelación anticipada.</p>
+        </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-q">
+            ¿Tienen precios para el mercado de Estados Unidos?
+            <span class="faq-toggle">+</span>
+          </div>
+          <p class="faq-a">Sí. Para clientes en Florida, Georgia y Texas cotizamos en USD. Escríbenos y preparamos una propuesta adaptada a tu mercado.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <a href="https://7group.site" class="footer-logo">7group</a>
+    <div class="footer-links">
+      <a href="https://7group.site/es/">Inicio</a>
+      <a href="https://7group.site/agentes/">Agentes</a>
+      <a href="https://7group.site/contacto.html">Contacto</a>
+    </div>
+    <span class="footer-copy">© 2026 7group</span>
+  </footer>
+
+  <script>
+    function toggleFaq(el) {
+      el.classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>

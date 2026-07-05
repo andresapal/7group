@@ -3,212 +3,567 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>7group — Contacto</title>
+  <title>Contacto — 7group</title>
+  <meta name="robots" content="noindex, nofollow" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f5f5;
+      --gray: #6b6b6b;
+      --light: #e8e8e8;
+      --cyan: #5ee7f7;
+    }
+
     body {
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background: #f5f5f5;
-      color: #0a0a0a;
+      background: var(--white);
+      color: var(--black);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 60px;
+      border-bottom: 1px solid var(--light);
+      flex-shrink: 0;
+    }
+
+    .top-logo {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--black);
+      text-decoration: none;
+    }
+
+    .top-back {
+      font-size: 12px;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .top-back:hover { color: var(--black); }
+
+    @media (max-width: 600px) { .top-bar { padding: 0 20px; } }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      height: 3px;
+      background: var(--light);
+      flex-shrink: 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--cyan);
+      transition: width 0.4s ease;
+    }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      display: flex;
       align-items: center;
       justify-content: center;
       padding: 48px 24px;
     }
 
-    .back {
-      position: fixed;
-      top: 28px;
-      left: 36px;
-      font-size: 13px;
-      color: #6b6b6b;
-      text-decoration: none;
-      letter-spacing: 0.3px;
-      transition: color 0.2s;
-    }
-
-    .back:hover { color: #0a0a0a; }
-
-    .card {
+    .form-shell {
       width: 100%;
-      max-width: 440px;
+      max-width: 520px;
     }
 
-    .label {
+    /* ── STEPS ── */
+    .step {
+      display: none;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .step.active {
+      display: flex;
+      animation: step-in 0.3s ease both;
+    }
+
+    @keyframes step-in {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-meta {
       font-size: 11px;
-      letter-spacing: 2.5px;
+      letter-spacing: 2px;
       text-transform: uppercase;
-      color: #6b6b6b;
-      margin-bottom: 20px;
+      color: var(--gray);
     }
 
-    h1 {
-      font-size: 32px;
+    .step-question {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
       font-weight: 700;
       letter-spacing: -1px;
-      line-height: 1.1;
-      margin-bottom: 8px;
+      line-height: 1.15;
+      color: var(--black);
     }
 
-    .sub {
-      font-size: 15px;
-      color: #6b6b6b;
-      margin-bottom: 48px;
-      line-height: 1.6;
+    .step-question em {
+      font-style: normal;
+      color: var(--cyan);
     }
 
-    .channels {
+    /* ── TEXT INPUT ── */
+    .field-text {
       display: flex;
       flex-direction: column;
-      gap: 1px;
-      background: #e8e8e8;
-      border: 1px solid #e8e8e8;
-      margin-bottom: 32px;
+      gap: 12px;
     }
 
-    .channel {
+    .field-text input, .field-text textarea {
+      width: 100%;
+      border: none;
+      border-bottom: 2px solid var(--light);
+      background: transparent;
+      font-family: inherit;
+      font-size: 1.1rem;
+      color: var(--black);
+      padding: 12px 0;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field-text input:focus,
+    .field-text textarea:focus { border-bottom-color: var(--black); }
+
+    .field-text input::placeholder,
+    .field-text textarea::placeholder { color: #bbb; }
+
+    .field-text textarea {
+      resize: none;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+
+    /* ── OPTION CARDS ── */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .options-grid.single-col { grid-template-columns: 1fr; }
+
+    .option-card {
+      border: 1px solid var(--light);
+      background: var(--white);
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 20px 24px;
-      background: #f5f5f5;
-      text-decoration: none;
-      color: #0a0a0a;
-      transition: background 0.15s;
+      gap: 12px;
+      user-select: none;
     }
 
-    .channel:hover { background: #ebebeb; }
+    .option-card:hover { border-color: #bbb; }
 
-    .ch-icon {
-      width: 36px;
-      height: 36px;
+    .option-card.selected {
+      border-color: var(--black);
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .option-card input[type="radio"] { display: none; }
+
+    .option-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .option-check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--light);
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .option-card.selected .option-check {
+      background: var(--cyan);
+      border-color: var(--cyan);
+    }
+
+    .option-check::after {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--black);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .option-card.selected .option-check::after { opacity: 1; }
+
+    /* ── NAVIGATION ── */
+    .step-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .btn-next {
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 36px;
+      cursor: pointer;
+      transition: background 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-next:hover { background: #222; }
+    .btn-next:disabled { background: var(--light); color: var(--gray); cursor: not-allowed; }
+
+    .btn-back {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--gray);
+      cursor: pointer;
+      padding: 8px 0;
+      transition: color 0.2s;
+    }
+
+    .btn-back:hover { color: var(--black); }
+    .btn-back.hidden { visibility: hidden; }
+
+    /* ── WA BUTTON ── */
+    .btn-wa {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #25D366;
+      color: #fff;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 16px 32px;
+      cursor: pointer;
+      transition: background 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-wa:hover { background: #1ebe59; }
+
+    .btn-wa svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ── SUMMARY (step final) ── */
+    .summary-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid var(--light);
+      padding: 20px 24px;
+    }
+
+    .summary-item {
+      display: flex;
+      gap: 12px;
+      font-size: 0.88rem;
+    }
+
+    .summary-key {
+      color: var(--gray);
+      min-width: 100px;
       flex-shrink: 0;
     }
 
-    .ch-icon svg { width: 22px; height: 22px; }
+    .summary-val { color: var(--black); font-weight: 500; }
 
-    .ch-info { flex: 1; }
-
-    .ch-name {
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: -0.2px;
-      margin-bottom: 2px;
-    }
-
-    .ch-detail {
+    /* ── ERROR ── */
+    .field-error {
       font-size: 12px;
-      color: #6b6b6b;
-    }
-
-    .ch-arrow {
-      font-size: 16px;
-      color: #c0c0c0;
-    }
-
-    .footer-note {
-      font-size: 12px;
-      color: #9b9b9b;
-      text-align: center;
+      color: #e05252;
       letter-spacing: 0.2px;
+      display: none;
     }
+
+    .field-error.visible { display: block; }
 
     @media (max-width: 480px) {
-      h1 { font-size: 26px; }
+      .options-grid { grid-template-columns: 1fr; }
+      .btn-next { width: 100%; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-  <a href="index.html" class="back">← 7group</a>
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="https://7group.site" class="top-logo">7group</a>
+    <a href="https://7group.site" class="top-back">← Volver al inicio</a>
+  </div>
 
-  <div class="card">
-    <p class="label">Contacto</p>
-    <h1>Hablemos.</h1>
-    <p class="sub">Cuéntanos cómo opera tu empresa. Respondemos por el canal que prefieras.</p>
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+  </div>
 
-    <div class="channels">
+  <!-- FORM -->
+  <main>
+    <div class="form-shell">
 
-      <!-- WhatsApp -->
-      <a href="https://wa.me/573143095194" target="_blank" class="channel">
-        <div class="ch-icon">
-          <svg viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-          </svg>
+      <!-- STEP 1: Nombre -->
+      <div class="step active" id="step-1">
+        <div class="step-meta">Paso 1 de 4</div>
+        <h1 class="step-question">Hola. ¿Cuál es<br><em>tu nombre?</em></h1>
+        <div class="field-text">
+          <input type="text" id="input-nombre" placeholder="Ej. Juan Pérez" autocomplete="given-name" />
+          <span class="field-error" id="err-nombre">Por favor ingresa tu nombre.</span>
         </div>
-        <div class="ch-info">
-          <div class="ch-name">WhatsApp</div>
-          <div class="ch-detail">+57 314 309 5194</div>
+        <div class="step-nav">
+          <button class="btn-back hidden">←</button>
+          <button class="btn-next" onclick="goNext(1)">Siguiente →</button>
         </div>
-        <span class="ch-arrow">→</span>
-      </a>
+      </div>
 
-      <!-- Telegram Andrés -->
-      <a href="https://t.me/+573143095194" target="_blank" class="channel">
-        <div class="ch-icon">
-          <svg viewBox="0 0 24 24" fill="#229ED9" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-          </svg>
+      <!-- STEP 2: Empresa -->
+      <div class="step" id="step-2">
+        <div class="step-meta">Paso 2 de 4</div>
+        <h1 class="step-question">¿De qué empresa<br><em>nos escribes?</em></h1>
+        <div class="field-text">
+          <input type="text" id="input-empresa" placeholder="Ej. Distribuidora Central" autocomplete="organization" />
+          <span class="field-error" id="err-empresa">Por favor ingresa el nombre de tu empresa.</span>
         </div>
-        <div class="ch-info">
-          <div class="ch-name">Telegram · Andrés</div>
-          <div class="ch-detail">+57 314 309 5194</div>
+        <div class="step-nav">
+          <button class="btn-back" onclick="goBack(2)">← Volver</button>
+          <button class="btn-next" onclick="goNext(2)">Siguiente →</button>
         </div>
-        <span class="ch-arrow">→</span>
-      </a>
+      </div>
 
-      <!-- Telegram Joel -->
-      <a href="https://t.me/+573012111479" target="_blank" class="channel">
-        <div class="ch-icon">
-          <svg viewBox="0 0 24 24" fill="#229ED9" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-          </svg>
+      <!-- STEP 3: Área -->
+      <div class="step" id="step-3">
+        <div class="step-meta">Paso 3 de 4</div>
+        <h1 class="step-question">¿Qué quieres<br><em>mejorar?</em></h1>
+        <div class="options-grid" id="grid-area">
+          <label class="option-card" onclick="selectOption(this, 'area')">
+            <input type="radio" name="area" value="Cotizaciones automáticas" />
+            <div class="option-check"></div>
+            <span class="option-label">Cotizaciones automáticas</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'area')">
+            <input type="radio" name="area" value="Gestión de pedidos" />
+            <div class="option-check"></div>
+            <span class="option-label">Gestión de pedidos</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'area')">
+            <input type="radio" name="area" value="Finanzas y facturación" />
+            <div class="option-check"></div>
+            <span class="option-label">Finanzas y facturación</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'area')">
+            <input type="radio" name="area" value="Atención al cliente" />
+            <div class="option-check"></div>
+            <span class="option-label">Atención al cliente</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'area')">
+            <input type="radio" name="area" value="Logística y despacho" />
+            <div class="option-check"></div>
+            <span class="option-label">Logística y despacho</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'area')">
+            <input type="radio" name="area" value="Todo lo anterior" />
+            <div class="option-check"></div>
+            <span class="option-label">Todo lo anterior</span>
+          </label>
         </div>
-        <div class="ch-info">
-          <div class="ch-name">Telegram · Joel</div>
-          <div class="ch-detail">+57 301 211 1479</div>
+        <span class="field-error" id="err-area">Selecciona al menos una opción.</span>
+        <div class="step-nav">
+          <button class="btn-back" onclick="goBack(3)">← Volver</button>
+          <button class="btn-next" onclick="goNext(3)">Siguiente →</button>
         </div>
-        <span class="ch-arrow">→</span>
-      </a>
+      </div>
 
-      <!-- Email Andrés -->
-      <a href="mailto:andresapalt@gmail.com" class="channel">
-        <div class="ch-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
-          </svg>
+      <!-- STEP 4: Volumen -->
+      <div class="step" id="step-4">
+        <div class="step-meta">Paso 4 de 4</div>
+        <h1 class="step-question">¿Cuántos pedidos<br>manejas <em>al mes?</em></h1>
+        <div class="options-grid" id="grid-volumen">
+          <label class="option-card" onclick="selectOption(this, 'volumen')">
+            <input type="radio" name="volumen" value="Menos de 50" />
+            <div class="option-check"></div>
+            <span class="option-label">Menos de 50</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'volumen')">
+            <input type="radio" name="volumen" value="50 a 200" />
+            <div class="option-check"></div>
+            <span class="option-label">50 a 200</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'volumen')">
+            <input type="radio" name="volumen" value="200 a 500" />
+            <div class="option-check"></div>
+            <span class="option-label">200 a 500</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'volumen')">
+            <input type="radio" name="volumen" value="Más de 500" />
+            <div class="option-check"></div>
+            <span class="option-label">Más de 500</span>
+          </label>
         </div>
-        <div class="ch-info">
-          <div class="ch-name">Email · Andrés</div>
-          <div class="ch-detail">andresapalt@gmail.com</div>
+        <span class="field-error" id="err-volumen">Selecciona tu rango de pedidos.</span>
+        <div class="step-nav">
+          <button class="btn-back" onclick="goBack(4)">← Volver</button>
+          <button class="btn-next" onclick="goNext(4)">Siguiente →</button>
         </div>
-        <span class="ch-arrow">→</span>
-      </a>
+      </div>
 
-      <!-- Email Joel -->
-      <a href="mailto:joeljosetorres@gmail.com" class="channel">
-        <div class="ch-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
-          </svg>
+      <!-- STEP FINAL: Resumen + envío -->
+      <div class="step" id="step-final">
+        <div class="step-meta">Listo para enviar</div>
+        <h1 class="step-question">Confirma tu<br><em>información.</em></h1>
+        <div class="summary-list" id="summaryList"></div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <button class="btn-wa" onclick="sendToWhatsApp()">
+            <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Iniciar conversación por WhatsApp
+          </button>
+          <button class="btn-back" onclick="goBack('final')" style="text-align:left;">← Editar respuestas</button>
         </div>
-        <div class="ch-info">
-          <div class="ch-name">Email · Joel</div>
-          <div class="ch-detail">joeljosetorres@gmail.com</div>
-        </div>
-        <span class="ch-arrow">→</span>
-      </a>
+        <p style="font-size:11px; color:#bbb; letter-spacing:0.2px; line-height:1.6;">
+          Se abrirá WhatsApp con tu información ya redactada. Respondemos el mismo día hábil.
+        </p>
+      </div>
 
     </div>
+  </main>
 
-    <p class="footer-note">© 2026 7group · trasteosya.online</p>
-  </div>
+  <script>
+    const data = { nombre: '', empresa: '', area: '', volumen: '' };
+    const totalSteps = 4;
+
+    const stepOrder = [1, 2, 3, 4, 'final'];
+
+    function showStep(id) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + id).classList.add('active');
+      updateProgress(id);
+      // Focus first input if any
+      const inp = document.querySelector('#step-' + id + ' input[type="text"]');
+      if (inp) setTimeout(() => inp.focus(), 350);
+    }
+
+    function updateProgress(id) {
+      const map = { 1: 0, 2: 25, 3: 50, 4: 75, final: 100 };
+      document.getElementById('progressFill').style.width = (map[id] || 0) + '%';
+    }
+
+    function goNext(from) {
+      if (from === 1) {
+        const v = document.getElementById('input-nombre').value.trim();
+        if (!v) { showErr('err-nombre'); return; }
+        hideErr('err-nombre');
+        data.nombre = v;
+        showStep(2);
+      } else if (from === 2) {
+        const v = document.getElementById('input-empresa').value.trim();
+        if (!v) { showErr('err-empresa'); return; }
+        hideErr('err-empresa');
+        data.empresa = v;
+        showStep(3);
+      } else if (from === 3) {
+        const sel = document.querySelector('input[name="area"]:checked');
+        if (!sel) { showErr('err-area'); return; }
+        hideErr('err-area');
+        data.area = sel.value;
+        showStep(4);
+      } else if (from === 4) {
+        const sel = document.querySelector('input[name="volumen"]:checked');
+        if (!sel) { showErr('err-volumen'); return; }
+        hideErr('err-volumen');
+        data.volumen = sel.value;
+        buildSummary();
+        showStep('final');
+      }
+    }
+
+    function goBack(from) {
+      const prev = { 2: 1, 3: 2, 4: 3, final: 4 };
+      showStep(prev[from]);
+    }
+
+    function showErr(id) {
+      document.getElementById(id).classList.add('visible');
+    }
+
+    function hideErr(id) {
+      document.getElementById(id).classList.remove('visible');
+    }
+
+    function selectOption(el, name) {
+      // Deselect all in group
+      el.closest('.options-grid').querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+    }
+
+    function buildSummary() {
+      const list = document.getElementById('summaryList');
+      list.innerHTML = [
+        ['Nombre',  data.nombre],
+        ['Empresa', data.empresa],
+        ['Interés', data.area],
+        ['Pedidos / mes', data.volumen],
+      ].map(([k, v]) => `
+        <div class="summary-item">
+          <span class="summary-key">${k}</span>
+          <span class="summary-val">${v}</span>
+        </div>
+      `).join('');
+    }
+
+    function sendToWhatsApp() {
+      const msg =
+        `Hola, soy ${data.nombre} de ${data.empresa}.\n` +
+        `Quiero mejorar: ${data.area}.\n` +
+        `Manejo aprox. ${data.volumen} pedidos al mes.\n\n` +
+        `Vi su propuesta en 7group.site y me gustaría conocer más.`;
+
+      const url = 'https://wa.me/573143095194?text=' + encodeURIComponent(msg);
+
+      // Open WhatsApp
+      window.open(url, '_blank');
+
+      // Redirect to confirmation (pass name for personalization)
+      const params = new URLSearchParams({ nombre: data.nombre, empresa: data.empresa });
+      window.location.href = '/gracias/?' + params.toString();
+    }
+
+    // Enter key advances steps
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const active = document.querySelector('.step.active');
+      if (!active) return;
+      const id = active.id.replace('step-', '');
+      if (['1','2','3','4'].includes(id)) goNext(parseInt(id) || id);
+    });
+  </script>
 
 </body>
 </html>

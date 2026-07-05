@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentes de IA para Operaciones — 7group</title>
+  <meta name="description" content="Cinco agentes de inteligencia artificial especializados: cotizaciones en segundos, facturas automáticas, atención 24/7, despacho inteligente y coordinación sin fricción." />
+  <link rel="canonical" href="https://7group.site/agentes/" />
+  <link rel="alternate" hreflang="es" href="https://7group.site/agentes/" />
+  <link rel="alternate" hreflang="es-CO" href="https://7group.site/agentes/" />
+  <link rel="alternate" hreflang="x-default" href="https://7group.site/agentes/" />
+  <meta property="og:title" content="Agentes de IA para Operaciones — 7group" />
+  <meta property="og:description" content="Cotizaciones en 1.6s. Facturas automáticas. Atención 24/7. Ve los agentes en acción." />
+  <meta property="og:url" content="https://7group.site/agentes/" />
+  <meta property="og:type" content="website" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Agentes de IA — 7group",
+    "url": "https://7group.site/agentes/",
+    "numberOfItems": 5,
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "item": { "@type": "Service", "name": "Agente Comercial", "description": "Cotizaciones automáticas en segundos.", "provider": { "@type": "Organization", "name": "7group", "url": "https://7group.site" } } },
+      { "@type": "ListItem", "position": 2, "item": { "@type": "Service", "name": "Agente de Operaciones", "description": "Coordina flujos y monitorea KPIs en tiempo real.", "provider": { "@type": "Organization", "name": "7group", "url": "https://7group.site" } } },
+      { "@type": "ListItem", "position": 3, "item": { "@type": "Service", "name": "Agente Financiero", "description": "Facturación electrónica automática y gestión de cartera.", "provider": { "@type": "Organization", "name": "7group", "url": "https://7group.site" } } },
+      { "@type": "ListItem", "position": 4, "item": { "@type": "Service", "name": "Agente de Atención", "description": "Respuesta 24/7 y gestión de PQR.", "provider": { "@type": "Organization", "name": "7group", "url": "https://7group.site" } } },
+      { "@type": "ListItem", "position": 5, "item": { "@type": "Service", "name": "Agente Logístico", "description": "Asignación de despachos y notificaciones al cliente.", "provider": { "@type": "Organization", "name": "7group", "url": "https://7group.site" } } }
+    ]
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f5f5;
+      --gray: #6b6b6b;
+      --light: #e8e8e8;
+      --cyan: #5ee7f7;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--white);
+      color: var(--black);
+      line-height: 1.5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 64px;
+      background: var(--white); border-bottom: 1px solid var(--light);
+    }
+    .nav-back { font-size: 13px; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+    .nav-back:hover { color: var(--black); }
+    .nav-logo { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; color: var(--black); text-decoration: none; }
+    .nav-cta { font-size: 13px; font-weight: 600; color: var(--black); text-decoration: none; border: 1px solid var(--black); padding: 8px 18px; transition: background 0.2s, color 0.2s; }
+    .nav-cta:hover { background: var(--black); color: var(--white); }
+    @media (max-width: 600px) { nav { padding: 0 20px; } .nav-back { display: none; } }
+
+    /* ── HERO ── */
+    .hero { padding: 140px 48px 80px; max-width: 1200px; margin: 0 auto; }
+    .hero-label { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gray); margin-bottom: 24px; }
+    .hero h1 { font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 700; letter-spacing: -2px; line-height: 1.05; max-width: 680px; margin-bottom: 28px; }
+    .hero h1 em { font-style: normal; color: var(--cyan); }
+    .hero-sub { font-size: clamp(0.95rem, 1.5vw, 1.05rem); color: var(--gray); max-width: 520px; line-height: 1.7; margin-bottom: 48px; }
+    .hero-stats { display: flex; gap: 48px; flex-wrap: wrap; padding-top: 48px; border-top: 1px solid var(--light); }
+    .stat-num { font-size: 1.9rem; font-weight: 700; letter-spacing: -1px; }
+    .stat-num em { font-style: normal; color: var(--cyan); }
+    .stat-label { font-size: 12px; color: var(--gray); margin-top: 4px; }
+    @media (max-width: 600px) { .hero { padding: 120px 20px 60px; } .hero-stats { gap: 28px; } }
+
+    /* ── AGENTS GRID ── */
+    .agents-section { max-width: 1200px; margin: 0 auto; padding: 0 48px 80px; }
+
+    .agents-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      background: var(--light);
+      border: 1px solid var(--light);
+    }
+
+    /* Featured first card spans full width */
+    .agent-card:first-child {
+      grid-column: 1 / -1;
+    }
+
+    .agent-card {
+      background: var(--white);
+      padding: 40px 36px;
+      cursor: default;
+      position: relative;
+    }
+
+    .agent-card-num {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #bbb;
+      margin-bottom: 18px;
+    }
+
+    .agent-card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 14px;
+      color: var(--black);
+    }
+
+    /* First card gets larger title */
+    .agent-card:first-child .agent-card-title {
+      font-size: 1.35rem;
+    }
+
+    /* ── CARD BODY: description and demo share same space ── */
+    .card-body {
+      display: grid;
+      grid-template-areas: "slot";
+      min-height: 88px;
+    }
+
+    .card-desc, .card-demo {
+      grid-area: slot;
+      transition: opacity 0.28s;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: var(--gray);
+      line-height: 1.65;
+    }
+
+    /* hover: fade desc out, demo in */
+    .agent-card:hover .card-desc { opacity: 0; }
+    .card-demo { opacity: 0; }
+    .agent-card:hover .card-demo { opacity: 1; }
+
+    /* ── MINI DEMO — light themed, compact ── */
+    .mini-user {
+      font-size: 0.82rem;
+      color: var(--black);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      padding-left: 14px;
+      position: relative;
+      min-height: 16px;
+    }
+    .mini-user::before {
+      content: '›';
+      position: absolute;
+      left: 0; top: 1px;
+      color: #bbb;
+      font-size: 0.9rem;
+    }
+
+    .mini-thinking {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 7px 14px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .mini-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: #ccc;
+      animation: mini-pulse 1.1s ease-in-out infinite;
+    }
+    .mini-dot:nth-child(2) { animation-delay: 0.18s; }
+    .mini-dot:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes mini-pulse {
+      0%, 60%, 100% { background: #ccc; transform: translateY(0); }
+      30% { background: var(--cyan); transform: translateY(-3px); }
+    }
+
+    .mini-response {
+      font-size: 0.82rem;
+      color: var(--gray);
+      line-height: 1.55;
+      white-space: pre-wrap;
+      border-left: 2px solid var(--cyan);
+      padding-left: 10px;
+      margin-left: 2px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      min-height: 16px;
+    }
+
+    .mini-badge {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 0.5px;
+      margin-top: 8px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    @media (max-width: 700px) {
+      .agents-section { padding: 0 0 60px; }
+      .agents-grid { grid-template-columns: 1fr; }
+      .agent-card:first-child { grid-column: 1; }
+      .agent-card { padding: 32px 24px; }
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-section { padding: 80px 48px; background: var(--black); color: var(--white); }
+    .how-inner { max-width: 1200px; margin: 0 auto; }
+    .section-label { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: #444; margin-bottom: 20px; }
+    .section-title { font-size: clamp(1.8rem, 3.5vw, 2.5rem); font-weight: 700; letter-spacing: -1px; line-height: 1.1; max-width: 560px; margin-bottom: 60px; color: var(--white); }
+    .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; background: #1a1a1a; border: 1px solid #1a1a1a; }
+    .step-card { background: var(--black); padding: 36px 28px; }
+    .step-num { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: #333; margin-bottom: 20px; }
+    .step-title { font-size: 1rem; font-weight: 700; color: var(--white); margin-bottom: 10px; line-height: 1.3; }
+    .step-desc { font-size: 0.83rem; color: #666; line-height: 1.6; }
+    @media (max-width: 900px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) { .how-section { padding: 60px 20px; } .steps-grid { grid-template-columns: 1fr; } }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 100px 48px; max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 48px; border-top: 1px solid var(--light); flex-wrap: wrap;
+    }
+    .cta-text h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -1.5px; line-height: 1.1; max-width: 480px; margin-bottom: 16px; }
+    .cta-text h2 em { font-style: normal; color: var(--cyan); }
+    .cta-text p { font-size: 0.93rem; color: var(--gray); max-width: 380px; line-height: 1.65; }
+    .cta-buttons { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+    .btn-primary { display: inline-block; background: var(--black); color: var(--white); padding: 16px 36px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.2s; text-align: center; }
+    .btn-primary:hover { background: #222; }
+    .btn-secondary { display: inline-block; color: var(--black); padding: 16px 36px; font-size: 14px; font-weight: 600; text-decoration: none; border: 1px solid var(--light); transition: border-color 0.2s; text-align: center; }
+    .btn-secondary:hover { border-color: var(--black); }
+    @media (max-width: 768px) { .cta-section { flex-direction: column; align-items: flex-start; padding: 60px 20px; } }
+
+    /* ── FOOTER ── */
+    footer { padding: 32px 48px; border-top: 1px solid var(--light); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-logo { font-size: 14px; font-weight: 700; letter-spacing: -0.5px; color: var(--black); text-decoration: none; }
+    .footer-links { display: flex; gap: 32px; }
+    .footer-links a { font-size: 12px; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--black); }
+    .footer-copy { font-size: 12px; color: #bbb; }
+    @media (max-width: 600px) { footer { padding: 28px 20px; flex-direction: column; align-items: flex-start; } .footer-links { gap: 20px; } }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="https://7group.site/es/" class="nav-back">← 7group</a>
+    <a href="https://7group.site" class="nav-logo">7group</a>
+    <a href="https://7group.site/contacto.html" class="nav-cta">Hablar con un experto</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-label">Suite de Agentes de IA</p>
+    <h1>Cinco agentes.<br>Una operación<br><em>sin fricción.</em></h1>
+    <p class="hero-sub">Cada agente se especializa en un dominio crítico de tu negocio. Pasa el cursor sobre cada uno para verlo en acción.</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num"><em>&lt; 2s</em></div>
+        <div class="stat-label">Cotizaciones generadas</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">24/7</div>
+        <div class="stat-label">Operación continua</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">15 d</div>
+        <div class="stat-label">Piloto sin costo</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Cambios a tu ERP actual</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENTS GRID -->
+  <section class="agents-section">
+    <div class="agents-grid">
+
+      <!-- 01 COMERCIAL — featured, full width -->
+      <div class="agent-card" data-demo="comercial">
+        <div class="agent-card-num">01</div>
+        <div class="agent-card-title">Agente Comercial — Cotización automática</div>
+        <div class="card-body">
+          <p class="card-desc">Genera cotizaciones precisas en segundos. Sin errores manuales, sin demoras. Tu equipo comercial cierra más negocios, más rápido.</p>
+          <div class="card-demo">
+            <div class="mini-user"></div>
+            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
+            <div class="mini-response"></div>
+            <div class="mini-badge"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 OPERACIONES -->
+      <div class="agent-card" data-demo="operaciones">
+        <div class="agent-card-num">02</div>
+        <div class="agent-card-title">Agente de Operaciones</div>
+        <div class="card-body">
+          <p class="card-desc">Visibilidad total de cada pedido, en cada etapa. Tu equipo opera sobre datos, no sobre suposiciones.</p>
+          <div class="card-demo">
+            <div class="mini-user"></div>
+            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
+            <div class="mini-response"></div>
+            <div class="mini-badge"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 FINANCIERO -->
+      <div class="agent-card" data-demo="financiero">
+        <div class="agent-card-num">03</div>
+        <div class="agent-card-title">Agente Financiero</div>
+        <div class="card-body">
+          <p class="card-desc">Tus métricas más importantes, siempre actualizadas y en un solo lugar. Decisiones basadas en realidad, no en intuición.</p>
+          <div class="card-demo">
+            <div class="mini-user"></div>
+            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
+            <div class="mini-response"></div>
+            <div class="mini-badge"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 ATENCIÓN -->
+      <div class="agent-card" data-demo="atencion">
+        <div class="agent-card-num">04</div>
+        <div class="agent-card-title">Agente de Atención</div>
+        <div class="card-body">
+          <p class="card-desc">Comunicación automatizada con tus clientes en el momento exacto. Más conversiones, menos esfuerzo manual.</p>
+          <div class="card-demo">
+            <div class="mini-user"></div>
+            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
+            <div class="mini-response"></div>
+            <div class="mini-badge"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 LOGÍSTICO -->
+      <div class="agent-card" data-demo="logistico">
+        <div class="agent-card-num">05</div>
+        <div class="agent-card-title">Agente Logístico</div>
+        <div class="card-body">
+          <p class="card-desc">Sin visibilidad de la ruta, el cliente llama y el equipo pierde tiempo. El agente despacha, rastrea y notifica sin intervención manual.</p>
+          <div class="card-demo">
+            <div class="mini-user"></div>
+            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
+            <div class="mini-response"></div>
+            <div class="mini-badge"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section">
+    <div class="how-inner">
+      <p class="section-label">El proceso</p>
+      <h2 class="section-title">Del diagnóstico al primer agente activo en menos de 30 días.</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01 · Diagnóstico</div>
+          <div class="step-title">Mapeamos tu operación</div>
+          <p class="step-desc">Analizamos flujos, sistemas existentes y cuellos de botella para definir qué agentes generan impacto inmediato.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02 · Piloto</div>
+          <div class="step-title">15 días sin costo</div>
+          <p class="step-desc">Activamos el primer agente en tu operación real. Mides el impacto antes de comprometerte.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03 · Implementación</div>
+          <div class="step-title">Integración sin migrar</div>
+          <p class="step-desc">Conectamos los agentes a tus sistemas actuales — WhatsApp, correo, ERP, CRM — sin reemplazarlos.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">04 · Operación</div>
+          <div class="step-title">Tus agentes trabajan solos</div>
+          <p class="step-desc">Soporte continuo, mejoras iterativas y acceso a nuevos agentes según crece tu operación.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-text">
+      <h2>Tu operación no necesita más personas.<br>Necesita <em>mejores agentes.</em></h2>
+      <p>Cuéntanos cómo funciona tu empresa hoy. En 48 horas tendrás diagnóstico y propuesta.</p>
+    </div>
+    <div class="cta-buttons">
+      <a href="https://wa.me/573143095194" class="btn-primary">Hablar por WhatsApp</a>
+      <a href="https://7group.site/contacto.html" class="btn-secondary">Ver todos los canales</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="https://7group.site" class="footer-logo">7group</a>
+    <div class="footer-links">
+      <a href="https://7group.site/es/">Inicio</a>
+      <a href="https://7group.site/colombia/">Colombia</a>
+      <a href="https://7group.site/contacto.html">Contacto</a>
+    </div>
+    <span class="footer-copy">© 2026 7group</span>
+  </footer>
+
+  <script>
+    const DEMOS = {
+      'comercial': {
+        input: 'Cotizar 500 und. ref. 4521\nCliente: Ferretería Central',
+        output: 'Cotización #2847\nRef. 4521 · 500 u. · $1.450 COP c/u\nTotal: $688.750 COP (dto. 5%)\nEntrega: 2 días · Válida: 5 días',
+        badge: '— lista en 1.6s'
+      },
+      'operaciones': {
+        input: 'Proveedor: retraso 2 días\nPedido #8823 afectado',
+        output: '→ Coordinación notificada\n→ Cliente informado (WhatsApp)\n→ Nueva fecha: 8 jul · Tarea #T-4421',
+        badge: '— gestionado en 1.8s'
+      },
+      'financiero': {
+        input: 'Pedido #8823 entregado\nCliente: TechCorp Ltda.',
+        output: 'Factura FE-2026-08471\nTechCorp · $2.340.000 COP · vence 15 jul\n→ Enviada · Registrada DIAN ✓',
+        badge: '— facturado en 2.1s'
+      },
+      'atencion': {
+        input: '22:47 · ¿Dónde está\nmi pedido #8823?',
+        output: 'Pedido #8823 en ruta desde hace 2h.\nLlega mañana antes de las 11:00am.\nRastreo en tiempo real → [enlace]',
+        badge: '— respuesta en 0.9s'
+      },
+      'logistico': {
+        input: 'Despachar #8823\nZona norte — Bogotá',
+        output: 'Carlos M. · Ruta 7N · 2 bultos 18kg\nSalida: 08:30 · ETA: 10:15–10:45am\n→ Cliente notificado (WhatsApp) ✓',
+        badge: '— asignado en 1.2s'
+      }
+    };
+
+    const gen = {};
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    function getEls(card) {
+      const demo = card.querySelector('.card-demo');
+      return {
+        user:      demo.querySelector('.mini-user'),
+        thinking:  demo.querySelector('.mini-thinking'),
+        response:  demo.querySelector('.mini-response'),
+        badge:     demo.querySelector('.mini-badge'),
+      };
+    }
+
+    async function runDemo(id, card, myGen) {
+      const s = DEMOS[id];
+      const e = getEls(card);
+
+      // Reset
+      e.user.textContent     = '';
+      e.response.textContent = '';
+      e.badge.textContent    = '';
+      e.thinking.style.opacity = '0';
+      e.response.style.opacity = '0';
+      e.badge.style.opacity    = '0';
+
+      await sleep(350);
+      if (gen[id] !== myGen) return;
+
+      // Type user input
+      for (const ch of s.input) {
+        if (gen[id] !== myGen) return;
+        e.user.textContent += ch;
+        await sleep(36);
+      }
+
+      await sleep(280);
+      if (gen[id] !== myGen) return;
+
+      // Thinking
+      e.thinking.style.opacity = '1';
+      await sleep(950);
+      if (gen[id] !== myGen) return;
+      e.thinking.style.opacity = '0';
+      await sleep(100);
+      if (gen[id] !== myGen) return;
+
+      // Response line by line
+      e.response.style.opacity = '1';
+      const lines = s.output.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (gen[id] !== myGen) return;
+        if (i > 0) e.response.textContent += '\n';
+        e.response.textContent += lines[i];
+        await sleep(60);
+      }
+
+      await sleep(300);
+      if (gen[id] !== myGen) return;
+
+      e.badge.textContent   = s.badge;
+      e.badge.style.opacity = '1';
+
+      await sleep(4500);
+      if (gen[id] !== myGen) return;
+
+      runDemo(id, card, myGen); // loop while hovered
+    }
+
+    function startDemo(id, card) {
+      gen[id] = (gen[id] || 0) + 1;
+      runDemo(id, card, gen[id]);
+    }
+
+    function stopDemo(id, card) {
+      gen[id] = (gen[id] || 0) + 1;
+      // Instantly reset — card-demo fades out via CSS hover rule
+      const e = getEls(card);
+      e.user.textContent     = '';
+      e.response.textContent = '';
+      e.badge.textContent    = '';
+      e.thinking.style.opacity = '0';
+      e.response.style.opacity = '0';
+      e.badge.style.opacity    = '0';
+    }
+
+    document.querySelectorAll('.agent-card[data-demo]').forEach(card => {
+      const id = card.dataset.demo;
+      card.addEventListener('mouseenter', () => startDemo(id, card));
+      card.addEventListener('mouseleave', () => stopDemo(id, card));
+    });
+
+    // Touch: auto-start
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      document.querySelectorAll('.agent-card[data-demo]').forEach((card, i) => {
+        setTimeout(() => startDemo(card.dataset.demo, card), i * 700);
+      });
+    }
+  </script>
+
+</body>
+</html>
