@@ -847,17 +847,23 @@
       opacity: 0;
       transition: opacity 0.3s;
     }
-    .agents-link {
-      display: inline-block;
-      margin-top: 32px;
-      font-size: 0.88rem;
-      color: var(--black);
-      text-decoration: none;
-      border-bottom: 1px solid var(--light);
-      padding-bottom: 2px;
-      transition: border-color 0.2s;
+    .agent-card-title a { color: inherit; text-decoration: none; }
+    .agent-card-title a:hover { color: var(--cyan); }
+    .agents-cta-band { background: var(--black); margin-top: 2px; }
+    .agents-cta-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 40px 40px; gap: 32px; flex-wrap: wrap;
     }
-    .agents-link:hover { border-color: var(--cyan); }
+    .agents-cta-tag { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #444; margin-bottom: 10px; }
+    .agents-cta-title { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 700; color: var(--white); letter-spacing: -0.5px; margin-bottom: 8px; line-height: 1.2; }
+    .agents-cta-list { font-size: 0.82rem; color: #444; letter-spacing: 0.5px; }
+    .agents-cta-btn {
+      white-space: nowrap; background: var(--white); color: var(--black);
+      padding: 16px 32px; font-size: 14px; font-weight: 600;
+      text-decoration: none; transition: background 0.2s, color 0.2s; flex-shrink: 0;
+    }
+    .agents-cta-btn:hover { background: var(--cyan); color: var(--black); }
+    @media (max-width: 600px) { .agents-cta-inner { padding: 32px 24px; } }
     @media (max-width: 768px) {
       .agents-grid { grid-template-columns: 1fr; }
       .agent-card:last-child { grid-column: 1; }
@@ -1047,7 +1053,7 @@
 
       <div class="agent-card" data-demo="sales">
         <div class="agent-card-num">01</div>
-        <div class="agent-card-title">Sales Agent — Automatic Quoting</div>
+        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-01">Sales Agent — Automatic Quoting</a></div>
         <div class="card-body">
           <p class="card-desc">Generates accurate quotes in seconds. No manual errors, no delays. Your team closes more deals, faster.</p>
           <div class="card-demo">
@@ -1061,7 +1067,7 @@
 
       <div class="agent-card" data-demo="operations">
         <div class="agent-card-num">02</div>
-        <div class="agent-card-title">Operations Agent</div>
+        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-02">Operations Agent</a></div>
         <div class="card-body">
           <p class="card-desc">Full visibility on every order at every stage. Your team operates on data, not assumptions.</p>
           <div class="card-demo">
@@ -1075,7 +1081,7 @@
 
       <div class="agent-card" data-demo="finance">
         <div class="agent-card-num">03</div>
-        <div class="agent-card-title">Finance Agent</div>
+        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-03">Finance Agent</a></div>
         <div class="card-body">
           <p class="card-desc">Your most important metrics, always up to date in one place. Decisions based on reality, not intuition.</p>
           <div class="card-demo">
@@ -1089,7 +1095,7 @@
 
       <div class="agent-card" data-demo="support">
         <div class="agent-card-num">04</div>
-        <div class="agent-card-title">Support Agent — 24/7 Response</div>
+        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-04">Support Agent — 24/7 Response</a></div>
         <div class="card-body">
           <p class="card-desc">Automated communication with your clients at exactly the right moment. More conversions, less manual effort.</p>
           <div class="card-demo">
@@ -1103,7 +1109,7 @@
 
       <div class="agent-card" data-demo="logistics">
         <div class="agent-card-num">05</div>
-        <div class="agent-card-title">Logistics Agent — Smart Dispatch</div>
+        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-05">Logistics Agent — Smart Dispatch</a></div>
         <div class="card-body">
           <p class="card-desc">No route visibility means clients call and your team wastes time. The agent dispatches, tracks, and notifies without manual intervention.</p>
           <div class="card-demo">
@@ -1116,7 +1122,16 @@
       </div>
 
     </div>
-    <a href="/agentes/" class="agents-link">See all agents →</a>
+    <div class="agents-cta-band">
+      <div class="agents-cta-inner">
+        <div>
+          <p class="agents-cta-tag">Full suite · 5 agents</p>
+          <h3 class="agents-cta-title">See every agent working in real time.</h3>
+          <p class="agents-cta-list">Commercial &nbsp;·&nbsp; Operations &nbsp;·&nbsp; Finance &nbsp;·&nbsp; Support &nbsp;·&nbsp; Logistics</p>
+        </div>
+        <a href="/agentes/?lang=en" class="agents-cta-btn">Explore agents →</a>
+      </div>
+    </div>
   </section>
 
   <hr class="divider" />

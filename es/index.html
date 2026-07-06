@@ -734,8 +734,16 @@
     @keyframes mini-pulse { 0%, 60%, 100% { background: #ccc; transform: translateY(0); } 30% { background: var(--cyan); transform: translateY(-3px); } }
     .mini-response { font-size: 0.82rem; color: var(--gray); line-height: 1.55; white-space: pre-wrap; border-left: 2px solid var(--cyan); padding-left: 10px; margin-left: 2px; opacity: 0; transition: opacity 0.2s; min-height: 16px; }
     .mini-badge { font-size: 10px; color: var(--cyan); letter-spacing: 0.5px; margin-top: 8px; opacity: 0; transition: opacity 0.3s; }
-    .agents-link { display: inline-block; margin-top: 32px; font-size: 0.88rem; color: var(--black); text-decoration: none; border-bottom: 1px solid var(--light); padding-bottom: 2px; transition: border-color 0.2s; }
-    .agents-link:hover { border-color: var(--cyan); }
+    .agent-card-title a { color: inherit; text-decoration: none; }
+    .agent-card-title a:hover { color: var(--cyan); }
+    .agents-cta-band { background: var(--black); margin-top: 2px; }
+    .agents-cta-inner { display: flex; align-items: center; justify-content: space-between; padding: 40px 40px; gap: 32px; flex-wrap: wrap; }
+    .agents-cta-tag { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #444; margin-bottom: 10px; }
+    .agents-cta-title { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 700; color: var(--white); letter-spacing: -0.5px; margin-bottom: 8px; line-height: 1.2; }
+    .agents-cta-list { font-size: 0.82rem; color: #444; letter-spacing: 0.5px; }
+    .agents-cta-btn { white-space: nowrap; background: var(--white); color: var(--black); padding: 16px 32px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.2s, color 0.2s; flex-shrink: 0; }
+    .agents-cta-btn:hover { background: var(--cyan); color: var(--black); }
+    @media (max-width: 600px) { .agents-cta-inner { padding: 32px 24px; } }
     @media (max-width: 768px) { .agents-grid { grid-template-columns: 1fr; } .agent-card:last-child { grid-column: 1; } }
 
     .plans-step { margin-bottom: 64px; }
@@ -904,7 +912,7 @@
 
       <div class="agent-card" data-demo="comercial">
         <div class="agent-card-num">01</div>
-        <div class="agent-card-title">Agente Comercial — Cotización automática</div>
+        <div class="agent-card-title"><a href="/agentes/#agent-01">Agente Comercial — Cotización automática</a></div>
         <div class="card-body">
           <p class="card-desc">Genera cotizaciones precisas en segundos. Sin errores manuales, sin demoras. Tu equipo comercial cierra más negocios, más rápido.</p>
           <div class="card-demo">
@@ -918,7 +926,7 @@
 
       <div class="agent-card" data-demo="operaciones">
         <div class="agent-card-num">02</div>
-        <div class="agent-card-title">Agente de Operaciones</div>
+        <div class="agent-card-title"><a href="/agentes/#agent-02">Agente de Operaciones</a></div>
         <div class="card-body">
           <p class="card-desc">Visibilidad total de cada pedido, en cada etapa. Tu equipo opera sobre datos, no sobre suposiciones.</p>
           <div class="card-demo">
@@ -932,7 +940,7 @@
 
       <div class="agent-card" data-demo="financiero">
         <div class="agent-card-num">03</div>
-        <div class="agent-card-title">Agente Financiero</div>
+        <div class="agent-card-title"><a href="/agentes/#agent-03">Agente Financiero</a></div>
         <div class="card-body">
           <p class="card-desc">Tus métricas más importantes, siempre actualizadas y en un solo lugar. Decisiones basadas en realidad, no en intuición.</p>
           <div class="card-demo">
@@ -946,7 +954,7 @@
 
       <div class="agent-card" data-demo="atencion">
         <div class="agent-card-num">04</div>
-        <div class="agent-card-title">Agente de Atención — 24/7</div>
+        <div class="agent-card-title"><a href="/agentes/#agent-04">Agente de Atención — 24/7</a></div>
         <div class="card-body">
           <p class="card-desc">Comunicación automatizada con tus clientes en el momento exacto. Más conversiones, menos esfuerzo manual.</p>
           <div class="card-demo">
@@ -960,7 +968,7 @@
 
       <div class="agent-card" data-demo="logistico">
         <div class="agent-card-num">05</div>
-        <div class="agent-card-title">Agente Logístico — Despacho inteligente</div>
+        <div class="agent-card-title"><a href="/agentes/#agent-05">Agente Logístico — Despacho inteligente</a></div>
         <div class="card-body">
           <p class="card-desc">Sin visibilidad de la ruta, el cliente llama y el equipo pierde tiempo. El agente despacha, rastrea y notifica sin intervención manual.</p>
           <div class="card-demo">
@@ -973,7 +981,16 @@
       </div>
 
     </div>
-    <a href="/agentes/" class="agents-link">Ver todos los agentes →</a>
+    <div class="agents-cta-band">
+      <div class="agents-cta-inner">
+        <div>
+          <p class="agents-cta-tag">Suite completa · 5 agentes</p>
+          <h3 class="agents-cta-title">Ve cada agente trabajando en tiempo real.</h3>
+          <p class="agents-cta-list">Comercial &nbsp;·&nbsp; Operaciones &nbsp;·&nbsp; Financiero &nbsp;·&nbsp; Atención &nbsp;·&nbsp; Logística</p>
+        </div>
+        <a href="/agentes/" class="agents-cta-btn">Explorar agentes →</a>
+      </div>
+    </div>
   </section>
 
   <hr class="divider" />

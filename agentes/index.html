@@ -287,7 +287,7 @@
     <div class="agents-grid">
 
       <!-- 01 COMERCIAL — featured, full width -->
-      <div class="agent-card" data-demo="comercial">
+      <div class="agent-card" data-demo="comercial" id="agent-01">
         <div class="agent-card-num">01</div>
         <div class="agent-card-title">Agente Comercial — Cotización automática</div>
         <div class="card-body">
@@ -302,7 +302,7 @@
       </div>
 
       <!-- 02 OPERACIONES -->
-      <div class="agent-card" data-demo="operaciones">
+      <div class="agent-card" data-demo="operaciones" id="agent-02">
         <div class="agent-card-num">02</div>
         <div class="agent-card-title">Agente de Operaciones</div>
         <div class="card-body">
@@ -317,7 +317,7 @@
       </div>
 
       <!-- 03 FINANCIERO -->
-      <div class="agent-card" data-demo="financiero">
+      <div class="agent-card" data-demo="financiero" id="agent-03">
         <div class="agent-card-num">03</div>
         <div class="agent-card-title">Agente Financiero</div>
         <div class="card-body">
@@ -332,7 +332,7 @@
       </div>
 
       <!-- 04 ATENCIÓN -->
-      <div class="agent-card" data-demo="atencion">
+      <div class="agent-card" data-demo="atencion" id="agent-04">
         <div class="agent-card-num">04</div>
         <div class="agent-card-title">Agente de Atención</div>
         <div class="card-body">
@@ -347,7 +347,7 @@
       </div>
 
       <!-- 05 LOGÍSTICO -->
-      <div class="agent-card" data-demo="logistico">
+      <div class="agent-card" data-demo="logistico" id="agent-05">
         <div class="agent-card-num">05</div>
         <div class="agent-card-title">Agente Logístico</div>
         <div class="card-body">
@@ -418,6 +418,9 @@
   </footer>
 
   <script>
+    /* ── Language detection ── */
+    const PAGE_LANG = new URLSearchParams(window.location.search).get('lang') === 'en' ? 'en' : 'es';
+
     const DEMOS = {
       'comercial': {
         input: 'Cotizar 500 und. ref. 4521\nCliente: Ferretería Central',
@@ -445,6 +448,79 @@
         badge: '— asignado en 1.2s'
       }
     };
+
+    /* ── English content override ── */
+    if (PAGE_LANG === 'en') {
+      Object.assign(DEMOS, {
+        'comercial':  { input: 'Quote 200 units ref. B-221\nClient: Central Hardware',   output: 'Quote #2847\nRef. B-221 · 200 u. · $12.50 ea.\nTotal: $2,500 (5% disc.)\nDelivery: 2 days · Valid: 5 days',                       badge: '— ready in 1.6s'    },
+        'operaciones':{ input: 'Supplier: 2-day delay\nOrder #8823 affected',             output: '→ Ops team notified\n→ Client updated (WhatsApp)\n→ New date: Aug 10 · Task #T-4421',                                               badge: '— handled in 1.8s'  },
+        'financiero': { input: 'Order #8823 delivered\nClient: TechCorp LLC',             output: 'Invoice INV-2026-08471\nTechCorp · $2,340 · due Aug 15\n→ Sent · Registered ✓',                                                    badge: '— invoiced in 2.1s' },
+        'atencion':   { input: '10:47 PM · Where is\nmy order #8823?',                    output: 'Order #8823 in transit for 2h.\nArrives tomorrow before 11:00 AM.\nReal-time tracking → [link]',                                    badge: '— replied in 0.9s'  },
+        'logistico':  { input: 'Dispatch #8823\nNorth Zone — Miami',                      output: 'Carlos M. · Route N7 · 2 boxes 18kg\nDepart: 08:30 · ETA: 10:15–10:45 AM\n→ Client notified (WhatsApp) ✓',                        badge: '— assigned in 1.2s' }
+      });
+
+      // Nav
+      document.querySelector('.nav-back').href = 'https://7group.site';
+      document.querySelector('.nav-back').textContent = '← 7group';
+      document.querySelector('.nav-cta').textContent = 'Talk to an expert';
+      document.querySelector('.nav-cta').href = '/contacto.html?lang=en';
+
+      // Hero
+      document.querySelector('.hero-label').textContent = 'AI Agent Suite';
+      document.querySelector('.hero h1').innerHTML = 'Five agents.<br>One operation<br><em>without friction.</em>';
+      document.querySelector('.hero-sub').textContent = 'Each agent specializes in a critical domain of your business. Hover over each one to see it in action.';
+      const statLabels = document.querySelectorAll('.stat-label');
+      if (statLabels[0]) statLabels[0].textContent = 'Quotes generated';
+      if (statLabels[1]) statLabels[1].textContent = 'Continuous operation';
+      if (statLabels[2]) statLabels[2].textContent = 'Free pilot';
+      if (statLabels[3]) statLabels[3].textContent = 'Changes to your current ERP';
+
+      // Agent cards
+      const cards = document.querySelectorAll('.agent-card[data-demo]');
+      const cardData = [
+        { title: 'Sales Agent — Automatic Quoting',   desc: 'Generates accurate quotes in seconds. No manual errors, no delays. Your team closes more deals, faster.' },
+        { title: 'Operations Agent',                   desc: 'Full visibility on every order at every stage. Your team operates on data, not assumptions.' },
+        { title: 'Finance Agent',                      desc: 'Your most important metrics, always up to date in one place. Decisions based on reality, not intuition.' },
+        { title: 'Support Agent — 24/7',               desc: 'Automated communication with your clients at exactly the right moment. More conversions, less manual effort.' },
+        { title: 'Logistics Agent — Smart Dispatch',   desc: 'No route visibility means clients call and your team wastes time. The agent dispatches, tracks and notifies without manual intervention.' },
+      ];
+      cards.forEach((card, i) => {
+        if (!cardData[i]) return;
+        card.querySelector('.agent-card-title').textContent = cardData[i].title;
+        card.querySelector('.card-desc').textContent = cardData[i].desc;
+      });
+
+      // How it works
+      document.querySelector('.how-section .section-label').textContent = 'The process';
+      document.querySelector('.how-section .section-title').textContent = 'From diagnosis to your first active agent in under 30 days.';
+      const steps = document.querySelectorAll('.step-card');
+      const stepData = [
+        { num: '01 · Diagnosis',       title: 'We map your operation',         desc: 'We analyze flows, existing systems and bottlenecks to define which agents generate immediate impact.' },
+        { num: '02 · Pilot',           title: '15 days at no cost',             desc: 'We activate the first agent in your real operation. You measure the impact before committing.' },
+        { num: '03 · Implementation',  title: 'Integration without migrating',  desc: 'We connect agents to your current systems — WhatsApp, email, ERP, CRM — without replacing them.' },
+        { num: '04 · Operation',       title: 'Your agents work on their own',  desc: 'Continuous support, iterative improvements and access to new agents as your operation grows.' },
+      ];
+      steps.forEach((step, i) => {
+        if (!stepData[i]) return;
+        step.querySelector('.step-num').textContent   = stepData[i].num;
+        step.querySelector('.step-title').textContent = stepData[i].title;
+        step.querySelector('.step-desc').textContent  = stepData[i].desc;
+      });
+
+      // CTA
+      document.querySelector('.cta-text h2').innerHTML = "Your operation doesn't need more people.<br>It needs <em>better agents.</em>";
+      document.querySelector('.cta-text p').textContent = "Tell us how your company works today. In 48 hours you'll have a diagnosis and a proposal.";
+      document.querySelector('.cta-buttons .btn-primary').textContent = 'Talk on WhatsApp';
+      document.querySelector('.cta-buttons .btn-secondary').textContent = 'Contact us';
+      document.querySelector('.cta-buttons .btn-secondary').href = '/contacto.html?lang=en';
+
+      // Footer
+      document.querySelector('footer .footer-logo').href = 'https://7group.site';
+      const footerLinks = document.querySelectorAll('.footer-links a');
+      if (footerLinks[0]) { footerLinks[0].textContent = 'Home';    footerLinks[0].href = 'https://7group.site'; }
+      if (footerLinks[1]) { footerLinks[1].textContent = 'USA';     footerLinks[1].href = 'https://7group.site/florida/'; }
+      if (footerLinks[2]) { footerLinks[2].textContent = 'Contact'; footerLinks[2].href = '/contacto.html?lang=en'; }
+    }
 
     const gen = {};
     const sleep = ms => new Promise(r => setTimeout(r, ms));
