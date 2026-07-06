@@ -455,6 +455,96 @@
   </main>
 
   <script>
+    /* ── i18n ── */
+    const LANG = new URLSearchParams(window.location.search).get('lang') === 'en' ? 'en' : 'es';
+
+    const T = {
+      es: {
+        backHome: '← Volver al inicio',
+        step1meta: 'Paso 1 de 4',        step1q: 'Hola. ¿Cuál es<br><em>tu nombre?</em>',
+        step1ph: 'Ej. Juan Pérez',       step1err: 'Por favor ingresa tu nombre.',
+        step2meta: 'Paso 2 de 4',        step2q: '¿De qué empresa<br><em>nos escribes?</em>',
+        step2ph: 'Ej. Distribuidora Central', step2err: 'Por favor ingresa el nombre de tu empresa.',
+        step3meta: 'Paso 3 de 4',        step3q: '¿Qué quieres<br><em>mejorar?</em>',
+        areas: ['Cotizaciones automáticas','Gestión de pedidos','Finanzas y facturación','Atención al cliente','Logística y despacho','Todo lo anterior'],
+        step3err: 'Selecciona al menos una opción.',
+        step4meta: 'Paso 4 de 4',        step4q: '¿Cuántos pedidos<br>manejas <em>al mes?</em>',
+        vols: ['Menos de 50','50 a 200','200 a 500','Más de 500'],
+        step4err: 'Selecciona tu rango de pedidos.',
+        finalmeta: 'Listo para enviar',  finalq: 'Confirma tu<br><em>información.</em>',
+        waBtn: 'Iniciar conversación por WhatsApp',
+        editBtn: '← Editar respuestas',
+        footer: 'Se abrirá WhatsApp con tu información ya redactada. Respondemos el mismo día hábil.',
+        nextBtn: 'Siguiente →',          backBtn: '← Volver',
+        sumKeys: ['Nombre','Empresa','Interés','Pedidos / mes'],
+        waMsg: (n,e,a,v) => `Hola, soy ${n} de ${e}.\nQuiero mejorar: ${a}.\nManejo aprox. ${v} pedidos al mes.\n\nVi su propuesta en 7group.site y me gustaría conocer más.`
+      },
+      en: {
+        backHome: '← Back to home',
+        step1meta: 'Step 1 of 4',        step1q: "Hello. What's<br><em>your name?</em>",
+        step1ph: 'E.g. John Smith',      step1err: 'Please enter your name.',
+        step2meta: 'Step 2 of 4',        step2q: 'What company<br><em>are you from?</em>',
+        step2ph: 'E.g. Central Hardware',step2err: 'Please enter your company name.',
+        step3meta: 'Step 3 of 4',        step3q: 'What do you want<br><em>to improve?</em>',
+        areas: ['Automatic Quoting','Order Management','Finance & Invoicing','Customer Support','Logistics & Dispatch','All of the above'],
+        step3err: 'Select at least one option.',
+        step4meta: 'Step 4 of 4',        step4q: 'How many orders<br>do you handle <em>per month?</em>',
+        vols: ['Less than 50','50 to 200','200 to 500','More than 500'],
+        step4err: 'Select your order volume.',
+        finalmeta: 'Ready to send',      finalq: 'Confirm your<br><em>information.</em>',
+        waBtn: 'Start WhatsApp conversation',
+        editBtn: '← Edit answers',
+        footer: 'WhatsApp will open with your information pre-written. We respond same business day.',
+        nextBtn: 'Next →',               backBtn: '← Back',
+        sumKeys: ['Name','Company','Focus','Volume'],
+        waMsg: (n,e,a,v) => `Hi, I'm ${n} from ${e}.\nI want to improve: ${a}.\nWe handle approx. ${v} orders per month.\n\nI saw your proposal at 7group.site and I'd like to learn more.`
+      }
+    };
+
+    function applyLang() {
+      if (LANG === 'es') return; // HTML is already ES
+      const t = T.en;
+      const $ = id => document.getElementById(id);
+      const qs = sel => document.querySelector(sel);
+      const qsa = sel => document.querySelectorAll(sel);
+
+      qs('.top-back').textContent = t.backHome;
+      // Step metas
+      ['1','2','3','4'].forEach((n,i) => { qs(`#step-${n} .step-meta`).textContent = [t.step1meta,t.step2meta,t.step3meta,t.step4meta][i]; });
+      // Questions
+      qs('#step-1 .step-question').innerHTML = t.step1q;
+      qs('#step-2 .step-question').innerHTML = t.step2q;
+      qs('#step-3 .step-question').innerHTML = t.step3q;
+      qs('#step-4 .step-question').innerHTML = t.step4q;
+      qs('#step-final .step-meta').textContent = t.finalmeta;
+      qs('#step-final .step-question').innerHTML = t.finalq;
+      // Placeholders & errors
+      $('input-nombre').placeholder = t.step1ph;  $('err-nombre').textContent  = t.step1err;
+      $('input-empresa').placeholder = t.step2ph; $('err-empresa').textContent = t.step2err;
+      $('err-area').textContent = t.step3err;      $('err-volumen').textContent = t.step4err;
+      // Buttons
+      qsa('.btn-next').forEach(b => b.textContent = t.nextBtn);
+      qsa('.btn-back:not(.hidden)').forEach(b => {
+        if (b.getAttribute('onclick') !== "goBack('final')") b.textContent = t.backBtn;
+      });
+      // WA button: text node after SVG
+      const waBtn = $('waBtn');
+      waBtn.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = ' ' + t.waBtn; });
+      qs('[onclick="goBack(\'final\')"]').textContent = t.editBtn;
+      qs('#step-final p').textContent = t.footer;
+      // Area options
+      qsa('#grid-area .option-card').forEach((card, i) => {
+        const inp = card.querySelector('input'); const lbl = card.querySelector('.option-label');
+        inp.value = t.areas[i]; lbl.textContent = t.areas[i];
+      });
+      // Volume options
+      qsa('#grid-volumen .option-card').forEach((card, i) => {
+        const inp = card.querySelector('input'); const lbl = card.querySelector('.option-label');
+        inp.value = t.vols[i]; lbl.textContent = t.vols[i];
+      });
+    }
+    applyLang();
+
     const data = { nombre: '', empresa: '', area: '', volumen: '' };
     const totalSteps = 4;
 
@@ -524,12 +614,13 @@
     }
 
     function buildSummary() {
+      const t = T[LANG];
       const list = document.getElementById('summaryList');
       list.innerHTML = [
-        ['Nombre',  data.nombre],
-        ['Empresa', data.empresa],
-        ['Interés', data.area],
-        ['Pedidos / mes', data.volumen],
+        [t.sumKeys[0], data.nombre],
+        [t.sumKeys[1], data.empresa],
+        [t.sumKeys[2], data.area],
+        [t.sumKeys[3], data.volumen],
       ].map(([k, v]) => `
         <div class="summary-item">
           <span class="summary-key">${k}</span>
@@ -537,21 +628,14 @@
         </div>
       `).join('');
 
-      // Pre-build the WA URL so the anchor carries it natively
-      const msg =
-        `Hola, soy ${data.nombre} de ${data.empresa}.\n` +
-        `Quiero mejorar: ${data.area}.\n` +
-        `Manejo aprox. ${data.volumen} pedidos al mes.\n\n` +
-        `Vi su propuesta en 7group.site y me gustaría conocer más.`;
+      const msg = t.waMsg(data.nombre, data.empresa, data.area, data.volumen);
       document.getElementById('waBtn').href =
         'https://wa.me/573143095194?text=' + encodeURIComponent(msg);
     }
 
     function onWaClick() {
-      // WhatsApp opens via the anchor href natively.
-      // Redirect to confirmation after short delay so WA has time to launch.
       setTimeout(() => {
-        const params = new URLSearchParams({ nombre: data.nombre, empresa: data.empresa });
+        const params = new URLSearchParams({ nombre: data.nombre, empresa: data.empresa, lang: LANG });
         window.location.href = '/gracias/?' + params.toString();
       }, 600);
     }

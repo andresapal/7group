@@ -230,17 +230,38 @@
     const params = new URLSearchParams(window.location.search);
     const nombre  = params.get('nombre')  || '';
     const empresa = params.get('empresa') || '';
+    const lang    = params.get('lang')    || 'es';
 
-    if (nombre) {
-      document.getElementById('greeting').innerHTML =
-        `¡Listo,<br><em>${nombre}!</em>`;
+    if (lang === 'en') {
+      // Apply English text
+      document.querySelector('h1#greeting').innerHTML = 'Done,<br><em>we\'re in touch!</em>';
       document.getElementById('subtitle').innerHTML =
-        `Te abrimos WhatsApp con tu mensaje ya redactado, ${empresa ? `<strong>${empresa}</strong>` : 'tu empresa'} es lo que necesitamos. ` +
-        `Respondemos <strong>hoy mismo</strong> antes de las 6pm.`;
+        `We opened WhatsApp with your message pre-written. We\'ll respond <strong>today</strong> before 6pm.`;
+      document.querySelectorAll('.ns-title')[0].textContent = 'You sent your message via WhatsApp';
+      document.querySelectorAll('.ns-desc')[0].textContent  = 'Your information arrived to our team with full context.';
+      document.querySelectorAll('.ns-title')[1].textContent = 'We review your operation';
+      document.querySelectorAll('.ns-desc')[1].textContent  = 'We respond today with an initial diagnosis and a proposal for your case.';
+      document.querySelectorAll('.ns-title')[2].textContent = 'Free 15-day pilot';
+      document.querySelectorAll('.ns-desc')[2].textContent  = 'If we move forward, we activate the first agent in your real operation at no cost.';
+      document.querySelector('.wa-fallback').innerHTML =
+        'WhatsApp didn\'t open automatically? <a id="waLink" href="https://wa.me/573143095194" target="_blank">Tap here to open the conversation.</a>';
+      document.querySelectorAll('.bottom-links a')[0].textContent = '← Back to home';
+      document.querySelectorAll('.bottom-links a')[1].textContent = 'See agents';
+      document.querySelectorAll('.bottom-links a')[2].textContent = 'See plans & pricing';
     }
 
-    // If user came with a pre-built WA URL in sessionStorage, update the fallback link
-    // (not needed since WA opens on previous page, this is just the fallback)
+    if (nombre) {
+      if (lang === 'en') {
+        document.getElementById('greeting').innerHTML = `Done,<br><em>${nombre}!</em>`;
+        document.getElementById('subtitle').innerHTML =
+          `We opened WhatsApp with your message pre-written${empresa ? `, <strong>${empresa}</strong>` : ''}. We\'ll respond <strong>today</strong> before 6pm.`;
+      } else {
+        document.getElementById('greeting').innerHTML = `¡Listo,<br><em>${nombre}!</em>`;
+        document.getElementById('subtitle').innerHTML =
+          `Te abrimos WhatsApp con tu mensaje ya redactado, ${empresa ? `<strong>${empresa}</strong>` : 'tu empresa'} es lo que necesitamos. ` +
+          `Respondemos <strong>hoy mismo</strong> antes de las 6pm.`;
+      }
+    }
   </script>
 
 </body>
