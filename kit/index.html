@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>7group · Sales Kit</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:  #0a0a0a;
+      --dark:   #111;
+      --card:   #1a1a1a;
+      --border: #2a2a2a;
+      --white:  #f0f0f0;
+      --gray:   #666;
+      --light:  #999;
+      --cyan:   #5ee7f7;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
+    .top-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--black);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .top-logo { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; color: var(--white); }
+    .top-logo span { color: var(--cyan); }
+    .top-dl {
+      font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+      color: var(--gray); text-decoration: none; border: 1px solid var(--border);
+      padding: 6px 12px; transition: border-color 0.2s;
+    }
+    .top-dl:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex; overflow-x: auto; gap: 0;
+      border-bottom: 1px solid var(--border);
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex-shrink: 0;
+      padding: 12px 18px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+      color: var(--gray); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap; user-select: none;
+    }
+    .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+    /* ── SECTIONS ── */
+    .section { display: none; padding: 24px 20px 80px; max-width: 520px; margin: 0 auto; }
+    .section.active { display: block; }
+
+    /* ── TYPOGRAPHY ── */
+    .sec-label {
+      font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--gray); margin-bottom: 20px;
+    }
+    .sec-title {
+      font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px;
+      line-height: 1.15; margin-bottom: 24px;
+    }
+    .sec-title em { font-style: normal; color: var(--cyan); }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 20px; margin-bottom: 12px; border-radius: 2px;
+    }
+    .card-num {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gray); margin-bottom: 8px;
+    }
+    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--white); }
+    .card-body { font-size: 0.88rem; color: var(--light); line-height: 1.65; }
+    .card-body strong { color: var(--white); font-weight: 600; }
+    .card-body em { font-style: normal; color: var(--cyan); }
+
+    /* ── QUOTE BLOCK ── */
+    .quote-block {
+      background: var(--card); border-left: 3px solid var(--cyan);
+      padding: 20px; margin-bottom: 16px; border-radius: 0 2px 2px 0;
+    }
+    .quote-label {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 10px;
+    }
+    .quote-text {
+      font-size: 1rem; line-height: 1.7; color: var(--white);
+      font-style: italic;
+    }
+    .quote-note {
+      font-size: 0.78rem; color: var(--gray); margin-top: 10px;
+    }
+
+    /* ── OBJECTION ── */
+    .obj { margin-bottom: 16px; }
+    .obj-q {
+      font-size: 0.88rem; font-weight: 700; color: var(--light);
+      padding: 14px 16px; background: var(--card); border: 1px solid var(--border);
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+      user-select: none;
+    }
+    .obj-q::after { content: '+'; color: var(--cyan); font-size: 1.2rem; flex-shrink: 0; margin-left: 12px; }
+    .obj.open .obj-q::after { content: '−'; }
+    .obj-a {
+      display: none; padding: 14px 16px 16px;
+      font-size: 0.88rem; color: var(--light); line-height: 1.65;
+      background: #141414; border: 1px solid var(--border); border-top: none;
+    }
+    .obj.open .obj-a { display: block; }
+    .obj-a strong { color: var(--white); }
+    .obj-a em { font-style: normal; color: var(--cyan); }
+
+    /* ── PRICE TABLE ── */
+    .price-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0; border-bottom: 1px solid var(--border);
+    }
+    .price-row:last-child { border-bottom: none; }
+    .price-name { font-size: 0.9rem; font-weight: 600; color: var(--white); }
+    .price-sub { font-size: 0.78rem; color: var(--gray); margin-top: 3px; }
+    .price-val { font-size: 1.1rem; font-weight: 700; color: var(--cyan); text-align: right; }
+    .price-val span { font-size: 0.75rem; font-weight: 400; color: var(--gray); display: block; }
+
+    /* ── PILL TAGS ── */
+    .pill {
+      display: inline-block; font-size: 10px; letter-spacing: 1px;
+      text-transform: uppercase; padding: 4px 10px;
+      border: 1px solid var(--border); color: var(--gray); margin: 4px 4px 0 0;
+    }
+    .pill.cyan { border-color: var(--cyan); color: var(--cyan); }
+
+    /* ── COPY BUTTON ── */
+    .copy-wrap { position: relative; margin-bottom: 16px; }
+    .copy-btn {
+      position: absolute; top: 12px; right: 12px;
+      font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+      background: var(--border); color: var(--gray); border: none;
+      padding: 5px 10px; cursor: pointer; transition: background 0.2s;
+    }
+    .copy-btn:hover { background: #333; color: var(--white); }
+    .copy-btn.copied { background: var(--cyan); color: var(--black); }
+
+    /* ── STEP LIST ── */
+    .step-list { list-style: none; }
+    .step-item {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .step-item:last-child { border-bottom: none; }
+    .step-n {
+      font-size: 10px; letter-spacing: 2px; color: var(--cyan);
+      font-weight: 700; flex-shrink: 0; padding-top: 2px; min-width: 24px;
+    }
+    .step-t { font-size: 0.9rem; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+    .step-d { font-size: 0.82rem; color: var(--light); line-height: 1.6; }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight {
+      border: 1px solid var(--cyan); padding: 16px; margin-bottom: 16px;
+      font-size: 0.88rem; color: var(--light); line-height: 1.65;
+    }
+    .highlight strong { color: var(--cyan); }
+
+    /* ── BOTTOM CTA ── */
+    .bottom-cta {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--black); border-top: 1px solid var(--border);
+      padding: 12px 20px; display: flex; gap: 10px;
+    }
+    .cta-wa {
+      flex: 1; background: #25D366; color: #fff;
+      text-align: center; padding: 12px; font-size: 13px; font-weight: 600;
+      text-decoration: none; letter-spacing: 0.3px;
+    }
+    .cta-site {
+      flex: 1; background: var(--card); color: var(--white);
+      text-align: center; padding: 12px; font-size: 13px; font-weight: 600;
+      text-decoration: none; border: 1px solid var(--border); letter-spacing: 0.3px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="top-logo">7group <span>·</span> Sales Kit</div>
+    <a class="top-dl" onclick="window.print()">Guardar PDF</a>
+  </div>
+
+  <div class="tabs" id="tabBar">
+    <div class="tab active" onclick="show(0)">Pitch</div>
+    <div class="tab" onclick="show(1)">Preguntas</div>
+    <div class="tab" onclick="show(2)">Agentes</div>
+    <div class="tab" onclick="show(3)">Precios</div>
+    <div class="tab" onclick="show(4)">Objeciones</div>
+    <div class="tab" onclick="show(5)">Cierre</div>
+  </div>
+
+  <!-- 0 · PITCH -->
+  <div class="section active" id="s0">
+    <p class="sec-label">Cómo presentarte</p>
+    <h2 class="sec-title">El pitch en <em>30 segundos.</em></h2>
+
+    <div class="copy-wrap">
+      <div class="quote-block" id="pitch30">
+        <div class="quote-label">Versión corta — inglés</div>
+        <p class="quote-text">"We build AI operations platforms for logistics and distribution companies — white-labeled under your brand. Automated quoting, order management, 24/7 customer support. No extra headcount. We start with a free 15-day pilot on your real operation."</p>
+        <p class="quote-note">Ideal para: primera llamada, networking, referidos</p>
+      </div>
+      <button class="copy-btn" onclick="copyText('pitch30', this)">Copiar</button>
+    </div>
+
+    <div class="copy-wrap">
+      <div class="quote-block" id="pitch30es">
+        <div class="quote-label">Versión corta — español</div>
+        <p class="quote-text">"Construimos plataformas de operaciones con IA para empresas de logística y distribución — bajo tu marca. Cotizaciones automáticas, gestión de pedidos, atención al cliente 24/7. Sin contratar más gente. Empezamos con un piloto gratuito de 15 días en tu operación real."</p>
+        <p class="quote-note">Ideal para: Colombia, referidos locales</p>
+      </div>
+      <button class="copy-btn" onclick="copyText('pitch30es', this)">Copiar</button>
+    </div>
+
+    <div class="copy-wrap">
+      <div class="quote-block" id="pitchlong">
+        <div class="quote-label">Versión larga — para cuando preguntan más</div>
+        <p class="quote-text">"Think of it as hiring 5 specialists — one for quoting, one for operations, one for finance, one for support, one for dispatch — except they work 24/7, never make mistakes, and cost a fraction of a salary. We built this for our own logistics company first. When it worked, we started offering it to others. Everything is white-labeled: it runs under your brand, your colors, your domain."</p>
+      </div>
+      <button class="copy-btn" onclick="copyText('pitchlong', this)">Copiar</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Lo que NO somos</div>
+      <div class="card-body">
+        No somos una consultora que entrega un informe.<br>
+        No somos un software genérico que tu equipo tiene que aprender.<br>
+        No reemplazamos lo que ya tienes.<br><br>
+        <strong>Somos el equipo que lo implementa y lo deja funcionando.</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1 · PREGUNTAS -->
+  <div class="section" id="s1">
+    <p class="sec-label">Calificación del cliente</p>
+    <h2 class="sec-title">Preguntas que <em>abren la conversación.</em></h2>
+
+    <div class="highlight">
+      <strong>Regla de oro:</strong> primero escucha. El cliente que te dice su problema es el cliente que ya está listo para comprar.
+    </div>
+
+    <ul class="step-list">
+      <li class="step-item">
+        <span class="step-n">01</span>
+        <div>
+          <div class="step-t">"¿Cuántos pedidos/servicios manejan al mes?"</div>
+          <div class="step-d">Si dice menos de 50 → piloto básico. Si dice 200+ → conversación seria. Más de 500 → implementación completa.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <span class="step-n">02</span>
+        <div>
+          <div class="step-t">"¿Cómo generan cotizaciones hoy?"</div>
+          <div class="step-d">Si dice "en Excel" o "WhatsApp" o "a mano" → ahí está el dolor. Ese es el primer agente.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <span class="step-n">03</span>
+        <div>
+          <div class="step-t">"¿Los clientes te llaman preguntando dónde está su pedido?"</div>
+          <div class="step-d">Si dice sí → agente de atención + logístico. Ese problema le está costando tiempo y reputación.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <span class="step-n">04</span>
+        <div>
+          <div class="step-t">"¿Cuántas personas tienen en operaciones vs. en campo?"</div>
+          <div class="step-d">Esto te dice si el cuello de botella es administrativo (nuestro caso) o de capacidad de servicio.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <span class="step-n">05</span>
+        <div>
+          <div class="step-t">"¿Usan algún software hoy? ¿ERP, CRM, algo?"</div>
+          <div class="step-d">Si dice sí → "perfecto, nos conectamos a lo que ya tienen, no lo reemplazamos." Si dice no → más fácil, empezamos desde cero.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <span class="step-n">06</span>
+        <div>
+          <div class="step-t">"¿Cuál es el mayor dolor de cabeza operativo hoy?"</div>
+          <div class="step-d">Déjalo hablar. Lo que diga en los primeros 10 segundos es lo que tienes que resolver en tu propuesta.</div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">Señales de que es un buen cliente</div>
+      <div class="card-body">
+        <span class="pill cyan">Tiene operaciones repetitivas</span>
+        <span class="pill cyan">Más de 50 pedidos/mes</span>
+        <span class="pill cyan">Equipo de 3+ personas en ops</span>
+        <span class="pill cyan">Usa Excel o WhatsApp para operar</span>
+        <span class="pill cyan">Quiere crecer pero no puede contratar más</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 · AGENTES -->
+  <div class="section" id="s2">
+    <p class="sec-label">Qué ofrecemos</p>
+    <h2 class="sec-title">Los 5 agentes <em>explicados simple.</em></h2>
+
+    <div class="card">
+      <div class="card-num">01 · Agente Comercial</div>
+      <div class="card-title">Cotización automática</div>
+      <div class="card-body">
+        El cliente manda un WhatsApp a las 11pm pidiendo un precio. El agente responde con una cotización profesional en 2 segundos. <em>Sin que tú estés despierto.</em><br><br>
+        <strong>Ejemplo real (Trasteos Ya):</strong> antes tardaban 20 minutos por cotización. Ahora es inmediato, y cierran 3x más porque responden antes que la competencia.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-num">02 · Agente de Operaciones</div>
+      <div class="card-title">Visibilidad total de pedidos</div>
+      <div class="card-body">
+        Cada pedido tiene estado, responsable y timeline. Tu equipo sabe qué está pasando sin llamar a nadie. <em>El caos desaparece.</em><br><br>
+        <strong>Lo que resuelve:</strong> "¿Quién tiene el pedido 8823?" ya no existe. Está en el sistema, actualizado en tiempo real.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-num">03 · Agente Financiero</div>
+      <div class="card-title">Facturación automática</div>
+      <div class="card-body">
+        Pedido entregado → factura generada → enviada al cliente → registrada en el sistema. <em>Sin que nadie la escriba a mano.</em><br><br>
+        <strong>Lo que resuelve:</strong> facturas olvidadas, cartera vencida, cobros tardíos. Todo automático.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-num">04 · Agente de Atención</div>
+      <div class="card-title">Respuesta 24/7</div>
+      <div class="card-body">
+        Cliente escribe a las 10pm: "¿dónde está mi pedido?" El agente responde al instante con el estado real, la hora de llegada y el enlace de rastreo. <em>Sin operador humano.</em><br><br>
+        <strong>Lo que resuelve:</strong> tu equipo deja de responder WhatsApps los domingos.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-num">05 · Agente Logístico</div>
+      <div class="card-title">Despacho inteligente</div>
+      <div class="card-body">
+        Asigna conductor, ruta y hora de recogida automáticamente. El cliente recibe confirmación por WhatsApp. <em>Sin coordinador humano en el medio.</em><br><br>
+        <strong>Ejemplo real (Tygo):</strong> conectamos transportadores con clientes en tiempo real. El sistema asigna, el humano ejecuta.
+      </div>
+    </div>
+
+    <div class="highlight">
+      <strong>Frase de cierre al presentar los agentes:</strong><br>
+      "Cada agente trabaja solo. Tú los supervisas desde un dashboard. Es como tener 5 empleados perfectos que nunca se enferman y trabajan las 24 horas."
+    </div>
+  </div>
+
+  <!-- 3 · PRECIOS -->
+  <div class="section" id="s3">
+    <p class="sec-label">Cómo presentar el precio</p>
+    <h2 class="sec-title">El precio no es el <em>primer tema.</em></h2>
+
+    <div class="highlight">
+      <strong>Regla:</strong> nunca abras con precio. Primero el piloto gratuito. Cuando pregunten, muestra el piloto como punto de entrada.
+    </div>
+
+    <div class="card">
+      <div class="card-num">Paso 1 — Siempre empezar aquí</div>
+      <div class="card-title">Piloto gratuito · $0</div>
+      <div class="card-body">
+        <em>"Arrancamos con 15 días gratis en tu operación real. Sin tarjeta. Sin compromiso. Si no ves el impacto, no pagas nada."</em><br><br>
+        <strong>Por qué funciona:</strong> elimina el riesgo. Nadie dice no a gratis.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-num">Paso 2 — Implementación (único pago)</div>
+      <div class="card-title">Desde $3,500 USD / desde $10M COP</div>
+      <div class="card-body">
+        <em>"Esta es tu plataforma, bajo tu marca, para siempre. Lo montamos todo, capacitamos al equipo, integramos con lo que ya usan. Pago único."</em><br><br>
+        <strong>Cómo justificarlo:</strong> "Un empleado en USA cuesta $3,500 el primer mes solo en salario. Esto te dura para siempre."
+      </div>
+    </div>
+
+    <div style="border: 1px solid var(--border); margin-bottom: 16px;">
+      <div class="price-row" style="padding: 16px;">
+        <div>
+          <div class="price-name">Core</div>
+          <div class="price-sub">3 módulos · 5 usuarios · 500 ops/mes</div>
+        </div>
+        <div class="price-val">$280<span>USD/mes</span></div>
+      </div>
+      <div class="price-row" style="padding: 16px; background: #141414;">
+        <div>
+          <div class="price-name">Professional ★</div>
+          <div class="price-sub">Todo · 20 usuarios · ilimitado</div>
+        </div>
+        <div class="price-val">$450<span>USD/mes</span></div>
+      </div>
+      <div class="price-row" style="padding: 16px;">
+        <div>
+          <div class="price-name">Scale</div>
+          <div class="price-sub">Enterprise · multi-vertical</div>
+        </div>
+        <div class="price-val" style="font-size:0.9rem;">Custom</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-num">En Colombia · COP</div>
+      <div class="card-body">
+        Esencial: <strong>$1.1M COP/mes</strong><br>
+        Profesional: <strong>$1.8M COP/mes</strong><br>
+        Implementación: <strong>desde $10M COP</strong> (pago único)<br><br>
+        <em>"Menos de lo que te cuesta un operador de medio tiempo."</em>
+      </div>
+    </div>
+
+    <div class="copy-wrap">
+      <div class="quote-block" id="pricepitch">
+        <div class="quote-label">Cómo decir el precio en una llamada</div>
+        <p class="quote-text">"Mira, el modelo es simple. Empezamos gratis — 15 días sin costo, en tu operación real. Si funciona y quieres continuar, hay una implementación inicial y luego una suscripción mensual que arranca en $280 al mes. La mayoría de nuestros clientes recuperan eso en el primer mes solo en horas de equipo ahorradas."</p>
+      </div>
+      <button class="copy-btn" onclick="copyText('pricepitch', this)">Copiar</button>
+    </div>
+  </div>
+
+  <!-- 4 · OBJECIONES -->
+  <div class="section" id="s4">
+    <p class="sec-label">Lo que te van a decir</p>
+    <h2 class="sec-title">Objeciones y <em>cómo responderlas.</em></h2>
+
+    <div class="obj" onclick="toggleObj(this)">
+      <div class="obj-q">"Ya tenemos software / ERP"</div>
+      <div class="obj-a"><strong>Respuesta:</strong> "Perfecto — no lo reemplazamos. Nos conectamos a lo que ya tienen. El problema no es el software, es que el software no actúa solo: alguien tiene que abrirlo, leerlo, y hacer algo. Nuestros agentes hacen esa parte automáticamente."</div>
+    </div>
+
+    <div class="obj" onclick="toggleObj(this)">
+      <div class="obj-q">"Es muy caro" / "No tenemos presupuesto"</div>
+      <div class="obj-a"><strong>Respuesta:</strong> "Entiendo. Por eso el piloto es gratis — ni tarjeta necesitas. Si después de 15 días no ves el retorno, no te cuesta nada. Lo que sí sé es que cada mes sin esto te está costando horas de equipo que podrías estar usando para crecer."</div>
+    </div>
+
+    <div class="obj" onclick="toggleObj(this)">
+      <div class="obj-q">"No estamos listos para IA"</div>
+      <div class="obj-a"><strong>Respuesta:</strong> "Lo que hacemos no requiere que tu equipo aprenda programación ni tecnología avanzada. Funciona por WhatsApp y un dashboard simple. Nuestros primeros clientes pensaban lo mismo — en una semana ya lo estaban usando solos."</div>
+    </div>
+
+    <div class="obj" onclick="toggleObj(this)">
+      <div class="obj-q">"¿En qué se diferencia de lo que ya existe?"</div>
+      <div class="obj-a"><strong>Respuesta:</strong> "La mayoría de los softwares te dan datos. Esto <em>actúa</em> sobre los datos. No te muestra que hay un pedido atrasado — coordina al proveedor, notifica al cliente y crea la tarea de seguimiento, solo. Es la diferencia entre tener un tablero y tener un empleado."</div>
+    </div>
+
+    <div class="obj" onclick="toggleObj(this)">
+      <div class="obj-q">"Necesito pensarlo" / "Lo hablo con mi socio"</div>
+      <div class="obj-a"><strong>Respuesta:</strong> "Claro, es una decisión importante. ¿Puedo enviarte el link para que vean los 5 agentes funcionando en tiempo real? Son 3 minutos. Y si quieres, agendamos 20 minutos los tres para resolver preguntas. ¿Cuándo les quedaría bien?"<br><br><em>Siempre termina con una fecha concreta, no con "me avisas".</em></div>
+    </div>
+
+    <div class="obj" onclick="toggleObj(this)">
+      <div class="obj-q">"¿Tienen casos reales? ¿Funciona de verdad?"</div>
+      <div class="obj-a"><strong>Respuesta:</strong> "Sí — lo construimos primero para nuestra propia empresa de logística. Trasteos Ya maneja cientos de trasteos al mes con este sistema. Tygo conecta transportadores con clientes en tiempo real. No lo vendemos sin haberlo vivido nosotros."<br><br><em>Si insisten: "Te puedo mostrar cómo funciona en una demo de 15 minutos."</em></div>
+    </div>
+
+    <div class="obj" onclick="toggleObj(this)">
+      <div class="obj-q">"¿Y si no funciona para mi industria?"</div>
+      <div class="obj-a"><strong>Respuesta:</strong> "Por eso empezamos con el diagnóstico. Antes de venderte nada, mapeamos tu operación y te decimos honestamente qué agente tiene impacto inmediato en tu caso. Si no hay fit, te lo decimos. No queremos clientes que no van a ver resultados."</div>
+    </div>
+
+    <div class="obj" onclick="toggleObj(this)">
+      <div class="obj-q">"¿Cuánto tiempo toma implementar?"</div>
+      <div class="obj-a"><strong>Respuesta:</strong> "El piloto arranca en 48 horas. La implementación completa toma entre 2 y 4 semanas según el tamaño de la operación. Nosotros hacemos todo — tú solo necesitas dedicar unas horas al onboarding con tu equipo."</div>
+    </div>
+  </div>
+
+  <!-- 5 · CIERRE -->
+  <div class="section" id="s5">
+    <p class="sec-label">Cómo terminar cada conversación</p>
+    <h2 class="sec-title">El siguiente paso <em>siempre concreto.</em></h2>
+
+    <div class="highlight">
+      <strong>Regla:</strong> nunca termines con "te mando información" o "me avisas". Cada conversación termina con una fecha, un link, o un demo agendado.
+    </div>
+
+    <ul class="step-list">
+      <li class="step-item">
+        <span class="step-n">A</span>
+        <div>
+          <div class="step-t">Si mostró interés → agenda un demo</div>
+          <div class="step-d">"¿Tienes 15 minutos esta semana? Te muestro el sistema funcionando en vivo sobre un caso parecido al tuyo."<br><br>No esperes a que ellos propongan. Da opciones: "¿Miércoles o jueves te queda bien?"</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <span class="step-n">B</span>
+        <div>
+          <div class="step-t">Si pidió información → manda el link inmediato</div>
+          <div class="step-d">Manda: <strong>7group.site/agentes/</strong> (ES) o <strong>7group.site/agentes/?lang=en</strong> (EN)<br><br>Agrega: "Pasa el cursor sobre cada agente para verlo en acción. En 3 minutos ves todo."</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <span class="step-n">C</span>
+        <div>
+          <div class="step-t">Si ya quiere empezar → piloto</div>
+          <div class="step-d">Manda al formulario: <strong>7group.site/contacto.html</strong><br><br>O recolecta tú: nombre, empresa, operación principal, volumen mensual. Con eso arrancas el diagnóstico.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <span class="step-n">D</span>
+        <div>
+          <div class="step-t">Si dijo "después" → el follow-up perfecto</div>
+          <div class="step-d">Espera 3 días. Manda esto por WhatsApp:<br><br><em>"Hola [nombre], te paso esto — es el agente comercial en acción: 7group.site/agentes/?lang=en#agent-01 — 30 segundos. ¿Cuándo podemos hablar?"</em></div>
+        </div>
+      </li>
+    </ul>
+
+    <div class="copy-wrap" style="margin-top:20px;">
+      <div class="quote-block" id="followup">
+        <div class="quote-label">Mensaje de follow-up WhatsApp (EN)</div>
+        <p class="quote-text">"Hi [name], quick follow-up from our conversation. Here's the Sales Agent working in real time: 7group.site/agentes/?lang=en — hover over any card. Takes 2 minutes. When can we talk for 15 minutes?"</p>
+      </div>
+      <button class="copy-btn" onclick="copyText('followup', this)">Copiar</button>
+    </div>
+
+    <div class="copy-wrap">
+      <div class="quote-block" id="followupes">
+        <div class="quote-label">Mensaje de follow-up WhatsApp (ES)</div>
+        <p class="quote-text">"Hola [nombre], te paso esto — es el sistema en acción: 7group.site/agentes/ — pasa el cursor sobre cada agente, son 2 minutos. ¿Cuándo podemos hablar 15 minutos?"</p>
+      </div>
+      <button class="copy-btn" onclick="copyText('followupes', this)">Copiar</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Links para compartir rápido</div>
+      <div class="card-body">
+        Demo EN: <em>7group.site/agentes/?lang=en</em><br>
+        Demo ES: <em>7group.site/agentes/</em><br>
+        Contacto: <em>7group.site/contacto.html</em><br>
+        Precios: <em>7group.site/pagos/</em><br>
+        Landing EN: <em>7group.site</em><br>
+        Landing ES: <em>7group.site/es/</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM CTA -->
+  <div class="bottom-cta">
+    <a href="https://wa.me/573143095194" class="cta-wa">WhatsApp</a>
+    <a href="https://7group.site" class="cta-site">7group.site</a>
+  </div>
+
+  <script>
+    function show(i) {
+      document.querySelectorAll('.section').forEach((s, j) => s.classList.toggle('active', j === i));
+      document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('active', j === i));
+      // Scroll tab into view
+      const tab = document.querySelectorAll('.tab')[i];
+      tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      window.scrollTo(0, 0);
+    }
+
+    function toggleObj(el) {
+      el.classList.toggle('open');
+    }
+
+    function copyText(id, btn) {
+      const text = document.getElementById(id).querySelector('.quote-text').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copiado';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
