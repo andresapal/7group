@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de ROI — ¿Cuánto te cuesta no automatizar? · 7Group</title>
+<meta name="description" content="Calcula en 2 minutos cuánto dinero y tiempo pierde tu empresa operando de forma manual. Ve tu ahorro potencial con automatización e IA.">
+<link rel="canonical" href="https://7group.site/calculadora/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:title" content="¿Cuánto te cuesta no automatizar? · 7Group">
+<meta property="og:description" content="Calcula en 2 minutos el costo real de operar en Excel y WhatsApp.">
+<meta property="og:url" content="https://7group.site/calculadora/">
+<meta property="og:image" content="https://7group.site/ciudad-datos.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:#f5f5f5;color:#0a0a0a;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+
+/* VARIABLES */
+:root{
+  --black:#0a0a0a;--white:#f5f5f5;--gray:#6b6b6b;--light:#e8e8e8;
+  --cyan:#5ee7f7;--green:#16a34a;--red:#dc2626;
+  --card:#ffffff;--border:rgba(10,10,10,.1);
+  --r:16px;
+}
+
+/* NAV */
+.nav{background:var(--black);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:17px;color:var(--white);text-decoration:none;letter-spacing:-.03em}
+.nav-logo span{color:var(--cyan)}
+.nav-back{font-size:13px;color:#888;text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s}
+.nav-back:hover{color:var(--white)}
+.nav-back svg{width:14px;height:14px}
+
+/* HERO STRIP */
+.hero{background:var(--black);color:var(--white);padding:48px 24px 40px;text-align:center}
+.hero-inner{max-width:680px;margin:0 auto}
+.hero-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:20px}
+.hero h1{font-size:clamp(28px,5vw,48px);font-weight:800;line-height:1.1;margin-bottom:16px}
+.hero h1 em{font-style:normal;color:var(--cyan)}
+.hero p{font-size:16px;color:#aaa;line-height:1.7;max-width:520px;margin:0 auto 28px}
+.currency-toggle{display:inline-flex;background:rgba(255,255,255,.08);border-radius:40px;padding:4px;gap:2px}
+.currency-btn{font-size:13px;font-weight:600;padding:7px 20px;border-radius:36px;border:none;cursor:pointer;transition:.2s;color:#888;background:transparent;font-family:inherit}
+.currency-btn.active{background:var(--cyan);color:var(--black)}
+
+/* MAIN LAYOUT */
+.main{max-width:1100px;margin:0 auto;padding:32px 20px 80px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+@media(max-width:760px){.calc-grid{grid-template-columns:1fr}}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+.card-head{padding:20px 24px 0}
+.card-head h3{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);margin-bottom:2px}
+.card-head p{font-size:13px;color:#aaa;margin-bottom:16px}
+.card-body{padding:4px 24px 24px}
+
+/* SLIDERS */
+.slider-block{margin-bottom:22px}
+.slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.slider-label{font-size:14px;font-weight:500;color:var(--black)}
+.slider-val{font-size:20px;font-weight:800;color:var(--black);font-family:'Plus Jakarta Sans',sans-serif;min-width:80px;text-align:right;letter-spacing:-.03em}
+.slider-val.prefix::before{content:attr(data-prefix);font-size:13px;font-weight:600;color:var(--gray);margin-right:2px}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:5px;border-radius:4px;background:var(--light);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--black);cursor:pointer;border:3px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.2);transition:.15s}
+input[type=range]::-webkit-slider-thumb:hover{background:var(--cyan);transform:scale(1.15)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--black);cursor:pointer;border:3px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.slider-hint{font-size:11.5px;color:#bbb;margin-top:5px}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--light);margin:4px 0 20px}
+
+/* RESULTS CARD */
+.results-card{background:var(--black);color:var(--white);border-radius:var(--r);position:sticky;top:80px}
+.loss-block{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.loss-label{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:8px}
+.loss-amount{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(36px,6vw,52px);font-weight:800;color:var(--white);letter-spacing:-.03em;line-height:1;transition:color .3s}
+.loss-amount.negative{color:#ff6b6b}
+.loss-period{font-size:13px;color:#555;margin-top:4px}
+
+.metrics{padding:20px 24px}
+.metric{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.metric:last-child{border-bottom:none}
+.metric-name{font-size:13px;color:#888}
+.metric-val{font-size:15px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;color:var(--white);letter-spacing:-.02em}
+.metric-val.positive{color:var(--cyan)}
+.metric-val.highlight{color:#5ee7f7;font-size:17px}
+
+.savings-block{margin:0 24px 20px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.2);border-radius:12px;padding:16px}
+.savings-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
+.savings-amount{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-.03em}
+.savings-sub{font-size:12px;color:#555;margin-top:2px}
+
+/* CTA */
+.cta-block{padding:0 24px 24px}
+.btn-cta{width:100%;background:var(--cyan);color:var(--black);border:none;border-radius:10px;padding:16px 24px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s;letter-spacing:-.01em}
+.btn-cta:hover{background:#7bf0ff;transform:translateY(-1px)}
+.cta-note{font-size:11.5px;color:#444;text-align:center;margin-top:10px}
+
+/* BREAKEVEN BAR */
+.breakeven{padding:0 24px 20px}
+.be-label{font-size:12px;color:#555;margin-bottom:8px}
+.be-bar-bg{background:rgba(255,255,255,.07);border-radius:4px;height:6px;overflow:hidden}
+.be-bar-fill{height:100%;background:var(--cyan);border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);min-width:2%}
+.be-text{font-size:13px;color:#888;margin-top:8px}
+.be-text strong{color:var(--white)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal-card{background:var(--card);border-radius:20px;padding:32px;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--light);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--gray);display:flex;align-items:center;justify-content:center}
+.modal-card h2{font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.03em}
+.modal-card > p{font-size:14px;color:var(--gray);margin-bottom:20px;line-height:1.6}
+.summary-box{background:#f8f8f8;border-radius:10px;padding:14px 16px;margin-bottom:20px}
+.summary-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
+.summary-row span:first-child{color:var(--gray)}
+.summary-row span:last-child{font-weight:700;color:var(--black)}
+.summary-row.total span:last-child{color:var(--red);font-size:15px}
+.summary-row.saving span:last-child{color:var(--green)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--black);margin-bottom:6px}
+.field input{width:100%;padding:13px 16px;font-size:15px;border:1.5px solid var(--border);border-radius:10px;background:#fafafa;font-family:inherit;color:var(--black);-webkit-appearance:none;transition:.2s}
+.field input:focus{outline:none;border-color:var(--cyan);background:#fff;box-shadow:0 0 0 3px rgba(94,231,247,.15)}
+.btn-wa{width:100%;background:#25D366;color:#fff;border:none;border-radius:10px;padding:16px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s;margin-top:4px}
+.btn-wa:hover{background:#1ebe5a}
+.btn-wa svg{width:22px;height:22px;flex-shrink:0}
+.modal-legal{font-size:11px;color:#bbb;text-align:center;margin-top:12px}
+
+/* SUCCESS */
+.success-state{display:none;text-align:center;padding:20px 0}
+.success-state.show{display:block}
+.success-icon{font-size:48px;margin-bottom:16px}
+.success-state h3{font-size:20px;font-weight:800;margin-bottom:8px}
+.success-state p{font-size:14px;color:var(--gray);line-height:1.6;margin-bottom:20px}
+
+/* PILLS */
+.how-it-works{margin-top:32px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:600px){.how-it-works{grid-template-columns:1fr}}
+.how-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.how-num{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.how-card h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.how-card p{font-size:12.5px;color:var(--gray);line-height:1.5}
+
+@media(max-width:480px){
+  .hero{padding:36px 20px 32px}
+  .card-body,.card-head{padding-left:18px;padding-right:18px}
+  .results-card{position:static}
+  .loss-amount{font-size:38px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">7group<span>.</span></a>
+  <a href="/es/" class="nav-back">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 12L6 8l4-4"/></svg>
+    Inicio
+  </a>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <p class="hero-label">Calculadora de impacto</p>
+    <h1>¿Cuánto te cuesta operar<br>en <em>Excel y WhatsApp?</em></h1>
+    <p>Ajusta los valores de tu operación y ve en tiempo real cuánto dinero y tiempo está dejando sobre la mesa.</p>
+    <div class="currency-toggle">
+      <button class="currency-btn active" onclick="setCurrency('COP')" id="btnCOP">COP</button>
+      <button class="currency-btn" onclick="setCurrency('USD')" id="btnUSD">USD</button>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+  <div class="calc-grid">
+
+    <!-- INPUTS -->
+    <div class="inputs-col">
+
+      <!-- Cotizaciones -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">
+          <h3>Cotizaciones</h3>
+          <p>Cuántas cotizaciones genera tu equipo y cuánto tarda cada una</p>
+        </div>
+        <div class="card-body">
+          <div class="slider-block">
+            <div class="slider-top">
+              <span class="slider-label">Cotizaciones por día</span>
+              <span class="slider-val" id="valQuotes">15</span>
+            </div>
+            <input type="range" id="sQuotes" min="1" max="100" value="15" oninput="update()">
+            <p class="slider-hint">Promedio diario, todos los días hábiles</p>
+          </div>
+          <hr class="divider">
+          <div class="slider-block" style="margin-bottom:0">
+            <div class="slider-top">
+              <span class="slider-label">Minutos por cotización</span>
+              <span class="slider-val" id="valMins">25</span>
+            </div>
+            <input type="range" id="sMins" min="5" max="120" value="25" oninput="update()">
+            <p class="slider-hint">Desde que entra la solicitud hasta que sale la cotización</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Errores -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">
+          <h3>Errores y retrabajos</h3>
+          <p>Cotizaciones incorrectas, pedidos mal registrados, correcciones</p>
+        </div>
+        <div class="card-body">
+          <div class="slider-block" style="margin-bottom:0">
+            <div class="slider-top">
+              <span class="slider-label">Errores por semana</span>
+              <span class="slider-val" id="valErrors">5</span>
+            </div>
+            <input type="range" id="sErrors" min="0" max="60" value="5" oninput="update()">
+            <p class="slider-hint">Correcciones, clientes molestos, pedidos rehachos</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipo -->
+      <div class="card">
+        <div class="card-head">
+          <h3>Tu equipo</h3>
+          <p>Las personas que atienden estos procesos manualmente</p>
+        </div>
+        <div class="card-body">
+          <div class="slider-block">
+            <div class="slider-top">
+              <span class="slider-label">Personas en el proceso</span>
+              <span class="slider-val" id="valTeam">3</span>
+            </div>
+            <input type="range" id="sTeam" min="1" max="20" value="3" oninput="update()">
+            <p class="slider-hint">Comercial, operaciones, atención al cliente</p>
+          </div>
+          <hr class="divider">
+          <div class="slider-block" style="margin-bottom:0">
+            <div class="slider-top">
+              <span class="slider-label">Salario mensual promedio</span>
+              <span class="slider-val prefix" id="valSalary" data-prefix="">3.000.000</span>
+            </div>
+            <input type="range" id="sSalary" min="1" max="100" value="20" oninput="update()">
+            <p class="slider-hint" id="salaryHint">COP por empleado / mes</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- How it works -->
+      <div class="how-it-works">
+        <div class="how-card">
+          <p class="how-num">01</p>
+          <h4>Ajusta los valores</h4>
+          <p>Usa los sliders con los números reales de tu operación</p>
+        </div>
+        <div class="how-card">
+          <p class="how-num">02</p>
+          <h4>Ve tu impacto</h4>
+          <p>Los resultados se actualizan en tiempo real mientras mueves los sliders</p>
+        </div>
+        <div class="how-card">
+          <p class="how-num">03</p>
+          <h4>Habla con nosotros</h4>
+          <p>30 minutos para mostrarte cómo recuperar ese dinero</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results-col">
+      <div class="results-card card">
+
+        <div class="loss-block">
+          <p class="loss-label">Estás perdiendo cada mes</p>
+          <div class="loss-amount" id="totalLoss">$ 0</div>
+          <p class="loss-period">en tiempo, errores y oportunidades</p>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <span class="metric-name">Horas perdidas al mes</span>
+            <span class="metric-val" id="mHoras">0 h</span>
+          </div>
+          <div class="metric">
+            <span class="metric-name">Costo procesos manuales</span>
+            <span class="metric-val" id="mCostoManual">$ 0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-name">Costo de errores</span>
+            <span class="metric-val" id="mCostoErrores">$ 0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-name">ROI estimado a 12 meses</span>
+            <span class="metric-val highlight" id="mRoi12">$ 0</span>
+          </div>
+        </div>
+
+        <div class="savings-block">
+          <p class="savings-label">Ahorro potencial con 7Group</p>
+          <div class="savings-amount" id="mAhorro">$ 0</div>
+          <p class="savings-sub" id="mAhorroSub">por mes · recuperas la inversión en &lt; 2 meses</p>
+        </div>
+
+        <div class="breakeven">
+          <p class="be-label">Cobertura del plan vs. ahorro</p>
+          <div class="be-bar-bg">
+            <div class="be-bar-fill" id="beBar" style="width:0%"></div>
+          </div>
+          <p class="be-text" id="beText">Mueve los sliders para ver tu análisis</p>
+        </div>
+
+        <div class="cta-block">
+          <button class="btn-cta" onclick="openModal()">Quiero recuperar ese dinero</button>
+          <p class="cta-note">Análisis gratuito · Sin compromiso · Respuesta en &lt; 2 horas</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <div id="formState">
+      <h2>Tu análisis personalizado</h2>
+      <p>Basado en tu operación, agenda 30 minutos con nuestro equipo. Sin costo, sin compromiso.</p>
+
+      <div class="summary-box" id="modalSummary">
+        <!-- filled by JS -->
+      </div>
+
+      <form onsubmit="submitLead(event)">
+        <div class="field">
+          <label>Tu nombre</label>
+          <input type="text" id="fNombre" placeholder="Andres Palacio" required>
+        </div>
+        <div class="field">
+          <label>Empresa</label>
+          <input type="text" id="fEmpresa" placeholder="Empresa SAS" required>
+        </div>
+        <div class="field">
+          <label>WhatsApp</label>
+          <input type="tel" id="fWA" placeholder="+57 314 000 0000" required>
+        </div>
+        <button type="submit" class="btn-wa">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Agendar por WhatsApp
+        </button>
+        <p class="modal-legal">Al continuar aceptas que 7Group te contacte para presentarte una propuesta personalizada.</p>
+      </form>
+    </div>
+
+    <div class="success-state" id="successState">
+      <div class="success-icon">✓</div>
+      <h3>¡Listo! Te contactamos hoy</h3>
+      <p>Se abrirá WhatsApp con tu análisis completo. Nuestro equipo te responde en menos de 2 horas en horario hábil.</p>
+      <button class="btn-wa" id="waFallback">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Abrir WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---- CONFIG ---- */
+const WA_NUMBER = '573143095194';
+
+const PLAN_COP = 3000000;   // Plan Profesional COP
+const PLAN_USD = 700;       // Plan Profesional USD
+const WORK_DAYS = 22;
+const WORK_HOURS = 8;
+const ERROR_FIX_HRS = 1.5; // hours to fix one error
+const AUTOMATION_RECOVERY = 0.78; // % of waste recovered
+
+let currency = 'COP';
+let currentResults = {};
+
+/* ---- SALARY SCALE ---- */
+const SALARY_SCALE_COP = [
+  1500000,1800000,2000000,2200000,2500000,2800000,3000000,3200000,3500000,
+  3800000,4000000,4200000,4500000,5000000,5500000,6000000,6500000,7000000,
+  8000000,9000000,10000000,12000000,15000000,18000000,20000000,
+  22000000,25000000,28000000,30000000,35000000,
+  40000000,45000000,50000000,55000000,60000000,
+  70000000,80000000,90000000,100000000,120000000,
+  150000000,200000000,250000000,300000000,400000000,
+  500000000,600000000,700000000,800000000,900000000,1000000000
+];
+const SALARY_SCALE_USD = [
+  500,700,800,1000,1200,1400,1500,1700,2000,
+  2200,2500,2800,3000,3500,4000,4500,5000,6000,
+  7000,8000,10000,12000,15000,18000,20000,
+  22000,25000,28000,30000,35000,
+  40000,45000,50000,55000,60000,
+  70000,80000,90000,100000,120000,
+  150000,200000,250000,300000,400000,
+  500000,600000,700000,800000,900000,1000000
+];
+
+function getSalary() {
+  const idx = parseInt(document.getElementById('sSalary').value) - 1;
+  const scale = currency === 'COP' ? SALARY_SCALE_COP : SALARY_SCALE_USD;
+  return scale[Math.min(idx, scale.length - 1)];
+}
+
+function setCurrency(c) {
+  currency = c;
+  document.getElementById('btnCOP').classList.toggle('active', c === 'COP');
+  document.getElementById('btnUSD').classList.toggle('active', c === 'USD');
+  document.getElementById('salaryHint').textContent = c === 'COP'
+    ? 'COP por empleado / mes'
+    : 'USD por empleado / mes';
+  update();
+}
+
+/* ---- FORMAT ---- */
+function fmt(n) {
+  if (currency === 'COP') {
+    if (n >= 1000000) return '$ ' + (n/1000000).toFixed(1).replace('.0','') + 'M';
+    return '$ ' + n.toLocaleString('es-CO');
+  } else {
+    if (n >= 1000) return '$ ' + (n/1000).toFixed(1).replace('.0','') + 'K';
+    return '$ ' + n.toLocaleString('en-US');
+  }
+}
+function fmtFull(n) {
+  if (currency === 'COP') return '$ ' + Math.round(n).toLocaleString('es-CO');
+  return '$ ' + Math.round(n).toLocaleString('en-US');
+}
+
+/* ---- CALCULATE ---- */
+function calculate() {
+  const quotes   = parseInt(document.getElementById('sQuotes').value);
+  const mins     = parseInt(document.getElementById('sMins').value);
+  const errors   = parseInt(document.getElementById('sErrors').value);
+  const team     = parseInt(document.getElementById('sTeam').value);
+  const salary   = getSalary();
+
+  const planCost = currency === 'COP' ? PLAN_COP : PLAN_USD;
+  const hourlyRate = salary / (WORK_DAYS * WORK_HOURS);
+
+  // Hours lost in manual quoting per month
+  const horasQuotes = (quotes * mins / 60) * WORK_DAYS;
+
+  // Cost of quoting time (proportional to team)
+  const totalTeamHours = team * WORK_DAYS * WORK_HOURS;
+  const quoteFraction = Math.min(horasQuotes / totalTeamHours, 1);
+  const costoManual = quoteFraction * team * salary;
+
+  // Cost of errors
+  const errorsPerMonth = errors * 4.3;
+  const costoErrores = errorsPerMonth * ERROR_FIX_HRS * hourlyRate;
+
+  const totalLoss  = costoManual + costoErrores;
+  const ahorro     = totalLoss * AUTOMATION_RECOVERY;
+  const netRoi     = ahorro - planCost;
+  const roi12      = netRoi * 12;
+  const breakeven  = planCost > 0 ? (planCost / ahorro) : 0; // months
+
+  return { quotes, mins, errors, team, salary, planCost,
+           horasQuotes, costoManual, costoErrores,
+           totalLoss, ahorro, netRoi, roi12, breakeven };
+}
+
+/* ---- UPDATE UI ---- */
+function update() {
+  const r = calculate();
+  currentResults = r;
+
+  // Slider display values
+  document.getElementById('valQuotes').textContent = r.quotes;
+  document.getElementById('valMins').textContent = r.mins;
+  document.getElementById('valErrors').textContent = r.errors;
+  document.getElementById('valTeam').textContent = r.team;
+
+  const salaryVal = getSalary();
+  const salEl = document.getElementById('valSalary');
+  if (currency === 'COP') {
+    salEl.textContent = (salaryVal/1000000).toFixed(1).replace('.0','') + 'M';
+    salEl.setAttribute('data-prefix','$ ');
+  } else {
+    salEl.textContent = salaryVal >= 1000
+      ? (salaryVal/1000).toFixed(0) + 'K'
+      : salaryVal.toLocaleString('en-US');
+    salEl.setAttribute('data-prefix','$ ');
+  }
+
+  // Main loss number
+  const lossEl = document.getElementById('totalLoss');
+  lossEl.textContent = fmt(r.totalLoss);
+  lossEl.classList.toggle('negative', r.totalLoss > 0);
+
+  // Metrics
+  document.getElementById('mHoras').textContent = Math.round(r.horasQuotes) + ' h';
+  document.getElementById('mCostoManual').textContent = fmt(r.costoManual);
+  document.getElementById('mCostoErrores').textContent = fmt(r.costoErrores);
+  document.getElementById('mRoi12').textContent = r.roi12 > 0 ? fmt(r.roi12) : '—';
+
+  // Savings
+  document.getElementById('mAhorro').textContent = fmt(r.ahorro);
+  const be = r.breakeven;
+  const beMonths = be < 1 ? 'menos de 1 mes' : Math.ceil(be) + (Math.ceil(be) === 1 ? ' mes' : ' meses');
+  document.getElementById('mAhorroSub').textContent =
+    `por mes · recuperas la inversión en ${beMonths}`;
+
+  // Breakeven bar (capped at 100%, ideally shows how much plan cost vs savings)
+  const coveragePct = r.ahorro > 0 ? Math.min((r.ahorro / r.planCost) * 10, 100) : 0;
+  document.getElementById('beBar').style.width = coveragePct + '%';
+  if (r.ahorro > r.planCost) {
+    const mult = (r.ahorro / r.planCost).toFixed(1);
+    document.getElementById('beText').innerHTML =
+      `El ahorro cubre <strong>${mult}x el costo del plan</strong>`;
+  } else {
+    document.getElementById('beText').innerHTML = 'Ajusta los valores para ver el análisis';
+  }
+}
+
+/* ---- MODAL ---- */
+function openModal() {
+  const r = currentResults;
+  document.getElementById('modalSummary').innerHTML = `
+    <div class="summary-row"><span>Horas perdidas/mes</span><span>${Math.round(r.horasQuotes)} horas</span></div>
+    <div class="summary-row total"><span>Costo mensual estimado</span><span>${fmtFull(r.totalLoss)}</span></div>
+    <div class="summary-row saving"><span>Ahorro potencial con 7Group</span><span>${fmtFull(r.ahorro)}/mes</span></div>
+    <div class="summary-row saving"><span>ROI estimado a 12 meses</span><span>${r.roi12 > 0 ? fmtFull(r.roi12) : '—'}</span></div>
+  `;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ---- SUBMIT LEAD ---- */
+function submitLead(e) {
+  e.preventDefault();
+  const nombre  = document.getElementById('fNombre').value.trim();
+  const empresa = document.getElementById('fEmpresa').value.trim();
+  const wa      = document.getElementById('fWA').value.trim();
+  const r       = currentResults;
+
+  const msg = encodeURIComponent(
+`Hola 7Group! Hice el análisis de ROI en su calculadora y quiero saber más.
+
+*Mis números:*
+• Cotizaciones/día: ${r.quotes} · ${r.mins} min c/u
+• Errores/semana: ${r.errors}
+• Equipo: ${r.team} personas
+• Costo mensual estimado: ${fmtFull(r.totalLoss)} ${currency}
+• Ahorro potencial: ${fmtFull(r.ahorro)} ${currency}/mes
+
+*Mis datos:*
+• Nombre: ${nombre}
+• Empresa: ${empresa}
+• WhatsApp: ${wa}
+
+Quiero agendar los 30 minutos de análisis gratuito.`
+  );
+
+  const waURL = `https://wa.me/${WA_NUMBER}?text=${msg}`;
+  document.getElementById('waFallback').onclick = () => window.open(waURL, '_blank');
+  document.getElementById('formState').style.display = 'none';
+  document.getElementById('successState').classList.add('show');
+  window.open(waURL, '_blank');
+}
+
+/* ---- INIT ---- */
+update();
+</script>
+</body>
+</html>
