@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XJP1YPZL9D"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-XJP1YPZL9D');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Cotizador — Agente Cotizador · 7group</title>
+<meta name="description" content="Obtén tu cotización en menos de 2 minutos. Precio estimado inmediato, sin compromiso.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f6fa;color:#0F172A;min-height:100vh;overflow-x:hidden;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Plus Jakarta Sans','Inter',sans-serif;letter-spacing:-.02em}
+
+/* ---- CSS VARS (se sobreescriben con CONFIG en runtime) ---- */
+:root{
+  --accent:#0a0a0a;
+  --accent-d:#050505;
+  --accent-l:#2a2a2a;
+  --cyan:#5ee7f7;
+  --green:#16A34A;
+  --orange:#F59E0B;
+  --card:#fff;
+  --border:rgba(10,10,10,.09);
+  --text:#0F172A;
+  --muted:#64748B;
+  --r-lg:20px;--r-md:14px;--r-sm:10px;
+  --sh-card:0 1px 3px rgba(10,10,10,.05),0 8px 20px rgba(10,10,10,.06);
+  --sh-hov:0 4px 12px rgba(10,10,10,.08),0 16px 32px rgba(10,10,10,.12);
+}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;padding:0 20px;transition:opacity .4s,transform .4s}
+.nav.nav--hidden{opacity:0;transform:translateY(-100%);pointer-events:none}
+.nav-inner{max-width:640px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:var(--accent);text-decoration:none;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.nav-logo .dot{color:var(--cyan)}
+.nav-badge{font-size:11px;font-weight:600;color:var(--muted);background:#f1f5f9;padding:4px 10px;border-radius:20px;border:1px solid var(--border);white-space:nowrap}
+body{padding-top:64px}
+
+/* HERO */
+.hero{padding:28px 20px 14px;text-align:center;background:#fff;border-bottom:1px solid var(--border)}
+.hero-inner{max-width:640px;margin:0 auto}
+.hero-title{font-size:30px;font-weight:800;color:var(--accent);line-height:1.15;margin-bottom:14px}
+.hero-title .accent{color:var(--cyan);-webkit-text-stroke:0;background:linear-gradient(90deg,var(--accent),var(--accent-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.badge{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;padding:7px 13px;border-radius:20px;font-size:12.5px;font-weight:600;color:var(--accent);box-shadow:0 1px 3px rgba(10,10,10,.05);border:1px solid var(--border)}
+.badge .chk{color:var(--green);font-weight:800}
+@media(max-width:480px){.hero-title{font-size:24px}.badge{font-size:11.5px;padding:6px 10px}}
+
+/* WRAP */
+.wrap{max-width:640px;margin:0 auto;padding:0 20px 40px}
+
+/* PROGRESS */
+.progress{background:rgba(255,255,255,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:var(--r-lg);padding:14px 18px;margin-bottom:20px;box-shadow:0 2px 6px rgba(10,10,10,.06),0 12px 32px rgba(10,10,10,.1);border:1px solid var(--border);opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s,top .4s ease,box-shadow .3s,background .3s,padding .3s;position:sticky;top:72px;z-index:80;will-change:transform}
+.progress.show{opacity:1;transform:translateY(0)}
+.progress.stuck{background:rgba(255,255,255,.72);box-shadow:0 4px 14px rgba(10,10,10,.12),0 20px 50px rgba(10,10,10,.18);padding:10px 16px;border-color:rgba(10,10,10,.12)}
+.progress.stuck .step-icon{width:36px;height:36px;font-size:16px}
+.progress.stuck .step.current .step-icon{transform:scale(1.12)}
+.progress.stuck .step-label{font-size:9.5px;opacity:.85}
+.progress-steps{display:flex;justify-content:space-between;position:relative;align-items:flex-start;gap:4px}
+.step{position:relative;z-index:3;text-align:center;flex:1;min-width:0}
+.step-icon{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#eef1f6,#dde3ee);display:inline-flex;align-items:center;justify-content:center;font-size:19px;transition:.3s;border:2px solid #fff;box-shadow:0 2px 6px rgba(10,10,10,.08);opacity:1;filter:none}
+.step.done .step-icon{background:linear-gradient(135deg,var(--accent-l),var(--accent));color:#fff;box-shadow:0 3px 10px rgba(10,10,10,.25)}
+.step.current .step-icon{background:linear-gradient(135deg,#fff,#f4f7ff);border-color:var(--cyan);color:var(--accent);animation:stepPulse 1.3s ease-in-out infinite;transform:scale(1.15);box-shadow:0 4px 14px rgba(94,231,247,.35)}
+@keyframes stepPulse{0%,100%{box-shadow:0 0 0 0 rgba(94,231,247,.55),0 4px 14px rgba(94,231,247,.35);transform:scale(1.15)}50%{box-shadow:0 0 0 10px rgba(94,231,247,0),0 6px 18px rgba(94,231,247,.5);transform:scale(1.22)}}
+.step-label{font-size:10.5px;font-weight:600;color:var(--muted);margin-top:6px;line-height:1.2;transition:.3s}
+.step.done .step-label{color:var(--accent);font-weight:700}
+.step.current .step-label{color:var(--accent);font-weight:800}
+@media(max-width:480px){.step-icon{width:36px;height:36px;font-size:16px}.step-label{font-size:9.5px}.progress{padding:12px 14px}}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--r-lg);padding:22px 22px 24px;margin-bottom:18px;box-shadow:var(--sh-card);border:1px solid var(--border);opacity:0;transform:translateY(20px);transition:.6s cubic-bezier(.4,0,.2,1);position:relative;display:none}
+.card.show{opacity:1;transform:translateY(0);display:block}
+.card-hd{margin-bottom:16px}
+.card-title{font-size:20px;font-weight:700;color:var(--accent);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.card-title .num{background:linear-gradient(135deg,var(--accent-l),var(--accent));color:#fff;width:26px;height:26px;border-radius:50%;font-size:13px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;transition:transform .25s,box-shadow .25s}
+.card:hover .card-title .num,.card.in-view .card-title .num{animation:numShake .55s cubic-bezier(.36,.07,.19,.97)}
+@keyframes numShake{0%,100%{transform:rotate(0) scale(1)}15%{transform:rotate(-14deg) scale(1.12)}30%{transform:rotate(12deg) scale(1.14)}45%{transform:rotate(-8deg) scale(1.1)}60%{transform:rotate(6deg) scale(1.08)}80%{transform:rotate(-2deg) scale(1.04)}}
+.card-desc{font-size:14px;color:var(--muted);line-height:1.4}
+
+/* INPUTS */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--accent);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:14px 16px;font-size:16px;border:1.5px solid var(--border);border-radius:var(--r-md);background:#fafafa;font-family:inherit;color:var(--text);transition:.2s;-webkit-appearance:none;appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--cyan);background:var(--card);box-shadow:0 0 0 4px rgba(94,231,247,.15)}
+.field input::placeholder{color:var(--muted)}
+.field-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:420px){.field-2{grid-template-columns:1fr}}
+
+/* OPTION GRID */
+.opt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.opt{background:#fafafa;border:2px solid var(--border);border-radius:var(--r-md);padding:16px 12px 14px;cursor:pointer;transition:.2s;text-align:center;position:relative;user-select:none}
+.opt:hover{border-color:rgba(94,231,247,.5);background:var(--card);transform:translateY(-1px)}
+.opt.sel{border-color:var(--accent);background:rgba(10,10,10,.04);box-shadow:0 4px 12px rgba(10,10,10,.1)}
+.opt.sel::after{content:'✓';position:absolute;top:6px;right:8px;width:22px;height:22px;background:var(--accent);color:#fff;border-radius:50%;font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;animation:checkPop .55s cubic-bezier(.36,.07,.19,.97);box-shadow:0 2px 8px rgba(10,10,10,.25)}
+.opt-icon{font-size:34px;line-height:1;margin-bottom:8px}
+.opt-name{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:2px}
+.opt-rule{font-size:11.5px;color:var(--muted);line-height:1.3}
+.opt.especial{grid-column:1/-1;background:linear-gradient(135deg,rgba(245,158,11,.06),rgba(255,204,0,.04));border-color:rgba(245,158,11,.2)}
+.opt.especial.sel{background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(255,204,0,.08));border-color:var(--orange)}
+.opt.especial.sel::after{background:var(--orange)}
+@media(max-width:380px){.opt-grid{grid-template-columns:1fr}.opt.especial{grid-column:1}}
+
+/* TABS */
+.tabs{display:flex;background:#eef1f6;border-radius:var(--r-md);padding:4px;gap:4px;margin-bottom:16px}
+.tab{flex:1;padding:12px 8px;font-size:14px;font-weight:600;border:none;background:transparent;border-radius:var(--r-sm);cursor:pointer;color:var(--muted);transition:.2s;text-align:center}
+.tab.active{background:var(--card);color:var(--accent);box-shadow:0 1px 4px rgba(10,10,10,.1)}
+
+/* STEPPER */
+.mat-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);margin-bottom:10px;background:#fafafa;gap:10px}
+.mat-info{flex:1;min-width:0}
+.mat-name{font-size:14px;font-weight:600;color:var(--accent)}
+.mat-hint{font-size:11.5px;color:var(--muted)}
+.stepper{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.stepper button{width:34px;height:34px;border-radius:9px;border:1.5px solid var(--border);background:var(--card);font-size:18px;font-weight:600;color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.stepper button:hover{border-color:var(--cyan);background:rgba(94,231,247,.08)}
+.stepper button:active{transform:scale(.92)}
+.stepper .qv{font-size:16px;font-weight:700;min-width:28px;text-align:center;font-variant-numeric:tabular-nums;color:var(--accent)}
+
+/* YES/NO */
+.yn{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.yn button{padding:14px;border:2px solid var(--border);border-radius:var(--r-md);background:#fafafa;font-size:15px;font-weight:700;color:var(--accent);cursor:pointer;transition:.25s;font-family:inherit;position:relative;overflow:hidden}
+.yn button:hover{border-color:rgba(94,231,247,.5)}
+.yn button.sel-yes{border-color:var(--green);background:rgba(22,163,74,.1);color:var(--green);animation:selBounce .5s}
+.yn button.sel-no{border-color:var(--muted);background:rgba(100,116,139,.06);animation:selBounce .5s}
+.yn button.sel-yes::after,.yn button.sel-no::after{content:'✓';position:absolute;top:6px;right:8px;width:22px;height:22px;background:var(--green);color:#fff;border-radius:50%;font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;animation:checkPop .55s cubic-bezier(.36,.07,.19,.97);box-shadow:0 2px 8px rgba(22,163,74,.35)}
+.yn button.sel-no::after{background:var(--muted);box-shadow:0 2px 8px rgba(100,116,139,.3)}
+
+/* PILLS */
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pill{padding:10px 18px;border:2px solid var(--border);border-radius:20px;background:#fafafa;font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;transition:.25s;position:relative}
+.pill.sel{border-color:var(--green);background:rgba(22,163,74,.1);color:var(--green);animation:selBounce .5s;padding-right:34px}
+.pill.sel::after{content:'✓';position:absolute;top:50%;right:10px;transform:translateY(-50%);width:18px;height:18px;background:var(--green);color:#fff;border-radius:50%;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;animation:checkPop .55s cubic-bezier(.36,.07,.19,.97)}
+
+@keyframes selBounce{0%{transform:scale(1)}25%{transform:scale(1.05)}50%{transform:scale(.97)}75%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes checkPop{0%{transform:scale(0) rotate(-90deg);opacity:0}60%{transform:scale(1.3) rotate(15deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+.opt.sel::after{animation:checkPop .55s cubic-bezier(.36,.07,.19,.97);box-shadow:0 2px 8px rgba(10,10,10,.25)}
+.opt.sel{animation:selBounce .5s}
+
+/* NOTE */
+.note{background:rgba(94,231,247,.06);border-left:3px solid var(--cyan);border-radius:var(--r-sm);padding:11px 14px;font-size:12.5px;color:var(--accent);margin-top:12px;line-height:1.4}
+.note.warn{background:rgba(245,158,11,.08);border-left-color:var(--orange);color:#92600b}
+.note.ref{background:rgba(10,10,10,.04);border-left-color:var(--muted);color:var(--muted)}
+
+/* CONTINUE BTN */
+.btn-continue{display:block;width:100%;margin-top:16px;padding:15px;background:linear-gradient(135deg,var(--accent-l),var(--accent));color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .2s;position:relative;animation:btnPulse 2s infinite}
+.btn-continue:hover{transform:translateY(-2px);animation-play-state:paused}
+.btn-continue:active{transform:scale(.97)}
+@keyframes btnPulse{0%,100%{box-shadow:0 4px 14px rgba(10,10,10,.2),0 0 0 0 rgba(94,231,247,.3)}50%{box-shadow:0 4px 14px rgba(10,10,10,.2),0 0 0 12px rgba(94,231,247,0)}}
+
+/* HINT */
+.hint{background:linear-gradient(135deg,rgba(94,231,247,.08),rgba(10,10,10,.03));border:1px dashed rgba(94,231,247,.5);border-radius:var(--r-md);padding:14px 18px;margin-top:16px;font-size:14px;color:var(--accent);font-weight:600;display:none;align-items:center;gap:8px;cursor:pointer}
+.hint.show{display:flex;animation:hintIn .4s}
+@keyframes hintIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.hint .arrow{margin-left:auto;font-size:18px;animation:bounce 1.4s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+
+/* MODAL */
+.pmodal{position:fixed;inset:0;background:rgba(10,10,10,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:10000;padding:20px;opacity:0;transition:opacity .3s}
+.pmodal.show{display:flex;opacity:1;animation:pmodalFade .3s}
+@keyframes pmodalFade{from{opacity:0}to{opacity:1}}
+.pmodal-box{background:var(--card);border-radius:22px;padding:26px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(10,10,10,.4);animation:pmodalIn .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pmodalIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.pmodal-icon{font-size:44px;margin-bottom:8px;animation:pmodalBounce 1.2s ease-in-out infinite}
+@keyframes pmodalBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.pmodal-title{font-size:19px;font-weight:800;color:var(--accent);margin-bottom:20px;letter-spacing:-.01em}
+.pmodal-actions{display:flex;flex-direction:column;gap:10px}
+.pmodal-btn{padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:.2s}
+.pmodal-ok{background:linear-gradient(135deg,var(--accent-l),var(--accent));color:#fff;box-shadow:0 4px 14px rgba(10,10,10,.2)}
+.pmodal-ok:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(10,10,10,.32)}
+.pmodal-cancel{background:transparent;color:var(--muted);border:1.5px solid var(--border)}
+.pmodal-cancel:hover{background:#fafafa;color:var(--accent)}
+
+/* TOAST */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,120px);background:var(--accent);color:#fff;padding:14px 20px;border-radius:var(--r-md);font-size:14px;font-weight:600;box-shadow:0 8px 32px rgba(10,10,10,.4);z-index:9999;max-width:90%;text-align:center;line-height:1.4;opacity:0}
+.toast.show{animation:toastIn .55s cubic-bezier(.36,.07,.19,.97) forwards}
+.toast.rebote{animation:toastShake .55s cubic-bezier(.36,.07,.19,.97)}
+@keyframes toastIn{0%{transform:translate(-50%,120px);opacity:0}60%{opacity:1}70%{transform:translate(calc(-50% - 6px),0)}80%{transform:translate(calc(-50% + 6px),0)}90%{transform:translate(calc(-50% - 3px),0)}100%{transform:translate(-50%,0);opacity:1}}
+@keyframes toastShake{0%,100%{transform:translate(-50%,0)}20%{transform:translate(calc(-50% - 8px),0)}40%{transform:translate(calc(-50% + 8px),0)}60%{transform:translate(calc(-50% - 5px),0)}80%{transform:translate(calc(-50% + 3px),0)}}
+
+/* MSGBOX */
+.msgbox{background:linear-gradient(135deg,var(--accent),var(--accent-d));color:#fff;border-radius:var(--r-lg);padding:24px;text-align:center;box-shadow:var(--sh-hov);position:relative;overflow:hidden}
+.msgbox-icon{font-size:44px;margin-bottom:12px;position:relative}
+.msgbox-title{font-size:20px;font-weight:800;margin-bottom:10px;position:relative}
+.msgbox-text{font-size:14px;line-height:1.6;opacity:.92;margin-bottom:18px;position:relative}
+.msgbox-btn{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:#fff;padding:14px 26px;border-radius:26px;font-size:15px;font-weight:700;text-decoration:none;position:relative;box-shadow:0 4px 16px rgba(22,163,74,.4);transition:.2s;border:none;cursor:pointer;font-family:inherit}
+.msgbox-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(22,163,74,.5)}
+
+/* RESULT */
+.result-hd{text-align:center;margin-bottom:18px}
+.result-hd .em{font-size:44px;margin-bottom:8px;display:block;animation:celebEmoji 1s cubic-bezier(.36,.07,.19,.97)}
+@keyframes celebEmoji{0%{transform:scale(0) rotate(-45deg);opacity:0}50%{transform:scale(1.4) rotate(10deg);opacity:1}70%{transform:scale(.9) rotate(-5deg)}100%{transform:scale(1) rotate(0)}}
+.result-hd h2{font-size:24px;font-weight:800;color:var(--accent);margin-bottom:4px;animation:celebSlideUp .6s .2s both}
+.result-hd p{animation:celebSlideUp .6s .35s both}
+@keyframes celebSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.rline{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--border);gap:12px}
+.rline:last-of-type{border-bottom:none}
+.rline-info{flex:1;min-width:0}
+.rline-name{font-size:14.5px;font-weight:600;color:var(--accent)}
+.rline-detail{font-size:12px;color:var(--muted);margin-top:2px}
+.rline-val{font-size:15px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rline-val.est{color:var(--orange)}
+.rtotal{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:18px 20px;background:linear-gradient(135deg,var(--accent),var(--accent-d));border-radius:var(--r-md);color:#fff}
+.rtotal-lbl{font-size:15px;font-weight:600;opacity:.9}
+.rtotal-val{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+.result-actions{display:grid;gap:12px;margin-top:20px}
+.btn-wa{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--green);color:#fff;padding:16px;border-radius:var(--r-md);font-size:16px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(22,163,74,.35);transition:.2s}
+.btn-wa:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(22,163,74,.45)}
+.btn-inq{display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--accent-l),var(--accent));color:#fff;padding:15px;border-radius:var(--r-md);font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(10,10,10,.2);transition:.2s}
+.btn-inq:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(10,10,10,.3)}
+.btn-pdf{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--card);color:var(--accent);padding:15px;border-radius:var(--r-md);font-size:15px;font-weight:600;border:1.5px solid var(--border);cursor:pointer;font-family:inherit;transition:.2s}
+.btn-pdf:hover{border-color:var(--cyan);background:rgba(94,231,247,.04)}
+.disclaimer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.5}
+.rline.anim{opacity:0;transform:translateX(-20px);animation:rlineReveal .45s forwards}
+@keyframes rlineReveal{to{opacity:1;transform:translateX(0)}}
+.rtotal.anim{animation:rtotalPop .6s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes rtotalPop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+.result-actions.anim{animation:celebSlideUp .5s both}
+.result-actions .btn-wa{animation:btnPulse 2s 1.5s infinite}
+
+/* CTA GLOW */
+@keyframes ctaGlowGreen{0%,100%{box-shadow:0 4px 16px rgba(22,163,74,.35)}50%{box-shadow:0 0 24px rgba(22,163,74,.7),0 0 48px rgba(22,163,74,.3),0 4px 16px rgba(22,163,74,.35)}}
+@keyframes ctaGlowAccent{0%,100%{box-shadow:0 4px 14px rgba(10,10,10,.2)}50%{box-shadow:0 0 24px rgba(94,231,247,.5),0 0 48px rgba(94,231,247,.2),0 4px 14px rgba(10,10,10,.2)}}
+@keyframes ctaGlowBorder{0%,100%{box-shadow:none;border-color:var(--border)}50%{box-shadow:0 0 20px rgba(94,231,247,.4),0 0 40px rgba(94,231,247,.15);border-color:var(--cyan)}}
+.cta-glow-wa{animation:ctaGlowGreen 1.2s ease-in-out infinite!important}
+.cta-glow-inq{animation:ctaGlowAccent 1.2s ease-in-out infinite!important}
+.cta-glow-pdf{animation:ctaGlowBorder 1.2s ease-in-out infinite!important}
+
+/* PROGRESS FADE */
+.progress.progress--faded{opacity:0!important;pointer-events:none;transition:opacity 1s ease}
+
+/* TOUCH */
+@media(hover:none){.opt:hover{border-color:var(--border);background:#fafafa;transform:none}.yn button:hover{border-color:var(--border)}.stepper button:hover{border-color:var(--border);background:var(--card)}.btn-continue:hover{transform:none}.tab:hover{background:transparent}.pill:hover{border-color:var(--border)}.btn-wa:hover,.btn-inq:hover,.btn-pdf:hover,.pmodal-ok:hover,.pmodal-cancel:hover,.msgbox-btn:hover{transform:none;box-shadow:none}}
+
+/* FOOTER */
+.site-foot{margin-top:32px;text-align:center;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.02em;padding:20px 0 8px}
+.site-foot::before{content:'';display:block;width:40px;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);margin:0 auto 14px;border-radius:2px}
+.powered{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:20px;margin-top:8px;transition:.2s}
+.powered:hover{border-color:var(--cyan);color:var(--accent)}
+.powered .g7{font-weight:700;color:var(--accent)}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<header class="nav" role="banner">
+  <div class="nav-inner">
+    <span class="nav-logo" id="nav-logo-text">Cotizador</span>
+    <span class="nav-badge">Agente Cotizador · 7group</span>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-inner">
+    <h1 class="hero-title" id="hero-title">Obtén tu cotización en <span class="accent">menos de 2 minutos</span></h1>
+    <div class="badges">
+      <span class="badge"><span class="chk">✔</span> <span id="badge1">Precio estimado inmediato</span></span>
+      <span class="badge"><span class="chk">✔</span> <span id="badge2">Sin compromiso</span></span>
+      <span class="badge"><span class="chk">✔</span> <span id="badge3">Atención por WhatsApp</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 1 DATOS -->
+  <div class="card show" id="c-datos">
+    <div class="card-hd">
+      <h2 class="card-title"><span class="num">1</span><span id="step1-title">Tus datos</span></h2>
+      <p class="card-desc" id="step1-desc">Para comenzar tu cotización</p>
+    </div>
+    <div class="field"><label for="ur-nombre" id="lbl-nombre">Tu nombre</label><input type="text" id="ur-nombre" placeholder="Ej: María López" autocomplete="name"></div>
+    <div class="field"><label for="ur-whatsapp" id="lbl-wa">Tu WhatsApp</label><input type="tel" id="ur-whatsapp" placeholder="Ej: 3001234567" inputmode="numeric" autocomplete="tel"></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress" id="progress">
+    <div class="progress-steps">
+      <div class="step" data-step="servicio"><div class="step-icon" id="step-icon-servicio">📋</div><div class="step-label" id="step-lbl-servicio">Servicio</div></div>
+      <div class="step" data-step="ruta"><div class="step-icon">📍</div><div class="step-label">Ruta</div></div>
+      <div class="step" data-step="extras"><div class="step-icon">📦</div><div class="step-label" id="step-lbl-extras">Extras</div></div>
+      <div class="step" data-step="condiciones"><div class="step-icon">🏢</div><div class="step-label">Lugar</div></div>
+      <div class="step" data-step="cotizacion"><div class="step-icon">💰</div><div class="step-label">Total</div></div>
+    </div>
+  </div>
+
+  <!-- 2 TIPO DE SERVICIO -->
+  <div class="card" id="c-servicio">
+    <div class="card-hd">
+      <h2 class="card-title"><span class="num">2</span><span id="step2-title">¿Qué tipo de servicio necesitas?</span></h2>
+      <p class="card-desc" id="step2-desc">Selecciona el tipo de servicio</p>
+    </div>
+    <div class="opt-grid" id="svc-grid">
+      <!-- Opciones generadas por CONFIG.tiposServicio -->
+    </div>
+    <div id="svc-extra" style="display:none;margin-top:14px"></div>
+  </div>
+
+  <!-- 3 RUTA -->
+  <div class="card" id="c-ruta">
+    <div class="card-hd">
+      <h2 class="card-title"><span class="num">3</span><span id="step3-title">¿Origen y destino?</span></h2>
+      <p class="card-desc" id="step3-desc">Indica el origen y el destino</p>
+    </div>
+    <div class="field-2">
+      <div class="field"><label id="lbl-origen">Origen</label><select id="ur-origen"></select></div>
+      <div class="field"><label id="lbl-destino">Destino</label><select id="ur-destino"></select></div>
+    </div>
+    <div id="ruta-especial"></div>
+    <button class="btn-continue" id="cont-ruta" id="cont-ruta">Confirmar ruta y continuar →</button>
+  </div>
+
+  <!-- 4 EXTRAS (materiales / add-ons) -->
+  <div class="card" id="c-extras">
+    <div class="card-hd">
+      <h2 class="card-title"><span class="num">4</span><span id="step4-title">Servicios adicionales</span></h2>
+      <p class="card-desc" id="step4-desc">Agrega lo que necesites</p>
+    </div>
+    <div id="extras-body"></div>
+    <div class="note ref" id="extras-note">Valores estimados — pueden ajustarse según validación.</div>
+    <button class="btn-continue" id="cont-extras">Continuar →</button>
+  </div>
+
+  <!-- 5 INSTALACIONES / SERVICIOS ESPECIALIZADOS -->
+  <div class="card" id="c-inst">
+    <div class="card-hd">
+      <h2 class="card-title"><span class="num">5</span><span id="step5-title">Instalaciones</span></h2>
+      <p class="card-desc" id="step5-desc">¿Necesitas algún servicio especializado?</p>
+    </div>
+    <div id="inst-body"></div>
+    <button class="btn-continue" id="cont-inst">Continuar →</button>
+  </div>
+
+  <!-- 6 CONDICIONES DEL LUGAR -->
+  <div class="card" id="c-condiciones">
+    <div class="card-hd">
+      <h2 class="card-title"><span class="num">6</span><span id="step6-title">Condiciones del lugar</span></h2>
+      <p class="card-desc" id="step6-desc">Para evitar ajustes el día del servicio</p>
+    </div>
+    <div id="cond-body"></div>
+  </div>
+
+  <!-- 7 ALMACENAMIENTO -->
+  <div class="card" id="c-almacenamiento">
+    <div class="card-hd">
+      <h2 class="card-title"><span class="num">7</span><span id="step7-title">Almacenamiento</span></h2>
+      <p class="card-desc" id="step7-desc">¿Necesitas guardar algo?</p>
+    </div>
+    <div class="yn" id="alm-yn"><button data-v="si">Sí, necesito</button><button data-v="no">No, gracias</button></div>
+    <div id="alm-body"></div>
+  </div>
+
+  <!-- 8 RESULTADO -->
+  <div class="card" id="c-resultado">
+    <div class="result-hd">
+      <span class="em">🎉</span>
+      <h2 id="result-title">Tu cotización está lista</h2>
+      <p id="result-name">Estimado cliente</p>
+    </div>
+    <div id="result-lines"></div>
+    <div class="rtotal"><span class="rtotal-lbl" id="rtotal-lbl">Total estimado</span><span class="rtotal-val" id="result-total">$ 0</span></div>
+    <div class="result-actions">
+      <button class="btn-wa" id="btn-wa">📲 Enviar a mi WhatsApp</button>
+      <button class="btn-inq" id="btn-inq">💬 Tengo preguntas</button>
+      <button class="btn-pdf" id="btn-pdf">📄 Descargar PDF</button>
+    </div>
+    <p class="disclaimer" id="result-disclaimer">Los valores son estimados y pueden ajustarse según validación en sitio. Sin compromiso.</p>
+    <a href="#" id="btn-corregir" style="display:block;text-align:center;margin-top:12px;color:var(--muted);font-size:14px;text-decoration:underline;cursor:pointer">Corregir mis datos</a>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="site-foot">
+    <a href="https://7group.site" target="_blank" rel="noopener" class="powered">
+      Agente Cotizador por <span class="g7">7group</span>
+    </a>
+  </div>
+
+</div><!-- /wrap -->
+
+<canvas id="confetti-canvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<div class="pmodal" id="pmodal">
+  <div class="pmodal-box">
+    <div class="pmodal-icon">👉</div>
+    <div class="pmodal-title" id="pmodal-title">¿Deseas continuar?</div>
+    <div class="pmodal-actions">
+      <button class="pmodal-btn pmodal-ok" id="pmodal-ok">Sí, continuar</button>
+      <button class="pmodal-btn pmodal-cancel" id="pmodal-cancel">Todavía no</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ============================================================
+   AGENTE COTIZADOR — Versión white-label
+   Desarrollado por 7group · 7group.site
+
+   INSTRUCCIONES DE CONFIGURACIÓN:
+   Edita el objeto CONFIG a continuación para personalizar
+   este cotizador con los datos de tu empresa y precios.
+   ============================================================ */
+
+/* ========= CONFIG — PERSONALIZAR POR CLIENTE ========= */
+const CONFIG = {
+
+  /* --- Datos de la empresa --- */
+  empresa: {
+    nombre:   'Tu Empresa',           // Nombre visible en la UI y el PDF
+    phone:    '573143095194',         // WhatsApp (formato internacional sin +)
+    domain:   'tuempresa.com',        // Dominio (aparece en el PDF)
+    ciudad:   'Bogotá',              // Ciudad base de operaciones
+    moneda:   'COP',                  // Moneda: 'COP' | 'USD'
+    separadorMiles: '.',              // Para COP usar '.', para USD usar ','
+    prefijoPrecio: '$',               // '$' para ambos
+  },
+
+  /* --- Backend (opcional — dejar vacío '' para desactivar) --- */
+  backend: {
+    sheetUrl: '',   // Google Apps Script URL
+    tgToken:  '',   // Telegram bot token
+    tgChat:   '',   // Telegram chat ID
+  },
+
+  /* --- Tipos de servicio (personalizar por industria) --- */
+  tiposServicio: [
+    { id: 'pequeno',  icon: '🏢', nombre: 'Apartaestudio o pequeño', regla: 'Menos de 60 m²',   vehiculo: 'pequeno' },
+    { id: 'mediano',  icon: '🏬', nombre: 'Apartamento mediano',      regla: '60 a 85 m²',       vehiculo: 'mediano' },
+    { id: 'familiar', icon: '🏘️', nombre: 'Apartamento familiar',     regla: 'Más de 85 m²',     vehiculo: 'grande'  },
+    { id: 'casa',     icon: '🏡', nombre: 'Casa',                      regla: 'Más de 85 m²',     vehiculo: 'grande'  },
+    { id: 'especial', icon: '🏢', nombre: 'Corporativo o especial',    regla: 'Cotización personalizada', especial: true },
+  ],
+
+  /* --- Ciudades disponibles --- */
+  ciudades: ['Bogotá','Chía','Cajicá','Cota','Madrid','Otra ciudad'],
+  ciudadesCercanas: ['Chía','Cajicá','Cota','Madrid'],
+
+  /* --- Precios (venta al cliente) --- */
+  precios: {
+    vehiculo: {
+      pequeno: { label: 'Vehículo pequeño',  venta: 580000,  costo: 420000 },
+      mediano:  { label: 'Vehículo mediano', venta: 730000,  costo: 570000 },
+      grande:   { label: 'Vehículo grande',  venta: 870000,  costo: 710000 },
+    },
+    materiales: {
+      vinipel:  { label: 'Vinipel',   venta: 130000, costo: 30000,  unidad: 'rollos' },
+      burbuja:  { label: 'Burbuja',   venta: 160000, costo: 70000,  unidad: 'rollos' },
+      cajas:    { label: 'Cajas',     venta: 13000,  costo: 6000,   unidad: 'unidades' },
+      craft:    { label: 'Kraft',     venta: 40000,  costo: 30000,  unidad: 'rollos' },
+    },
+    instalaciones: {
+      item1: { label: 'Nevecón',   venta: 120000, costo: 100000 },
+      item2: { label: 'Secadora',  venta: 90000,  costo: 80000  },
+      item3: { label: 'TV',        venta: 90000,  costo: 80000  },
+    },
+    almacenamiento: {
+      sm: { label: '10 m³',  venta: 350000, costo: 280000 },
+      md: { label: '20 m³',  venta: 550000, costo: 410000 },
+      lg: { label: '30 m³',  venta: 700000, costo: 550000 },
+    },
+    extras: {
+      recargoCercania:  { venta: 140000, costo: 100000 },
+      caminado:         { venta: 100000, costo: 0 },
+      escalera3:        { venta: 120000, costo: 0 },
+      escalera4:        { venta: 150000, costo: 0 },
+      escalera5:        { venta: 180000, costo: 0 },
+      vehiculoAdicional:{ venta: 580000, costo: 420000, label: 'Vehículo adicional (pequeño)' },
+    },
+  },
+
+  /* --- Textos personalizables --- */
+  textos: {
+    hero:           'Obtén tu cotización en menos de 2 minutos',
+    badge1:         'Precio estimado inmediato',
+    badge2:         'Sin compromiso',
+    badge3:         'Atención por WhatsApp',
+    step1Title:     'Tus datos',
+    step1Desc:      'Para comenzar tu cotización',
+    step2Title:     '¿Qué tipo de servicio necesitas?',
+    step2Desc:      'Selecciona la opción que mejor describe tu necesidad',
+    step3Title:     '¿Origen y destino?',
+    step3Desc:      'Indica entre qué lugares se realizará el servicio',
+    step4Title:     'Materiales y empaque',
+    step4Desc:      'Selecciona los materiales que necesitas',
+    step5Title:     'Instalaciones',
+    step5Desc:      '¿Necesitas que instalemos algo?',
+    step6Title:     'Condiciones del lugar',
+    step6Desc:      'Para evitar ajustes el día del servicio',
+    step7Title:     'Almacenamiento',
+    step7Desc:      '¿Necesitas guardar tus cosas temporalmente?',
+    especMsgTitle:  'Servicio especial o corporativo',
+    especMsgBody:   'Este tipo de servicio lo cotizamos de forma personalizada para darte la mejor propuesta. Escríbenos y te atendemos de inmediato.',
+    otraCiudadTitle:'Servicio a otra ciudad',
+    otraCiudadBody: 'Los servicios a otras ciudades los cotizamos de forma personalizada. Escríbenos y te atendemos de inmediato.',
+    resultTitle:    'Tu cotización está lista',
+    disclaimer:     'Los valores son estimados y pueden ajustarse según validación en sitio. Sin compromiso.',
+    waClientMsg:    (nombre, total, empresa) => `*Cotización ${empresa}*\n\nCliente: ${nombre}\nTotal estimado: ${total}\n\nGracias por cotizar con nosotros.`,
+    waOperadorMsg:  (nombre, tipo) => `Hola, tengo preguntas sobre mi cotización.\n\nCliente: ${nombre}\nServicio: ${tipo}`,
+    pdfSaludo:      (nombre, empresa) => `Gracias por confiar en ${empresa}. A continuación encontrará el detalle estimado de su servicio. Estos valores son de referencia y pueden ajustarse según validación en sitio.`,
+    pdfFirma:       (empresa) => `Equipo ${empresa}`,
+  },
+};
+
+/* ========= ESTADO ========= */
+const S = {
+  nombre: '', whatsapp: '',
+  tipoServicio: null,
+  origen: CONFIG.empresa.ciudad,
+  destino: CONFIG.empresa.ciudad,
+  vehiculoExtra: false,
+  empaque: { tipo: 'express', mat: {} },
+  inst: { item1: 0, item2: 0, item3: 0, otro: '' },
+  desempaque: null,
+  caminado: null, ascensor: null, pisos: null,
+  almacenamiento: false, almSize: null,
+  _lines: null, _total: 0, _ready: false,
+};
+
+/* ========= HELPERS ========= */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const byId = id => document.getElementById(id);
+
+function formatCOP(n) {
+  const sep = CONFIG.empresa.separadorMiles;
+  const abs = Math.round(Math.abs(n)||0);
+  const formatted = abs.toLocaleString(CONFIG.empresa.moneda === 'USD' ? 'en-US' : 'es-CO');
+  return CONFIG.empresa.prefijoPrecio + ' ' + formatted;
+}
+
+/* ========= APLICAR CONFIG AL DOM ========= */
+function applyConfig() {
+  // Textos hero/nav
+  byId('nav-logo-text').textContent = CONFIG.empresa.nombre;
+  byId('hero-title').innerHTML = CONFIG.textos.hero.replace(
+    'menos de 2 minutos', '<span class="accent">menos de 2 minutos</span>'
+  );
+  byId('badge1').textContent = CONFIG.textos.badge1;
+  byId('badge2').textContent = CONFIG.textos.badge2;
+  byId('badge3').textContent = CONFIG.textos.badge3;
+  // Pasos
+  byId('step1-title').textContent = CONFIG.textos.step1Title;
+  byId('step1-desc').textContent  = CONFIG.textos.step1Desc;
+  byId('step2-title').textContent = CONFIG.textos.step2Title;
+  byId('step2-desc').textContent  = CONFIG.textos.step2Desc;
+  byId('step3-title').textContent = CONFIG.textos.step3Title;
+  byId('step3-desc').textContent  = CONFIG.textos.step3Desc;
+  byId('step4-title').textContent = CONFIG.textos.step4Title;
+  byId('step4-desc').textContent  = CONFIG.textos.step4Desc;
+  byId('step5-title').textContent = CONFIG.textos.step5Title;
+  byId('step5-desc').textContent  = CONFIG.textos.step5Desc;
+  byId('step6-title').textContent = CONFIG.textos.step6Title;
+  byId('step6-desc').textContent  = CONFIG.textos.step6Desc;
+  byId('step7-title').textContent = CONFIG.textos.step7Title;
+  byId('step7-desc').textContent  = CONFIG.textos.step7Desc;
+  byId('result-title').textContent = CONFIG.textos.resultTitle;
+  byId('result-disclaimer').textContent = CONFIG.textos.disclaimer;
+  // Tipos de servicio
+  buildSvcGrid();
+}
+
+/* ========= PROGRESS STEPS ========= */
+function stepDone(n) {
+  const s = document.querySelector('.step[data-step="'+n+'"]');
+  if (s) { s.classList.remove('current'); s.classList.add('done'); }
+  fillProgress();
+}
+function stepCurrent(n) {
+  $$('.step').forEach(s => s.classList.remove('current'));
+  const s = document.querySelector('.step[data-step="'+n+'"]');
+  if (s && !s.classList.contains('done')) s.classList.add('current');
+  fillProgress();
+}
+function fillProgress() {
+  const done = $$('.step.done').length;
+  const fill = byId('progress-fill');
+  if (fill) fill.style.width = Math.min(100, done/4*100)+'%';
+}
+
+/* ========= REVEAL CARD ========= */
+function reveal(id) {
+  const el = byId(id); if (!el) return;
+  if (!el.classList.contains('show')) el.classList.add('show');
+  setTimeout(() => {
+    const nav = $('.nav');
+    const prog = byId('progress');
+    const navH = (nav && !nav.classList.contains('nav--hidden')) ? nav.offsetHeight : 0;
+    const progH = (prog && prog.classList.contains('show') && !prog.classList.contains('progress--faded')) ? prog.offsetHeight + 12 : 0;
+    const offset = navH + progH + 8;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }, 150);
+}
+
+/* ========= TOAST ========= */
+function toast(msg, ms) {
+  const t = byId('toast');
+  t.textContent = msg;
+  t.classList.remove('show','rebote');
+  void t.offsetWidth;
+  t.classList.add('show');
+  clearTimeout(t._t); clearTimeout(t._r);
+  t._r = setTimeout(() => { t.classList.remove('rebote'); void t.offsetWidth; t.classList.add('rebote'); }, 5000);
+  t._t = setTimeout(() => { t.classList.remove('show','rebote'); }, ms || 8500);
+}
+
+/* ========= MODAL PROMPT ========= */
+let _promptActive = false;
+function showPrompt(title, onOK) {
+  if (_promptActive) return;
+  _promptActive = true;
+  const m = byId('pmodal');
+  byId('pmodal-title').textContent = title || '¿Deseas continuar?';
+  m.classList.add('show');
+  const clean = () => {
+    m.classList.remove('show');
+    _promptActive = false;
+    byId('pmodal-ok').onclick = null;
+    byId('pmodal-cancel').onclick = null;
+  };
+  byId('pmodal-ok').onclick = () => { clean(); if (onOK) onOK(); };
+  byId('pmodal-cancel').onclick = clean;
+}
+
+/* ========= AUTO-PROMPT TIMER ========= */
+let _autoPromptTimer = null;
+function armAutoPrompt(secs, title, onOK) {
+  clearTimeout(_autoPromptTimer);
+  _autoPromptTimer = setTimeout(() => showPrompt(title || '¿Deseas continuar?', onOK), (secs || 15) * 1000);
+}
+function cancelAutoPrompt() { clearTimeout(_autoPromptTimer); }
+
+/* ========= NAV HIDE/SHOW ========= */
+(function() {
+  const nav = $('.nav'); if (!nav) return;
+  let lastY = window.scrollY, hidden = false;
+  const THRESH = 80;
+  function navHide() {
+    if (hidden || window.scrollY < THRESH) return;
+    hidden = true; nav.classList.add('nav--hidden');
+    const p = byId('progress'); if (p && p.classList.contains('show')) p.style.top = '6px';
+  }
+  function navShow() {
+    hidden = false; nav.classList.remove('nav--hidden');
+    const p = byId('progress'); if (p && p.classList.contains('show')) p.style.top = (nav.offsetHeight + 8) + 'px';
+  }
+  window.addEventListener('scroll', function() {
+    const y = window.scrollY;
+    if (!hidden && y > THRESH) navHide();
+    if (y < lastY - 10) {
+      const p = byId('progress');
+      if (p && p.classList.contains('progress--faded')) p.classList.remove('progress--faded');
+    }
+    lastY = y;
+  }, { passive: true });
+})();
+
+/* ========= STICKY PROGRESS ========= */
+(function() {
+  const p = byId('progress'); if (!p) return;
+  const sentinel = document.createElement('div');
+  sentinel.style.cssText = 'position:absolute;top:-1px;height:1px;left:0;right:0;pointer-events:none';
+  p.parentNode.insertBefore(sentinel, p);
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(ents => {
+      ents.forEach(e => p.classList.toggle('stuck', !e.isIntersecting));
+    }, { threshold: 0, rootMargin: '-12px 0px 0px 0px' });
+    io.observe(sentinel);
+  }
+  const nav = $('.nav');
+  if (nav && p) p.style.top = (nav.offsetHeight + 8) + 'px';
+})();
+
+/* ========= CARD SHAKE ========= */
+(function() {
+  if (!('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(ents => {
+    ents.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.remove('in-view');
+        void e.target.offsetWidth;
+        e.target.classList.add('in-view');
+      } else {
+        e.target.classList.remove('in-view');
+      }
+    });
+  }, { threshold: .35 });
+  document.querySelectorAll('.card').forEach(c => io.observe(c));
+})();
+
+/* ========= STEP 1: DATOS ========= */
+function checkDatos() {
+  const n = byId('ur-nombre').value.trim();
+  const raw = byId('ur-whatsapp').value.replace(/\D/g,'');
+  const w = (raw.startsWith('57') && raw.length >= 12) ? raw.slice(2) : raw;
+  if (n.length >= 2 && w.length >= 10) {
+    S.nombre = n; S.whatsapp = w;
+    if (!S._ready) {
+      S._ready = true;
+      byId('progress').classList.add('show');
+      stepCurrent('servicio');
+      setTimeout(() => reveal('c-servicio'), 400);
+    }
+  }
+}
+byId('ur-nombre').addEventListener('input', checkDatos);
+byId('ur-whatsapp').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'');
+  this.value = this.value.startsWith('57') ? this.value.slice(0,12) : this.value.slice(0,10);
+  checkDatos();
+});
+
+/* ========= STEP 2: TIPO DE SERVICIO ========= */
+function buildSvcGrid() {
+  const grid = byId('svc-grid');
+  if (!grid) return;
+  let html = '';
+  CONFIG.tiposServicio.forEach(t => {
+    const cls = t.especial ? 'opt especial' : 'opt';
+    html += `<div class="${cls}" data-svc="${t.id}">
+      <div class="opt-icon">${t.icon}</div>
+      <div class="opt-name">${t.nombre}</div>
+      <div class="opt-rule">${t.regla}</div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+  grid.querySelectorAll('.opt').forEach(o => o.addEventListener('click', () => {
+    grid.querySelectorAll('.opt').forEach(x => x.classList.remove('sel'));
+    o.classList.add('sel');
+    const cfg = CONFIG.tiposServicio.find(t => t.id === o.dataset.svc);
+    S.tipoServicio = o.dataset.svc;
+    if (cfg && cfg.especial) { flowEspecial(cfg); return; }
+    const ce = byId('svc-extra');
+    if (S.tipoServicio === 'casa') {
+      ce.style.display = 'block';
+      ce.innerHTML = '<div class="mat-row"><div class="mat-info"><div class="mat-name">¿Tu casa tiene mucha carga?</div><div class="mat-hint">Podemos añadir un vehículo adicional</div></div><div class="stepper"><button type="button" id="ce-toggle">Añadir</button></div></div>';
+      byId('ce-toggle').onclick = function() {
+        S.vehiculoExtra = !S.vehiculoExtra;
+        this.textContent = S.vehiculoExtra ? 'Quitar' : 'Añadir';
+        this.style.background = S.vehiculoExtra ? 'rgba(94,231,247,.1)' : '';
+        this.style.borderColor = S.vehiculoExtra ? 'var(--cyan)' : '';
+      };
+    } else {
+      ce.style.display = 'none';
+      S.vehiculoExtra = false;
+    }
+    stepDone('servicio');
+    buildExtras();
+    reveal('c-ruta');
+    stepCurrent('ruta');
+    armAutoPrompt(25, '¿Confirmas el origen y destino?', () => {
+      stepDone('ruta');
+      stepCurrent('extras');
+      reveal('c-extras');
+    });
+  }));
+}
+
+/* ========= FLUJO ESPECIAL (corporativo / otra ciudad) ========= */
+function flowEspecial(cfg) {
+  stepDone('servicio');
+  const msgText = `Hola, soy ${S.nombre || 'un cliente'}. Necesito cotizar un servicio especial/corporativo.`;
+  const waUrl = 'https://wa.me/' + CONFIG.empresa.phone + '?text=' + encodeURIComponent(msgText);
+  notifyBackend('Solicitud ESPECIAL · ' + (S.nombre||'-') + ' · ' + (S.whatsapp||'-'));
+  const c = byId('c-servicio');
+  c.innerHTML = `<div class="msgbox">
+    <div class="msgbox-icon">🏢</div>
+    <div class="msgbox-title">${CONFIG.textos.especMsgTitle}</div>
+    <div class="msgbox-text">${CONFIG.textos.especMsgBody}</div>
+    <a class="msgbox-btn" href="${waUrl}" target="_blank" rel="noopener">📲 Escríbenos por WhatsApp</a>
+  </div>`;
+  c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ========= STEP 3: RUTA ========= */
+function buildRuta() {
+  const opt = v => CONFIG.ciudades.map(c => `<option${c===v?' selected':''}>${c}</option>`).join('');
+  byId('ur-origen').innerHTML = opt(CONFIG.empresa.ciudad);
+  byId('ur-destino').innerHTML = opt(CONFIG.empresa.ciudad);
+  byId('ur-origen').onchange = byId('ur-destino').onchange = checkRutaEspecial;
+}
+
+function checkRutaEspecial() {
+  cancelAutoPrompt();
+  S.origen = byId('ur-origen').value;
+  S.destino = byId('ur-destino').value;
+  const otra = S.origen === 'Otra ciudad' || S.destino === 'Otra ciudad';
+  const box = byId('ruta-especial');
+  if (otra) {
+    clearTimeout(_autoPromptTimer);
+    stepDone('ruta');
+    const msgText = `Hola, soy ${S.nombre || 'un cliente'}. Necesito cotizar un servicio a otra ciudad (${S.origen} → ${S.destino}).`;
+    const wa = 'https://wa.me/' + CONFIG.empresa.phone + '?text=' + encodeURIComponent(msgText);
+    notifyBackend(`Solicitud OTRA CIUDAD · ${S.nombre||'-'} · ${S.whatsapp||'-'} · ${S.origen} → ${S.destino}`);
+    box.innerHTML = `<div class="msgbox" style="margin-top:16px">
+      <div class="msgbox-icon">🚚</div>
+      <div class="msgbox-title">${CONFIG.textos.otraCiudadTitle}</div>
+      <div class="msgbox-text">${CONFIG.textos.otraCiudadBody}</div>
+      <a class="msgbox-btn" href="${wa}" target="_blank" rel="noopener">📲 Cotizar por WhatsApp</a>
+    </div>`;
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    box.innerHTML = '';
+  }
+}
+
+byId('cont-ruta').addEventListener('click', () => {
+  cancelAutoPrompt();
+  stepDone('ruta');
+  stepCurrent('extras');
+  reveal('c-extras');
+  armAutoPrompt(30, '¿Deseas continuar sin materiales adicionales?', () => {
+    stepDone('extras');
+    stepCurrent('condiciones');
+    reveal('c-inst');
+  });
+});
+
+/* ========= STEP 4: EXTRAS / MATERIALES ========= */
+function extrasDefaults(tipo) {
+  const chico = (S.tipoServicio === 'pequeno' || S.tipoServicio === 'mediano');
+  if (tipo === 'express') return { vinipel: chico ? 2 : 3 };
+  return chico ? { cajas: 20, vinipel: 2, burbuja: 1, craft: 1 } : { cajas: 45, vinipel: 5, burbuja: 2, craft: 1 };
+}
+
+function buildExtras() {
+  S.empaque.mat = extrasDefaults(S.empaque.tipo);
+  renderExtras();
+}
+
+function renderExtras() {
+  const tipo = S.empaque.tipo;
+  const body = byId('extras-body');
+  const mats = tipo === 'express' ? ['vinipel'] : ['cajas','vinipel','burbuja','craft'];
+  let html = `<div class="tabs">
+    <button class="tab ${tipo==='express'?'active':''}" id="tab-express" data-emp="express">Express (mismo día)</button>
+    <button class="tab ${tipo==='full'?'active':''}" id="tab-full" data-emp="full">Full (materiales + M.O.)</button>
+  </div>`;
+  mats.forEach(k => {
+    const q = S.empaque.mat[k] || 0;
+    const p = CONFIG.precios.materiales[k];
+    if (!p) return;
+    html += `<div class="mat-row">
+      <div class="mat-info">
+        <div class="mat-name">${p.label}</div>
+        <div class="mat-hint">${p.unidad} · ${formatCOP(p.venta)} c/u</div>
+      </div>
+      <div class="stepper">
+        <button type="button" onclick="extrasChg('${k}',-1)">−</button>
+        <span class="qv" id="q-${k}">${q}</span>
+        <button type="button" onclick="extrasChg('${k}',1)">+</button>
+      </div>
+    </div>`;
+  });
+  if (tipo === 'full') {
+    const cajas = S.empaque.mat.cajas || 0;
+    const dias = cajas >= 45 ? 2 : 1;
+    html += `<div class="note">2 empacadores · ${dias} día${dias>1?'s':''} estimado (según cantidad de cajas).</div>`;
+  }
+  body.innerHTML = html;
+  // Re-bind tabs
+  body.querySelectorAll('.tab[data-emp]').forEach(t => t.addEventListener('click', () => {
+    body.querySelectorAll('.tab[data-emp]').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    S.empaque.tipo = t.dataset.emp;
+    if (t.dataset.emp === 'full') {
+      showPrompt('El empaque que aparece es el sugerido para tu tipo de vivienda. Puedes modificarlo, pero te recomendamos lo que indicamos para un servicio completo.');
+    }
+    buildExtras();
+  }));
+}
+
+window.extrasChg = function(k, d) {
+  let q = (S.empaque.mat[k] || 0) + d;
+  if (q < 0) q = 0;
+  S.empaque.mat[k] = q;
+  const el = byId('q-'+k);
+  if (el) el.textContent = q;
+  // Re-render empacadores note if full
+  if (S.empaque.tipo === 'full') buildExtras();
+};
+
+byId('cont-extras').addEventListener('click', () => {
+  cancelAutoPrompt();
+  stepDone('extras');
+  stepCurrent('condiciones');
+  reveal('c-inst');
+  armAutoPrompt(30, '¿Deseas continuar sin instalaciones?', () => {
+    reveal('c-condiciones');
+    buildCondiciones();
+  });
+});
+
+/* ========= STEP 5: INSTALACIONES ========= */
+function buildInst() {
+  const body = byId('inst-body');
+  let html = '';
+  Object.keys(CONFIG.precios.instalaciones).forEach(k => {
+    const p = CONFIG.precios.instalaciones[k];
+    html += `<div class="mat-row">
+      <div class="mat-info">
+        <div class="mat-name">${p.label}</div>
+        <div class="mat-hint">${formatCOP(p.venta)} por unidad</div>
+      </div>
+      <div class="stepper">
+        <button type="button" onclick="instChg('${k}',-1)">−</button>
+        <span class="qv" id="qi-${k}">0</span>
+        <button type="button" onclick="instChg('${k}',1)">+</button>
+      </div>
+    </div>`;
+  });
+  html += `<div class="field" style="margin-top:8px">
+    <label>¿Otra instalación? (opcional)</label>
+    <input type="text" id="inst-otro" placeholder="Cuéntanos qué más necesitas">
+  </div>`;
+  body.innerHTML = html;
+  byId('inst-otro').addEventListener('input', function() { S.inst.otro = this.value; });
+}
+
+window.instChg = function(k, d) {
+  let q = (S.inst[k] || 0) + d;
+  if (q < 0) q = 0;
+  S.inst[k] = q;
+  const el = byId('qi-'+k);
+  if (el) el.textContent = q;
+};
+
+byId('cont-inst').addEventListener('click', () => {
+  cancelAutoPrompt();
+  reveal('c-condiciones');
+  buildCondiciones();
+  armAutoPrompt(30, '¿Deseas continuar sin condiciones especiales?', () => {
+    if (S.caminado === null) S.caminado = false;
+    if (S.ascensor === null) S.ascensor = true;
+    stepDone('condiciones');
+    reveal('c-almacenamiento');
+    armAutoPrompt(30, '¿Deseas continuar sin almacenamiento?', () => {
+      S.almacenamiento = false;
+      confirmAndFinalize();
+    });
+  });
+});
+
+/* ========= STEP 6: CONDICIONES ========= */
+function buildCondiciones() {
+  byId('cond-body').innerHTML = `
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:14px;font-weight:600;color:var(--accent);margin-bottom:8px">¿Hay caminados largos? (distancia entre vehículo y puerta)</label>
+      <div class="yn" id="caminado-yn">
+        <button data-v="si">Sí</button>
+        <button data-v="no">No</button>
+      </div>
+    </div>
+    <div id="escalera-block"></div>`;
+  $$('#caminado-yn button').forEach(b => b.addEventListener('click', () => {
+    cancelAutoPrompt();
+    $$('#caminado-yn button').forEach(x => x.classList.remove('sel-yes','sel-no'));
+    S.caminado = (b.dataset.v === 'si');
+    b.classList.add(S.caminado ? 'sel-yes' : 'sel-no');
+    buildEscalera();
+  }));
+}
+
+function buildEscalera() {
+  if (S.tipoServicio === 'casa') {
+    S.ascensor = true; S.pisos = null;
+    byId('escalera-block').innerHTML = '';
+    condicionesDone();
+    return;
+  }
+  byId('escalera-block').innerHTML = `
+    <div style="margin-top:8px">
+      <label style="display:block;font-size:14px;font-weight:600;color:var(--accent);margin-bottom:8px">¿Hay ascensor disponible?</label>
+      <div class="yn" id="asc-yn">
+        <button data-v="si">Sí, hay ascensor</button>
+        <button data-v="no">Solo escalera</button>
+      </div>
+      <div id="pisos-block"></div>
+    </div>`;
+  $$('#asc-yn button').forEach(b => b.addEventListener('click', () => {
+    $$('#asc-yn button').forEach(x => x.classList.remove('sel-yes','sel-no'));
+    S.ascensor = (b.dataset.v === 'si');
+    b.classList.add(S.ascensor ? 'sel-yes' : 'sel-no');
+    if (S.ascensor) {
+      S.pisos = null;
+      byId('pisos-block').innerHTML = '';
+      condicionesDone();
+    } else {
+      byId('pisos-block').innerHTML = `
+        <div style="margin-top:12px">
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--accent);margin-bottom:6px">¿A partir de qué piso?</label>
+          <div class="pills" id="pisos-pills">
+            <span class="pill" data-p="3">3er piso</span>
+            <span class="pill" data-p="4">4to piso</span>
+            <span class="pill" data-p="5">5to+ piso</span>
+          </div>
+          <div class="note ref">Valor estimado — puede ajustarse por condiciones del lugar.</div>
+        </div>`;
+      $$('#pisos-pills .pill').forEach(p => p.addEventListener('click', () => {
+        $$('#pisos-pills .pill').forEach(x => x.classList.remove('sel'));
+        p.classList.add('sel');
+        S.pisos = parseInt(p.dataset.p, 10);
+        condicionesDone();
+      }));
+    }
+  }));
+}
+
+function condicionesDone() {
+  stepDone('condiciones');
+  reveal('c-almacenamiento');
+  armAutoPrompt(30, '¿Deseas continuar sin almacenamiento?', () => {
+    S.almacenamiento = false;
+    confirmAndFinalize();
+  });
+}
+
+/* ========= STEP 7: ALMACENAMIENTO ========= */
+$$('#alm-yn button').forEach(b => b.addEventListener('click', () => {
+  cancelAutoPrompt();
+  $$('#alm-yn button').forEach(x => x.classList.remove('sel-yes','sel-no'));
+  S.almacenamiento = (b.dataset.v === 'si');
+  b.classList.add(S.almacenamiento ? 'sel-yes' : 'sel-no');
+  const body = byId('alm-body');
+  if (S.almacenamiento) {
+    let html = '<div style="margin-top:14px"><label style="display:block;font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px">¿Cuánto espacio necesitas?</label><div class="pills" id="alm-pills">';
+    Object.keys(CONFIG.precios.almacenamiento).forEach(k => {
+      html += `<span class="pill" data-a="${k}">${CONFIG.precios.almacenamiento[k].label}</span>`;
+    });
+    html += '</div></div>';
+    body.innerHTML = html;
+    $$('#alm-pills .pill').forEach(p => p.addEventListener('click', () => {
+      $$('#alm-pills .pill').forEach(x => x.classList.remove('sel'));
+      p.classList.add('sel');
+      S.almSize = p.dataset.a;
+      confirmAndFinalize();
+    }));
+  } else {
+    body.innerHTML = '';
+    S.almSize = null;
+    confirmAndFinalize();
+  }
+}));
+
+/* ========= CALCULAR LÍNEAS ========= */
+function buildLines() {
+  const lines = [];
+  const P = CONFIG.precios;
+
+  // Vehículo principal
+  const tipoSvc = CONFIG.tiposServicio.find(t => t.id === S.tipoServicio);
+  const vKey = tipoSvc ? tipoSvc.vehiculo : null;
+  if (vKey && P.vehiculo[vKey]) {
+    const v = P.vehiculo[vKey];
+    let venta = v.venta, costo = v.costo;
+    const cerca = CONFIG.ciudadesCercanas;
+    const recargo = (cerca.includes(S.origen) || cerca.includes(S.destino));
+    if (recargo) { venta += P.extras.recargoCercania.venta; costo += P.extras.recargoCercania.costo; }
+    lines.push({ cat:'servicio', l: v.label + ' — ' + (tipoSvc.nombre||''), detail: S.origen + ' → ' + S.destino, v: venta, c: costo, qty: 1 });
+  }
+  if (S.vehiculoExtra) {
+    const va = P.extras.vehiculoAdicional;
+    lines.push({ cat:'servicio', l: va.label, detail: 'Carga extra', v: va.venta, c: va.costo, qty: 1 });
+  }
+
+  // Materiales de empaque
+  Object.keys(S.empaque.mat).forEach(k => {
+    const q = S.empaque.mat[k] || 0;
+    if (q > 0 && P.materiales[k]) {
+      const m = P.materiales[k];
+      lines.push({ cat:'empaque', l: m.label + ' × ' + q, detail: S.empaque.tipo === 'express' ? 'Express' : 'Full', v: m.venta * q, c: m.costo * q, qty: q });
+    }
+  });
+
+  // Instalaciones
+  Object.keys(P.instalaciones).forEach(k => {
+    const q = S.inst[k] || 0;
+    if (q > 0) {
+      const p = P.instalaciones[k];
+      lines.push({ cat:'inst', l: p.label + ' × ' + q, detail: 'Instalación', v: p.venta * q, c: p.costo * q, qty: q });
+    }
+  });
+
+  // Caminado
+  if (S.caminado) lines.push({ cat:'adicionales', l: 'Caminado largo', detail: 'Valor estimado', v: P.extras.caminado.venta, c: 0, qty: 1, est: true });
+
+  // Escaleras
+  if (!S.ascensor && S.pisos) {
+    const escKey = 'escalera' + S.pisos;
+    let vEsc = P.extras[escKey] || P.extras.escalera3;
+    const cajas = S.empaque.mat.cajas || 0;
+    if (cajas > 45) vEsc += 60000; else if (cajas >= 20) vEsc += 30000;
+    lines.push({ cat:'adicionales', l: 'Escaleras (piso ' + S.pisos + (S.pisos >= 5 ? '+' : '') + ')', detail: 'Estimado — ajustable según lugar', v: vEsc, c: 0, qty: 1, est: true });
+  }
+
+  // Almacenamiento
+  if (S.almacenamiento && S.almSize && P.almacenamiento[S.almSize]) {
+    const a = P.almacenamiento[S.almSize];
+    lines.push({ cat:'almacenamiento', l: 'Almacenamiento ' + a.label, detail: 'Mensual', v: a.venta, c: a.costo, qty: 1 });
+  }
+
+  return lines;
+}
+
+/* ========= CONFIRMAR Y FINALIZAR ========= */
+function confirmAndFinalize() {
+  showPrompt('¿Estás seguro de tu información? Continuemos.', finalizar);
+}
+
+function finalizar() {
+  stepDone('cotizacion');
+  stepCurrent('cotizacion');
+  const lines = buildLines();
+  const total = lines.reduce((a, l) => a + l.v, 0);
+  S._lines = lines;
+  S._total = total;
+  byId('result-name').textContent = 'Estimado ' + S.nombre;
+  const cats = {
+    servicio:      { label: 'Servicio principal', items: [], t: 0 },
+    empaque:       { label: 'Materiales y empaque', items: [], t: 0 },
+    inst:          { label: 'Instalaciones', items: [], t: 0 },
+    adicionales:   { label: 'Servicios adicionales', items: [], t: 0 },
+    almacenamiento:{ label: 'Almacenamiento', items: [], t: 0 },
+  };
+  lines.forEach(l => { const c = cats[l.cat] || cats.adicionales; c.items.push(l); c.t += l.v; });
+  let html = '';
+  let idx = 0;
+  Object.keys(cats).forEach(k => {
+    const c = cats[k];
+    if (!c.items.length) return;
+    html += `<div class="rline rline-cat anim" style="animation-delay:${0.4+idx*0.07}s"><div class="rline-info"><div class="rline-name" style="font-weight:700;color:var(--accent)">${c.label}</div></div><div class="rline-val" style="font-weight:700;color:var(--accent)">${formatCOP(c.t)}</div></div>`;
+    idx++;
+    c.items.forEach(l => {
+      html += `<div class="rline anim" style="animation-delay:${0.4+idx*0.07}s;padding-left:12px"><div class="rline-info"><div class="rline-name">${l.l}</div><div class="rline-detail">${l.detail||''}</div></div><div class="rline-val${l.est?' est':''}">${formatCOP(l.v)}</div></div>`;
+      idx++;
+    });
+  });
+  if (S.empaque.tipo === 'full') {
+    const cajas = S.empaque.mat.cajas || 0;
+    const dias = cajas >= 45 ? 2 : 1;
+    html += `<div class="rline anim" style="animation-delay:${0.4+idx*0.1}s"><div class="rline-info"><div class="rline-name">Empacadores</div><div class="rline-detail">2 empacadores · ${dias} día${dias>1?'s':''} (incluido en empaque)</div></div><div class="rline-val" style="color:var(--muted);font-size:12px">referencia</div></div>`;
+    idx++;
+  }
+  if (S.inst.otro) {
+    html += `<div class="rline anim" style="animation-delay:${0.4+idx*0.1}s"><div class="rline-info"><div class="rline-name">Otra instalación</div><div class="rline-detail">${S.inst.otro}</div></div><div class="rline-val" style="color:var(--muted);font-size:12px">a confirmar</div></div>`;
+    idx++;
+  }
+  byId('result-lines').innerHTML = html;
+  // Total counter
+  const totalEl = byId('result-total');
+  const rtotalBox = $('.rtotal');
+  if (rtotalBox) rtotalBox.classList.add('anim');
+  const actionsBox = $('#c-resultado .result-actions');
+  if (actionsBox) { actionsBox.classList.add('anim'); actionsBox.style.animationDelay = (0.5+idx*0.1)+'s'; }
+  animateCounter(totalEl, total, 1200, 0.4+idx*0.1);
+  reveal('c-resultado');
+  launchConfetti();
+  saveBackend(lines, total);
+  armResultPrompt();
+  setTimeout(() => { const p = byId('progress'); if (p) p.classList.add('progress--faded'); }, 5000);
+  startCtaGlow();
+}
+
+function animateCounter(el, target, dur, delaySec) {
+  setTimeout(() => {
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min((now-start)/dur, 1);
+      const ease = 1 - Math.pow(1-p, 3);
+      el.textContent = formatCOP(Math.round(target * ease));
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+    setTimeout(() => el.textContent = formatCOP(target), dur+50);
+  }, (delaySec||0)*1000);
+}
+
+/* ========= CONFETTI ========= */
+function launchConfetti() {
+  const cv = byId('confetti-canvas'); if (!cv) return;
+  const ctx = cv.getContext('2d');
+  cv.width = window.innerWidth; cv.height = window.innerHeight;
+  const colors = ['#5ee7f7','#0a0a0a','#16A34A','#F59E0B','#3B82F6','#ffffff','#a3f0f9'];
+  const pieces = [];
+  for (let i = 0; i < 120; i++) {
+    pieces.push({ x:cv.width*Math.random(), y:cv.height*-.3*Math.random()-20, w:6+Math.random()*6, h:4+Math.random()*4, color:colors[Math.floor(Math.random()*colors.length)], vx:(Math.random()-.5)*4, vy:2+Math.random()*4, rot:Math.random()*360, vr:(Math.random()-.5)*8, a:1 });
+  }
+  let frame = 0; const maxFrames = 180;
+  function draw() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    pieces.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.vy+=0.12;
+      if (frame > maxFrames*0.6) p.a = Math.max(0, p.a-0.02);
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.globalAlpha = p.a; ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
+    });
+    frame++;
+    if (frame < maxFrames) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, cv.width, cv.height);
+  }
+  draw();
+}
+
+/* ========= CTA GLOW ========= */
+function startCtaGlow() {
+  const wa = byId('btn-wa'), inq = byId('btn-inq'), pdf = byId('btn-pdf');
+  if (!wa||!inq||!pdf) return;
+  const d = 1500;
+  setTimeout(() => wa.classList.add('cta-glow-wa'), d);
+  setTimeout(() => { wa.classList.remove('cta-glow-wa'); inq.classList.add('cta-glow-inq'); }, d+3000);
+  setTimeout(() => { inq.classList.remove('cta-glow-inq'); pdf.classList.add('cta-glow-pdf'); }, d+6000);
+  setTimeout(() => pdf.classList.remove('cta-glow-pdf'), d+9000);
+}
+
+/* ========= RESULT PROMPT ========= */
+let _resultActioned = false, _resultPromptTimer = null;
+function armResultPrompt() {
+  _resultActioned = false;
+  clearTimeout(_resultPromptTimer);
+  _resultPromptTimer = setTimeout(() => {
+    if (!_resultActioned) showPrompt('Tu cotización está lista. Envíala a tu WhatsApp o descárgala en PDF.', () => {
+      byId('btn-wa').scrollIntoView({ behavior:'smooth', block:'center' });
+    });
+  }, 60000);
+}
+['#btn-wa','#btn-inq','#btn-pdf'].forEach(sel => {
+  const el = $(sel);
+  if (el) el.addEventListener('click', () => { _resultActioned = true; clearTimeout(_resultPromptTimer); }, { once: true });
+});
+
+/* ========= POST-ACCIÓN CONFIRMACIÓN ========= */
+function showSentConfirm() {
+  if (_promptActive) return;
+  _promptActive = true;
+  const m = byId('pmodal'), icon = m.querySelector('.pmodal-icon'), cancel = byId('pmodal-cancel');
+  icon.textContent = '✅';
+  byId('pmodal-title').textContent = 'Tu cotización ha sido enviada correctamente';
+  byId('pmodal-ok').textContent = 'OK';
+  cancel.style.display = 'none';
+  m.classList.add('show');
+  byId('pmodal-ok').onclick = () => {
+    m.classList.remove('show'); _promptActive = false;
+    icon.textContent = '👉'; byId('pmodal-ok').textContent = 'Sí, continuar'; cancel.style.display = '';
+  };
+}
+
+/* ========= WHATSAPP ========= */
+function buildWaMsg(prefix) {
+  const lines = S._lines || [];
+  const empresa = CONFIG.empresa.nombre;
+  let msg = (prefix||'') + `*Cotización ${empresa}*\n\nCliente: ${S.nombre}\nWhatsApp: ${S.whatsapp}\nRuta: ${S.origen} → ${S.destino}\n\n`;
+  const cats = { servicio:{label:'Servicio',items:[],t:0}, empaque:{label:'Empaque',items:[],t:0}, inst:{label:'Instalaciones',items:[],t:0}, adicionales:{label:'Adicionales',items:[],t:0}, almacenamiento:{label:'Almacenamiento',items:[],t:0} };
+  lines.forEach(l => { const c = cats[l.cat]||cats.adicionales; c.items.push(l); c.t+=l.v; });
+  Object.keys(cats).forEach(k => {
+    const c = cats[k]; if (!c.items.length) return;
+    msg += `*${c.label}: ${formatCOP(c.t)}*\n`;
+    c.items.forEach(l => { msg += `  • ${l.l}: ${formatCOP(l.v)}${l.est?' (estimado)':''}\n`; });
+    msg += '\n';
+  });
+  msg += `*Total estimado: ${formatCOP(S._total)}*\n\nValores sujetos a validación en sitio. Sin compromiso.\n${CONFIG.empresa.domain}`;
+  return msg;
+}
+
+byId('btn-wa').addEventListener('click', () => {
+  const wa = 'https://wa.me/57' + S.whatsapp + '?text=' + encodeURIComponent(buildWaMsg());
+  window.open(wa, '_blank', 'noopener');
+  setTimeout(showSentConfirm, 800);
+});
+
+byId('btn-inq').addEventListener('click', () => {
+  const msg = buildWaMsg(`Hola ${CONFIG.empresa.nombre}, tengo preguntas sobre esta cotización.\n\n`);
+  const wa = 'https://wa.me/' + CONFIG.empresa.phone + '?text=' + encodeURIComponent(msg);
+  window.open(wa, '_blank', 'noopener');
+  setTimeout(showSentConfirm, 800);
+});
+
+/* ========= PDF ========= */
+byId('btn-pdf').addEventListener('click', async () => {
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF();
+  const lines = S._lines || [];
+  const fecha = new Date().toLocaleDateString('es-CO', {year:'numeric',month:'long',day:'numeric'});
+  // Header
+  doc.setFillColor(10,10,10);
+  doc.rect(0,0,210,30,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.text(CONFIG.empresa.nombre, 14, 16);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.setTextColor(94,231,247);
+  doc.text('Cotización de servicio', 196, 12, {align:'right'});
+  doc.setTextColor(200,200,200);
+  doc.setFontSize(8);
+  doc.text(CONFIG.empresa.domain, 196, 20, {align:'right'});
+  // Body
+  let y = 40;
+  doc.setTextColor(90,100,120);
+  doc.setFontSize(9);
+  doc.text('Fecha: '+fecha, 14, y);
+  doc.text('Ciudad: '+S.origen, 196, y, {align:'right'});
+  y += 10;
+  doc.setTextColor(15,23,42);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.text('Estimado(a) '+S.nombre+',', 14, y);
+  y += 7;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.setTextColor(70,80,100);
+  const intro = doc.splitTextToSize(CONFIG.textos.pdfSaludo(S.nombre, CONFIG.empresa.nombre), 182);
+  doc.text(intro, 14, y);
+  y += intro.length*5+6;
+  // Detalle
+  doc.setDrawColor(220,225,235);
+  doc.line(14, y, 196, y);
+  y += 8;
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  doc.setTextColor(10,10,10);
+  doc.text('Detalle del servicio', 14, y);
+  y += 8;
+  const pdfCats = { servicio:{label:'Servicio',items:[],t:0}, empaque:{label:'Empaque',items:[],t:0}, inst:{label:'Instalaciones',items:[],t:0}, adicionales:{label:'Adicionales',items:[],t:0}, almacenamiento:{label:'Almacenamiento',items:[],t:0} };
+  lines.forEach(l => { const c=pdfCats[l.cat]||pdfCats.adicionales; c.items.push(l); c.t+=l.v; });
+  Object.keys(pdfCats).forEach(k => {
+    const c = pdfCats[k]; if (!c.items.length) return;
+    doc.setFont('helvetica','bold'); doc.setTextColor(10,10,10);
+    doc.text(c.label, 14, y); doc.text(formatCOP(c.t), 196, y, {align:'right'}); y += 6;
+    doc.setFont('helvetica','normal'); doc.setTextColor(15,23,42);
+    c.items.forEach(l => {
+      doc.text('   '+l.l+(l.est?' (estimado)':''), 14, y);
+      doc.text(formatCOP(l.v), 196, y, {align:'right'});
+      y += 6;
+      if (y > 262) { doc.addPage(); y = 20; }
+    });
+    y += 3;
+  });
+  y += 3;
+  doc.setDrawColor(220,225,235); doc.line(14,y,196,y); y += 10;
+  // Total
+  doc.setFillColor(10,10,10); doc.roundedRect(14, y-7, 182, 14, 2, 2, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(255,255,255);
+  doc.text('Total estimado', 18, y+2); doc.text(formatCOP(S._total), 192, y+2, {align:'right'}); y += 18;
+  // Firma
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(70,80,100);
+  doc.text('Cordialmente,', 14, y); y += 6;
+  doc.setFont('helvetica','bold'); doc.setTextColor(10,10,10); doc.setFontSize(12);
+  doc.text(CONFIG.textos.pdfFirma(CONFIG.empresa.nombre), 14, y); y += 5;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120,130,150);
+  doc.text(`WhatsApp +57 ${CONFIG.empresa.phone}  ·  ${CONFIG.empresa.domain}`, 14, y); y += 8;
+  // 7group attribution
+  doc.setFont('helvetica','italic'); doc.setFontSize(7.5); doc.setTextColor(160,160,160);
+  doc.text('Agente Cotizador desarrollado por 7group · 7group.site', 14, y); y += 5;
+  doc.setFont('helvetica','italic'); doc.setFontSize(8);
+  doc.text('Valores estimados, sujetos a validación en sitio. Sin compromiso.', 14, y);
+  // Properties
+  doc.setProperties({ title:'Cotización '+S.nombre+' - '+CONFIG.empresa.nombre, subject:'Cotización de servicio', creator:'7group - Agente Cotizador', author:CONFIG.empresa.domain });
+  const fn = 'cotizacion_'+S.nombre.replace(/[^a-z0-9]/gi,'_')+'.pdf';
+  try {
+    const bl = doc.output('blob');
+    const u = URL.createObjectURL(bl);
+    const a = document.createElement('a');
+    a.href = u; a.download = fn;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(u); a.remove(); }, 2000);
+  } catch(e) { doc.save(fn); }
+  setTimeout(showSentConfirm, 800);
+});
+
+/* ========= BACKEND ========= */
+function saveBackend(lines, total) {
+  if (!CONFIG.backend.sheetUrl && !CONFIG.backend.tgToken) return;
+  const fecha = new Date().toISOString().substring(0,10);
+  const meta = {
+    cliente: S.nombre, telefono: S.whatsapp, fecha: fecha,
+    tipo: 'Web cliente', estado: 'COTIZADO',
+    total: total, costo: lines.reduce((a,l)=>a+(l.c||0),0),
+    items: lines.map(l=>({cat:l.cat,l:l.l,v:l.v,c:l.c||0,qty:l.qty})),
+  };
+  if (CONFIG.backend.sheetUrl) {
+    fetch(CONFIG.backend.sheetUrl, { method:'POST', body:JSON.stringify({type:'cotizacion',meta:meta}), redirect:'follow' }).catch(()=>{});
+  }
+  if (CONFIG.backend.tgToken && CONFIG.backend.tgChat) {
+    const tg = `💰 *Nueva cotización*\n👤 ${S.nombre}\n📱 ${S.whatsapp}\n📍 ${S.origen} → ${S.destino}\n💵 ${formatCOP(total)}`;
+    fetch(`https://api.telegram.org/bot${CONFIG.backend.tgToken}/sendMessage`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chat_id:CONFIG.backend.tgChat,text:tg,parse_mode:'Markdown'}) }).catch(()=>{});
+  }
+}
+
+function notifyBackend(text) {
+  if (!CONFIG.backend.tgToken || !CONFIG.backend.tgChat) return;
+  fetch(`https://api.telegram.org/bot${CONFIG.backend.tgToken}/sendMessage`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({chat_id:CONFIG.backend.tgChat,text:'⚡ '+text,parse_mode:'Markdown'}) }).catch(()=>{});
+}
+
+/* ========= CORREGIR DATOS ========= */
+byId('btn-corregir').addEventListener('click', function(e) {
+  e.preventDefault();
+  const p = byId('progress');
+  if (p) p.classList.remove('progress--faded');
+  _resultActioned = true;
+  clearTimeout(_resultPromptTimer);
+  window.scrollTo({ top: 0, behavior: 'auto' });
+  byId('ur-nombre').focus();
+});
+
+/* ========= INIT ========= */
+applyConfig();
+buildRuta();
+buildInst();
+</script>
+</body>
+</html>
