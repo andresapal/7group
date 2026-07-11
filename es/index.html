@@ -799,6 +799,95 @@
     @media (max-width: 600px) { .agents-cta-inner { padding: 32px 24px; } }
     @media (max-width: 768px) { .agents-grid { grid-template-columns: 1fr; } .agent-card:last-child { grid-column: 1; } }
 
+    /* CASE STUDIES */
+    .case-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--light);
+      border: 1px solid var(--light);
+      margin: 0 48px;
+    }
+    .case-card {
+      background: var(--white);
+      padding: 48px 40px;
+    }
+    .case-logo {
+      height: 40px;
+      width: auto;
+      max-width: 180px;
+      object-fit: contain;
+      filter: grayscale(100%) brightness(0.4);
+      margin-bottom: 24px;
+      display: block;
+    }
+    .case-card h4 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+    .case-type {
+      font-size: 13px;
+      color: var(--gray);
+      margin-bottom: 20px;
+      letter-spacing: 0.3px;
+    }
+    .case-results {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .case-results li {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.6;
+      padding-left: 18px;
+      position: relative;
+    }
+    .case-results li::before {
+      content: '\2192';
+      position: absolute;
+      left: 0;
+      color: var(--cyan);
+      font-size: 13px;
+    }
+    @media (max-width: 768px) {
+      .case-grid { grid-template-columns: 1fr; margin: 0 24px; }
+      .case-card { padding: 36px 28px; }
+    }
+
+    /* FAQ */
+    .faq-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--light);
+      border: 1px solid var(--light);
+    }
+    .faq-item {
+      background: var(--white);
+      padding: 32px 40px;
+    }
+    .faq-item h4 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      margin-bottom: 10px;
+      color: var(--black);
+    }
+    .faq-item p {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.75;
+      max-width: 600px;
+    }
+    @media (max-width: 768px) {
+      .faq-item { padding: 28px 24px; }
+    }
+
     .plans-step { margin-bottom: 64px; }
     .step-label {
       font-size: 11px;
@@ -1068,54 +1157,50 @@
     </div>
     <div class="stats-bar">
       <div class="stat-item">
-        <strong>4+</strong>
-        <span>Soluciones probadas en producción real</span>
+        <strong>2</strong>
+        <span>Plataformas operando en produccion hoy</span>
       </div>
       <div class="stat-item">
-        <strong>100%</strong>
-        <span>Construido y validado en operación propia</span>
+        <strong>5</strong>
+        <span>Agentes de IA construidos y desplegados</span>
       </div>
       <div class="stat-item">
-        <strong>0</strong>
-        <span>Promesas sin evidencia. Todo lo que ofrecemos, ya lo vivimos.</span>
+        <strong>&lt;4 sem</strong>
+        <span>De concepto a plataforma en vivo</span>
       </div>
     </div>
   </section>
 
-  <!-- CLIENTES -->
+  <!-- CASOS DE EXITO -->
   <div class="clients-section">
     <div class="clients-header">
-      <p class="section-label">Quiénes confían en nosotros</p>
-      <h2 class="clients-heading">Empresas que ya operan con nuestra tecnología.</h2>
+      <p class="section-label">Construido. Desplegado. Operando.</p>
+      <h2 class="clients-heading">Tecnologia que construimos para operaciones reales — no demos.</h2>
     </div>
-    <div class="clients-carousel">
-      <div class="clients-track" id="clientsTrack">
-        <!-- Set 1 -->
-        <div class="client-item">
-          <img src="../logo-trasteosya.webp" alt="Trasteos Ya" class="client-logo" />
-          <h4>Trasteos Ya</h4>
-          <p>Plataforma operativa completa: cotizador automático, órdenes de servicio, dashboards KPI, campañas, reseñas, geolocalización y app web + móvil.</p>
-          <span class="client-tag">Logística · Web · Mobile · IA</span>
-        </div>
-        <div class="client-item">
-          <img src="../logo-tygo.webp" alt="TYGO" class="client-logo" />
-          <h4>TYGO</h4>
-          <p>Marketplace de carga con IA que conecta empresas con conductores en tiempo real. Subastas inteligentes, enrutamiento logístico y tracking en vivo.</p>
-          <span class="client-tag">Carga · Marketplace IA · Logística</span>
-        </div>
-        <!-- Set 2 — duplicado para loop continuo -->
-        <div class="client-item">
-          <img src="../logo-trasteosya.webp" alt="Trasteos Ya" class="client-logo" />
-          <h4>Trasteos Ya</h4>
-          <p>Plataforma operativa completa: cotizador automático, órdenes de servicio, dashboards KPI, campañas, reseñas, geolocalización y app web + móvil.</p>
-          <span class="client-tag">Logística · Web · Mobile · IA</span>
-        </div>
-        <div class="client-item">
-          <img src="../logo-tygo.webp" alt="TYGO" class="client-logo" />
-          <h4>TYGO</h4>
-          <p>Marketplace de carga con IA que conecta empresas con conductores en tiempo real. Subastas inteligentes, enrutamiento logístico y tracking en vivo.</p>
-          <span class="client-tag">Carga · Marketplace IA · Logística</span>
-        </div>
+    <div class="case-grid">
+      <div class="case-card">
+        <img src="../logo-trasteosya.webp" alt="Trasteos Ya" class="case-logo" />
+        <h4>Trasteos Ya</h4>
+        <p class="case-type">Plataforma de logistica urbana · Bogota, Colombia</p>
+        <ul class="case-results">
+          <li>Motor de cotizacion automatico — reemplazo un proceso 100% manual por telefono</li>
+          <li>Tracking de ordenes en tiempo real desde solicitud hasta entrega</li>
+          <li>Dashboard CEO con KPIs operativos en vivo</li>
+          <li>Campañas automatizadas y recoleccion de reseñas</li>
+        </ul>
+        <span class="client-tag">En produccion · Web & Mobile</span>
+      </div>
+      <div class="case-card">
+        <img src="../logo-tygo.webp" alt="TYGO" class="case-logo" />
+        <h4>TYGO</h4>
+        <p class="case-type">Marketplace de carga con IA · Estados Unidos</p>
+        <ul class="case-results">
+          <li>Publicacion de cargas y matching de transportistas en tiempo real</li>
+          <li>Plataforma bilingue — diseñada para el mercado US y LATAM</li>
+          <li>Pricing y optimizacion de rutas con inteligencia artificial</li>
+          <li>Activo en Florida, Texas y Georgia</li>
+        </ul>
+        <span class="client-tag">En produccion · Potenciado por IA</span>
       </div>
     </div>
   </div>
@@ -1228,15 +1313,43 @@
 
   </section>
 
+  <!-- FAQ -->
+  <section id="faq">
+    <p class="section-label">Preguntas frecuentes</p>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h4>¿En que se diferencia esto de un software generico?</h4>
+        <p>Cada modulo que ofrecemos fue construido para — y probado en — una operacion logistica real. No revendemos herramientas genericas. Desplegamos plataformas configuradas especificamente para como trabaja tu equipo.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Somos un equipo pequeño — ¿es para nosotros?</h4>
+        <p>La mayoria de nuestros clientes arrancan con uno o dos modulos y un equipo de menos de 10 personas. La plataforma escala contigo, no por delante de ti. Sin contratos empresariales inflados.</p>
+      </div>
+      <div class="faq-item">
+        <h4>¿En cuanto tiempo vemos resultados?</h4>
+        <p>El piloto gratuito dura 15 dias. La mayoria de los clientes tienen su primer modulo en vivo en menos de 4 semanas. Sin ciclos de onboarding eternos.</p>
+      </div>
+      <div class="faq-item">
+        <h4>¿Que pasa despues de la implementacion?</h4>
+        <p>Recibes 90 dias de soporte dedicado incluidos. Despues, nuestros planes mensuales cubren acceso continuo, actualizaciones y asistencia prioritaria. Nunca te quedas sin soporte.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- CTA FINAL -->
   <div id="contacto" class="cta-final">
-    <h2>¿Listo para dejar el Excel atrás?</h2>
-    <p>Cuéntanos cómo opera tu empresa. Nosotros identificamos dónde está la mayor oportunidad.</p>
-    <a href="https://wa.me/573143095194" target="_blank" class="wa-icon" aria-label="Escríbenos por WhatsApp">
-      <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-      </svg>
-    </a>
+    <h2>¿Listo para dejar el Excel atras?</h2>
+    <p>Cuentanos como opera tu empresa. Nosotros identificamos donde esta la mayor oportunidad.</p>
+    <div class="cta-row" style="justify-content:center; margin-top:40px;">
+      <a href="/contacto.html" class="btn-primary" style="background:var(--black);color:#fff;border-color:var(--black);">Agendar llamada</a>
+      <a href="https://wa.me/573143095194" target="_blank" class="cta-link" style="display:inline-flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+        O escribenos por WhatsApp
+      </a>
+    </div>
+    <p style="font-size:13px;color:var(--gray);margin-top:24px;">Sin compromiso. Piloto gratuito disponible para empresas calificadas.</p>
   </div>
 
   <!-- FOOTER -->
@@ -1329,4 +1442,17 @@
       e.thinking.style.opacity = '0'; await demoSleep(100); if (demoGen[id] !== myGen) return;
       e.response.style.opacity = '1';
       const lines = s.output.split('\n');
-      for (let i = 0; i < lines.length; i++) { if (demoGen[id] !=
+      for (let i = 0; i < lines.length; i++) { if (demoGen[id] !== myGen) return; e.response.textContent += (i > 0 ? '\n' : '') + lines[i]; await demoSleep(180); }
+      await demoSleep(200); if (demoGen[id] !== myGen) return;
+      e.badge.textContent = s.badge;
+      e.badge.style.opacity = '1';
+    }
+    document.querySelectorAll('.agent-card[data-demo]').forEach(card => {
+      const id = card.dataset.demo;
+      card.addEventListener('mouseenter', () => { const gen = (demoGen[id] || 0) + 1; demoGen[id] = gen; runDemo(id, card, gen); });
+      card.addEventListener('mouseleave', () => { demoGen[id] = (demoGen[id] || 0) + 1; });
+    });
+  </script>
+
+</body>
+</html>
