@@ -269,7 +269,7 @@
   <nav>
     <a href="https://7group.site/es/" class="nav-back">← 7group</a>
     <a href="https://7group.site" class="nav-logo">7group</a>
-    <a href="https://7group.site/contacto.html" class="nav-cta">Hablar con un experto</a>
+    <a href="https://7group.site/contacto/" class="nav-cta">Hablar con un experto</a>
   </nav>
 
   <!-- HERO -->
@@ -417,7 +417,7 @@
     </div>
     <div class="cta-buttons">
       <a href="https://wa.me/573143095194" class="btn-primary">Hablar por WhatsApp</a>
-      <a href="https://7group.site/contacto.html" class="btn-secondary">Ver todos los canales</a>
+      <a href="https://7group.site/contacto/" class="btn-secondary">Ver todos los canales</a>
     </div>
   </section>
 
@@ -427,7 +427,7 @@
     <div class="footer-links">
       <a href="https://7group.site/es/">Inicio</a>
       <a href="https://7group.site/colombia/">Colombia</a>
-      <a href="https://7group.site/contacto.html">Contacto</a>
+      <a href="https://7group.site/contacto/">Contacto</a>
     </div>
     <span class="footer-copy">© 2026 7group</span>
   </footer>
@@ -478,7 +478,7 @@
       document.querySelector('.nav-back').href = 'https://7group.site';
       document.querySelector('.nav-back').textContent = '← 7group';
       document.querySelector('.nav-cta').textContent = 'Talk to an expert';
-      document.querySelector('.nav-cta').href = '/contacto.html?lang=en';
+      document.querySelector('.nav-cta').href = '/contacto/?lang=en';
 
       // Hero
       document.querySelector('.hero-label').textContent = 'AI Agent Suite';
@@ -527,14 +527,14 @@
       document.querySelector('.cta-text p').textContent = "Tell us how your company works today. In 48 hours you'll have a diagnosis and a proposal.";
       document.querySelector('.cta-buttons .btn-primary').textContent = 'Talk on WhatsApp';
       document.querySelector('.cta-buttons .btn-secondary').textContent = 'Contact us';
-      document.querySelector('.cta-buttons .btn-secondary').href = '/contacto.html?lang=en';
+      document.querySelector('.cta-buttons .btn-secondary').href = '/contacto/?lang=en';
 
       // Footer
       document.querySelector('footer .footer-logo').href = 'https://7group.site';
       const footerLinks = document.querySelectorAll('.footer-links a');
       if (footerLinks[0]) { footerLinks[0].textContent = 'Home';    footerLinks[0].href = 'https://7group.site'; }
       if (footerLinks[1]) { footerLinks[1].textContent = 'USA';     footerLinks[1].href = 'https://7group.site/florida/'; }
-      if (footerLinks[2]) { footerLinks[2].textContent = 'Contact'; footerLinks[2].href = '/contacto.html?lang=en'; }
+      if (footerLinks[2]) { footerLinks[2].textContent = 'Contact'; footerLinks[2].href = '/contacto/?lang=en'; }
     }
 
     const gen = {};
