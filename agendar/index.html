@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendar Reunion · 7Group</title>
+<meta name="description" content="Agenda una reunion con el equipo de 7Group. Selecciona el horario que mejor te funcione y recibe confirmacion inmediata.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link rel="canonical" href="https://7group.site/agendar/">
+<link rel="alternate" hreflang="es" href="https://7group.site/agendar/">
+<link rel="alternate" hreflang="x-default" href="https://7group.site/agendar/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://7group.site/agendar/">
+<meta property="og:title" content="Agenda una Reunion · 7Group">
+<meta property="og:description" content="Elige el horario que mejor te funcione. Confirmacion automatica al instante.">
+<meta property="og:image" content="https://7group.site/ciudad-datos.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0a0a0a;color:#f5f5f5;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+
+:root{
+  --black:#0a0a0a;--white:#f5f5f5;--gray:#6b6b6b;--light:#e8e8e8;
+  --cyan:#5ee7f7;--border:rgba(245,245,245,.08);
+}
+
+/* NAV */
+#nav{
+  background:rgba(10,10,10,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);
+}
+#nav.scrolled{border-bottom-color:rgba(245,245,245,.12)}
+.logo img{height:28px;display:block}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+.nav-links a{font-size:14px;color:#888;text-decoration:none;transition:color .2s;letter-spacing:-.01em}
+.nav-links a:hover{color:var(--white)}
+.lang-switch{display:flex;gap:12px}
+.lang-switch a{font-size:12px;color:#555;text-decoration:none;letter-spacing:1px;font-weight:600;transition:color .2s}
+.lang-switch a:hover,.lang-switch a.active{color:var(--white)}
+@media(max-width:640px){
+  #nav{padding:0 20px}
+  .nav-links{display:none}
+}
+
+/* HERO STRIP */
+.page-hero{
+  padding:64px 24px 48px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.page-hero-inner{max-width:600px;margin:0 auto}
+.page-label{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--cyan);margin-bottom:20px;
+}
+.page-hero h1{
+  font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.08;
+  margin-bottom:16px;color:var(--white);
+}
+.page-hero h1 em{font-style:normal;color:var(--cyan)}
+.page-hero p{
+  font-size:16px;color:#888;line-height:1.7;max-width:480px;margin:0 auto;
+}
+
+/* PROCESS STEPS */
+.steps{
+  display:flex;justify-content:center;gap:0;
+  max-width:720px;margin:0 auto;
+  padding:40px 24px 0;
+}
+.step{
+  flex:1;text-align:center;padding:0 16px;position:relative;
+}
+.step:not(:last-child)::after{
+  content:'';position:absolute;top:20px;right:0;
+  width:1px;height:40px;background:var(--border);
+}
+.step-num{
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;
+  color:var(--cyan);line-height:1;margin-bottom:8px;
+}
+.step-title{font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px}
+.step-desc{font-size:12px;color:#555;line-height:1.5}
+@media(max-width:560px){
+  .steps{flex-direction:column;gap:24px;padding-bottom:8px}
+  .step:not(:last-child)::after{display:none}
+}
+
+/* MAIN LAYOUT */
+.main{max-width:1000px;margin:0 auto;padding:0 20px 80px}
+
+/* DETAILS STRIP */
+.details-strip{
+  display:flex;justify-content:center;gap:40px;
+  padding:32px 24px;
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.detail-item{display:flex;align-items:center;gap:10px}
+.detail-icon{
+  width:36px;height:36px;border-radius:8px;
+  background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.detail-icon svg{width:16px;height:16px;color:var(--cyan)}
+.detail-text-label{font-size:11px;color:#555;letter-spacing:.5px;text-transform:uppercase;margin-bottom:1px}
+.detail-text-val{font-size:14px;font-weight:600;color:var(--white)}
+
+/* CALENDAR SECTION */
+.calendar-section{
+  padding:48px 0 0;
+}
+.cal-wrapper{
+  background:#111;
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  min-height:600px;
+  position:relative;
+}
+.cal-loading{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;
+  color:#555;font-size:14px;
+}
+.cal-loading-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--cyan);
+  animation:calPulse 1.4s ease-in-out infinite;
+}
+.cal-loading-dot:nth-child(2){animation-delay:.2s}
+.cal-loading-dot:nth-child(3){animation-delay:.4s}
+.cal-loading-dots{display:flex;gap:8px;margin-bottom:8px}
+@keyframes calPulse{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+/* The Cal.com embed iframe gets injected here */
+#my-cal-inline{
+  width:100%;
+  min-height:600px;
+  border:none;
+}
+
+/* TRUST BAND */
+.trust-band{
+  margin-top:48px;
+  padding:32px 24px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  flex-wrap:wrap;
+}
+.trust-text h3{font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px}
+.trust-text p{font-size:13px;color:#555}
+.trust-items{display:flex;gap:24px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:8px;font-size:13px;color:#666}
+.trust-item svg{width:15px;height:15px;color:var(--cyan);flex-shrink:0}
+
+/* FOOTER */
+footer{
+  border-top:1px solid var(--border);
+  padding:28px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+}
+footer p{font-size:13px;color:#333}
+footer a{font-size:13px;color:#333;text-decoration:none;transition:color .2s}
+footer a:hover{color:var(--white)}
+@media(max-width:640px){footer{padding:28px 20px;flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="/" class="logo"><img src="/logo4k.webp" alt="7Group"></a>
+  <ul class="nav-links">
+    <li><a href="/#solutions">Soluciones</a></li>
+    <li><a href="/#plans">Planes</a></li>
+    <li><a href="/calculadora/">Calculadora ROI</a></li>
+  </ul>
+  <div class="lang-switch">
+    <a href="/agendar/" class="active">ES</a>
+    <a href="/agendar/?lang=en">EN</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <span class="page-label">Primera reunion</span>
+    <h1>Agenda tu <em>reunion</em><br>de descubrimiento</h1>
+    <p>30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.</p>
+  </div>
+</div>
+
+<!-- STEPS -->
+<div class="steps">
+  <div class="step">
+    <div class="step-num">01</div>
+    <div class="step-title">Elige horario</div>
+    <div class="step-desc">Selecciona el dia y hora que mejor te funcione</div>
+  </div>
+  <div class="step">
+    <div class="step-num">02</div>
+    <div class="step-title">Confirmacion</div>
+    <div class="step-desc">Recibes el link de la reunion por correo al instante</div>
+  </div>
+  <div class="step">
+    <div class="step-num">03</div>
+    <div class="step-title">Nos reunimos</div>
+    <div class="step-desc">Video call de 30 min con el equipo de 7Group</div>
+  </div>
+</div>
+
+<!-- DETAILS STRIP -->
+<div class="details-strip">
+  <div class="detail-item">
+    <div class="detail-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div>
+      <div class="detail-text-label">Duracion</div>
+      <div class="detail-text-val">30 minutos</div>
+    </div>
+  </div>
+  <div class="detail-item">
+    <div class="detail-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <div>
+      <div class="detail-text-label">Disponibilidad</div>
+      <div class="detail-text-val">Lun – Vie · 9am – 4pm ET</div>
+    </div>
+  </div>
+  <div class="detail-item">
+    <div class="detail-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+    </div>
+    <div>
+      <div class="detail-text-label">Formato</div>
+      <div class="detail-text-val">Video call (Google Meet)</div>
+    </div>
+  </div>
+  <div class="detail-item">
+    <div class="detail-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    </div>
+    <div>
+      <div class="detail-text-label">Confirmacion</div>
+      <div class="detail-text-val">Automatica por correo</div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR EMBED -->
+<div class="main">
+  <div class="calendar-section">
+    <div class="cal-wrapper">
+      <div class="cal-loading" id="calLoading">
+        <div class="cal-loading-dots">
+          <div class="cal-loading-dot"></div>
+          <div class="cal-loading-dot"></div>
+          <div class="cal-loading-dot"></div>
+        </div>
+        <span>Cargando calendario...</span>
+      </div>
+      <div id="my-cal-inline"></div>
+    </div>
+  </div>
+
+  <!-- TRUST BAND -->
+  <div class="trust-band">
+    <div class="trust-text">
+      <h3>Una reunion, cero presion</h3>
+      <p>Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.</p>
+    </div>
+    <div class="trust-items">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Sin costo
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Sin contratos
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirmacion inmediata
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 7Group. Todos los derechos reservados.</p>
+  <a href="https://7group.site/">7group.site</a>
+</footer>
+
+<!-- CAL.COM EMBED -->
+<script type="text/javascript">
+(function (C, A, L) {
+  let p = function (a, ar) { a.q.push(ar); };
+  let d = C.document;
+  C.Cal = C.Cal || function () {
+    let cal = C.Cal;
+    let ar = arguments;
+    if (!cal.loaded) {
+      cal.ns = {};
+      cal.q = cal.q || [];
+      d.head.appendChild(d.createElement("script")).src = A;
+      cal.loaded = true;
+    }
+    if (ar[0] === L) {
+      const api = function () { p(api, arguments); };
+      const namespace = ar[1];
+      api.q = api.q || [];
+      typeof namespace === "string" ? (cal.ns[namespace] = api) && p(api, ar) : p(cal, ar);
+      return;
+    }
+    p(cal, ar);
+  };
+})(window, "https://app.cal.com/embed/embed.js", "init");
+
+// ─────────────────────────────────────────────────────────────
+// CONFIGURACION: reemplaza "7group/discovery" con tu usuario
+// real de Cal.com una vez que crees la cuenta.
+// Formato: "tu-usuario/nombre-del-evento"
+// ─────────────────────────────────────────────────────────────
+const CAL_LINK = "7group/discovery";
+
+Cal("init", { origin: "https://cal.com" });
+
+Cal("inline", {
+  elementOrSelector: "#my-cal-inline",
+  calLink: CAL_LINK,
+  layout: "month_view",
+  config: {
+    theme: "dark",
+    timezone: "America/New_York"
+  }
+});
+
+Cal("ui", {
+  theme: "dark",
+  styles: {
+    branding: { brandColor: "#5ee7f7" }
+  },
+  hideEventTypeDetails: false,
+  layout: "month_view"
+});
+
+// Ocultar loading una vez que el embed carga
+window.addEventListener("message", function(e) {
+  if (e.data && (e.data.type === "cal:loaded" || e.data.type === "CAL:LOADED")) {
+    var loader = document.getElementById("calLoading");
+    if (loader) loader.style.display = "none";
+  }
+}, false);
+
+// Fallback: ocultar loading a los 3 segundos de todas formas
+setTimeout(function() {
+  var loader = document.getElementById("calLoading");
+  if (loader) loader.style.display = "none";
+}, 3000);
+</script>
+
+<!-- NAV SCROLL EFFECT -->
+<script>
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', function() {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+</script>
+
+</body>
+</html>
