@@ -8,6 +8,7 @@
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <link rel="canonical" href="https://7group.site/agendar/">
 <link rel="alternate" hreflang="es" href="https://7group.site/agendar/">
+<link rel="alternate" hreflang="en" href="https://7group.site/agendar/?lang=en">
 <link rel="alternate" hreflang="x-default" href="https://7group.site/agendar/">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -16,8 +17,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://7group.site/agendar/">
-<meta property="og:title" content="Agenda una Reunion · 7Group">
-<meta property="og:description" content="Elige el horario que mejor te funcione. Confirmacion automatica al instante.">
+<meta property="og:title" content="Schedule a Meeting · 7Group">
+<meta property="og:description" content="Pick a time that works for you. Instant confirmation.">
 <meta property="og:image" content="https://7group.site/ciudad-datos.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,21 +119,14 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
 .detail-text-val{font-size:14px;font-weight:600;color:var(--white)}
 
 /* CALENDAR SECTION */
-.calendar-section{
-  padding:48px 0 0;
-}
+.calendar-section{padding:48px 0 0}
 .cal-wrapper{
-  background:#111;
-  border:1px solid var(--border);
-  border-radius:16px;
-  overflow:hidden;
-  min-height:600px;
-  position:relative;
+  background:#111;border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;min-height:600px;position:relative;
 }
 .cal-loading{
   position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:16px;
-  color:#555;font-size:14px;
+  align-items:center;justify-content:center;gap:16px;color:#555;font-size:14px;
 }
 .cal-loading-dot{
   width:8px;height:8px;border-radius:50%;background:var(--cyan);
@@ -142,22 +136,12 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
 .cal-loading-dot:nth-child(3){animation-delay:.4s}
 .cal-loading-dots{display:flex;gap:8px;margin-bottom:8px}
 @keyframes calPulse{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
-
-/* The Cal.com embed iframe gets injected here */
-#my-cal-inline{
-  width:100%;
-  min-height:600px;
-  border:none;
-}
+#my-cal-inline{width:100%;min-height:600px;border:none}
 
 /* TRUST BAND */
 .trust-band{
-  margin-top:48px;
-  padding:32px 24px;
-  border:1px solid var(--border);
-  border-radius:16px;
-  display:flex;align-items:center;justify-content:space-between;gap:24px;
-  flex-wrap:wrap;
+  margin-top:48px;padding:32px 24px;border:1px solid var(--border);border-radius:16px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;
 }
 .trust-text h3{font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px}
 .trust-text p{font-size:13px;color:#555}
@@ -167,10 +151,8 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
 
 /* FOOTER */
 footer{
-  border-top:1px solid var(--border);
-  padding:28px 40px;
-  display:flex;align-items:center;justify-content:space-between;
-  gap:16px;flex-wrap:wrap;
+  border-top:1px solid var(--border);padding:28px 40px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
 }
 footer p{font-size:13px;color:#333}
 footer a{font-size:13px;color:#333;text-decoration:none;transition:color .2s}
@@ -184,22 +166,22 @@ footer a:hover{color:var(--white)}
 <nav id="nav">
   <a href="/" class="logo"><img src="/logo4k.webp" alt="7Group"></a>
   <ul class="nav-links">
-    <li><a href="/#solutions">Soluciones</a></li>
-    <li><a href="/#plans">Planes</a></li>
-    <li><a href="/calculadora/">Calculadora ROI</a></li>
+    <li><a data-i18n="nav_solutions" href="/#solutions">Soluciones</a></li>
+    <li><a data-i18n="nav_plans" href="/#plans">Planes</a></li>
+    <li><a data-i18n="nav_calc" href="/calculadora/">Calculadora ROI</a></li>
   </ul>
   <div class="lang-switch">
-    <a href="/agendar/" class="active">ES</a>
-    <a href="/agendar/?lang=en">EN</a>
+    <a href="/agendar/" id="langES">ES</a>
+    <a href="/agendar/?lang=en" id="langEN">EN</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <div class="page-hero">
   <div class="page-hero-inner">
-    <span class="page-label">Primera reunion</span>
-    <h1>Agenda tu <em>reunion</em><br>de descubrimiento</h1>
-    <p>30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.</p>
+    <span class="page-label" data-i18n="hero_label">Primera reunion</span>
+    <h1 data-i18n-html="hero_h1">Agenda tu <em>reunion</em><br>de descubrimiento</h1>
+    <p data-i18n="hero_p">30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.</p>
   </div>
 </div>
 
@@ -207,18 +189,18 @@ footer a:hover{color:var(--white)}
 <div class="steps">
   <div class="step">
     <div class="step-num">01</div>
-    <div class="step-title">Elige horario</div>
-    <div class="step-desc">Selecciona el dia y hora que mejor te funcione</div>
+    <div class="step-title" data-i18n="step1_title">Elige horario</div>
+    <div class="step-desc" data-i18n="step1_desc">Selecciona el dia y hora que mejor te funcione</div>
   </div>
   <div class="step">
     <div class="step-num">02</div>
-    <div class="step-title">Confirmacion</div>
-    <div class="step-desc">Recibes el link de la reunion por correo al instante</div>
+    <div class="step-title" data-i18n="step2_title">Confirmacion</div>
+    <div class="step-desc" data-i18n="step2_desc">Recibes el link de la reunion por correo al instante</div>
   </div>
   <div class="step">
     <div class="step-num">03</div>
-    <div class="step-title">Nos reunimos</div>
-    <div class="step-desc">Video call de 30 min con el equipo de 7Group</div>
+    <div class="step-title" data-i18n="step3_title">Nos reunimos</div>
+    <div class="step-desc" data-i18n="step3_desc">Video call de 30 min con el equipo de 7Group</div>
   </div>
 </div>
 
@@ -229,8 +211,8 @@ footer a:hover{color:var(--white)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     </div>
     <div>
-      <div class="detail-text-label">Duracion</div>
-      <div class="detail-text-val">30 minutos</div>
+      <div class="detail-text-label" data-i18n="detail1_label">Duracion</div>
+      <div class="detail-text-val" data-i18n="detail1_val">30 minutos</div>
     </div>
   </div>
   <div class="detail-item">
@@ -238,8 +220,8 @@ footer a:hover{color:var(--white)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     </div>
     <div>
-      <div class="detail-text-label">Disponibilidad</div>
-      <div class="detail-text-val">Lun – Vie · 9am – 4pm ET</div>
+      <div class="detail-text-label" data-i18n="detail2_label">Disponibilidad</div>
+      <div class="detail-text-val" data-i18n="detail2_val">Lun – Vie · 9am – 4pm ET</div>
     </div>
   </div>
   <div class="detail-item">
@@ -247,8 +229,8 @@ footer a:hover{color:var(--white)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
     </div>
     <div>
-      <div class="detail-text-label">Formato</div>
-      <div class="detail-text-val">Video call (Google Meet)</div>
+      <div class="detail-text-label" data-i18n="detail3_label">Formato</div>
+      <div class="detail-text-val" data-i18n="detail3_val">Video call</div>
     </div>
   </div>
   <div class="detail-item">
@@ -256,8 +238,8 @@ footer a:hover{color:var(--white)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
     </div>
     <div>
-      <div class="detail-text-label">Confirmacion</div>
-      <div class="detail-text-val">Automatica por correo</div>
+      <div class="detail-text-label" data-i18n="detail4_label">Confirmacion</div>
+      <div class="detail-text-val" data-i18n="detail4_val">Automatica por correo</div>
     </div>
   </div>
 </div>
@@ -272,7 +254,7 @@ footer a:hover{color:var(--white)}
           <div class="cal-loading-dot"></div>
           <div class="cal-loading-dot"></div>
         </div>
-        <span>Cargando calendario...</span>
+        <span data-i18n="loading">Cargando calendario...</span>
       </div>
       <div id="my-cal-inline"></div>
     </div>
@@ -281,21 +263,21 @@ footer a:hover{color:var(--white)}
   <!-- TRUST BAND -->
   <div class="trust-band">
     <div class="trust-text">
-      <h3>Una reunion, cero presion</h3>
-      <p>Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.</p>
+      <h3 data-i18n="trust_title">Una reunion, cero presion</h3>
+      <p data-i18n="trust_desc">Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.</p>
     </div>
     <div class="trust-items">
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Sin costo
+        <span data-i18n="trust_1">Sin costo</span>
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Sin contratos
+        <span data-i18n="trust_2">Sin contratos</span>
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Confirmacion inmediata
+        <span data-i18n="trust_3">Confirmacion inmediata</span>
       </div>
     </div>
   </div>
@@ -303,9 +285,114 @@ footer a:hover{color:var(--white)}
 
 <!-- FOOTER -->
 <footer>
-  <p>© 2026 7Group. Todos los derechos reservados.</p>
+  <p data-i18n="footer_copy">© 2026 7Group. Todos los derechos reservados.</p>
   <a href="https://7group.site/">7group.site</a>
 </footer>
+
+<script>
+// ─── TRANSLATIONS ──────────────────────────────────────────────
+var T = {
+  es: {
+    nav_solutions: 'Soluciones',
+    nav_plans: 'Planes',
+    nav_calc: 'Calculadora ROI',
+    hero_label: 'Primera reunion',
+    hero_h1: 'Agenda tu <em>reunion</em><br>de descubrimiento',
+    hero_p: '30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.',
+    step1_title: 'Elige horario',
+    step1_desc: 'Selecciona el dia y hora que mejor te funcione',
+    step2_title: 'Confirmacion',
+    step2_desc: 'Recibes el link de la reunion por correo al instante',
+    step3_title: 'Nos reunimos',
+    step3_desc: 'Video call de 30 min con el equipo de 7Group',
+    detail1_label: 'Duracion',
+    detail1_val: '30 minutos',
+    detail2_label: 'Disponibilidad',
+    detail2_val: 'Lun – Vie · 9am – 4pm ET',
+    detail3_label: 'Formato',
+    detail3_val: 'Video call',
+    detail4_label: 'Confirmacion',
+    detail4_val: 'Automatica por correo',
+    loading: 'Cargando calendario...',
+    trust_title: 'Una reunion, cero presion',
+    trust_desc: 'Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.',
+    trust_1: 'Sin costo',
+    trust_2: 'Sin contratos',
+    trust_3: 'Confirmacion inmediata',
+    footer_copy: '© 2026 7Group. Todos los derechos reservados.',
+    page_title: 'Agendar Reunion · 7Group',
+    meta_desc: 'Agenda una reunion con el equipo de 7Group. Selecciona el horario que mejor te funcione y recibe confirmacion inmediata.'
+  },
+  en: {
+    nav_solutions: 'Solutions',
+    nav_plans: 'Plans',
+    nav_calc: 'ROI Calculator',
+    hero_label: 'First meeting',
+    hero_h1: 'Schedule your <em>discovery</em><br>call with us',
+    hero_p: '30 minutes. No cost. We analyze your operation and show you where automation drives real impact.',
+    step1_title: 'Pick a time',
+    step1_desc: 'Select the day and time that works best for you',
+    step2_title: 'Confirmation',
+    step2_desc: 'You receive the meeting link by email instantly',
+    step3_title: 'We meet',
+    step3_desc: '30-min video call with the 7Group team',
+    detail1_label: 'Duration',
+    detail1_val: '30 minutes',
+    detail2_label: 'Availability',
+    detail2_val: 'Mon – Fri · 9am – 4pm ET',
+    detail3_label: 'Format',
+    detail3_val: 'Video call',
+    detail4_label: 'Confirmation',
+    detail4_val: 'Automatic by email',
+    loading: 'Loading calendar...',
+    trust_title: 'One meeting, zero pressure',
+    trust_desc: 'We analyze your case. If there\'s a fit, we present a proposal. If not, we\'ll tell you clearly.',
+    trust_1: 'No cost',
+    trust_2: 'No contracts',
+    trust_3: 'Instant confirmation',
+    footer_copy: '© 2026 7Group. All rights reserved.',
+    page_title: 'Schedule a Meeting · 7Group',
+    meta_desc: 'Book a meeting with the 7Group team. Pick a time that works and get instant confirmation.'
+  }
+};
+
+// ─── DETECT LANGUAGE ───────────────────────────────────────────
+var lang = (new URLSearchParams(window.location.search).get('lang') === 'en') ? 'en' : 'es';
+var t = T[lang];
+
+// ─── APPLY TRANSLATIONS ────────────────────────────────────────
+document.documentElement.lang = lang;
+document.title = t.page_title;
+document.querySelector('meta[name="description"]').setAttribute('content', t.meta_desc);
+
+document.querySelectorAll('[data-i18n]').forEach(function(el) {
+  var key = el.getAttribute('data-i18n');
+  if (t[key] !== undefined) el.textContent = t[key];
+});
+document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+  var key = el.getAttribute('data-i18n-html');
+  if (t[key] !== undefined) el.innerHTML = t[key];
+});
+
+// Nav language switch active state
+if (lang === 'en') {
+  document.getElementById('langEN').classList.add('active');
+  document.getElementById('langES').classList.remove('active');
+} else {
+  document.getElementById('langES').classList.add('active');
+  document.getElementById('langEN').classList.remove('active');
+}
+
+// Nav links: point EN users to English homepage
+if (lang === 'en') {
+  document.querySelector('[data-i18n="nav_solutions"]').href = '/#solutions';
+  document.querySelector('[data-i18n="nav_plans"]').href = '/#plans';
+  document.querySelector('[data-i18n="nav_calc"]').href = '/calculadora/?lang=en';
+} else {
+  document.querySelector('[data-i18n="nav_solutions"]').href = '/es/#solutions';
+  document.querySelector('[data-i18n="nav_plans"]').href = '/es/#plans';
+}
+</script>
 
 <!-- CAL.COM EMBED -->
 <script type="text/javascript">
@@ -313,11 +400,9 @@ footer a:hover{color:var(--white)}
   let p = function (a, ar) { a.q.push(ar); };
   let d = C.document;
   C.Cal = C.Cal || function () {
-    let cal = C.Cal;
-    let ar = arguments;
+    let cal = C.Cal; let ar = arguments;
     if (!cal.loaded) {
-      cal.ns = {};
-      cal.q = cal.q || [];
+      cal.ns = {}; cal.q = cal.q || [];
       d.head.appendChild(d.createElement("script")).src = A;
       cal.loaded = true;
     }
@@ -332,50 +417,34 @@ footer a:hover{color:var(--white)}
   };
 })(window, "https://app.cal.com/embed/embed.js", "init");
 
-// ─────────────────────────────────────────────────────────────
-// CONFIGURACION: reemplaza "7group/discovery" con tu usuario
-// real de Cal.com una vez que crees la cuenta.
-// Formato: "tu-usuario/nombre-del-evento"
-// ─────────────────────────────────────────────────────────────
 const CAL_LINK = "7group/discovery";
 
 Cal("init", { origin: "https://cal.com" });
-
 Cal("inline", {
   elementOrSelector: "#my-cal-inline",
   calLink: CAL_LINK,
   layout: "month_view",
-  config: {
-    theme: "dark",
-    timezone: "America/New_York"
-  }
+  config: { theme: "dark", timezone: "America/New_York" }
 });
-
 Cal("ui", {
   theme: "dark",
-  styles: {
-    branding: { brandColor: "#5ee7f7" }
-  },
+  styles: { branding: { brandColor: "#5ee7f7" } },
   hideEventTypeDetails: false,
   layout: "month_view"
 });
 
-// Ocultar loading una vez que el embed carga
 window.addEventListener("message", function(e) {
   if (e.data && (e.data.type === "cal:loaded" || e.data.type === "CAL:LOADED")) {
-    var loader = document.getElementById("calLoading");
-    if (loader) loader.style.display = "none";
+    var l = document.getElementById("calLoading");
+    if (l) l.style.display = "none";
   }
-}, false);
-
-// Fallback: ocultar loading a los 3 segundos de todas formas
+});
 setTimeout(function() {
-  var loader = document.getElementById("calLoading");
-  if (loader) loader.style.display = "none";
+  var l = document.getElementById("calLoading");
+  if (l) l.style.display = "none";
 }, 3000);
 </script>
 
-<!-- NAV SCROLL EFFECT -->
 <script>
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', function() {
