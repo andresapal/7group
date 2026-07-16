@@ -417,14 +417,18 @@ if (lang === 'en') {
   };
 })(window, "https://app.cal.com/embed/embed.js", "init");
 
-const CAL_LINK = "7group/discovery";
+// ES → "Reunion de Descubrimiento" (slug: discovery) — evento existente
+// EN → "Discovery Call" (slug: discovery-en) — evento nuevo en ingles
+var pageLang = (new URLSearchParams(window.location.search).get('lang') === 'en') ? 'en' : 'es';
+var CAL_LINK = pageLang === 'en' ? "7group/discovery-en" : "7group/discovery";
+var CAL_LOCALE = pageLang === 'en' ? "en" : "es";
 
 Cal("init", { origin: "https://cal.com" });
 Cal("inline", {
   elementOrSelector: "#my-cal-inline",
   calLink: CAL_LINK,
   layout: "month_view",
-  config: { theme: "dark", timezone: "America/New_York" }
+  config: { theme: "dark", timezone: "America/New_York", locale: CAL_LOCALE }
 });
 Cal("ui", {
   theme: "dark",
