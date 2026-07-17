@@ -74,33 +74,6 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
   font-size:16px;color:#888;line-height:1.7;max-width:480px;margin:0 auto;
 }
 
-/* PROCESS STEPS */
-.steps{
-  display:flex;justify-content:center;gap:0;
-  max-width:720px;margin:0 auto;
-  padding:40px 24px 0;
-}
-.step{
-  flex:1;text-align:center;padding:0 16px;position:relative;
-}
-.step:not(:last-child)::after{
-  content:'';position:absolute;top:20px;right:0;
-  width:1px;height:40px;background:var(--border);
-}
-.step-num{
-  font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;
-  color:var(--cyan);line-height:1;margin-bottom:8px;
-}
-.step-title{font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px}
-.step-desc{font-size:12px;color:#555;line-height:1.5}
-@media(max-width:560px){
-  .steps{flex-direction:column;gap:24px;padding-bottom:8px}
-  .step:not(:last-child)::after{display:none}
-}
-
-/* MAIN LAYOUT */
-.main{max-width:1000px;margin:0 auto;padding:0 20px 80px}
-
 /* DETAILS STRIP */
 .details-strip{
   display:flex;justify-content:center;gap:40px;
@@ -118,25 +91,125 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
 .detail-text-label{font-size:11px;color:#555;letter-spacing:.5px;text-transform:uppercase;margin-bottom:1px}
 .detail-text-val{font-size:14px;font-weight:600;color:var(--white)}
 
-/* CALENDAR SECTION */
-.calendar-section{padding:48px 0 0}
-.cal-wrapper{
+/* MAIN LAYOUT */
+.main{max-width:720px;margin:0 auto;padding:0 20px 80px}
+
+/* SCHEDULER */
+.scheduler{padding:48px 0 0}
+
+/* Week nav */
+.week-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;
+}
+.week-nav h2{font-size:18px;font-weight:700;color:var(--white)}
+.week-nav-btn{
+  background:none;border:1px solid var(--border);border-radius:8px;
+  color:#888;width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;
+}
+.week-nav-btn:hover{border-color:rgba(94,231,247,.3);color:var(--cyan)}
+.week-nav-btn:disabled{opacity:.3;cursor:default}
+.week-nav-btn svg{width:16px;height:16px}
+
+/* Day columns */
+.week-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:12px;
+}
+@media(max-width:640px){
+  .week-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+}
+@media(max-width:400px){
+  .week-grid{grid-template-columns:1fr}
+}
+
+.day-col{
+  background:#111;border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;
+}
+.day-header{
+  padding:12px;text-align:center;border-bottom:1px solid var(--border);
+}
+.day-name{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.day-date{font-size:15px;font-weight:700;color:var(--white);margin-top:2px}
+.day-today .day-header{background:rgba(94,231,247,.06)}
+.day-today .day-date{color:var(--cyan)}
+.day-past .day-header{opacity:.4}
+
+.day-slots{padding:8px;display:flex;flex-direction:column;gap:6px}
+
+.slot-btn{
+  width:100%;padding:10px 8px;border:1px solid var(--border);border-radius:8px;
+  background:transparent;color:#aaa;font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .2s;text-align:center;
+  font-family:'Inter',sans-serif;
+}
+.slot-btn:hover{
+  border-color:rgba(94,231,247,.4);color:var(--cyan);
+  background:rgba(94,231,247,.04);
+}
+.slot-btn.selected{
+  border-color:var(--cyan);color:var(--cyan);
+  background:rgba(94,231,247,.1);font-weight:600;
+}
+.slot-btn:disabled{opacity:.25;cursor:default;border-color:var(--border);color:#555}
+.slot-btn:disabled:hover{background:transparent;border-color:var(--border);color:#555}
+
+/* Booking form */
+.booking-form{
+  margin-top:32px;
   background:#111;border:1px solid var(--border);border-radius:16px;
-  overflow:hidden;min-height:600px;position:relative;
+  padding:32px;
+  display:none;
+  animation:fadeIn .3s ease;
 }
-.cal-loading{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:16px;color:#555;font-size:14px;
+.booking-form.visible{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.form-selected{
+  font-size:14px;color:var(--cyan);font-weight:600;
+  margin-bottom:20px;padding-bottom:16px;
+  border-bottom:1px solid var(--border);
 }
-.cal-loading-dot{
-  width:8px;height:8px;border-radius:50%;background:var(--cyan);
-  animation:calPulse 1.4s ease-in-out infinite;
+
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;color:#555;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+.form-group input{
+  width:100%;padding:12px 16px;background:#0a0a0a;border:1px solid var(--border);
+  border-radius:8px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;
+  transition:border-color .2s;
 }
-.cal-loading-dot:nth-child(2){animation-delay:.2s}
-.cal-loading-dot:nth-child(3){animation-delay:.4s}
-.cal-loading-dots{display:flex;gap:8px;margin-bottom:8px}
-@keyframes calPulse{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
-#my-cal-inline{width:100%;min-height:600px;border:none}
+.form-group input:focus{outline:none;border-color:rgba(94,231,247,.4)}
+.form-group input::placeholder{color:#333}
+
+.form-submit{
+  width:100%;padding:14px;margin-top:8px;
+  background:var(--cyan);color:#0a0a0a;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;
+  cursor:pointer;transition:all .2s;letter-spacing:-.01em;
+}
+.form-submit:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.form-submit:active{transform:translateY(0)}
+
+/* Confirmation */
+.confirmation{
+  margin-top:32px;
+  background:#111;border:1px solid rgba(94,231,247,.2);border-radius:16px;
+  padding:40px 32px;text-align:center;
+  display:none;
+  animation:fadeIn .4s ease;
+}
+.confirmation.visible{display:block}
+.conf-icon{
+  width:56px;height:56px;border-radius:50%;margin:0 auto 20px;
+  background:rgba(94,231,247,.1);border:2px solid rgba(94,231,247,.3);
+  display:flex;align-items:center;justify-content:center;
+}
+.conf-icon svg{width:28px;height:28px;color:var(--cyan)}
+.conf-title{font-size:22px;font-weight:800;color:var(--white);margin-bottom:8px}
+.conf-detail{font-size:14px;color:#888;margin-bottom:24px;line-height:1.6}
+.conf-next{font-size:15px;color:#aaa;line-height:1.7;max-width:400px;margin:0 auto 20px}
+.conf-note{font-size:12px;color:#444;margin-top:8px}
 
 /* TRUST BAND */
 .trust-band{
@@ -185,25 +258,6 @@ footer a:hover{color:var(--white)}
   </div>
 </div>
 
-<!-- STEPS -->
-<div class="steps">
-  <div class="step">
-    <div class="step-num">01</div>
-    <div class="step-title" data-i18n="step1_title">Elige horario</div>
-    <div class="step-desc" data-i18n="step1_desc">Selecciona el dia y hora que mejor te funcione</div>
-  </div>
-  <div class="step">
-    <div class="step-num">02</div>
-    <div class="step-title" data-i18n="step2_title">Confirmacion</div>
-    <div class="step-desc" data-i18n="step2_desc">Recibes el link de la reunion por correo al instante</div>
-  </div>
-  <div class="step">
-    <div class="step-num">03</div>
-    <div class="step-title" data-i18n="step3_title">Nos reunimos</div>
-    <div class="step-desc" data-i18n="step3_desc">Video call de 30 min con el equipo de 7Group</div>
-  </div>
-</div>
-
 <!-- DETAILS STRIP -->
 <div class="details-strip">
   <div class="detail-item">
@@ -221,7 +275,7 @@ footer a:hover{color:var(--white)}
     </div>
     <div>
       <div class="detail-text-label" data-i18n="detail2_label">Disponibilidad</div>
-      <div class="detail-text-val" data-i18n="detail2_val">Lun – Vie · 9am – 4pm ET</div>
+      <div class="detail-text-val" data-i18n="detail2_val">Lun - Vie / 9am - 4pm ET</div>
     </div>
   </div>
   <div class="detail-item">
@@ -230,7 +284,7 @@ footer a:hover{color:var(--white)}
     </div>
     <div>
       <div class="detail-text-label" data-i18n="detail3_label">Formato</div>
-      <div class="detail-text-val" data-i18n="detail3_val">Video call</div>
+      <div class="detail-text-val">Google Meet</div>
     </div>
   </div>
   <div class="detail-item">
@@ -244,19 +298,52 @@ footer a:hover{color:var(--white)}
   </div>
 </div>
 
-<!-- CALENDAR EMBED -->
+<!-- SCHEDULER -->
 <div class="main">
-  <div class="calendar-section">
-    <div class="cal-wrapper">
-      <div class="cal-loading" id="calLoading">
-        <div class="cal-loading-dots">
-          <div class="cal-loading-dot"></div>
-          <div class="cal-loading-dot"></div>
-          <div class="cal-loading-dot"></div>
-        </div>
-        <span data-i18n="loading">Cargando calendario...</span>
+  <div class="scheduler">
+
+    <!-- Week Navigation -->
+    <div class="week-nav">
+      <button class="week-nav-btn" id="prevWeek" aria-label="Semana anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h2 id="weekLabel"></h2>
+      <button class="week-nav-btn" id="nextWeek" aria-label="Siguiente semana">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <!-- Week Grid -->
+    <div class="week-grid" id="weekGrid"></div>
+
+    <!-- Booking Form -->
+    <div class="booking-form" id="bookingForm">
+      <div class="form-selected" id="formSelected"></div>
+      <div class="form-group">
+        <label data-i18n="form_name">Nombre</label>
+        <input type="text" id="inputName" placeholder="Tu nombre" autocomplete="name">
       </div>
-      <div id="my-cal-inline"></div>
+      <div class="form-group">
+        <label data-i18n="form_email">Correo electronico</label>
+        <input type="email" id="inputEmail" placeholder="tu@correo.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label data-i18n="form_company">Empresa (opcional)</label>
+        <input type="text" id="inputCompany" placeholder="Nombre de tu empresa" autocomplete="organization">
+      </div>
+      <button class="form-submit" id="formSubmit" data-i18n="form_btn">Confirmar reunion</button>
+    </div>
+
+    <!-- Confirmation -->
+    <div class="confirmation" id="confirmation">
+      <div class="conf-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2 class="conf-title" data-i18n="conf_title">Hemos recibido tu solicitud</h2>
+      <p class="conf-detail" id="confDetail"></p>
+      <p class="conf-next" data-i18n="conf_next">Te enviaremos el link de Google Meet a tu correo una vez confirmemos tu horario.</p>
+      <p class="conf-note" data-i18n="conf_email">Si tienes alguna pregunta: 7groupcorp@zohomail.com</p>
+      <p class="conf-note" data-i18n="conf_note">Respuesta en menos de 24 horas.</p>
     </div>
   </div>
 
@@ -285,172 +372,304 @@ footer a:hover{color:var(--white)}
 
 <!-- FOOTER -->
 <footer>
-  <p data-i18n="footer_copy">© 2026 7Group. Todos los derechos reservados.</p>
+  <p data-i18n="footer_copy">&copy; 2026 7Group. Todos los derechos reservados.</p>
   <a href="https://7group.site/">7group.site</a>
 </footer>
 
 <script>
-// ─── TRANSLATIONS ──────────────────────────────────────────────
+// =============================================
+//  CONFIG
+// =============================================
+var TG_BOT   = "8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I";
+var TG_CHAT  = "1081707115";
+var W3F_KEY  = "76bc323e-4cf1-4c6c-9221-88d0f6261f7d";
+
+// Slots disponibles (hora ET, formato 24h)
+var SLOTS = [9, 9.5, 10, 10.5, 11, 11.5, 13, 13.5, 14, 14.5, 15, 15.5];
+
+// ─── TRANSLATIONS ─────────────────────────────
 var T = {
   es: {
-    nav_solutions: 'Soluciones',
-    nav_plans: 'Planes',
-    nav_calc: 'Calculadora ROI',
-    hero_label: 'Primera reunion',
-    hero_h1: 'Agenda tu <em>reunion</em><br>de descubrimiento',
-    hero_p: '30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.',
-    step1_title: 'Elige horario',
-    step1_desc: 'Selecciona el dia y hora que mejor te funcione',
-    step2_title: 'Confirmacion',
-    step2_desc: 'Recibes el link de la reunion por correo al instante',
-    step3_title: 'Nos reunimos',
-    step3_desc: 'Video call de 30 min con el equipo de 7Group',
-    detail1_label: 'Duracion',
-    detail1_val: '30 minutos',
-    detail2_label: 'Disponibilidad',
-    detail2_val: 'Lun – Vie · 9am – 4pm ET',
-    detail3_label: 'Formato',
-    detail3_val: 'Video call',
-    detail4_label: 'Confirmacion',
-    detail4_val: 'Automatica por correo',
-    loading: 'Cargando calendario...',
-    trust_title: 'Una reunion, cero presion',
-    trust_desc: 'Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.',
-    trust_1: 'Sin costo',
-    trust_2: 'Sin contratos',
-    trust_3: 'Confirmacion inmediata',
-    footer_copy: '© 2026 7Group. Todos los derechos reservados.',
-    page_title: 'Agendar Reunion · 7Group',
-    meta_desc: 'Agenda una reunion con el equipo de 7Group. Selecciona el horario que mejor te funcione y recibe confirmacion inmediata.'
+    nav_solutions:'Soluciones', nav_plans:'Planes', nav_calc:'Calculadora ROI',
+    hero_label:'Primera reunion',
+    hero_h1:'Agenda tu <em>reunion</em><br>de descubrimiento',
+    hero_p:'30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.',
+    detail1_label:'Duracion', detail1_val:'30 minutos',
+    detail2_label:'Disponibilidad', detail2_val:'Lun - Vie / 9am - 4pm ET',
+    detail3_label:'Formato',
+    detail4_label:'Confirmacion', detail4_val:'Automatica por correo',
+    form_name:'Nombre', form_email:'Correo electronico', form_company:'Empresa (opcional)',
+    form_btn:'Confirmar reunion',
+    conf_title:'Hemos recibido tu solicitud',
+    conf_next:'Nuestro equipo revisara tu disponibilidad y te enviara el enlace de Google Meet al correo que proporcionaste.',
+    conf_email:'Contacto directo: 7groupcorp@zohomail.com',
+    conf_note:'Tiempo de respuesta estimado: menos de 24 horas habiles.',
+    trust_title:'Una reunion, cero presion',
+    trust_desc:'Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.',
+    trust_1:'Sin costo', trust_2:'Sin contratos', trust_3:'Confirmacion inmediata',
+    footer_copy:'&copy; 2026 7Group. Todos los derechos reservados.',
+    page_title:'Agendar Reunion · 7Group',
+    days:['Lun','Mar','Mie','Jue','Vie'],
+    months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    selected_prefix:'Horario seleccionado: ',
+    conf_detail_tpl:'__DAY__, __DATE__ a las __TIME__ ET',
+    ph_name:'Tu nombre', ph_email:'tu@correo.com', ph_company:'Nombre de tu empresa'
   },
   en: {
-    nav_solutions: 'Solutions',
-    nav_plans: 'Plans',
-    nav_calc: 'ROI Calculator',
-    hero_label: 'First meeting',
-    hero_h1: 'Schedule your <em>discovery</em><br>call with us',
-    hero_p: '30 minutes. No cost. We analyze your operation and show you where automation drives real impact.',
-    step1_title: 'Pick a time',
-    step1_desc: 'Select the day and time that works best for you',
-    step2_title: 'Confirmation',
-    step2_desc: 'You receive the meeting link by email instantly',
-    step3_title: 'We meet',
-    step3_desc: '30-min video call with the 7Group team',
-    detail1_label: 'Duration',
-    detail1_val: '30 minutes',
-    detail2_label: 'Availability',
-    detail2_val: 'Mon – Fri · 9am – 4pm ET',
-    detail3_label: 'Format',
-    detail3_val: 'Video call',
-    detail4_label: 'Confirmation',
-    detail4_val: 'Automatic by email',
-    loading: 'Loading calendar...',
-    trust_title: 'One meeting, zero pressure',
-    trust_desc: 'We analyze your case. If there\'s a fit, we present a proposal. If not, we\'ll tell you clearly.',
-    trust_1: 'No cost',
-    trust_2: 'No contracts',
-    trust_3: 'Instant confirmation',
-    footer_copy: '© 2026 7Group. All rights reserved.',
-    page_title: 'Schedule a Meeting · 7Group',
-    meta_desc: 'Book a meeting with the 7Group team. Pick a time that works and get instant confirmation.'
+    nav_solutions:'Solutions', nav_plans:'Plans', nav_calc:'ROI Calculator',
+    hero_label:'First meeting',
+    hero_h1:'Schedule your <em>discovery</em><br>call with us',
+    hero_p:'30 minutes. No cost. We analyze your operation and show you where automation drives real impact.',
+    detail1_label:'Duration', detail1_val:'30 minutes',
+    detail2_label:'Availability', detail2_val:'Mon - Fri / 9am - 4pm ET',
+    detail3_label:'Format',
+    detail4_label:'Confirmation', detail4_val:'Automatic by email',
+    form_name:'Name', form_email:'Email', form_company:'Company (optional)',
+    form_btn:'Confirm meeting',
+    conf_title:'Your request has been received',
+    conf_next:'Our team will review your availability and send the Google Meet link to the email you provided.',
+    conf_email:'Direct contact: 7groupcorp@zohomail.com',
+    conf_note:'Estimated response time: within 24 business hours.',
+    trust_title:'One meeting, zero pressure',
+    trust_desc:'We analyze your case. If there\'s a fit, we present a proposal. If not, we\'ll tell you clearly.',
+    trust_1:'No cost', trust_2:'No contracts', trust_3:'Instant confirmation',
+    footer_copy:'&copy; 2026 7Group. All rights reserved.',
+    page_title:'Schedule a Meeting · 7Group',
+    days:['Mon','Tue','Wed','Thu','Fri'],
+    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    selected_prefix:'Selected time: ',
+    conf_detail_tpl:'__DAY__, __DATE__ at __TIME__ ET',
+    ph_name:'Your name', ph_email:'you@email.com', ph_company:'Company name'
   }
 };
 
-// ─── DETECT LANGUAGE ───────────────────────────────────────────
 var lang = (new URLSearchParams(window.location.search).get('lang') === 'en') ? 'en' : 'es';
 var t = T[lang];
 
-// ─── APPLY TRANSLATIONS ────────────────────────────────────────
+// Apply translations
 document.documentElement.lang = lang;
 document.title = t.page_title;
-document.querySelector('meta[name="description"]').setAttribute('content', t.meta_desc);
+document.querySelector('meta[name="description"]').setAttribute('content', lang === 'en'
+  ? 'Book a meeting with the 7Group team. Pick a time that works and get instant confirmation.'
+  : 'Agenda una reunion con el equipo de 7Group. Selecciona el horario que mejor te funcione y recibe confirmacion inmediata.');
 
 document.querySelectorAll('[data-i18n]').forEach(function(el) {
   var key = el.getAttribute('data-i18n');
-  if (t[key] !== undefined) el.textContent = t[key];
+  if (t[key] !== undefined) el.innerHTML = t[key];
 });
 document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
   var key = el.getAttribute('data-i18n-html');
   if (t[key] !== undefined) el.innerHTML = t[key];
 });
 
-// Nav language switch active state
 if (lang === 'en') {
   document.getElementById('langEN').classList.add('active');
-  document.getElementById('langES').classList.remove('active');
 } else {
   document.getElementById('langES').classList.add('active');
-  document.getElementById('langEN').classList.remove('active');
 }
 
-// Nav links: point EN users to English homepage
-if (lang === 'en') {
-  document.querySelector('[data-i18n="nav_solutions"]').href = '/#solutions';
-  document.querySelector('[data-i18n="nav_plans"]').href = '/#plans';
-  document.querySelector('[data-i18n="nav_calc"]').href = '/calculadora/?lang=en';
-} else {
-  document.querySelector('[data-i18n="nav_solutions"]').href = '/es/#solutions';
-  document.querySelector('[data-i18n="nav_plans"]').href = '/es/#plans';
+// Placeholders
+document.getElementById('inputName').placeholder = t.ph_name;
+document.getElementById('inputEmail').placeholder = t.ph_email;
+document.getElementById('inputCompany').placeholder = t.ph_company;
+
+// ─── CALENDAR LOGIC ────────────────────────────
+var currentWeekStart = getMonday(new Date());
+var selectedSlot = null;
+
+function getMonday(d) {
+  var date = new Date(d);
+  var day = date.getDay();
+  var diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  date.setDate(diff);
+  date.setHours(0,0,0,0);
+  return date;
 }
-</script>
 
-<!-- CAL.COM EMBED -->
-<script type="text/javascript">
-(function (C, A, L) {
-  let p = function (a, ar) { a.q.push(ar); };
-  let d = C.document;
-  C.Cal = C.Cal || function () {
-    let cal = C.Cal; let ar = arguments;
-    if (!cal.loaded) {
-      cal.ns = {}; cal.q = cal.q || [];
-      d.head.appendChild(d.createElement("script")).src = A;
-      cal.loaded = true;
+function formatHour(h) {
+  var hour = Math.floor(h);
+  var min = (h % 1) ? '30' : '00';
+  var ampm = hour >= 12 ? 'PM' : 'AM';
+  var display = hour > 12 ? hour - 12 : hour;
+  return display + ':' + min + ' ' + ampm;
+}
+
+function renderWeek() {
+  var grid = document.getElementById('weekGrid');
+  grid.innerHTML = '';
+
+  var now = new Date();
+  var todayStr = now.toDateString();
+
+  // Week label
+  var endOfWeek = new Date(currentWeekStart);
+  endOfWeek.setDate(endOfWeek.getDate() + 4);
+  var label = t.months[currentWeekStart.getMonth()] + ' ' + currentWeekStart.getDate() +
+    ' - ' + t.months[endOfWeek.getMonth()] + ' ' + endOfWeek.getDate();
+  document.getElementById('weekLabel').textContent = label;
+
+  // Disable prev button if this week is current week
+  var thisMonday = getMonday(new Date());
+  document.getElementById('prevWeek').disabled = (currentWeekStart <= thisMonday);
+
+  for (var i = 0; i < 5; i++) {
+    var dayDate = new Date(currentWeekStart);
+    dayDate.setDate(dayDate.getDate() + i);
+
+    var col = document.createElement('div');
+    col.className = 'day-col';
+
+    var isPast = dayDate.toDateString() !== todayStr && dayDate < now;
+    var isToday = dayDate.toDateString() === todayStr;
+    if (isPast) col.classList.add('day-past');
+    if (isToday) col.classList.add('day-today');
+
+    var header = document.createElement('div');
+    header.className = 'day-header';
+    header.innerHTML = '<div class="day-name">' + t.days[i] + '</div>' +
+      '<div class="day-date">' + dayDate.getDate() + '</div>';
+    col.appendChild(header);
+
+    var slotsDiv = document.createElement('div');
+    slotsDiv.className = 'day-slots';
+
+    for (var s = 0; s < SLOTS.length; s++) {
+      var btn = document.createElement('button');
+      btn.className = 'slot-btn';
+      btn.textContent = formatHour(SLOTS[s]);
+
+      var slotTime = new Date(dayDate);
+      slotTime.setHours(Math.floor(SLOTS[s]), (SLOTS[s] % 1) ? 30 : 0, 0, 0);
+
+      if (isPast || (isToday && slotTime <= now)) {
+        btn.disabled = true;
+      } else {
+        btn.dataset.date = dayDate.toISOString();
+        btn.dataset.hour = SLOTS[s];
+        btn.addEventListener('click', selectSlot);
+      }
+
+      if (selectedSlot && selectedSlot.date === dayDate.toISOString() && selectedSlot.hour === SLOTS[s]) {
+        btn.classList.add('selected');
+      }
+
+      slotsDiv.appendChild(btn);
     }
-    if (ar[0] === L) {
-      const api = function () { p(api, arguments); };
-      const namespace = ar[1];
-      api.q = api.q || [];
-      typeof namespace === "string" ? (cal.ns[namespace] = api) && p(api, ar) : p(cal, ar);
-      return;
-    }
-    p(cal, ar);
-  };
-})(window, "https://app.cal.com/embed/embed.js", "init");
 
-// ES → "Reunion de Descubrimiento" (slug: discovery) — evento existente
-// EN → "Discovery Call" (slug: discovery-en) — evento nuevo en ingles
-var pageLang = (new URLSearchParams(window.location.search).get('lang') === 'en') ? 'en' : 'es';
-var CAL_LINK = pageLang === 'en' ? "7group/discovery-en" : "7group/discovery";
-var CAL_LOCALE = pageLang === 'en' ? "en" : "es";
-
-Cal("init", { origin: "https://cal.com" });
-Cal("inline", {
-  elementOrSelector: "#my-cal-inline",
-  calLink: CAL_LINK,
-  layout: "month_view",
-  config: { theme: "dark", timezone: "America/New_York", locale: CAL_LOCALE }
-});
-Cal("ui", {
-  theme: "dark",
-  styles: { branding: { brandColor: "#5ee7f7" } },
-  hideEventTypeDetails: false,
-  layout: "month_view"
-});
-
-window.addEventListener("message", function(e) {
-  if (e.data && (e.data.type === "cal:loaded" || e.data.type === "CAL:LOADED")) {
-    var l = document.getElementById("calLoading");
-    if (l) l.style.display = "none";
+    col.appendChild(slotsDiv);
+    grid.appendChild(col);
   }
-});
-setTimeout(function() {
-  var l = document.getElementById("calLoading");
-  if (l) l.style.display = "none";
-}, 3000);
-</script>
+}
 
-<script>
-const nav = document.getElementById('nav');
+function selectSlot(e) {
+  var btn = e.currentTarget;
+  selectedSlot = { date: btn.dataset.date, hour: parseFloat(btn.dataset.hour) };
+
+  document.querySelectorAll('.slot-btn.selected').forEach(function(b) { b.classList.remove('selected'); });
+  btn.classList.add('selected');
+
+  var d = new Date(selectedSlot.date);
+  var dayName = t.days[( d.getDay() + 6) % 7];
+  var dateStr = d.getDate() + ' ' + t.months[d.getMonth()];
+  var timeStr = formatHour(selectedSlot.hour);
+
+  document.getElementById('formSelected').textContent =
+    t.selected_prefix + dayName + ' ' + dateStr + ', ' + timeStr + ' ET';
+
+  var form = document.getElementById('bookingForm');
+  form.classList.add('visible');
+  document.getElementById('confirmation').classList.remove('visible');
+
+  setTimeout(function() {
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+// Week navigation
+document.getElementById('prevWeek').addEventListener('click', function() {
+  currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+  renderWeek();
+});
+document.getElementById('nextWeek').addEventListener('click', function() {
+  currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+  renderWeek();
+});
+
+// Form submit
+document.getElementById('formSubmit').addEventListener('click', function() {
+  var name = document.getElementById('inputName').value.trim();
+  var email = document.getElementById('inputEmail').value.trim();
+
+  if (!name || !email) {
+    var msg = lang === 'en' ? 'Please enter your name and email.' : 'Por favor ingresa tu nombre y correo.';
+    alert(msg);
+    return;
+  }
+
+  var company = document.getElementById('inputCompany').value.trim();
+  var d = new Date(selectedSlot.date);
+  var dayName = t.days[(d.getDay() + 6) % 7];
+  var dateStr = d.getDate() + ' ' + t.months[d.getMonth()] + ', ' + d.getFullYear();
+  var timeStr = formatHour(selectedSlot.hour);
+
+  var detail = t.conf_detail_tpl
+    .replace('__DAY__', dayName)
+    .replace('__DATE__', dateStr)
+    .replace('__TIME__', timeStr);
+
+  document.getElementById('confDetail').textContent = detail;
+
+  var langLabel = lang === 'en' ? 'EN' : 'ES';
+
+  // Telegram notification
+  if (TG_BOT && TG_CHAT) {
+    var tg = '*Nueva cita - 7Group*\n'
+      + 'Idioma: ' + langLabel + '\n'
+      + '---\n'
+      + 'Nombre: ' + name + '\n'
+      + 'Email: ' + email + '\n'
+      + (company ? 'Empresa: ' + company + '\n' : '')
+      + 'Horario: ' + dayName + ' ' + dateStr + ', ' + timeStr + ' ET';
+    fetch('https://api.telegram.org/bot' + TG_BOT + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT, text: tg, parse_mode: 'Markdown' })
+    }).catch(function(){});
+  }
+
+  // Email notification (Web3Forms)
+  if (W3F_KEY) {
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_key: W3F_KEY,
+        subject: 'Nueva cita 7Group - ' + name + ' (' + langLabel + ')',
+        from_name: '7Group Calendar',
+        replyto: '7groupcorp@zohomail.com',
+        Nombre: name,
+        Email: email,
+        Empresa: company || '-',
+        Horario: dayName + ' ' + dateStr + ', ' + timeStr + ' ET',
+        Idioma: langLabel
+      })
+    }).catch(function(){});
+  }
+
+  document.getElementById('bookingForm').classList.remove('visible');
+  var conf = document.getElementById('confirmation');
+  conf.classList.add('visible');
+
+  setTimeout(function() {
+    conf.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+});
+
+// Init
+renderWeek();
+
+// Nav scroll
+var nav = document.getElementById('nav');
 window.addEventListener('scroll', function() {
   nav.classList.toggle('scrolled', window.scrollY > 40);
 });
