@@ -513,7 +513,7 @@ select option{background:var(--bg);color:var(--text)}
   var CFG = {
     TG_TOKEN:'8815751812:AAEGlCiQAZKSamRUfD5r0lmzjLTRAaFcdqw',
     TG_CHAT:'1081707115',
-    W3F_KEY:'4955ca45-48c4-4ef2-9c0b-da17741a1d2c'
+    W3F_KEY:'76bc323e-4cf1-4c6c-9221-88d0f6261f7d'
   };
 
   /* ── i18n dictionary ── */
@@ -704,6 +704,20 @@ select option{background:var(--bg);color:var(--text)}
     return d;
   }
 
+  function buildDiagLink(d){
+    var base='https://7group.site/diagnostico/';
+    var keys=['negocio','nombre','telefono','email','ciudad','sector','sector_otro','tiempo_mercado',
+      'descripcion_negocio','servicios','diferenciador','cobertura','tiene_web','url_web',
+      'redes','captacion_actual','clientes_mes','cliente_tipico','rango_edad','tipo_cliente',
+      'objecion_comun','necesidades','dolor_principal','meta_6meses','presupuesto','urgencia',
+      'inversion_inicial','contacto_preferido','comentarios','_ref'];
+    var pairs=[];
+    for(var i=0;i<keys.length;i++){
+      if(d[keys[i]]) pairs.push(encodeURIComponent(keys[i])+'='+encodeURIComponent(d[keys[i]]));
+    }
+    return base+'?'+pairs.join('&');
+  }
+
   window.submitForm=function(){
     if(!validate(cur))return;
     var btn=document.getElementById('btnSubmit');
@@ -711,6 +725,7 @@ select option{background:var(--bg);color:var(--text)}
     var data=collect();
     var ref='B-'+Date.now().toString(36).toUpperCase();
     data._ref=ref;data._fecha=new Date().toLocaleString('es-CO');data._lang=lang;
+    data._diagLink=buildDiagLink(data);
 
     Promise.all([tg(data),email(data)]).finally(function(){
       cur='done';showStep('done');
@@ -749,7 +764,10 @@ select option{background:var(--bg);color:var(--text)}
       'Urgency: '+(d.urgencia||'-'),
       'Initial inv: '+(d.inversion_inicial||'-'),
       'Contact pref: '+(d.contacto_preferido||'-'),'',
-      'Notes: '+(d.comentarios||'-')
+      'Notes: '+(d.comentarios||'-'),
+      '',
+      '--- DIAGNOSTIC LINK ---',
+      d._diagLink||'(not generated)'
     ];
     return fetch('https://api.telegram.org/bot'+CFG.TG_TOKEN+'/sendMessage',{
       method:'POST',headers:{'Content-Type':'application/json'},
@@ -763,6 +781,7 @@ select option{background:var(--bg);color:var(--text)}
     fd.append('subject','New Brief: '+(d.negocio||'No name')+' ['+d._ref+']');
     fd.append('from_name','7Group Onboarding');
     var b='';for(var k in d){if(k.charAt(0)!=='_')b+=k.replace(/_/g,' ').toUpperCase()+': '+d[k]+'\n';}
+    b+='\n--- DIAGNOSTIC LINK ---\n'+(d._diagLink||'');
     fd.append('message',b);
     if(d.email)fd.append('replyto',d.email);
     return fetch('https://api.web3forms.com/submit',{method:'POST',body:fd}).catch(function(){});
