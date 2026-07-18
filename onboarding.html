@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>7Group &mdash; Business Brief</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f5;
+  --bg-dark:#0a0a0a;
+  --text:#0a0a0a;
+  --text-light:#6b6b6b;
+  --text-inv:#fff;
+  --cyan:#5ee7f7;
+  --border:#e8e8e8;
+  --border-dark:rgba(255,255,255,.08);
+  --white:#fff;
+  --danger:#d44;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased}
+
+.shell{max-width:600px;margin:0 auto;padding:24px 20px 120px}
+
+/* ── Nav bar ── */
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:rgba(10,10,10,.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-dark);
+  padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.topbar .logo-text{color:var(--text-inv);font-size:18px;font-weight:700;letter-spacing:-.5px;opacity:.9}
+.topbar .lang-toggle{display:flex;gap:8px;font-size:13px;letter-spacing:.3px}
+.topbar .lang-toggle span{color:rgba(255,255,255,.35);cursor:pointer;transition:color .2s;padding:2px 0}
+.topbar .lang-toggle span:hover{color:rgba(255,255,255,.7)}
+.topbar .lang-toggle span.active{color:var(--text-inv)}
+
+/* ── Progress ── */
+.progress-wrap{
+  position:sticky;top:57px;z-index:15;
+  background:var(--bg);
+  padding:16px 0 12px;
+  border-bottom:1px solid var(--border);
+}
+.progress-dots{display:flex;gap:4px;margin-bottom:8px}
+.progress-dots .dot{flex:1;height:2px;background:var(--border);transition:background .3s}
+.progress-dots .dot.done,.progress-dots .dot.active{background:var(--cyan)}
+.step-indicator{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan)}
+
+/* ── Steps ── */
+.step{display:none;animation:fadeIn .4s ease}
+.step.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Section header ── */
+.step-num{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:20px}
+.sec-title{font-size:32px;font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:6px}
+.sec-desc{color:var(--text-light);font-size:15px;margin-bottom:28px}
+
+/* ── Form fields ── */
+label.field{display:block;margin-bottom:20px}
+label.field .lbl{
+  display:block;font-size:11px;font-weight:500;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--text-light);margin-bottom:6px;
+}
+label.field .req{color:var(--danger);margin-left:2px}
+.lbl-standalone{display:block;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--text-light);margin-bottom:10px}
+input[type="text"],input[type="email"],input[type="tel"],input[type="url"],input[type="number"],
+select,textarea{
+  width:100%;padding:14px 0;
+  background:transparent;
+  border:none;border-bottom:1px solid var(--border);
+  color:var(--text);font-size:16px;font-family:inherit;
+  transition:border-color .2s;outline:none;
+  border-radius:0;-webkit-appearance:none;
+}
+input:focus,select:focus,textarea:focus{border-bottom-color:var(--cyan)}
+textarea{resize:vertical;min-height:80px;border:1px solid var(--border);padding:14px 16px;margin-top:4px}
+textarea:focus{border-color:var(--cyan)}
+select{
+  appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6' fill='%236b6b6b'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 0 center;padding-right:20px;
+}
+select option{background:var(--bg);color:var(--text)}
+::placeholder{color:#aaa}
+
+/* ── Checkbox grid ── */
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px}
+.check-grid label{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border:1px solid var(--border);
+  cursor:pointer;font-size:14px;transition:all .2s;
+}
+.check-grid label:hover{border-color:var(--text-light)}
+.check-grid label.checked{border-color:var(--cyan);background:rgba(94,231,247,.04)}
+.check-grid input[type="checkbox"]{width:16px;height:16px;flex-shrink:0;accent-color:var(--cyan)}
+
+/* ── Service repeater ── */
+.svc-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.svc-row{display:grid;grid-template-columns:1fr 100px 32px;gap:8px;align-items:end}
+.svc-row input{font-size:14px}
+.btn-remove{
+  width:32px;height:32px;margin-bottom:12px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--text-light);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.btn-remove:hover{border-color:var(--danger);color:var(--danger)}
+.btn-add{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 0;background:transparent;border:none;
+  color:var(--cyan);font-size:12px;font-weight:500;
+  letter-spacing:1.5px;text-transform:uppercase;
+  cursor:pointer;font-family:inherit;
+}
+.btn-add:hover{opacity:.7}
+
+/* ── Buttons ── */
+.nav-row{display:flex;gap:12px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.btn{
+  flex:1;padding:16px 32px;border:2px solid;
+  font-size:13px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.btn-back{background:transparent;border-color:var(--border);color:var(--text-light)}
+.btn-back:hover{border-color:var(--text);color:var(--text)}
+.btn-next{background:var(--text);border-color:var(--text);color:var(--white)}
+.btn-next:hover{background:var(--cyan);border-color:var(--cyan);color:var(--bg-dark)}
+.btn-next:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── Field group ── */
+.field-group{border-left:1px solid var(--border);padding-left:20px;margin-bottom:24px}
+
+/* ── Thank you ── */
+.thank-you{text-align:center;padding:80px 20px}
+.thank-you .check-icon{
+  width:48px;height:48px;margin:0 auto 20px;
+  border:2px solid var(--cyan);
+  display:flex;align-items:center;justify-content:center;
+}
+.thank-you .check-icon svg{width:24px;height:24px}
+.thank-you h2{font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:8px}
+.thank-you p{color:var(--text-light);font-size:15px;max-width:360px;margin:0 auto 28px}
+.thank-you .ref-code{
+  display:inline-block;padding:10px 24px;
+  border:1px solid var(--border);
+  font-family:'Courier New',monospace;font-size:14px;letter-spacing:2px;color:var(--text);
+}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:480px){
+  .shell{padding:16px 16px 100px}
+  .sec-title{font-size:26px;letter-spacing:-1px}
+  .check-grid{grid-template-columns:1fr}
+  .svc-row{grid-template-columns:1fr 80px 32px}
+  .btn{padding:14px 20px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo-text">7group</span>
+  <div class="lang-toggle">
+    <span class="active" data-lang="en" onclick="setLang('en')">EN</span>
+    <span data-lang="es" onclick="setLang('es')">ES</span>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="progress-wrap">
+    <div class="progress-dots" id="progressBar"></div>
+    <div class="step-indicator" id="stepLabel"></div>
+  </div>
+
+  <!-- ═══ STEP 1 ═══ -->
+  <div class="step" data-step="1" style="padding-top:32px">
+    <div class="step-num">01</div>
+    <div class="sec-title" data-i18n="s1_title">Your business.</div>
+    <div class="sec-desc" data-i18n="s1_desc">The basics about your company and how to reach you.</div>
+
+    <div class="field-group">
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_negocio">Business name</span><span class="req">*</span></span>
+        <input type="text" name="negocio" data-ph-en="e.g. Land Marmoles" data-ph-es="Ej: Land Marmoles" placeholder="e.g. Land Marmoles" required>
+      </label>
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_nombre">Your full name</span><span class="req">*</span></span>
+        <input type="text" name="nombre" data-ph-en="First and last name" data-ph-es="Nombre y apellido" placeholder="First and last name" required>
+      </label>
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_tel">WhatsApp / Phone</span><span class="req">*</span></span>
+        <input type="tel" name="telefono" placeholder="+1 000 000 0000" required>
+      </label>
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_email">Email</span></span>
+        <input type="email" name="email" data-ph-en="you@email.com" data-ph-es="tu@email.com" placeholder="you@email.com">
+      </label>
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_ciudad">City / Region</span><span class="req">*</span></span>
+        <input type="text" name="ciudad" data-ph-en="e.g. Miami, FL" data-ph-es="Ej: Bogota, Colombia" placeholder="e.g. Miami, FL" required>
+      </label>
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_sector">Industry</span><span class="req">*</span></span>
+        <select name="sector" required>
+          <option value="" data-i18n="opt_select">Select...</option>
+          <option data-en="Construction / Remodeling" data-es="Construccion / Remodelacion">Construction / Remodeling</option>
+          <option data-en="Transportation / Logistics" data-es="Transporte / Logistica">Transportation / Logistics</option>
+          <option data-en="Retail / Commerce" data-es="Comercio / Retail">Retail / Commerce</option>
+          <option data-en="Food / Restaurants" data-es="Alimentos / Restaurantes">Food / Restaurants</option>
+          <option data-en="Health / Wellness" data-es="Salud / Bienestar">Health / Wellness</option>
+          <option data-en="Education" data-es="Educacion">Education</option>
+          <option data-en="Technology" data-es="Tecnologia">Technology</option>
+          <option data-en="Professional Services" data-es="Servicios Profesionales">Professional Services</option>
+          <option data-en="Real Estate" data-es="Inmobiliario">Real Estate</option>
+          <option data-en="Other" data-es="Otro">Other</option>
+        </select>
+      </label>
+      <label class="field" id="sectorOtroWrap" style="display:none">
+        <span class="lbl"><span data-i18n="f_sector_otro">Specify your industry</span></span>
+        <input type="text" name="sector_otro" data-ph-en="Describe your industry" data-ph-es="Describe tu sector" placeholder="Describe your industry">
+      </label>
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_tiempo">Time in the market</span></span>
+        <select name="tiempo_mercado">
+          <option value="" data-i18n="opt_select">Select...</option>
+          <option data-en="Less than 1 year" data-es="Menos de 1 ano">Less than 1 year</option>
+          <option data-en="1 - 3 years" data-es="1 - 3 anos">1 - 3 years</option>
+          <option data-en="3 - 5 years" data-es="3 - 5 anos">3 - 5 years</option>
+          <option data-en="5+ years" data-es="Mas de 5 anos">5+ years</option>
+          <option data-en="10+ years" data-es="Mas de 10 anos">10+ years</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-next" onclick="nextStep()" data-i18n="btn_continue">Continue</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2 ═══ -->
+  <div class="step" data-step="2" style="padding-top:32px">
+    <div class="step-num">02</div>
+    <div class="sec-title" data-i18n="s2_title">Products & services.</div>
+    <div class="sec-desc" data-i18n="s2_desc">What you offer, at what price, and what makes you different.</div>
+
+    <div class="field-group">
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_desc_neg">Describe your business briefly</span><span class="req">*</span></span>
+        <textarea name="descripcion_negocio" data-ph-en="e.g. We do marble floor polishing, painting and general construction in Miami." data-ph-es="Ej: Realizamos pulido de pisos en marmol, granito y porcelanato. Pintura y obra blanca." placeholder="e.g. We do marble floor polishing, painting and general construction in Miami." required></textarea>
+      </label>
+
+      <div class="field">
+        <span class="lbl-standalone" data-i18n="f_servicios">Main services / Products</span>
+        <div class="svc-list" id="svcList">
+          <div class="svc-row">
+            <input type="text" name="svc_nombre[]" data-ph-en="Service or product" data-ph-es="Servicio o producto" placeholder="Service or product">
+            <input type="text" name="svc_precio[]" data-ph-en="Price" data-ph-es="Precio" placeholder="Price">
+            <button type="button" class="btn-remove" onclick="removeSvc(this)" title="Remove">&times;</button>
+          </div>
+        </div>
+        <button type="button" class="btn-add" onclick="addSvc()" data-i18n="btn_add_svc">+ Add another</button>
+      </div>
+
+      <label class="field" style="margin-top:20px">
+        <span class="lbl"><span data-i18n="f_diferenciador">Key differentiator</span></span>
+        <textarea name="diferenciador" data-ph-en="e.g. 15 years of experience, written guarantee, imported products..." data-ph-es="Ej: 15 anos de experiencia, garantia por escrito, productos importados..." placeholder="e.g. 15 years of experience, written guarantee, imported products..."></textarea>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_cobertura">Coverage area</span></span>
+        <input type="text" name="cobertura" data-ph-en="e.g. Miami-Dade and Broward County" data-ph-es="Ej: Bogota y municipios aledanos" placeholder="e.g. Miami-Dade and Broward County">
+      </label>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevStep()" data-i18n="btn_back">Back</button>
+      <button class="btn btn-next" onclick="nextStep()" data-i18n="btn_continue">Continue</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3 ═══ -->
+  <div class="step" data-step="3" style="padding-top:32px">
+    <div class="step-num">03</div>
+    <div class="sec-title" data-i18n="s3_title">Digital presence.</div>
+    <div class="sec-desc" data-i18n="s3_desc">Where your customers find you today.</div>
+
+    <div class="field-group">
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_tiene_web">Do you have a website?</span></span>
+        <select name="tiene_web">
+          <option value="" data-i18n="opt_select">Select...</option>
+          <option value="si" data-en="Yes, I have one" data-es="Si, tengo una">Yes, I have one</option>
+          <option value="basica" data-en="Yes, but it's outdated" data-es="Si, pero esta desactualizada">Yes, but it's outdated</option>
+          <option value="no" data-en="No, I don't" data-es="No tengo">No, I don't</option>
+        </select>
+      </label>
+
+      <label class="field" id="urlWebWrap" style="display:none">
+        <span class="lbl"><span data-i18n="f_url_web">Your website URL</span></span>
+        <input type="url" name="url_web" placeholder="https://...">
+      </label>
+
+      <div style="margin-bottom:20px">
+        <span class="lbl-standalone" data-i18n="f_redes">Active social media</span>
+        <div class="check-grid" id="redesGrid">
+          <label><input type="checkbox" name="redes[]" value="Instagram"> Instagram</label>
+          <label><input type="checkbox" name="redes[]" value="Facebook"> Facebook</label>
+          <label><input type="checkbox" name="redes[]" value="TikTok"> TikTok</label>
+          <label><input type="checkbox" name="redes[]" value="YouTube"> YouTube</label>
+          <label><input type="checkbox" name="redes[]" value="LinkedIn"> LinkedIn</label>
+          <label><input type="checkbox" name="redes[]" value="Google Maps"> Google Maps</label>
+        </div>
+      </div>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_captacion">How do you get customers today?</span><span class="req">*</span></span>
+        <textarea name="captacion_actual" data-ph-en="e.g. Word of mouth, social media, referrals, ads..." data-ph-es="Ej: Voz a voz, redes sociales, referidos, publicidad..." placeholder="e.g. Word of mouth, social media, referrals, ads..." required></textarea>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_clientes_mes">Customers per month (approx)</span></span>
+        <input type="text" name="clientes_mes" data-ph-en="e.g. 10-20" data-ph-es="Ej: 10-20" placeholder="e.g. 10-20">
+      </label>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevStep()" data-i18n="btn_back">Back</button>
+      <button class="btn btn-next" onclick="nextStep()" data-i18n="btn_continue">Continue</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4 ═══ -->
+  <div class="step" data-step="4" style="padding-top:32px">
+    <div class="step-num">04</div>
+    <div class="sec-title" data-i18n="s4_title">Your ideal customer.</div>
+    <div class="sec-desc" data-i18n="s4_desc">Knowing your buyer helps us design better.</div>
+
+    <div class="field-group">
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_cliente_tipico">Who is your typical customer?</span><span class="req">*</span></span>
+        <textarea name="cliente_tipico" data-ph-en="e.g. Homeowners in suburban areas looking to renovate their property." data-ph-es="Ej: Familias de estrato 4-5 en el norte de Bogota que van a remodelar." placeholder="e.g. Homeowners in suburban areas looking to renovate their property." required></textarea>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_edad">Age range</span></span>
+        <select name="rango_edad">
+          <option value="" data-i18n="opt_select">Select...</option>
+          <option>18 - 25</option>
+          <option>25 - 35</option>
+          <option>35 - 50</option>
+          <option>50+</option>
+          <option data-en="All ages" data-es="Todas las edades">All ages</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_tipo_cliente">Client type</span></span>
+        <select name="tipo_cliente">
+          <option value="" data-i18n="opt_select">Select...</option>
+          <option value="B2C" data-en="Individuals (B2C)" data-es="Personas (B2C)">Individuals (B2C)</option>
+          <option value="B2B" data-en="Businesses (B2B)" data-es="Empresas (B2B)">Businesses (B2B)</option>
+          <option value="Ambos" data-en="Both" data-es="Ambos">Both</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_objecion">Most common objection</span></span>
+        <textarea name="objecion_comun" data-ph-en="e.g. Price is too high, they don't know the brand, they don't understand the process..." data-ph-es="Ej: El precio es alto, no conocen la marca, no entienden el proceso..." placeholder="e.g. Price is too high, they don't know the brand, they don't understand the process..."></textarea>
+      </label>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevStep()" data-i18n="btn_back">Back</button>
+      <button class="btn btn-next" onclick="nextStep()" data-i18n="btn_continue">Continue</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 5 ═══ -->
+  <div class="step" data-step="5" style="padding-top:32px">
+    <div class="step-num">05</div>
+    <div class="sec-title" data-i18n="s5_title">Needs & goals.</div>
+    <div class="sec-desc" data-i18n="s5_desc">What do you want to achieve? Check all that apply.</div>
+
+    <div class="field-group">
+      <div style="margin-bottom:20px">
+        <span class="lbl-standalone"><span data-i18n="f_necesidades">What do you need?</span><span style="color:var(--danger);margin-left:2px">*</span></span>
+        <div class="check-grid" id="necesidadesGrid">
+          <label><input type="checkbox" name="necesidades[]" value="Website / Landing"> <span data-i18n="n_web">Website</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="Online Quoting"> <span data-i18n="n_cotizador">Online quoting</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="Store / Catalog"> <span data-i18n="n_tienda">Store / Catalog</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="WhatsApp Automation"> <span data-i18n="n_whatsapp">WhatsApp automation</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="Social Media"> <span data-i18n="n_redes">Social media</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="SEO / Google"> SEO / Google</label>
+          <label><input type="checkbox" name="necesidades[]" value="Dashboard / Metrics"> <span data-i18n="n_dashboard">Dashboard / Metrics</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="Order Management"> <span data-i18n="n_pedidos">Order management</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="CRM / Customer Database"> <span data-i18n="n_crm">CRM / Customers</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="Mobile App"> <span data-i18n="n_app">Mobile app</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="AI Automation"> <span data-i18n="n_ia">AI Automation</span></label>
+          <label><input type="checkbox" name="necesidades[]" value="Not sure, guide me"> <span data-i18n="n_nosure">Not sure, guide me</span></label>
+        </div>
+      </div>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_dolor">Main pain point today</span><span class="req">*</span></span>
+        <textarea name="dolor_principal" data-ph-en="e.g. No digital presence, losing customers because they can't find me online..." data-ph-es="Ej: No tengo presencia digital, pierdo clientes porque no me encuentran en Google..." placeholder="e.g. No digital presence, losing customers because they can't find me online..." required></textarea>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_meta">Where do you want to be in 6 months?</span></span>
+        <textarea name="meta_6meses" data-ph-en="e.g. Have a professional website, receive automated quotes, double my customers..." data-ph-es="Ej: Tener una web profesional, recibir cotizaciones automaticas, duplicar mis clientes..." placeholder="e.g. Have a professional website, receive automated quotes, double my customers..."></textarea>
+      </label>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevStep()" data-i18n="btn_back">Back</button>
+      <button class="btn btn-next" onclick="nextStep()" data-i18n="btn_continue">Continue</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 6 ═══ -->
+  <div class="step" data-step="6" style="padding-top:32px">
+    <div class="step-num">06</div>
+    <div class="sec-title" data-i18n="s6_title">Budget & timeline.</div>
+    <div class="sec-desc" data-i18n="s6_desc">Last step. This helps us propose the right plan.</div>
+
+    <div class="field-group">
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_presupuesto">Estimated monthly budget (USD)</span></span>
+        <select name="presupuesto">
+          <option value="" data-i18n="opt_select">Select...</option>
+          <option data-en="Under $100" data-es="Menos de $100">Under $100</option>
+          <option>$100 - $300</option>
+          <option>$300 - $500</option>
+          <option>$500 - $1,000</option>
+          <option data-en="Over $1,000" data-es="Mas de $1,000">Over $1,000</option>
+          <option data-en="Not sure, need guidance" data-es="No tengo claro, quiero orientacion">Not sure, need guidance</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_urgencia">Urgency</span></span>
+        <select name="urgencia">
+          <option value="" data-i18n="opt_select">Select...</option>
+          <option data-en="I need it now (under 2 weeks)" data-es="Lo necesito ya (menos de 2 semanas)">I need it now (under 2 weeks)</option>
+          <option data-en="This month" data-es="Este mes">This month</option>
+          <option data-en="In the next 2-3 months" data-es="En los proximos 2-3 meses">In the next 2-3 months</option>
+          <option data-en="Just exploring" data-es="Solo estoy explorando">Just exploring</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_inversion">Initial investment</span></span>
+        <select name="inversion_inicial">
+          <option value="" data-i18n="opt_select">Select...</option>
+          <option value="si" data-en="Yes, I understand there's a setup cost" data-es="Si, entiendo que hay un costo de setup">Yes, I understand there's a setup cost</option>
+          <option value="piloto" data-en="I'd prefer a free pilot" data-es="Prefiero empezar con un piloto gratuito">I'd prefer a free pilot</option>
+          <option value="info" data-en="I need more information first" data-es="Necesito mas informacion primero">I need more information first</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_comentarios">Anything else you'd like to share?</span></span>
+        <textarea name="comentarios" data-ph-en="Any additional details about your business..." data-ph-es="Cualquier detalle adicional sobre tu negocio..." placeholder="Any additional details about your business..."></textarea>
+      </label>
+
+      <label class="field">
+        <span class="lbl"><span data-i18n="f_contacto">Preferred contact method</span></span>
+        <select name="contacto_preferido">
+          <option value="" data-i18n="opt_select">Select...</option>
+          <option>WhatsApp</option>
+          <option data-en="Phone call" data-es="Llamada telefonica">Phone call</option>
+          <option>Email</option>
+          <option data-en="Video call" data-es="Videollamada">Video call</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevStep()" data-i18n="btn_back">Back</button>
+      <button class="btn btn-next" id="btnSubmit" onclick="submitForm()" data-i18n="btn_submit">Submit brief &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ═══ THANK YOU ═══ -->
+  <div class="step" data-step="done">
+    <div class="thank-you">
+      <div class="check-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#5ee7f7" stroke-width="2.5" stroke-linecap="square"><path d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h2 data-i18n="ty_title">Brief received.</h2>
+      <p data-i18n="ty_desc">Our team will review your information and contact you within 24 hours with a personalized proposal.</p>
+      <div class="ref-code" id="refCode"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var TOTAL = 6, cur = 1, lang = 'en';
+
+  var CFG = {
+    TG_TOKEN:'8815751812:AAEGlCiQAZKSamRUfD5r0lmzjLTRAaFcdqw',
+    TG_CHAT:'1081707115',
+    W3F_KEY:'4955ca45-48c4-4ef2-9c0b-da17741a1d2c'
+  };
+
+  /* ── i18n dictionary ── */
+  var T = {
+    s1_title:{en:'Your business.',es:'Tu negocio.'},
+    s1_desc:{en:'The basics about your company and how to reach you.',es:'Lo basico sobre tu empresa y como contactarte.'},
+    s2_title:{en:'Products & services.',es:'Productos y servicios.'},
+    s2_desc:{en:'What you offer, at what price, and what makes you different.',es:'Que ofreces, a que precio, y que te hace diferente.'},
+    s3_title:{en:'Digital presence.',es:'Presencia digital.'},
+    s3_desc:{en:'Where your customers find you today.',es:'Donde te encuentran tus clientes hoy.'},
+    s4_title:{en:'Your ideal customer.',es:'Tu cliente ideal.'},
+    s4_desc:{en:'Knowing your buyer helps us design better.',es:'Conocer a tu comprador nos ayuda a disenar mejor.'},
+    s5_title:{en:'Needs & goals.',es:'Necesidades y objetivos.'},
+    s5_desc:{en:'What do you want to achieve? Check all that apply.',es:'Que quieres lograr? Marca todo lo que aplique.'},
+    s6_title:{en:'Budget & timeline.',es:'Presupuesto y tiempos.'},
+    s6_desc:{en:'Last step. This helps us propose the right plan.',es:'Ultimo paso. Nos ayuda a proponer el plan adecuado.'},
+    f_negocio:{en:'Business name',es:'Nombre del negocio'},
+    f_nombre:{en:'Your full name',es:'Tu nombre completo'},
+    f_tel:{en:'WhatsApp / Phone',es:'WhatsApp / Celular'},
+    f_email:{en:'Email',es:'Email'},
+    f_ciudad:{en:'City / Region',es:'Ciudad / Region'},
+    f_sector:{en:'Industry',es:'Sector o industria'},
+    f_sector_otro:{en:'Specify your industry',es:'Especifica el sector'},
+    f_tiempo:{en:'Time in the market',es:'Tiempo en el mercado'},
+    f_desc_neg:{en:'Describe your business briefly',es:'Describe tu negocio en pocas lineas'},
+    f_servicios:{en:'Main services / Products',es:'Servicios / Productos principales'},
+    f_diferenciador:{en:'Key differentiator',es:'Diferenciador clave'},
+    f_cobertura:{en:'Coverage area',es:'Zona de cobertura'},
+    f_tiene_web:{en:'Do you have a website?',es:'Tienes pagina web?'},
+    f_url_web:{en:'Your website URL',es:'URL de tu pagina'},
+    f_redes:{en:'Active social media',es:'Redes sociales activas'},
+    f_captacion:{en:'How do you get customers today?',es:'Como consigues clientes hoy?'},
+    f_clientes_mes:{en:'Customers per month (approx)',es:'Clientes al mes (aprox)'},
+    f_cliente_tipico:{en:'Who is your typical customer?',es:'Quien es tu cliente tipico?'},
+    f_edad:{en:'Age range',es:'Rango de edad'},
+    f_tipo_cliente:{en:'Client type',es:'Tipo de cliente'},
+    f_objecion:{en:'Most common objection',es:'Objecion mas comun'},
+    f_necesidades:{en:'What do you need?',es:'Que necesitas?'},
+    f_dolor:{en:'Main pain point today',es:'Principal dolor o problema hoy'},
+    f_meta:{en:'Where do you want to be in 6 months?',es:'Donde quieres estar en 6 meses?'},
+    f_presupuesto:{en:'Estimated monthly budget (USD)',es:'Presupuesto mensual estimado (USD)'},
+    f_urgencia:{en:'Urgency',es:'Urgencia'},
+    f_inversion:{en:'Initial investment',es:'Inversion inicial'},
+    f_comentarios:{en:'Anything else you\'d like to share?',es:'Algo mas que quieras contarnos?'},
+    f_contacto:{en:'Preferred contact method',es:'Como prefieres que te contactemos?'},
+    n_web:{en:'Website',es:'Pagina web'},
+    n_cotizador:{en:'Online quoting',es:'Cotizador online'},
+    n_tienda:{en:'Store / Catalog',es:'Tienda / Catalogo'},
+    n_whatsapp:{en:'WhatsApp automation',es:'WhatsApp automatizado'},
+    n_redes:{en:'Social media',es:'Redes sociales'},
+    n_dashboard:{en:'Dashboard / Metrics',es:'Dashboard / Metricas'},
+    n_pedidos:{en:'Order management',es:'Sistema de pedidos'},
+    n_crm:{en:'CRM / Customers',es:'CRM / Clientes'},
+    n_app:{en:'Mobile app',es:'App movil'},
+    n_ia:{en:'AI Automation',es:'Automatizacion IA'},
+    n_nosure:{en:'Not sure, guide me',es:'No se, orientenme'},
+    btn_continue:{en:'Continue',es:'Continuar'},
+    btn_back:{en:'Back',es:'Atras'},
+    btn_submit:{en:'Submit brief &rarr;',es:'Enviar brief &rarr;'},
+    btn_add_svc:{en:'+ Add another',es:'+ Agregar otro'},
+    opt_select:{en:'Select...',es:'Selecciona...'},
+    ty_title:{en:'Brief received.',es:'Brief recibido.'},
+    ty_desc:{en:'Our team will review your information and contact you within 24 hours with a personalized proposal.',es:'Nuestro equipo revisara tu informacion y te contactaremos en menos de 24 horas con una propuesta personalizada.'},
+    step_of:{en:'Step {n} of {t} &mdash; {name}',es:'Paso {n} de {t} &mdash; {name}'}
+  };
+
+  var stepNames = {
+    en:['Your business','Products & services','Digital presence','Your ideal customer','Needs & goals','Budget & timeline'],
+    es:['Tu negocio','Productos y servicios','Presencia digital','Tu cliente ideal','Necesidades','Presupuesto']
+  };
+
+  /* ── Init ── */
+  render(); showStep(1); bind();
+
+  /* ── Language switcher ── */
+  window.setLang = function(l){
+    lang = l;
+    document.documentElement.lang = l;
+    var toggles = document.querySelectorAll('.lang-toggle span');
+    for(var i=0;i<toggles.length;i++){
+      toggles[i].classList.toggle('active', toggles[i].dataset.lang === l);
+    }
+    // Translate text nodes
+    var els = document.querySelectorAll('[data-i18n]');
+    for(var i=0;i<els.length;i++){
+      var key = els[i].dataset.i18n;
+      if(T[key] && T[key][l]) els[i].innerHTML = T[key][l];
+    }
+    // Translate select options
+    var opts = document.querySelectorAll('option[data-'+l+']');
+    for(var i=0;i<opts.length;i++){
+      opts[i].textContent = opts[i].dataset[l];
+    }
+    // Translate placeholders
+    var phs = document.querySelectorAll('[data-ph-'+l+']');
+    for(var i=0;i<phs.length;i++){
+      phs[i].placeholder = phs[i].dataset['ph'+l.charAt(0).toUpperCase()+l.slice(1)];
+    }
+    render();
+  };
+
+  function render(){
+    var bar = document.getElementById('progressBar');
+    bar.innerHTML = '';
+    for(var i=1;i<=TOTAL;i++){
+      var d = document.createElement('div');
+      d.className='dot'+(i<cur?' done':'')+(i===cur?' active':'');
+      bar.appendChild(d);
+    }
+    var names = stepNames[lang]||stepNames.en;
+    var tpl = (T.step_of[lang]||T.step_of.en).replace('{n}',cur).replace('{t}',TOTAL).replace('{name}',names[cur-1]||'');
+    document.getElementById('stepLabel').innerHTML = tpl;
+  }
+
+  function showStep(n){
+    var steps = document.querySelectorAll('.step');
+    for(var i=0;i<steps.length;i++) steps[i].classList.remove('active');
+    var t = document.querySelector('[data-step="'+n+'"]');
+    if(t) t.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function validate(n){
+    var p = document.querySelector('[data-step="'+n+'"]');
+    var req = p.querySelectorAll('[required]');
+    var ok = true;
+    for(var i=0;i<req.length;i++){
+      if(!req[i].value.trim()){
+        req[i].style.borderBottomColor='var(--danger)';
+        if(req[i].tagName==='TEXTAREA') req[i].style.borderColor='var(--danger)';
+        ok=false; if(i===0) req[i].focus();
+      } else {
+        req[i].style.borderBottomColor='';
+        if(req[i].tagName==='TEXTAREA') req[i].style.borderColor='';
+      }
+    }
+    if(n===5){
+      var c=p.querySelectorAll('input[name="necesidades[]"]:checked');
+      var g=document.getElementById('necesidadesGrid');
+      if(!c.length){g.style.outline='2px solid var(--danger)';g.style.outlineOffset='4px';ok=false;}
+      else{g.style.outline='';}
+    }
+    return ok;
+  }
+
+  window.nextStep=function(){if(!validate(cur))return;if(cur<TOTAL){cur++;render();showStep(cur);}};
+  window.prevStep=function(){if(cur>1){cur--;render();showStep(cur);}};
+
+  function bind(){
+    document.querySelector('[name="sector"]').addEventListener('change',function(){
+      document.getElementById('sectorOtroWrap').style.display=this.value==='Other'||this.value==='Otro'?'block':'none';
+    });
+    document.querySelector('[name="tiene_web"]').addEventListener('change',function(){
+      document.getElementById('urlWebWrap').style.display=(this.value==='si'||this.value==='basica')?'block':'none';
+    });
+    document.addEventListener('change',function(e){
+      if(e.target.type==='checkbox'&&e.target.closest('.check-grid')){
+        var l=e.target.closest('label');
+        if(l) l.classList.toggle('checked',e.target.checked);
+      }
+    });
+  }
+
+  window.addSvc=function(){
+    var list=document.getElementById('svcList');
+    var r=document.createElement('div');r.className='svc-row';
+    var phN=lang==='es'?'Servicio o producto':'Service or product';
+    var phP=lang==='es'?'Precio':'Price';
+    r.innerHTML='<input type="text" name="svc_nombre[]" data-ph-en="Service or product" data-ph-es="Servicio o producto" placeholder="'+phN+'"><input type="text" name="svc_precio[]" data-ph-en="Price" data-ph-es="Precio" placeholder="'+phP+'"><button type="button" class="btn-remove" onclick="removeSvc(this)">&times;</button>';
+    list.appendChild(r);
+  };
+  window.removeSvc=function(b){var l=document.getElementById('svcList');if(l.children.length>1)b.closest('.svc-row').remove();};
+
+  function collect(){
+    var d={};
+    var els=document.querySelectorAll('input[type="text"],input[type="email"],input[type="tel"],input[type="url"],input[type="number"],select,textarea');
+    for(var i=0;i<els.length;i++){
+      var e=els[i],n=e.name;
+      if(!n||n.endsWith('[]'))continue;
+      if(e.value.trim()) d[n]=e.value.trim();
+    }
+    var sn=document.querySelectorAll('[name="svc_nombre[]"]'),sp=document.querySelectorAll('[name="svc_precio[]"]'),sv=[];
+    for(var i=0;i<sn.length;i++){var nm=sn[i].value.trim(),pr=sp[i].value.trim();if(nm)sv.push(nm+(pr?' ($'+pr+')':''));}
+    if(sv.length) d.servicios=sv.join(' | ');
+    var cg={},ch=document.querySelectorAll('input[type="checkbox"]:checked');
+    for(var i=0;i<ch.length;i++){var g=ch[i].name.replace('[]','');if(!cg[g])cg[g]=[];cg[g].push(ch[i].value);}
+    for(var g in cg) d[g]=cg[g].join(', ');
+    return d;
+  }
+
+  window.submitForm=function(){
+    if(!validate(cur))return;
+    var btn=document.getElementById('btnSubmit');
+    btn.disabled=true;btn.innerHTML='<span class="spinner"></span>'+(lang==='es'?'Enviando...':'Submitting...');
+    var data=collect();
+    var ref='B-'+Date.now().toString(36).toUpperCase();
+    data._ref=ref;data._fecha=new Date().toLocaleString('es-CO');data._lang=lang;
+
+    Promise.all([tg(data),email(data)]).finally(function(){
+      cur='done';showStep('done');
+      document.getElementById('refCode').textContent=ref;
+      document.querySelector('.progress-wrap').style.display='none';
+    });
+  };
+
+  function tg(d){
+    var t=[
+      '--- NEW BUSINESS BRIEF ---',
+      'Ref: '+d._ref,'Date: '+d._fecha,'Lang: '+d._lang,'',
+      'BUSINESS: '+(d.negocio||'-'),
+      'Contact: '+(d.nombre||'-'),
+      'Phone: '+(d.telefono||'-'),
+      'Email: '+(d.email||'-'),
+      'City: '+(d.ciudad||'-'),
+      'Industry: '+(d.sector||'-')+(d.sector_otro?' ('+d.sector_otro+')':''),
+      'Time in market: '+(d.tiempo_mercado||'-'),'',
+      'DESCRIPTION:',d.descripcion_negocio||'-','',
+      'SERVICES: '+(d.servicios||'-'),
+      'Differentiator: '+(d.diferenciador||'-'),
+      'Coverage: '+(d.cobertura||'-'),'',
+      'WEBSITE: '+(d.tiene_web||'-')+(d.url_web?' > '+d.url_web:''),
+      'Social: '+(d.redes||'None'),
+      'Acquisition: '+(d.captacion_actual||'-'),
+      'Customers/mo: '+(d.clientes_mes||'-'),'',
+      'IDEAL CLIENT: '+(d.cliente_tipico||'-'),
+      'Age: '+(d.rango_edad||'-'),
+      'Type: '+(d.tipo_cliente||'-'),
+      'Objection: '+(d.objecion_comun||'-'),'',
+      'NEEDS: '+(d.necesidades||'-'),
+      'Pain point: '+(d.dolor_principal||'-'),
+      '6mo goal: '+(d.meta_6meses||'-'),'',
+      'Budget: '+(d.presupuesto||'-'),
+      'Urgency: '+(d.urgencia||'-'),
+      'Initial inv: '+(d.inversion_inicial||'-'),
+      'Contact pref: '+(d.contacto_preferido||'-'),'',
+      'Notes: '+(d.comentarios||'-')
+    ];
+    return fetch('https://api.telegram.org/bot'+CFG.TG_TOKEN+'/sendMessage',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:CFG.TG_CHAT,text:t.join('\n'),parse_mode:'HTML'})
+    }).catch(function(){});
+  }
+
+  function email(d){
+    var fd=new FormData();
+    fd.append('access_key',CFG.W3F_KEY);
+    fd.append('subject','New Brief: '+(d.negocio||'No name')+' ['+d._ref+']');
+    fd.append('from_name','7Group Onboarding');
+    var b='';for(var k in d){if(k.charAt(0)!=='_')b+=k.replace(/_/g,' ').toUpperCase()+': '+d[k]+'\n';}
+    fd.append('message',b);
+    if(d.email)fd.append('replyto',d.email);
+    return fetch('https://api.web3forms.com/submit',{method:'POST',body:fd}).catch(function(){});
+  }
+
+})();
+</script>
+</body>
+</html>
