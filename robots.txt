@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
 
+Disallow: /platform.html
+Disallow: /apps-script.js
+Disallow: /SETUP-PLATFORM.md
+
 Sitemap: https://7group.site/sitemap.xml

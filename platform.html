@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>7Group &mdash; Platform</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f5;--bg-dark:#0a0a0a;--text:#0a0a0a;--text-light:#6b6b6b;
+  --text-inv:#fff;--cyan:#5ee7f7;--border:#e8e8e8;
+  --border-dark:rgba(255,255,255,.08);--white:#fff;
+  --green:#2ecc71;--yellow:#f1c40f;--red:#e74c3c;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+body{background:var(--bg);color:var(--text);min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased}
+
+/* ── Topbar ── */
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:rgba(10,10,10,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-dark);
+  padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+}
+.topbar .logo-text{color:var(--text-inv);font-size:18px;font-weight:700;letter-spacing:-.5px;opacity:.9}
+.topbar .right{display:flex;align-items:center;gap:16px}
+.topbar .badge{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.topbar .lang-toggle{display:flex;gap:8px;font-size:13px;letter-spacing:.3px}
+.topbar .lang-toggle span{color:rgba(255,255,255,.35);cursor:pointer;transition:color .2s;padding:2px 0}
+.topbar .lang-toggle span:hover{color:rgba(255,255,255,.7)}
+.topbar .lang-toggle span.active{color:var(--text-inv)}
+.topbar .user-info{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:13px}
+.topbar .user-info img{width:24px;height:24px;border-radius:50%}
+.topbar .logout{background:none;border:1px solid var(--border-dark);color:rgba(255,255,255,.5);font-size:11px;padding:4px 10px;cursor:pointer;font-family:inherit;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.topbar .logout:hover{color:var(--text-inv);border-color:rgba(255,255,255,.3)}
+
+.shell{max-width:900px;margin:0 auto;padding:24px 20px 80px}
+
+/* ── Login screen ── */
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;text-align:center}
+.login-screen h1{font-size:32px;font-weight:700;letter-spacing:-1.5px;margin-bottom:8px}
+.login-screen p{color:var(--text-light);font-size:15px;margin-bottom:32px}
+.google-btn{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:14px 32px;background:var(--white);border:1px solid var(--border);
+  font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;
+  transition:all .2s;color:var(--text);text-decoration:none;
+}
+.google-btn:hover{border-color:var(--text-light);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.google-btn svg{width:20px;height:20px}
+
+/* ── Dashboard ── */
+.dash{display:none}
+.dash.active{display:block}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+.stat-card{border:1px solid var(--border);padding:16px 20px}
+.stat-card .sc-num{font-size:28px;font-weight:700;letter-spacing:-1px}
+.stat-card .sc-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-top:4px}
+
+.section-label{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:16px}
+
+/* ── Brief list ── */
+.brief-list{display:flex;flex-direction:column;gap:12px}
+.brief-card{
+  border:1px solid var(--border);padding:20px 24px;
+  display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;
+  transition:border-color .2s;cursor:default;
+}
+.brief-card:hover{border-color:var(--text-light)}
+.bc-header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.bc-name{font-size:18px;font-weight:700;letter-spacing:-.5px}
+.bc-status{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border:1px solid}
+.bc-status.new{color:var(--cyan);border-color:var(--cyan)}
+.bc-status.contacted{color:var(--yellow);border-color:var(--yellow)}
+.bc-status.proposal{color:#9b59b6;border-color:#9b59b6}
+.bc-status.closed{color:var(--green);border-color:var(--green)}
+.bc-meta{font-size:13px;color:var(--text-light)}
+.bc-needs{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.bc-needs span{font-size:11px;padding:3px 8px;border:1px solid var(--border);color:var(--text-light)}
+.bc-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.bc-btn{
+  padding:8px 16px;font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;text-align:center;
+  border:1px solid;
+}
+.bc-btn.primary{background:var(--text);color:var(--white);border-color:var(--text)}
+.bc-btn.primary:hover{background:var(--cyan);border-color:var(--cyan);color:var(--bg-dark)}
+.bc-btn.secondary{background:transparent;color:var(--text-light);border-color:var(--border)}
+.bc-btn.secondary:hover{border-color:var(--text);color:var(--text)}
+
+/* ── Detail modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;overflow-y:auto;padding:40px 20px}
+.modal-overlay.active{display:block}
+.modal{max-width:640px;margin:0 auto;background:var(--bg);border:1px solid var(--border);padding:32px}
+.modal-close{float:right;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-light);padding:0 4px}
+.modal-close:hover{color:var(--text)}
+.modal h2{font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:4px}
+.modal .modal-sub{color:var(--text-light);font-size:13px;margin-bottom:24px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.detail-item{padding:10px 14px;border:1px solid var(--border)}
+.detail-item .di-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:2px}
+.detail-item .di-value{font-size:14px}
+.detail-item.full{grid-column:1/-1}
+.detail-section{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-light);margin:20px 0 10px;padding-top:16px;border-top:1px solid var(--border)}
+.status-select{padding:8px 12px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-family:inherit;cursor:pointer;width:100%;margin-top:8px}
+
+/* ── Empty ── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-light)}
+.empty-state h3{font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:-.5px}
+
+/* ── Loading ── */
+.loading{text-align:center;padding:40px;color:var(--text-light);font-size:14px}
+
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .brief-card{grid-template-columns:1fr}
+  .bc-actions{flex-direction:row}
+  .detail-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo-text">7group</span>
+  <div class="right">
+    <span class="badge" data-i18n="t_platform">Platform</span>
+    <div class="lang-toggle">
+      <span class="active" data-lang="en" onclick="setLang('en')">EN</span>
+      <span data-lang="es" onclick="setLang('es')">ES</span>
+    </div>
+    <div class="user-info" id="userInfo" style="display:none">
+      <img id="userPic" src="" alt="">
+      <span id="userName"></span>
+      <button class="logout" onclick="signOut()" data-i18n="t_logout">Logout</button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- Login -->
+  <div class="login-screen" id="loginScreen">
+    <h1 data-i18n="l_title">Welcome.</h1>
+    <p data-i18n="l_desc">Sign in with your Google account to access the platform.</p>
+    <div id="googleBtn"></div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dash" id="dashboard">
+    <div style="margin-bottom:24px">
+      <div style="font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px" data-i18n="d_tag">Client pipeline</div>
+      <h1 style="font-size:32px;font-weight:700;letter-spacing:-1.5px" data-i18n="d_title">Onboarding briefs.</h1>
+    </div>
+
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="sc-num" id="statTotal">-</div><div class="sc-label" data-i18n="st_total">Total</div></div>
+      <div class="stat-card"><div class="sc-num" id="statNew">-</div><div class="sc-label" data-i18n="st_new">New</div></div>
+      <div class="stat-card"><div class="sc-num" id="statContacted">-</div><div class="sc-label" data-i18n="st_contacted">Contacted</div></div>
+      <div class="stat-card"><div class="sc-num" id="statClosed">-</div><div class="sc-label" data-i18n="st_closed">Closed</div></div>
+    </div>
+
+    <div class="section-label" data-i18n="d_recent">Recent briefs</div>
+    <div id="briefList" class="brief-list">
+      <div class="loading" data-i18n="d_loading">Loading briefs...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+(function(){
+  'use strict';
+
+  var APPS_SCRIPT_URL = ''; // ← PEGA AQUI LA URL DEL APPS SCRIPT
+  var ALLOWED = ['andresapal@gmail.com','7groupcorp@zohomail.com'];
+  var GOOGLE_CLIENT_ID = ''; // ← PEGA AQUI TU GOOGLE CLIENT ID (crear en console.cloud.google.com)
+
+  var lang = 'en';
+  var briefs = [];
+  var user = null;
+
+  var T = {
+    t_platform:{en:'Platform',es:'Plataforma'},
+    t_logout:{en:'Logout',es:'Salir'},
+    l_title:{en:'Welcome.',es:'Bienvenido.'},
+    l_desc:{en:'Sign in with your Google account to access the platform.',es:'Inicia sesion con tu cuenta de Google para acceder a la plataforma.'},
+    d_tag:{en:'Client pipeline',es:'Pipeline de clientes'},
+    d_title:{en:'Onboarding briefs.',es:'Briefs de onboarding.'},
+    st_total:{en:'Total',es:'Total'},
+    st_new:{en:'New',es:'Nuevos'},
+    st_contacted:{en:'Contacted',es:'Contactados'},
+    st_closed:{en:'Closed',es:'Cerrados'},
+    d_recent:{en:'Recent briefs',es:'Briefs recientes'},
+    d_loading:{en:'Loading briefs...',es:'Cargando briefs...'},
+    d_empty:{en:'No briefs yet. Share the onboarding link to start receiving them.',es:'Sin briefs aun. Comparte el link de onboarding para empezar a recibirlos.'},
+    d_diag:{en:'View diagnostic',es:'Ver diagnostico'},
+    d_detail:{en:'Details',es:'Detalles'},
+    d_denied:{en:'Access denied. This account is not authorized.',es:'Acceso denegado. Esta cuenta no esta autorizada.'},
+    m_overview:{en:'Business overview',es:'Resumen del negocio'},
+    m_digital:{en:'Digital presence',es:'Presencia digital'},
+    m_needs:{en:'Needs & goals',es:'Necesidades y objetivos'},
+    m_budget:{en:'Budget & timeline',es:'Presupuesto y tiempos'},
+    m_status:{en:'Update status',es:'Actualizar estado'},
+    btn_signin:{en:'Sign in with Google',es:'Iniciar sesion con Google'}
+  };
+
+  function t(key){return (T[key]&&T[key][lang])||key;}
+
+  /* ── Language ── */
+  window.setLang = function(l){
+    lang = l;
+    document.documentElement.lang = l;
+    var toggles = document.querySelectorAll('.lang-toggle span');
+    for(var i=0;i<toggles.length;i++) toggles[i].classList.toggle('active',toggles[i].dataset.lang===l);
+    var els = document.querySelectorAll('[data-i18n]');
+    for(var i=0;i<els.length;i++){var k=els[i].dataset.i18n;if(T[k]&&T[k][l])els[i].textContent=T[k][l];}
+    if(briefs.length) renderBriefs();
+  };
+
+  /* ── Google Sign-In ── */
+  window.onload = function(){
+    if(GOOGLE_CLIENT_ID){
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredential,
+        auto_select: true
+      });
+      google.accounts.id.renderButton(document.getElementById('googleBtn'),{
+        theme:'outline',size:'large',text:'signin_with',shape:'rectangular'
+      });
+    } else {
+      // Dev mode: skip auth
+      document.getElementById('loginScreen').innerHTML = '<h1>'+t('l_title')+'</h1><p style="color:var(--text-light);margin:8px 0 24px">Dev mode: Google Client ID not configured.</p><button class="google-btn" onclick="devLogin()">Enter as Admin</button>';
+    }
+  };
+
+  window.devLogin = function(){
+    user = {email:'andresapal@gmail.com',name:'Admin',picture:''};
+    showDashboard();
+  };
+
+  function handleCredential(response){
+    var payload = JSON.parse(atob(response.credential.split('.')[1]));
+    if(ALLOWED.indexOf(payload.email) === -1){
+      alert(t('d_denied'));
+      return;
+    }
+    user = {email:payload.email, name:payload.name, picture:payload.picture};
+    showDashboard();
+  }
+
+  function showDashboard(){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').classList.add('active');
+    var ui = document.getElementById('userInfo');
+    ui.style.display = 'flex';
+    document.getElementById('userName').textContent = user.name;
+    if(user.picture) document.getElementById('userPic').src = user.picture;
+    else document.getElementById('userPic').style.display = 'none';
+    loadBriefs();
+  }
+
+  window.signOut = function(){
+    user = null;
+    if(GOOGLE_CLIENT_ID) google.accounts.id.disableAutoSelect();
+    location.reload();
+  };
+
+  /* ── Load briefs ── */
+  function loadBriefs(){
+    if(!APPS_SCRIPT_URL){
+      // Demo data
+      briefs = [
+        {timestamp:'2026-07-19T10:30:00',ref:'B-LM2026',negocio:'Land Marmoles',nombre:'Ricardo Lancheros',telefono:'+57 310 269 6050',email:'ricardo@email.com',ciudad:'Bogota, Colombia',sector:'Construction / Remodeling',tiempo_mercado:'5+ years',descripcion_negocio:'Floor polishing in marble, granite and porcelain. Painting and general construction.',servicios:'Pulido marmol ($200) | Pulido granito ($180) | Pintura ($150)',diferenciador:'15 years of experience, imported products',cobertura:'Bogota and surrounding areas',tiene_web:'basica',url_web:'https://andresapal.github.io/quickfix-app/land-marmoles.html',redes:'Instagram, Google Maps',captacion_actual:'Word of mouth and referrals',clientes_mes:'10-15',cliente_tipico:'Homeowners in Bogota looking to renovate',tipo_cliente:'B2C',necesidades:'Website / Landing, Online Quoting, WhatsApp Automation, SEO / Google',dolor_principal:'No professional website, losing customers to competitors',meta_6meses:'Professional website with automated quoting',presupuesto:'$100 - $300',urgencia:'This month',inversion_inicial:'si',contacto_preferido:'WhatsApp',status:'new'}
+      ];
+      renderBriefs();
+      return;
+    }
+    fetch(APPS_SCRIPT_URL)
+      .then(function(r){return r.json();})
+      .then(function(data){
+        briefs = data;
+        renderBriefs();
+      })
+      .catch(function(){
+        document.getElementById('briefList').innerHTML = '<div class="empty-state"><h3>Connection error</h3><p>Could not load briefs.</p></div>';
+      });
+  }
+
+  /* ── Render briefs ── */
+  function renderBriefs(){
+    var total=briefs.length, nw=0, cont=0, cls=0;
+    for(var i=0;i<briefs.length;i++){
+      var s=briefs[i].status||'new';
+      if(s==='new')nw++;else if(s==='contacted')cont++;else if(s==='closed')cls++;
+    }
+    document.getElementById('statTotal').textContent=total;
+    document.getElementById('statNew').textContent=nw;
+    document.getElementById('statContacted').textContent=cont;
+    document.getElementById('statClosed').textContent=cls;
+
+    if(!briefs.length){
+      document.getElementById('briefList').innerHTML='<div class="empty-state"><h3>'+t('d_empty')+'</h3></div>';
+      return;
+    }
+
+    var html='';
+    for(var i=0;i<briefs.length;i++){
+      var b=briefs[i];
+      var st=b.status||'new';
+      var stLabel={new:lang==='es'?'Nuevo':'New',contacted:lang==='es'?'Contactado':'Contacted',proposal:lang==='es'?'Propuesta':'Proposal',closed:lang==='es'?'Cerrado':'Closed'}[st]||st;
+      var needs=(b.necesidades||'').split(',');
+      var date=b.timestamp?new Date(b.timestamp).toLocaleDateString(lang==='es'?'es-CO':'en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+
+      html+='<div class="brief-card">';
+      html+='<div>';
+      html+='<div class="bc-header"><span class="bc-name">'+esc(b.negocio||'No name')+'</span><span class="bc-status '+st+'">'+stLabel+'</span></div>';
+      html+='<div class="bc-meta">'+esc(b.nombre||'')+' &middot; '+esc(b.ciudad||'')+' &middot; '+date+'</div>';
+      html+='<div class="bc-needs">';
+      for(var j=0;j<needs.length;j++){if(needs[j].trim())html+='<span>'+esc(needs[j].trim())+'</span>';}
+      html+='</div>';
+      html+='</div>';
+      html+='<div class="bc-actions">';
+      html+='<a class="bc-btn primary" href="'+buildDiagUrl(b)+'" target="_blank">'+t('d_diag')+'</a>';
+      html+='<button class="bc-btn secondary" onclick="showDetail('+i+')">'+t('d_detail')+'</button>';
+      html+='</div>';
+      html+='</div>';
+    }
+    document.getElementById('briefList').innerHTML=html;
+  }
+
+  /* ── Diagnostic URL ── */
+  function buildDiagUrl(d){
+    var base = window.location.origin + '/diagnostico.html';
+    var keys=['negocio','nombre','telefono','email','ciudad','sector','sector_otro','tiempo_mercado',
+      'descripcion_negocio','servicios','diferenciador','cobertura','tiene_web','url_web',
+      'redes','captacion_actual','clientes_mes','cliente_tipico','rango_edad','tipo_cliente',
+      'objecion_comun','necesidades','dolor_principal','meta_6meses','presupuesto','urgencia',
+      'inversion_inicial','contacto_preferido','comentarios','_ref'];
+    var pairs=[];
+    for(var i=0;i<keys.length;i++){
+      var k=keys[i]==='_ref'?'ref':keys[i];
+      var v=d[keys[i]]||d[k]||'';
+      if(v)pairs.push(encodeURIComponent(keys[i])+'='+encodeURIComponent(v));
+    }
+    return base+'?'+pairs.join('&');
+  }
+
+  /* ── Detail modal ── */
+  window.showDetail = function(idx){
+    var b=briefs[idx];
+    var h='';
+    h+='<button class="modal-close" onclick="closeModal()">&times;</button>';
+    h+='<h2>'+esc(b.negocio||'')+'</h2>';
+    h+='<div class="modal-sub">'+esc(b.nombre||'')+' &middot; '+esc(b.ciudad||'')+' &middot; '+(b.ref||b._ref||'')+'</div>';
+
+    h+='<div class="detail-section">'+t('m_overview')+'</div>';
+    h+='<div class="detail-grid">';
+    h+=di(lang==='es'?'Telefono':'Phone',b.telefono);
+    h+=di('Email',b.email);
+    h+=di(lang==='es'?'Sector':'Industry',b.sector);
+    h+=di(lang==='es'?'Tiempo':'Time in market',b.tiempo_mercado);
+    h+=di(lang==='es'?'Cobertura':'Coverage',b.cobertura);
+    h+=di(lang==='es'?'Tipo cliente':'Client type',b.tipo_cliente);
+    h+=di(lang==='es'?'Clientes/mes':'Customers/mo',b.clientes_mes);
+    h+=di(lang==='es'?'Diferenciador':'Differentiator',b.diferenciador);
+    if(b.descripcion_negocio) h+=di(lang==='es'?'Descripcion':'Description',b.descripcion_negocio,true);
+    if(b.servicios) h+=di(lang==='es'?'Servicios':'Services',b.servicios,true);
+    h+='</div>';
+
+    h+='<div class="detail-section">'+t('m_digital')+'</div>';
+    h+='<div class="detail-grid">';
+    h+=di('Website',b.tiene_web+(b.url_web?' &rarr; '+b.url_web:''));
+    h+=di(lang==='es'?'Redes':'Social',b.redes);
+    if(b.captacion_actual) h+=di(lang==='es'?'Captacion':'Acquisition',b.captacion_actual,true);
+    h+='</div>';
+
+    h+='<div class="detail-section">'+t('m_needs')+'</div>';
+    h+='<div class="detail-grid">';
+    if(b.necesidades) h+=di(lang==='es'?'Necesidades':'Needs',b.necesidades,true);
+    if(b.dolor_principal) h+=di(lang==='es'?'Dolor principal':'Pain point',b.dolor_principal,true);
+    if(b.meta_6meses) h+=di(lang==='es'?'Meta 6 meses':'6mo goal',b.meta_6meses,true);
+    if(b.cliente_tipico) h+=di(lang==='es'?'Cliente ideal':'Ideal customer',b.cliente_tipico,true);
+    h+='</div>';
+
+    h+='<div class="detail-section">'+t('m_budget')+'</div>';
+    h+='<div class="detail-grid">';
+    h+=di(lang==='es'?'Presupuesto':'Budget',b.presupuesto);
+    h+=di(lang==='es'?'Urgencia':'Urgency',b.urgencia);
+    h+=di(lang==='es'?'Inversion':'Investment',b.inversion_inicial);
+    h+=di(lang==='es'?'Contacto':'Contact pref',b.contacto_preferido);
+    if(b.comentarios) h+=di(lang==='es'?'Comentarios':'Notes',b.comentarios,true);
+    h+='</div>';
+
+    h+='<div class="detail-section">'+t('m_status')+'</div>';
+    h+='<select class="status-select" onchange="updateStatus('+idx+',this.value)">';
+    var opts=[['new','New / Nuevo'],['contacted','Contacted / Contactado'],['proposal','Proposal / Propuesta'],['closed','Closed / Cerrado']];
+    for(var i=0;i<opts.length;i++){
+      h+='<option value="'+opts[i][0]+'"'+(b.status===opts[i][0]?' selected':'')+'>'+opts[i][1]+'</option>';
+    }
+    h+='</select>';
+
+    h+='<div style="margin-top:24px;display:flex;gap:8px">';
+    h+='<a class="bc-btn primary" href="'+buildDiagUrl(b)+'" target="_blank" style="flex:1">'+t('d_diag')+'</a>';
+    h+='<button class="bc-btn secondary" style="flex:1" onclick="copyDiagLink('+idx+')">Copy link</button>';
+    h+='</div>';
+
+    document.getElementById('modalContent').innerHTML=h;
+    document.getElementById('modalOverlay').classList.add('active');
+  };
+
+  window.closeModal = function(){
+    document.getElementById('modalOverlay').classList.remove('active');
+  };
+
+  window.updateStatus = function(idx, val){
+    briefs[idx].status = val;
+    if(APPS_SCRIPT_URL){
+      fetch(APPS_SCRIPT_URL,{
+        method:'POST',
+        body:JSON.stringify({action:'updateStatus',ref:briefs[idx].ref||briefs[idx]._ref,status:val})
+      }).catch(function(){});
+    }
+    renderBriefs();
+  };
+
+  window.copyDiagLink = function(idx){
+    var url = buildDiagUrl(briefs[idx]);
+    navigator.clipboard.writeText(url).then(function(){
+      alert(lang==='es'?'Link copiado':'Link copied');
+    });
+  };
+
+  function di(label,value,full){
+    return '<div class="detail-item'+(full?' full':'')+'"><div class="di-label">'+label+'</div><div class="di-value">'+(esc(value||'-'))+'</div></div>';
+  }
+
+  function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+})();
+</script>
+</body>
+</html>

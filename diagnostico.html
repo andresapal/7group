@@ -16,50 +16,44 @@
 }
 body{background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
 
-/* ── Topbar ── */
 .topbar{
   background:rgba(10,10,10,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-bottom:1px solid var(--border-dark);
   padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
 }
 .topbar .logo-text{color:var(--text-inv);font-size:18px;font-weight:700;letter-spacing:-.5px;opacity:.9}
+.topbar-right{display:flex;align-items:center;gap:16px}
 .topbar .badge{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.lang-toggle{display:flex;gap:8px;font-size:13px;letter-spacing:.3px}
+.lang-toggle span{color:rgba(255,255,255,.35);cursor:pointer;transition:color .2s;padding:2px 0}
+.lang-toggle span:hover{color:rgba(255,255,255,.7)}
+.lang-toggle span.active{color:var(--text-inv)}
 
-/* ── Shell ── */
 .shell{max-width:680px;margin:0 auto;padding:32px 20px 80px}
 
-/* ── Hero ── */
 .hero{margin-bottom:40px}
 .hero .tag{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px}
 .hero h1{font-size:36px;font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:8px}
 .hero h1 span{color:var(--text-light)}
 .hero .subtitle{color:var(--text-light);font-size:15px}
 .hero .ref{font-size:12px;color:var(--text-light);margin-top:8px;font-family:'Courier New',monospace;letter-spacing:1px}
+.hero .profile-tag{display:inline-block;margin-top:10px;padding:6px 14px;border:1px solid var(--cyan);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan)}
 
-/* ── Cards ── */
 .card{border-left:1px solid var(--border);padding:24px 0 24px 24px;margin-bottom:32px}
 .card-label{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:16px}
 
-/* ── Business summary ── */
 .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .summary-item{padding:14px 16px;border:1px solid var(--border)}
 .summary-item .si-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:4px}
 .summary-item .si-value{font-size:15px;font-weight:600}
 
-/* ── Score ring ── */
 .score-section{display:flex;align-items:center;gap:32px;flex-wrap:wrap}
 .score-ring{position:relative;width:120px;height:120px;flex-shrink:0}
 .score-ring svg{width:120px;height:120px;transform:rotate(-90deg)}
 .score-ring .bg{fill:none;stroke:var(--border);stroke-width:6}
 .score-ring .fg{fill:none;stroke-width:6;stroke-linecap:square;transition:stroke-dashoffset .8s ease}
-.score-ring .score-text{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-size:28px;font-weight:700;letter-spacing:-1px;
-}
-.score-ring .score-label{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,14px);
-  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);
-}
+.score-ring .score-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:700;letter-spacing:-1px}
+.score-ring .score-label{position:absolute;top:50%;left:50%;transform:translate(-50%,14px);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light)}
 .score-breakdown{flex:1;min-width:200px}
 .sb-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
 .sb-row:last-child{border:none}
@@ -69,12 +63,10 @@ body{background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smooth
 .sb-row .sb-status.partial{color:var(--yellow)}
 .sb-row .sb-status.no{color:var(--red)}
 
-/* ── Needs ── */
 .needs-list{display:flex;flex-wrap:wrap;gap:8px}
 .need-tag{padding:8px 16px;border:1px solid var(--border);font-size:13px;transition:all .2s}
 .need-tag.matched{border-color:var(--cyan);background:rgba(94,231,247,.06)}
 
-/* ── Solutions ── */
 .solutions-grid{display:flex;flex-direction:column;gap:16px}
 .sol-card{border:1px solid var(--border);padding:20px 24px;transition:border-color .2s}
 .sol-card:hover{border-color:var(--text-light)}
@@ -84,12 +76,10 @@ body{background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smooth
 .sol-card .sol-scope{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
 .sol-card .sol-scope span{font-size:11px;padding:4px 10px;border:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;color:var(--text-light)}
 
-/* ── Pain / Goal ── */
 .insight-block{padding:16px 20px;border:1px solid var(--border);margin-bottom:12px}
 .insight-block .ib-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:6px}
 .insight-block .ib-text{font-size:15px;font-style:italic;color:var(--text)}
 
-/* ── CTA ── */
 .cta-section{text-align:center;padding:48px 20px;margin-top:32px;border-top:1px solid var(--border)}
 .cta-section h2{font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:8px}
 .cta-section p{color:var(--text-light);font-size:14px;margin-bottom:24px;max-width:400px;margin-inline:auto}
@@ -102,10 +92,8 @@ body{background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smooth
 }
 .cta-btn:hover{background:var(--cyan);border-color:var(--cyan);color:var(--bg-dark)}
 
-/* ── Footer ── */
 .foot{text-align:center;padding:24px;font-size:11px;color:var(--text-light);letter-spacing:1px;text-transform:uppercase}
 
-/* ── Empty state ── */
 .empty{text-align:center;padding:80px 20px}
 .empty h2{font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:8px}
 .empty p{color:var(--text-light);font-size:14px}
@@ -121,13 +109,19 @@ body{background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smooth
 
 <div class="topbar">
   <span class="logo-text">7group</span>
-  <span class="badge">Business Diagnostic</span>
+  <div class="topbar-right">
+    <div class="lang-toggle">
+      <span data-lang="en" onclick="setLang('en')">EN</span>
+      <span data-lang="es" onclick="setLang('es')">ES</span>
+    </div>
+    <span class="badge" id="topBadge">Business Diagnostic</span>
+  </div>
 </div>
 
 <div class="shell" id="main">
   <div class="empty" id="emptyState">
-    <h2>No data provided.</h2>
-    <p>This page generates automatically from a completed business brief.</p>
+    <h2 id="emptyTitle">No data provided.</h2>
+    <p id="emptyDesc">This page generates automatically from a completed business brief.</p>
   </div>
 </div>
 
@@ -135,83 +129,223 @@ body{background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smooth
 (function(){
   'use strict';
 
+  /* ── i18n ── */
+  var T = {
+    topBadge:        {en:'Business Diagnostic',    es:'Diagnostico de negocio'},
+    emptyTitle:      {en:'No data provided.',      es:'Sin datos.'},
+    emptyDesc:       {en:'This page generates automatically from a completed business brief.', es:'Esta pagina se genera automaticamente desde un brief de negocio completado.'},
+    heroTag:         {en:'Digital diagnostic',      es:'Diagnostico digital'},
+    lbl_overview:    {en:'Business overview',       es:'Resumen del negocio'},
+    lbl_contact:     {en:'Contact',                 es:'Contacto'},
+    lbl_phone:       {en:'Phone',                   es:'Telefono'},
+    lbl_email:       {en:'Email',                   es:'Email'},
+    lbl_coverage:    {en:'Coverage',                es:'Cobertura'},
+    lbl_customers:   {en:'Customers/mo',            es:'Clientes/mes'},
+    lbl_clienttype:  {en:'Client type',             es:'Tipo de cliente'},
+    lbl_services:    {en:'Services',                es:'Servicios'},
+    lbl_diff:        {en:'Differentiator',          es:'Diferenciador'},
+    lbl_score:       {en:'Digital maturity score',  es:'Puntaje de madurez digital'},
+    lbl_website:     {en:'Website',                 es:'Pagina web'},
+    lbl_social:      {en:'Social Media',            es:'Redes sociales'},
+    lbl_gmaps:       {en:'Google Maps',             es:'Google Maps'},
+    lbl_acquisition: {en:'Digital Acquisition',     es:'Captacion digital'},
+    lbl_quoting:     {en:'Online Quoting',          es:'Cotizacion online'},
+    st_active:       {en:'Active',                  es:'Activo'},
+    st_partial:      {en:'Partial',                 es:'Parcial'},
+    st_missing:      {en:'Missing',                 es:'Ausente'},
+    lbl_assets:      {en:'Current assets',          es:'Activos actuales'},
+    web_active:      {en:'Website (active)',         es:'Pagina web (activa)'},
+    web_outdated:    {en:'Website (outdated)',       es:'Pagina web (desactualizada)'},
+    web_none:        {en:'Website',                  es:'Pagina web'},
+    web_optimize:    {en:'optimize & enhance',       es:'optimizar y mejorar'},
+    web_redesign:    {en:'needs redesign',           es:'necesita rediseno'},
+    web_existing:    {en:'Existing but needs redesign', es:'Existe pero necesita rediseno'},
+    web_scratch:     {en:'None &mdash; build from scratch', es:'Ninguna &mdash; crear desde cero'},
+    lbl_channels:    {en:'Active channels',          es:'Canales activos'},
+    lbl_pain:        {en:'Pain point & vision',      es:'Problema y vision'},
+    lbl_challenge:   {en:'Current challenge',        es:'Desafio actual'},
+    lbl_goal6:       {en:'6-month goal',             es:'Meta a 6 meses'},
+    lbl_needs:       {en:'Identified needs',         es:'Necesidades identificadas'},
+    lbl_solutions:   {en:'Recommended solutions',    es:'Soluciones recomendadas'},
+    badge_optimize:  {en:'Optimize existing',        es:'Optimizar existente'},
+    badge_enhance:   {en:'Enhance',                  es:'Mejorar'},
+    badge_new:       {en:'New build',                es:'Nuevo'},
+    lbl_budget:      {en:'Budget & timeline',        es:'Presupuesto y tiempos'},
+    lbl_monthly:     {en:'Monthly budget',           es:'Presupuesto mensual'},
+    lbl_urgency:     {en:'Urgency',                  es:'Urgencia'},
+    lbl_investment:  {en:'Initial investment',        es:'Inversion inicial'},
+    inv_ready:       {en:'Ready to invest',           es:'Listo para invertir'},
+    inv_pilot:       {en:'Prefers free pilot',        es:'Prefiere piloto gratis'},
+    inv_info:        {en:'Needs more info',           es:'Necesita mas info'},
+    lbl_prefcontact: {en:'Preferred contact',         es:'Contacto preferido'},
+    cta_title:       {en:'Ready to build?',           es:'Listo para construir?'},
+    cta_desc:        {en:'Schedule a call with our team to discuss your diagnostic and define next steps.', es:'Agenda una llamada con nuestro equipo para revisar tu diagnostico y definir siguientes pasos.'},
+    cta_btn:         {en:'Schedule a call',            es:'Agendar llamada'},
+    lbl_profile:     {en:'Industry profile',           es:'Perfil de industria'},
+    foot:            {en:'7group &middot; Applied Artificial Intelligence', es:'7group &middot; Inteligencia Artificial Aplicada'}
+  };
+
+  /* ── Sector profiles ── */
+  var PROFILES = {
+    'Accounting / Finance':     {en:'Accounting & Finance',       es:'Contabilidad y Finanzas'},
+    'Administration':           {en:'Administration & Management',es:'Administracion y Gerencia'},
+    'Logistics / Transport':    {en:'Logistics & Transport',      es:'Logistica y Transporte'},
+    'Sales / Commerce':         {en:'Sales & Commerce',           es:'Ventas y Comercio'},
+    'Healthcare / Medical':     {en:'Healthcare & Medical',       es:'Salud y Medicina'},
+    'Engineering / Construction':{en:'Engineering & Construction',es:'Ingenieria y Construccion'},
+    'Construction / Remodeling':{en:'Construction & Remodeling',  es:'Construccion y Remodelacion'},
+    'Education / Training':     {en:'Education & Training',       es:'Educacion y Formacion'},
+    'University / Academic':    {en:'University & Academic',      es:'Universidad y Academia'},
+    'Beauty / Personal Care':   {en:'Beauty & Personal Care',     es:'Belleza y Cuidado Personal'},
+    'Veterinary / Pet Care':    {en:'Veterinary & Pet Care',      es:'Veterinaria y Mascotas'},
+    'Food / Restaurant':        {en:'Food & Restaurant',          es:'Alimentos y Restaurantes'},
+    'Real Estate':              {en:'Real Estate',                es:'Inmobiliario'},
+    'Legal / Law':              {en:'Legal & Law',                es:'Legal y Derecho'},
+    'Technology / Software':    {en:'Technology & Software',       es:'Tecnologia y Software'},
+    'Marketing / Advertising':  {en:'Marketing & Advertising',    es:'Marketing y Publicidad'},
+    'Agriculture / Agro':       {en:'Agriculture & Agro',          es:'Agricultura y Agro'},
+    'Tourism / Hospitality':    {en:'Tourism & Hospitality',       es:'Turismo y Hoteleria'},
+    'Fitness / Wellness':       {en:'Fitness & Wellness',          es:'Fitness y Bienestar'},
+    'Automotive / Mechanics':   {en:'Automotive & Mechanics',      es:'Automotriz y Mecanica'},
+    'Fashion / Apparel':        {en:'Fashion & Apparel',           es:'Moda y Confeccion'},
+    'Insurance':                {en:'Insurance',                   es:'Seguros'},
+    'Photography / Video':      {en:'Photography & Video',         es:'Fotografia y Video'},
+    'Cleaning / Maintenance':   {en:'Cleaning & Maintenance',      es:'Limpieza y Mantenimiento'},
+    'Architecture / Design':    {en:'Architecture & Design',       es:'Arquitectura y Diseno'},
+    'Entertainment / Events':   {en:'Entertainment & Events',      es:'Entretenimiento y Eventos'},
+    'Pharmacy / Health Products':{en:'Pharmacy & Health Products', es:'Farmacia y Productos de Salud'},
+    'Security / Surveillance':  {en:'Security & Surveillance',     es:'Seguridad y Vigilancia'},
+    'E-commerce / Marketplace': {en:'E-commerce & Marketplace',    es:'E-commerce y Marketplace'},
+    'Consulting':               {en:'Consulting',                  es:'Consultoria'},
+    'Import / Export':          {en:'Import & Export',              es:'Importacion y Exportacion'},
+    'Other':                    {en:'Other',                        es:'Otro'}
+  };
+
+  /* ── Needs translation ── */
+  var NEEDS_I18N = {
+    'Website / Landing':    {en:'Website / Landing',       es:'Pagina web / Landing'},
+    'Online Quoting':       {en:'Online Quoting',          es:'Cotizador online'},
+    'WhatsApp Automation':  {en:'WhatsApp Automation',     es:'WhatsApp automatizado'},
+    'Store / Catalog':      {en:'Store / Catalog',         es:'Tienda / Catalogo'},
+    'Dashboard / Metrics':  {en:'Dashboard / Metrics',     es:'Dashboard / Metricas'},
+    'SEO / Google':         {en:'SEO / Google',            es:'SEO / Google'},
+    'CRM / Customer Database':{en:'CRM / Customer Database',es:'CRM / Base de clientes'},
+    'Order Management':     {en:'Order Management',        es:'Gestion de pedidos'},
+    'Social Media':         {en:'Social Media',            es:'Redes sociales'},
+    'AI Automation':        {en:'AI Automation',           es:'Automatizacion IA'},
+    'Mobile App':           {en:'Mobile App',              es:'App movil'},
+    'Not sure, guide me':   {en:'Not sure, guide me',      es:'No se, orientenme'}
+  };
+
   /* ── Solutions catalog ── */
   var SOLUTIONS = {
     'Website / Landing': {
-      title: 'Professional Website',
-      desc: 'Custom-built landing page optimized for conversions. Mobile-first, fast, SEO-ready. Your digital storefront working 24/7.',
-      scope: ['Design','Development','SEO','Analytics'],
-      priority: 1
+      title:{en:'Professional Website',es:'Pagina web profesional'},
+      desc:{en:'Custom-built landing page optimized for conversions. Mobile-first, fast, SEO-ready. Your digital storefront working 24/7.',
+            es:'Landing page a medida optimizada para conversiones. Mobile-first, rapida, lista para SEO. Tu vitrina digital trabajando 24/7.'},
+      scope:{en:['Design','Development','SEO','Analytics'],es:['Diseno','Desarrollo','SEO','Analitica']},
+      priority:1
     },
     'Online Quoting': {
-      title: 'Automated Quoting Engine',
-      desc: 'Let customers build their own quotes in real time. Reduces response time from hours to seconds. Connected to WhatsApp and email.',
-      scope: ['Quote builder','WhatsApp push','Email alerts','Dashboard'],
-      priority: 2
+      title:{en:'Automated Quoting Engine',es:'Cotizador automatizado'},
+      desc:{en:'Let customers build their own quotes in real time. Reduces response time from hours to seconds. Connected to WhatsApp and email.',
+            es:'Permite a tus clientes armar cotizaciones en tiempo real. Reduce el tiempo de respuesta de horas a segundos. Conectado a WhatsApp y email.'},
+      scope:{en:['Quote builder','WhatsApp push','Email alerts','Dashboard'],es:['Cotizador','Envio WhatsApp','Alertas email','Dashboard']},
+      priority:2
     },
     'WhatsApp Automation': {
-      title: 'WhatsApp Business Automation',
-      desc: 'Automated responses, quote notifications, and follow-up sequences. Your most important channel, on autopilot.',
-      scope: ['Auto-replies','Notifications','Templates','CRM sync'],
-      priority: 3
+      title:{en:'WhatsApp Business Automation',es:'Automatizacion WhatsApp Business'},
+      desc:{en:'Automated responses, quote notifications, and follow-up sequences. Your most important channel, on autopilot.',
+            es:'Respuestas automaticas, notificaciones de cotizaciones y secuencias de seguimiento. Tu canal mas importante, en piloto automatico.'},
+      scope:{en:['Auto-replies','Notifications','Templates','CRM sync'],es:['Auto-respuestas','Notificaciones','Plantillas','Sync CRM']},
+      priority:3
     },
     'Store / Catalog': {
-      title: 'Digital Catalog / Store',
-      desc: 'Showcase your products or services with pricing, categories, and direct purchase or inquiry flow.',
-      scope: ['Product pages','Categories','Cart/Inquiry','Payments'],
-      priority: 4
+      title:{en:'Digital Catalog / Store',es:'Catalogo / Tienda digital'},
+      desc:{en:'Showcase your products or services with pricing, categories, and direct purchase or inquiry flow.',
+            es:'Muestra tus productos o servicios con precios, categorias y flujo directo de compra o consulta.'},
+      scope:{en:['Product pages','Categories','Cart/Inquiry','Payments'],es:['Fichas producto','Categorias','Carrito/Consulta','Pagos']},
+      priority:4
     },
     'Dashboard / Metrics': {
-      title: 'CEO Dashboard',
-      desc: 'Real-time visibility into your business metrics. Revenue, orders, customers, operations — all in one place.',
-      scope: ['KPIs','Charts','Alerts','Auto-refresh'],
-      priority: 5
+      title:{en:'CEO Dashboard',es:'Dashboard CEO'},
+      desc:{en:'Real-time visibility into your business metrics. Revenue, orders, customers, operations — all in one place.',
+            es:'Visibilidad en tiempo real de tus metricas de negocio. Ingresos, pedidos, clientes, operaciones — todo en un lugar.'},
+      scope:{en:['KPIs','Charts','Alerts','Auto-refresh'],es:['KPIs','Graficos','Alertas','Auto-refresh']},
+      priority:5
     },
     'SEO / Google': {
-      title: 'SEO & Google Presence',
-      desc: 'Get found when customers search for your services. Google Business Profile, local SEO, and organic positioning.',
-      scope: ['Google Business','Local SEO','Keywords','Citations'],
-      priority: 6
+      title:{en:'SEO & Google Presence',es:'SEO y presencia en Google'},
+      desc:{en:'Get found when customers search for your services. Google Business Profile, local SEO, and organic positioning.',
+            es:'Que te encuentren cuando busquen tus servicios. Google Business Profile, SEO local y posicionamiento organico.'},
+      scope:{en:['Google Business','Local SEO','Keywords','Citations'],es:['Google Business','SEO local','Palabras clave','Citaciones']},
+      priority:6
     },
     'CRM / Customer Database': {
-      title: 'Customer Management (CRM)',
-      desc: 'Centralized customer database with history, follow-ups, and automated communication. Stop losing leads.',
-      scope: ['Contact DB','Follow-ups','Segments','Reports'],
-      priority: 7
+      title:{en:'Customer Management (CRM)',es:'Gestion de clientes (CRM)'},
+      desc:{en:'Centralized customer database with history, follow-ups, and automated communication. Stop losing leads.',
+            es:'Base de clientes centralizada con historial, seguimientos y comunicacion automatizada. Deja de perder leads.'},
+      scope:{en:['Contact DB','Follow-ups','Segments','Reports'],es:['Base contactos','Seguimientos','Segmentos','Reportes']},
+      priority:7
     },
     'Order Management': {
-      title: 'Order Management System',
-      desc: 'Track every order from request to delivery. Real-time status, team assignments, and customer notifications.',
-      scope: ['Order tracking','Assignments','Notifications','Reports'],
-      priority: 8
+      title:{en:'Order Management System',es:'Sistema de gestion de pedidos'},
+      desc:{en:'Track every order from request to delivery. Real-time status, team assignments, and customer notifications.',
+            es:'Rastrea cada pedido desde la solicitud hasta la entrega. Estado en tiempo real, asignaciones y notificaciones al cliente.'},
+      scope:{en:['Order tracking','Assignments','Notifications','Reports'],es:['Seguimiento','Asignaciones','Notificaciones','Reportes']},
+      priority:8
     },
     'Social Media': {
-      title: 'Social Media Strategy',
-      desc: 'Content calendar, posting strategy, and campaign management across your key platforms.',
-      scope: ['Strategy','Content','Scheduling','Analytics'],
-      priority: 9
+      title:{en:'Social Media Strategy',es:'Estrategia de redes sociales'},
+      desc:{en:'Content calendar, posting strategy, and campaign management across your key platforms.',
+            es:'Calendario de contenido, estrategia de publicacion y gestion de campanas en tus plataformas clave.'},
+      scope:{en:['Strategy','Content','Scheduling','Analytics'],es:['Estrategia','Contenido','Programacion','Analitica']},
+      priority:9
     },
     'AI Automation': {
-      title: 'AI-Powered Automation',
-      desc: 'Intelligent agents that handle quoting, customer support, data entry, and operational tasks. Built on your real data.',
-      scope: ['AI Agents','Workflows','Integrations','Training'],
-      priority: 10
+      title:{en:'AI-Powered Automation',es:'Automatizacion con IA'},
+      desc:{en:'Intelligent agents that handle quoting, customer support, data entry, and operational tasks. Built on your real data.',
+            es:'Agentes inteligentes que manejan cotizaciones, atencion al cliente, ingreso de datos y tareas operativas. Sobre tus datos reales.'},
+      scope:{en:['AI Agents','Workflows','Integrations','Training'],es:['Agentes IA','Flujos','Integraciones','Entrenamiento']},
+      priority:10
     },
     'Mobile App': {
-      title: 'Mobile Application',
-      desc: 'Native-feel app for your customers or team. Order tracking, account management, push notifications.',
-      scope: ['iOS/Android','Push notifs','Offline','Updates'],
-      priority: 11
+      title:{en:'Mobile Application',es:'Aplicacion movil'},
+      desc:{en:'Native-feel app for your customers or team. Order tracking, account management, push notifications.',
+            es:'App con experiencia nativa para tus clientes o equipo. Seguimiento de pedidos, gestion de cuenta, notificaciones push.'},
+      scope:{en:['iOS/Android','Push notifs','Offline','Updates'],es:['iOS/Android','Notificaciones','Offline','Actualizaciones']},
+      priority:11
     },
     'Not sure, guide me': {
-      title: 'Custom Assessment',
-      desc: 'We\'ll analyze your operation and recommend the right stack. No commitment — just clarity on what you actually need.',
-      scope: ['Analysis','Roadmap','Priorities','Timeline'],
-      priority: 12
+      title:{en:'Custom Assessment',es:'Evaluacion personalizada'},
+      desc:{en:'We\'ll analyze your operation and recommend the right stack. No commitment — just clarity on what you actually need.',
+            es:'Analizamos tu operacion y recomendamos la solucion correcta. Sin compromiso — solo claridad sobre lo que realmente necesitas.'},
+      scope:{en:['Analysis','Roadmap','Priorities','Timeline'],es:['Analisis','Hoja de ruta','Prioridades','Cronograma']},
+      priority:12
     }
   };
 
-  /* ── Parse URL params (query string OR hash) ── */
+  /* ── Detect language by timezone/browser ── */
+  var lang = 'en';
+  function detectLang(){
+    try {
+      var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      var tzLower = tz.toLowerCase();
+      var esZones = ['bogota','mexico','lima','santiago','buenos_aires','caracas','guayaquil',
+        'havana','montevideo','asuncion','la_paz','managua','tegucigalpa','san_salvador',
+        'guatemala','panama','santo_domingo','costa_rica','havana','america/bogota',
+        'america/mexico','america/lima','america/santiago','america/argentina',
+        'america/caracas','america/guayaquil','europe/madrid','atlantic/canary'];
+      for(var i=0;i<esZones.length;i++){
+        if(tzLower.indexOf(esZones[i])>-1) return 'es';
+      }
+      var navLang = (navigator.language||navigator.userLanguage||'en').toLowerCase();
+      if(navLang.indexOf('es')===0) return 'es';
+    } catch(e){}
+    return 'en';
+  }
+
+  /* ── Parse URL params ── */
   function getParams(){
     var src = window.location.search || window.location.hash.replace('#','?');
     var p = new URLSearchParams(src);
@@ -223,196 +357,255 @@ body{background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smooth
   /* ── Compute digital score ── */
   function computeScore(data){
     var checks = [
-      { name:'Website',       key:'tiene_web',       test:function(v){return v==='si'?2:v==='basica'?1:0;}, max:2 },
-      { name:'Social Media',  key:'redes',           test:function(v){var n=v?v.split(',').length:0;return n>=3?2:n>=1?1:0;}, max:2 },
-      { name:'Google Maps',   key:'redes',           test:function(v){return v&&v.indexOf('Google Maps')>-1?2:0;}, max:2 },
-      { name:'Digital Acquisition', key:'captacion_actual', test:function(v){var l=v?v.toLowerCase():'';return(l.indexOf('social')>-1||l.indexOf('google')>-1||l.indexOf('ads')>-1||l.indexOf('digital')>-1||l.indexOf('redes')>-1)?2:(l.indexOf('referr')>-1||l.indexOf('referid')>-1)?1:0;}, max:2 },
-      { name:'Online Quoting', key:'necesidades',    test:function(v){return 0;}, max:2 }
+      { key:'tiene_web', test:function(v){return v==='si'?2:v==='basica'?1:0;}, max:2 },
+      { key:'redes', test:function(v){var n=v?v.split(',').length:0;return n>=3?2:n>=1?1:0;}, max:2 },
+      { key:'redes', test:function(v){return v&&v.indexOf('Google Maps')>-1?2:0;}, max:2 },
+      { key:'captacion_actual', test:function(v){var l=v?v.toLowerCase():'';return(l.indexOf('social')>-1||l.indexOf('google')>-1||l.indexOf('ads')>-1||l.indexOf('digital')>-1||l.indexOf('redes')>-1)?2:(l.indexOf('referr')>-1||l.indexOf('referid')>-1)?1:0;}, max:2 },
+      { key:'necesidades', test:function(v){return 0;}, max:2 }
     ];
-    var total = 0, max = 0, details = [];
+    var names = [
+      {en:'Website',es:'Pagina web'},
+      {en:'Social Media',es:'Redes sociales'},
+      {en:'Google Maps',es:'Google Maps'},
+      {en:'Digital Acquisition',es:'Captacion digital'},
+      {en:'Online Quoting',es:'Cotizacion online'}
+    ];
+    var total=0,max=0,details=[];
     for(var i=0;i<checks.length;i++){
-      var c = checks[i];
-      var val = data[c.key] || '';
-      var score = c.test(val);
-      total += score; max += c.max;
-      details.push({ name:c.name, score:score, max:c.max });
+      var c=checks[i];var val=data[c.key]||'';var score=c.test(val);
+      total+=score;max+=c.max;
+      details.push({name:names[i],score:score,max:c.max});
     }
-    return { pct:Math.round((total/max)*100), total:total, max:max, details:details };
+    return {pct:Math.round((total/max)*100),total:total,max:max,details:details};
   }
 
+  /* ── Match sector profile ── */
+  function matchProfile(sector){
+    if(!sector) return null;
+    var sl = sector.toLowerCase();
+    for(var key in PROFILES){
+      if(key.toLowerCase().indexOf(sl)>-1 || sl.indexOf(key.toLowerCase())>-1) return {key:key,profile:PROFILES[key]};
+    }
+    for(var key in PROFILES){
+      var parts = key.toLowerCase().split(/[\s\/]+/);
+      for(var i=0;i<parts.length;i++){
+        if(parts[i].length>3 && sl.indexOf(parts[i])>-1) return {key:key,profile:PROFILES[key]};
+      }
+    }
+    return null;
+  }
+
+  var DATA = null;
+
   /* ── Render ── */
-  function render(data){
-    if(!data.negocio){return;}
-    document.getElementById('emptyState').style.display = 'none';
+  function render(){
+    var data = DATA;
+    var emptyEl = document.getElementById('emptyState');
+    var emptyTitle = document.getElementById('emptyTitle');
+    var emptyDesc = document.getElementById('emptyDesc');
+    if(!data || !data.negocio){
+      if(emptyTitle) emptyTitle.textContent = T.emptyTitle[lang];
+      if(emptyDesc) emptyDesc.textContent = T.emptyDesc[lang];
+      document.getElementById('topBadge').textContent = T.topBadge[lang];
+      return;
+    }
+    if(emptyEl) emptyEl.style.display='none';
+    document.getElementById('topBadge').textContent = T.topBadge[lang];
 
     var score = computeScore(data);
     var needs = data.necesidades ? data.necesidades.split(',').map(function(s){return s.trim();}) : [];
     var matchedSolutions = [];
     for(var i=0;i<needs.length;i++){
-      if(SOLUTIONS[needs[i]]) matchedSolutions.push({ key:needs[i], sol:SOLUTIONS[needs[i]] });
+      if(SOLUTIONS[needs[i]]) matchedSolutions.push({key:needs[i],sol:SOLUTIONS[needs[i]]});
     }
-    matchedSolutions.sort(function(a,b){return a.sol.priority - b.sol.priority;});
+    matchedSolutions.sort(function(a,b){return a.sol.priority-b.sol.priority;});
 
-    var scoreColor = score.pct >= 60 ? 'var(--green)' : score.pct >= 30 ? 'var(--yellow)' : 'var(--red)';
-    var circumference = 2 * Math.PI * 52;
-    var offset = circumference - (score.pct / 100) * circumference;
+    var scoreColor = score.pct>=60?'var(--green)':score.pct>=30?'var(--yellow)':'var(--red)';
+    var circ = 2*Math.PI*52;
+    var offset = circ-(score.pct/100)*circ;
 
+    var profile = matchProfile(data.sector);
+    var L = lang;
     var html = '';
 
     /* Hero */
     html += '<div class="hero">';
-    html += '<div class="tag">Digital diagnostic</div>';
-    html += '<h1>' + esc(data.negocio) + ' <span>&mdash; ' + esc(data.sector || '') + '</span></h1>';
-    html += '<div class="subtitle">' + esc(data.ciudad || '') + (data.tiempo_mercado ? ' &middot; ' + esc(data.tiempo_mercado) : '') + '</div>';
-    if(data._ref) html += '<div class="ref">' + esc(data._ref) + '</div>';
+    html += '<div class="tag">'+T.heroTag[L]+'</div>';
+    var sectorDisplay = profile ? profile.profile[L] : esc(data.sector||'');
+    html += '<h1>'+esc(data.negocio)+' <span>&mdash; '+sectorDisplay+'</span></h1>';
+    html += '<div class="subtitle">'+esc(data.ciudad||'')+(data.tiempo_mercado?' &middot; '+esc(data.tiempo_mercado):'')+' </div>';
+    if(data._ref) html += '<div class="ref">'+esc(data._ref)+'</div>';
+    if(profile) html += '<div class="profile-tag">'+T.lbl_profile[L]+': '+profile.profile[L]+'</div>';
     html += '</div>';
 
     /* Business summary */
-    html += '<div class="card"><div class="card-label">Business overview</div>';
+    html += '<div class="card"><div class="card-label">'+T.lbl_overview[L]+'</div>';
     html += '<div class="summary-grid">';
-    html += si('Contact', data.nombre || '-');
-    html += si('Phone', data.telefono || '-');
-    html += si('Email', data.email || '-');
-    html += si('Coverage', data.cobertura || '-');
-    html += si('Customers/mo', data.clientes_mes || '-');
-    html += si('Client type', data.tipo_cliente || '-');
+    html += si(T.lbl_contact[L],data.nombre||'-');
+    html += si(T.lbl_phone[L],data.telefono||'-');
+    html += si(T.lbl_email[L],data.email||'-');
+    html += si(T.lbl_coverage[L],data.cobertura||'-');
+    html += si(T.lbl_customers[L],data.clientes_mes||'-');
+    html += si(T.lbl_clienttype[L],data.tipo_cliente||'-');
     html += '</div>';
     if(data.descripcion_negocio){
-      html += '<div style="margin-top:16px;font-size:14px;color:var(--text-light);line-height:1.6">' + esc(data.descripcion_negocio) + '</div>';
+      html += '<div style="margin-top:16px;font-size:14px;color:var(--text-light);line-height:1.6">'+esc(data.descripcion_negocio)+'</div>';
     }
     if(data.servicios){
-      html += '<div style="margin-top:12px;font-size:13px"><strong>Services:</strong> ' + esc(data.servicios) + '</div>';
+      html += '<div style="margin-top:12px;font-size:13px"><strong>'+T.lbl_services[L]+':</strong> '+esc(data.servicios)+'</div>';
     }
     if(data.diferenciador){
-      html += '<div style="margin-top:8px;font-size:13px"><strong>Differentiator:</strong> ' + esc(data.diferenciador) + '</div>';
+      html += '<div style="margin-top:8px;font-size:13px"><strong>'+T.lbl_diff[L]+':</strong> '+esc(data.diferenciador)+'</div>';
     }
     html += '</div>';
 
-    /* Digital maturity score */
-    html += '<div class="card"><div class="card-label">Digital maturity score</div>';
+    /* Score */
+    html += '<div class="card"><div class="card-label">'+T.lbl_score[L]+'</div>';
     html += '<div class="score-section">';
     html += '<div class="score-ring">';
     html += '<svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="52"/>';
-    html += '<circle class="fg" cx="60" cy="60" r="52" stroke="'+scoreColor+'" stroke-dasharray="'+circumference+'" stroke-dashoffset="'+offset+'"/></svg>';
+    html += '<circle class="fg" cx="60" cy="60" r="52" stroke="'+scoreColor+'" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'"/></svg>';
     html += '<div class="score-text">'+score.pct+'</div>';
     html += '<div class="score-label">/ 100</div>';
     html += '</div>';
     html += '<div class="score-breakdown">';
     for(var i=0;i<score.details.length;i++){
-      var d = score.details[i];
-      var cls = d.score >= d.max ? 'yes' : d.score > 0 ? 'partial' : 'no';
-      var lbl = d.score >= d.max ? 'Active' : d.score > 0 ? 'Partial' : 'Missing';
-      html += '<div class="sb-row"><span class="sb-name">'+d.name+'</span><span class="sb-status '+cls+'">'+lbl+'</span></div>';
+      var d=score.details[i];
+      var cls=d.score>=d.max?'yes':d.score>0?'partial':'no';
+      var lbl=d.score>=d.max?T.st_active[L]:d.score>0?T.st_partial[L]:T.st_missing[L];
+      html += '<div class="sb-row"><span class="sb-name">'+d.name[L]+'</span><span class="sb-status '+cls+'">'+lbl+'</span></div>';
     }
     html += '</div></div></div>';
 
     /* Current assets */
-    var hasAssets = data.url_web || data.tiene_web === 'si' || data.tiene_web === 'basica' || data.redes;
+    var hasAssets = data.url_web||data.tiene_web==='si'||data.tiene_web==='basica'||data.redes;
     if(hasAssets){
-      html += '<div class="card"><div class="card-label">Current assets</div>';
+      html += '<div class="card"><div class="card-label">'+T.lbl_assets[L]+'</div>';
       html += '<div style="display:flex;flex-direction:column;gap:10px">';
-      if(data.tiene_web === 'si' && data.url_web){
-        html += '<div class="insight-block"><div class="ib-label">Website (active)</div><div class="ib-text" style="font-style:normal"><a href="'+esc(data.url_web)+'" target="_blank" style="color:var(--cyan);text-decoration:none">'+esc(data.url_web)+'</a> &mdash; optimize & enhance</div></div>';
-      } else if(data.tiene_web === 'basica' && data.url_web){
-        html += '<div class="insight-block" style="border-color:var(--yellow)"><div class="ib-label">Website (outdated)</div><div class="ib-text" style="font-style:normal"><a href="'+esc(data.url_web)+'" target="_blank" style="color:var(--cyan);text-decoration:none">'+esc(data.url_web)+'</a> &mdash; needs redesign</div></div>';
-      } else if(data.tiene_web === 'basica'){
-        html += '<div class="insight-block" style="border-color:var(--yellow)"><div class="ib-label">Website (outdated)</div><div class="ib-text" style="font-style:normal">Existing but needs redesign</div></div>';
-      } else if(data.tiene_web === 'no' || !data.tiene_web){
-        html += '<div class="insight-block" style="border-color:var(--red)"><div class="ib-label">Website</div><div class="ib-text" style="font-style:normal">None &mdash; build from scratch</div></div>';
+      if(data.tiene_web==='si'&&data.url_web){
+        html += '<div class="insight-block"><div class="ib-label">'+T.web_active[L]+'</div><div class="ib-text" style="font-style:normal"><a href="'+esc(data.url_web)+'" target="_blank" style="color:var(--cyan);text-decoration:none">'+esc(data.url_web)+'</a> &mdash; '+T.web_optimize[L]+'</div></div>';
+      } else if(data.tiene_web==='basica'&&data.url_web){
+        html += '<div class="insight-block" style="border-color:var(--yellow)"><div class="ib-label">'+T.web_outdated[L]+'</div><div class="ib-text" style="font-style:normal"><a href="'+esc(data.url_web)+'" target="_blank" style="color:var(--cyan);text-decoration:none">'+esc(data.url_web)+'</a> &mdash; '+T.web_redesign[L]+'</div></div>';
+      } else if(data.tiene_web==='basica'){
+        html += '<div class="insight-block" style="border-color:var(--yellow)"><div class="ib-label">'+T.web_outdated[L]+'</div><div class="ib-text" style="font-style:normal">'+T.web_existing[L]+'</div></div>';
+      } else if(data.tiene_web==='no'||!data.tiene_web){
+        html += '<div class="insight-block" style="border-color:var(--red)"><div class="ib-label">'+T.web_none[L]+'</div><div class="ib-text" style="font-style:normal">'+T.web_scratch[L]+'</div></div>';
       }
       if(data.redes){
-        var rList = data.redes.split(',').map(function(s){return s.trim();});
-        html += '<div class="insight-block"><div class="ib-label">Active channels ('+rList.length+')</div><div class="ib-text" style="font-style:normal">'+esc(data.redes)+'</div></div>';
+        var rList=data.redes.split(',').map(function(s){return s.trim();});
+        html += '<div class="insight-block"><div class="ib-label">'+T.lbl_channels[L]+' ('+rList.length+')</div><div class="ib-text" style="font-style:normal">'+esc(data.redes)+'</div></div>';
       }
       html += '</div></div>';
     }
 
     /* Pain & Goal */
-    if(data.dolor_principal || data.meta_6meses){
-      html += '<div class="card"><div class="card-label">Pain point & vision</div>';
+    if(data.dolor_principal||data.meta_6meses){
+      html += '<div class="card"><div class="card-label">'+T.lbl_pain[L]+'</div>';
       if(data.dolor_principal){
-        html += '<div class="insight-block"><div class="ib-label">Current challenge</div><div class="ib-text">"'+esc(data.dolor_principal)+'"</div></div>';
+        html += '<div class="insight-block"><div class="ib-label">'+T.lbl_challenge[L]+'</div><div class="ib-text">"'+esc(data.dolor_principal)+'"</div></div>';
       }
       if(data.meta_6meses){
-        html += '<div class="insight-block"><div class="ib-label">6-month goal</div><div class="ib-text">"'+esc(data.meta_6meses)+'"</div></div>';
+        html += '<div class="insight-block"><div class="ib-label">'+T.lbl_goal6[L]+'</div><div class="ib-text">"'+esc(data.meta_6meses)+'"</div></div>';
       }
       html += '</div>';
     }
 
-    /* Identified needs */
+    /* Needs */
     if(needs.length){
-      html += '<div class="card"><div class="card-label">Identified needs</div>';
+      html += '<div class="card"><div class="card-label">'+T.lbl_needs[L]+'</div>';
       html += '<div class="needs-list">';
       for(var i=0;i<needs.length;i++){
-        var matched = SOLUTIONS[needs[i]] ? ' matched' : '';
-        html += '<div class="need-tag'+matched+'">'+esc(needs[i])+'</div>';
+        var matched=SOLUTIONS[needs[i]]?' matched':'';
+        var needLabel = NEEDS_I18N[needs[i]] ? NEEDS_I18N[needs[i]][L] : esc(needs[i]);
+        html += '<div class="need-tag'+matched+'">'+needLabel+'</div>';
       }
       html += '</div></div>';
     }
 
-    /* Recommended solutions */
+    /* Solutions */
     if(matchedSolutions.length){
-      html += '<div class="card"><div class="card-label">Recommended solutions</div>';
+      html += '<div class="card"><div class="card-label">'+T.lbl_solutions[L]+'</div>';
       html += '<div class="solutions-grid">';
       for(var i=0;i<matchedSolutions.length;i++){
-        var s = matchedSolutions[i].sol;
-        var k = matchedSolutions[i].key;
-        var num = String(i+1).padStart(2,'0');
-        var badge = '';
-        if(k === 'Website / Landing' && (data.tiene_web === 'si' || data.tiene_web === 'basica')){
-          badge = '<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);font-weight:500">Optimize existing</span>';
-        } else if(k === 'SEO / Google' && data.redes && data.redes.indexOf('Google Maps') > -1){
-          badge = '<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);font-weight:500">Enhance</span>';
+        var s=matchedSolutions[i].sol;
+        var k=matchedSolutions[i].key;
+        var num=String(i+1).padStart(2,'0');
+        var badge='';
+        if(k==='Website / Landing'&&(data.tiene_web==='si'||data.tiene_web==='basica')){
+          badge='<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);font-weight:500">'+T.badge_optimize[L]+'</span>';
+        } else if(k==='SEO / Google'&&data.redes&&data.redes.indexOf('Google Maps')>-1){
+          badge='<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);font-weight:500">'+T.badge_enhance[L]+'</span>';
         } else {
-          badge = '<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);font-weight:500">New build</span>';
+          badge='<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);font-weight:500">'+T.badge_new[L]+'</span>';
         }
+        var scopes = s.scope[L]||s.scope.en;
         html += '<div class="sol-card">';
         html += '<div class="sol-num">'+num+'</div>';
-        html += '<div class="sol-title">'+s.title+badge+'</div>';
-        html += '<div class="sol-desc">'+s.desc+'</div>';
+        html += '<div class="sol-title">'+s.title[L]+badge+'</div>';
+        html += '<div class="sol-desc">'+s.desc[L]+'</div>';
         html += '<div class="sol-scope">';
-        for(var j=0;j<s.scope.length;j++) html += '<span>'+s.scope[j]+'</span>';
+        for(var j=0;j<scopes.length;j++) html += '<span>'+scopes[j]+'</span>';
         html += '</div></div>';
       }
       html += '</div></div>';
     }
 
-    /* Budget context */
-    if(data.presupuesto || data.urgencia){
-      html += '<div class="card"><div class="card-label">Budget & timeline</div>';
+    /* Budget */
+    if(data.presupuesto||data.urgencia){
+      html += '<div class="card"><div class="card-label">'+T.lbl_budget[L]+'</div>';
       html += '<div class="summary-grid">';
-      if(data.presupuesto) html += si('Monthly budget', data.presupuesto);
-      if(data.urgencia) html += si('Urgency', data.urgencia);
-      if(data.inversion_inicial) html += si('Initial investment', data.inversion_inicial === 'si' ? 'Ready to invest' : data.inversion_inicial === 'piloto' ? 'Prefers free pilot' : 'Needs more info');
-      if(data.contacto_preferido) html += si('Preferred contact', data.contacto_preferido);
+      if(data.presupuesto) html += si(T.lbl_monthly[L],data.presupuesto);
+      if(data.urgencia) html += si(T.lbl_urgency[L],data.urgencia);
+      if(data.inversion_inicial){
+        var invLabel = data.inversion_inicial==='si'?T.inv_ready[L]:data.inversion_inicial==='piloto'?T.inv_pilot[L]:T.inv_info[L];
+        html += si(T.lbl_investment[L],invLabel);
+      }
+      if(data.contacto_preferido) html += si(T.lbl_prefcontact[L],data.contacto_preferido);
       html += '</div></div>';
     }
 
     /* CTA */
     html += '<div class="cta-section">';
-    html += '<h2>Ready to build?</h2>';
-    html += '<p>Schedule a call with our team to discuss your diagnostic and define next steps.</p>';
-    html += '<a href="https://7group.site/agendar/" class="cta-btn">Schedule a call &rarr;</a>';
+    html += '<h2>'+T.cta_title[L]+'</h2>';
+    html += '<p>'+T.cta_desc[L]+'</p>';
+    html += '<a href="https://7group.site/agendar/" class="cta-btn">'+T.cta_btn[L]+' &rarr;</a>';
     html += '</div>';
 
-    html += '<div class="foot">7group &middot; Applied Artificial Intelligence</div>';
+    html += '<div class="foot">'+T.foot[L]+'</div>';
 
     document.getElementById('main').innerHTML = html;
   }
 
-  function si(label, value){
+  function si(label,value){
     return '<div class="summary-item"><div class="si-label">'+label+'</div><div class="si-value">'+esc(value)+'</div></div>';
   }
 
   function esc(s){
-    var d = document.createElement('div');
-    d.textContent = s || '';
+    var d=document.createElement('div');
+    d.textContent=s||'';
     return d.innerHTML;
   }
 
+  /* ── Language switcher ── */
+  window.setLang = function(l){
+    lang=l;
+    document.documentElement.lang=l;
+    var toggles=document.querySelectorAll('.lang-toggle span');
+    for(var i=0;i<toggles.length;i++){
+      toggles[i].classList.toggle('active',toggles[i].dataset.lang===l);
+    }
+    render();
+  };
+
   /* ── Init ── */
-  var data = getParams();
-  render(data);
+  lang = detectLang();
+  DATA = getParams();
+  var toggles=document.querySelectorAll('.lang-toggle span');
+  for(var i=0;i<toggles.length;i++){
+    toggles[i].classList.toggle('active',toggles[i].dataset.lang===lang);
+  }
+  document.documentElement.lang=lang;
+  render();
 
 })();
 </script>
