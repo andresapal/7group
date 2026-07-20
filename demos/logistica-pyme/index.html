@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logistics Intelligence Platform · 7Group</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:#060a0e;color:#e2e8f0;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);
+}
+
+/* TOPBAR */
+.topbar{
+  background:rgba(6,10,14,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);
+}
+.tb-left{display:flex;align-items:center;gap:14px}
+.tb-logo{font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.5px}
+.tb-sep{width:1px;height:20px;background:var(--border2)}
+.tb-badge{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:16px}
+.tb-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
+.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.tb-btn{
+  padding:7px 14px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);
+  border-radius:6px;color:var(--cyan);font-size:11px;font-weight:600;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;
+}
+.tb-btn:hover{background:rgba(94,231,247,.15);border-color:rgba(94,231,247,.3)}
+@media(max-width:640px){.topbar{padding:0 16px}.tb-status{display:none}}
+
+/* HERO COMMAND */
+.hero-cmd{
+  padding:48px 32px 40px;
+  background:linear-gradient(180deg,rgba(94,231,247,.03) 0%,transparent 100%);
+  border-bottom:1px solid var(--border);
+}
+.hero-inner{max-width:960px;margin:0 auto}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--cyan);margin-bottom:16px;
+}
+.hero-tag::before{content:'';width:8px;height:1px;background:var(--cyan)}
+.hero-cmd h1{
+  font-size:clamp(28px,4vw,42px);font-weight:800;line-height:1.1;
+  color:var(--white);margin-bottom:12px;
+}
+.hero-cmd h1 span{color:var(--cyan)}
+.hero-sub{font-size:15px;color:var(--dim);line-height:1.7;max-width:640px}
+
+/* OPERATION MAP */
+.op-map{
+  margin-top:32px;padding:24px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:14px;
+  overflow-x:auto;
+}
+.pipeline-flow{
+  display:flex;align-items:center;gap:0;min-width:700px;justify-content:center;
+}
+.pf-node{
+  text-align:center;padding:16px 20px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  min-width:120px;transition:all .3s;position:relative;
+}
+.pf-node.active{border-color:rgba(94,231,247,.3);background:rgba(94,231,247,.04)}
+.pf-node.manual{border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.03)}
+.pf-icon{font-size:11px;color:var(--dim);margin-bottom:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.pf-node.active .pf-icon{color:var(--cyan)}
+.pf-node.manual .pf-icon{color:var(--red)}
+.pf-label{font-size:14px;font-weight:700;color:var(--white)}
+.pf-sub{font-size:11px;color:var(--dim);margin-top:4px}
+.pf-node.manual .pf-sub{color:var(--red)}
+.pf-arrow{
+  width:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.pf-arrow svg{width:20px;height:20px;color:var(--muted)}
+
+/* MODULES GRID */
+.modules{max-width:960px;margin:0 auto;padding:32px 32px 80px}
+@media(max-width:640px){.modules{padding:24px 16px 60px}}
+
+.section-head{
+  display:flex;align-items:center;gap:10px;margin-bottom:24px;margin-top:48px;
+}
+.section-head::before{content:'';width:3px;height:20px;background:var(--cyan);border-radius:2px}
+.section-head h2{font-size:20px;font-weight:800;color:var(--white)}
+.section-head:first-child{margin-top:0}
+
+/* MODULE CARDS */
+.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.mod-grid{grid-template-columns:1fr}}
+
+.mod-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:24px;transition:all .3s;cursor:default;position:relative;overflow:hidden;
+}
+.mod-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.mod-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0;transition:opacity .3s;
+}
+.mod-card:hover::before{opacity:1}
+
+.mc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.mc-icon{
+  width:40px;height:40px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);
+}
+.mc-icon svg{width:18px;height:18px}
+.mc-tag{
+  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 8px;border-radius:4px;
+}
+
+.mc-title{font-size:16px;font-weight:700;color:var(--white);margin-bottom:6px}
+.mc-desc{font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:16px}
+
+.mc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mc-metric{padding:10px;background:var(--bg3);border-radius:6px}
+.mc-metric-val{font-size:18px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.mc-metric-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:600}
+
+/* INTERACTIVE SIMULATOR */
+.sim-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:24px;margin-top:16px;
+}
+.sim-title{font-size:14px;font-weight:700;color:var(--white);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sim-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+
+.sim-import{display:flex;flex-direction:column;gap:12px}
+.sim-row{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:center}
+@media(max-width:500px){.sim-row{grid-template-columns:1fr}}
+.sim-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.sim-input{
+  width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:6px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;
+}
+.sim-input:focus{outline:none;border-color:rgba(94,231,247,.3)}
+.sim-select{
+  width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:6px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.sim-select option{background:var(--bg3)}
+
+.sim-btn{
+  padding:12px 24px;background:var(--cyan);color:var(--bg);border:none;border-radius:8px;
+  font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  transition:all .2s;margin-top:8px;
+}
+.sim-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+
+/* SIMULATION RESULTS */
+.sim-results{
+  margin-top:20px;padding:20px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;display:none;animation:fadeIn .4s ease;
+}
+.sim-results.visible{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.sr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sr-title{font-size:13px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px}
+.sr-time{font-size:11px;color:var(--dim)}
+
+.sr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:640px){.sr-grid{grid-template-columns:repeat(2,1fr)}}
+.sr-stat{text-align:center;padding:12px 8px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)}
+.sr-stat-val{font-size:20px;font-weight:800;color:var(--white);letter-spacing:-.5px}
+.sr-stat-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;font-weight:600}
+
+.sr-breakdown{margin-top:16px}
+.sr-break-title{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:10px}
+.sr-break-rows{display:flex;flex-direction:column;gap:6px}
+.sr-break-row{
+  display:grid;grid-template-columns:1fr 100px 80px;gap:8px;align-items:center;
+  padding:8px 12px;background:var(--bg2);border-radius:6px;font-size:12px;
+}
+.sr-break-row .sku{color:var(--white);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px}
+.sr-break-row .qty{color:var(--cyan);text-align:right;font-weight:700}
+.sr-break-row .cost{color:var(--dim);text-align:right}
+
+/* TIMELINE */
+.timeline{margin-top:16px}
+.tl-item{
+  display:flex;gap:16px;padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.tl-item:last-child{border:none}
+.tl-dot{
+  width:10px;height:10px;border-radius:50%;border:2px solid var(--cyan);
+  margin-top:4px;flex-shrink:0;
+}
+.tl-dot.done{background:var(--cyan)}
+.tl-content{flex:1}
+.tl-step{font-size:13px;font-weight:600;color:var(--white)}
+.tl-detail{font-size:11px;color:var(--dim);margin-top:2px}
+.tl-time{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+/* KPI DASHBOARD */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+
+.kpi-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:20px;text-align:center;
+}
+.kpi-val{font-size:28px;font-weight:800;color:var(--white);letter-spacing:-1px;line-height:1}
+.kpi-change{font-size:11px;font-weight:700;margin-top:4px}
+.kpi-change.up{color:var(--green)}
+.kpi-change.down{color:var(--red)}
+.kpi-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-weight:600}
+.kpi-bar{width:100%;height:4px;background:var(--bg3);border-radius:2px;margin-top:8px;overflow:hidden}
+.kpi-bar-fill{height:100%;border-radius:2px;transition:width 1s ease}
+
+/* COMPARISON TABLE */
+.compare-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}
+.compare-table th{
+  padding:10px 14px;text-align:left;font-size:10px;color:var(--dim);
+  text-transform:uppercase;letter-spacing:1px;font-weight:600;
+  border-bottom:1px solid var(--border);
+}
+.compare-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.compare-table .process{color:var(--white);font-weight:600}
+.compare-table .before{color:var(--red)}
+.compare-table .after{color:var(--green);font-weight:600}
+.compare-table .impact{color:var(--cyan);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:12px}
+
+/* CTA SECTION */
+.cta-band{
+  max-width:960px;margin:0 auto 80px;padding:0 32px;
+}
+.cta-card{
+  background:linear-gradient(135deg,rgba(94,231,247,.06),rgba(94,231,247,.02));
+  border:1px solid rgba(94,231,247,.15);border-radius:14px;
+  padding:40px;text-align:center;
+}
+.cta-card h2{font-size:24px;font-weight:800;color:var(--white);margin-bottom:8px}
+.cta-card p{font-size:14px;color:var(--dim);margin-bottom:24px;max-width:480px;margin-inline:auto;line-height:1.6}
+.cta-main{
+  display:inline-block;padding:14px 40px;background:var(--cyan);color:var(--bg);
+  text-decoration:none;font-size:14px;font-weight:700;border-radius:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;
+}
+.cta-main:hover{filter:brightness(1.1);transform:translateY(-2px)}
+
+/* SCANNER */
+.scan-section{margin-top:16px}
+.scan-btn{
+  width:100%;padding:16px;background:var(--bg3);border:2px dashed var(--border2);border-radius:12px;
+  color:var(--dim);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;
+  font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.scan-btn:hover{border-color:rgba(94,231,247,.3);color:var(--cyan);background:rgba(94,231,247,.03)}
+.scan-btn svg{width:22px;height:22px}
+
+.scanner-view{
+  display:none;margin-top:16px;border-radius:12px;overflow:hidden;
+  border:1px solid var(--border);position:relative;background:#000;
+}
+.scanner-view.active{display:block}
+.scanner-view video{width:100%;display:block;max-height:320px;object-fit:cover}
+.scan-overlay{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:200px;height:200px;
+  border:2px solid var(--cyan);border-radius:8px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.5);
+}
+.scan-overlay::before,.scan-overlay::after{
+  content:'';position:absolute;width:24px;height:24px;
+  border-color:var(--cyan);border-style:solid;
+}
+.scan-overlay::before{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+.scan-overlay::after{top:-2px;right:-2px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
+.scan-line{
+  position:absolute;top:0;left:10%;width:80%;height:2px;
+  background:var(--cyan);box-shadow:0 0 8px var(--cyan);
+  animation:scanMove 2s ease-in-out infinite;
+}
+@keyframes scanMove{0%,100%{top:10%}50%{top:90%}}
+.scanner-close{
+  position:absolute;top:10px;right:10px;z-index:5;
+  width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.7);border:1px solid var(--border2);
+  color:var(--white);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.scanner-status{
+  padding:10px 16px;background:var(--bg2);font-size:12px;color:var(--dim);
+  display:flex;align-items:center;gap:8px;
+}
+.scanner-status .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+
+.scan-manual{
+  display:flex;gap:8px;margin-top:12px;
+}
+.scan-manual input{
+  flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:6px;color:var(--white);font-size:14px;font-family:'JetBrains Mono',monospace;
+}
+.scan-manual input:focus{outline:none;border-color:rgba(94,231,247,.3)}
+.scan-manual button{
+  padding:10px 18px;background:var(--cyan);color:var(--bg);border:none;border-radius:6px;
+  font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;
+}
+
+/* PRODUCT CARD */
+.product-card{
+  display:none;margin-top:20px;background:var(--bg2);border:1px solid rgba(94,231,247,.2);
+  border-radius:14px;overflow:hidden;animation:fadeIn .4s ease;
+}
+.product-card.visible{display:block}
+.product-card-header{
+  padding:20px 24px;background:rgba(94,231,247,.04);
+  border-bottom:1px solid rgba(94,231,247,.1);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.pc-sku{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--cyan);letter-spacing:1px}
+.pc-name{font-size:15px;color:var(--white);font-weight:600;margin-top:4px}
+.pc-status{
+  padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;
+}
+.pc-status.in-stock{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.pc-status.low-stock{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.2)}
+.pc-status.out{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+
+.product-card-body{padding:20px 24px}
+.pc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:500px){.pc-grid{grid-template-columns:1fr 1fr}}
+.pc-field{padding:12px;background:var(--bg3);border-radius:8px}
+.pc-field-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:3px}
+.pc-field-val{font-size:15px;font-weight:700;color:var(--white)}
+.pc-field-val.cyan{color:var(--cyan)}
+.pc-field-val.green{color:var(--green)}
+.pc-field-val.yellow{color:var(--yellow)}
+.pc-field-val.red{color:var(--red)}
+.pc-field-val.mono{font-family:'JetBrains Mono',monospace;font-size:13px}
+
+.pc-lots{margin-top:16px}
+.pc-lots-title{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:10px}
+.pc-lot-row{
+  display:grid;grid-template-columns:1fr 80px 80px 80px 100px;gap:8px;align-items:center;
+  padding:10px 14px;background:var(--bg3);border-radius:6px;margin-bottom:6px;font-size:12px;
+}
+@media(max-width:640px){.pc-lot-row{grid-template-columns:1fr 1fr;gap:4px;font-size:11px}}
+.pc-lot-row .lot-id{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-weight:600}
+.pc-lot-row .lot-qty{color:var(--white);font-weight:700;text-align:right}
+.pc-lot-row .lot-cost{color:var(--dim);text-align:right}
+.pc-lot-row .lot-date{color:var(--dim);text-align:right}
+.pc-lot-row .lot-loc{color:var(--yellow);text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px}
+
+.pc-history{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.pc-hist-title{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:10px}
+.pc-hist-row{
+  display:flex;align-items:center;gap:12px;padding:8px 0;
+  border-bottom:1px solid var(--border);font-size:12px;
+}
+.pc-hist-row:last-child{border:none}
+.pc-hist-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pc-hist-dot.in{background:var(--green)}
+.pc-hist-dot.out{background:var(--orange)}
+.pc-hist-dot.adj{background:var(--blue)}
+.pc-hist-action{color:var(--white);font-weight:600;flex:1}
+.pc-hist-qty{color:var(--cyan);font-weight:700;font-family:'JetBrains Mono',monospace}
+.pc-hist-date{color:var(--dim);font-size:11px}
+
+/* FOOTER */
+.foot{text-align:center;padding:24px;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="tb-left">
+    <span class="tb-logo">7group</span>
+    <div class="tb-sep"></div>
+    <span class="tb-badge">Logistics Intelligence</span>
+  </div>
+  <div class="tb-right">
+    <div class="tb-status"><span class="tb-dot"></span> Systems operational</div>
+    <a href="/agendar/?lang=en" class="tb-btn">Schedule a call</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-cmd">
+  <div class="hero-inner">
+    <div class="hero-tag">AI-Powered Operations</div>
+    <h1>Your supply chain,<br><span>intelligently automated</span></h1>
+    <p class="hero-sub">Asia-sourced imports. Florida-based distribution. Every container tracked, every SKU optimized, every delivery predicted. This is what your operation looks like with 7Group.</p>
+
+    <!-- OPERATION PIPELINE -->
+    <div class="op-map">
+      <div class="pipeline-flow">
+        <div class="pf-node active" id="nodeSupplier">
+          <div class="pf-icon">Source</div>
+          <div class="pf-label">Asia Suppliers</div>
+          <div class="pf-sub">PO + Invoices</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="pf-node active" id="nodeTransit">
+          <div class="pf-icon">Transit</div>
+          <div class="pf-label">Ocean Freight</div>
+          <div class="pf-sub">30-45 days</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="pf-node active" id="nodePort">
+          <div class="pf-icon">Customs</div>
+          <div class="pf-label">Port of Entry</div>
+          <div class="pf-sub">Miami / Jax</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="pf-node manual" id="nodeWarehouse">
+          <div class="pf-icon">Warehouse</div>
+          <div class="pf-label">FL Warehouse</div>
+          <div class="pf-sub">Manual / Excel</div>
+        </div>
+        <div class="pf-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="pf-node manual" id="nodeDelivery">
+          <div class="pf-icon">Delivery</div>
+          <div class="pf-label">FL Distribution</div>
+          <div class="pf-sub">Manual routing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<div class="modules">
+
+  <!-- CURRENT PAIN POINTS -->
+  <div class="section-head"><h2>What we automate for you</h2></div>
+
+  <div class="mod-grid">
+    <div class="mod-card">
+      <div class="mc-head">
+        <div class="mc-icon" style="background:rgba(94,231,247,.06);border-color:rgba(94,231,247,.15)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <span class="mc-tag" style="background:rgba(94,231,247,.08);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">AI + OCR</span>
+      </div>
+      <div class="mc-title">Import Document Processing</div>
+      <div class="mc-desc">Drop a commercial invoice PDF. Our AI reads every line item, validates against your PO, and creates receiving records automatically. No data entry. Zero errors.</div>
+      <div class="mc-metrics">
+        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--red)">45 min</div><div class="mc-metric-label">Current: manual entry</div></div>
+        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--green)">12 sec</div><div class="mc-metric-label">With 7Group AI</div></div>
+      </div>
+    </div>
+
+    <div class="mod-card">
+      <div class="mc-head">
+        <div class="mc-icon" style="background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.15)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <span class="mc-tag" style="background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.15)">FIFO / FEFO</span>
+      </div>
+      <div class="mc-title">Intelligent Inventory Engine</div>
+      <div class="mc-desc">Every unit tracked by lot, cost, and expiration. FIFO/FEFO algorithms ensure you always ship the right stock first. Automatic reorder alerts when minimums hit.</div>
+      <div class="mc-metrics">
+        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--red)">Excel</div><div class="mc-metric-label">Current: spreadsheets</div></div>
+        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--green)">Real-time</div><div class="mc-metric-label">Live lot tracking</div></div>
+      </div>
+    </div>
+
+    <div class="mod-card">
+      <div class="mc-head">
+        <div class="mc-icon" style="background:rgba(234,179,8,.06);border-color:rgba(234,179,8,.15)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <span class="mc-tag" style="background:rgba(234,179,8,.08);color:var(--yellow);border:1px solid rgba(234,179,8,.15)">Mobile-first</span>
+      </div>
+      <div class="mc-title">Warehouse Operations</div>
+      <div class="mc-desc">Receive containers with barcode scanning on any phone. Assign warehouse locations by scanning shelf QR codes. Photo evidence of every pick-and-pack. Works offline.</div>
+      <div class="mc-metrics">
+        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--red)">Paper</div><div class="mc-metric-label">Current: manual logs</div></div>
+        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--green)">Scan</div><div class="mc-metric-label">Mobile barcode/QR</div></div>
+      </div>
+    </div>
+
+    <div class="mod-card">
+      <div class="mc-head">
+        <div class="mc-icon" style="background:rgba(167,139,250,.06);border-color:rgba(167,139,250,.15)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <span class="mc-tag" style="background:rgba(167,139,250,.08);color:var(--purple);border:1px solid rgba(167,139,250,.15)">CEO View</span>
+      </div>
+      <div class="mc-title">Operations Intelligence</div>
+      <div class="mc-desc">Real-time dashboard with inventory valuation, OTIF scores, delivery performance, and cost-per-unit analysis. Know your numbers before your accountant does.</div>
+      <div class="mc-metrics">
+        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--red)">Weekly</div><div class="mc-metric-label">Current: manual reports</div></div>
+        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--green)">Live</div><div class="mc-metric-label">Auto-updated KPIs</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE SIMULATOR: IMPORT PROCESSING -->
+  <div class="section-head" style="margin-top:56px"><h2>Live simulation: process an import</h2></div>
+
+  <div class="sim-card">
+    <div class="sim-title">AI Import Processor</div>
+    <div class="sim-import">
+      <div class="sim-row">
+        <span class="sim-label">Supplier</span>
+        <select class="sim-select" id="simSupplier">
+          <option value="shenzhen">Shenzhen Electronics Co. (China)</option>
+          <option value="taipei">Taipei Components Ltd. (Taiwan)</option>
+          <option value="hanoi">Hanoi Manufacturing (Vietnam)</option>
+        </select>
+      </div>
+      <div class="sim-row">
+        <span class="sim-label">Container</span>
+        <select class="sim-select" id="simContainer">
+          <option value="20ft">20ft Standard (14 CBM)</option>
+          <option value="40ft">40ft Standard (30 CBM)</option>
+          <option value="40hc">40ft High Cube (37 CBM)</option>
+        </select>
+      </div>
+      <div class="sim-row">
+        <span class="sim-label">Invoice total</span>
+        <input type="text" class="sim-input" id="simInvoice" value="$47,250.00" placeholder="$0.00">
+      </div>
+      <div class="sim-row">
+        <span class="sim-label">SKUs in shipment</span>
+        <select class="sim-select" id="simSkus">
+          <option value="8">8 product references</option>
+          <option value="15">15 product references</option>
+          <option value="25">25 product references</option>
+          <option value="40">40+ product references</option>
+        </select>
+      </div>
+      <button class="sim-btn" onclick="runSimulation()">Process with AI</button>
+    </div>
+
+    <div class="sim-results" id="simResults">
+      <div class="sr-header">
+        <span class="sr-title">AI Processing Complete</span>
+        <span class="sr-time" id="srTime"></span>
+      </div>
+
+      <div class="sr-grid" id="srGrid"></div>
+
+      <div class="sr-breakdown">
+        <div class="sr-break-title">Extracted line items (sample)</div>
+        <div class="sr-break-rows" id="srBreakdown"></div>
+      </div>
+
+      <div class="timeline" id="srTimeline"></div>
+    </div>
+  </div>
+
+  <!-- KPI DASHBOARD PREVIEW -->
+  <div class="section-head" style="margin-top:56px"><h2>Your CEO dashboard</h2></div>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- BEFORE/AFTER COMPARISON -->
+  <div class="section-head" style="margin-top:56px"><h2>Before vs. After: your operation</h2></div>
+
+  <div style="overflow-x:auto">
+    <table class="compare-table">
+      <thead>
+        <tr><th>Process</th><th>Today (manual)</th><th>With 7Group</th><th>Impact</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="process">Invoice data entry</td>
+          <td class="before">45 min / invoice, error-prone</td>
+          <td class="after">12 seconds, AI-validated</td>
+          <td class="impact">-99.5%</td>
+        </tr>
+        <tr>
+          <td class="process">Inventory count</td>
+          <td class="before">Manual Excel, day-old data</td>
+          <td class="after">Real-time FIFO/FEFO by lot</td>
+          <td class="impact">Live</td>
+        </tr>
+        <tr>
+          <td class="process">Container receiving</td>
+          <td class="before">Paper checklists, hand-written</td>
+          <td class="after">Phone scan + photo evidence</td>
+          <td class="impact">-80%</td>
+        </tr>
+        <tr>
+          <td class="process">Order fulfillment</td>
+          <td class="before">Check stock in spreadsheet, call warehouse</td>
+          <td class="after">Auto-assign lots, pick list generated</td>
+          <td class="impact">3x faster</td>
+        </tr>
+        <tr>
+          <td class="process">Delivery tracking</td>
+          <td class="before">Phone calls, no visibility</td>
+          <td class="after">Real-time GPS + customer notifications</td>
+          <td class="impact">24/7</td>
+        </tr>
+        <tr>
+          <td class="process">Financial reporting</td>
+          <td class="before">Accountant builds monthly</td>
+          <td class="after">Auto-generated, live valuation</td>
+          <td class="impact">Instant</td>
+        </tr>
+        <tr>
+          <td class="process">Reorder decisions</td>
+          <td class="before">Gut feeling, sometimes too late</td>
+          <td class="after">AI predicts stockouts 2 weeks ahead</td>
+          <td class="impact">Predictive</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- IMPLEMENTATION PHASES -->
+  <div class="section-head" style="margin-top:56px"><h2>Implementation roadmap</h2></div>
+
+  <div class="mod-grid" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="mod-card" style="border-top:2px solid var(--green)">
+      <span class="mc-tag" style="background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.15);margin-bottom:12px;display:inline-block">Phase 1 -- Week 1-2</span>
+      <div class="mc-title">Foundation</div>
+      <div class="mc-desc" style="margin-bottom:0">
+        Google Sheets data architecture<br>
+        Mobile receiving app (barcode scan)<br>
+        Inventory dashboard (live)<br>
+        WhatsApp alerts for low stock<br>
+        <strong style="color:var(--green);font-size:12px;display:block;margin-top:8px">Cost: $0 infrastructure</strong>
+      </div>
+    </div>
+    <div class="mod-card" style="border-top:2px solid var(--cyan)">
+      <span class="mc-tag" style="background:rgba(94,231,247,.08);color:var(--cyan);border:1px solid rgba(94,231,247,.15);margin-bottom:12px;display:inline-block">Phase 2 -- Week 3-4</span>
+      <div class="mc-title">Intelligence</div>
+      <div class="mc-desc" style="margin-bottom:0">
+        AI invoice processing (OCR)<br>
+        FIFO/FEFO lot management<br>
+        CEO KPI dashboard<br>
+        Automated picking lists<br>
+        <strong style="color:var(--cyan);font-size:12px;display:block;margin-top:8px">Cost: $0 (AI free tier)</strong>
+      </div>
+    </div>
+    <div class="mod-card" style="border-top:2px solid var(--purple)">
+      <span class="mc-tag" style="background:rgba(167,139,250,.08);color:var(--purple);border:1px solid rgba(167,139,250,.15);margin-bottom:12px;display:inline-block">Phase 3 -- Month 2+</span>
+      <div class="mc-title">Scale</div>
+      <div class="mc-desc" style="margin-bottom:0">
+        Firebase migration (real-time)<br>
+        Route optimization AI<br>
+        Customer self-service portal<br>
+        Predictive reorder engine<br>
+        <strong style="color:var(--purple);font-size:12px;display:block;margin-top:8px">SaaS-ready architecture</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-band">
+  <div class="cta-card">
+    <h2>Ready to eliminate the spreadsheets?</h2>
+    <p>Schedule a 30-minute discovery call. We'll map your exact operation and show you Phase 1 running on your real data. No cost, no commitment.</p>
+    <a href="/agendar/?lang=en" class="cta-main">Schedule your call</a>
+  </div>
+</div>
+
+<div class="foot">7group -- Applied Artificial Intelligence</div>
+
+<script>
+// KPI Dashboard
+var kpis = [
+  { val:'$142K', label:'Inventory value', change:'+12%', dir:'up', pct:72, color:'var(--cyan)' },
+  { val:'94.2%', label:'OTIF Score', change:'+8.5%', dir:'up', pct:94, color:'var(--green)' },
+  { val:'4.3x', label:'Inventory turnover', change:'+1.2x', dir:'up', pct:65, color:'var(--yellow)' },
+  { val:'$3.21', label:'Cost per delivery', change:'-18%', dir:'down', pct:82, color:'var(--purple)' }
+];
+
+var kpiHtml = '';
+for (var i = 0; i < kpis.length; i++) {
+  var k = kpis[i];
+  kpiHtml += '<div class="kpi-card">';
+  kpiHtml += '<div class="kpi-val">' + k.val + '</div>';
+  kpiHtml += '<div class="kpi-change ' + (k.dir === 'up' ? 'up' : 'down') + '">' + k.change + '</div>';
+  kpiHtml += '<div class="kpi-label">' + k.label + '</div>';
+  kpiHtml += '<div class="kpi-bar"><div class="kpi-bar-fill" style="width:' + k.pct + '%;background:' + k.color + '"></div></div>';
+  kpiHtml += '</div>';
+}
+document.getElementById('kpiGrid').innerHTML = kpiHtml;
+
+// SIMULATION
+var sampleSkus = {
+  shenzhen: [
+    { sku:'SZ-LED-4K-55', desc:'LED Panel 55" 4K', qty:120, cost:185.00 },
+    { sku:'SZ-PWR-500W', desc:'Power Supply 500W', qty:300, cost:24.50 },
+    { sku:'SZ-CBL-HDMI2', desc:'HDMI 2.1 Cable 6ft', qty:1000, cost:3.80 },
+    { sku:'SZ-MNT-WALL', desc:'Wall Mount Universal', qty:200, cost:12.40 },
+    { sku:'SZ-RMT-BT', desc:'Bluetooth Remote', qty:500, cost:6.20 },
+    { sku:'SZ-ADP-USB3', desc:'USB-C Adapter Hub', qty:400, cost:8.90 },
+    { sku:'SZ-SPK-20W', desc:'Soundbar 20W BT', qty:150, cost:32.00 },
+    { sku:'SZ-CAM-1080', desc:'Security Cam 1080p', qty:250, cost:18.50 }
+  ],
+  taipei: [
+    { sku:'TP-PCB-A10', desc:'PCB Controller A10', qty:500, cost:14.20 },
+    { sku:'TP-SEN-TEMP', desc:'Temperature Sensor', qty:2000, cost:1.85 },
+    { sku:'TP-MOD-WIFI', desc:'WiFi Module ESP32', qty:800, cost:4.50 },
+    { sku:'TP-BAT-3000', desc:'Li-Po Battery 3000mAh', qty:1500, cost:5.20 },
+    { sku:'TP-DSP-OLED', desc:'OLED Display 1.3"', qty:600, cost:7.80 },
+    { sku:'TP-CON-USB', desc:'USB-C Connector', qty:3000, cost:0.90 },
+    { sku:'TP-CHG-FAST', desc:'Fast Charger IC', qty:1000, cost:2.30 },
+    { sku:'TP-LED-RGB', desc:'RGB LED Strip 5m', qty:400, cost:6.40 }
+  ],
+  hanoi: [
+    { sku:'HN-TEX-POLY', desc:'Polyester Fabric Roll', qty:50, cost:82.00 },
+    { sku:'HN-BAG-ECO', desc:'Eco Shopping Bag', qty:5000, cost:0.45 },
+    { sku:'HN-BOX-GIFT', desc:'Gift Box Premium', qty:2000, cost:1.20 },
+    { sku:'HN-PAD-FOAM', desc:'Foam Padding Sheet', qty:800, cost:3.50 },
+    { sku:'HN-TAG-RFID', desc:'RFID Tag Roll x100', qty:100, cost:28.00 },
+    { sku:'HN-WRP-BBLE', desc:'Bubble Wrap 100m', qty:200, cost:15.50 },
+    { sku:'HN-LBL-THRM', desc:'Thermal Label Roll', qty:500, cost:4.80 },
+    { sku:'HN-STRAP-PP', desc:'PP Strapping Roll', qty:300, cost:9.20 }
+  ]
+};
+
+function runSimulation() {
+  var supplier = document.getElementById('simSupplier').value;
+  var container = document.getElementById('simContainer').value;
+  var skuCount = parseInt(document.getElementById('simSkus').value);
+  var invoiceRaw = document.getElementById('simInvoice').value.replace(/[^0-9.]/g, '');
+  var invoiceTotal = parseFloat(invoiceRaw) || 47250;
+
+  var items = sampleSkus[supplier].slice(0, Math.min(skuCount, 8));
+  var totalUnits = 0;
+  for (var i = 0; i < items.length; i++) totalUnits += items[i].qty;
+
+  var processingTime = (Math.random() * 4 + 8).toFixed(1);
+
+  // Stats
+  var grid = document.getElementById('srGrid');
+  grid.innerHTML =
+    '<div class="sr-stat"><div class="sr-stat-val">' + items.length + '</div><div class="sr-stat-label">SKUs extracted</div></div>' +
+    '<div class="sr-stat"><div class="sr-stat-val">' + totalUnits.toLocaleString() + '</div><div class="sr-stat-label">Total units</div></div>' +
+    '<div class="sr-stat"><div class="sr-stat-val">$' + (invoiceTotal/1000).toFixed(1) + 'K</div><div class="sr-stat-label">Invoice value</div></div>' +
+    '<div class="sr-stat"><div class="sr-stat-val">' + processingTime + 's</div><div class="sr-stat-label">AI processing</div></div>';
+
+  // Breakdown
+  var breakdown = document.getElementById('srBreakdown');
+  var bHtml = '';
+  for (var j = 0; j < items.length; j++) {
+    bHtml += '<div class="sr-break-row">' +
+      '<span class="sku">' + items[j].sku + ' -- ' + items[j].desc + '</span>' +
+      '<span class="qty">' + items[j].qty + ' units</span>' +
+      '<span class="cost">$' + items[j].cost.toFixed(2) + '</span>' +
+      '</div>';
+  }
+  breakdown.innerHTML = bHtml;
+
+  // Timeline
+  var timeline = document.getElementById('srTimeline');
+  var capacities = { '20ft':'14', '40ft':'30', '40hc':'37' };
+  var eta = Math.floor(Math.random() * 10 + 32);
+  var steps = [
+    { done:true, step:'PDF uploaded and parsed', detail:'pdfplumber extracted ' + (Math.floor(Math.random()*20+40)) + ' text blocks', time:'0.8s' },
+    { done:true, step:'AI structured extraction', detail:'Gemini API mapped ' + items.length + ' line items to JSON schema', time:processingTime + 's' },
+    { done:true, step:'PO cross-validation', detail:'All SKUs matched against purchase order database', time:'0.3s' },
+    { done:true, step:'Receiving records created', detail:totalUnits.toLocaleString() + ' units added to [Expected_Receipts]', time:'0.1s' },
+    { done:true, step:'In-transit inventory updated', detail:'stock_in_transit incremented for ' + items.length + ' references', time:'0.1s' },
+    { done:false, step:'Container arrival (' + capacities[container] + ' CBM)', detail:'ETA: ' + eta + ' days -- tracking auto-monitored', time:'Pending' }
+  ];
+
+  var tHtml = '';
+  for (var k = 0; k < steps.length; k++) {
+    tHtml += '<div class="tl-item">' +
+      '<div class="tl-dot' + (steps[k].done ? ' done' : '') + '"></div>' +
+      '<div class="tl-content">' +
+      '<div class="tl-step">' + steps[k].step + '</div>' +
+      '<div class="tl-detail">' + steps[k].detail + '</div>' +
+      '<div class="tl-time">' + steps[k].time + '</div>' +
+      '</div></div>';
+  }
+  timeline.innerHTML = tHtml;
+
+  document.getElementById('srTime').textContent = 'Processed in ' + processingTime + ' seconds';
+  document.getElementById('simResults').classList.add('visible');
+  document.getElementById('simResults').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+</script>
+</body>
+</html>
