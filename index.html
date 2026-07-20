@@ -148,18 +148,112 @@
       white-space: nowrap;
     }
 
-    /* CALC LINK */
-    .calc-link {
-      display: inline-block;
-      margin-top: 40px;
-      font-size: 14px;
-      color: var(--gray);
-      text-decoration: none;
-      border-bottom: 1px solid var(--light);
-      padding-bottom: 2px;
-      transition: color 0.2s, border-color 0.2s;
+    /* ROI MINI CALCULATOR */
+    .roi-calc {
+      border: 1px solid var(--light);
+      padding: 40px 48px;
+      margin-bottom: 64px;
     }
-    .calc-link:hover { color: var(--black); border-color: var(--black); }
+    .roi-calc-title {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 8px;
+    }
+    .roi-calc h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .roi-calc-sub {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 28px;
+    }
+    .roi-sliders {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 600px) {
+      .roi-sliders { grid-template-columns: 1fr; }
+      .roi-calc { padding: 28px 24px; }
+    }
+    .roi-slider {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .roi-slider-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .roi-slider-label {
+      font-size: 13px;
+      color: var(--gray);
+    }
+    .roi-slider-val {
+      font-size: 18px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.03em;
+    }
+    .roi-calc input[type=range] {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 4px;
+      background: var(--light);
+      outline: none;
+      cursor: pointer;
+    }
+    .roi-calc input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--black);
+      cursor: pointer;
+      border: 2px solid var(--white);
+      box-shadow: 0 1px 4px rgba(0,0,0,.15);
+    }
+    .roi-calc input[type=range]::-webkit-slider-thumb:hover { background: #5ee7f7; }
+    .roi-results {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--light);
+      border: 1px solid var(--light);
+    }
+    @media (max-width: 600px) {
+      .roi-results { grid-template-columns: 1fr; }
+    }
+    .roi-result {
+      background: var(--black);
+      color: var(--white);
+      padding: 24px;
+      text-align: center;
+    }
+    .roi-result-val {
+      font-size: 1.6rem;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+    .roi-result-val.loss { color: #ff6b6b; }
+    .roi-result-val.save { color: #5ee7f7; }
+    .roi-result-val.roi { color: #22c55e; }
+    .roi-result-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+    }
 
     /* LANGUAGE SWITCH */
     .language-switch {
@@ -709,7 +803,7 @@
     @media (max-width: 768px) {
       nav { padding: 20px 24px; }
       nav ul { display: none; }
-      .language-switch { display: none; }
+      .language-switch { display: flex; }
       .menu-toggle { display: flex; }
       .hero-content { padding: 100px 24px 60px; }
       section { padding: 72px 24px; }
@@ -764,8 +858,9 @@
       gap: 24px;
     }
     .plan-card.featured {
-      background: var(--black);
-      color: var(--white);
+      background: #f0fdff;
+      border: 2px solid #5ee7f7;
+      position: relative;
     }
     .plan-tag {
       font-size: 11px;
@@ -773,13 +868,13 @@
       text-transform: uppercase;
       color: var(--gray);
     }
-    .plan-card.featured .plan-tag { color: var(--cyan); }
+    .plan-card.featured .plan-tag { color: #0891b2; }
     .plan-name { font-size: 1.5rem; font-weight: 700; }
     .plan-price { font-size: 2rem; font-weight: 700; line-height: 1; }
     .plan-price span { font-size: 0.95rem; font-weight: 400; color: var(--gray); }
-    .plan-card.featured .plan-price span { color: #999; }
+    .plan-card.featured .plan-price span { color: var(--gray); }
     .plan-divider { height: 1px; background: var(--light); }
-    .plan-card.featured .plan-divider { background: #333; }
+    .plan-card.featured .plan-divider { background: rgba(94,231,247,.3); }
     .plan-features {
       list-style: none;
       display: flex;
@@ -800,7 +895,7 @@
       color: var(--cyan);
       font-size: 0.8rem;
     }
-    .plan-card.featured .plan-features li { color: #bbb; }
+    .plan-card.featured .plan-features li { color: var(--gray); }
     .plan-cta {
       display: inline-block;
       padding: 14px 28px;
@@ -816,8 +911,8 @@
       text-align: center;
     }
     .plan-cta:hover { background: var(--black); color: var(--white); }
-    .plan-card.featured .plan-cta { border-color: var(--white); color: var(--white); }
-    .plan-card.featured .plan-cta:hover { background: var(--white); color: var(--black); }
+    .plan-card.featured .plan-cta { border-color: #0891b2; color: #0891b2; }
+    .plan-card.featured .plan-cta:hover { background: #0891b2; color: var(--white); }
 
     /* HERO ROTATING */
     #heroTitle, #heroSub { transition: opacity 0.5s ease; }
@@ -1064,10 +1159,10 @@
       border: 1px solid var(--light);
       gap: 32px;
     }
-    .impl-banner { background: var(--black); color: var(--white); }
+    .impl-banner { background: #f8fafb; border-color: var(--gray); }
     .pilot-left h3, .impl-left h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
     .pilot-left p, .impl-left p { font-size: 0.9rem; color: var(--gray); max-width: 480px; }
-    .impl-left p { color: #999; }
+    .impl-left p { color: var(--gray); }
     .pilot-right, .impl-right {
       display: flex;
       flex-direction: column;
@@ -1077,12 +1172,12 @@
     }
     .pilot-price { font-size: 2.5rem; font-weight: 700; }
     .impl-price { font-size: 1.6rem; font-weight: 700; white-space: nowrap; }
-    .impl-price em { font-style: normal; font-size: 1rem; font-weight: 400; color: #999; }
+    .impl-price em { font-style: normal; font-size: 1rem; font-weight: 400; color: var(--gray); }
     .plan-cta-dark {
-      border-color: var(--white) !important;
-      color: var(--white) !important;
+      border-color: var(--black) !important;
+      color: var(--black) !important;
     }
-    .plan-cta-dark:hover { background: var(--white) !important; color: var(--black) !important; }
+    .plan-cta-dark:hover { background: var(--black) !important; color: var(--white) !important; }
 
     /* EXTRAS */
     .plans-extras {
@@ -1189,7 +1284,7 @@
     <ul>
       <li class="has-dropdown"><a href="#solutions">Solutions</a>
         <div class="nav-dropdown">
-          <a href="/calculadora/?lang=en">ROI Calculator</a>
+          <a href="#plans">ROI Calculator</a>
         </div>
       </li>
       <li><a href="#about">About</a></li>
@@ -1208,7 +1303,7 @@
   <!-- MOBILE DRAWER -->
   <div class="mobile-drawer" id="mobileDrawer">
     <a href="#solutions" onclick="closeMenu()">Solutions</a>
-    <a href="/calculadora/?lang=en" onclick="closeMenu()">ROI Calculator</a>
+    <a href="#plans" onclick="closeMenu()">ROI Calculator</a>
     <a href="#about" onclick="closeMenu()">About</a>
     <a href="#plans" onclick="closeMenu()">Plans</a>
     <a href="/agendar/?lang=en" onclick="closeMenu()">Schedule a call</a>
@@ -1278,7 +1373,6 @@
         <p>Automated communication with your customers at the right moment. More conversions, less manual effort.</p>
       </div>
     </div>
-    <a href="/calculadora/?lang=en" class="calc-link">How much is manual operation costing you? Calculate your ROI →</a>
   </section>
 
   <hr class="divider" />
@@ -1441,6 +1535,57 @@
   <section id="plans" class="plans-section">
     <p class="plans-label">Pricing model</p>
     <h2 class="plans-heading">Start free.<br>Scale when it works.</h2>
+
+    <!-- ROI CALCULATOR -->
+    <div class="roi-calc">
+      <p class="roi-calc-title">Impact calculator</p>
+      <h3>How much is manual operation costing you?</h3>
+      <p class="roi-calc-sub">Adjust the sliders to match your operation and see your potential savings in real time.</p>
+      <div class="roi-sliders">
+        <div class="roi-slider">
+          <div class="roi-slider-top">
+            <span class="roi-slider-label">Quotes per day</span>
+            <span class="roi-slider-val" id="roiValQ">15</span>
+          </div>
+          <input type="range" id="roiQ" min="1" max="100" value="15" oninput="calcROI()">
+        </div>
+        <div class="roi-slider">
+          <div class="roi-slider-top">
+            <span class="roi-slider-label">Minutes per quote</span>
+            <span class="roi-slider-val" id="roiValM">25</span>
+          </div>
+          <input type="range" id="roiM" min="5" max="120" value="25" oninput="calcROI()">
+        </div>
+        <div class="roi-slider">
+          <div class="roi-slider-top">
+            <span class="roi-slider-label">Team members</span>
+            <span class="roi-slider-val" id="roiValT">3</span>
+          </div>
+          <input type="range" id="roiT" min="1" max="20" value="3" oninput="calcROI()">
+        </div>
+        <div class="roi-slider">
+          <div class="roi-slider-top">
+            <span class="roi-slider-label">Avg. monthly salary (USD)</span>
+            <span class="roi-slider-val" id="roiValS">$3,000</span>
+          </div>
+          <input type="range" id="roiS" min="500" max="15000" value="3000" step="100" oninput="calcROI()">
+        </div>
+      </div>
+      <div class="roi-results">
+        <div class="roi-result">
+          <div class="roi-result-val loss" id="roiLoss">$0</div>
+          <div class="roi-result-label">Monthly loss</div>
+        </div>
+        <div class="roi-result">
+          <div class="roi-result-val save" id="roiSave">$0</div>
+          <div class="roi-result-label">Monthly savings</div>
+        </div>
+        <div class="roi-result">
+          <div class="roi-result-val roi" id="roiYear">$0</div>
+          <div class="roi-result-label">12-month ROI</div>
+        </div>
+      </div>
+    </div>
 
     <!-- Step 1: Pilot -->
     <div class="plans-step">
@@ -1719,6 +1864,35 @@
       card.addEventListener('mouseenter', () => { const gen = (demoGen[id] || 0) + 1; demoGen[id] = gen; runDemo(id, card, gen); });
       card.addEventListener('mouseleave', () => { demoGen[id] = (demoGen[id] || 0) + 1; });
     });
+  </script>
+
+  <script>
+  /* ROI CALCULATOR */
+  function calcROI() {
+    var q = parseInt(document.getElementById('roiQ').value);
+    var m = parseInt(document.getElementById('roiM').value);
+    var t = parseInt(document.getElementById('roiT').value);
+    var s = parseInt(document.getElementById('roiS').value);
+    document.getElementById('roiValQ').textContent = q;
+    document.getElementById('roiValM').textContent = m;
+    document.getElementById('roiValT').textContent = t;
+    document.getElementById('roiValS').textContent = '$' + s.toLocaleString('en-US');
+    var hourly = s / (22 * 8);
+    var hoursMonth = (q * m / 60) * 22;
+    var totalTeamHours = t * 22 * 8;
+    var fraction = Math.min(hoursMonth / totalTeamHours, 1);
+    var manualCost = fraction * t * s;
+    var errorCost = 5 * 4.3 * 1.5 * hourly;
+    var totalLoss = manualCost + errorCost;
+    var savings = totalLoss * 0.78;
+    var planCost = 450;
+    var roi12 = (savings - planCost) * 12;
+    function f(n) { return n >= 1000 ? '$' + (n/1000).toFixed(1).replace('.0','') + 'K' : '$' + Math.round(n).toLocaleString('en-US'); }
+    document.getElementById('roiLoss').textContent = f(totalLoss);
+    document.getElementById('roiSave').textContent = f(savings);
+    document.getElementById('roiYear').textContent = roi12 > 0 ? f(roi12) : '--';
+  }
+  calcROI();
   </script>
 
 </body>
