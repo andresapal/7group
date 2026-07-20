@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trial Monitor · 7Group</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',-apple-system,sans-serif;background:#0a0a0a;color:#f5f5f5;min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+
+:root{
+  --black:#0a0a0a;--white:#f5f5f5;--gray:#6b6b6b;
+  --cyan:#5ee7f7;--green:#2ecc71;--yellow:#f1c40f;--orange:#e67e22;--red:#e74c3c;
+  --border:rgba(245,245,245,.08);
+}
+
+/* PIN GATE */
+.pin-gate{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#0a0a0a;z-index:1000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;
+}
+.pin-gate.hidden{display:none}
+.pin-gate h2{font-size:24px;font-weight:800;color:var(--white)}
+.pin-gate p{font-size:14px;color:#555}
+.pin-input{
+  width:200px;padding:14px;text-align:center;font-size:24px;letter-spacing:12px;
+  background:#111;border:1px solid var(--border);border-radius:10px;color:var(--white);
+  font-family:'Inter',sans-serif;
+}
+.pin-input:focus{outline:none;border-color:rgba(94,231,247,.4)}
+.pin-error{font-size:13px;color:var(--red);display:none}
+
+/* NAV */
+.topbar{
+  background:rgba(10,10,10,.95);backdrop-filter:blur(12px);
+  padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.topbar-logo{font-size:16px;font-weight:800;color:var(--white)}
+.topbar-badge{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.btn-add{
+  padding:8px 16px;background:var(--cyan);color:#0a0a0a;border:none;border-radius:8px;
+  font-size:12px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;
+  letter-spacing:.5px;transition:all .2s;
+}
+.btn-add:hover{filter:brightness(1.1)}
+
+/* STATS */
+.stats-bar{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:12px;
+  padding:20px 24px;border-bottom:1px solid var(--border);
+}
+@media(max-width:640px){.stats-bar{grid-template-columns:repeat(3,1fr)}}
+.stat{
+  padding:16px;background:#111;border:1px solid var(--border);border-radius:10px;
+  text-align:center;
+}
+.stat-val{font-size:28px;font-weight:800;color:var(--white);line-height:1}
+.stat-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:4px;font-weight:600}
+
+/* PIPELINE STAGES */
+.pipeline-bar{
+  display:flex;gap:0;padding:20px 24px 0;overflow-x:auto;
+}
+.stage-tab{
+  flex:1;padding:12px 16px;text-align:center;cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .2s;min-width:120px;
+}
+.stage-tab:hover{background:rgba(245,245,245,.02)}
+.stage-tab.active{border-bottom-color:var(--cyan)}
+.stage-tab .st-count{font-size:20px;font-weight:800;color:var(--white)}
+.stage-tab .st-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.stage-tab.active .st-label{color:var(--cyan)}
+
+/* CARDS LIST */
+.cards-area{padding:20px 24px}
+.card-list{display:flex;flex-direction:column;gap:12px}
+
+.trial-card{
+  background:#111;border:1px solid var(--border);border-radius:12px;
+  padding:20px;transition:border-color .2s;position:relative;overflow:hidden;
+}
+.trial-card:hover{border-color:rgba(245,245,245,.15)}
+.trial-card::before{
+  content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+}
+.trial-card.stage-new::before{background:var(--cyan)}
+.trial-card.stage-active::before{background:var(--green)}
+.trial-card.stage-mid::before{background:var(--yellow)}
+.trial-card.stage-urgent::before{background:var(--orange)}
+.trial-card.stage-expired::before{background:var(--red)}
+
+.tc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.tc-name{font-size:16px;font-weight:700;color:var(--white)}
+.tc-company{font-size:13px;color:#555;margin-top:2px}
+.tc-badge{
+  font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;
+}
+.tc-badge.new{background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.2)}
+.tc-badge.active{background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.2)}
+.tc-badge.mid{background:rgba(241,196,15,.1);color:var(--yellow);border:1px solid rgba(241,196,15,.2)}
+.tc-badge.urgent{background:rgba(230,126,34,.1);color:var(--orange);border:1px solid rgba(230,126,34,.2)}
+.tc-badge.expired{background:rgba(231,76,60,.1);color:var(--red);border:1px solid rgba(231,76,60,.2)}
+
+.tc-progress{margin-bottom:12px}
+.tc-progress-bar{
+  width:100%;height:6px;background:rgba(245,245,245,.06);border-radius:3px;overflow:hidden;
+}
+.tc-progress-fill{height:100%;border-radius:3px;transition:width .3s}
+.tc-progress-text{display:flex;justify-content:space-between;margin-top:6px}
+.tc-progress-text span{font-size:11px;color:#555}
+.tc-progress-text strong{color:var(--white);font-size:11px}
+
+.tc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+@media(max-width:500px){.tc-grid{grid-template-columns:1fr 1fr}}
+.tc-field{padding:10px;background:rgba(245,245,245,.02);border-radius:6px}
+.tc-field-label{font-size:9px;color:#444;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:2px}
+.tc-field-val{font-size:13px;color:var(--white);font-weight:500;word-break:break-all}
+
+.tc-alerts{display:flex;gap:8px;flex-wrap:wrap}
+.tc-alert{
+  font-size:11px;padding:4px 10px;border-radius:6px;font-weight:600;
+  display:flex;align-items:center;gap:4px;
+}
+.tc-alert.pending{background:rgba(245,245,245,.04);color:#555}
+.tc-alert.today{background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.2)}
+.tc-alert.past{background:rgba(245,245,245,.02);color:#333;text-decoration:line-through}
+
+.tc-actions{display:flex;gap:8px;margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
+.tc-btn{
+  padding:8px 14px;border:1px solid var(--border);border-radius:6px;
+  background:transparent;color:#888;font-size:11px;font-weight:600;
+  cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;
+}
+.tc-btn:hover{border-color:rgba(94,231,247,.3);color:var(--cyan)}
+.tc-btn.danger:hover{border-color:rgba(231,76,60,.3);color:var(--red)}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:80px 24px}
+.empty-state h3{font-size:20px;font-weight:700;color:var(--white);margin-bottom:8px}
+.empty-state p{font-size:14px;color:#555;max-width:400px;margin:0 auto}
+
+/* ADD MODAL */
+.modal-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.7);z-index:200;display:none;
+  align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.visible{display:flex}
+.modal{
+  background:#111;border:1px solid var(--border);border-radius:16px;
+  padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;
+}
+.modal h3{font-size:18px;font-weight:800;color:var(--white);margin-bottom:20px}
+.modal .form-group{margin-bottom:14px}
+.modal .form-group label{display:block;font-size:11px;color:#555;margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+.modal .form-group input,.modal .form-group select{
+  width:100%;padding:10px 14px;background:#0a0a0a;border:1px solid var(--border);
+  border-radius:8px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;
+}
+.modal .form-group input:focus,.modal .form-group select:focus{outline:none;border-color:rgba(94,231,247,.4)}
+.modal .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.modal-btns button{flex:1;padding:12px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.modal-btns .btn-cancel{background:transparent;border:1px solid var(--border);color:#888}
+.modal-btns .btn-save{background:var(--cyan);border:none;color:#0a0a0a}
+</style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div class="pin-gate" id="pinGate">
+  <h2>Trial Monitor</h2>
+  <p>Ingresa el PIN para acceder</p>
+  <input type="password" class="pin-input" id="pinInput" maxlength="4" inputmode="numeric" autocomplete="off">
+  <p class="pin-error" id="pinError">PIN incorrecto</p>
+</div>
+
+<!-- TOPBAR -->
+<nav class="topbar" id="topbar" style="display:none">
+  <div class="topbar-left">
+    <span class="topbar-logo">7group</span>
+    <span class="topbar-badge">Trial Monitor</span>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-add" id="btnAdd" onclick="openModal()">+ Agregar lead</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="mainApp" style="display:none">
+
+  <!-- STATS -->
+  <div class="stats-bar" id="statsBar"></div>
+
+  <!-- PIPELINE TABS -->
+  <div class="pipeline-bar" id="pipelineTabs"></div>
+
+  <!-- CARDS -->
+  <div class="cards-area">
+    <div class="card-list" id="cardList"></div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Agregar lead</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre *</label>
+        <input type="text" id="mName" placeholder="Nombre completo">
+      </div>
+      <div class="form-group">
+        <label>Empresa</label>
+        <input type="text" id="mCompany" placeholder="Empresa">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" id="mEmail" placeholder="correo@empresa.com">
+      </div>
+      <div class="form-group">
+        <label>Telefono</label>
+        <input type="tel" id="mPhone" placeholder="+57 300 000 0000">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Tipo de negocio</label>
+      <select id="mIndustry">
+        <option value="">-- Selecciona --</option>
+        <option value="logistica">Logistica / Distribucion</option>
+        <option value="retail">Retail / Comercio</option>
+        <option value="administradores">Administradores de Propiedad</option>
+        <option value="contadores">Contadores / Contabilidad</option>
+        <option value="bicicletas">Tiendas de Bicicletas</option>
+        <option value="aseguradoras">Aseguradoras / Seguros</option>
+        <option value="alimentos">Alimentos / Restaurantes</option>
+        <option value="salud">Salud / Bienestar</option>
+        <option value="construccion">Construccion / Remodelacion</option>
+        <option value="educacion">Educacion / Formacion</option>
+        <option value="tecnologia">Tecnologia / SaaS</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fecha inicio trial</label>
+        <input type="date" id="mTrialStart">
+      </div>
+      <div class="form-group">
+        <label>Reunion agendada</label>
+        <input type="date" id="mMeeting">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" id="btnSave" onclick="saveLead()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var PIN = '7741';
+var TRIAL_DAYS = 30;
+var ALERT_DAYS = [10, 15, 20, 30];
+
+var STAGES = [
+  { key:'all', label:'Todos', color:'var(--white)' },
+  { key:'new', label:'Nuevos (0-9d)', color:'var(--cyan)' },
+  { key:'active', label:'Activos (10-14d)', color:'var(--green)' },
+  { key:'mid', label:'Mitad (15-19d)', color:'var(--yellow)' },
+  { key:'urgent', label:'Urgente (20-29d)', color:'var(--orange)' },
+  { key:'expired', label:'Vencidos (30d+)', color:'var(--red)' }
+];
+
+var currentFilter = 'all';
+var editingId = null;
+
+// PIN
+var pinInput = document.getElementById('pinInput');
+pinInput.addEventListener('input', function() {
+  if (this.value.length === 4) {
+    if (this.value === PIN) {
+      document.getElementById('pinGate').classList.add('hidden');
+      document.getElementById('topbar').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'block';
+      sessionStorage.setItem('7g_monitor_auth', '1');
+      renderAll();
+    } else {
+      document.getElementById('pinError').style.display = 'block';
+      this.value = '';
+      this.focus();
+    }
+  }
+});
+
+if (sessionStorage.getItem('7g_monitor_auth') === '1') {
+  document.getElementById('pinGate').classList.add('hidden');
+  document.getElementById('topbar').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'block';
+  renderAll();
+}
+
+pinInput.focus();
+
+// DATA
+function getTrials() {
+  return JSON.parse(localStorage.getItem('7g_trials') || '[]');
+}
+function saveTrials(trials) {
+  localStorage.setItem('7g_trials', JSON.stringify(trials));
+}
+
+function getTrialDay(trial) {
+  var start = new Date(trial.trialStart || trial.created);
+  var now = new Date();
+  return Math.floor((now - start) / (1000 * 60 * 60 * 24));
+}
+
+function getStage(day) {
+  if (day < 10) return 'new';
+  if (day < 15) return 'active';
+  if (day < 20) return 'mid';
+  if (day < 30) return 'urgent';
+  return 'expired';
+}
+
+function getStageLabel(stage) {
+  for (var i = 0; i < STAGES.length; i++) {
+    if (STAGES[i].key === stage) return STAGES[i].label;
+  }
+  return '';
+}
+
+function getStageColor(stage) {
+  var map = { new:'var(--cyan)', active:'var(--green)', mid:'var(--yellow)', urgent:'var(--orange)', expired:'var(--red)' };
+  return map[stage] || 'var(--white)';
+}
+
+// RENDER
+function renderAll() {
+  var trials = getTrials();
+  renderStats(trials);
+  renderPipeline(trials);
+  renderCards(trials);
+}
+
+function renderStats(trials) {
+  var now = new Date();
+  var total = trials.length;
+  var active = 0, expiring = 0, expired = 0, conv = 0;
+  for (var i = 0; i < trials.length; i++) {
+    var day = getTrialDay(trials[i]);
+    var stage = getStage(day);
+    if (stage === 'new' || stage === 'active') active++;
+    if (stage === 'mid' || stage === 'urgent') expiring++;
+    if (stage === 'expired') expired++;
+    if (trials[i].converted) conv++;
+  }
+  var html = '';
+  html += '<div class="stat"><div class="stat-val">' + total + '</div><div class="stat-label">Total leads</div></div>';
+  html += '<div class="stat"><div class="stat-val" style="color:var(--green)">' + active + '</div><div class="stat-label">Activos</div></div>';
+  html += '<div class="stat"><div class="stat-val" style="color:var(--yellow)">' + expiring + '</div><div class="stat-label">Por vencer</div></div>';
+  html += '<div class="stat"><div class="stat-val" style="color:var(--red)">' + expired + '</div><div class="stat-label">Vencidos</div></div>';
+  html += '<div class="stat"><div class="stat-val" style="color:var(--cyan)">' + conv + '</div><div class="stat-label">Convertidos</div></div>';
+  document.getElementById('statsBar').innerHTML = html;
+}
+
+function renderPipeline(trials) {
+  var counts = { all:trials.length, new:0, active:0, mid:0, urgent:0, expired:0 };
+  for (var i = 0; i < trials.length; i++) {
+    var day = getTrialDay(trials[i]);
+    counts[getStage(day)]++;
+  }
+  var html = '';
+  for (var s = 0; s < STAGES.length; s++) {
+    var st = STAGES[s];
+    var isActive = currentFilter === st.key ? ' active' : '';
+    html += '<div class="stage-tab' + isActive + '" onclick="filterStage(\'' + st.key + '\')">';
+    html += '<div class="st-count" style="color:' + st.color + '">' + counts[st.key] + '</div>';
+    html += '<div class="st-label">' + st.label + '</div>';
+    html += '</div>';
+  }
+  document.getElementById('pipelineTabs').innerHTML = html;
+}
+
+function renderCards(trials) {
+  var list = document.getElementById('cardList');
+  var filtered = [];
+
+  for (var i = 0; i < trials.length; i++) {
+    var day = getTrialDay(trials[i]);
+    var stage = getStage(day);
+    trials[i]._day = day;
+    trials[i]._stage = stage;
+    if (currentFilter === 'all' || currentFilter === stage) {
+      filtered.push(trials[i]);
+    }
+  }
+
+  filtered.sort(function(a, b) { return b._day - a._day; });
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><h3>Sin leads en esta etapa</h3><p>Los leads aparecen automaticamente cuando alguien agenda una reunion, o puedes agregarlos manualmente.</p></div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < filtered.length; i++) {
+    html += renderCard(filtered[i]);
+  }
+  list.innerHTML = html;
+}
+
+function renderCard(trial) {
+  var day = trial._day;
+  var stage = trial._stage;
+  var pct = Math.min(100, Math.round((day / TRIAL_DAYS) * 100));
+  var remaining = Math.max(0, TRIAL_DAYS - day);
+  var color = getStageColor(stage);
+
+  var badgeLabel = day < 10 ? 'Dia ' + day : day < 15 ? 'Dia ' + day : day < 20 ? 'Dia ' + day : day < 30 ? 'Dia ' + day + ' - Urgente' : 'Vencido';
+  var badgeCls = stage;
+
+  var trialStart = new Date(trial.trialStart || trial.created);
+  var startStr = trialStart.getDate() + '/' + (trialStart.getMonth()+1) + '/' + trialStart.getFullYear();
+
+  var trialEnd = new Date(trial.trialEnd || new Date(trialStart.getTime() + TRIAL_DAYS * 86400000));
+  var endStr = trialEnd.getDate() + '/' + (trialEnd.getMonth()+1) + '/' + trialEnd.getFullYear();
+
+  var h = '<div class="trial-card stage-' + stage + '">';
+
+  h += '<div class="tc-header">';
+  h += '<div><div class="tc-name">' + esc(trial.name) + '</div>';
+  if (trial.company) h += '<div class="tc-company">' + esc(trial.company) + '</div>';
+  h += '</div>';
+  h += '<span class="tc-badge ' + badgeCls + '">' + badgeLabel + '</span>';
+  h += '</div>';
+
+  h += '<div class="tc-progress">';
+  h += '<div class="tc-progress-bar"><div class="tc-progress-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
+  h += '<div class="tc-progress-text"><span>Inicio: ' + startStr + '</span><strong>' + remaining + ' dias restantes</strong><span>Fin: ' + endStr + '</span></div>';
+  h += '</div>';
+
+  h += '<div class="tc-grid">';
+  h += field('Email', trial.email);
+  h += field('Telefono', trial.phone || '-');
+  h += field('Negocio', trial.industry || trial.industryKey || '-');
+  h += '</div>';
+
+  // Alert milestones
+  h += '<div class="tc-alerts">';
+  for (var a = 0; a < ALERT_DAYS.length; a++) {
+    var ad = ALERT_DAYS[a];
+    var cls = day >= ad ? 'past' : day === ad - 1 ? 'today' : 'pending';
+    var icon = day >= ad ? 'x' : ad === 30 ? '!' : 'o';
+    h += '<span class="tc-alert ' + cls + '">' + (ad === 30 ? 'Vence' : 'D' + ad) + '</span>';
+  }
+  h += '</div>';
+
+  h += '<div class="tc-actions">';
+  h += '<button class="tc-btn" onclick="sendFollowUp(\'' + trial.id + '\')">Enviar seguimiento</button>';
+  h += '<button class="tc-btn" onclick="markConverted(\'' + trial.id + '\')">Convertido</button>';
+  h += '<button class="tc-btn danger" onclick="removeTrial(\'' + trial.id + '\')">Eliminar</button>';
+  h += '</div>';
+
+  h += '</div>';
+  return h;
+}
+
+function field(label, val) {
+  return '<div class="tc-field"><div class="tc-field-label">' + label + '</div><div class="tc-field-val">' + esc(val) + '</div></div>';
+}
+
+function esc(s) {
+  var d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// ACTIONS
+function filterStage(key) {
+  currentFilter = key;
+  renderAll();
+}
+
+function openModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Agregar lead';
+  document.getElementById('mName').value = '';
+  document.getElementById('mCompany').value = '';
+  document.getElementById('mEmail').value = '';
+  document.getElementById('mPhone').value = '';
+  document.getElementById('mIndustry').value = '';
+  document.getElementById('mTrialStart').value = new Date().toISOString().split('T')[0];
+  document.getElementById('mMeeting').value = '';
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('visible');
+}
+
+function saveLead() {
+  var name = document.getElementById('mName').value.trim();
+  var email = document.getElementById('mEmail').value.trim();
+  if (!name || !email) { alert('Nombre y email son requeridos'); return; }
+
+  var startDate = document.getElementById('mTrialStart').value;
+  var start = startDate ? new Date(startDate + 'T00:00:00') : new Date();
+  var end = new Date(start);
+  end.setDate(end.getDate() + TRIAL_DAYS);
+
+  var indSel = document.getElementById('mIndustry');
+  var indText = indSel.selectedIndex > 0 ? indSel.options[indSel.selectedIndex].text : '';
+
+  var trial = {
+    id: Date.now().toString(36),
+    name: name,
+    email: email,
+    phone: document.getElementById('mPhone').value.trim(),
+    company: document.getElementById('mCompany').value.trim(),
+    industry: indText,
+    industryKey: indSel.value,
+    meeting: document.getElementById('mMeeting').value || '',
+    trialStart: start.toISOString(),
+    trialEnd: end.toISOString(),
+    created: new Date().toISOString()
+  };
+
+  var trials = getTrials();
+  trials.push(trial);
+  saveTrials(trials);
+  closeModal();
+  renderAll();
+}
+
+function removeTrial(id) {
+  if (!confirm('Eliminar este lead?')) return;
+  var trials = getTrials().filter(function(t) { return t.id !== id; });
+  saveTrials(trials);
+  renderAll();
+}
+
+function markConverted(id) {
+  var trials = getTrials();
+  for (var i = 0; i < trials.length; i++) {
+    if (trials[i].id === id) {
+      trials[i].converted = true;
+      trials[i].convertedDate = new Date().toISOString();
+      break;
+    }
+  }
+  saveTrials(trials);
+  renderAll();
+}
+
+function sendFollowUp(id) {
+  var trials = getTrials();
+  var trial = null;
+  for (var i = 0; i < trials.length; i++) {
+    if (trials[i].id === id) { trial = trials[i]; break; }
+  }
+  if (!trial) return;
+
+  var day = getTrialDay(trial);
+  var remaining = Math.max(0, TRIAL_DAYS - day);
+  var msg = 'Seguimiento Trial 7Group\n'
+    + '---\n'
+    + 'Lead: ' + trial.name + '\n'
+    + 'Email: ' + trial.email + '\n'
+    + (trial.phone ? 'Tel: ' + trial.phone + '\n' : '')
+    + (trial.company ? 'Empresa: ' + trial.company + '\n' : '')
+    + 'Dia del trial: ' + day + '/' + TRIAL_DAYS + '\n'
+    + 'Dias restantes: ' + remaining;
+
+  var TG_BOT = '8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I';
+  var TG_CHAT = '1081707115';
+
+  fetch('https://api.telegram.org/bot' + TG_BOT + '/sendMessage', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: TG_CHAT, text: msg })
+  }).then(function() {
+    alert('Seguimiento enviado a Telegram');
+  }).catch(function() {
+    alert('Error al enviar');
+  });
+}
+
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>

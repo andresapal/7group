@@ -988,9 +988,24 @@ function goStep3() {
     summary.appendChild(row);
   }
 
-  // Slot tracked in localStorage for smart availability
+  // Save trial to localStorage for monitor
+  var trialStart = new Date();
+  var trial = {
+    id: Date.now().toString(36),
+    name: name, email: email, phone: phone, company: company,
+    industry: industryText, industryKey: industry.value,
+    meeting: dayName + ', ' + dateStr + ' - ' + timeStr + ' ET',
+    meetingDate: d.toISOString(),
+    trialStart: trialStart.toISOString(),
+    trialEnd: trialEnd.toISOString(),
+    lang: lang,
+    created: trialStart.toISOString()
+  };
+  var trials = JSON.parse(localStorage.getItem('7g_trials') || '[]');
+  trials.push(trial);
+  localStorage.setItem('7g_trials', JSON.stringify(trials));
 
-  sendNotifications(name, email, phone, company, industryText, dayName, dateStr, timeStr, trialStr);
+  sendNotifications(name, email, phone, company, industryText, dayName, dateStr, timeStr, trialStr, trialEnd);
 
   document.getElementById('panel2').classList.remove('visible');
   document.getElementById('panel3').classList.add('visible');
@@ -999,9 +1014,20 @@ function goStep3() {
 }
 
 // ─── NOTIFICATIONS ─────────────────────────────
-function sendNotifications(name, email, phone, company, industry, dayName, dateStr, timeStr, trialStr) {
+function sendNotifications(name, email, phone, company, industry, dayName, dateStr, timeStr, trialStr, trialEndDate) {
   var langLabel = lang === 'en' ? 'EN' : 'ES';
   var scheduleStr = dayName + ' ' + dateStr + ', ' + timeStr + ' ET';
+
+  var alertDays = [10, 15, 20, 30];
+  var now = new Date();
+  var alertLines = '';
+  for (var a = 0; a < alertDays.length; a++) {
+    var ad = new Date(now);
+    ad.setDate(ad.getDate() + alertDays[a]);
+    var adStr = ad.getDate() + '/' + (ad.getMonth()+1) + '/' + ad.getFullYear();
+    var label = alertDays[a] === 30 ? 'VENCE' : 'Dia ' + alertDays[a];
+    alertLines += (alertDays[a] === 30 ? '🔴 ' : '📌 ') + label + ': ' + adStr + '\n';
+  }
 
   if (TG_BOT && TG_CHAT) {
     var tg = '*Nueva cita - 7Group*\n'
@@ -1013,7 +1039,10 @@ function sendNotifications(name, email, phone, company, industry, dayName, dateS
       + (company ? 'Empresa: ' + company + '\n' : '')
       + (industry !== '-' ? 'Negocio: ' + industry + '\n' : '')
       + 'Horario: ' + scheduleStr + '\n'
-      + 'Vencimiento prueba: ' + trialStr;
+      + '---\n'
+      + '*Alertas trial 30 dias:*\n'
+      + alertLines
+      + 'Vencimiento: ' + trialStr;
     fetch('https://api.telegram.org/bot' + TG_BOT + '/sendMessage', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
