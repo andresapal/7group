@@ -1,1112 +1,1316 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Logistics Intelligence Platform · 7Group</title>
+<title>Receiving & Document Intelligence -- 7Group Logistics</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',-apple-system,sans-serif;background:#060a0e;color:#e2e8f0;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
 h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
 code,.mono{font-family:'JetBrains Mono',monospace}
-
 :root{
-  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
   --white:#e2e8f0;--dim:#64748b;--muted:#334155;
   --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
   --blue:#3b82f6;--purple:#a78bfa;
-  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+  --select-arrow:%2364748b;
+  --sheets-head:#0f7b3e;--sheets-bg:#1a2332;--sheets-th:#1e3a2f;--sheets-th-color:#86efac;
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+  --select-arrow:%230f172a;
+  --sheets-bg:#f8fafb;--sheets-th:#e6f4ea;--sheets-th-color:#166534;
 }
 
 /* TOPBAR */
-.topbar{
-  background:rgba(6,10,14,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);
-}
-.tb-left{display:flex;align-items:center;gap:14px}
-.tb-logo{font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.5px}
-.tb-sep{width:1px;height:20px;background:var(--border2)}
-.tb-badge{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
-.tb-right{display:flex;align-items:center;gap:16px}
-.tb-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
-.tb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.tb-btn{
-  padding:7px 14px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);
-  border-radius:6px;color:var(--cyan);font-size:11px;font-weight:600;cursor:pointer;
-  font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;
-}
-.tb-btn:hover{background:rgba(94,231,247,.15);border-color:rgba(94,231,247,.3)}
-@media(max-width:640px){.topbar{padding:0 16px}.tb-status{display:none}}
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:rgba(94,231,247,.15)}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.tb-toggle.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}
+.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
 
-/* HERO COMMAND */
-.hero-cmd{
-  padding:48px 32px 40px;
-  background:linear-gradient(180deg,rgba(94,231,247,.03) 0%,transparent 100%);
-  border-bottom:1px solid var(--border);
-}
-.hero-inner{max-width:960px;margin:0 auto}
-.hero-tag{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
-  color:var(--cyan);margin-bottom:16px;
-}
-.hero-tag::before{content:'';width:8px;height:1px;background:var(--cyan)}
-.hero-cmd h1{
-  font-size:clamp(28px,4vw,42px);font-weight:800;line-height:1.1;
-  color:var(--white);margin-bottom:12px;
-}
-.hero-cmd h1 span{color:var(--cyan)}
-.hero-sub{font-size:15px;color:var(--dim);line-height:1.7;max-width:640px}
+/* STEPS BAR */
+.steps-bar{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;-webkit-overflow-scrolling:touch;transition:background .3s}
+.step-tab{padding:14px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.2s;display:flex;align-items:center;gap:8px}
+.step-tab:hover{color:var(--white)}
+.step-tab.active{color:var(--cyan);border-color:var(--cyan)}
+.step-tab.done{color:var(--green)}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--bg3);border:1px solid var(--border3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.step-tab.active .step-num{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+.step-tab.done .step-num{background:rgba(34,197,94,.1);border-color:var(--green);color:var(--green)}
 
-/* OPERATION MAP */
-.op-map{
-  margin-top:32px;padding:24px;
-  background:var(--bg2);border:1px solid var(--border);border-radius:14px;
-  overflow-x:auto;
-}
-.pipeline-flow{
-  display:flex;align-items:center;gap:0;min-width:700px;justify-content:center;
-}
-.pf-node{
-  text-align:center;padding:16px 20px;
-  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
-  min-width:120px;transition:all .3s;position:relative;
-}
-.pf-node.active{border-color:rgba(94,231,247,.3);background:rgba(94,231,247,.04)}
-.pf-node.manual{border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.03)}
-.pf-icon{font-size:11px;color:var(--dim);margin-bottom:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
-.pf-node.active .pf-icon{color:var(--cyan)}
-.pf-node.manual .pf-icon{color:var(--red)}
-.pf-label{font-size:14px;font-weight:700;color:var(--white)}
-.pf-sub{font-size:11px;color:var(--dim);margin-top:4px}
-.pf-node.manual .pf-sub{color:var(--red)}
-.pf-arrow{
-  width:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.pf-arrow svg{width:20px;height:20px;color:var(--muted)}
+/* MAIN */
+.main{max-width:1000px;margin:0 auto;padding:24px}
+.panel{display:none}
+.panel.active{display:block}
 
-/* MODULES GRID */
-.modules{max-width:960px;margin:0 auto;padding:32px 32px 80px}
-@media(max-width:640px){.modules{padding:24px 16px 60px}}
+/* SECTION */
+.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:16px;overflow:hidden;transition:background .3s,border-color .3s}
+.sec-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sec-title{font-size:13px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:8px}
+.sec-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.tag-required{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}
+.tag-optional{background:rgba(100,116,139,.1);color:var(--dim);border:1px solid rgba(100,116,139,.15)}
+.tag-done{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.tag-processing{background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)}
+.sec-body{padding:20px}
 
-.section-head{
-  display:flex;align-items:center;gap:10px;margin-bottom:24px;margin-top:48px;
-}
-.section-head::before{content:'';width:3px;height:20px;background:var(--cyan);border-radius:2px}
-.section-head h2{font-size:20px;font-weight:800;color:var(--white)}
-.section-head:first-child{margin-top:0}
+/* CARGO TYPE GRID */
+.cargo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.cargo-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:14px;cursor:pointer;transition:.2s;text-align:center}
+.cargo-card:hover{border-color:var(--cyan);background:var(--bg4)}
+.cargo-card.selected{border-color:var(--cyan);background:rgba(94,231,247,.06);box-shadow:0 0 0 1px var(--cyan)}
+.cargo-icon{font-size:24px;margin-bottom:8px;display:block;font-family:'JetBrains Mono',monospace;color:var(--cyan);font-weight:700}
+.cargo-name{font-size:12px;font-weight:600;color:var(--white);margin-bottom:2px}
+.cargo-spec{font-size:10px;color:var(--dim)}
 
-/* MODULE CARDS */
-.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:640px){.mod-grid{grid-template-columns:1fr}}
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.form-input,.form-select{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:10px 12px;font-size:13px;color:var(--white);font-family:inherit;outline:none;transition:.2s;width:100%}
+.form-input:focus,.form-select:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.form-select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='var(--select-arrow)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+.form-select option{background:var(--bg2);color:var(--white)}
 
-.mod-card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
-  padding:24px;transition:all .3s;cursor:default;position:relative;overflow:hidden;
-}
-.mod-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.mod-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0;transition:opacity .3s;
-}
-.mod-card:hover::before{opacity:1}
+/* BUTTONS */
+.btn{padding:10px 20px;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--cyan);color:#060a0e}
+.btn-primary:hover{background:#7bf0ff}
+.btn-secondary{background:var(--bg3);color:var(--white);border:1px solid var(--border3)}
+.btn-secondary:hover{border-color:var(--cyan)}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}
+.btn-sm{padding:6px 12px;font-size:11px}
+.btn-block{width:100%;justify-content:center}
+.actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
 
-.mc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
-.mc-icon{
-  width:40px;height:40px;border-radius:10px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  border:1px solid var(--border);
-}
-.mc-icon svg{width:18px;height:18px}
-.mc-tag{
-  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  padding:3px 8px;border-radius:4px;
-}
+/* DOCS LIST */
+.doc-list{display:flex;flex-direction:column;gap:8px}
+.doc-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;transition:.2s}
+.doc-item.processed{border-color:rgba(34,197,94,.2)}
+.doc-item.processing{border-color:rgba(94,231,247,.2);animation:docPulse 1.5s infinite}
+@keyframes docPulse{0%,100%{background:var(--bg3)}50%{background:rgba(94,231,247,.04)}}
+.doc-icon{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.doc-icon.pdf{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.1)}
+.doc-icon.img{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.1)}
+.doc-icon.ok{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.1)}
+.doc-info{flex:1;min-width:0}
+.doc-name{font-size:13px;font-weight:600;color:var(--white)}
+.doc-desc{font-size:11px;color:var(--dim);margin-top:1px}
+.doc-status{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.doc-upload{padding:7px 14px;background:var(--bg4);border:1px dashed var(--border3);border-radius:6px;font-size:11px;font-weight:600;color:var(--dim);cursor:pointer;transition:.2s;font-family:inherit;white-space:nowrap}
+.doc-upload:hover{border-color:var(--cyan);color:var(--cyan)}
 
-.mc-title{font-size:16px;font-weight:700;color:var(--white);margin-bottom:6px}
-.mc-desc{font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:16px}
+/* OCR RESULTS */
+.ocr-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:16px;margin-top:12px}
+.ocr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ocr-title{font-size:12px;font-weight:700;color:var(--cyan)}
+.ocr-engine{font-size:10px;color:var(--dim)}
+.ocr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.ocr-field{padding:10px;background:var(--bg2);border-radius:6px;border:1px solid var(--border)}
+.ocr-field-label{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.ocr-field-val{font-size:13px;font-weight:600;color:var(--white);font-family:'JetBrains Mono',monospace}
+.ocr-field-val.match{color:var(--green)}
+.ocr-field-val.warn{color:var(--yellow)}
+.ocr-field-val.error{color:var(--red)}
 
-.mc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.mc-metric{padding:10px;background:var(--bg3);border-radius:6px}
-.mc-metric-val{font-size:18px;font-weight:800;letter-spacing:-.5px;line-height:1}
-.mc-metric-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:600}
-
-/* INTERACTIVE SIMULATOR */
-.sim-card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
-  padding:24px;margin-top:16px;
-}
-.sim-title{font-size:14px;font-weight:700;color:var(--white);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.sim-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-
-.sim-import{display:flex;flex-direction:column;gap:12px}
-.sim-row{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:center}
-@media(max-width:500px){.sim-row{grid-template-columns:1fr}}
-.sim-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-.sim-input{
-  width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:6px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;
-}
-.sim-input:focus{outline:none;border-color:rgba(94,231,247,.3)}
-.sim-select{
-  width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:6px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;
-  appearance:none;-webkit-appearance:none;cursor:pointer;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;
-}
-.sim-select option{background:var(--bg3)}
-
-.sim-btn{
-  padding:12px 24px;background:var(--cyan);color:var(--bg);border:none;border-radius:8px;
-  font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
-  transition:all .2s;margin-top:8px;
-}
-.sim-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
-
-/* SIMULATION RESULTS */
-.sim-results{
-  margin-top:20px;padding:20px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:10px;display:none;animation:fadeIn .4s ease;
-}
-.sim-results.visible{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-.sr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.sr-title{font-size:13px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px}
-.sr-time{font-size:11px;color:var(--dim)}
-
-.sr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-@media(max-width:640px){.sr-grid{grid-template-columns:repeat(2,1fr)}}
-.sr-stat{text-align:center;padding:12px 8px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)}
-.sr-stat-val{font-size:20px;font-weight:800;color:var(--white);letter-spacing:-.5px}
-.sr-stat-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;font-weight:600}
-
-.sr-breakdown{margin-top:16px}
-.sr-break-title{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:10px}
-.sr-break-rows{display:flex;flex-direction:column;gap:6px}
-.sr-break-row{
-  display:grid;grid-template-columns:1fr 100px 80px;gap:8px;align-items:center;
-  padding:8px 12px;background:var(--bg2);border-radius:6px;font-size:12px;
-}
-.sr-break-row .sku{color:var(--white);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px}
-.sr-break-row .qty{color:var(--cyan);text-align:right;font-weight:700}
-.sr-break-row .cost{color:var(--dim);text-align:right}
-
-/* TIMELINE */
-.timeline{margin-top:16px}
-.tl-item{
-  display:flex;gap:16px;padding:12px 0;
-  border-bottom:1px solid var(--border);
-}
-.tl-item:last-child{border:none}
-.tl-dot{
-  width:10px;height:10px;border-radius:50%;border:2px solid var(--cyan);
-  margin-top:4px;flex-shrink:0;
-}
-.tl-dot.done{background:var(--cyan)}
-.tl-content{flex:1}
-.tl-step{font-size:13px;font-weight:600;color:var(--white)}
-.tl-detail{font-size:11px;color:var(--dim);margin-top:2px}
-.tl-time{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
-
-/* KPI DASHBOARD */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
-@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-
-.kpi-card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
-  padding:20px;text-align:center;
-}
-.kpi-val{font-size:28px;font-weight:800;color:var(--white);letter-spacing:-1px;line-height:1}
-.kpi-change{font-size:11px;font-weight:700;margin-top:4px}
-.kpi-change.up{color:var(--green)}
-.kpi-change.down{color:var(--red)}
-.kpi-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-weight:600}
-.kpi-bar{width:100%;height:4px;background:var(--bg3);border-radius:2px;margin-top:8px;overflow:hidden}
-.kpi-bar-fill{height:100%;border-radius:2px;transition:width 1s ease}
-
-/* COMPARISON TABLE */
-.compare-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}
-.compare-table th{
-  padding:10px 14px;text-align:left;font-size:10px;color:var(--dim);
-  text-transform:uppercase;letter-spacing:1px;font-weight:600;
-  border-bottom:1px solid var(--border);
-}
-.compare-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
-.compare-table .process{color:var(--white);font-weight:600}
-.compare-table .before{color:var(--red)}
-.compare-table .after{color:var(--green);font-weight:600}
-.compare-table .impact{color:var(--cyan);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:12px}
-
-/* CTA SECTION */
-.cta-band{
-  max-width:960px;margin:0 auto 80px;padding:0 32px;
-}
-.cta-card{
-  background:linear-gradient(135deg,rgba(94,231,247,.06),rgba(94,231,247,.02));
-  border:1px solid rgba(94,231,247,.15);border-radius:14px;
-  padding:40px;text-align:center;
-}
-.cta-card h2{font-size:24px;font-weight:800;color:var(--white);margin-bottom:8px}
-.cta-card p{font-size:14px;color:var(--dim);margin-bottom:24px;max-width:480px;margin-inline:auto;line-height:1.6}
-.cta-main{
-  display:inline-block;padding:14px 40px;background:var(--cyan);color:var(--bg);
-  text-decoration:none;font-size:14px;font-weight:700;border-radius:10px;
-  font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;
-}
-.cta-main:hover{filter:brightness(1.1);transform:translateY(-2px)}
+/* ITEMS TABLE */
+.items-wrap{overflow-x:auto;margin-top:12px}
+.items-table{width:100%;border-collapse:collapse;font-size:12px}
+.items-table th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border2);white-space:nowrap}
+.items-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--white);white-space:nowrap}
+.items-table tr:hover td{background:rgba(94,231,247,.02)}
+.items-table .mono{font-family:'JetBrains Mono',monospace;font-size:11px}
+.items-table .match{color:var(--green)}
+.items-table .warn{color:var(--yellow)}
 
 /* SCANNER */
-.scan-section{margin-top:16px}
-.scan-btn{
-  width:100%;padding:16px;background:var(--bg3);border:2px dashed var(--border2);border-radius:12px;
-  color:var(--dim);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;
-  font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;
-}
-.scan-btn:hover{border-color:rgba(94,231,247,.3);color:var(--cyan);background:rgba(94,231,247,.03)}
-.scan-btn svg{width:22px;height:22px}
-
-.scanner-view{
-  display:none;margin-top:16px;border-radius:12px;overflow:hidden;
-  border:1px solid var(--border);position:relative;background:#000;
-}
-.scanner-view.active{display:block}
-.scanner-view video{width:100%;display:block;max-height:320px;object-fit:cover}
-.scan-overlay{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:200px;height:200px;
-  border:2px solid var(--cyan);border-radius:8px;
-  box-shadow:0 0 0 9999px rgba(0,0,0,.5);
-}
-.scan-overlay::before,.scan-overlay::after{
-  content:'';position:absolute;width:24px;height:24px;
-  border-color:var(--cyan);border-style:solid;
-}
-.scan-overlay::before{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
-.scan-overlay::after{top:-2px;right:-2px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
-.scan-line{
-  position:absolute;top:0;left:10%;width:80%;height:2px;
-  background:var(--cyan);box-shadow:0 0 8px var(--cyan);
-  animation:scanMove 2s ease-in-out infinite;
-}
-@keyframes scanMove{0%,100%{top:10%}50%{top:90%}}
-.scanner-close{
-  position:absolute;top:10px;right:10px;z-index:5;
-  width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.7);border:1px solid var(--border2);
-  color:var(--white);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-}
-.scanner-status{
-  padding:10px 16px;background:var(--bg2);font-size:12px;color:var(--dim);
-  display:flex;align-items:center;gap:8px;
-}
+.scanner-area{position:relative;background:#000;border-radius:8px;overflow:hidden;aspect-ratio:4/3;max-height:360px}
+.scanner-area video{width:100%;height:100%;object-fit:cover}
+.scan-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.scan-frame{width:70%;height:50%;border:2px solid rgba(94,231,247,.5);border-radius:8px;position:relative}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:scanLine 2s infinite}
+@keyframes scanLine{0%{top:0}50%{top:100%}100%{top:0}}
+.scanner-status{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(6,10,14,.85);padding:6px 14px;border-radius:20px;font-size:11px;color:var(--cyan);display:flex;align-items:center;gap:6px}
 .scanner-status .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
 
-.scan-manual{
-  display:flex;gap:8px;margin-top:12px;
-}
-.scan-manual input{
-  flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:6px;color:var(--white);font-size:14px;font-family:'JetBrains Mono',monospace;
-}
-.scan-manual input:focus{outline:none;border-color:rgba(94,231,247,.3)}
-.scan-manual button{
-  padding:10px 18px;background:var(--cyan);color:var(--bg);border:none;border-radius:6px;
-  font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;
-}
+/* RECEIVE CARD */
+.recv-card{display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;margin-bottom:8px;transition:.2s}
+.recv-card.scanned{border-color:rgba(34,197,94,.2)}
+.recv-card.pending{opacity:.6}
+.recv-sku{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--cyan);min-width:110px}
+.recv-desc{font-size:12px;color:var(--white);flex:1}
+.recv-qty{text-align:right}
+.recv-qty-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.recv-qty-val{font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.recv-qty-val.full{color:var(--green)}
+.recv-qty-val.partial{color:var(--yellow)}
+.recv-qty-val.zero{color:var(--dim)}
+.recv-actions{display:flex;gap:6px;flex-shrink:0}
 
-/* PRODUCT CARD */
-.product-card{
-  display:none;margin-top:20px;background:var(--bg2);border:1px solid rgba(94,231,247,.2);
-  border-radius:14px;overflow:hidden;animation:fadeIn .4s ease;
-}
-.product-card.visible{display:block}
-.product-card-header{
-  padding:20px 24px;background:rgba(94,231,247,.04);
-  border-bottom:1px solid rgba(94,231,247,.1);
-  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-}
-.pc-sku{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--cyan);letter-spacing:1px}
-.pc-name{font-size:15px;color:var(--white);font-weight:600;margin-top:4px}
-.pc-status{
-  padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;
-  letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;
-}
-.pc-status.in-stock{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
-.pc-status.low-stock{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.2)}
-.pc-status.out{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+/* LOCATION ASSIGN */
+.loc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:12px}
+.loc-cell{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:10px;text-align:center;cursor:pointer;transition:.2s}
+.loc-cell:hover{border-color:var(--cyan)}
+.loc-cell.selected{border-color:var(--green);background:rgba(34,197,94,.05)}
+.loc-cell.occupied{opacity:.4;cursor:default}
+.loc-code{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--white)}
+.loc-zone{font-size:9px;color:var(--dim);margin-top:2px}
+.loc-status{font-size:9px;margin-top:4px}
 
-.product-card-body{padding:20px 24px}
-.pc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-@media(max-width:500px){.pc-grid{grid-template-columns:1fr 1fr}}
-.pc-field{padding:12px;background:var(--bg3);border-radius:8px}
-.pc-field-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:3px}
-.pc-field-val{font-size:15px;font-weight:700;color:var(--white)}
-.pc-field-val.cyan{color:var(--cyan)}
-.pc-field-val.green{color:var(--green)}
-.pc-field-val.yellow{color:var(--yellow)}
-.pc-field-val.red{color:var(--red)}
-.pc-field-val.mono{font-family:'JetBrains Mono',monospace;font-size:13px}
+/* SUMMARY */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.summary-stat{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:16px}
+.summary-val{font-size:24px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;margin-bottom:2px}
+.summary-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.summary-val.cyan{color:var(--cyan)}
+.summary-val.green{color:var(--green)}
+.summary-val.yellow{color:var(--yellow)}
 
-.pc-lots{margin-top:16px}
-.pc-lots-title{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:10px}
-.pc-lot-row{
-  display:grid;grid-template-columns:1fr 80px 80px 80px 100px;gap:8px;align-items:center;
-  padding:10px 14px;background:var(--bg3);border-radius:6px;margin-bottom:6px;font-size:12px;
-}
-@media(max-width:640px){.pc-lot-row{grid-template-columns:1fr 1fr;gap:4px;font-size:11px}}
-.pc-lot-row .lot-id{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-weight:600}
-.pc-lot-row .lot-qty{color:var(--white);font-weight:700;text-align:right}
-.pc-lot-row .lot-cost{color:var(--dim);text-align:right}
-.pc-lot-row .lot-date{color:var(--dim);text-align:right}
-.pc-lot-row .lot-loc{color:var(--yellow);text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px}
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin:12px 0}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s;background:var(--cyan)}
+.progress-fill.complete{background:var(--green)}
 
-.pc-history{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
-.pc-hist-title{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:10px}
-.pc-hist-row{
-  display:flex;align-items:center;gap:12px;padding:8px 0;
-  border-bottom:1px solid var(--border);font-size:12px;
-}
-.pc-hist-row:last-child{border:none}
-.pc-hist-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.pc-hist-dot.in{background:var(--green)}
-.pc-hist-dot.out{background:var(--orange)}
-.pc-hist-dot.adj{background:var(--blue)}
-.pc-hist-action{color:var(--white);font-weight:600;flex:1}
-.pc-hist-qty{color:var(--cyan);font-weight:700;font-family:'JetBrains Mono',monospace}
-.pc-hist-date{color:var(--dim);font-size:11px}
+/* SHEETS PREVIEW */
+.sheets-preview{background:var(--sheets-bg);border:1px solid var(--border2);border-radius:8px;overflow:hidden}
+.sheets-bar{background:var(--sheets-head);padding:8px 14px;display:flex;align-items:center;gap:8px}
+.sheets-bar-icon{width:18px;height:18px}
+.sheets-bar-title{font-size:12px;font-weight:600;color:#fff}
+.sheets-grid{overflow-x:auto;font-size:11px;font-family:'JetBrains Mono',monospace}
+.sheets-grid table{width:100%;border-collapse:collapse}
+.sheets-grid th{background:var(--sheets-th);color:var(--sheets-th-color);padding:8px;text-align:left;font-size:10px;letter-spacing:.5px;white-space:nowrap;border-bottom:1px solid rgba(34,197,94,.15)}
+.sheets-grid td{padding:7px 8px;color:var(--white);border-bottom:1px solid var(--border);white-space:nowrap}
+
+/* TIMELINE */
+.ai-timeline{display:flex;flex-direction:column;gap:0}
+.ai-step{display:flex;gap:12px;padding:10px 0}
+.ai-dot-col{display:flex;flex-direction:column;align-items:center;width:20px}
+.ai-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--border3);flex-shrink:0}
+.ai-dot.done{background:var(--green);border-color:var(--green)}
+.ai-dot.active{background:var(--cyan);border-color:var(--cyan);animation:pulse 1.5s infinite}
+.ai-line{width:1px;flex:1;background:var(--border2);margin:4px 0}
+.ai-step:last-child .ai-line{display:none}
+.ai-step-content{flex:1;padding-bottom:8px}
+.ai-step-title{font-size:12px;font-weight:600;color:var(--white)}
+.ai-step-detail{font-size:11px;color:var(--dim);margin-top:2px}
+.ai-step-time{font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:8px;font-size:12px;display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.alert-info{background:rgba(94,231,247,.06);border:1px solid rgba(94,231,247,.12);color:var(--cyan)}
+.alert-success{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12);color:var(--green)}
+.alert-warn{background:rgba(234,179,8,.06);border:1px solid rgba(234,179,8,.12);color:var(--yellow)}
+.alert-icon{font-size:14px;flex-shrink:0;margin-top:1px}
 
 /* FOOTER */
-.foot{text-align:center;padding:24px;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+.foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+/* THEME ICON */
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* AUTH GATE */
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.auth-gate.hidden{opacity:0;pointer-events:none}
+.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:20px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}
+.app-wrap.visible{display:block}
+
+@media(max-width:640px){
+  .main{padding:16px}
+  .sec-body{padding:14px}
+  .form-grid{grid-template-columns:1fr}
+  .cargo-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+  .ocr-grid{grid-template-columns:1fr 1fr}
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .topbar{padding:0 12px}
+  .tb-right{gap:4px}
+  .tb-btn{padding:5px 8px;font-size:9px}
+  .tb-toggle,.lang-opt{padding:4px 7px;font-size:9px}
+}
 </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
+<!-- AUTH GATE -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc" id="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-footer">Solo personal autorizado</div>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
 <nav class="topbar">
   <div class="tb-left">
     <span class="tb-logo">7group</span>
     <div class="tb-sep"></div>
-    <span class="tb-badge">Logistics Intelligence</span>
+    <span class="tb-badge" data-t="badge">Modulo de Recibo</span>
   </div>
   <div class="tb-right">
-    <div class="tb-status"><span class="tb-dot"></span> Systems operational</div>
-    <a href="/agendar/?lang=en" class="tb-btn">Schedule a call</a>
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+    <a id="scheduleLink" href="/agendar/" class="tb-btn" data-t="schedule">Agendar llamada</a>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero-cmd">
-  <div class="hero-inner">
-    <div class="hero-tag">AI-Powered Operations</div>
-    <h1>Your supply chain,<br><span>intelligently automated</span></h1>
-    <p class="hero-sub">Asia-sourced imports. Florida-based distribution. Every container tracked, every SKU optimized, every delivery predicted. This is what your operation looks like with 7Group.</p>
+<div class="steps-bar">
+  <div class="step-tab active" onclick="goStep(0)" id="stab0"><span class="step-num">1</span> <span data-t="step0">Embarque</span></div>
+  <div class="step-tab" onclick="goStep(1)" id="stab1"><span class="step-num">2</span> <span data-t="step1">Documentos</span></div>
+  <div class="step-tab" onclick="goStep(2)" id="stab2"><span class="step-num">3</span> <span data-t="step2">Procesamiento IA</span></div>
+  <div class="step-tab" onclick="goStep(3)" id="stab3"><span class="step-num">4</span> <span data-t="step3">Recibo Fisico</span></div>
+  <div class="step-tab" onclick="goStep(4)" id="stab4"><span class="step-num">5</span> <span data-t="step4">Confirmacion</span></div>
+</div>
 
-    <!-- OPERATION PIPELINE -->
-    <div class="op-map">
-      <div class="pipeline-flow">
-        <div class="pf-node active" id="nodeSupplier">
-          <div class="pf-icon">Source</div>
-          <div class="pf-label">Asia Suppliers</div>
-          <div class="pf-sub">PO + Invoices</div>
+<div class="main">
+
+<!-- ============ STEP 0: SHIPMENT ============ -->
+<div class="panel active" id="panel0">
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="cargoType">Tipo de Carga</div>
+      <span class="sec-tag tag-required" data-t="required">Requerido</span>
+    </div>
+    <div class="sec-body">
+      <div class="cargo-grid" id="cargoGrid"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="shipDetails">Detalles del Embarque</div>
+    </div>
+    <div class="sec-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" data-t="lblBL">Numero BL / AWB</label>
+          <input class="form-input mono" id="fBL" placeholder="MSKU1234567890" value="MSKU9284710365">
         </div>
-        <div class="pf-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        <div class="pf-node active" id="nodeTransit">
-          <div class="pf-icon">Transit</div>
-          <div class="pf-label">Ocean Freight</div>
-          <div class="pf-sub">30-45 days</div>
+        <div class="form-group">
+          <label class="form-label" data-t="lblSupplier">Proveedor</label>
+          <select class="form-select" id="fSupplier">
+            <option value="shenzhen">Shenzhen Electronics Co. (China)</option>
+            <option value="taipei">Taipei Components Ltd. (Taiwan)</option>
+            <option value="hanoi">Hanoi Manufacturing (Vietnam)</option>
+          </select>
         </div>
-        <div class="pf-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        <div class="pf-node active" id="nodePort">
-          <div class="pf-icon">Customs</div>
-          <div class="pf-label">Port of Entry</div>
-          <div class="pf-sub">Miami / Jax</div>
+        <div class="form-group">
+          <label class="form-label" data-t="lblContainer">Contenedor / Tracking</label>
+          <input class="form-input mono" id="fContainer" placeholder="CSQU3054831" value="CSQU3054831">
         </div>
-        <div class="pf-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        <div class="pf-node manual" id="nodeWarehouse">
-          <div class="pf-icon">Warehouse</div>
-          <div class="pf-label">FL Warehouse</div>
-          <div class="pf-sub">Manual / Excel</div>
+        <div class="form-group">
+          <label class="form-label" data-t="lblPO">Orden de Compra</label>
+          <input class="form-input mono" id="fPO" placeholder="PO-2026-889" value="PO-2026-0714">
         </div>
-        <div class="pf-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        <div class="pf-node manual" id="nodeDelivery">
-          <div class="pf-icon">Delivery</div>
-          <div class="pf-label">FL Distribution</div>
-          <div class="pf-sub">Manual routing</div>
+        <div class="form-group">
+          <label class="form-label" data-t="lblPort">Puerto de Entrada</label>
+          <select class="form-select" id="fPort">
+            <option value="miami">PortMiami, FL</option>
+            <option value="everglades">Port Everglades, FL</option>
+            <option value="jax">JAXPORT, Jacksonville, FL</option>
+            <option value="tampa">Port Tampa Bay, FL</option>
+            <option value="mia-air">MIA - Miami Intl Airport (Air)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-t="lblETA">Fecha Estimada</label>
+          <input class="form-input" id="fETA" type="date" value="2026-08-05">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Incoterm</label>
+          <select class="form-select" id="fIncoterm">
+            <option value="FOB">FOB - Free On Board</option>
+            <option value="CIF">CIF - Cost Insurance Freight</option>
+            <option value="EXW">EXW - Ex Works</option>
+            <option value="DDP">DDP - Delivered Duty Paid</option>
+            <option value="CFR">CFR - Cost and Freight</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-t="lblCurrency">Moneda</label>
+          <select class="form-select" id="fCurrency">
+            <option value="USD">USD - US Dollar</option>
+            <option value="CNY">CNY - Chinese Yuan</option>
+            <option value="TWD">TWD - Taiwan Dollar</option>
+            <option value="VND">VND - Vietnamese Dong</option>
+            <option value="EUR">EUR - Euro</option>
+          </select>
         </div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- MODULES -->
-<div class="modules">
-
-  <!-- CURRENT PAIN POINTS -->
-  <div class="section-head"><h2>What we automate for you</h2></div>
-
-  <div class="mod-grid">
-    <div class="mod-card">
-      <div class="mc-head">
-        <div class="mc-icon" style="background:rgba(94,231,247,.06);border-color:rgba(94,231,247,.15)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        </div>
-        <span class="mc-tag" style="background:rgba(94,231,247,.08);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">AI + OCR</span>
-      </div>
-      <div class="mc-title">Import Document Processing</div>
-      <div class="mc-desc">Drop a commercial invoice PDF. Our AI reads every line item, validates against your PO, and creates receiving records automatically. No data entry. Zero errors.</div>
-      <div class="mc-metrics">
-        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--red)">45 min</div><div class="mc-metric-label">Current: manual entry</div></div>
-        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--green)">12 sec</div><div class="mc-metric-label">With 7Group AI</div></div>
-      </div>
-    </div>
-
-    <div class="mod-card">
-      <div class="mc-head">
-        <div class="mc-icon" style="background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.15)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        </div>
-        <span class="mc-tag" style="background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.15)">FIFO / FEFO</span>
-      </div>
-      <div class="mc-title">Intelligent Inventory Engine</div>
-      <div class="mc-desc">Every unit tracked by lot, cost, and expiration. FIFO/FEFO algorithms ensure you always ship the right stock first. Automatic reorder alerts when minimums hit.</div>
-      <div class="mc-metrics">
-        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--red)">Excel</div><div class="mc-metric-label">Current: spreadsheets</div></div>
-        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--green)">Real-time</div><div class="mc-metric-label">Live lot tracking</div></div>
-      </div>
-    </div>
-
-    <div class="mod-card">
-      <div class="mc-head">
-        <div class="mc-icon" style="background:rgba(234,179,8,.06);border-color:rgba(234,179,8,.15)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-        </div>
-        <span class="mc-tag" style="background:rgba(234,179,8,.08);color:var(--yellow);border:1px solid rgba(234,179,8,.15)">Mobile-first</span>
-      </div>
-      <div class="mc-title">Warehouse Operations</div>
-      <div class="mc-desc">Receive containers with barcode scanning on any phone. Assign warehouse locations by scanning shelf QR codes. Photo evidence of every pick-and-pack. Works offline.</div>
-      <div class="mc-metrics">
-        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--red)">Paper</div><div class="mc-metric-label">Current: manual logs</div></div>
-        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--green)">Scan</div><div class="mc-metric-label">Mobile barcode/QR</div></div>
-      </div>
-    </div>
-
-    <div class="mod-card">
-      <div class="mc-head">
-        <div class="mc-icon" style="background:rgba(167,139,250,.06);border-color:rgba(167,139,250,.15)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        </div>
-        <span class="mc-tag" style="background:rgba(167,139,250,.08);color:var(--purple);border:1px solid rgba(167,139,250,.15)">CEO View</span>
-      </div>
-      <div class="mc-title">Operations Intelligence</div>
-      <div class="mc-desc">Real-time dashboard with inventory valuation, OTIF scores, delivery performance, and cost-per-unit analysis. Know your numbers before your accountant does.</div>
-      <div class="mc-metrics">
-        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--red)">Weekly</div><div class="mc-metric-label">Current: manual reports</div></div>
-        <div class="mc-metric"><div class="mc-metric-val" style="color:var(--green)">Live</div><div class="mc-metric-label">Auto-updated KPIs</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MOBILE SCANNER -->
-  <div class="section-head" style="margin-top:56px"><h2>Warehouse Scanner</h2></div>
-
-  <div class="sim-card scan-section">
-    <div class="sim-title">Barcode / QR Product Lookup</div>
-    <p style="font-size:13px;color:var(--dim);margin:0 0 16px">Scan any product barcode or QR code with your phone camera to pull full inventory data instantly.</p>
-
-    <button class="scan-btn" id="scanBtn" onclick="toggleScanner()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="8" x2="11" y2="8"/><line x1="7" y1="16" x2="13" y2="16"/></svg>
-      <span>Open camera scanner</span>
-    </button>
-
-    <div class="scanner-view" id="scannerView">
-      <button class="scanner-close" onclick="stopScanner()">&times;</button>
-      <video id="scanVideo" autoplay playsinline muted></video>
-      <div class="scan-overlay"><div class="scan-line"></div></div>
-      <div class="scanner-status"><span class="dot"></span> Scanning -- point at barcode or QR code</div>
-    </div>
-
-    <div class="scan-manual">
-      <input type="text" id="manualCode" placeholder="Or type code manually (e.g. SZ-LED-4K-55)" onkeydown="if(event.key==='Enter')lookupCode()">
-      <button onclick="lookupCode()">Lookup</button>
-    </div>
-
-    <div class="product-card" id="productCard"></div>
-  </div>
-
-  <!-- LIVE SIMULATOR: IMPORT PROCESSING -->
-  <div class="section-head" style="margin-top:56px"><h2>Live simulation: process an import</h2></div>
-
-  <div class="sim-card">
-    <div class="sim-title">AI Import Processor</div>
-    <div class="sim-import">
-      <div class="sim-row">
-        <span class="sim-label">Supplier</span>
-        <select class="sim-select" id="simSupplier">
-          <option value="shenzhen">Shenzhen Electronics Co. (China)</option>
-          <option value="taipei">Taipei Components Ltd. (Taiwan)</option>
-          <option value="hanoi">Hanoi Manufacturing (Vietnam)</option>
-        </select>
-      </div>
-      <div class="sim-row">
-        <span class="sim-label">Container</span>
-        <select class="sim-select" id="simContainer">
-          <option value="20ft">20ft Standard (14 CBM)</option>
-          <option value="40ft">40ft Standard (30 CBM)</option>
-          <option value="40hc">40ft High Cube (37 CBM)</option>
-        </select>
-      </div>
-      <div class="sim-row">
-        <span class="sim-label">Invoice total</span>
-        <input type="text" class="sim-input" id="simInvoice" value="$47,250.00" placeholder="$0.00">
-      </div>
-      <div class="sim-row">
-        <span class="sim-label">SKUs in shipment</span>
-        <select class="sim-select" id="simSkus">
-          <option value="8">8 product references</option>
-          <option value="15">15 product references</option>
-          <option value="25">25 product references</option>
-          <option value="40">40+ product references</option>
-        </select>
-      </div>
-      <button class="sim-btn" onclick="runSimulation()">Process with AI</button>
-    </div>
-
-    <div class="sim-results" id="simResults">
-      <div class="sr-header">
-        <span class="sr-title">AI Processing Complete</span>
-        <span class="sr-time" id="srTime"></span>
-      </div>
-
-      <div class="sr-grid" id="srGrid"></div>
-
-      <div class="sr-breakdown">
-        <div class="sr-break-title">Extracted line items (sample)</div>
-        <div class="sr-break-rows" id="srBreakdown"></div>
-      </div>
-
-      <div class="timeline" id="srTimeline"></div>
-    </div>
-  </div>
-
-  <!-- KPI DASHBOARD PREVIEW -->
-  <div class="section-head" style="margin-top:56px"><h2>Your CEO dashboard</h2></div>
-
-  <div class="kpi-grid" id="kpiGrid"></div>
-
-  <!-- BEFORE/AFTER COMPARISON -->
-  <div class="section-head" style="margin-top:56px"><h2>Before vs. After: your operation</h2></div>
-
-  <div style="overflow-x:auto">
-    <table class="compare-table">
-      <thead>
-        <tr><th>Process</th><th>Today (manual)</th><th>With 7Group</th><th>Impact</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="process">Invoice data entry</td>
-          <td class="before">45 min / invoice, error-prone</td>
-          <td class="after">12 seconds, AI-validated</td>
-          <td class="impact">-99.5%</td>
-        </tr>
-        <tr>
-          <td class="process">Inventory count</td>
-          <td class="before">Manual Excel, day-old data</td>
-          <td class="after">Real-time FIFO/FEFO by lot</td>
-          <td class="impact">Live</td>
-        </tr>
-        <tr>
-          <td class="process">Container receiving</td>
-          <td class="before">Paper checklists, hand-written</td>
-          <td class="after">Phone scan + photo evidence</td>
-          <td class="impact">-80%</td>
-        </tr>
-        <tr>
-          <td class="process">Order fulfillment</td>
-          <td class="before">Check stock in spreadsheet, call warehouse</td>
-          <td class="after">Auto-assign lots, pick list generated</td>
-          <td class="impact">3x faster</td>
-        </tr>
-        <tr>
-          <td class="process">Delivery tracking</td>
-          <td class="before">Phone calls, no visibility</td>
-          <td class="after">Real-time GPS + customer notifications</td>
-          <td class="impact">24/7</td>
-        </tr>
-        <tr>
-          <td class="process">Financial reporting</td>
-          <td class="before">Accountant builds monthly</td>
-          <td class="after">Auto-generated, live valuation</td>
-          <td class="impact">Instant</td>
-        </tr>
-        <tr>
-          <td class="process">Reorder decisions</td>
-          <td class="before">Gut feeling, sometimes too late</td>
-          <td class="after">AI predicts stockouts 2 weeks ahead</td>
-          <td class="impact">Predictive</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- IMPLEMENTATION PHASES -->
-  <div class="section-head" style="margin-top:56px"><h2>Implementation roadmap</h2></div>
-
-  <div class="mod-grid" style="grid-template-columns:1fr 1fr 1fr">
-    <div class="mod-card" style="border-top:2px solid var(--green)">
-      <span class="mc-tag" style="background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.15);margin-bottom:12px;display:inline-block">Phase 1 -- Week 1-2</span>
-      <div class="mc-title">Foundation</div>
-      <div class="mc-desc" style="margin-bottom:0">
-        Google Sheets data architecture<br>
-        Mobile receiving app (barcode scan)<br>
-        Inventory dashboard (live)<br>
-        WhatsApp alerts for low stock<br>
-        <strong style="color:var(--green);font-size:12px;display:block;margin-top:8px">Cost: $0 infrastructure</strong>
-      </div>
-    </div>
-    <div class="mod-card" style="border-top:2px solid var(--cyan)">
-      <span class="mc-tag" style="background:rgba(94,231,247,.08);color:var(--cyan);border:1px solid rgba(94,231,247,.15);margin-bottom:12px;display:inline-block">Phase 2 -- Week 3-4</span>
-      <div class="mc-title">Intelligence</div>
-      <div class="mc-desc" style="margin-bottom:0">
-        AI invoice processing (OCR)<br>
-        FIFO/FEFO lot management<br>
-        CEO KPI dashboard<br>
-        Automated picking lists<br>
-        <strong style="color:var(--cyan);font-size:12px;display:block;margin-top:8px">Cost: $0 (AI free tier)</strong>
-      </div>
-    </div>
-    <div class="mod-card" style="border-top:2px solid var(--purple)">
-      <span class="mc-tag" style="background:rgba(167,139,250,.08);color:var(--purple);border:1px solid rgba(167,139,250,.15);margin-bottom:12px;display:inline-block">Phase 3 -- Month 2+</span>
-      <div class="mc-title">Scale</div>
-      <div class="mc-desc" style="margin-bottom:0">
-        Firebase migration (real-time)<br>
-        Route optimization AI<br>
-        Customer self-service portal<br>
-        Predictive reorder engine<br>
-        <strong style="color:var(--purple);font-size:12px;display:block;margin-top:8px">SaaS-ready architecture</strong>
-      </div>
-    </div>
+  <div class="actions">
+    <button class="btn btn-primary" onclick="goStep(1)" data-t="btnContinueDocs">Continuar a Documentos</button>
   </div>
 </div>
 
-<!-- CTA -->
-<div class="cta-band">
-  <div class="cta-card">
-    <h2>Ready to eliminate the spreadsheets?</h2>
-    <p>Schedule a 30-minute discovery call. We'll map your exact operation and show you Phase 1 running on your real data. No cost, no commitment.</p>
-    <a href="/agendar/?lang=en" class="cta-main">Schedule your call</a>
+<!-- ============ STEP 1: DOCUMENTS ============ -->
+<div class="panel" id="panel1">
+
+  <div class="alert alert-info">
+    <span class="alert-icon">i</span>
+    <div data-t="alertDocs">Suba los documentos del embarque. El agente IA extraera y validara toda la informacion automaticamente. Soporta PDF, imagenes (JPG/PNG) y documentos escaneados.</div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secTransport">Documentos de Transporte</div>
+    </div>
+    <div class="sec-body">
+      <div class="doc-list" id="docsTransport"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secCommercial">Documentos Comerciales</div>
+    </div>
+    <div class="sec-body">
+      <div class="doc-list" id="docsCommercial"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secCustoms">Aduanas y Cumplimiento</div>
+    </div>
+    <div class="sec-body">
+      <div class="doc-list" id="docsCustoms"></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="goStep(0)" data-t="btnBack">Atras</button>
+    <button class="btn btn-primary" onclick="processAllDocs()" data-t="btnProcessAI">Procesar Documentos con IA</button>
   </div>
 </div>
 
-<div class="foot">7group -- Applied Artificial Intelligence</div>
+<!-- ============ STEP 2: AI PROCESSING ============ -->
+<div class="panel" id="panel2">
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secPipeline">Pipeline de Procesamiento IA</div>
+      <span class="sec-tag tag-processing" id="pipelineTag" data-t="processing">Procesando...</span>
+    </div>
+    <div class="sec-body">
+      <div class="ai-timeline" id="aiTimeline"></div>
+    </div>
+  </div>
+
+  <div class="sec" id="ocrResultsSection" style="display:none">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secExtracted">Datos Extraidos del Embarque</div>
+      <span class="sec-tag tag-done" data-t="validated">Validado</span>
+    </div>
+    <div class="sec-body">
+      <div class="ocr-grid" id="ocrGrid"></div>
+    </div>
+  </div>
+
+  <div class="sec" id="lineItemsSection" style="display:none">
+    <div class="sec-head">
+      <div class="sec-title"><span data-t="secLineItems">Items Extraidos</span> -- <span id="itemCount">0</span> SKUs</div>
+    </div>
+    <div class="sec-body">
+      <div class="items-wrap">
+        <table class="items-table" id="itemsTable">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th data-t="thDesc">Descripcion</th>
+              <th data-t="thQty">Cant</th>
+              <th data-t="thUnitCost">Costo Unit</th>
+              <th>Total</th>
+              <th data-t="thHS">Cod HS</th>
+              <th data-t="thPOMatch">Match PO</th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions" id="aiActions" style="display:none">
+    <button class="btn btn-secondary" onclick="goStep(1)" data-t="btnBackDocs">Volver a Documentos</button>
+    <button class="btn btn-primary" onclick="goStep(3)" data-t="btnProceedRecv">Ir a Recibo Fisico</button>
+  </div>
+</div>
+
+<!-- ============ STEP 3: PHYSICAL RECEIVING ============ -->
+<div class="panel" id="panel3">
+
+  <div class="alert alert-info">
+    <span class="alert-icon">i</span>
+    <div data-t="alertScan">Escanee el codigo de barras de cada producto para validar contra la orden de compra. Asigne ubicacion de bodega escaneando el QR del estante o seleccionando manualmente.</div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secScanner">Escaner de Codigo de Barras</div>
+      <button class="btn btn-sm btn-secondary" id="scanToggle" onclick="toggleScanner()" data-t="btnOpenCam">Abrir Camara</button>
+    </div>
+    <div class="sec-body">
+      <div class="scanner-area" id="scannerArea" style="display:none">
+        <video id="scanVideo" autoplay playsinline muted></video>
+        <div class="scan-overlay"><div class="scan-frame"><div class="scan-line"></div></div></div>
+        <div class="scanner-status"><span class="dot"></span> <span data-t="scanning">Escaneando...</span></div>
+      </div>
+      <div class="form-grid" style="margin-top:12px">
+        <div class="form-group">
+          <label class="form-label" data-t="lblManualSku">Entrada Manual de SKU</label>
+          <input class="form-input mono" id="manualSku" placeholder="Escanee o escriba SKU..." onkeydown="if(event.key==='Enter')scanItem()">
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <button class="btn btn-primary" onclick="scanItem()" style="align-self:flex-end" data-t="btnValidateSku">Validar SKU</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secRecvProgress">Progreso de Recibo</div>
+      <span id="recvProgress" style="font-size:12px;font-weight:600;color:var(--cyan);font-family:'JetBrains Mono',monospace">0 / 0</span>
+    </div>
+    <div class="sec-body">
+      <div class="progress-bar"><div class="progress-fill" id="recvBar" style="width:0%"></div></div>
+      <div id="recvList"></div>
+    </div>
+  </div>
+
+  <div class="sec" id="locSection" style="display:none">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secLocAssign">Asignacion de Ubicacion en Bodega</div>
+    </div>
+    <div class="sec-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" data-t="lblAssignSku">Asignando SKU</label>
+          <div id="locSku" class="mono" style="font-size:14px;font-weight:600;color:var(--cyan);padding:8px 0">--</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-t="lblLot">Numero de Lote</label>
+          <input class="form-input mono" id="lotNumber" placeholder="LOT-2026-07A">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-t="lblExpiry">Fecha de Vencimiento</label>
+          <input class="form-input" id="lotExpiry" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-t="lblLocSelect">Escanear QR o Seleccionar</label>
+          <select class="form-select" id="locSelect">
+            <option value="">-- Seleccionar ubicacion --</option>
+          </select>
+        </div>
+      </div>
+      <div class="loc-grid" id="locGrid"></div>
+      <div class="actions" style="margin-top:16px">
+        <button class="btn btn-primary" onclick="confirmLocation()" data-t="btnConfirmLoc">Confirmar Ubicacion</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="goStep(2)" data-t="btnBack">Atras</button>
+    <button class="btn btn-primary" id="btnFinish" onclick="goStep(4)" disabled data-t="btnComplete">Completar Recibo</button>
+  </div>
+</div>
+
+<!-- ============ STEP 4: CONFIRMATION ============ -->
+<div class="panel" id="panel4">
+
+  <div class="alert alert-success">
+    <span class="alert-icon">OK</span>
+    <div data-t="alertDone">Recibo completado. Todos los items validados, ubicaciones asignadas e inventario actualizado. Datos sincronizados a Google Sheets.</div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secSummary">Resumen de Recibo</div>
+    </div>
+    <div class="sec-body">
+      <div class="summary-grid" id="summaryGrid"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secSheets">Sincronizacion Google Sheets</div>
+      <span class="sec-tag tag-done" data-t="synced">Sincronizado</span>
+    </div>
+    <div class="sec-body">
+      <div class="sheets-preview" id="sheetsPreview"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secImpact">Impacto en Inventario</div>
+    </div>
+    <div class="sec-body">
+      <div class="items-wrap">
+        <table class="items-table" id="impactTable">
+          <thead><tr>
+            <th>SKU</th>
+            <th data-t="thDesc">Descripcion</th>
+            <th data-t="thRecvd">Recibido</th>
+            <th data-t="thLocation">Ubicacion</th>
+            <th data-t="thLot">Lote</th>
+            <th data-t="thInTransit">En Transito</th>
+            <th data-t="thAvailable">Disponible</th>
+          </tr></thead>
+          <tbody id="impactBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="location.reload()" data-t="btnNewShip">Nuevo Embarque</button>
+    <a id="scheduleLink2" href="/agendar/" class="btn btn-primary" data-t="btnScheduleCall">Agendar Llamada de Implementacion</a>
+  </div>
+</div>
+
+</div>
+
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div><!-- /app-wrap -->
 
 <script>
-// KPI Dashboard
-var kpis = [
-  { val:'$142K', label:'Inventory value', change:'+12%', dir:'up', pct:72, color:'var(--cyan)' },
-  { val:'94.2%', label:'OTIF Score', change:'+8.5%', dir:'up', pct:94, color:'var(--green)' },
-  { val:'4.3x', label:'Inventory turnover', change:'+1.2x', dir:'up', pct:65, color:'var(--yellow)' },
-  { val:'$3.21', label:'Cost per delivery', change:'-18%', dir:'down', pct:82, color:'var(--purple)' }
+/* =============== AUTH =============== */
+var GOOGLE_CLIENT_ID = '160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS = ['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+
+function handleCredentialResponse(response) {
+  var payload = JSON.parse(atob(response.credential.split('.')[1]));
+  var email = payload.email.toLowerCase();
+  if (ALLOWED_EMAILS.indexOf(email) !== -1) {
+    sessionStorage.setItem('7g-auth', email);
+    unlockApp();
+  } else {
+    document.getElementById('authError').style.display = 'block';
+  }
+}
+
+function unlockApp() {
+  document.getElementById('authGate').classList.add('hidden');
+  document.getElementById('appWrap').classList.add('visible');
+}
+
+function initGoogleAuth() {
+  if (typeof google === 'undefined' || !google.accounts) {
+    setTimeout(initGoogleAuth, 200);
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('g_id_signin'),
+    {theme:'outline', size:'large', shape:'pill', text:'signin_with', width:280}
+  );
+}
+
+(function(){
+  var saved = sessionStorage.getItem('7g-auth');
+  if (saved && ALLOWED_EMAILS.indexOf(saved) !== -1) {
+    unlockApp();
+  } else {
+    initGoogleAuth();
+  }
+})();
+
+/* =============== LANGUAGE =============== */
+var LANG = 'es';
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  if (p.get('lang') === 'en') LANG = 'en';
+})();
+
+var T = {
+  badge:          {es:'Modulo de Recibo',       en:'Receiving Module'},
+  schedule:       {es:'Agendar llamada',        en:'Schedule a call'},
+  step0:          {es:'Embarque',               en:'Shipment'},
+  step1:          {es:'Documentos',             en:'Documents'},
+  step2:          {es:'Procesamiento IA',       en:'AI Processing'},
+  step3:          {es:'Recibo Fisico',          en:'Physical Receiving'},
+  step4:          {es:'Confirmacion',           en:'Confirmation'},
+  cargoType:      {es:'Tipo de Carga',          en:'Cargo Type'},
+  required:       {es:'Requerido',              en:'Required'},
+  optional:       {es:'Opcional',               en:'Optional'},
+  shipDetails:    {es:'Detalles del Embarque',  en:'Shipment Details'},
+  lblBL:          {es:'Numero BL / AWB',        en:'BL / AWB Number'},
+  lblSupplier:    {es:'Proveedor',              en:'Supplier'},
+  lblContainer:   {es:'Contenedor / Tracking',  en:'Container / Tracking'},
+  lblPO:          {es:'Orden de Compra',         en:'Purchase Order'},
+  lblPort:        {es:'Puerto de Entrada',       en:'Port of Entry'},
+  lblETA:         {es:'Fecha Estimada',          en:'ETA'},
+  lblCurrency:    {es:'Moneda',                  en:'Currency'},
+  btnContinueDocs:{es:'Continuar a Documentos',  en:'Continue to Documents'},
+  alertDocs:      {es:'Suba los documentos del embarque. El agente IA extraera y validara toda la informacion automaticamente. Soporta PDF, imagenes (JPG/PNG) y documentos escaneados.',
+                   en:'Upload your shipment documents below. The AI agent will extract and cross-validate all data automatically. Supports PDF, images (JPG/PNG), and scanned documents.'},
+  secTransport:   {es:'Documentos de Transporte',en:'Transport Documents'},
+  secCommercial:  {es:'Documentos Comerciales',  en:'Commercial Documents'},
+  secCustoms:     {es:'Aduanas y Cumplimiento',  en:'Customs & Compliance'},
+  btnBack:        {es:'Atras',                   en:'Back'},
+  btnProcessAI:   {es:'Procesar Documentos con IA',en:'Process All Documents with AI'},
+  secPipeline:    {es:'Pipeline de Procesamiento IA',en:'AI Agent Processing Pipeline'},
+  processing:     {es:'Procesando...',           en:'Processing...'},
+  secExtracted:   {es:'Datos Extraidos del Embarque',en:'Extracted Shipment Data'},
+  validated:      {es:'Validado',                en:'Validated'},
+  secLineItems:   {es:'Items Extraidos',         en:'Extracted Line Items'},
+  thDesc:         {es:'Descripcion',             en:'Description'},
+  thQty:          {es:'Cant',                    en:'Qty'},
+  thUnitCost:     {es:'Costo Unit',              en:'Unit Cost'},
+  thHS:           {es:'Cod HS',                  en:'HS Code'},
+  thPOMatch:      {es:'Match PO',                en:'PO Match'},
+  btnBackDocs:    {es:'Volver a Documentos',     en:'Back to Documents'},
+  btnProceedRecv: {es:'Ir a Recibo Fisico',      en:'Proceed to Physical Receiving'},
+  alertScan:      {es:'Escanee el codigo de barras de cada producto para validar contra la orden de compra. Asigne ubicacion de bodega escaneando el QR del estante o seleccionando manualmente.',
+                   en:'Scan each product barcode to validate against the purchase order. Assign warehouse location by scanning shelf QR code or selecting manually.'},
+  secScanner:     {es:'Escaner de Codigo de Barras',en:'Barcode Scanner'},
+  btnOpenCam:     {es:'Abrir Camara',            en:'Open Camera'},
+  btnCloseCam:    {es:'Cerrar Camara',           en:'Close Camera'},
+  scanning:       {es:'Escaneando...',           en:'Scanning...'},
+  lblManualSku:   {es:'Entrada Manual de SKU',   en:'Manual SKU Entry'},
+  btnValidateSku: {es:'Validar SKU',             en:'Validate SKU'},
+  secRecvProgress:{es:'Progreso de Recibo',      en:'Receiving Progress'},
+  secLocAssign:   {es:'Asignacion de Ubicacion en Bodega',en:'Warehouse Location Assignment'},
+  lblAssignSku:   {es:'Asignando SKU',           en:'Assigning SKU'},
+  lblLot:         {es:'Numero de Lote',          en:'Lot Number'},
+  lblExpiry:      {es:'Fecha de Vencimiento',    en:'Expiration Date'},
+  lblLocSelect:   {es:'Escanear QR o Seleccionar',en:'Scan Shelf QR or Select'},
+  btnConfirmLoc:  {es:'Confirmar Ubicacion',     en:'Confirm Location'},
+  btnComplete:    {es:'Completar Recibo',        en:'Complete Receiving'},
+  alertDone:      {es:'Recibo completado. Todos los items validados, ubicaciones asignadas e inventario actualizado. Datos sincronizados a Google Sheets.',
+                   en:'Receiving complete. All items validated, locations assigned, and inventory updated. Data synced to Google Sheets.'},
+  secSummary:     {es:'Resumen de Recibo',       en:'Receiving Summary'},
+  secSheets:      {es:'Sincronizacion Google Sheets',en:'Google Sheets Sync'},
+  synced:         {es:'Sincronizado',            en:'Synced'},
+  secImpact:      {es:'Impacto en Inventario',   en:'Inventory Impact'},
+  thRecvd:        {es:'Recibido',                en:'Received'},
+  thLocation:     {es:'Ubicacion',               en:'Location'},
+  thLot:          {es:'Lote',                    en:'Lot'},
+  thInTransit:    {es:'En Transito',             en:'In-Transit'},
+  thAvailable:    {es:'Disponible',              en:'Available'},
+  btnNewShip:     {es:'Nuevo Embarque',          en:'New Shipment'},
+  btnScheduleCall:{es:'Agendar Llamada de Implementacion',en:'Schedule Implementation Call'},
+  upload:         {es:'Subir',                   en:'Upload'},
+  uploadOpt:      {es:'Subir (opcional)',         en:'Upload (optional)'},
+  uploaded:       {es:'Subido',                  en:'Uploaded'},
+  complete:       {es:'Completo',                en:'Complete'},
+  matched:        {es:'Coincide',                en:'Matched'},
+  receive:        {es:'Recibir',                 en:'Receive'},
+  selectLoc:      {es:'-- Seleccionar ubicacion --',en:'-- Select location --'},
+  occupied:       {es:'Ocupado',                 en:'Occupied'},
+  available:      {es:'Disponible',              en:'Available'},
+  skusRecvd:      {es:'SKUs Recibidos',          en:'SKUs Received'},
+  totalUnits:     {es:'Unidades Totales',        en:'Total Units'},
+  invoiceVal:     {es:'Valor Factura',           en:'Invoice Value'},
+  grossWeight:    {es:'Peso Bruto',              en:'Gross Weight'},
+  alertSkuNotFound:{es:'SKU no encontrado en este embarque: ',en:'SKU not found in this shipment: '},
+  alertAlreadyRecvd:{es:' ya fue recibido.',      en:' already received.'},
+  alertSelectLoc: {es:'Seleccione una ubicacion de bodega.',en:'Select a warehouse location.'},
+  alertEnterLot:  {es:'Ingrese un numero de lote.',en:'Enter a lot number.'},
+  placeholderSku: {es:'Escanee o escriba SKU...',en:'Scan or type SKU...'},
+  location:       {es:'Ubicacion',               en:'Location'},
+  authDesc:       {es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
+  authError:      {es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
+  authFooter:     {es:'Solo personal autorizado',en:'Authorized personnel only'}
+};
+
+function t(k) { return T[k] ? (T[k][LANG] || T[k].en) : k; }
+
+function applyLang() {
+  document.documentElement.lang = LANG;
+  document.title = LANG === 'es' ? 'Recibo y Documentos IA -- 7Group Logistica' : 'Receiving & Document Intelligence -- 7Group Logistics';
+
+  var els = document.querySelectorAll('[data-t]');
+  for (var i = 0; i < els.length; i++) {
+    var key = els[i].getAttribute('data-t');
+    if (T[key]) els[i].textContent = T[key][LANG];
+  }
+
+  document.getElementById('langES').classList.toggle('active', LANG === 'es');
+  document.getElementById('langEN').classList.toggle('active', LANG === 'en');
+
+  var base = LANG === 'en' ? '?lang=en' : '';
+  document.getElementById('scheduleLink').href = '/agendar/' + (LANG === 'en' ? '?lang=en' : '');
+  var sl2 = document.getElementById('scheduleLink2');
+  if (sl2) sl2.href = '/agendar/' + (LANG === 'en' ? '?lang=en' : '');
+
+  document.getElementById('manualSku').placeholder = t('placeholderSku');
+
+  renderCargoGrid();
+  renderDocList('docsTransport', DOCS.transport);
+  renderDocList('docsCommercial', DOCS.commercial);
+  renderDocList('docsCustoms', DOCS.customs);
+  if (currentStep === 3) renderReceivingList();
+  if (currentStep === 4) renderConfirmation();
+}
+
+function setLang(lang) {
+  LANG = lang;
+  var url = new URL(window.location);
+  if (lang === 'en') url.searchParams.set('lang', 'en');
+  else url.searchParams.delete('lang');
+  window.history.replaceState({}, '', url);
+  applyLang();
+}
+
+/* =============== THEME =============== */
+function toggleTheme() {
+  var root = document.documentElement;
+  var isLight = root.classList.toggle('light');
+  localStorage.setItem('7g-theme', isLight ? 'light' : 'dark');
+  updateThemeButton(isLight);
+}
+
+function updateThemeButton(isLight) {
+  var btn = document.getElementById('themeToggle');
+  if (isLight) {
+    btn.innerHTML = '<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8.5a5.5 5.5 0 01-6-6 5.5 5.5 0 106 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK';
+  } else {
+    btn.innerHTML = '<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';
+  }
+}
+
+(function(){
+  var saved = localStorage.getItem('7g-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    updateThemeButton(true);
+  }
+})();
+
+/* =============== DATA =============== */
+var CARGO_TYPES = [
+  {id:'dc20',name:{es:'Seco 20ft',en:'Dry 20ft'},spec:'TEU / 14 CBM / 28T',icon:'20\''},
+  {id:'dc40',name:{es:'Seco 40ft',en:'Dry 40ft'},spec:'FEU / 30 CBM / 26T',icon:'40\''},
+  {id:'hc40',name:{es:'40ft High Cube',en:'40ft High Cube'},spec:'FEU / 37 CBM / 26T',icon:'HC'},
+  {id:'rf20',name:{es:'Reefer 20ft',en:'Reefer 20ft'},spec:{es:'Temp controlada / 13 CBM',en:'Temp controlled / 13 CBM'},icon:'RF'},
+  {id:'rf40',name:{es:'Reefer 40ft',en:'Reefer 40ft'},spec:{es:'Temp controlada / 29 CBM',en:'Temp controlled / 29 CBM'},icon:'RF'},
+  {id:'flat',name:{es:'Flat Rack',en:'Flat Rack'},spec:{es:'OOG / maquinaria pesada',en:'OOG / heavy machinery'},icon:'FR'},
+  {id:'open',name:{es:'Open Top',en:'Open Top'},spec:{es:'Carga sobredimensionada',en:'Oversized cargo'},icon:'OT'},
+  {id:'lcl',name:'LCL',spec:{es:'Consolidado / compartido',en:'Consolidated / shared'},icon:'LCL'},
+  {id:'air',name:{es:'Aereo',en:'Air Freight'},spec:{es:'Express / alto valor',en:'Express / high value'},icon:'AIR'},
+  {id:'break',name:{es:'Break Bulk',en:'Break Bulk'},spec:{es:'Carga suelta / proyecto',en:'Loose cargo / project'},icon:'BB'}
 ];
 
-var kpiHtml = '';
-for (var i = 0; i < kpis.length; i++) {
-  var k = kpis[i];
-  kpiHtml += '<div class="kpi-card">';
-  kpiHtml += '<div class="kpi-val">' + k.val + '</div>';
-  kpiHtml += '<div class="kpi-change ' + (k.dir === 'up' ? 'up' : 'down') + '">' + k.change + '</div>';
-  kpiHtml += '<div class="kpi-label">' + k.label + '</div>';
-  kpiHtml += '<div class="kpi-bar"><div class="kpi-bar-fill" style="width:' + k.pct + '%;background:' + k.color + '"></div></div>';
-  kpiHtml += '</div>';
-}
-document.getElementById('kpiGrid').innerHTML = kpiHtml;
-
-// SIMULATION
-var sampleSkus = {
-  shenzhen: [
-    { sku:'SZ-LED-4K-55', desc:'LED Panel 55" 4K', qty:120, cost:185.00 },
-    { sku:'SZ-PWR-500W', desc:'Power Supply 500W', qty:300, cost:24.50 },
-    { sku:'SZ-CBL-HDMI2', desc:'HDMI 2.1 Cable 6ft', qty:1000, cost:3.80 },
-    { sku:'SZ-MNT-WALL', desc:'Wall Mount Universal', qty:200, cost:12.40 },
-    { sku:'SZ-RMT-BT', desc:'Bluetooth Remote', qty:500, cost:6.20 },
-    { sku:'SZ-ADP-USB3', desc:'USB-C Adapter Hub', qty:400, cost:8.90 },
-    { sku:'SZ-SPK-20W', desc:'Soundbar 20W BT', qty:150, cost:32.00 },
-    { sku:'SZ-CAM-1080', desc:'Security Cam 1080p', qty:250, cost:18.50 }
+var DOCS = {
+  transport: [
+    {id:'bl',name:{es:'Conocimiento de Embarque (BL)',en:'Bill of Lading (BL)'},desc:{es:'Documento maestro de transporte -- transportista, embarcador, consignatario, puerto a puerto',en:'Master transport document -- carrier, shipper, consignee, port-to-port'},required:true,type:'pdf'},
+    {id:'awb',name:{es:'Guia Aerea (AWB)',en:'Air Waybill (AWB)'},desc:{es:'Transporte aereo -- solo para embarques aereos',en:'Air transport -- only for air freight shipments'},required:false,type:'pdf'},
+    {id:'arrival',name:{es:'Aviso de Arribo',en:'Arrival Notice'},desc:{es:'Notificacion del transportista sobre arribo del buque/contenedor al puerto destino',en:'Carrier notification of vessel/container arrival at destination port'},required:true,type:'pdf'}
   ],
-  taipei: [
-    { sku:'TP-PCB-A10', desc:'PCB Controller A10', qty:500, cost:14.20 },
-    { sku:'TP-SEN-TEMP', desc:'Temperature Sensor', qty:2000, cost:1.85 },
-    { sku:'TP-MOD-WIFI', desc:'WiFi Module ESP32', qty:800, cost:4.50 },
-    { sku:'TP-BAT-3000', desc:'Li-Po Battery 3000mAh', qty:1500, cost:5.20 },
-    { sku:'TP-DSP-OLED', desc:'OLED Display 1.3"', qty:600, cost:7.80 },
-    { sku:'TP-CON-USB', desc:'USB-C Connector', qty:3000, cost:0.90 },
-    { sku:'TP-CHG-FAST', desc:'Fast Charger IC', qty:1000, cost:2.30 },
-    { sku:'TP-LED-RGB', desc:'RGB LED Strip 5m', qty:400, cost:6.40 }
+  commercial: [
+    {id:'invoice',name:{es:'Factura Comercial',en:'Commercial Invoice'},desc:{es:'Factura del proveedor -- items, cantidades, costos unitarios, Incoterms, totales',en:'Supplier invoice -- line items, quantities, unit costs, Incoterms, totals'},required:true,type:'pdf'},
+    {id:'packing',name:{es:'Lista de Empaque',en:'Packing List'},desc:{es:'Desglose detallado de paquetes, pesos, dimensiones por item',en:'Detailed breakdown of packages, weights, dimensions per item'},required:true,type:'pdf'},
+    {id:'proforma',name:{es:'Factura Proforma',en:'Proforma Invoice'},desc:{es:'Cotizacion previa al embarque del proveedor -- referencia para match con PO',en:'Pre-shipment quote from supplier -- reference for PO matching'},required:false,type:'pdf'},
+    {id:'po',name:{es:'Orden de Compra',en:'Purchase Order'},desc:{es:'Su PO al proveedor -- la base para toda validacion',en:'Your PO to the supplier -- the baseline for all validation'},required:true,type:'pdf'}
   ],
-  hanoi: [
-    { sku:'HN-TEX-POLY', desc:'Polyester Fabric Roll', qty:50, cost:82.00 },
-    { sku:'HN-BAG-ECO', desc:'Eco Shopping Bag', qty:5000, cost:0.45 },
-    { sku:'HN-BOX-GIFT', desc:'Gift Box Premium', qty:2000, cost:1.20 },
-    { sku:'HN-PAD-FOAM', desc:'Foam Padding Sheet', qty:800, cost:3.50 },
-    { sku:'HN-TAG-RFID', desc:'RFID Tag Roll x100', qty:100, cost:28.00 },
-    { sku:'HN-WRP-BBLE', desc:'Bubble Wrap 100m', qty:200, cost:15.50 },
-    { sku:'HN-LBL-THRM', desc:'Thermal Label Roll', qty:500, cost:4.80 },
-    { sku:'HN-STRAP-PP', desc:'PP Strapping Roll', qty:300, cost:9.20 }
+  customs: [
+    {id:'entry',name:{es:'Resumen de Entrada (CBP 7501)',en:'Entry Summary (CBP 7501)'},desc:{es:'Declaracion de importacion US Customs -- aranceles, tarifas, codigos HTS',en:'US Customs import declaration -- duties, tariffs, HTS codes'},required:true,type:'pdf'},
+    {id:'isf',name:{es:'ISF 10+2',en:'ISF 10+2 Filing'},desc:{es:'Declaracion de Seguridad del Importador -- debe presentarse 24h antes de carga del buque',en:'Importer Security Filing -- must be filed 24h before vessel loading'},required:true,type:'pdf'},
+    {id:'origin',name:{es:'Certificado de Origen',en:'Certificate of Origin'},desc:{es:'Pais de manufactura -- requerido para tarifas preferenciales',en:'Country of manufacture -- required for preferential tariff rates'},required:false,type:'pdf'},
+    {id:'bond',name:{es:'Fianza Aduanera',en:'Customs Bond'},desc:{es:'Fianza continua o de entrada unica para despacho CBP',en:'Continuous or single-entry bond for CBP clearance'},required:true,type:'pdf'},
+    {id:'fda',name:{es:'Aviso Previo FDA',en:'FDA Prior Notice'},desc:{es:'Requerido para alimentos, medicamentos, cosmeticos, dispositivos medicos',en:'Required for food, drugs, cosmetics, medical devices'},required:false,type:'pdf'},
+    {id:'msds',name:{es:'MSDS / SDS',en:'MSDS / SDS'},desc:{es:'Hoja de Datos de Seguridad -- requerida para materiales peligrosos',en:'Safety Data Sheet -- required for hazardous materials'},required:false,type:'pdf'},
+    {id:'inspect',name:{es:'Certificado de Inspeccion',en:'Inspection Certificate'},desc:{es:'Informe de inspeccion pre-embarque de terceros',en:'Third-party pre-shipment inspection report'},required:false,type:'pdf'},
+    {id:'phyto',name:{es:'Certificado Fitosanitario',en:'Phytosanitary Certificate'},desc:{es:'Para productos de origen vegetal -- despacho USDA APHIS',en:'For plant-based products -- USDA APHIS clearance'},required:false,type:'pdf'}
   ]
 };
 
-function runSimulation() {
-  var supplier = document.getElementById('simSupplier').value;
-  var container = document.getElementById('simContainer').value;
-  var skuCount = parseInt(document.getElementById('simSkus').value);
-  var invoiceRaw = document.getElementById('simInvoice').value.replace(/[^0-9.]/g, '');
-  var invoiceTotal = parseFloat(invoiceRaw) || 47250;
+var SAMPLE_ITEMS = [
+  {sku:'SZ-LED-4K-55',desc:'LED Panel 55" 4K UHD',qty:120,cost:185.00,hs:'8528.72.6400',weight:14.2},
+  {sku:'SZ-PWR-500W',desc:'Power Supply Unit 500W',qty:300,cost:24.50,hs:'8504.40.9540',weight:1.8},
+  {sku:'SZ-CBL-HDMI2',desc:'HDMI 2.1 Cable 6ft',qty:1000,cost:3.80,hs:'8544.42.9090',weight:0.15},
+  {sku:'SZ-MNT-WALL',desc:'Wall Mount Universal',qty:200,cost:12.40,hs:'8529.90.0600',weight:2.1},
+  {sku:'SZ-RMT-BT',desc:'Bluetooth Remote Control',qty:500,cost:6.20,hs:'8526.92.5000',weight:0.12},
+  {sku:'SZ-ADP-USB3',desc:'USB-C Adapter Hub 7-in-1',qty:400,cost:8.90,hs:'8473.30.5100',weight:0.08},
+  {sku:'SZ-SPK-20W',desc:'Soundbar 20W Bluetooth',qty:150,cost:32.00,hs:'8518.22.0000',weight:1.5},
+  {sku:'SZ-CAM-1080',desc:'Security Camera 1080p WiFi',qty:250,cost:18.50,hs:'8525.89.4500',weight:0.35}
+];
 
-  var items = sampleSkus[supplier].slice(0, Math.min(skuCount, 8));
-  var totalUnits = 0;
-  for (var i = 0; i < items.length; i++) totalUnits += items[i].qty;
+var LOCATIONS = [
+  {code:'A-01-01',zone:{es:'Electronica',en:'Electronics'},status:'empty'},{code:'A-01-02',zone:{es:'Electronica',en:'Electronics'},status:'empty'},
+  {code:'A-02-01',zone:{es:'Electronica',en:'Electronics'},status:'occupied'},{code:'A-02-02',zone:{es:'Electronica',en:'Electronics'},status:'empty'},
+  {code:'A-03-01',zone:{es:'Electronica',en:'Electronics'},status:'empty'},{code:'A-03-02',zone:{es:'Electronica',en:'Electronics'},status:'occupied'},
+  {code:'B-01-01',zone:{es:'Componentes',en:'Components'},status:'empty'},{code:'B-01-02',zone:{es:'Componentes',en:'Components'},status:'empty'},
+  {code:'B-02-01',zone:{es:'Componentes',en:'Components'},status:'occupied'},{code:'B-02-02',zone:{es:'Componentes',en:'Components'},status:'empty'},
+  {code:'C-01-01',zone:{es:'Accesorios',en:'Accessories'},status:'empty'},{code:'C-01-02',zone:{es:'Accesorios',en:'Accessories'},status:'empty'},
+  {code:'D-01-01',zone:{es:'Cables',en:'Cables'},status:'empty'},{code:'D-01-02',zone:{es:'Cables',en:'Cables'},status:'occupied'},
+  {code:'E-01-01',zone:{es:'Almacen General',en:'Bulk Storage'},status:'empty'},{code:'E-01-02',zone:{es:'Almacen General',en:'Bulk Storage'},status:'empty'}
+];
 
-  var processingTime = (Math.random() * 4 + 8).toFixed(1);
+var AI_STEPS = [
+  {title:{es:'Ingestion de documentos',en:'Document ingestion'},detail:{es:'6 documentos subidos (4 PDF, 2 imagenes escaneadas) a la cola de procesamiento',en:'Uploaded 6 documents (4 PDF, 2 scanned images) to processing queue'},time:'0.3s'},
+  {title:{es:'Extraccion de texto (pdfplumber)',en:'Text extraction (pdfplumber)'},detail:{es:'847 bloques de texto extraidos de 6 documentos, 23 paginas en total',en:'Extracted 847 text blocks from 6 documents, 23 pages total'},time:'1.2s'},
+  {title:{es:'OCR de imagenes (Tesseract)',en:'Image OCR (Tesseract)'},detail:{es:'2 documentos escaneados procesados: Lista de Empaque + Certificado de Origen',en:'Processed 2 scanned documents: Packing List + Certificate of Origin'},time:'3.8s'},
+  {title:{es:'Estructuracion IA (Gemini API)',en:'AI structuring (Gemini API)'},detail:{es:'Texto mapeado a esquema JSON: 8 items, 14 campos de encabezado, 3 referencias cruzadas',en:'Mapped extracted text to JSON schema: 8 line items, 14 header fields, 3 cross-references'},time:'2.4s'},
+  {title:{es:'Validacion cruzada con PO',en:'PO cross-validation'},detail:{es:'8 SKUs verificados contra PO-2026-0714. Cantidades validadas. 0 discrepancias.',en:'All 8 SKUs matched against PO-2026-0714. Quantities validated. 0 discrepancies.'},time:'0.5s'},
+  {title:{es:'Verificacion de codigos HS',en:'HS code verification'},detail:{es:'Codigos arancelarios validados contra base HTS de EE.UU. Todos activos para 2026.',en:'Tariff codes validated against US HTS database. All codes active for 2026.'},time:'0.8s'},
+  {title:{es:'Verificacion de cumplimiento aduanero',en:'Customs compliance check'},detail:{es:'ISF 10+2 presentado. Fianza verificada. Aviso previo FDA: no requerido para este embarque.',en:'ISF 10+2 filed. Bond verified. FDA Prior Notice: not required for this shipment.'},time:'0.6s'},
+  {title:{es:'Generacion de recibo esperado',en:'Expected receipt generation'},detail:{es:'Registro de recibo creado con 8 SKUs, 2,920 unidades totales. Listo para recibo fisico.',en:'Created receiving record with 8 SKUs, 2,920 total units. Ready for physical receiving.'},time:'0.2s'}
+];
 
-  // Stats
-  var grid = document.getElementById('srGrid');
-  grid.innerHTML =
-    '<div class="sr-stat"><div class="sr-stat-val">' + items.length + '</div><div class="sr-stat-label">SKUs extracted</div></div>' +
-    '<div class="sr-stat"><div class="sr-stat-val">' + totalUnits.toLocaleString() + '</div><div class="sr-stat-label">Total units</div></div>' +
-    '<div class="sr-stat"><div class="sr-stat-val">$' + (invoiceTotal/1000).toFixed(1) + 'K</div><div class="sr-stat-label">Invoice value</div></div>' +
-    '<div class="sr-stat"><div class="sr-stat-val">' + processingTime + 's</div><div class="sr-stat-label">AI processing</div></div>';
-
-  // Breakdown
-  var breakdown = document.getElementById('srBreakdown');
-  var bHtml = '';
-  for (var j = 0; j < items.length; j++) {
-    bHtml += '<div class="sr-break-row">' +
-      '<span class="sku">' + items[j].sku + ' -- ' + items[j].desc + '</span>' +
-      '<span class="qty">' + items[j].qty + ' units</span>' +
-      '<span class="cost">$' + items[j].cost.toFixed(2) + '</span>' +
-      '</div>';
-  }
-  breakdown.innerHTML = bHtml;
-
-  // Timeline
-  var timeline = document.getElementById('srTimeline');
-  var capacities = { '20ft':'14', '40ft':'30', '40hc':'37' };
-  var eta = Math.floor(Math.random() * 10 + 32);
-  var steps = [
-    { done:true, step:'PDF uploaded and parsed', detail:'pdfplumber extracted ' + (Math.floor(Math.random()*20+40)) + ' text blocks', time:'0.8s' },
-    { done:true, step:'AI structured extraction', detail:'Gemini API mapped ' + items.length + ' line items to JSON schema', time:processingTime + 's' },
-    { done:true, step:'PO cross-validation', detail:'All SKUs matched against purchase order database', time:'0.3s' },
-    { done:true, step:'Receiving records created', detail:totalUnits.toLocaleString() + ' units added to [Expected_Receipts]', time:'0.1s' },
-    { done:true, step:'In-transit inventory updated', detail:'stock_in_transit incremented for ' + items.length + ' references', time:'0.1s' },
-    { done:false, step:'Container arrival (' + capacities[container] + ' CBM)', detail:'ETA: ' + eta + ' days -- tracking auto-monitored', time:'Pending' }
-  ];
-
-  var tHtml = '';
-  for (var k = 0; k < steps.length; k++) {
-    tHtml += '<div class="tl-item">' +
-      '<div class="tl-dot' + (steps[k].done ? ' done' : '') + '"></div>' +
-      '<div class="tl-content">' +
-      '<div class="tl-step">' + steps[k].step + '</div>' +
-      '<div class="tl-detail">' + steps[k].detail + '</div>' +
-      '<div class="tl-time">' + steps[k].time + '</div>' +
-      '</div></div>';
-  }
-  timeline.innerHTML = tHtml;
-
-  document.getElementById('srTime').textContent = 'Processed in ' + processingTime + ' seconds';
-  document.getElementById('simResults').classList.add('visible');
-  document.getElementById('simResults').scrollIntoView({ behavior:'smooth', block:'start' });
-}
-
-// PRODUCT CATALOG (scanner database)
-var productDB = {
-  'SZ-LED-4K-55': { sku:'SZ-LED-4K-55', name:'LED Panel 55" 4K UHD', supplier:'Shenzhen Electronics Co.', origin:'China', category:'Displays',
-    unitCost:185.00, retailPrice:349.99, weight:'14.2 kg', dims:'124x72x8 cm',
-    totalStock:120, available:87, committed:28, inTransit:45, reorderPoint:30,
-    location:'A-03-12', zone:'Electronics',
-    lots:[
-      {id:'LOT-2026-0412',qty:50,cost:185.00,received:'2026-04-12',expires:null,loc:'A-03-12'},
-      {id:'LOT-2026-0318',qty:37,cost:182.50,received:'2026-03-18',expires:null,loc:'A-03-14'},
-      {id:'LOT-2025-1205',qty:33,cost:180.00,received:'2025-12-05',expires:null,loc:'B-01-08'}
-    ],
-    history:[
-      {type:'out',action:'Shipped to Tampa distributor',qty:-12,date:'2026-07-18'},
-      {type:'in',action:'Container SZ-4491 received',qty:50,date:'2026-04-12'},
-      {type:'out',action:'Bulk order - Orlando retail',qty:-25,date:'2026-04-01'},
-      {type:'adj',action:'Cycle count adjustment',qty:-2,date:'2026-03-20'}
-    ]},
-  'SZ-PWR-500W': { sku:'SZ-PWR-500W', name:'Power Supply Unit 500W', supplier:'Shenzhen Electronics Co.', origin:'China', category:'Components',
-    unitCost:24.50, retailPrice:54.99, weight:'1.8 kg', dims:'15x8.5x8.5 cm',
-    totalStock:300, available:220, committed:55, inTransit:100, reorderPoint:80,
-    location:'C-02-05', zone:'Components',
-    lots:[
-      {id:'LOT-2026-0520',qty:150,cost:24.50,received:'2026-05-20',expires:null,loc:'C-02-05'},
-      {id:'LOT-2026-0210',qty:150,cost:23.80,received:'2026-02-10',expires:null,loc:'C-02-06'}
-    ],
-    history:[
-      {type:'out',action:'Pick order #FL-2287',qty:-30,date:'2026-07-15'},
-      {type:'in',action:'Container SZ-4510 received',qty:150,date:'2026-05-20'},
-      {type:'out',action:'Pick order #FL-2190',qty:-45,date:'2026-05-02'}
-    ]},
-  'SZ-CBL-HDMI2': { sku:'SZ-CBL-HDMI2', name:'HDMI 2.1 Cable 6ft', supplier:'Shenzhen Electronics Co.', origin:'China', category:'Cables',
-    unitCost:3.80, retailPrice:12.99, weight:'0.15 kg', dims:'22x5x3 cm',
-    totalStock:1000, available:780, committed:120, inTransit:500, reorderPoint:200,
-    location:'D-01-01', zone:'Accessories',
-    lots:[
-      {id:'LOT-2026-0601',qty:500,cost:3.80,received:'2026-06-01',expires:null,loc:'D-01-01'},
-      {id:'LOT-2026-0315',qty:500,cost:3.65,received:'2026-03-15',expires:null,loc:'D-01-02'}
-    ],
-    history:[
-      {type:'out',action:'Amazon FBA replenishment',qty:-100,date:'2026-07-10'},
-      {type:'in',action:'Container SZ-4525 received',qty:500,date:'2026-06-01'}
-    ]},
-  'SZ-CAM-1080': { sku:'SZ-CAM-1080', name:'Security Camera 1080p WiFi', supplier:'Shenzhen Electronics Co.', origin:'China', category:'Security',
-    unitCost:18.50, retailPrice:44.99, weight:'0.35 kg', dims:'10x10x12 cm',
-    totalStock:250, available:42, committed:180, inTransit:0, reorderPoint:60,
-    location:'A-05-03', zone:'Electronics',
-    lots:[
-      {id:'LOT-2026-0108',qty:42,cost:18.50,received:'2026-01-08',expires:null,loc:'A-05-03'}
-    ],
-    history:[
-      {type:'out',action:'Bulk order - security installer',qty:-80,date:'2026-07-12'},
-      {type:'out',action:'Pick order #FL-2250',qty:-15,date:'2026-06-28'},
-      {type:'adj',action:'Damaged in transit - write off',qty:-3,date:'2026-06-15'}
-    ]},
-  'TP-PCB-A10': { sku:'TP-PCB-A10', name:'PCB Controller Board A10', supplier:'Taipei Components Ltd.', origin:'Taiwan', category:'Electronics',
-    unitCost:14.20, retailPrice:29.99, weight:'0.08 kg', dims:'8x6x0.5 cm',
-    totalStock:500, available:340, committed:90, inTransit:200, reorderPoint:100,
-    location:'C-04-01', zone:'Components',
-    lots:[
-      {id:'LOT-2026-0610',qty:300,cost:14.20,received:'2026-06-10',expires:null,loc:'C-04-01'},
-      {id:'LOT-2026-0402',qty:200,cost:13.90,received:'2026-04-02',expires:null,loc:'C-04-02'}
-    ],
-    history:[
-      {type:'out',action:'Manufacturing batch #M-445',qty:-60,date:'2026-07-16'},
-      {type:'in',action:'Container TP-1182 received',qty:300,date:'2026-06-10'}
-    ]},
-  'TP-BAT-3000': { sku:'TP-BAT-3000', name:'Li-Po Battery 3000mAh', supplier:'Taipei Components Ltd.', origin:'Taiwan', category:'Batteries',
-    unitCost:5.20, retailPrice:14.99, weight:'0.06 kg', dims:'7x4x1 cm',
-    totalStock:1500, available:1100, committed:250, inTransit:800, reorderPoint:400,
-    location:'E-01-01', zone:'Hazmat Storage',
-    lots:[
-      {id:'LOT-2026-0705',qty:800,cost:5.20,received:'2026-07-05',expires:'2028-07-05',loc:'E-01-01'},
-      {id:'LOT-2026-0301',qty:700,cost:5.00,received:'2026-03-01',expires:'2028-03-01',loc:'E-01-03'}
-    ],
-    history:[
-      {type:'in',action:'Container TP-1201 received',qty:800,date:'2026-07-05'},
-      {type:'out',action:'Pick order #FL-2270',qty:-150,date:'2026-06-20'}
-    ]},
-  'HN-BAG-ECO': { sku:'HN-BAG-ECO', name:'Eco Shopping Bag (Reusable)', supplier:'Hanoi Manufacturing', origin:'Vietnam', category:'Packaging',
-    unitCost:0.45, retailPrice:2.99, weight:'0.03 kg', dims:'40x35x12 cm',
-    totalStock:5000, available:3800, committed:600, inTransit:2000, reorderPoint:1000,
-    location:'F-02-01', zone:'Bulk Storage',
-    lots:[
-      {id:'LOT-2026-0620',qty:3000,cost:0.45,received:'2026-06-20',expires:null,loc:'F-02-01'},
-      {id:'LOT-2026-0410',qty:2000,cost:0.42,received:'2026-04-10',expires:null,loc:'F-02-03'}
-    ],
-    history:[
-      {type:'out',action:'Retail chain monthly order',qty:-500,date:'2026-07-14'},
-      {type:'in',action:'Container HN-0887 received',qty:3000,date:'2026-06-20'}
-    ]},
-  'HN-TAG-RFID': { sku:'HN-TAG-RFID', name:'RFID Tag Roll x100', supplier:'Hanoi Manufacturing', origin:'Vietnam', category:'Tracking',
-    unitCost:28.00, retailPrice:64.99, weight:'0.5 kg', dims:'12x12x8 cm',
-    totalStock:100, available:18, committed:72, inTransit:0, reorderPoint:25,
-    location:'C-06-01', zone:'Components',
-    lots:[
-      {id:'LOT-2026-0505',qty:18,cost:28.00,received:'2026-05-05',expires:null,loc:'C-06-01'}
-    ],
-    history:[
-      {type:'out',action:'Internal use - warehouse labels',qty:-12,date:'2026-07-08'},
-      {type:'out',action:'Pick order #FL-2231',qty:-20,date:'2026-06-01'},
-      {type:'adj',action:'Inventory recount +2',qty:2,date:'2026-05-28'}
-    ]}
-};
-
-// SCANNER ENGINE
+/* =============== STATE =============== */
+var currentStep = 0;
+var selectedCargo = 'hc40';
+var docsUploaded = {};
+var receivedItems = {};
+var itemLocations = {};
+var currentScanItem = null;
 var scannerStream = null;
 var scannerInterval = null;
 
+/* =============== HELPERS =============== */
+function tl(obj) {
+  if (!obj) return '';
+  if (typeof obj === 'string') return obj;
+  return obj[LANG] || obj.en || '';
+}
+
+/* =============== STEP NAV =============== */
+function goStep(n) {
+  currentStep = n;
+  for (var i = 0; i < 5; i++) {
+    document.getElementById('panel' + i).classList.toggle('active', i === n);
+    var tab = document.getElementById('stab' + i);
+    tab.classList.toggle('active', i === n);
+    if (i < n) tab.classList.add('done'); else tab.classList.remove('done');
+  }
+  window.scrollTo(0, 0);
+  if (n === 3) renderReceivingList();
+  if (n === 4) renderConfirmation();
+}
+
+/* =============== STEP 0: CARGO =============== */
+function renderCargoGrid() {
+  var g = document.getElementById('cargoGrid');
+  var h = '';
+  for (var i = 0; i < CARGO_TYPES.length; i++) {
+    var c = CARGO_TYPES[i];
+    h += '<div class="cargo-card' + (c.id === selectedCargo ? ' selected' : '') + '" onclick="selectCargo(\'' + c.id + '\')">';
+    h += '<span class="cargo-icon">' + c.icon + '</span>';
+    h += '<div class="cargo-name">' + tl(c.name) + '</div>';
+    h += '<div class="cargo-spec">' + tl(c.spec) + '</div>';
+    h += '</div>';
+  }
+  g.innerHTML = h;
+}
+
+function selectCargo(id) {
+  selectedCargo = id;
+  renderCargoGrid();
+}
+
+/* =============== STEP 1: DOCUMENTS =============== */
+function renderDocList(containerId, docs) {
+  var el = document.getElementById(containerId);
+  var h = '';
+  for (var i = 0; i < docs.length; i++) {
+    var d = docs[i];
+    var uploaded = docsUploaded[d.id];
+    var cls = uploaded ? ' processed' : '';
+    h += '<div class="doc-item' + cls + '" id="doc-' + d.id + '">';
+    h += '<div class="doc-icon ' + (uploaded ? 'ok' : d.type) + '">' + (uploaded ? 'OK' : d.type.toUpperCase()) + '</div>';
+    h += '<div class="doc-info"><div class="doc-name">' + tl(d.name) + '</div><div class="doc-desc">' + tl(d.desc) + '</div></div>';
+    if (uploaded) {
+      h += '<span class="doc-status" style="color:var(--green)">' + t('uploaded') + '</span>';
+    } else {
+      h += '<button class="doc-upload" onclick="uploadDoc(\'' + d.id + '\')">' + (d.required ? t('upload') : t('uploadOpt')) + '</button>';
+    }
+    h += '</div>';
+  }
+  el.innerHTML = h;
+}
+
+function uploadDoc(id) {
+  docsUploaded[id] = true;
+  var item = document.getElementById('doc-' + id);
+  item.classList.add('processed');
+  var icon = item.querySelector('.doc-icon');
+  icon.className = 'doc-icon ok';
+  icon.textContent = 'OK';
+  var btn = item.querySelector('.doc-upload');
+  if (btn) {
+    var span = document.createElement('span');
+    span.className = 'doc-status';
+    span.style.color = 'var(--green)';
+    span.textContent = t('uploaded');
+    btn.parentNode.replaceChild(span, btn);
+  }
+}
+
+function processAllDocs() {
+  var allDocs = DOCS.transport.concat(DOCS.commercial).concat(DOCS.customs);
+  for (var i = 0; i < allDocs.length; i++) {
+    if (allDocs[i].required) docsUploaded[allDocs[i].id] = true;
+  }
+  renderDocList('docsTransport', DOCS.transport);
+  renderDocList('docsCommercial', DOCS.commercial);
+  renderDocList('docsCustoms', DOCS.customs);
+  goStep(2);
+  runAIPipeline();
+}
+
+/* =============== STEP 2: AI PROCESSING =============== */
+function runAIPipeline() {
+  var timeline = document.getElementById('aiTimeline');
+  timeline.innerHTML = '';
+
+  function showStep(idx) {
+    if (idx >= AI_STEPS.length) {
+      document.getElementById('pipelineTag').className = 'sec-tag tag-done';
+      document.getElementById('pipelineTag').textContent = t('complete');
+      showOCRResults();
+      showLineItems();
+      document.getElementById('aiActions').style.display = 'flex';
+      return;
+    }
+
+    var s = AI_STEPS[idx];
+    var div = document.createElement('div');
+    div.className = 'ai-step';
+    div.innerHTML = '<div class="ai-dot-col"><div class="ai-dot active"></div><div class="ai-line"></div></div>' +
+      '<div class="ai-step-content"><div class="ai-step-title">' + tl(s.title) + '</div>' +
+      '<div class="ai-step-detail">' + tl(s.detail) + '</div>' +
+      '<div class="ai-step-time">' + s.time + '</div></div>';
+    timeline.appendChild(div);
+
+    setTimeout(function() {
+      div.querySelector('.ai-dot').classList.remove('active');
+      div.querySelector('.ai-dot').classList.add('done');
+      showStep(idx + 1);
+    }, 400 + Math.random() * 300);
+  }
+
+  showStep(0);
+}
+
+function showOCRResults() {
+  document.getElementById('ocrResultsSection').style.display = 'block';
+  var bl = document.getElementById('fBL').value;
+  var supplier = document.getElementById('fSupplier').options[document.getElementById('fSupplier').selectedIndex].text;
+  var container = document.getElementById('fContainer').value;
+  var po = document.getElementById('fPO').value;
+  var port = document.getElementById('fPort').options[document.getElementById('fPort').selectedIndex].text;
+  var incoterm = document.getElementById('fIncoterm').value;
+
+  var totalUnits = 0, totalValue = 0;
+  for (var i = 0; i < SAMPLE_ITEMS.length; i++) {
+    totalUnits += SAMPLE_ITEMS[i].qty;
+    totalValue += SAMPLE_ITEMS[i].qty * SAMPLE_ITEMS[i].cost;
+  }
+
+  var LBL = {
+    bl:       {es:'Numero BL',en:'BL Number'},
+    supplier: {es:'Proveedor',en:'Supplier'},
+    container:{es:'Contenedor',en:'Container'},
+    po:       {es:'Orden de Compra',en:'Purchase Order'},
+    port:     {es:'Puerto de Entrada',en:'Port of Entry'},
+    incoterm: {es:'Incoterm',en:'Incoterm'},
+    skus:     {es:'Total SKUs',en:'Total SKUs'},
+    units:    {es:'Total Unidades',en:'Total Units'},
+    invoice:  {es:'Total Factura',en:'Invoice Total'},
+    weight:   {es:'Peso Bruto',en:'Gross Weight'},
+    cbm:      {es:'CBM',en:'CBM'},
+    vessel:   {es:'Buque / Vuelo',en:'Vessel / Flight'}
+  };
+
+  var refs = LANG === 'es' ? '8 referencias' : '8 references';
+
+  var fields = [
+    {label:tl(LBL.bl),val:bl,cls:'match'},
+    {label:tl(LBL.supplier),val:supplier.split('(')[0].trim(),cls:''},
+    {label:tl(LBL.container),val:container,cls:'match'},
+    {label:tl(LBL.po),val:po,cls:'match'},
+    {label:tl(LBL.port),val:port,cls:''},
+    {label:tl(LBL.incoterm),val:incoterm,cls:''},
+    {label:tl(LBL.skus),val:refs,cls:'match'},
+    {label:tl(LBL.units),val:totalUnits.toLocaleString(),cls:''},
+    {label:tl(LBL.invoice),val:'$' + totalValue.toLocaleString('en-US',{minimumFractionDigits:2}),cls:''},
+    {label:tl(LBL.weight),val:'3,847 kg',cls:''},
+    {label:tl(LBL.cbm),val:'34.2 / 37.0',cls:selectedCargo === 'hc40' ? 'match' : 'warn'},
+    {label:tl(LBL.vessel),val:'MSC ISABELLA V.026E',cls:''}
+  ];
+
+  var h = '';
+  for (var j = 0; j < fields.length; j++) {
+    var f = fields[j];
+    h += '<div class="ocr-field"><div class="ocr-field-label">' + f.label + '</div><div class="ocr-field-val' + (f.cls ? ' ' + f.cls : '') + '">' + f.val + '</div></div>';
+  }
+  document.getElementById('ocrGrid').innerHTML = h;
+}
+
+function showLineItems() {
+  document.getElementById('lineItemsSection').style.display = 'block';
+  document.getElementById('itemCount').textContent = SAMPLE_ITEMS.length;
+  var h = '';
+  for (var i = 0; i < SAMPLE_ITEMS.length; i++) {
+    var it = SAMPLE_ITEMS[i];
+    var total = it.qty * it.cost;
+    h += '<tr>';
+    h += '<td class="mono">' + it.sku + '</td>';
+    h += '<td>' + it.desc + '</td>';
+    h += '<td class="mono">' + it.qty.toLocaleString() + '</td>';
+    h += '<td class="mono">$' + it.cost.toFixed(2) + '</td>';
+    h += '<td class="mono">$' + total.toLocaleString('en-US',{minimumFractionDigits:2}) + '</td>';
+    h += '<td class="mono" style="font-size:10px">' + it.hs + '</td>';
+    h += '<td class="match">' + t('matched') + '</td>';
+    h += '</tr>';
+  }
+  document.getElementById('itemsBody').innerHTML = h;
+}
+
+/* =============== STEP 3: PHYSICAL RECEIVING =============== */
+function renderReceivingList() {
+  var list = document.getElementById('recvList');
+  var h = '';
+  var received = 0;
+  for (var i = 0; i < SAMPLE_ITEMS.length; i++) {
+    var it = SAMPLE_ITEMS[i];
+    var done = receivedItems[it.sku];
+    var loc = itemLocations[it.sku];
+    if (done) received++;
+    h += '<div class="recv-card' + (done ? ' scanned' : ' pending') + '">';
+    h += '<div class="recv-sku">' + it.sku + '</div>';
+    h += '<div class="recv-desc">' + it.desc + (loc ? '<br><span style="font-size:10px;color:var(--cyan)">' + t('location') + ': ' + loc.code + ' / ' + t('thLot') + ': ' + loc.lot + '</span>' : '') + '</div>';
+    h += '<div class="recv-qty"><div class="recv-qty-label">QTY</div><div class="recv-qty-val ' + (done ? 'full' : 'zero') + '">' + (done ? it.qty : '0') + ' / ' + it.qty + '</div></div>';
+    if (!done) {
+      h += '<div class="recv-actions"><button class="btn btn-sm btn-secondary" onclick="manualReceive(\'' + it.sku + '\')">' + t('receive') + '</button></div>';
+    }
+    h += '</div>';
+  }
+  list.innerHTML = h;
+  document.getElementById('recvProgress').textContent = received + ' / ' + SAMPLE_ITEMS.length;
+  var pct = SAMPLE_ITEMS.length > 0 ? (received / SAMPLE_ITEMS.length * 100) : 0;
+  var bar = document.getElementById('recvBar');
+  bar.style.width = pct + '%';
+  if (pct >= 100) bar.classList.add('complete');
+  document.getElementById('btnFinish').disabled = received < SAMPLE_ITEMS.length;
+}
+
 function toggleScanner() {
-  var view = document.getElementById('scannerView');
-  if (view.classList.contains('active')) { stopScanner(); return; }
+  var area = document.getElementById('scannerArea');
+  var btn = document.getElementById('scanToggle');
+  if (area.style.display !== 'none') {
+    stopScanner();
+    area.style.display = 'none';
+    btn.textContent = t('btnOpenCam');
+    return;
+  }
+  area.style.display = 'block';
+  btn.textContent = t('btnCloseCam');
   startScanner();
 }
 
 function startScanner() {
-  var view = document.getElementById('scannerView');
   var video = document.getElementById('scanVideo');
-  var btn = document.getElementById('scanBtn');
-
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('Camera not available. Use the manual code input below.');
-    return;
-  }
-
-  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg><span>Close scanner</span>';
-  view.classList.add('active');
-
-  navigator.mediaDevices.getUserMedia({ video: { facingMode:'environment', width:{ideal:1280}, height:{ideal:720} } })
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}})
     .then(function(stream) {
       scannerStream = stream;
       video.srcObject = stream;
       video.play();
-      startDetection(video);
-    })
-    .catch(function(err) {
-      view.classList.remove('active');
-      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="8" x2="11" y2="8"/><line x1="7" y1="16" x2="13" y2="16"/></svg><span>Open camera scanner</span>';
-      alert('Camera access denied. Use the manual code input.');
-    });
-}
-
-function startDetection(video) {
-  if ('BarcodeDetector' in window) {
-    var detector = new BarcodeDetector({ formats:['qr_code','ean_13','ean_8','code_128','code_39','upc_a','upc_e','codabar','itf'] });
-    scannerInterval = setInterval(function() {
-      if (video.readyState < 2) return;
-      detector.detect(video).then(function(codes) {
-        if (codes.length > 0) {
-          var raw = codes[0].rawValue;
-          handleScannedCode(raw);
-        }
-      }).catch(function(){});
-    }, 300);
-  } else {
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    scannerInterval = setInterval(function() {
-      if (video.readyState < 2) return;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0);
-    }, 500);
-  }
-}
-
-function handleScannedCode(code) {
-  stopScanner();
-  document.getElementById('manualCode').value = code;
-  var product = findProduct(code);
-  if (product) {
-    renderProductCard(product);
-  } else {
-    renderNotFound(code);
-  }
+      if ('BarcodeDetector' in window) {
+        var detector = new BarcodeDetector({formats:['qr_code','ean_13','ean_8','code_128','code_39','upc_a','upc_e','codabar','itf']});
+        scannerInterval = setInterval(function() {
+          if (video.readyState < 2) return;
+          detector.detect(video).then(function(codes) {
+            if (codes.length > 0) {
+              document.getElementById('manualSku').value = codes[0].rawValue;
+              scanItem();
+            }
+          }).catch(function(){});
+        }, 300);
+      }
+    }).catch(function(){});
 }
 
 function stopScanner() {
-  var view = document.getElementById('scannerView');
-  var btn = document.getElementById('scanBtn');
-  view.classList.remove('active');
-  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="8" x2="11" y2="8"/><line x1="7" y1="16" x2="13" y2="16"/></svg><span>Open camera scanner</span>';
-  if (scannerStream) {
-    scannerStream.getTracks().forEach(function(t){ t.stop(); });
-    scannerStream = null;
-  }
+  if (scannerStream) { scannerStream.getTracks().forEach(function(t){t.stop();}); scannerStream = null; }
   if (scannerInterval) { clearInterval(scannerInterval); scannerInterval = null; }
 }
 
-function lookupCode() {
-  var code = document.getElementById('manualCode').value.trim().toUpperCase();
+function scanItem() {
+  var code = document.getElementById('manualSku').value.trim().toUpperCase();
   if (!code) return;
-  var product = findProduct(code);
-  if (product) { renderProductCard(product); }
-  else { renderNotFound(code); }
-}
-
-function findProduct(code) {
-  code = code.toUpperCase().trim();
-  if (productDB[code]) return productDB[code];
-  var keys = Object.keys(productDB);
-  for (var i = 0; i < keys.length; i++) {
-    if (keys[i].indexOf(code) !== -1 || code.indexOf(keys[i]) !== -1) return productDB[keys[i]];
-  }
-  return null;
-}
-
-function renderProductCard(p) {
-  var card = document.getElementById('productCard');
-  var stockPct = Math.round((p.available / p.totalStock) * 100);
-  var statusClass = stockPct > 40 ? 'in-stock' : stockPct > 15 ? 'low-stock' : 'out';
-  var statusText = stockPct > 40 ? 'IN STOCK' : stockPct > 15 ? 'LOW STOCK' : 'CRITICAL';
-  var margin = ((p.retailPrice - p.unitCost) / p.retailPrice * 100).toFixed(1);
-  var fifoPos = p.lots.length > 0 ? '1 / ' + p.lots.length : '--';
-
-  var h = '<div class="product-card-header">';
-  h += '<div><div class="pc-sku">' + p.sku + '</div><div class="pc-name">' + p.name + '</div></div>';
-  h += '<div class="pc-status ' + statusClass + '">' + statusText + '</div>';
-  h += '</div>';
-  h += '<div class="product-card-body">';
-
-  // Main grid
-  h += '<div class="pc-grid">';
-  h += '<div class="pc-field"><div class="pc-field-label">Available</div><div class="pc-field-val ' + (stockPct > 40?'green':stockPct>15?'yellow':'red') + '">' + p.available.toLocaleString() + '</div></div>';
-  h += '<div class="pc-field"><div class="pc-field-label">Committed</div><div class="pc-field-val cyan">' + p.committed.toLocaleString() + '</div></div>';
-  h += '<div class="pc-field"><div class="pc-field-label">In Transit</div><div class="pc-field-val">' + p.inTransit.toLocaleString() + '</div></div>';
-  h += '<div class="pc-field"><div class="pc-field-label">Unit Cost</div><div class="pc-field-val mono">$' + p.unitCost.toFixed(2) + '</div></div>';
-  h += '<div class="pc-field"><div class="pc-field-label">Retail</div><div class="pc-field-val mono">$' + p.retailPrice.toFixed(2) + '</div></div>';
-  h += '<div class="pc-field"><div class="pc-field-label">Margin</div><div class="pc-field-val green">' + margin + '%</div></div>';
-  h += '<div class="pc-field"><div class="pc-field-label">Supplier</div><div class="pc-field-val" style="font-size:12px">' + p.supplier + '</div></div>';
-  h += '<div class="pc-field"><div class="pc-field-label">Location</div><div class="pc-field-val mono cyan">' + p.location + '</div></div>';
-  h += '<div class="pc-field"><div class="pc-field-label">FIFO Position</div><div class="pc-field-val">' + fifoPos + '</div></div>';
-  h += '</div>';
-
-  // Lots (FIFO order)
-  if (p.lots.length > 0) {
-    h += '<div class="pc-lots"><div class="pc-lots-title">Lot breakdown (FIFO order)</div>';
-    for (var i = 0; i < p.lots.length; i++) {
-      var lot = p.lots[i];
-      h += '<div class="pc-lot-row">';
-      h += '<span class="lot-id">' + lot.id + '</span>';
-      h += '<span class="lot-qty">' + lot.qty + ' units</span>';
-      h += '<span class="lot-cost">$' + lot.cost.toFixed(2) + '</span>';
-      h += '<span class="lot-date">' + lot.received + '</span>';
-      h += '<span class="lot-loc">' + lot.loc + '</span>';
-      h += '</div>';
+  var found = null;
+  for (var i = 0; i < SAMPLE_ITEMS.length; i++) {
+    if (SAMPLE_ITEMS[i].sku === code || code.indexOf(SAMPLE_ITEMS[i].sku) !== -1 || SAMPLE_ITEMS[i].sku.indexOf(code) !== -1) {
+      found = SAMPLE_ITEMS[i];
+      break;
     }
-    h += '</div>';
   }
+  if (!found) { alert(t('alertSkuNotFound') + code); return; }
+  if (receivedItems[found.sku]) { alert(found.sku + t('alertAlreadyRecvd')); return; }
+  currentScanItem = found;
+  showLocationAssignment(found);
+}
 
-  // Movement history
-  if (p.history.length > 0) {
-    h += '<div class="pc-history"><div class="pc-hist-title">Recent movements</div>';
-    for (var j = 0; j < p.history.length; j++) {
-      var mv = p.history[j];
-      h += '<div class="pc-hist-row">';
-      h += '<div class="pc-hist-dot ' + mv.type + '"></div>';
-      h += '<div class="pc-hist-action">' + mv.action + '</div>';
-      h += '<div class="pc-hist-qty">' + (mv.qty > 0 ? '+' : '') + mv.qty + '</div>';
-      h += '<div class="pc-hist-date">' + mv.date + '</div>';
-      h += '</div>';
+function manualReceive(sku) {
+  for (var i = 0; i < SAMPLE_ITEMS.length; i++) {
+    if (SAMPLE_ITEMS[i].sku === sku) {
+      currentScanItem = SAMPLE_ITEMS[i];
+      showLocationAssignment(SAMPLE_ITEMS[i]);
+      return;
     }
+  }
+}
+
+function showLocationAssignment(item) {
+  document.getElementById('locSection').style.display = 'block';
+  document.getElementById('locSku').textContent = item.sku + ' -- ' + item.desc + ' (' + item.qty + (LANG === 'es' ? ' unidades)' : ' units)');
+  var today = new Date();
+  document.getElementById('lotNumber').value = 'LOT-' + today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
+  renderLocGrid();
+  document.getElementById('locSection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderLocGrid() {
+  var g = document.getElementById('locGrid');
+  var sel = document.getElementById('locSelect');
+  var h = '', opts = '<option value="">' + t('selectLoc') + '</option>';
+  for (var i = 0; i < LOCATIONS.length; i++) {
+    var loc = LOCATIONS[i];
+    var occ = loc.status === 'occupied';
+    var zoneName = tl(loc.zone);
+    h += '<div class="loc-cell' + (occ ? ' occupied' : '') + '" onclick="' + (occ ? '' : 'selectLoc(\'' + loc.code + '\')') + '" id="loc-' + loc.code.replace(/[^a-zA-Z0-9]/g,'') + '">';
+    h += '<div class="loc-code">' + loc.code + '</div>';
+    h += '<div class="loc-zone">' + zoneName + '</div>';
+    h += '<div class="loc-status" style="color:' + (occ ? 'var(--red)' : 'var(--green)') + '">' + (occ ? t('occupied') : t('available')) + '</div>';
     h += '</div>';
+    if (!occ) opts += '<option value="' + loc.code + '">' + loc.code + ' (' + zoneName + ')</option>';
+  }
+  g.innerHTML = h;
+  sel.innerHTML = opts;
+}
+
+function selectLoc(code) {
+  document.getElementById('locSelect').value = code;
+  var cells = document.querySelectorAll('.loc-cell');
+  for (var i = 0; i < cells.length; i++) cells[i].classList.remove('selected');
+  var id = 'loc-' + code.replace(/[^a-zA-Z0-9]/g, '');
+  var el = document.getElementById(id);
+  if (el) el.classList.add('selected');
+}
+
+function confirmLocation() {
+  if (!currentScanItem) return;
+  var loc = document.getElementById('locSelect').value;
+  var lot = document.getElementById('lotNumber').value;
+  if (!loc) { alert(t('alertSelectLoc')); return; }
+  if (!lot) { alert(t('alertEnterLot')); return; }
+
+  receivedItems[currentScanItem.sku] = true;
+  itemLocations[currentScanItem.sku] = {code: loc, lot: lot, expiry: document.getElementById('lotExpiry').value || 'N/A'};
+
+  for (var i = 0; i < LOCATIONS.length; i++) {
+    if (LOCATIONS[i].code === loc) { LOCATIONS[i].status = 'occupied'; break; }
   }
 
-  h += '</div>';
-  card.innerHTML = h;
-  card.classList.add('visible');
-  card.scrollIntoView({ behavior:'smooth', block:'start' });
+  document.getElementById('locSection').style.display = 'none';
+  document.getElementById('manualSku').value = '';
+  currentScanItem = null;
+  renderReceivingList();
 }
 
-function renderNotFound(code) {
-  var card = document.getElementById('productCard');
-  card.innerHTML = '<div class="product-card-header">' +
-    '<div><div class="pc-sku">' + code + '</div><div class="pc-name">Product not found in database</div></div>' +
-    '<div class="pc-status out">NOT FOUND</div></div>' +
-    '<div class="product-card-body"><div style="padding:20px 0;text-align:center;color:var(--dim);font-size:13px">' +
-    'This code is not registered in the inventory system.<br>In production, scanning an unknown code triggers an automatic registration flow.' +
-    '</div></div>';
-  card.classList.add('visible');
-  card.scrollIntoView({ behavior:'smooth', block:'start' });
+/* =============== STEP 4: CONFIRMATION =============== */
+function renderConfirmation() {
+  var totalUnits = 0, totalValue = 0, totalWeight = 0;
+  for (var i = 0; i < SAMPLE_ITEMS.length; i++) {
+    totalUnits += SAMPLE_ITEMS[i].qty;
+    totalValue += SAMPLE_ITEMS[i].qty * SAMPLE_ITEMS[i].cost;
+    totalWeight += SAMPLE_ITEMS[i].qty * SAMPLE_ITEMS[i].weight;
+  }
+
+  document.getElementById('summaryGrid').innerHTML =
+    '<div class="summary-stat"><div class="summary-val cyan">' + SAMPLE_ITEMS.length + '</div><div class="summary-label">' + t('skusRecvd') + '</div></div>' +
+    '<div class="summary-stat"><div class="summary-val green">' + totalUnits.toLocaleString() + '</div><div class="summary-label">' + t('totalUnits') + '</div></div>' +
+    '<div class="summary-stat"><div class="summary-val">$' + (totalValue/1000).toFixed(1) + 'K</div><div class="summary-label">' + t('invoiceVal') + '</div></div>' +
+    '<div class="summary-stat"><div class="summary-val">' + (totalWeight/1000).toFixed(1) + 'T</div><div class="summary-label">' + t('grossWeight') + '</div></div>';
+
+  var sp = document.getElementById('sheetsPreview');
+  var sh = '<div class="sheets-bar">';
+  sh += '<svg class="sheets-bar-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" fill="#0f7b3e"/><path d="M7 7h4v4H7zM13 7h4v4h-4zM7 13h4v4H7zM13 13h4v4h-4z" fill="#fff" opacity=".3"/></svg>';
+  sh += '<span class="sheets-bar-title">Recepciones_Esperadas -- ' + t('synced') + '</span></div>';
+  sh += '<div class="sheets-grid"><table><thead><tr><th>id_recepcion</th><th>sku</th><th>' + t('thDesc').toLowerCase() + '</th><th>' + t('thQty').toLowerCase() + '</th><th>' + t('thUnitCost').toLowerCase() + '</th><th>' + t('thLot').toLowerCase() + '</th><th>' + t('thLocation').toLowerCase() + '</th><th>fecha_ingreso</th><th>po</th></tr></thead><tbody>';
+  var today = new Date().toISOString().split('T')[0];
+  var po = document.getElementById('fPO').value;
+  for (var j = 0; j < SAMPLE_ITEMS.length; j++) {
+    var it = SAMPLE_ITEMS[j];
+    var loc = itemLocations[it.sku] || {code:'--',lot:'--'};
+    sh += '<tr><td>RCV-' + (1000 + j) + '</td><td>' + it.sku + '</td><td>' + it.desc + '</td><td>' + it.qty + '</td><td>' + it.cost.toFixed(2) + '</td><td>' + loc.lot + '</td><td>' + loc.code + '</td><td>' + today + '</td><td>' + po + '</td></tr>';
+  }
+  sh += '</tbody></table></div>';
+  sp.innerHTML = sh;
+
+  var ib = '';
+  for (var k = 0; k < SAMPLE_ITEMS.length; k++) {
+    var item = SAMPLE_ITEMS[k];
+    var l = itemLocations[item.sku] || {code:'--',lot:'--'};
+    var prevTransit = item.qty;
+    var newAvail = item.qty;
+    ib += '<tr><td class="mono">' + item.sku + '</td><td>' + item.desc + '</td><td class="mono" style="color:var(--green)">+' + item.qty + '</td><td class="mono" style="color:var(--cyan)">' + l.code + '</td><td class="mono">' + l.lot + '</td><td class="mono" style="color:var(--red)">-' + prevTransit + '</td><td class="mono" style="color:var(--green)">+' + newAvail + '</td></tr>';
+  }
+  document.getElementById('impactBody').innerHTML = ib;
 }
+
+/* =============== INIT =============== */
+applyLang();
 </script>
 </body>
 </html>

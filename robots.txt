@@ -4,5 +4,6 @@ Allow: /
 Disallow: /platform.html
 Disallow: /apps-script.js
 Disallow: /SETUP-PLATFORM.md
+Disallow: /demos/
 
 Sitemap: https://7group.site/sitemap.xml
