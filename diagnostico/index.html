@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>7Group &mdash; Business Diagnostic</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f5;--bg-dark:#0a0a0a;--text:#0a0a0a;--text-light:#6b6b6b;
+  --text-inv:#fff;--cyan:#5ee7f7;--border:#e8e8e8;
+  --border-dark:rgba(255,255,255,.08);--white:#fff;
+  --green:#2ecc71;--yellow:#f1c40f;--red:#e74c3c;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+body{background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+
+/* ── Topbar ── */
+.topbar{
+  background:rgba(10,10,10,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-dark);
+  padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+}
+.topbar .logo-text{color:var(--text-inv);font-size:18px;font-weight:700;letter-spacing:-.5px;opacity:.9}
+.topbar .badge{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+
+/* ── Shell ── */
+.shell{max-width:680px;margin:0 auto;padding:32px 20px 80px}
+
+/* ── Hero ── */
+.hero{margin-bottom:40px}
+.hero .tag{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px}
+.hero h1{font-size:36px;font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:8px}
+.hero h1 span{color:var(--text-light)}
+.hero .subtitle{color:var(--text-light);font-size:15px}
+.hero .ref{font-size:12px;color:var(--text-light);margin-top:8px;font-family:'Courier New',monospace;letter-spacing:1px}
+
+/* ── Cards ── */
+.card{border-left:1px solid var(--border);padding:24px 0 24px 24px;margin-bottom:32px}
+.card-label{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:16px}
+
+/* ── Business summary ── */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.summary-item{padding:14px 16px;border:1px solid var(--border)}
+.summary-item .si-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:4px}
+.summary-item .si-value{font-size:15px;font-weight:600}
+
+/* ── Score ring ── */
+.score-section{display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.score-ring{position:relative;width:120px;height:120px;flex-shrink:0}
+.score-ring svg{width:120px;height:120px;transform:rotate(-90deg)}
+.score-ring .bg{fill:none;stroke:var(--border);stroke-width:6}
+.score-ring .fg{fill:none;stroke-width:6;stroke-linecap:square;transition:stroke-dashoffset .8s ease}
+.score-ring .score-text{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:28px;font-weight:700;letter-spacing:-1px;
+}
+.score-ring .score-label{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,14px);
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);
+}
+.score-breakdown{flex:1;min-width:200px}
+.sb-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.sb-row:last-child{border:none}
+.sb-row .sb-name{font-size:13px;color:var(--text-light)}
+.sb-row .sb-status{font-size:12px;font-weight:600;letter-spacing:.5px}
+.sb-row .sb-status.yes{color:var(--green)}
+.sb-row .sb-status.partial{color:var(--yellow)}
+.sb-row .sb-status.no{color:var(--red)}
+
+/* ── Needs ── */
+.needs-list{display:flex;flex-wrap:wrap;gap:8px}
+.need-tag{padding:8px 16px;border:1px solid var(--border);font-size:13px;transition:all .2s}
+.need-tag.matched{border-color:var(--cyan);background:rgba(94,231,247,.06)}
+
+/* ── Solutions ── */
+.solutions-grid{display:flex;flex-direction:column;gap:16px}
+.sol-card{border:1px solid var(--border);padding:20px 24px;transition:border-color .2s}
+.sol-card:hover{border-color:var(--text-light)}
+.sol-card .sol-num{font-size:11px;letter-spacing:2.5px;color:var(--cyan);margin-bottom:8px}
+.sol-card .sol-title{font-size:18px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px}
+.sol-card .sol-desc{font-size:14px;color:var(--text-light);line-height:1.5}
+.sol-card .sol-scope{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.sol-card .sol-scope span{font-size:11px;padding:4px 10px;border:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;color:var(--text-light)}
+
+/* ── Pain / Goal ── */
+.insight-block{padding:16px 20px;border:1px solid var(--border);margin-bottom:12px}
+.insight-block .ib-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:6px}
+.insight-block .ib-text{font-size:15px;font-style:italic;color:var(--text)}
+
+/* ── CTA ── */
+.cta-section{text-align:center;padding:48px 20px;margin-top:32px;border-top:1px solid var(--border)}
+.cta-section h2{font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:8px}
+.cta-section p{color:var(--text-light);font-size:14px;margin-bottom:24px;max-width:400px;margin-inline:auto}
+.cta-btn{
+  display:inline-block;padding:16px 40px;
+  background:var(--text);color:var(--white);
+  text-decoration:none;font-size:13px;font-weight:500;
+  letter-spacing:1.5px;text-transform:uppercase;
+  border:2px solid var(--text);transition:all .2s;
+}
+.cta-btn:hover{background:var(--cyan);border-color:var(--cyan);color:var(--bg-dark)}
+
+/* ── Footer ── */
+.foot{text-align:center;padding:24px;font-size:11px;color:var(--text-light);letter-spacing:1px;text-transform:uppercase}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:80px 20px}
+.empty h2{font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:8px}
+.empty p{color:var(--text-light);font-size:14px}
+
+/* ── Case match ── */
+.case-match{border:1px solid var(--cyan);padding:24px;position:relative;overflow:hidden}
+.case-match::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cyan);
+}
+.case-match-badge{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  padding:4px 12px;background:rgba(94,231,247,.08);color:var(--cyan);border:1px solid rgba(94,231,247,.2);
+  margin-bottom:16px;
+}
+.case-match-title{font-size:20px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px}
+.case-match-sector{font-size:13px;color:var(--text-light);margin-bottom:16px}
+.case-results{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:480px){.case-results{grid-template-columns:1fr}}
+.case-result{padding:14px;border:1px solid var(--border);text-align:center}
+.case-result .cr-val{font-size:22px;font-weight:700;color:var(--cyan);letter-spacing:-1px}
+.case-result .cr-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-top:2px}
+.case-applied{margin-top:12px}
+.case-applied-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:8px}
+.case-applied-list{display:flex;flex-wrap:wrap;gap:6px}
+.case-applied-list span{font-size:11px;padding:4px 10px;border:1px solid var(--border);letter-spacing:.5px;color:var(--text-light)}
+.case-link{
+  display:inline-block;margin-top:16px;padding:10px 24px;
+  font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  color:var(--cyan);border:1px solid var(--cyan);text-decoration:none;transition:all .2s;
+}
+.case-link:hover{background:var(--cyan);color:var(--bg-dark)}
+
+@media(max-width:480px){
+  .hero h1{font-size:28px}
+  .summary-grid{grid-template-columns:1fr}
+  .score-section{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo-text">7group</span>
+  <span class="badge">Business Diagnostic</span>
+</div>
+
+<div class="shell" id="main">
+  <div class="empty" id="emptyState">
+    <h2>No data provided.</h2>
+    <p>This page generates automatically from a completed business brief.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ── Solutions catalog ── */
+  var SOLUTIONS = {
+    'Website / Landing': {
+      title: 'Professional Website',
+      desc: 'Custom-built landing page optimized for conversions. Mobile-first, fast, SEO-ready. Your digital storefront working 24/7.',
+      scope: ['Design','Development','SEO','Analytics'],
+      priority: 1
+    },
+    'Online Quoting': {
+      title: 'Automated Quoting Engine',
+      desc: 'Let customers build their own quotes in real time. Reduces response time from hours to seconds. Connected to WhatsApp and email.',
+      scope: ['Quote builder','WhatsApp push','Email alerts','Dashboard'],
+      priority: 2
+    },
+    'WhatsApp Automation': {
+      title: 'WhatsApp Business Automation',
+      desc: 'Automated responses, quote notifications, and follow-up sequences. Your most important channel, on autopilot.',
+      scope: ['Auto-replies','Notifications','Templates','CRM sync'],
+      priority: 3
+    },
+    'Store / Catalog': {
+      title: 'Digital Catalog / Store',
+      desc: 'Showcase your products or services with pricing, categories, and direct purchase or inquiry flow.',
+      scope: ['Product pages','Categories','Cart/Inquiry','Payments'],
+      priority: 4
+    },
+    'Dashboard / Metrics': {
+      title: 'CEO Dashboard',
+      desc: 'Real-time visibility into your business metrics. Revenue, orders, customers, operations — all in one place.',
+      scope: ['KPIs','Charts','Alerts','Auto-refresh'],
+      priority: 5
+    },
+    'SEO / Google': {
+      title: 'SEO & Google Presence',
+      desc: 'Get found when customers search for your services. Google Business Profile, local SEO, and organic positioning.',
+      scope: ['Google Business','Local SEO','Keywords','Citations'],
+      priority: 6
+    },
+    'CRM / Customer Database': {
+      title: 'Customer Management (CRM)',
+      desc: 'Centralized customer database with history, follow-ups, and automated communication. Stop losing leads.',
+      scope: ['Contact DB','Follow-ups','Segments','Reports'],
+      priority: 7
+    },
+    'Order Management': {
+      title: 'Order Management System',
+      desc: 'Track every order from request to delivery. Real-time status, team assignments, and customer notifications.',
+      scope: ['Order tracking','Assignments','Notifications','Reports'],
+      priority: 8
+    },
+    'Social Media': {
+      title: 'Social Media Strategy',
+      desc: 'Content calendar, posting strategy, and campaign management across your key platforms.',
+      scope: ['Strategy','Content','Scheduling','Analytics'],
+      priority: 9
+    },
+    'AI Automation': {
+      title: 'AI-Powered Automation',
+      desc: 'Intelligent agents that handle quoting, customer support, data entry, and operational tasks. Built on your real data.',
+      scope: ['AI Agents','Workflows','Integrations','Training'],
+      priority: 10
+    },
+    'Mobile App': {
+      title: 'Mobile Application',
+      desc: 'Native-feel app for your customers or team. Order tracking, account management, push notifications.',
+      scope: ['iOS/Android','Push notifs','Offline','Updates'],
+      priority: 11
+    },
+    'Not sure, guide me': {
+      title: 'Custom Assessment',
+      desc: 'We\'ll analyze your operation and recommend the right stack. No commitment — just clarity on what you actually need.',
+      scope: ['Analysis','Roadmap','Priorities','Timeline'],
+      priority: 12
+    }
+  };
+
+  /* ── Real cases catalog ── */
+  var CASES = [
+    {
+      id: 'land-marmoles',
+      name: 'Land Marmoles',
+      sector: 'construccion',
+      sectorAliases: ['Construccion / Remodelacion','Construction / Remodeling'],
+      desc: 'Marble & stone supplier in Bogota. No digital presence, relied 100% on referrals.',
+      results: [
+        { val: '+340%', label: 'Lead increase' },
+        { val: '< 2min', label: 'Response time' },
+        { val: '24/7', label: 'Availability' }
+      ],
+      applied: ['Website / Landing','WhatsApp Automation','SEO / Google','Online Quoting'],
+      needs: ['Website / Landing','WhatsApp Automation','SEO / Google','Online Quoting'],
+      url: '/demos/land-marmoles/'
+    },
+    {
+      id: 'logistica-pyme',
+      name: 'SME Logistics Co.',
+      sector: 'logistica',
+      sectorAliases: ['Logistica / Distribucion / Supply Chain','Logistics / Distribution / Supply Chain','Logistica PyME','SME Logistics','Transporte / Logistica','Transportation / Logistics'],
+      desc: 'Small logistics operator managing deliveries across 3 cities. Manual quoting, no tracking, lost orders.',
+      results: [
+        { val: '-60%', label: 'Quoting time' },
+        { val: '+25%', label: 'Order accuracy' },
+        { val: '3x', label: 'Daily capacity' }
+      ],
+      applied: ['Online Quoting','Order Management','Dashboard / Metrics','WhatsApp Automation'],
+      needs: ['Online Quoting','Order Management','Dashboard / Metrics','WhatsApp Automation','CRM / Customer Database'],
+      url: '/demos/logistica-pyme/'
+    },
+    {
+      id: 'bicicletas',
+      name: 'Urban Bike Shop',
+      sector: 'bicicletas',
+      sectorAliases: ['Tiendas de Bicicletas','Bicycle Shop','Bicycle Shops','Venta de Bicicletas','Retail / Comercio','Retail / Commerce'],
+      desc: 'Bicycle retail store with workshop services. No online catalog, appointment booking via phone only.',
+      results: [
+        { val: '+180%', label: 'Online inquiries' },
+        { val: '40%', label: 'Less phone calls' },
+        { val: '$0', label: 'Ad spend' }
+      ],
+      applied: ['Store / Catalog','Website / Landing','WhatsApp Automation','SEO / Google'],
+      needs: ['Store / Catalog','Website / Landing','WhatsApp Automation','SEO / Google','Social Media'],
+      url: '/demos/bicicletas/'
+    }
+  ];
+
+  function matchCase(data) {
+    var sector = (data.sector || '').toLowerCase();
+    var needs = data.necesidades ? data.necesidades.split(',').map(function(s){return s.trim();}) : [];
+    var best = null;
+    var bestScore = 0;
+
+    for (var c = 0; c < CASES.length; c++) {
+      var cs = CASES[c];
+      var score = 0;
+
+      for (var a = 0; a < cs.sectorAliases.length; a++) {
+        if (cs.sectorAliases[a].toLowerCase() === sector ||
+            sector.indexOf(cs.sector) > -1) {
+          score += 5;
+          break;
+        }
+      }
+
+      for (var n = 0; n < needs.length; n++) {
+        if (cs.needs.indexOf(needs[n]) > -1) score += 2;
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        best = cs;
+      }
+    }
+
+    return bestScore >= 2 ? best : null;
+  }
+
+  function renderCase(cs) {
+    var h = '<div class="card"><div class="card-label">Similar case study</div>';
+    h += '<div class="case-match">';
+    h += '<div class="case-match-badge">Real client</div>';
+    h += '<div class="case-match-title">' + cs.name + '</div>';
+    h += '<div class="case-match-sector">' + cs.desc + '</div>';
+    h += '<div class="case-results">';
+    for (var i = 0; i < cs.results.length; i++) {
+      h += '<div class="case-result"><div class="cr-val">' + cs.results[i].val + '</div><div class="cr-label">' + cs.results[i].label + '</div></div>';
+    }
+    h += '</div>';
+    h += '<div class="case-applied"><div class="case-applied-label">Solutions applied</div><div class="case-applied-list">';
+    for (var j = 0; j < cs.applied.length; j++) {
+      h += '<span>' + cs.applied[j] + '</span>';
+    }
+    h += '</div></div>';
+    h += '</div></div>';
+    return h;
+  }
+
+  /* ── Parse URL params (query string OR hash) ── */
+  function getParams(){
+    var src = window.location.search || window.location.hash.replace('#','?');
+    var p = new URLSearchParams(src);
+    var d = {};
+    p.forEach(function(v,k){ d[k] = v; });
+    return d;
+  }
+
+  /* ── Compute digital score ── */
+  function computeScore(data){
+    var checks = [
+      { name:'Website',       key:'tiene_web',       test:function(v){return v==='si'?2:v==='basica'?1:0;}, max:2 },
+      { name:'Social Media',  key:'redes',           test:function(v){var n=v?v.split(',').length:0;return n>=3?2:n>=1?1:0;}, max:2 },
+      { name:'Google Maps',   key:'redes',           test:function(v){return v&&v.indexOf('Google Maps')>-1?2:0;}, max:2 },
+      { name:'Digital Acquisition', key:'captacion_actual', test:function(v){var l=v?v.toLowerCase():'';return(l.indexOf('social')>-1||l.indexOf('google')>-1||l.indexOf('ads')>-1||l.indexOf('digital')>-1||l.indexOf('redes')>-1)?2:(l.indexOf('referr')>-1||l.indexOf('referid')>-1)?1:0;}, max:2 },
+      { name:'Online Quoting', key:'necesidades',    test:function(v){return 0;}, max:2 }
+    ];
+    var total = 0, max = 0, details = [];
+    for(var i=0;i<checks.length;i++){
+      var c = checks[i];
+      var val = data[c.key] || '';
+      var score = c.test(val);
+      total += score; max += c.max;
+      details.push({ name:c.name, score:score, max:c.max });
+    }
+    return { pct:Math.round((total/max)*100), total:total, max:max, details:details };
+  }
+
+  /* ── Render ── */
+  function render(data){
+    if(!data.negocio){return;}
+    document.getElementById('emptyState').style.display = 'none';
+
+    var score = computeScore(data);
+    var needs = data.necesidades ? data.necesidades.split(',').map(function(s){return s.trim();}) : [];
+    var matchedSolutions = [];
+    for(var i=0;i<needs.length;i++){
+      if(SOLUTIONS[needs[i]]) matchedSolutions.push({ key:needs[i], sol:SOLUTIONS[needs[i]] });
+    }
+    matchedSolutions.sort(function(a,b){return a.sol.priority - b.sol.priority;});
+
+    var scoreColor = score.pct >= 60 ? 'var(--green)' : score.pct >= 30 ? 'var(--yellow)' : 'var(--red)';
+    var circumference = 2 * Math.PI * 52;
+    var offset = circumference - (score.pct / 100) * circumference;
+
+    var html = '';
+
+    /* Hero */
+    html += '<div class="hero">';
+    html += '<div class="tag">Digital diagnostic</div>';
+    html += '<h1>' + esc(data.negocio) + ' <span>&mdash; ' + esc(data.sector || '') + '</span></h1>';
+    html += '<div class="subtitle">' + esc(data.ciudad || '') + (data.tiempo_mercado ? ' &middot; ' + esc(data.tiempo_mercado) : '') + '</div>';
+    if(data._ref) html += '<div class="ref">' + esc(data._ref) + '</div>';
+    html += '</div>';
+
+    /* Business summary */
+    html += '<div class="card"><div class="card-label">Business overview</div>';
+    html += '<div class="summary-grid">';
+    html += si('Contact', data.nombre || '-');
+    html += si('Phone', data.telefono || '-');
+    html += si('Email', data.email || '-');
+    html += si('Coverage', data.cobertura || '-');
+    html += si('Customers/mo', data.clientes_mes || '-');
+    html += si('Client type', data.tipo_cliente || '-');
+    html += '</div>';
+    if(data.descripcion_negocio){
+      html += '<div style="margin-top:16px;font-size:14px;color:var(--text-light);line-height:1.6">' + esc(data.descripcion_negocio) + '</div>';
+    }
+    if(data.servicios){
+      html += '<div style="margin-top:12px;font-size:13px"><strong>Services:</strong> ' + esc(data.servicios) + '</div>';
+    }
+    if(data.diferenciador){
+      html += '<div style="margin-top:8px;font-size:13px"><strong>Differentiator:</strong> ' + esc(data.diferenciador) + '</div>';
+    }
+    html += '</div>';
+
+    /* Digital maturity score */
+    html += '<div class="card"><div class="card-label">Digital maturity score</div>';
+    html += '<div class="score-section">';
+    html += '<div class="score-ring">';
+    html += '<svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="52"/>';
+    html += '<circle class="fg" cx="60" cy="60" r="52" stroke="'+scoreColor+'" stroke-dasharray="'+circumference+'" stroke-dashoffset="'+offset+'"/></svg>';
+    html += '<div class="score-text">'+score.pct+'</div>';
+    html += '<div class="score-label">/ 100</div>';
+    html += '</div>';
+    html += '<div class="score-breakdown">';
+    for(var i=0;i<score.details.length;i++){
+      var d = score.details[i];
+      var cls = d.score >= d.max ? 'yes' : d.score > 0 ? 'partial' : 'no';
+      var lbl = d.score >= d.max ? 'Active' : d.score > 0 ? 'Partial' : 'Missing';
+      html += '<div class="sb-row"><span class="sb-name">'+d.name+'</span><span class="sb-status '+cls+'">'+lbl+'</span></div>';
+    }
+    html += '</div></div></div>';
+
+    /* Current assets */
+    var hasAssets = data.url_web || data.tiene_web === 'si' || data.tiene_web === 'basica' || data.redes;
+    if(hasAssets){
+      html += '<div class="card"><div class="card-label">Current assets</div>';
+      html += '<div style="display:flex;flex-direction:column;gap:10px">';
+      if(data.tiene_web === 'si' && data.url_web){
+        html += '<div class="insight-block"><div class="ib-label">Website (active)</div><div class="ib-text" style="font-style:normal"><a href="'+esc(data.url_web)+'" target="_blank" style="color:var(--cyan);text-decoration:none">'+esc(data.url_web)+'</a> &mdash; optimize & enhance</div></div>';
+      } else if(data.tiene_web === 'basica' && data.url_web){
+        html += '<div class="insight-block" style="border-color:var(--yellow)"><div class="ib-label">Website (outdated)</div><div class="ib-text" style="font-style:normal"><a href="'+esc(data.url_web)+'" target="_blank" style="color:var(--cyan);text-decoration:none">'+esc(data.url_web)+'</a> &mdash; needs redesign</div></div>';
+      } else if(data.tiene_web === 'basica'){
+        html += '<div class="insight-block" style="border-color:var(--yellow)"><div class="ib-label">Website (outdated)</div><div class="ib-text" style="font-style:normal">Existing but needs redesign</div></div>';
+      } else if(data.tiene_web === 'no' || !data.tiene_web){
+        html += '<div class="insight-block" style="border-color:var(--red)"><div class="ib-label">Website</div><div class="ib-text" style="font-style:normal">None &mdash; build from scratch</div></div>';
+      }
+      if(data.redes){
+        var rList = data.redes.split(',').map(function(s){return s.trim();});
+        html += '<div class="insight-block"><div class="ib-label">Active channels ('+rList.length+')</div><div class="ib-text" style="font-style:normal">'+esc(data.redes)+'</div></div>';
+      }
+      html += '</div></div>';
+    }
+
+    /* Pain & Goal */
+    if(data.dolor_principal || data.meta_6meses){
+      html += '<div class="card"><div class="card-label">Pain point & vision</div>';
+      if(data.dolor_principal){
+        html += '<div class="insight-block"><div class="ib-label">Current challenge</div><div class="ib-text">"'+esc(data.dolor_principal)+'"</div></div>';
+      }
+      if(data.meta_6meses){
+        html += '<div class="insight-block"><div class="ib-label">6-month goal</div><div class="ib-text">"'+esc(data.meta_6meses)+'"</div></div>';
+      }
+      html += '</div>';
+    }
+
+    /* Identified needs */
+    if(needs.length){
+      html += '<div class="card"><div class="card-label">Identified needs</div>';
+      html += '<div class="needs-list">';
+      for(var i=0;i<needs.length;i++){
+        var matched = SOLUTIONS[needs[i]] ? ' matched' : '';
+        html += '<div class="need-tag'+matched+'">'+esc(needs[i])+'</div>';
+      }
+      html += '</div></div>';
+    }
+
+    /* Recommended solutions */
+    if(matchedSolutions.length){
+      html += '<div class="card"><div class="card-label">Recommended solutions</div>';
+      html += '<div class="solutions-grid">';
+      for(var i=0;i<matchedSolutions.length;i++){
+        var s = matchedSolutions[i].sol;
+        var k = matchedSolutions[i].key;
+        var num = String(i+1).padStart(2,'0');
+        var badge = '';
+        if(k === 'Website / Landing' && (data.tiene_web === 'si' || data.tiene_web === 'basica')){
+          badge = '<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);font-weight:500">Optimize existing</span>';
+        } else if(k === 'SEO / Google' && data.redes && data.redes.indexOf('Google Maps') > -1){
+          badge = '<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);font-weight:500">Enhance</span>';
+        } else {
+          badge = '<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);font-weight:500">New build</span>';
+        }
+        html += '<div class="sol-card">';
+        html += '<div class="sol-num">'+num+'</div>';
+        html += '<div class="sol-title">'+s.title+badge+'</div>';
+        html += '<div class="sol-desc">'+s.desc+'</div>';
+        html += '<div class="sol-scope">';
+        for(var j=0;j<s.scope.length;j++) html += '<span>'+s.scope[j]+'</span>';
+        html += '</div></div>';
+      }
+      html += '</div></div>';
+    }
+
+    /* Budget context */
+    if(data.presupuesto || data.urgencia){
+      html += '<div class="card"><div class="card-label">Budget & timeline</div>';
+      html += '<div class="summary-grid">';
+      if(data.presupuesto) html += si('Monthly budget', data.presupuesto);
+      if(data.urgencia) html += si('Urgency', data.urgencia);
+      if(data.inversion_inicial) html += si('Initial investment', data.inversion_inicial === 'si' ? 'Ready to invest' : data.inversion_inicial === 'piloto' ? 'Prefers free pilot' : 'Needs more info');
+      if(data.contacto_preferido) html += si('Preferred contact', data.contacto_preferido);
+      html += '</div></div>';
+    }
+
+    /* Case match */
+    var matchedCase = matchCase(data);
+    if (matchedCase) {
+      html += renderCase(matchedCase);
+    }
+
+    /* CTA */
+    html += '<div class="cta-section">';
+    html += '<h2>Ready to build?</h2>';
+    html += '<p>Schedule a call with our team to discuss your diagnostic and define next steps.</p>';
+    html += '<a href="https://7group.site/agendar/" class="cta-btn">Schedule a call &rarr;</a>';
+    html += '</div>';
+
+    html += '<div class="foot">7group &middot; Applied Artificial Intelligence</div>';
+
+    document.getElementById('main').innerHTML = html;
+  }
+
+  function si(label, value){
+    return '<div class="summary-item"><div class="si-label">'+label+'</div><div class="si-value">'+esc(value)+'</div></div>';
+  }
+
+  function esc(s){
+    var d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  /* ── Init ── */
+  var data = getParams();
+  render(data);
+
+})();
+</script>
+</body>
+</html>

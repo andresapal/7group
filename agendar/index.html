@@ -449,6 +449,10 @@ footer a:hover{color:var(--white)}
         <option value="" id="optIndDefault">-- Selecciona --</option>
         <option value="logistica">Logistica / Distribucion / Supply Chain</option>
         <option value="retail">Retail / Comercio</option>
+        <option value="administradores">Administradores de Propiedad</option>
+        <option value="contadores">Contadores / Contabilidad</option>
+        <option value="bicicletas">Tiendas de Bicicletas</option>
+        <option value="aseguradoras">Aseguradoras / Seguros</option>
         <option value="alimentos">Alimentos / Restaurantes</option>
         <option value="salud">Salud / Bienestar</option>
         <option value="construccion">Construccion / Remodelacion</option>
@@ -566,6 +570,8 @@ var T = {
     phEmail:'tu@correo.com', phPhone:'+57 300 000 0000',
     optIndDefault:'-- Selecciona --',
     industries:['Logistica / Distribucion / Supply Chain','Retail / Comercio',
+      'Administradores de Propiedad','Contadores / Contabilidad',
+      'Tiendas de Bicicletas','Aseguradoras / Seguros',
       'Alimentos / Restaurantes','Salud / Bienestar','Construccion / Remodelacion',
       'Educacion / Formacion','Tecnologia / SaaS','Otro'],
     btnStep1:'Siguiente: elegir horario',
@@ -614,6 +620,8 @@ var T = {
     phEmail:'you@email.com', phPhone:'+1 555 000 0000',
     optIndDefault:'-- Select --',
     industries:['Logistics / Distribution / Supply Chain','Retail / Commerce',
+      'Property Managers','Accounting / Bookkeeping',
+      'Bicycle Shops','Insurance',
       'Food / Restaurants','Health / Wellness','Construction / Remodeling',
       'Education / Training','Technology / SaaS','Other'],
     btnStep1:'Next: choose a time',
@@ -697,7 +705,7 @@ function applyLang() {
   var indSel = document.getElementById('inputIndustry');
   var indVal = indSel.value;
   indSel.options[0].text = t.optIndDefault;
-  var indKeys = ['logistica','retail','alimentos','salud','construccion','educacion','tecnologia','otro'];
+  var indKeys = ['logistica','retail','administradores','contadores','bicicletas','aseguradoras','alimentos','salud','construccion','educacion','tecnologia','otro'];
   for (var i = 0; i < indKeys.length; i++) {
     indSel.options[i + 1].text = t.industries[i];
   }
