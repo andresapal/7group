@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cotizador — Tienda de bicicletas</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f5;--bg-dark:#0a0a0a;--text:#0a0a0a;--text-light:#6b6b6b;
+  --text-inv:#fff;--cyan:#5ee7f7;--border:#e8e8e8;
+  --border-dark:rgba(255,255,255,.08);--white:#fff;
+  --green:#2ecc71;--red:#d44;--yellow:#f1c40f;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased}
+.trial-banner{background:var(--bg-dark);color:var(--text-inv);padding:10px 20px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:1px solid var(--border-dark)}
+.trial-banner a{color:var(--cyan);text-decoration:none}
+.topbar{background:rgba(10,10,10,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.topbar .brand-placeholder{border:1px dashed rgba(255,255,255,.25);padding:6px 14px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar .badge{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.lang-toggle{display:flex;gap:8px;font-size:13px}
+.lang-toggle span{color:rgba(255,255,255,.35);cursor:pointer;transition:color .2s;padding:2px 0}
+.lang-toggle span:hover{color:rgba(255,255,255,.7)}
+.lang-toggle span.active{color:var(--text-inv)}
+.shell{max-width:600px;margin:0 auto;padding:24px 20px 120px}
+.progress-wrap{padding:16px 0 12px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.progress-dots{display:flex;gap:4px;margin-bottom:8px}
+.progress-dots .dot{flex:1;height:2px;background:var(--border);transition:background .3s}
+.progress-dots .dot.done,.progress-dots .dot.active{background:var(--cyan)}
+.step-indicator{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan)}
+.step{display:none;animation:fadeIn .4s ease}
+.step.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sec-title{font-size:28px;font-weight:700;letter-spacing:-1.5px;line-height:1.15;margin-bottom:6px}
+.sec-desc{color:var(--text-light);font-size:14px;margin-bottom:24px}
+label.field{display:block;margin-bottom:20px}
+label.field .lbl{display:block;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--text-light);margin-bottom:6px}
+label.field .req{color:var(--red);margin-left:2px}
+input[type="text"],input[type="email"],input[type="tel"],input[type="number"],select,textarea{width:100%;padding:14px 0;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-size:16px;font-family:inherit;transition:border-color .2s;outline:none}
+input:focus,select:focus,textarea:focus{border-bottom-color:var(--cyan)}
+textarea{border:1px solid var(--border);padding:14px;resize:vertical;min-height:80px}
+select{cursor:pointer;appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6b6b'/%3E%3C/svg%3E") no-repeat right center}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.check-item{position:relative}
+.check-item input{position:absolute;opacity:0;width:0;height:0}
+.check-item label{display:block;padding:14px 16px;border:1px solid var(--border);font-size:14px;cursor:pointer;transition:all .2s;text-align:center}
+.check-item input:checked+label{border-color:var(--cyan);background:rgba(94,231,247,.06);font-weight:600}
+.btn{display:inline-block;padding:16px 32px;font-size:13px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;border:2px solid var(--text);background:var(--text);color:var(--white);cursor:pointer;font-family:inherit;transition:all .2s}
+.btn:hover{background:var(--cyan);border-color:var(--cyan);color:var(--bg-dark)}
+.btn-back{background:transparent;color:var(--text);margin-right:12px}
+.btn-back:hover{background:var(--border);border-color:var(--border);color:var(--text)}
+.btn-row{display:flex;gap:8px;margin-top:28px}
+.result-card{border-left:3px solid var(--cyan);padding:24px;margin:24px 0;background:var(--white)}
+.result-total{font-size:32px;font-weight:700;letter-spacing:-1px;margin:8px 0}
+.result-line{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.result-line:last-child{border:none}
+.result-note{font-size:12px;color:var(--text-light);margin-top:12px;font-style:italic}
+.cta-row{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.cta-wa{background:#25D366;border-color:#25D366;color:var(--white)}
+.cta-wa:hover{background:#1da851;border-color:#1da851}
+.powered{text-align:center;padding:24px;font-size:11px;color:var(--text-light);letter-spacing:1px;text-transform:uppercase}
+.powered a{color:var(--cyan);text-decoration:none}
+/* Inventory */
+.inv-section{margin-top:32px;border-top:1px solid var(--border);padding-top:24px}
+.inv-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+.inv-table th{text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);padding:8px 12px;border-bottom:1px solid var(--border)}
+.inv-table td{padding:10px 12px;border-bottom:1px solid var(--border)}
+.inv-table input{width:80px;padding:6px 8px;border:1px solid var(--border);font-size:14px;font-family:inherit;text-align:center}
+.inv-stock{font-weight:600}
+.inv-low{color:var(--red)}
+.inv-ok{color:var(--green)}
+.inv-cat{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);padding:12px 12px 4px;background:rgba(94,231,247,.03)}
+@media(max-width:480px){.sec-title{font-size:24px}.check-grid{grid-template-columns:1fr}.btn-row,.cta-row{flex-direction:column}.btn{width:100%;text-align:center}}
+</style>
+</head>
+<body>
+
+<div class="trial-banner">
+  <span data-i18n="trial_msg">Modo prueba — 30 dias gratis</span> · <a href="https://7group.site/pagos/" data-i18n="trial_cta">Ver planes</a>
+</div>
+
+<div class="topbar">
+  <span class="brand-placeholder" data-i18n="brand_placeholder">Tu marca aqui</span>
+  <div class="topbar-right">
+    <div class="lang-toggle">
+      <span data-lang="en" onclick="setLang('en')">EN</span>
+      <span data-lang="es" onclick="setLang('es')">ES</span>
+    </div>
+    <span class="badge" data-i18n="badge">Cotizador</span>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-dots" id="progressBar"></div>
+    <div class="step-indicator" id="stepLabel"></div>
+  </div>
+
+  <!-- STEP 1: Products / Services -->
+  <div class="step" data-step="1">
+    <div class="sec-title" data-i18n="s1_title">Que necesitas?</div>
+    <div class="sec-desc" data-i18n="s1_desc">Selecciona productos o servicios de interes.</div>
+    <div class="check-grid" id="servicesGrid"></div>
+
+    <label class="field">
+      <span class="lbl"><span data-i18n="f_bike_type">Bike type / model of interest</span></span>
+      <select name="tipo_bici" id="bikeType"></select>
+    </label>
+    <label class="field">
+      <span class="lbl"><span data-i18n="f_budget">Approximate budget</span></span>
+      <select name="presupuesto">
+        <option value="under_1m" data-en="Under $1M COP" data-es="Menos de $1M COP">Menos de $1M COP</option>
+        <option value="1m_3m" data-en="$1M - $3M COP" data-es="$1M - $3M COP">$1M - $3M COP</option>
+        <option value="3m_6m" data-en="$3M - $6M COP" data-es="$3M - $6M COP">$3M - $6M COP</option>
+        <option value="6m_plus" data-en="$6M+ COP" data-es="$6M+ COP">$6M+ COP</option>
+        <option value="open" data-en="Open budget" data-es="Presupuesto abierto">Presupuesto abierto</option>
+      </select>
+    </label>
+
+    <div class="btn-row">
+      <button class="btn" onclick="nextStep()" data-i18n="btn_continue">Continuar</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Details -->
+  <div class="step" data-step="2">
+    <div class="sec-title" data-i18n="s2_title">Detalles.</div>
+    <div class="sec-desc" data-i18n="s2_desc">Cuentanos mas sobre lo que buscas.</div>
+    <label class="field">
+      <span class="lbl"><span data-i18n="f_use">Primary use</span></span>
+      <select name="uso">
+        <option value="urbano" data-en="Urban commuting" data-es="Desplazamiento urbano">Desplazamiento urbano</option>
+        <option value="montaña" data-en="Mountain / Trail" data-es="Montana / Trail">Montana / Trail</option>
+        <option value="ruta" data-en="Road cycling" data-es="Ruta / Carretera">Ruta / Carretera</option>
+        <option value="recreativo" data-en="Recreational" data-es="Recreativo">Recreativo</option>
+        <option value="electrica" data-en="Electric bike" data-es="Bicicleta electrica">Bicicleta electrica</option>
+        <option value="bmx" data-en="BMX / Freestyle" data-es="BMX / Freestyle">BMX / Freestyle</option>
+        <option value="carga" data-en="Cargo / Delivery" data-es="Carga / Domicilios">Carga / Domicilios</option>
+      </select>
+    </label>
+    <label class="field">
+      <span class="lbl"><span data-i18n="f_size">Rider height (cm) — for sizing</span></span>
+      <input type="number" name="estatura" min="100" max="220" placeholder="ej: 175">
+    </label>
+    <label class="field">
+      <span class="lbl"><span data-i18n="f_notes">Additional notes</span></span>
+      <textarea name="notas" rows="3"></textarea>
+    </label>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="prevStep()" data-i18n="btn_back">Atras</button>
+      <button class="btn" onclick="nextStep()" data-i18n="btn_continue">Continuar</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Inventory -->
+  <div class="step" data-step="3">
+    <div class="sec-title" data-i18n="s3_title">Inventario disponible.</div>
+    <div class="sec-desc" data-i18n="s3_desc">Stock actual de productos (administrador).</div>
+
+    <div id="inventorySection">
+      <table class="inv-table">
+        <thead><tr>
+          <th data-i18n="inv_item">Producto</th>
+          <th data-i18n="inv_stock">Stock</th>
+          <th data-i18n="inv_min">Min</th>
+          <th data-i18n="inv_price">Precio</th>
+          <th data-i18n="inv_status">Estado</th>
+        </tr></thead>
+        <tbody id="invBody"></tbody>
+      </table>
+    </div>
+
+    <div class="btn-row" style="margin-top:24px">
+      <button class="btn btn-back" onclick="prevStep()" data-i18n="btn_back">Atras</button>
+      <button class="btn" onclick="nextStep()" data-i18n="btn_continue">Continuar</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Contact -->
+  <div class="step" data-step="4">
+    <div class="sec-title" data-i18n="s4_title">Tus datos.</div>
+    <div class="sec-desc" data-i18n="s4_desc">Para enviarte la cotizacion.</div>
+    <label class="field">
+      <span class="lbl"><span data-i18n="f_name">Full name</span><span class="req">*</span></span>
+      <input type="text" name="nombre" required>
+    </label>
+    <label class="field">
+      <span class="lbl"><span data-i18n="f_phone">WhatsApp / Phone</span><span class="req">*</span></span>
+      <input type="tel" name="telefono" required>
+    </label>
+    <label class="field">
+      <span class="lbl"><span data-i18n="f_email">Email</span></span>
+      <input type="email" name="email">
+    </label>
+    <label class="field">
+      <span class="lbl"><span data-i18n="f_city">City</span></span>
+      <input type="text" name="ciudad">
+    </label>
+
+    <div class="tc-check" style="margin-top:20px">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:var(--text-light);line-height:1.5">
+        <input type="checkbox" id="acceptTC" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;cursor:pointer">
+        <span data-i18n="tc_label">Acepto los <a href="https://7group.site/terminos/" target="_blank" style="color:var(--cyan)">terminos y condiciones</a>.</span>
+      </label>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="prevStep()" data-i18n="btn_back">Atras</button>
+      <button class="btn" onclick="submitQuote()" id="btnSubmit" data-i18n="btn_quote">Ver cotizacion</button>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="step" data-step="result">
+    <div class="sec-title" data-i18n="r_title">Tu cotizacion.</div>
+    <div class="sec-desc" data-i18n="r_desc">Sujeta a disponibilidad de inventario.</div>
+    <div class="result-card">
+      <div id="resultLines"></div>
+      <div class="result-total" id="resultTotal"></div>
+      <div class="result-note" data-i18n="r_note">Precios sujetos a disponibilidad. Reserva valida 48h. Sin compromiso.</div>
+    </div>
+    <div class="cta-row">
+      <button class="btn cta-wa" onclick="sendWhatsApp()" data-i18n="btn_wa">Enviar por WhatsApp</button>
+      <button class="btn" onclick="window.print()" data-i18n="btn_print">Imprimir / PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="powered"><span data-i18n="powered">Impulsado por</span> <a href="https://7group.site" target="_blank">7group</a></div>
+
+<script>
+(function(){
+'use strict';
+
+var CONFIG = {
+  services: [
+    {id:'venta_bici',     en:'Bicycle sale',         es:'Venta de bicicleta',     price:0},
+    {id:'mantenimiento',  en:'General maintenance',  es:'Mantenimiento general',  price:0},
+    {id:'reparacion',     en:'Repair / Fix',         es:'Reparacion',             price:0},
+    {id:'accesorios',     en:'Accessories',          es:'Accesorios',             price:0},
+    {id:'repuestos',      en:'Spare parts',          es:'Repuestos',              price:0},
+    {id:'personalizar',   en:'Custom build',         es:'Armado personalizado',   price:0},
+    {id:'alquiler',       en:'Rental',               es:'Alquiler',               price:0},
+    {id:'taller_rapido',  en:'Quick tune-up',        es:'Taller rapido',          price:0}
+  ],
+  bikeTypes: [
+    {id:'mtb',       en:'Mountain bike (MTB)',   es:'Bicicleta de montana (MTB)'},
+    {id:'ruta',      en:'Road bike',             es:'Bicicleta de ruta'},
+    {id:'urbana',    en:'Urban / Hybrid',        es:'Urbana / Hibrida'},
+    {id:'electrica', en:'Electric bike',         es:'Bicicleta electrica'},
+    {id:'bmx',       en:'BMX',                   es:'BMX'},
+    {id:'gravel',    en:'Gravel',                es:'Gravel'},
+    {id:'plegable',  en:'Folding bike',          es:'Bicicleta plegable'},
+    {id:'infantil',  en:'Kids bike',             es:'Bicicleta infantil'},
+    {id:'cargo',     en:'Cargo bike',            es:'Bicicleta de carga'}
+  ],
+  inventory: [
+    // Bikes
+    {id:'mtb_entry',     cat:'bikes', en:'MTB Entry level',       es:'MTB Gama de entrada',   stock:0, min:3, price:0},
+    {id:'mtb_mid',       cat:'bikes', en:'MTB Mid-range',         es:'MTB Gama media',        stock:0, min:2, price:0},
+    {id:'mtb_high',      cat:'bikes', en:'MTB High-end',          es:'MTB Gama alta',         stock:0, min:1, price:0},
+    {id:'road_entry',    cat:'bikes', en:'Road bike Entry',       es:'Ruta Gama de entrada',  stock:0, min:2, price:0},
+    {id:'road_mid',      cat:'bikes', en:'Road bike Mid',         es:'Ruta Gama media',       stock:0, min:1, price:0},
+    {id:'urban_bike',    cat:'bikes', en:'Urban / Hybrid',        es:'Urbana / Hibrida',      stock:0, min:3, price:0},
+    {id:'electric_bike', cat:'bikes', en:'Electric bike',         es:'Bicicleta electrica',   stock:0, min:1, price:0},
+    {id:'kids_bike',     cat:'bikes', en:'Kids bike',             es:'Bicicleta infantil',    stock:0, min:2, price:0},
+    // Parts
+    {id:'llantas',       cat:'parts', en:'Tires (pair)',          es:'Llantas (par)',         stock:0, min:10, price:0},
+    {id:'camaras',       cat:'parts', en:'Inner tubes',           es:'Camaras',               stock:0, min:20, price:0},
+    {id:'cadenas',       cat:'parts', en:'Chains',                es:'Cadenas',               stock:0, min:8,  price:0},
+    {id:'frenos',        cat:'parts', en:'Brake sets',            es:'Juegos de frenos',      stock:0, min:6,  price:0},
+    {id:'pedales',       cat:'parts', en:'Pedals (pair)',         es:'Pedales (par)',         stock:0, min:5,  price:0},
+    {id:'sillines',      cat:'parts', en:'Saddles',               es:'Sillines',              stock:0, min:4,  price:0},
+    // Accessories
+    {id:'cascos',        cat:'acc',   en:'Helmets',               es:'Cascos',                stock:0, min:5,  price:0},
+    {id:'luces',         cat:'acc',   en:'Light sets',            es:'Juegos de luces',       stock:0, min:8,  price:0},
+    {id:'candados',      cat:'acc',   en:'Locks',                 es:'Candados',              stock:0, min:6,  price:0},
+    {id:'parrillas',     cat:'acc',   en:'Racks / Carriers',      es:'Parrillas / Portaequipaje', stock:0, min:3, price:0},
+    {id:'guantes',       cat:'acc',   en:'Gloves',                es:'Guantes',               stock:0, min:10, price:0}
+  ],
+  currency:'COP', currencySymbol:'$', minQuote:50000
+};
+
+var NOTIFY = {
+  TG_TOKEN:'8815751812:AAEGlCiQAZKSamRUfD5r0lmzjLTRAaFcdqw',
+  TG_CHAT:'1081707115',
+  W3F_KEY:'76bc323e-4cf1-4c6c-9221-88d0f6261f7d'
+};
+
+var T = {
+  trial_msg:{en:'Trial mode — 30 days free',es:'Modo prueba — 30 dias gratis'},
+  trial_cta:{en:'See plans',es:'Ver planes'},
+  brand_placeholder:{en:'Your brand here',es:'Tu marca aqui'},
+  badge:{en:'Quote',es:'Cotizador'},
+  s1_title:{en:'What do you need?',es:'Que necesitas?'},
+  s1_desc:{en:'Select products or services of interest.',es:'Selecciona productos o servicios de interes.'},
+  f_bike_type:{en:'Bike type / model of interest',es:'Tipo de bicicleta / modelo de interes'},
+  f_budget:{en:'Approximate budget',es:'Presupuesto aproximado'},
+  s2_title:{en:'Details.',es:'Detalles.'},
+  s2_desc:{en:'Tell us more about what you\'re looking for.',es:'Cuentanos mas sobre lo que buscas.'},
+  f_use:{en:'Primary use',es:'Uso principal'},
+  f_size:{en:'Rider height (cm) — for sizing',es:'Estatura del ciclista (cm) — para talla'},
+  f_notes:{en:'Additional notes',es:'Notas adicionales'},
+  s3_title:{en:'Available inventory.',es:'Inventario disponible.'},
+  s3_desc:{en:'Current product stock (admin view).',es:'Stock actual de productos (administrador).'},
+  inv_item:{en:'Product',es:'Producto'},
+  inv_stock:{en:'Stock',es:'Stock'},
+  inv_min:{en:'Min',es:'Min'},
+  inv_price:{en:'Price',es:'Precio'},
+  inv_status:{en:'Status',es:'Estado'},
+  inv_ok:{en:'OK',es:'OK'},
+  inv_low:{en:'Low',es:'Bajo'},
+  inv_out:{en:'Out',es:'Agotado'},
+  inv_pending:{en:'Set',es:'Config'},
+  cat_bikes:{en:'BICYCLES',es:'BICICLETAS'},
+  cat_parts:{en:'PARTS & SPARES',es:'REPUESTOS'},
+  cat_acc:{en:'ACCESSORIES',es:'ACCESORIOS'},
+  s4_title:{en:'Your info.',es:'Tus datos.'},
+  s4_desc:{en:'So we can send you the quote.',es:'Para enviarte la cotizacion.'},
+  f_name:{en:'Full name',es:'Nombre completo'},
+  f_phone:{en:'WhatsApp / Phone',es:'WhatsApp / Celular'},
+  f_email:{en:'Email',es:'Email'},
+  f_city:{en:'City',es:'Ciudad'},
+  tc_label:{en:'I accept the <a href="https://7group.site/terminos/" target="_blank" style="color:var(--cyan)">terms and conditions</a>.',es:'Acepto los <a href="https://7group.site/terminos/" target="_blank" style="color:var(--cyan)">terminos y condiciones</a>.'},
+  btn_continue:{en:'Continue',es:'Continuar'},
+  btn_back:{en:'Back',es:'Atras'},
+  btn_quote:{en:'Get quote',es:'Ver cotizacion'},
+  btn_wa:{en:'Send via WhatsApp',es:'Enviar por WhatsApp'},
+  btn_print:{en:'Print / PDF',es:'Imprimir / PDF'},
+  r_title:{en:'Your quote.',es:'Tu cotizacion.'},
+  r_desc:{en:'Subject to inventory availability.',es:'Sujeta a disponibilidad de inventario.'},
+  r_note:{en:'Prices subject to availability. Reservation valid 48h. No commitment.',es:'Precios sujetos a disponibilidad. Reserva valida 48h. Sin compromiso.'},
+  r_pending:{en:'Price pending — visit us for details',es:'Precio pendiente — visitanos para detalles'},
+  powered:{en:'Powered by',es:'Impulsado por'},
+  step_of:{en:'Step {n} of {t} — {name}',es:'Paso {n} de {t} — {name}'}
+};
+
+var stepNames = {en:['Products','Details','Inventory','Contact'],es:['Productos','Detalles','Inventario','Contacto']};
+var TOTAL=4, cur=1, lang='es';
+
+function detectLang(){
+  try{var tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||'').toLowerCase();
+  var es=['bogota','mexico','lima','santiago','buenos_aires','caracas','madrid'];
+  for(var i=0;i<es.length;i++){if(tz.indexOf(es[i])>-1)return 'es';}
+  if((navigator.language||'').indexOf('es')===0)return 'es';}catch(e){}return 'en';
+}
+
+function renderServices(){
+  var g=document.getElementById('servicesGrid');g.innerHTML='';
+  CONFIG.services.forEach(function(s){
+    var d=document.createElement('div');d.className='check-item';
+    d.innerHTML='<input type="checkbox" name="servicios[]" value="'+s.id+'" id="svc_'+s.id+'"><label for="svc_'+s.id+'">'+s[lang]+'</label>';
+    g.appendChild(d);
+  });
+}
+
+function renderBikeTypes(){
+  var s=document.getElementById('bikeType');s.innerHTML='';
+  CONFIG.bikeTypes.forEach(function(b){
+    var o=document.createElement('option');o.value=b.id;o.textContent=b[lang];s.appendChild(o);
+  });
+}
+
+function renderInventory(){
+  var tb=document.getElementById('invBody');tb.innerHTML='';
+  var cats={bikes:'cat_bikes',parts:'cat_parts',acc:'cat_acc'};
+  var lastCat='';
+  CONFIG.inventory.forEach(function(item){
+    if(item.cat!==lastCat){
+      lastCat=item.cat;
+      var catRow=document.createElement('tr');
+      catRow.innerHTML='<td colspan="5" class="inv-cat">'+(T[cats[item.cat]]?T[cats[item.cat]][lang]:item.cat)+'</td>';
+      tb.appendChild(catRow);
+    }
+    var status='',cls='';
+    if(item.stock===0){status=T.inv_pending[lang];cls='';}
+    else if(item.stock<item.min){status=T.inv_low[lang];cls='inv-low';}
+    else{status=T.inv_ok[lang];cls='inv-ok';}
+    var priceStr=item.price>0?(CONFIG.currencySymbol+item.price.toLocaleString()):'—';
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+item[lang]+'</td>'
+      +'<td><input type="number" min="0" value="'+(item.stock||'')+'" onchange="updateInv(\''+item.id+'\',\'stock\',this.value)" placeholder="0"></td>'
+      +'<td style="color:var(--text-light)">'+item.min+'</td>'
+      +'<td><input type="number" min="0" value="'+(item.price||'')+'" onchange="updateInv(\''+item.id+'\',\'price\',this.value)" placeholder="$" style="width:100px"></td>'
+      +'<td class="inv-stock '+cls+'">'+status+'</td>';
+    tb.appendChild(tr);
+  });
+}
+
+window.updateInv=function(id,field,val){
+  var v=parseInt(val)||0;
+  CONFIG.inventory.forEach(function(item){if(item.id===id)item[field]=v;});
+  renderInventory();
+};
+
+function renderProgress(){
+  var bar=document.getElementById('progressBar');bar.innerHTML='';
+  for(var i=1;i<=TOTAL;i++){var d=document.createElement('div');d.className='dot'+(i<cur?' done':'')+(i===cur?' active':'');bar.appendChild(d);}
+  var names=stepNames[lang]||stepNames.es;
+  document.getElementById('stepLabel').innerHTML=T.step_of[lang].replace('{n}',cur).replace('{t}',TOTAL).replace('{name}',names[cur-1]||'');
+}
+
+function showStep(n){
+  var steps=document.querySelectorAll('.step');for(var i=0;i<steps.length;i++)steps[i].classList.remove('active');
+  var t=document.querySelector('[data-step="'+n+'"]');if(t)t.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('progressWrap').style.display=(n==='result'?'none':'');
+}
+
+function validate(n){
+  var p=document.querySelector('[data-step="'+n+'"]');var req=p.querySelectorAll('[required]');var ok=true;
+  for(var i=0;i<req.length;i++){if(!req[i].value.trim()){req[i].style.borderBottomColor='var(--red)';ok=false;if(i===0)req[i].focus();}else{req[i].style.borderBottomColor='';}}
+  if(n===1){var c=p.querySelectorAll('input[name="servicios[]"]:checked');if(!c.length){document.getElementById('servicesGrid').style.outline='2px solid var(--red)';ok=false;}else{document.getElementById('servicesGrid').style.outline='';}}
+  return ok;
+}
+
+window.nextStep=function(){if(!validate(cur))return;if(cur<TOTAL){cur++;renderProgress();showStep(cur);}};
+window.prevStep=function(){if(cur>1){cur--;renderProgress();showStep(cur);}};
+
+function collect(){
+  var d={};var inputs=document.querySelectorAll('input[type="text"],input[type="email"],input[type="tel"],input[type="number"]:not(.inv-table input),select,textarea');
+  for(var i=0;i<inputs.length;i++){if(inputs[i].name&&inputs[i].name.indexOf('[]')===-1)d[inputs[i].name]=inputs[i].value.trim();}
+  var checks=document.querySelectorAll('input[name="servicios[]"]:checked');var svcs=[];
+  for(var i=0;i<checks.length;i++)svcs.push(checks[i].value);d.servicios=svcs.join(', ');
+  return d;
+}
+
+window.submitQuote=function(){
+  if(!validate(cur))return;
+  if(!document.getElementById('acceptTC').checked){alert(lang==='es'?'Debes aceptar los terminos':'You must accept terms');return;}
+  var btn=document.getElementById('btnSubmit');btn.disabled=true;btn.textContent=lang==='es'?'Calculando...':'Calculating...';
+  var data=collect();data._ref='QB-'+Date.now().toString(36).toUpperCase();data._fecha=new Date().toLocaleString('es-CO');data._lang=lang;
+
+  var total=0,hasPrice=false;
+  var checks=document.querySelectorAll('input[name="servicios[]"]:checked');
+  checks.forEach(function(c){
+    var svc=CONFIG.services.find(function(s){return s.id===c.value;});
+    if(svc&&svc.price>0){total+=svc.price;hasPrice=true;}
+  });
+
+  var lines='<div class="result-line"><span>'+(lang==='es'?'Servicios':'Services')+'</span><span>'+data.servicios+'</span></div>'
+    +'<div class="result-line"><span>'+(lang==='es'?'Tipo':'Type')+'</span><span>'+data.tipo_bici+'</span></div>'
+    +'<div class="result-line"><span>'+(lang==='es'?'Uso':'Use')+'</span><span>'+data.uso+'</span></div>';
+  document.getElementById('resultLines').innerHTML=lines;
+
+  if(hasPrice&&total>0){
+    document.getElementById('resultTotal').textContent=CONFIG.currencySymbol+total.toLocaleString()+' '+CONFIG.currency;
+    document.getElementById('resultTotal').style.fontSize='32px';
+  }else{
+    document.getElementById('resultTotal').textContent=T.r_pending[lang];
+    document.getElementById('resultTotal').style.fontSize='18px';
+    document.getElementById('resultTotal').style.color='var(--yellow)';
+  }
+  showStep('result');
+
+  var t=['--- NEW BIKE SHOP QUOTE ---','Ref: '+data._ref,'Date: '+data._fecha,'',
+    'Name: '+data.nombre,'Phone: '+data.telefono,'Email: '+(data.email||'-'),'City: '+(data.ciudad||'-'),'',
+    'SERVICES: '+data.servicios,'Bike type: '+data.tipo_bici,'Use: '+data.uso,
+    'Budget: '+(data.presupuesto||'-'),'Height: '+(data.estatura||'-')+' cm',
+    'Notes: '+(data.notas||'-'),'','Total: '+(hasPrice?CONFIG.currencySymbol+total:'Pending')].join('\n');
+  fetch('https://api.telegram.org/bot'+NOTIFY.TG_TOKEN+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:NOTIFY.TG_CHAT,text:t})}).catch(function(){});
+  var fd=new FormData();fd.append('access_key',NOTIFY.W3F_KEY);fd.append('subject','New Bike Quote: '+data.nombre+' ['+data._ref+']');fd.append('from_name','7Group Cotizador');fd.append('message',t);
+  fetch('https://api.web3forms.com/submit',{method:'POST',body:fd}).catch(function(){});
+};
+
+window.sendWhatsApp=function(){
+  var data=collect();
+  var msg='*Cotizacion bicicletas*\nNombre: '+data.nombre+'\nServicios: '+data.servicios+'\nTipo: '+data.tipo_bici+'\nUso: '+data.uso+'\n\nTe contactaremos con disponibilidad.\n7group.site';
+  var tel=data.telefono.replace(/\D/g,'');if(tel.length===10&&tel.charAt(0)==='3')tel='57'+tel;
+  window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
+};
+
+window.setLang=function(l){
+  lang=l;document.documentElement.lang=l;
+  document.querySelectorAll('.lang-toggle span').forEach(function(s){s.classList.toggle('active',s.dataset.lang===l);});
+  document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.dataset.i18n;if(T[k]&&T[k][l])el.innerHTML=T[k][l];});
+  document.querySelectorAll('option[data-'+l+']').forEach(function(o){o.textContent=o.dataset[l];});
+  renderServices();renderBikeTypes();renderInventory();renderProgress();
+};
+
+lang=detectLang();renderServices();renderBikeTypes();renderInventory();renderProgress();showStep(1);
+document.querySelectorAll('.lang-toggle span').forEach(function(s){s.classList.toggle('active',s.dataset.lang===lang);});
+document.documentElement.lang=lang;
+document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.dataset.i18n;if(T[k]&&T[k][lang])el.innerHTML=T[k][lang];});
+})();
+</script>
+</body>
+</html>

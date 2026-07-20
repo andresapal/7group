@@ -47,7 +47,7 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
 .nav-links a{font-size:14px;color:#888;text-decoration:none;transition:color .2s;letter-spacing:-.01em}
 .nav-links a:hover{color:var(--white)}
 .lang-switch{display:flex;gap:12px}
-.lang-switch a{font-size:12px;color:#555;text-decoration:none;letter-spacing:1px;font-weight:600;transition:color .2s}
+.lang-switch a{font-size:12px;color:#555;text-decoration:none;letter-spacing:1px;font-weight:600;transition:color .2s;cursor:pointer}
 .lang-switch a:hover,.lang-switch a.active{color:var(--white)}
 @media(max-width:640px){
   #nav{padding:0 20px}
@@ -66,12 +66,32 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
   color:var(--cyan);margin-bottom:20px;
 }
 .page-hero h1{
-  font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.08;
+  font-size:clamp(32px,5vw,48px);font-weight:800;line-height:1.08;
   margin-bottom:16px;color:var(--white);
 }
 .page-hero h1 em{font-style:normal;color:var(--cyan)}
 .page-hero p{
   font-size:16px;color:#888;line-height:1.7;max-width:480px;margin:0 auto;
+}
+
+/* TRIAL BANNER */
+.trial-banner{
+  max-width:680px;margin:0 auto;padding:20px 24px;
+  background:rgba(94,231,247,.04);border:1px solid rgba(94,231,247,.12);
+  border-radius:12px;margin-top:-24px;position:relative;z-index:2;
+  display:flex;align-items:center;gap:14px;
+}
+.trial-icon{
+  width:40px;height:40px;border-radius:10px;flex-shrink:0;
+  background:rgba(94,231,247,.1);border:1px solid rgba(94,231,247,.2);
+  display:flex;align-items:center;justify-content:center;
+}
+.trial-icon svg{width:18px;height:18px;color:var(--cyan)}
+.trial-text{flex:1}
+.trial-text strong{font-size:14px;color:var(--white);display:block;margin-bottom:2px}
+.trial-text span{font-size:13px;color:#888;line-height:1.5}
+@media(max-width:640px){
+  .trial-banner{margin:0 16px;margin-top:-24px;flex-direction:column;text-align:center}
 }
 
 /* DETAILS STRIP */
@@ -92,124 +112,155 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
 .detail-text-val{font-size:14px;font-weight:600;color:var(--white)}
 
 /* MAIN LAYOUT */
-.main{max-width:720px;margin:0 auto;padding:0 20px 80px}
+.main{max-width:680px;margin:0 auto;padding:0 20px 80px}
 
-/* SCHEDULER */
-.scheduler{padding:48px 0 0}
+/* STEPS */
+.steps-indicator{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  padding:40px 0 32px;
+}
+.step-dot{
+  width:32px;height:32px;border-radius:50%;
+  background:#111;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#555;
+  transition:all .3s;position:relative;
+}
+.step-dot.active{border-color:var(--cyan);color:var(--cyan);background:rgba(94,231,247,.08)}
+.step-dot.done{border-color:var(--cyan);background:var(--cyan);color:#0a0a0a}
+.step-dot svg{width:14px;height:14px}
+.step-line{width:48px;height:2px;background:var(--border);transition:background .3s}
+.step-line.done{background:var(--cyan)}
+.step-label{
+  font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.5px;
+  position:absolute;top:38px;white-space:nowrap;font-weight:600;
+}
+.step-dot.active .step-label{color:var(--cyan)}
+.step-dot.done .step-label{color:var(--cyan)}
 
-/* Week nav */
-.week-nav{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:24px;
-}
-.week-nav h2{font-size:18px;font-weight:700;color:var(--white)}
-.week-nav-btn{
-  background:none;border:1px solid var(--border);border-radius:8px;
-  color:#888;width:36px;height:36px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .2s;
-}
-.week-nav-btn:hover{border-color:rgba(94,231,247,.3);color:var(--cyan)}
-.week-nav-btn:disabled{opacity:.3;cursor:default}
-.week-nav-btn svg{width:16px;height:16px}
-
-/* Day columns */
-.week-grid{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:12px;
-}
-@media(max-width:640px){
-  .week-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-}
-@media(max-width:400px){
-  .week-grid{grid-template-columns:1fr}
-}
-
-.day-col{
-  background:#111;border:1px solid var(--border);border-radius:12px;
-  overflow:hidden;
-}
-.day-header{
-  padding:12px;text-align:center;border-bottom:1px solid var(--border);
-}
-.day-name{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;font-weight:600}
-.day-date{font-size:15px;font-weight:700;color:var(--white);margin-top:2px}
-.day-today .day-header{background:rgba(94,231,247,.06)}
-.day-today .day-date{color:var(--cyan)}
-.day-past .day-header{opacity:.4}
-
-.day-slots{padding:8px;display:flex;flex-direction:column;gap:6px}
-
-.slot-btn{
-  width:100%;padding:10px 8px;border:1px solid var(--border);border-radius:8px;
-  background:transparent;color:#aaa;font-size:13px;font-weight:500;
-  cursor:pointer;transition:all .2s;text-align:center;
-  font-family:'Inter',sans-serif;
-}
-.slot-btn:hover{
-  border-color:rgba(94,231,247,.4);color:var(--cyan);
-  background:rgba(94,231,247,.04);
-}
-.slot-btn.selected{
-  border-color:var(--cyan);color:var(--cyan);
-  background:rgba(94,231,247,.1);font-weight:600;
-}
-.slot-btn:disabled{opacity:.25;cursor:default;border-color:var(--border);color:#555}
-.slot-btn:disabled:hover{background:transparent;border-color:var(--border);color:#555}
-
-/* Booking form */
-.booking-form{
-  margin-top:32px;
+/* PANELS */
+.panel{
   background:#111;border:1px solid var(--border);border-radius:16px;
-  padding:32px;
-  display:none;
-  animation:fadeIn .3s ease;
+  padding:32px;display:none;animation:fadeIn .3s ease;
 }
-.booking-form.visible{display:block}
+.panel.visible{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-.form-selected{
-  font-size:14px;color:var(--cyan);font-weight:600;
-  margin-bottom:20px;padding-bottom:16px;
-  border-bottom:1px solid var(--border);
-}
+.panel-title{font-size:20px;font-weight:800;color:var(--white);margin-bottom:4px}
+.panel-sub{font-size:14px;color:#666;margin-bottom:24px}
 
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:500px){.form-row{grid-template-columns:1fr}}
 .form-group{margin-bottom:16px}
 .form-group label{display:block;font-size:12px;color:#555;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
-.form-group input{
+.form-group input,.form-group select{
   width:100%;padding:12px 16px;background:#0a0a0a;border:1px solid var(--border);
   border-radius:8px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;
-  transition:border-color .2s;
+  transition:border-color .2s;appearance:none;-webkit-appearance:none;
 }
-.form-group input:focus{outline:none;border-color:rgba(94,231,247,.4)}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:rgba(94,231,247,.4)}
 .form-group input::placeholder{color:#333}
+.form-group select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  padding-right:40px;cursor:pointer;
+}
+.form-group select option{background:#0a0a0a;color:var(--white)}
 
-.form-submit{
+.btn-primary{
   width:100%;padding:14px;margin-top:8px;
   background:var(--cyan);color:#0a0a0a;border:none;border-radius:10px;
   font-size:15px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;
   cursor:pointer;transition:all .2s;letter-spacing:-.01em;
 }
-.form-submit:hover{filter:brightness(1.1);transform:translateY(-1px)}
-.form-submit:active{transform:translateY(0)}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary:disabled{opacity:.4;cursor:default;transform:none;filter:none}
 
-/* Confirmation */
-.confirmation{
-  margin-top:32px;
-  background:#111;border:1px solid rgba(94,231,247,.2);border-radius:16px;
-  padding:40px 32px;text-align:center;
-  display:none;
-  animation:fadeIn .4s ease;
+.btn-secondary{
+  width:100%;padding:12px;margin-top:8px;
+  background:transparent;color:#888;border:1px solid var(--border);border-radius:10px;
+  font-size:14px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;
+  cursor:pointer;transition:all .2s;
 }
-.confirmation.visible{display:block}
+.btn-secondary:hover{border-color:rgba(94,231,247,.3);color:var(--cyan)}
+
+/* DATE/TIME PICKER */
+.picker-section{margin-bottom:20px}
+.picker-label{font-size:12px;color:#555;margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+
+.date-dropdown{
+  width:100%;padding:14px 16px;background:#0a0a0a;border:1px solid var(--border);
+  border-radius:8px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:border-color .2s;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  padding-right:40px;
+}
+.date-dropdown:focus{outline:none;border-color:rgba(94,231,247,.4)}
+.date-dropdown option{background:#0a0a0a;color:var(--white)}
+
+.time-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  margin-top:8px;
+}
+@media(max-width:500px){.time-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:360px){.time-grid{grid-template-columns:repeat(2,1fr)}}
+
+.time-btn{
+  padding:10px 8px;border:1px solid var(--border);border-radius:8px;
+  background:transparent;color:#aaa;font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .2s;text-align:center;
+  font-family:'Inter',sans-serif;
+}
+.time-btn:hover{
+  border-color:rgba(94,231,247,.4);color:var(--cyan);
+  background:rgba(94,231,247,.04);
+}
+.time-btn.selected{
+  border-color:var(--cyan);color:var(--cyan);
+  background:rgba(94,231,247,.1);font-weight:600;
+}
+.time-btn:disabled{opacity:.25;cursor:default}
+.time-btn:disabled:hover{background:transparent;border-color:var(--border);color:#555}
+
+.no-slots-msg{
+  padding:16px;text-align:center;color:#555;font-size:13px;
+  border:1px dashed var(--border);border-radius:8px;margin-top:8px;
+}
+
+/* SUMMARY */
+.summary-card{
+  background:#0a0a0a;border:1px solid var(--border);border-radius:12px;
+  padding:20px;margin-bottom:20px;
+}
+.summary-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;
+}
+.summary-row+.summary-row{border-top:1px solid var(--border)}
+.summary-label{font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.summary-value{font-size:14px;color:var(--white);font-weight:600;text-align:right}
+.summary-value.cyan{color:var(--cyan)}
+
+/* CONFIRMATION */
 .conf-icon{
   width:56px;height:56px;border-radius:50%;margin:0 auto 20px;
   background:rgba(94,231,247,.1);border:2px solid rgba(94,231,247,.3);
   display:flex;align-items:center;justify-content:center;
 }
 .conf-icon svg{width:28px;height:28px;color:var(--cyan)}
-.conf-title{font-size:22px;font-weight:800;color:var(--white);margin-bottom:8px}
-.conf-detail{font-size:14px;color:#888;margin-bottom:24px;line-height:1.6}
-.conf-next{font-size:15px;color:#aaa;line-height:1.7;max-width:400px;margin:0 auto 20px}
-.conf-note{font-size:12px;color:#444;margin-top:8px}
+.conf-title{font-size:22px;font-weight:800;color:var(--white);margin-bottom:8px;text-align:center}
+.conf-detail{font-size:14px;color:#888;margin-bottom:24px;line-height:1.6;text-align:center}
+.conf-next{font-size:15px;color:#aaa;line-height:1.7;max-width:440px;margin:0 auto 16px;text-align:center}
+.conf-trial-note{
+  background:rgba(94,231,247,.04);border:1px solid rgba(94,231,247,.1);
+  border-radius:10px;padding:16px;margin:20px 0;text-align:center;
+}
+.conf-trial-note strong{color:var(--cyan);font-size:14px;display:block;margin-bottom:4px}
+.conf-trial-note span{font-size:13px;color:#888}
+.conf-note{font-size:12px;color:#444;margin-top:8px;text-align:center}
 
 /* TRUST BAND */
 .trust-band{
@@ -239,22 +290,33 @@ footer a:hover{color:var(--white)}
 <nav id="nav">
   <a href="/" class="logo"><img src="/logo4k.webp" alt="7Group"></a>
   <ul class="nav-links">
-    <li><a data-i18n="nav_solutions" href="/#solutions">Soluciones</a></li>
-    <li><a data-i18n="nav_plans" href="/#plans">Planes</a></li>
-    <li><a data-i18n="nav_calc" href="/calculadora/">Calculadora ROI</a></li>
+    <li><a id="navSol" href="/#solutions">Soluciones</a></li>
+    <li><a id="navPlan" href="/pagos/">Planes</a></li>
+    <li><a id="navCalc" href="/calculadora/">Calculadora ROI</a></li>
   </ul>
   <div class="lang-switch">
-    <a href="/agendar/" id="langES">ES</a>
-    <a href="/agendar/?lang=en" id="langEN">EN</a>
+    <a id="langES" onclick="setLang('es')">ES</a>
+    <a id="langEN" onclick="setLang('en')">EN</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <div class="page-hero">
   <div class="page-hero-inner">
-    <span class="page-label" data-i18n="hero_label">Primera reunion</span>
-    <h1 data-i18n-html="hero_h1">Agenda tu <em>reunion</em><br>de descubrimiento</h1>
-    <p data-i18n="hero_p">30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.</p>
+    <span class="page-label" id="heroLabel">Primera reunion</span>
+    <h1 id="heroH1">Agenda tu <em>reunion</em><br>de descubrimiento</h1>
+    <p id="heroP">30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.</p>
+  </div>
+</div>
+
+<!-- TRIAL BANNER -->
+<div class="trial-banner" id="trialBanner">
+  <div class="trial-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+  </div>
+  <div class="trial-text">
+    <strong id="trialTitle">30 dias de prueba gratuita</strong>
+    <span id="trialDesc">Agenda tu reunion, activa tu prueba y mide resultados antes de decidir. Sin tarjeta, sin compromiso.</span>
   </div>
 </div>
 
@@ -265,8 +327,8 @@ footer a:hover{color:var(--white)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     </div>
     <div>
-      <div class="detail-text-label" data-i18n="detail1_label">Duracion</div>
-      <div class="detail-text-val" data-i18n="detail1_val">30 minutos</div>
+      <div class="detail-text-label" id="det1L">Duracion</div>
+      <div class="detail-text-val" id="det1V">30 minutos</div>
     </div>
   </div>
   <div class="detail-item">
@@ -274,8 +336,8 @@ footer a:hover{color:var(--white)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     </div>
     <div>
-      <div class="detail-text-label" data-i18n="detail2_label">Disponibilidad</div>
-      <div class="detail-text-val" data-i18n="detail2_val">Lun - Vie / 9am - 4pm ET</div>
+      <div class="detail-text-label" id="det2L">Disponibilidad</div>
+      <div class="detail-text-val" id="det2V">Lun - Vie / 9am - 4pm ET</div>
     </div>
   </div>
   <div class="detail-item">
@@ -283,7 +345,7 @@ footer a:hover{color:var(--white)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
     </div>
     <div>
-      <div class="detail-text-label" data-i18n="detail3_label">Formato</div>
+      <div class="detail-text-label" id="det3L">Formato</div>
       <div class="detail-text-val">Google Meet</div>
     </div>
   </div>
@@ -292,79 +354,128 @@ footer a:hover{color:var(--white)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
     </div>
     <div>
-      <div class="detail-text-label" data-i18n="detail4_label">Confirmacion</div>
-      <div class="detail-text-val" data-i18n="detail4_val">Automatica por correo</div>
+      <div class="detail-text-label" id="det4L">Confirmacion</div>
+      <div class="detail-text-val" id="det4V">Automatica por correo</div>
     </div>
   </div>
 </div>
 
-<!-- SCHEDULER -->
+<!-- MAIN -->
 <div class="main">
-  <div class="scheduler">
 
-    <!-- Week Navigation -->
-    <div class="week-nav">
-      <button class="week-nav-btn" id="prevWeek" aria-label="Semana anterior">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <h2 id="weekLabel"></h2>
-      <button class="week-nav-btn" id="nextWeek" aria-label="Siguiente semana">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-    </div>
+  <!-- Steps indicator -->
+  <div class="steps-indicator">
+    <div class="step-dot active" id="stepDot1">1<span class="step-label" id="stepL1">Datos</span></div>
+    <div class="step-line" id="stepLine1"></div>
+    <div class="step-dot" id="stepDot2">2<span class="step-label" id="stepL2">Horario</span></div>
+    <div class="step-line" id="stepLine2"></div>
+    <div class="step-dot" id="stepDot3">3<span class="step-label" id="stepL3">Listo</span></div>
+  </div>
 
-    <!-- Week Grid -->
-    <div class="week-grid" id="weekGrid"></div>
+  <!-- STEP 1: Lead info -->
+  <div class="panel visible" id="panel1">
+    <h2 class="panel-title" id="p1Title">Cuentanos sobre ti</h2>
+    <p class="panel-sub" id="p1Sub">Para preparar tu reunion y personalizar la demostracion.</p>
 
-    <!-- Booking Form -->
-    <div class="booking-form" id="bookingForm">
-      <div class="form-selected" id="formSelected"></div>
+    <div class="form-row">
       <div class="form-group">
-        <label data-i18n="form_name">Nombre</label>
-        <input type="text" id="inputName" placeholder="Tu nombre" autocomplete="name">
+        <label id="lName">Nombre *</label>
+        <input type="text" id="inputName" placeholder="Tu nombre" autocomplete="name" required>
       </div>
       <div class="form-group">
-        <label data-i18n="form_email">Correo electronico</label>
-        <input type="email" id="inputEmail" placeholder="tu@correo.com" autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label data-i18n="form_company">Empresa (opcional)</label>
+        <label id="lCompany">Empresa</label>
         <input type="text" id="inputCompany" placeholder="Nombre de tu empresa" autocomplete="organization">
       </div>
-      <button class="form-submit" id="formSubmit" data-i18n="form_btn">Confirmar reunion</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label id="lEmail">Correo electronico *</label>
+        <input type="email" id="inputEmail" placeholder="tu@correo.com" autocomplete="email" required>
+      </div>
+      <div class="form-group">
+        <label id="lPhone">Telefono / WhatsApp</label>
+        <input type="tel" id="inputPhone" placeholder="+57 300 000 0000" autocomplete="tel">
+      </div>
+    </div>
+    <div class="form-group">
+      <label id="lIndustry">Tipo de negocio</label>
+      <select id="inputIndustry">
+        <option value="" id="optIndDefault">-- Selecciona --</option>
+        <option value="mudanzas">Mudanzas / Logistica</option>
+        <option value="retail">Retail / Tienda</option>
+        <option value="servicios">Servicios profesionales</option>
+        <option value="restaurante">Restaurante / Alimentos</option>
+        <option value="salud">Salud / Bienestar</option>
+        <option value="educacion">Educacion</option>
+        <option value="tecnologia">Tecnologia</option>
+        <option value="otro">Otro</option>
+      </select>
     </div>
 
-    <!-- Confirmation -->
-    <div class="confirmation" id="confirmation">
-      <div class="conf-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-      <h2 class="conf-title" data-i18n="conf_title">Hemos recibido tu solicitud</h2>
-      <p class="conf-detail" id="confDetail"></p>
-      <p class="conf-next" data-i18n="conf_next">Te enviaremos el link de Google Meet a tu correo una vez confirmemos tu horario.</p>
-      <p class="conf-note" data-i18n="conf_email">Si tienes alguna pregunta: 7groupcorp@zohomail.com</p>
-      <p class="conf-note" data-i18n="conf_note">Respuesta en menos de 24 horas.</p>
+    <button class="btn-primary" id="btnStep1" onclick="goStep2()">Siguiente: elegir horario</button>
+  </div>
+
+  <!-- STEP 2: Date/Time -->
+  <div class="panel" id="panel2">
+    <h2 class="panel-title" id="p2Title">Elige fecha y hora</h2>
+    <p class="panel-sub" id="p2Sub">Horarios disponibles de lunes a viernes, 9am a 4pm ET.</p>
+
+    <div class="picker-section">
+      <div class="picker-label" id="pickDateL">Fecha</div>
+      <select class="date-dropdown" id="dateSelect" onchange="onDateChange()">
+        <option value="">-- Selecciona una fecha --</option>
+      </select>
     </div>
+
+    <div class="picker-section" id="timeSection" style="display:none">
+      <div class="picker-label" id="pickTimeL">Hora disponible</div>
+      <div class="time-grid" id="timeGrid"></div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <button class="btn-secondary" style="flex:1" onclick="goStep1()" id="btnBack1">Volver</button>
+      <button class="btn-primary" style="flex:2" id="btnStep2" onclick="goStep3()" disabled>Confirmar reunion</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Confirmation -->
+  <div class="panel" id="panel3" style="text-align:center">
+    <div class="conf-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 class="conf-title" id="confTitle">Reunion agendada</h2>
+    <p class="conf-detail" id="confDetail"></p>
+
+    <div class="summary-card" id="confSummary"></div>
+
+    <div class="conf-trial-note">
+      <strong id="confTrialTitle">Tu prueba de 30 dias comienza ahora</strong>
+      <span id="confTrialDesc">Desde hoy tienes acceso completo. Agenda tu reunion de resultados antes del vencimiento para ver el impacto real.</span>
+    </div>
+
+    <p class="conf-next" id="confNext">Recibiras el enlace de Google Meet en tu correo. Nuestro equipo te contactara para confirmar.</p>
+    <p class="conf-note">7groupcorp@zohomail.com</p>
+    <p class="conf-note" id="confNoteTime">Respuesta en menos de 24 horas.</p>
   </div>
 
   <!-- TRUST BAND -->
   <div class="trust-band">
     <div class="trust-text">
-      <h3 data-i18n="trust_title">Una reunion, cero presion</h3>
-      <p data-i18n="trust_desc">Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.</p>
+      <h3 id="trustTitle">Una reunion, cero presion</h3>
+      <p id="trustDesc">Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.</p>
     </div>
     <div class="trust-items">
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        <span data-i18n="trust_1">Sin costo</span>
+        <span id="trust1">Sin costo</span>
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        <span data-i18n="trust_2">Sin contratos</span>
+        <span id="trust2">Sin contratos</span>
       </div>
       <div class="trust-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        <span data-i18n="trust_3">Confirmacion inmediata</span>
+        <span id="trust3">30 dias gratis</span>
       </div>
     </div>
   </div>
@@ -372,7 +483,7 @@ footer a:hover{color:var(--white)}
 
 <!-- FOOTER -->
 <footer>
-  <p data-i18n="footer_copy">&copy; 2026 7Group. Todos los derechos reservados.</p>
+  <p id="footerCopy">&copy; 2026 7Group. Todos los derechos reservados.</p>
   <a href="https://7group.site/">7group.site</a>
 </footer>
 
@@ -384,107 +495,269 @@ var TG_BOT   = "8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I";
 var TG_CHAT  = "1081707115";
 var W3F_KEY  = "76bc323e-4cf1-4c6c-9221-88d0f6261f7d";
 
-// Slots disponibles (hora ET, formato 24h)
 var SLOTS = [9, 9.5, 10, 10.5, 11, 11.5, 13, 13.5, 14, 14.5, 15, 15.5];
+var TRIAL_DAYS = 30;
 
 // ─── TRANSLATIONS ─────────────────────────────
 var T = {
   es: {
-    nav_solutions:'Soluciones', nav_plans:'Planes', nav_calc:'Calculadora ROI',
-    hero_label:'Primera reunion',
-    hero_h1:'Agenda tu <em>reunion</em><br>de descubrimiento',
-    hero_p:'30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.',
-    detail1_label:'Duracion', detail1_val:'30 minutos',
-    detail2_label:'Disponibilidad', detail2_val:'Lun - Vie / 9am - 4pm ET',
-    detail3_label:'Formato',
-    detail4_label:'Confirmacion', detail4_val:'Automatica por correo',
-    form_name:'Nombre', form_email:'Correo electronico', form_company:'Empresa (opcional)',
-    form_btn:'Confirmar reunion',
-    conf_title:'Hemos recibido tu solicitud',
-    conf_next:'Nuestro equipo revisara tu disponibilidad y te enviara el enlace de Google Meet al correo que proporcionaste.',
-    conf_email:'Contacto directo: 7groupcorp@zohomail.com',
-    conf_note:'Tiempo de respuesta estimado: menos de 24 horas habiles.',
-    trust_title:'Una reunion, cero presion',
-    trust_desc:'Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.',
-    trust_1:'Sin costo', trust_2:'Sin contratos', trust_3:'Confirmacion inmediata',
-    footer_copy:'&copy; 2026 7Group. Todos los derechos reservados.',
-    page_title:'Agendar Reunion · 7Group',
-    days:['Lun','Mar','Mie','Jue','Vie'],
-    months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
-    selected_prefix:'Horario seleccionado: ',
-    conf_detail_tpl:'__DAY__, __DATE__ a las __TIME__ ET',
-    ph_name:'Tu nombre', ph_email:'tu@correo.com', ph_company:'Nombre de tu empresa'
+    navSol:'Soluciones', navPlan:'Planes', navCalc:'Calculadora ROI',
+    heroLabel:'Primera reunion',
+    heroH1:'Agenda tu <em>reunion</em><br>de descubrimiento',
+    heroP:'30 minutos. Sin costo. Analizamos tu operacion y te mostramos donde la automatizacion genera impacto real.',
+    trialTitle:'30 dias de prueba gratuita',
+    trialDesc:'Agenda tu reunion, activa tu prueba y mide resultados antes de decidir. Sin tarjeta, sin compromiso.',
+    det1L:'Duracion', det1V:'30 minutos',
+    det2L:'Disponibilidad', det2V:'Lun - Vie / 9am - 4pm ET',
+    det3L:'Formato',
+    det4L:'Confirmacion', det4V:'Automatica por correo',
+    stepL1:'Datos', stepL2:'Horario', stepL3:'Listo',
+    p1Title:'Cuentanos sobre ti',
+    p1Sub:'Para preparar tu reunion y personalizar la demostracion.',
+    lName:'Nombre *', lCompany:'Empresa', lEmail:'Correo electronico *',
+    lPhone:'Telefono / WhatsApp', lIndustry:'Tipo de negocio',
+    phName:'Tu nombre', phCompany:'Nombre de tu empresa',
+    phEmail:'tu@correo.com', phPhone:'+57 300 000 0000',
+    optIndDefault:'-- Selecciona --',
+    industries:['Mudanzas / Logistica','Retail / Tienda','Servicios profesionales',
+      'Restaurante / Alimentos','Salud / Bienestar','Educacion','Tecnologia','Otro'],
+    btnStep1:'Siguiente: elegir horario',
+    p2Title:'Elige fecha y hora',
+    p2Sub:'Horarios disponibles de lunes a viernes, 9am a 4pm ET.',
+    pickDateL:'Fecha', pickTimeL:'Hora disponible',
+    dateDefault:'-- Selecciona una fecha --',
+    btnBack:'Volver', btnStep2:'Confirmar reunion',
+    confTitle:'Reunion agendada',
+    confTrialTitle:'Tu prueba de 30 dias comienza ahora',
+    confTrialDesc:'Desde hoy tienes acceso completo. Agenda tu reunion de resultados antes del vencimiento para ver el impacto real.',
+    confNext:'Recibiras el enlace de Google Meet en tu correo. Nuestro equipo te contactara para confirmar.',
+    confNoteTime:'Respuesta en menos de 24 horas.',
+    trustTitle:'Una reunion, cero presion',
+    trustDesc:'Analizamos tu caso. Si hay fit, te presentamos una propuesta. Si no, te lo decimos con claridad.',
+    trust1:'Sin costo', trust2:'Sin contratos', trust3:'30 dias gratis',
+    footerCopy:'&copy; 2026 7Group. Todos los derechos reservados.',
+    pageTitle:'Agendar Reunion · 7Group',
+    daysLong:['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'],
+    monthsLong:['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+    noSlots:'No hay horarios disponibles este dia.',
+    errRequired:'Por favor ingresa tu nombre y correo.',
+    errSlot:'Por favor selecciona una fecha y hora.',
+    sumName:'Nombre', sumEmail:'Correo', sumPhone:'Telefono',
+    sumCompany:'Empresa', sumIndustry:'Negocio', sumDate:'Fecha', sumTime:'Hora',
+    trialExpiry:'Vencimiento prueba',
+    today:'Hoy'
   },
   en: {
-    nav_solutions:'Solutions', nav_plans:'Plans', nav_calc:'ROI Calculator',
-    hero_label:'First meeting',
-    hero_h1:'Schedule your <em>discovery</em><br>call with us',
-    hero_p:'30 minutes. No cost. We analyze your operation and show you where automation drives real impact.',
-    detail1_label:'Duration', detail1_val:'30 minutes',
-    detail2_label:'Availability', detail2_val:'Mon - Fri / 9am - 4pm ET',
-    detail3_label:'Format',
-    detail4_label:'Confirmation', detail4_val:'Automatic by email',
-    form_name:'Name', form_email:'Email', form_company:'Company (optional)',
-    form_btn:'Confirm meeting',
-    conf_title:'Your request has been received',
-    conf_next:'Our team will review your availability and send the Google Meet link to the email you provided.',
-    conf_email:'Direct contact: 7groupcorp@zohomail.com',
-    conf_note:'Estimated response time: within 24 business hours.',
-    trust_title:'One meeting, zero pressure',
-    trust_desc:'We analyze your case. If there\'s a fit, we present a proposal. If not, we\'ll tell you clearly.',
-    trust_1:'No cost', trust_2:'No contracts', trust_3:'Instant confirmation',
-    footer_copy:'&copy; 2026 7Group. All rights reserved.',
-    page_title:'Schedule a Meeting · 7Group',
-    days:['Mon','Tue','Wed','Thu','Fri'],
-    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    selected_prefix:'Selected time: ',
-    conf_detail_tpl:'__DAY__, __DATE__ at __TIME__ ET',
-    ph_name:'Your name', ph_email:'you@email.com', ph_company:'Company name'
+    navSol:'Solutions', navPlan:'Plans', navCalc:'ROI Calculator',
+    heroLabel:'First meeting',
+    heroH1:'Schedule your <em>discovery</em><br>call with us',
+    heroP:'30 minutes. No cost. We analyze your operation and show you where automation drives real impact.',
+    trialTitle:'30-day free trial',
+    trialDesc:'Schedule your meeting, activate your trial, and measure results before you decide. No card, no commitment.',
+    det1L:'Duration', det1V:'30 minutes',
+    det2L:'Availability', det2V:'Mon - Fri / 9am - 4pm ET',
+    det3L:'Format',
+    det4L:'Confirmation', det4V:'Automatic by email',
+    stepL1:'Info', stepL2:'Schedule', stepL3:'Done',
+    p1Title:'Tell us about you',
+    p1Sub:'So we can prepare your meeting and personalize the demo.',
+    lName:'Name *', lCompany:'Company', lEmail:'Email *',
+    lPhone:'Phone / WhatsApp', lIndustry:'Business type',
+    phName:'Your name', phCompany:'Company name',
+    phEmail:'you@email.com', phPhone:'+1 555 000 0000',
+    optIndDefault:'-- Select --',
+    industries:['Moving / Logistics','Retail / Store','Professional services',
+      'Restaurant / Food','Health / Wellness','Education','Technology','Other'],
+    btnStep1:'Next: choose a time',
+    p2Title:'Pick date and time',
+    p2Sub:'Available slots Monday through Friday, 9am to 4pm ET.',
+    pickDateL:'Date', pickTimeL:'Available time',
+    dateDefault:'-- Select a date --',
+    btnBack:'Back', btnStep2:'Confirm meeting',
+    confTitle:'Meeting scheduled',
+    confTrialTitle:'Your 30-day trial starts now',
+    confTrialDesc:'From today you have full access. Schedule your results meeting before expiration to see the real impact.',
+    confNext:'You will receive the Google Meet link by email. Our team will contact you to confirm.',
+    confNoteTime:'Response within 24 hours.',
+    trustTitle:'One meeting, zero pressure',
+    trustDesc:'We analyze your case. If there\'s a fit, we present a proposal. If not, we\'ll tell you clearly.',
+    trust1:'No cost', trust2:'No contracts', trust3:'30 days free',
+    footerCopy:'&copy; 2026 7Group. All rights reserved.',
+    pageTitle:'Schedule a Meeting · 7Group',
+    daysLong:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    monthsLong:['January','February','March','April','May','June','July','August','September','October','November','December'],
+    noSlots:'No available slots for this day.',
+    errRequired:'Please enter your name and email.',
+    errSlot:'Please select a date and time.',
+    sumName:'Name', sumEmail:'Email', sumPhone:'Phone',
+    sumCompany:'Company', sumIndustry:'Business', sumDate:'Date', sumTime:'Time',
+    trialExpiry:'Trial expires',
+    today:'Today'
   }
 };
 
+// ─── LANGUAGE ─────────────────────────────
 var lang = (new URLSearchParams(window.location.search).get('lang') === 'en') ? 'en' : 'es';
 var t = T[lang];
 
-// Apply translations
-document.documentElement.lang = lang;
-document.title = t.page_title;
-document.querySelector('meta[name="description"]').setAttribute('content', lang === 'en'
-  ? 'Book a meeting with the 7Group team. Pick a time that works and get instant confirmation.'
-  : 'Agenda una reunion con el equipo de 7Group. Selecciona el horario que mejor te funcione y recibe confirmacion inmediata.');
-
-document.querySelectorAll('[data-i18n]').forEach(function(el) {
-  var key = el.getAttribute('data-i18n');
-  if (t[key] !== undefined) el.innerHTML = t[key];
-});
-document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
-  var key = el.getAttribute('data-i18n-html');
-  if (t[key] !== undefined) el.innerHTML = t[key];
-});
-
-if (lang === 'en') {
-  document.getElementById('langEN').classList.add('active');
-} else {
-  document.getElementById('langES').classList.add('active');
+function setLang(l) {
+  lang = l;
+  t = T[l];
+  applyLang();
 }
 
-// Placeholders
-document.getElementById('inputName').placeholder = t.ph_name;
-document.getElementById('inputEmail').placeholder = t.ph_email;
-document.getElementById('inputCompany').placeholder = t.ph_company;
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
 
-// ─── CALENDAR LOGIC ────────────────────────────
-var currentWeekStart = getMonday(new Date());
-var selectedSlot = null;
+  document.getElementById('langES').classList.toggle('active', lang === 'es');
+  document.getElementById('langEN').classList.toggle('active', lang === 'en');
 
-function getMonday(d) {
-  var date = new Date(d);
-  var day = date.getDay();
-  var diff = date.getDate() - day + (day === 0 ? -6 : 1);
-  date.setDate(diff);
-  date.setHours(0,0,0,0);
-  return date;
+  var map = {
+    navSol:'navSol', navPlan:'navPlan', navCalc:'navCalc',
+    heroLabel:'heroLabel', heroP:'heroP',
+    trialTitle:'trialTitle', trialDesc:'trialDesc',
+    det1L:'det1L', det1V:'det1V', det2L:'det2L', det2V:'det2V',
+    det3L:'det3L', det4L:'det4L', det4V:'det4V',
+    stepL1:'stepL1', stepL2:'stepL2', stepL3:'stepL3',
+    p1Title:'p1Title', p1Sub:'p1Sub',
+    lName:'lName', lCompany:'lCompany', lEmail:'lEmail', lPhone:'lPhone', lIndustry:'lIndustry',
+    btnStep1:'btnStep1',
+    p2Title:'p2Title', p2Sub:'p2Sub',
+    pickDateL:'pickDateL', pickTimeL:'pickTimeL',
+    btnBack1:'btnBack', btnStep2:'btnStep2',
+    confTitle:'confTitle',
+    confTrialTitle:'confTrialTitle', confTrialDesc:'confTrialDesc',
+    confNext:'confNext', confNoteTime:'confNoteTime',
+    trustTitle:'trustTitle', trustDesc:'trustDesc',
+    trust1:'trust1', trust2:'trust2', trust3:'trust3'
+  };
+
+  for (var id in map) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = t[map[id]];
+  }
+
+  document.getElementById('heroH1').innerHTML = t.heroH1;
+  document.getElementById('footerCopy').innerHTML = t.footerCopy;
+
+  document.getElementById('inputName').placeholder = t.phName;
+  document.getElementById('inputCompany').placeholder = t.phCompany;
+  document.getElementById('inputEmail').placeholder = t.phEmail;
+  document.getElementById('inputPhone').placeholder = t.phPhone;
+
+  var indSel = document.getElementById('inputIndustry');
+  var indVal = indSel.value;
+  indSel.options[0].text = t.optIndDefault;
+  var indKeys = ['mudanzas','retail','servicios','restaurante','salud','educacion','tecnologia','otro'];
+  for (var i = 0; i < indKeys.length; i++) {
+    indSel.options[i + 1].text = t.industries[i];
+  }
+  indSel.value = indVal;
+
+  populateDates();
 }
+
+// ─── SMART DATE LOGIC ─────────────────────────────
+function getBookedSlots() {
+  try {
+    return JSON.parse(localStorage.getItem('7g_booked') || '{}');
+  } catch(e) { return {}; }
+}
+
+function bookSlot(dateKey, hour) {
+  var booked = getBookedSlots();
+  if (!booked[dateKey]) booked[dateKey] = [];
+  booked[dateKey].push(hour);
+  localStorage.setItem('7g_booked', JSON.stringify(booked));
+}
+
+function getAvailableSlots(dateKey) {
+  var booked = getBookedSlots();
+  var taken = booked[dateKey] || [];
+  var now = new Date();
+  var todayKey = dateToKey(now);
+  var available = [];
+
+  for (var i = 0; i < SLOTS.length; i++) {
+    if (taken.indexOf(SLOTS[i]) !== -1) continue;
+    if (dateKey === todayKey) {
+      var h = Math.floor(SLOTS[i]);
+      var m = (SLOTS[i] % 1) ? 30 : 0;
+      var slotTime = new Date(now);
+      slotTime.setHours(h, m, 0, 0);
+      if (slotTime <= now) continue;
+    }
+    available.push(SLOTS[i]);
+  }
+  return available;
+}
+
+function dateToKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function getSmartStartDate() {
+  var now = new Date();
+  var day = now.getDay();
+  var hour = now.getHours();
+  var min = now.getMinutes();
+  var start = new Date(now);
+
+  if (day === 5 && (hour > 15 || (hour === 15 && min > 0))) {
+    start.setDate(start.getDate() + 3);
+  } else if (day === 6) {
+    start.setDate(start.getDate() + 2);
+  } else if (day === 0) {
+    start.setDate(start.getDate() + 1);
+  }
+
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function populateDates() {
+  var sel = document.getElementById('dateSelect');
+  var prevVal = sel.value;
+  sel.innerHTML = '';
+
+  var defOpt = document.createElement('option');
+  defOpt.value = '';
+  defOpt.textContent = t.dateDefault;
+  sel.appendChild(defOpt);
+
+  var start = getSmartStartDate();
+  var count = 0;
+  var current = new Date(start);
+  var now = new Date();
+  var todayKey = dateToKey(now);
+
+  while (count < 10) {
+    if (current.getDay() !== 0 && current.getDay() !== 6) {
+      var key = dateToKey(current);
+      var avail = getAvailableSlots(key);
+
+      if (avail.length > 0) {
+        var opt = document.createElement('option');
+        opt.value = key;
+        var dayName = t.daysLong[current.getDay()];
+        var dateStr = current.getDate() + ' ' + t.monthsLong[current.getMonth()];
+        var tag = (key === todayKey) ? ' (' + t.today + ')' : '';
+        opt.textContent = dayName + ', ' + dateStr + tag + '  (' + avail.length + ' slots)';
+        sel.appendChild(opt);
+        count++;
+      }
+    }
+    current.setDate(current.getDate() + 1);
+    if (current - start > 45 * 86400000) break;
+  }
+
+  if (prevVal) sel.value = prevVal;
+}
+
+// ─── STATE ─────────────────────────────
+var selectedDate = null;
+var selectedHour = null;
 
 function formatHour(h) {
   var hour = Math.floor(h);
@@ -494,142 +767,173 @@ function formatHour(h) {
   return display + ':' + min + ' ' + ampm;
 }
 
-function renderWeek() {
-  var grid = document.getElementById('weekGrid');
+function onDateChange() {
+  var val = document.getElementById('dateSelect').value;
+  var sec = document.getElementById('timeSection');
+
+  if (!val) {
+    sec.style.display = 'none';
+    selectedDate = null;
+    selectedHour = null;
+    document.getElementById('btnStep2').disabled = true;
+    return;
+  }
+
+  selectedDate = val;
+  selectedHour = null;
+  document.getElementById('btnStep2').disabled = true;
+  sec.style.display = 'block';
+
+  var grid = document.getElementById('timeGrid');
   grid.innerHTML = '';
 
-  var now = new Date();
-  var todayStr = now.toDateString();
+  var avail = getAvailableSlots(val);
 
-  // Week label
-  var endOfWeek = new Date(currentWeekStart);
-  endOfWeek.setDate(endOfWeek.getDate() + 4);
-  var label = t.months[currentWeekStart.getMonth()] + ' ' + currentWeekStart.getDate() +
-    ' - ' + t.months[endOfWeek.getMonth()] + ' ' + endOfWeek.getDate();
-  document.getElementById('weekLabel').textContent = label;
+  if (avail.length === 0) {
+    grid.innerHTML = '<div class="no-slots-msg">' + t.noSlots + '</div>';
+    return;
+  }
 
-  // Disable prev button if this week is current week
-  var thisMonday = getMonday(new Date());
-  document.getElementById('prevWeek').disabled = (currentWeekStart <= thisMonday);
-
-  for (var i = 0; i < 5; i++) {
-    var dayDate = new Date(currentWeekStart);
-    dayDate.setDate(dayDate.getDate() + i);
-
-    var col = document.createElement('div');
-    col.className = 'day-col';
-
-    var isPast = dayDate.toDateString() !== todayStr && dayDate < now;
-    var isToday = dayDate.toDateString() === todayStr;
-    if (isPast) col.classList.add('day-past');
-    if (isToday) col.classList.add('day-today');
-
-    var header = document.createElement('div');
-    header.className = 'day-header';
-    header.innerHTML = '<div class="day-name">' + t.days[i] + '</div>' +
-      '<div class="day-date">' + dayDate.getDate() + '</div>';
-    col.appendChild(header);
-
-    var slotsDiv = document.createElement('div');
-    slotsDiv.className = 'day-slots';
-
-    for (var s = 0; s < SLOTS.length; s++) {
-      var btn = document.createElement('button');
-      btn.className = 'slot-btn';
-      btn.textContent = formatHour(SLOTS[s]);
-
-      var slotTime = new Date(dayDate);
-      slotTime.setHours(Math.floor(SLOTS[s]), (SLOTS[s] % 1) ? 30 : 0, 0, 0);
-
-      if (isPast || (isToday && slotTime <= now)) {
-        btn.disabled = true;
-      } else {
-        btn.dataset.date = dayDate.toISOString();
-        btn.dataset.hour = SLOTS[s];
-        btn.addEventListener('click', selectSlot);
-      }
-
-      if (selectedSlot && selectedSlot.date === dayDate.toISOString() && selectedSlot.hour === SLOTS[s]) {
-        btn.classList.add('selected');
-      }
-
-      slotsDiv.appendChild(btn);
-    }
-
-    col.appendChild(slotsDiv);
-    grid.appendChild(col);
+  for (var i = 0; i < avail.length; i++) {
+    var btn = document.createElement('button');
+    btn.className = 'time-btn';
+    btn.textContent = formatHour(avail[i]);
+    btn.dataset.hour = avail[i];
+    btn.addEventListener('click', selectTime);
+    grid.appendChild(btn);
   }
 }
 
-function selectSlot(e) {
+function selectTime(e) {
   var btn = e.currentTarget;
-  selectedSlot = { date: btn.dataset.date, hour: parseFloat(btn.dataset.hour) };
+  selectedHour = parseFloat(btn.dataset.hour);
 
-  document.querySelectorAll('.slot-btn.selected').forEach(function(b) { b.classList.remove('selected'); });
+  document.querySelectorAll('.time-btn.selected').forEach(function(b) { b.classList.remove('selected'); });
   btn.classList.add('selected');
 
-  var d = new Date(selectedSlot.date);
-  var dayName = t.days[( d.getDay() + 6) % 7];
-  var dateStr = d.getDate() + ' ' + t.months[d.getMonth()];
-  var timeStr = formatHour(selectedSlot.hour);
-
-  document.getElementById('formSelected').textContent =
-    t.selected_prefix + dayName + ' ' + dateStr + ', ' + timeStr + ' ET';
-
-  var form = document.getElementById('bookingForm');
-  form.classList.add('visible');
-  document.getElementById('confirmation').classList.remove('visible');
-
-  setTimeout(function() {
-    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
+  document.getElementById('btnStep2').disabled = false;
 }
 
-// Week navigation
-document.getElementById('prevWeek').addEventListener('click', function() {
-  currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-  renderWeek();
-});
-document.getElementById('nextWeek').addEventListener('click', function() {
-  currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-  renderWeek();
-});
+// ─── STEP NAVIGATION ─────────────────────────────
+function updateSteps(step) {
+  var dots = [document.getElementById('stepDot1'), document.getElementById('stepDot2'), document.getElementById('stepDot3')];
+  var lines = [document.getElementById('stepLine1'), document.getElementById('stepLine2')];
+  var labels = [t.stepL1, t.stepL2, t.stepL3];
 
-// Form submit
-document.getElementById('formSubmit').addEventListener('click', function() {
+  dots.forEach(function(d, i) {
+    d.classList.remove('active', 'done');
+    if (i + 1 < step) {
+      d.classList.add('done');
+      d.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span class="step-label">' + labels[i] + '</span>';
+    } else if (i + 1 === step) {
+      d.classList.add('active');
+      d.innerHTML = (i + 1) + '<span class="step-label">' + labels[i] + '</span>';
+    } else {
+      d.innerHTML = (i + 1) + '<span class="step-label">' + labels[i] + '</span>';
+    }
+  });
+
+  lines.forEach(function(l, i) {
+    l.classList.toggle('done', i + 1 < step);
+  });
+}
+
+function goStep1() {
+  document.getElementById('panel2').classList.remove('visible');
+  document.getElementById('panel1').classList.add('visible');
+  updateSteps(1);
+  window.scrollTo({ top: document.querySelector('.steps-indicator').offsetTop - 80, behavior: 'smooth' });
+}
+
+function goStep2() {
   var name = document.getElementById('inputName').value.trim();
   var email = document.getElementById('inputEmail').value.trim();
 
   if (!name || !email) {
-    var msg = lang === 'en' ? 'Please enter your name and email.' : 'Por favor ingresa tu nombre y correo.';
-    alert(msg);
+    alert(t.errRequired);
     return;
   }
 
+  document.getElementById('panel1').classList.remove('visible');
+  document.getElementById('panel2').classList.add('visible');
+  updateSteps(2);
+  populateDates();
+  window.scrollTo({ top: document.querySelector('.steps-indicator').offsetTop - 80, behavior: 'smooth' });
+}
+
+function goStep3() {
+  if (!selectedDate || selectedHour === null) {
+    alert(t.errSlot);
+    return;
+  }
+
+  var name = document.getElementById('inputName').value.trim();
+  var email = document.getElementById('inputEmail').value.trim();
   var company = document.getElementById('inputCompany').value.trim();
-  var d = new Date(selectedSlot.date);
-  var dayName = t.days[(d.getDay() + 6) % 7];
-  var dateStr = d.getDate() + ' ' + t.months[d.getMonth()] + ', ' + d.getFullYear();
-  var timeStr = formatHour(selectedSlot.hour);
+  var phone = document.getElementById('inputPhone').value.trim();
+  var industry = document.getElementById('inputIndustry');
+  var industryText = industry.selectedIndex > 0 ? industry.options[industry.selectedIndex].text : '-';
 
-  var detail = t.conf_detail_tpl
-    .replace('__DAY__', dayName)
-    .replace('__DATE__', dateStr)
-    .replace('__TIME__', timeStr);
+  var parts = selectedDate.split('-');
+  var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  var dayName = t.daysLong[d.getDay()];
+  var dateStr = d.getDate() + ' ' + t.monthsLong[d.getMonth()] + ', ' + d.getFullYear();
+  var timeStr = formatHour(selectedHour);
 
-  document.getElementById('confDetail').textContent = detail;
+  var trialEnd = new Date();
+  trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS);
+  var trialStr = trialEnd.getDate() + ' ' + t.monthsLong[trialEnd.getMonth()] + ', ' + trialEnd.getFullYear();
 
+  document.getElementById('confDetail').textContent = dayName + ', ' + dateStr + ' - ' + timeStr + ' ET';
+
+  var summary = document.getElementById('confSummary');
+  summary.innerHTML = '';
+
+  var rows = [
+    [t.sumName, name],
+    [t.sumEmail, email]
+  ];
+  if (phone) rows.push([t.sumPhone, phone]);
+  if (company) rows.push([t.sumCompany, company]);
+  if (industry.selectedIndex > 0) rows.push([t.sumIndustry, industryText]);
+  rows.push([t.sumDate, dayName + ', ' + dateStr]);
+  rows.push([t.sumTime, timeStr + ' ET']);
+  rows.push([t.trialExpiry, trialStr]);
+
+  for (var i = 0; i < rows.length; i++) {
+    var row = document.createElement('div');
+    row.className = 'summary-row';
+    var isLast = (i === rows.length - 1);
+    row.innerHTML = '<span class="summary-label">' + rows[i][0] + '</span><span class="summary-value' + (isLast ? ' cyan' : '') + '">' + rows[i][1] + '</span>';
+    summary.appendChild(row);
+  }
+
+  bookSlot(selectedDate, selectedHour);
+
+  sendNotifications(name, email, phone, company, industryText, dayName, dateStr, timeStr, trialStr);
+
+  document.getElementById('panel2').classList.remove('visible');
+  document.getElementById('panel3').classList.add('visible');
+  updateSteps(3);
+  window.scrollTo({ top: document.querySelector('.steps-indicator').offsetTop - 80, behavior: 'smooth' });
+}
+
+// ─── NOTIFICATIONS ─────────────────────────────
+function sendNotifications(name, email, phone, company, industry, dayName, dateStr, timeStr, trialStr) {
   var langLabel = lang === 'en' ? 'EN' : 'ES';
+  var scheduleStr = dayName + ' ' + dateStr + ', ' + timeStr + ' ET';
 
-  // Telegram notification
   if (TG_BOT && TG_CHAT) {
     var tg = '*Nueva cita - 7Group*\n'
       + 'Idioma: ' + langLabel + '\n'
       + '---\n'
       + 'Nombre: ' + name + '\n'
       + 'Email: ' + email + '\n'
+      + (phone ? 'Telefono: ' + phone + '\n' : '')
       + (company ? 'Empresa: ' + company + '\n' : '')
-      + 'Horario: ' + dayName + ' ' + dateStr + ', ' + timeStr + ' ET';
+      + (industry !== '-' ? 'Negocio: ' + industry + '\n' : '')
+      + 'Horario: ' + scheduleStr + '\n'
+      + 'Vencimiento prueba: ' + trialStr;
     fetch('https://api.telegram.org/bot' + TG_BOT + '/sendMessage', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -637,7 +941,6 @@ document.getElementById('formSubmit').addEventListener('click', function() {
     }).catch(function(){});
   }
 
-  // Email notification (Web3Forms)
   if (W3F_KEY) {
     fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -647,28 +950,23 @@ document.getElementById('formSubmit').addEventListener('click', function() {
         subject: 'Nueva cita 7Group - ' + name + ' (' + langLabel + ')',
         from_name: '7Group Calendar',
         replyto: '7groupcorp@zohomail.com',
-        Nombre: name,
-        Email: email,
-        Empresa: company || '-',
-        Horario: dayName + ' ' + dateStr + ', ' + timeStr + ' ET',
-        Idioma: langLabel
+        name: name,
+        email: email,
+        phone: phone || '-',
+        company: company || '-',
+        industry: industry,
+        schedule: scheduleStr,
+        trial_expires: trialStr,
+        language: langLabel
       })
     }).catch(function(){});
   }
+}
 
-  document.getElementById('bookingForm').classList.remove('visible');
-  var conf = document.getElementById('confirmation');
-  conf.classList.add('visible');
+// ─── INIT ─────────────────────────────
+applyLang();
+updateSteps(1);
 
-  setTimeout(function() {
-    conf.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
-});
-
-// Init
-renderWeek();
-
-// Nav scroll
 var nav = document.getElementById('nav');
 window.addEventListener('scroll', function() {
   nav.classList.toggle('scrolled', window.scrollY > 40);

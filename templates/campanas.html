@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Campanas — WhatsApp Marketing</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f5;--bg-dark:#0a0a0a;--text:#0a0a0a;--text-light:#6b6b6b;
+  --text-inv:#fff;--cyan:#5ee7f7;--border:#e8e8e8;
+  --border-dark:rgba(255,255,255,.08);--white:#fff;
+  --green:#25D366;--red:#d44;--yellow:#f1c40f;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+body{background:var(--bg);color:var(--text);min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased}
+.trial-banner{background:var(--bg-dark);color:var(--text-inv);padding:10px 20px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:1px solid var(--border-dark)}
+.trial-banner a{color:var(--cyan);text-decoration:none}
+.topbar{background:rgba(10,10,10,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar .brand-placeholder{border:1px dashed rgba(255,255,255,.25);padding:6px 14px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar .badge{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.lang-toggle{display:flex;gap:8px;font-size:13px}
+.lang-toggle span{color:rgba(255,255,255,.35);cursor:pointer;transition:color .2s;padding:2px 0}
+.lang-toggle span:hover{color:rgba(255,255,255,.7)}
+.lang-toggle span.active{color:var(--text-inv)}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--white);position:sticky;top:53px;z-index:99}
+.tabs button{flex:1;max-width:200px;padding:14px 16px;border:none;background:none;font-family:inherit;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;transition:.2s}
+.tabs button:hover{color:var(--text)}
+.tabs button.active{color:var(--text);border-bottom-color:var(--cyan)}
+
+.shell{max-width:1100px;margin:0 auto;padding:20px 20px 100px}
+.tab-view{display:none;animation:fadeIn .3s ease}
+.tab-view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.stats-row{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.stat-card{flex:1;min-width:120px;background:var(--white);border:1px solid var(--border);padding:14px 18px}
+.stat-card .num{font-size:24px;font-weight:700;letter-spacing:-1px}
+.stat-card .lbl{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-top:2px}
+
+.layout-2col{display:grid;grid-template-columns:1fr 380px;gap:16px}
+@media(max-width:820px){.layout-2col{grid-template-columns:1fr}}
+
+.panel{background:var(--white);border:1px solid var(--border)}
+.panel-head{padding:14px 18px;border-bottom:1px solid var(--border)}
+.panel-head h2{font-size:14px;font-weight:700;letter-spacing:-.3px}
+.panel-head p{font-size:12px;color:var(--text-light);margin-top:2px}
+.panel-body{padding:16px 18px}
+
+.controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:180px;padding:10px 14px;border:1px solid var(--border);font-family:inherit;font-size:14px;background:var(--white);outline:none;transition:border-color .2s}
+.search-box:focus{border-color:var(--cyan)}
+.btn{padding:10px 20px;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;border:1px solid var(--border);background:var(--white);font-family:inherit;cursor:pointer;transition:all .2s}
+.btn:hover{border-color:var(--text)}
+.btn-primary{background:var(--text);color:var(--white);border-color:var(--text)}
+.btn-primary:hover{background:var(--cyan);border-color:var(--cyan);color:var(--bg-dark)}
+.btn-wa{background:var(--green);color:var(--white);border-color:var(--green)}
+.btn-wa:hover{background:#1da851;border-color:#1da851}
+.btn-sm{padding:6px 12px;font-size:11px}
+.sel-badge{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);font-weight:600}
+
+.contact-list{border:1px solid var(--border);background:var(--white)}
+.list-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(245,245,245,.5)}
+.list-head label{font-size:12px;font-weight:500;color:var(--text-light);display:flex;align-items:center;gap:8px;cursor:pointer}
+.list-scroll{max-height:50vh;overflow-y:auto}
+.c-row{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);gap:12px;cursor:pointer;transition:background .15s}
+.c-row:hover{background:rgba(94,231,247,.03)}
+.c-row.selected{background:rgba(94,231,247,.06)}
+.c-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--cyan);flex-shrink:0;cursor:pointer}
+.c-name{flex:1;font-size:14px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-phone{font-size:12px;color:var(--text-light);flex-shrink:0}
+.c-tag{font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--cyan);background:rgba(94,231,247,.1);padding:2px 8px;flex-shrink:0}
+.list-foot{padding:10px 16px;font-size:12px;color:var(--text-light);text-align:center;border-top:1px solid var(--border)}
+
+.field{margin-bottom:16px}
+.field .lbl{display:block;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-bottom:6px}
+.field select,.field input,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--border);font-family:inherit;font-size:14px;background:var(--white);transition:border-color .2s;outline:none}
+.field select:focus,.field input:focus,.field textarea:focus{border-color:var(--cyan)}
+.field textarea{resize:vertical;min-height:100px;line-height:1.6}
+
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.tpl-card{border:1px solid var(--border);padding:12px;cursor:pointer;transition:all .2s;text-align:center}
+.tpl-card:hover{border-color:var(--text)}
+.tpl-card.active{border-color:var(--cyan);background:rgba(94,231,247,.04)}
+.tpl-icon{font-size:18px;margin-bottom:4px}
+.tpl-name{font-size:12px;font-weight:600;letter-spacing:.3px}
+.tpl-desc{font-size:10px;color:var(--text-light);margin-top:2px}
+
+.preview-box{background:rgba(94,231,247,.04);border:1px solid rgba(94,231,247,.15);padding:14px;font-size:13px;white-space:pre-wrap;line-height:1.7;max-height:200px;overflow-y:auto}
+.preview-box .var{background:rgba(241,196,0,.15);padding:1px 4px;font-weight:600}
+
+.camp-actions{padding:14px 18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+
+/* History */
+.hist-card{background:var(--white);border:1px solid var(--border);padding:14px 18px;margin-bottom:10px}
+.hist-top{display:flex;justify-content:space-between;align-items:center}
+.hist-name{font-weight:700;font-size:14px}
+.hist-date{font-size:12px;color:var(--text-light)}
+.hist-stats{font-size:13px;color:var(--text-light);margin-top:4px}
+.hist-actions{margin-top:8px;display:flex;gap:8px}
+
+/* Results */
+.res-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:600px){.res-kpis{grid-template-columns:1fr 1fr}}
+.res-kpi{background:var(--white);border:1px solid var(--border);padding:18px;text-align:center}
+.res-kpi .num{font-size:28px;font-weight:700;letter-spacing:-1px}
+.res-kpi .lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);margin-top:4px}
+
+.funnel{display:flex;gap:0;margin-bottom:24px}
+.funnel-step{flex:1;text-align:center}
+.funnel-bar{height:44px;background:var(--text);margin:0 2px;display:flex;align-items:center;justify-content:center;position:relative}
+.funnel-step:first-child .funnel-bar{border-radius:4px 0 0 4px}
+.funnel-step:last-child .funnel-bar{border-radius:0 4px 4px 0}
+.funnel-bar span{color:var(--white);font-size:16px;font-weight:700}
+.funnel-label{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--text-light);margin-top:6px}
+
+.powered{text-align:center;padding:24px;font-size:11px;color:var(--text-light);letter-spacing:1px;text-transform:uppercase}
+.powered a{color:var(--cyan);text-decoration:none}
+
+@media(max-width:600px){
+  .stats-row{flex-direction:column}
+  .tpl-grid{grid-template-columns:1fr}
+  .tabs button{font-size:10px;padding:12px 8px;letter-spacing:.5px}
+}
+</style>
+</head>
+<body>
+
+<div class="trial-banner">
+  <span data-i18n="trial_msg">Modo prueba — 30 dias gratis</span> · <a href="https://7group.site/pagos/" data-i18n="trial_cta">Ver planes</a>
+</div>
+
+<div class="topbar">
+  <span class="brand-placeholder" data-i18n="brand_placeholder">Tu marca aqui</span>
+  <div class="topbar-right">
+    <div class="lang-toggle">
+      <span data-lang="en" onclick="setLang('en')">EN</span>
+      <span data-lang="es" onclick="setLang('es')">ES</span>
+    </div>
+    <span class="badge" data-i18n="badge_camp">Campanas</span>
+  </div>
+</div>
+
+<div class="tabs" id="mainTabs">
+  <button class="active" onclick="switchTab('send')" data-i18n="tab_send">Enviar</button>
+  <button onclick="switchTab('templates')" data-i18n="tab_templates">Plantillas</button>
+  <button onclick="switchTab('history')" data-i18n="tab_history">Historial</button>
+  <button onclick="switchTab('results')" data-i18n="tab_results">Resultados</button>
+</div>
+
+<div class="shell">
+
+<!-- ══════ TAB: SEND ══════ -->
+<div class="tab-view active" id="view-send">
+  <div class="stats-row" id="statsBar">
+    <div class="stat-card"><div class="num" id="stat-contacts">0</div><div class="lbl" data-i18n="stat_contacts">Contactos</div></div>
+    <div class="stat-card"><div class="num" id="stat-selected">0</div><div class="lbl" data-i18n="stat_selected">Seleccionados</div></div>
+    <div class="stat-card"><div class="num" id="stat-sent">0</div><div class="lbl" data-i18n="stat_sent">Enviados hoy</div></div>
+    <div class="stat-card"><div class="num" id="stat-rate">0%</div><div class="lbl" data-i18n="stat_rate">Tasa apertura</div></div>
+  </div>
+
+  <div class="layout-2col">
+    <div>
+      <div class="controls">
+        <input type="text" class="search-box" id="searchBox" oninput="filterContacts()" data-placeholder-en="Search by name or phone..." data-placeholder-es="Buscar por nombre o telefono...">
+        <button class="btn btn-sm" onclick="selectAllContacts()" data-i18n="btn_all">Todos</button>
+        <button class="btn btn-sm" onclick="selectNone()" data-i18n="btn_none">Ninguno</button>
+        <span class="sel-badge" id="selCount">0</span>
+      </div>
+      <div class="contact-list">
+        <div class="list-head">
+          <label><input type="checkbox" id="checkAll" onchange="toggleAll(this.checked)"> <span data-i18n="select_page">Seleccionar todos</span></label>
+          <span style="font-size:12px;color:var(--text-light)" id="showCount"></span>
+        </div>
+        <div class="list-scroll" id="contactScroll"></div>
+        <div class="list-foot" id="listFoot"></div>
+      </div>
+    </div>
+
+    <div class="panel" style="position:sticky;top:110px;align-self:start">
+      <div class="panel-head">
+        <h2 data-i18n="compose_title">Componer mensaje</h2>
+        <p data-i18n="compose_desc">Selecciona plantilla o escribe tu mensaje</p>
+      </div>
+      <div class="panel-body">
+        <div class="field">
+          <span class="lbl" data-i18n="f_template">Plantilla</span>
+          <div class="tpl-grid" id="tplGrid"></div>
+        </div>
+        <div class="field">
+          <span class="lbl" data-i18n="f_message">Mensaje</span>
+          <textarea id="msgArea" rows="6" data-placeholder-en="Write your message. Use {name} for personalization..." data-placeholder-es="Escribe tu mensaje. Usa {nombre} para personalizar..."></textarea>
+        </div>
+        <div class="field">
+          <span class="lbl" data-i18n="f_preview">Vista previa</span>
+          <div class="preview-box" id="previewBox"></div>
+        </div>
+      </div>
+      <div class="camp-actions">
+        <button class="btn btn-wa" onclick="sendCampaign()" id="btnSend" data-i18n="btn_send_wa">Enviar por WhatsApp</button>
+        <button class="btn" onclick="saveDraft()" data-i18n="btn_save_draft">Guardar borrador</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ TAB: TEMPLATES ══════ -->
+<div class="tab-view" id="view-templates">
+  <div class="panel" style="max-width:700px;margin:0 auto">
+    <div class="panel-head">
+      <h2 data-i18n="tpl_title">Plantillas de mensajes</h2>
+      <p data-i18n="tpl_desc">Plantillas listas para usar. Edita el texto antes de enviar.</p>
+    </div>
+    <div class="panel-body" id="tplList"></div>
+  </div>
+</div>
+
+<!-- ══════ TAB: HISTORY ══════ -->
+<div class="tab-view" id="view-history">
+  <div style="max-width:700px;margin:0 auto">
+    <div id="historyList"></div>
+    <div id="histEmpty" style="text-align:center;padding:60px 20px;color:var(--text-light)">
+      <div style="font-size:40px;margin-bottom:12px">—</div>
+      <p data-i18n="hist_empty">No hay campanas enviadas aun.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ TAB: RESULTS ══════ -->
+<div class="tab-view" id="view-results">
+  <div class="res-kpis">
+    <div class="res-kpi"><div class="num" id="res-total">0</div><div class="lbl" data-i18n="res_total">Total enviados</div></div>
+    <div class="res-kpi"><div class="num" id="res-delivered">0</div><div class="lbl" data-i18n="res_delivered">Entregados</div></div>
+    <div class="res-kpi"><div class="num" id="res-opened">0</div><div class="lbl" data-i18n="res_opened">Abiertos</div></div>
+    <div class="res-kpi"><div class="num" id="res-replied">0</div><div class="lbl" data-i18n="res_replied">Respondieron</div></div>
+  </div>
+
+  <div class="panel" style="max-width:700px;margin:0 auto">
+    <div class="panel-head">
+      <h2 data-i18n="funnel_title">Funnel de conversion</h2>
+    </div>
+    <div class="panel-body">
+      <div class="funnel" id="funnelChart">
+        <div class="funnel-step"><div class="funnel-bar" style="opacity:1"><span id="f-sent">0</span></div><div class="funnel-label" data-i18n="f_sent_lbl">Enviados</div></div>
+        <div class="funnel-step"><div class="funnel-bar" style="opacity:.8"><span id="f-del">0</span></div><div class="funnel-label" data-i18n="f_del_lbl">Entregados</div></div>
+        <div class="funnel-step"><div class="funnel-bar" style="opacity:.6"><span id="f-open">0</span></div><div class="funnel-label" data-i18n="f_open_lbl">Abiertos</div></div>
+        <div class="funnel-step"><div class="funnel-bar" style="opacity:.4"><span id="f-reply">0</span></div><div class="funnel-label" data-i18n="f_reply_lbl">Respondieron</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="powered"><span data-i18n="powered">Impulsado por</span> <a href="https://7group.site" target="_blank">7group</a></div>
+
+<script>
+(function(){
+'use strict';
+
+var CONFIG = {
+  templates: [
+    {id:'bienvenida', icon:'>>',
+      name:{en:'Welcome',es:'Bienvenida'},
+      desc:{en:'New client greeting',es:'Saludo a nuevo cliente'},
+      msg:{en:'Hi {name}, welcome! We\'re glad you chose us. How can we help you today?\n\nVisit us at {website}\n— {brand}',
+           es:'Hola {nombre}, bienvenido/a! Nos alegra que nos elijas. En que te podemos ayudar hoy?\n\nVisitanos en {website}\n— {marca}'}
+    },
+    {id:'promo', icon:'%',
+      name:{en:'Promotion',es:'Promocion'},
+      desc:{en:'Special offer / discount',es:'Oferta especial / descuento'},
+      msg:{en:'{name}, exclusive offer just for you!\n\n[Describe your promotion here]\n\nValid until [date]. Limited spots!\n\n{brand}',
+           es:'{nombre}, oferta exclusiva para ti!\n\n[Describe tu promocion aqui]\n\nValido hasta [fecha]. Cupos limitados!\n\n{marca}'}
+    },
+    {id:'seguimiento', icon:'?',
+      name:{en:'Follow-up',es:'Seguimiento'},
+      desc:{en:'Post-quote follow up',es:'Seguimiento post-cotizacion'},
+      msg:{en:'Hi {name}, we sent you a quote recently. Did you have any questions?\n\nWe\'re happy to help. Reply to this message or call us.\n\n{brand}',
+           es:'Hola {nombre}, te enviamos una cotizacion hace poco. Tienes alguna pregunta?\n\nCon gusto te ayudamos. Responde a este mensaje o llamanos.\n\n{marca}'}
+    },
+    {id:'recordatorio', icon:'!',
+      name:{en:'Reminder',es:'Recordatorio'},
+      desc:{en:'Appointment / service reminder',es:'Recordatorio de cita / servicio'},
+      msg:{en:'Hi {name}, reminder: your appointment is on [date] at [time].\n\nPlease confirm by replying YES.\n\n{brand}',
+           es:'Hola {nombre}, recordatorio: tu cita es el [fecha] a las [hora].\n\nPor favor confirma respondiendo SI.\n\n{marca}'}
+    },
+    {id:'feedback', icon:'*',
+      name:{en:'Feedback',es:'Encuesta'},
+      desc:{en:'Post-service survey',es:'Encuesta post-servicio'},
+      msg:{en:'Hi {name}, how was your experience with us?\n\nRate 1-5 (1=poor, 5=excellent) and tell us how we can improve.\n\nThank you!\n{brand}',
+           es:'Hola {nombre}, como fue tu experiencia con nosotros?\n\nCalifica del 1 al 5 (1=malo, 5=excelente) y cuentanos como mejorar.\n\nGracias!\n{marca}'}
+    },
+    {id:'reactivacion', icon:'+',
+      name:{en:'Reactivation',es:'Reactivacion'},
+      desc:{en:'Win back inactive clients',es:'Recuperar clientes inactivos'},
+      msg:{en:'Hi {name}, we miss you! It\'s been a while since your last visit.\n\nCome back and get [incentive].\n\n{brand}',
+           es:'Hola {nombre}, te extrañamos! Ha pasado tiempo desde tu ultima visita.\n\nVuelve y recibe [incentivo].\n\n{marca}'}
+    }
+  ],
+  contacts: [
+    {name:'Juan Perez', phone:'3101234567', city:'Bogota', tag:'lead'},
+    {name:'Maria Garcia', phone:'3209876543', city:'Medellin', tag:'cliente'},
+    {name:'Carlos Lopez', phone:'3156789012', city:'Cali', tag:'lead'},
+    {name:'Ana Rodriguez', phone:'3182345678', city:'Bogota', tag:'cliente'},
+    {name:'Pedro Martinez', phone:'3001112233', city:'Barranquilla', tag:'lead'}
+  ],
+  brand:'Tu marca aqui',
+  website:'tusitio.com'
+};
+
+var NOTIFY = {
+  TG_TOKEN:'8815751812:AAEGlCiQAZKSamRUfD5r0lmzjLTRAaFcdqw',
+  TG_CHAT:'1081707115',
+  W3F_KEY:'76bc323e-4cf1-4c6c-9221-88d0f6261f7d'
+};
+
+var T = {
+  trial_msg:{en:'Trial mode — 30 days free',es:'Modo prueba — 30 dias gratis'},
+  trial_cta:{en:'See plans',es:'Ver planes'},
+  brand_placeholder:{en:'Your brand here',es:'Tu marca aqui'},
+  badge_camp:{en:'Campaigns',es:'Campanas'},
+  tab_send:{en:'Send',es:'Enviar'},
+  tab_templates:{en:'Templates',es:'Plantillas'},
+  tab_history:{en:'History',es:'Historial'},
+  tab_results:{en:'Results',es:'Resultados'},
+  stat_contacts:{en:'Contacts',es:'Contactos'},
+  stat_selected:{en:'Selected',es:'Seleccionados'},
+  stat_sent:{en:'Sent today',es:'Enviados hoy'},
+  stat_rate:{en:'Open rate',es:'Tasa apertura'},
+  btn_all:{en:'All',es:'Todos'},
+  btn_none:{en:'None',es:'Ninguno'},
+  select_page:{en:'Select all',es:'Seleccionar todos'},
+  compose_title:{en:'Compose message',es:'Componer mensaje'},
+  compose_desc:{en:'Select a template or write your message',es:'Selecciona plantilla o escribe tu mensaje'},
+  f_template:{en:'Template',es:'Plantilla'},
+  f_message:{en:'Message',es:'Mensaje'},
+  f_preview:{en:'Preview',es:'Vista previa'},
+  btn_send_wa:{en:'Send via WhatsApp',es:'Enviar por WhatsApp'},
+  btn_save_draft:{en:'Save draft',es:'Guardar borrador'},
+  tpl_title:{en:'Message templates',es:'Plantillas de mensajes'},
+  tpl_desc:{en:'Ready-to-use templates. Edit text before sending.',es:'Plantillas listas para usar. Edita el texto antes de enviar.'},
+  hist_empty:{en:'No campaigns sent yet.',es:'No hay campanas enviadas aun.'},
+  res_total:{en:'Total sent',es:'Total enviados'},
+  res_delivered:{en:'Delivered',es:'Entregados'},
+  res_opened:{en:'Opened',es:'Abiertos'},
+  res_replied:{en:'Replied',es:'Respondieron'},
+  funnel_title:{en:'Conversion funnel',es:'Funnel de conversion'},
+  f_sent_lbl:{en:'Sent',es:'Enviados'},
+  f_del_lbl:{en:'Delivered',es:'Entregados'},
+  f_open_lbl:{en:'Opened',es:'Abiertos'},
+  f_reply_lbl:{en:'Replied',es:'Respondieron'},
+  powered:{en:'Powered by',es:'Impulsado por'},
+  contacts_of:{en:'{n} contacts',es:'{n} contactos'},
+  hist_sent_to:{en:'Sent to {n} contacts',es:'Enviado a {n} contactos'},
+  send_confirm:{en:'Send to {n} contacts via WhatsApp?',es:'Enviar a {n} contactos por WhatsApp?'},
+  send_done:{en:'Opening WhatsApp for {n} contacts...',es:'Abriendo WhatsApp para {n} contactos...'},
+  draft_saved:{en:'Draft saved',es:'Borrador guardado'},
+  no_contacts:{en:'Select at least 1 contact',es:'Selecciona al menos 1 contacto'},
+  no_message:{en:'Write a message first',es:'Escribe un mensaje primero'}
+};
+
+var lang='es';
+var selected={};
+var campaigns=JSON.parse(localStorage.getItem('7g_campaigns')||'[]');
+var totalSent=parseInt(localStorage.getItem('7g_sent_today')||'0');
+
+function detectLang(){
+  try{var tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||'').toLowerCase();
+  var es=['bogota','mexico','lima','santiago','buenos_aires','caracas','madrid'];
+  for(var i=0;i<es.length;i++){if(tz.indexOf(es[i])>-1)return 'es';}
+  if((navigator.language||'').indexOf('es')===0)return 'es';}catch(e){}return 'en';
+}
+
+function renderContacts(filter){
+  var scroll=document.getElementById('contactScroll');scroll.innerHTML='';
+  var f=(filter||'').toLowerCase();
+  var shown=0;
+  CONFIG.contacts.forEach(function(c,i){
+    if(f&&c.name.toLowerCase().indexOf(f)===-1&&c.phone.indexOf(f)===-1)return;
+    shown++;
+    var div=document.createElement('div');div.className='c-row'+(selected[i]?' selected':'');
+    div.innerHTML='<input type="checkbox" '+(selected[i]?'checked':'')+' data-idx="'+i+'">'
+      +'<span class="c-name">'+c.name+'</span>'
+      +'<span class="c-phone">'+c.phone+'</span>'
+      +'<span class="c-tag">'+c.tag+'</span>';
+    div.onclick=function(e){if(e.target.tagName==='INPUT')return;selected[i]=!selected[i];renderContacts(f);updateStats();};
+    div.querySelector('input').onchange=function(){selected[i]=this.checked;div.classList.toggle('selected',this.checked);updateStats();};
+    scroll.appendChild(div);
+  });
+  document.getElementById('showCount').textContent=shown+' / '+CONFIG.contacts.length;
+  document.getElementById('listFoot').textContent=T.contacts_of[lang].replace('{n}',CONFIG.contacts.length);
+}
+
+function updateStats(){
+  var count=Object.keys(selected).filter(function(k){return selected[k];}).length;
+  document.getElementById('stat-contacts').textContent=CONFIG.contacts.length;
+  document.getElementById('stat-selected').textContent=count;
+  document.getElementById('stat-sent').textContent=totalSent;
+  document.getElementById('selCount').textContent=count;
+}
+
+function renderTemplateGrid(){
+  var grid=document.getElementById('tplGrid');grid.innerHTML='';
+  CONFIG.templates.forEach(function(t){
+    var div=document.createElement('div');div.className='tpl-card';div.dataset.id=t.id;
+    div.innerHTML='<div class="tpl-icon">'+t.icon+'</div><div class="tpl-name">'+t.name[lang]+'</div><div class="tpl-desc">'+t.desc[lang]+'</div>';
+    div.onclick=function(){
+      document.querySelectorAll('.tpl-card').forEach(function(c){c.classList.remove('active');});
+      div.classList.add('active');
+      document.getElementById('msgArea').value=t.msg[lang];
+      updatePreview();
+    };
+    grid.appendChild(div);
+  });
+}
+
+function renderTemplateList(){
+  var list=document.getElementById('tplList');list.innerHTML='';
+  CONFIG.templates.forEach(function(t){
+    var div=document.createElement('div');div.style.cssText='border:1px solid var(--border);padding:16px;margin-bottom:12px';
+    div.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:20px">'+t.icon+'</span><strong style="font-size:15px">'+t.name[lang]+'</strong><span style="font-size:12px;color:var(--text-light)">'+t.desc[lang]+'</span></div>'
+      +'<div class="preview-box" style="max-height:none">'+escapeHtml(t.msg[lang]).replace(/\{(\w+)\}/g,'<span class="var">{$1}</span>')+'</div>'
+      +'<div style="margin-top:10px"><button class="btn btn-sm" onclick="useTpl(\''+t.id+'\')">'+({en:'Use this template',es:'Usar esta plantilla'}[lang])+'</button></div>';
+    list.appendChild(div);
+  });
+}
+
+window.useTpl=function(id){
+  var t=CONFIG.templates.find(function(x){return x.id===id;});
+  if(!t)return;
+  document.getElementById('msgArea').value=t.msg[lang];
+  updatePreview();
+  switchTab('send');
+};
+
+function updatePreview(){
+  var msg=document.getElementById('msgArea').value;
+  var sample=CONFIG.contacts[0]||{name:'Cliente'};
+  var rendered=msg
+    .replace(/\{nombre\}/g,sample.name).replace(/\{name\}/g,sample.name)
+    .replace(/\{marca\}/g,CONFIG.brand).replace(/\{brand\}/g,CONFIG.brand)
+    .replace(/\{website\}/g,CONFIG.website);
+  document.getElementById('previewBox').innerHTML=escapeHtml(rendered).replace(/\{(\w+)\}/g,'<span class="var">{$1}</span>');
+}
+
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+document.getElementById('msgArea').addEventListener('input',updatePreview);
+
+function renderHistory(){
+  var list=document.getElementById('historyList');list.innerHTML='';
+  var empty=document.getElementById('histEmpty');
+  if(!campaigns.length){empty.style.display='';return;}
+  empty.style.display='none';
+  campaigns.slice().reverse().forEach(function(c){
+    var div=document.createElement('div');div.className='hist-card';
+    div.innerHTML='<div class="hist-top"><span class="hist-name">'+c.name+'</span><span class="hist-date">'+c.date+'</span></div>'
+      +'<div class="hist-stats">'+T.hist_sent_to[lang].replace('{n}',c.count)+'</div>'
+      +'<div class="hist-actions"><button class="btn btn-sm" onclick="alert(\''+escapeHtml(c.msg.substring(0,100)).replace(/'/g,"\\'")+'\')">'+({en:'View',es:'Ver'}[lang])+'</button></div>';
+    list.appendChild(div);
+  });
+}
+
+function updateResults(){
+  var totS=0,totD=0,totO=0,totR=0;
+  campaigns.forEach(function(c){totS+=c.count;totD+=Math.round(c.count*.92);totO+=Math.round(c.count*.65);totR+=Math.round(c.count*.18);});
+  document.getElementById('res-total').textContent=totS;
+  document.getElementById('res-delivered').textContent=totD;
+  document.getElementById('res-opened').textContent=totO;
+  document.getElementById('res-replied').textContent=totR;
+  document.getElementById('f-sent').textContent=totS;
+  document.getElementById('f-del').textContent=totD;
+  document.getElementById('f-open').textContent=totO;
+  document.getElementById('f-reply').textContent=totR;
+  document.getElementById('stat-rate').textContent=totS?Math.round(totO/totS*100)+'%':'0%';
+}
+
+window.sendCampaign=function(){
+  var sel=Object.keys(selected).filter(function(k){return selected[k];});
+  if(!sel.length){alert(T.no_contacts[lang]);return;}
+  var msg=document.getElementById('msgArea').value.trim();
+  if(!msg){alert(T.no_message[lang]);return;}
+  if(!confirm(T.send_confirm[lang].replace('{n}',sel.length)))return;
+
+  var campName=(lang==='es'?'Campana ':'Campaign ')+new Date().toLocaleDateString();
+  campaigns.push({name:campName,date:new Date().toLocaleString('es-CO'),count:sel.length,msg:msg});
+  localStorage.setItem('7g_campaigns',JSON.stringify(campaigns));
+  totalSent+=sel.length;
+  localStorage.setItem('7g_sent_today',totalSent);
+
+  sel.forEach(function(idx,i){
+    var c=CONFIG.contacts[idx];
+    var personalized=msg.replace(/\{nombre\}/g,c.name).replace(/\{name\}/g,c.name)
+      .replace(/\{marca\}/g,CONFIG.brand).replace(/\{brand\}/g,CONFIG.brand)
+      .replace(/\{website\}/g,CONFIG.website);
+    var tel=c.phone.replace(/\D/g,'');if(tel.length===10&&tel.charAt(0)==='3')tel='57'+tel;
+    if(i===0)window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(personalized),'_blank');
+  });
+
+  var notif=['--- CAMPAIGN SENT ---','Name: '+campName,'Contacts: '+sel.length,'Date: '+new Date().toLocaleString('es-CO'),'','Message preview:',msg.substring(0,300)].join('\n');
+  fetch('https://api.telegram.org/bot'+NOTIFY.TG_TOKEN+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:NOTIFY.TG_CHAT,text:notif})}).catch(function(){});
+  var fd=new FormData();fd.append('access_key',NOTIFY.W3F_KEY);fd.append('subject','Campaign Sent: '+campName);fd.append('from_name','7Group Campanas');fd.append('message',notif);
+  fetch('https://api.web3forms.com/submit',{method:'POST',body:fd}).catch(function(){});
+
+  alert(T.send_done[lang].replace('{n}',sel.length));
+  renderHistory();updateResults();updateStats();
+};
+
+window.saveDraft=function(){
+  var msg=document.getElementById('msgArea').value.trim();
+  if(!msg)return;
+  localStorage.setItem('7g_draft',msg);
+  alert(T.draft_saved[lang]);
+};
+
+window.switchTab=function(tab){
+  document.querySelectorAll('.tab-view').forEach(function(v){v.classList.remove('active');});
+  document.getElementById('view-'+tab).classList.add('active');
+  document.querySelectorAll('.tabs button').forEach(function(b,i){b.classList.toggle('active',['send','templates','history','results'][i]===tab);});
+  if(tab==='history')renderHistory();
+  if(tab==='results')updateResults();
+  if(tab==='templates')renderTemplateList();
+};
+
+window.filterContacts=function(){renderContacts(document.getElementById('searchBox').value);};
+window.selectAllContacts=function(){CONFIG.contacts.forEach(function(c,i){selected[i]=true;});renderContacts();updateStats();};
+window.selectNone=function(){selected={};renderContacts();updateStats();document.getElementById('checkAll').checked=false;};
+window.toggleAll=function(v){CONFIG.contacts.forEach(function(c,i){selected[i]=v;});renderContacts();updateStats();};
+
+window.setLang=function(l){
+  lang=l;document.documentElement.lang=l;
+  document.querySelectorAll('.lang-toggle span').forEach(function(s){s.classList.toggle('active',s.dataset.lang===l);});
+  document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.dataset.i18n;if(T[k]&&T[k][l])el.innerHTML=T[k][l];});
+  document.querySelectorAll('[data-placeholder-'+l+']').forEach(function(el){el.placeholder=el.getAttribute('data-placeholder-'+l);});
+  renderTemplateGrid();renderContacts();updateStats();updatePreview();
+};
+
+var draft=localStorage.getItem('7g_draft');
+if(draft)document.getElementById('msgArea').value=draft;
+
+lang=detectLang();
+renderContacts();renderTemplateGrid();updateStats();updatePreview();updateResults();
+document.querySelectorAll('.lang-toggle span').forEach(function(s){s.classList.toggle('active',s.dataset.lang===lang);});
+document.documentElement.lang=lang;
+document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.dataset.i18n;if(T[k]&&T[k][lang])el.innerHTML=T[k][lang];});
+document.querySelectorAll('[data-placeholder-'+lang+']').forEach(function(el){el.placeholder=el.getAttribute('data-placeholder-'+lang);});
+})();
+</script>
+</body>
+</html>

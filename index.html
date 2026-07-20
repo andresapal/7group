@@ -674,9 +674,43 @@
     footer a:hover { color: var(--black); }
 
     /* RESPONSIVE */
+    /* MOBILE MENU */
+    .menu-toggle{
+      display:none;width:36px;height:36px;background:none;border:1px solid rgba(255,255,255,.15);
+      border-radius:8px;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+      padding:0;z-index:200;
+    }
+    .menu-toggle span{display:block;width:18px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
+    .menu-toggle.open span:nth-child(1){transform:rotate(45deg) translate(2.5px,2.5px)}
+    .menu-toggle.open span:nth-child(2){opacity:0}
+    .menu-toggle.open span:nth-child(3){transform:rotate(-45deg) translate(2.5px,-2.5px)}
+
+    .mobile-drawer{
+      display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(10,10,10,.97);backdrop-filter:blur(16px);z-index:150;
+      padding:100px 32px 40px;flex-direction:column;gap:0;
+    }
+    .mobile-drawer.open{display:flex}
+    .mobile-drawer a{
+      display:block;padding:16px 0;font-size:18px;color:rgba(255,255,255,.7);
+      text-decoration:none;border-bottom:1px solid rgba(255,255,255,.06);
+      font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:-.01em;
+    }
+    .mobile-drawer a:hover{color:#fff}
+    .mobile-drawer .mob-lang{
+      display:flex;gap:16px;padding-top:24px;margin-top:auto;
+    }
+    .mobile-drawer .mob-lang a{
+      font-size:14px;letter-spacing:1px;border:none;padding:8px 16px;
+      border:1px solid rgba(255,255,255,.12);border-radius:6px;
+    }
+    .mobile-drawer .mob-lang a.active{color:#fff;font-weight:600;border-color:rgba(255,255,255,.3)}
+
     @media (max-width: 768px) {
       nav { padding: 20px 24px; }
       nav ul { display: none; }
+      .language-switch { display: none; }
+      .menu-toggle { display: flex; }
       .hero-content { padding: 100px 24px 60px; }
       section { padding: 72px 24px; }
       .divider { margin: 0 24px; }
@@ -1166,7 +1200,23 @@
       <a href="/" class="active">EN</a>
       <a href="/es/">ES</a>
     </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <a href="#solutions" onclick="closeMenu()">Solutions</a>
+    <a href="/calculadora/?lang=en" onclick="closeMenu()">ROI Calculator</a>
+    <a href="#about" onclick="closeMenu()">About</a>
+    <a href="#plans" onclick="closeMenu()">Plans</a>
+    <a href="/agendar/?lang=en" onclick="closeMenu()">Schedule a call</a>
+    <div class="mob-lang">
+      <a href="/" class="active">EN</a>
+      <a href="/es/">ES</a>
+    </div>
+  </div>
 
   <!-- HERO -->
   <div class="hero-wrapper">
@@ -1540,6 +1590,20 @@
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 60);
     });
+
+    // Mobile menu
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    menuToggle.addEventListener('click', () => {
+      menuToggle.classList.toggle('open');
+      mobileDrawer.classList.toggle('open');
+      document.body.style.overflow = mobileDrawer.classList.contains('open') ? 'hidden' : '';
+    });
+    function closeMenu() {
+      menuToggle.classList.remove('open');
+      mobileDrawer.classList.remove('open');
+      document.body.style.overflow = '';
+    }
 
     // Hero rotating messages
     const heroMessages = [
