@@ -360,6 +360,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 <div class="foot">7group -- Logistics Intelligence Platform</div>
 </div>
 
+<script src="../firebase-config.js?v=2"></script>
 <script>
 /* =============== AUTH =============== */
 var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
@@ -709,6 +710,59 @@ function renderAnalytics(){
 
 /* =============== INIT =============== */
 applyLang();
+
+async function loadRealDispatches() {
+  if (typeof DB === 'undefined') return;
+  try {
+    var dispatches = await DB.getDispatches();
+    if (dispatches && dispatches.length > 0) {
+      for (var i = 0; i < dispatches.length; i++) {
+        var d = dispatches[i];
+        var exists = false;
+        for (var j = 0; j < SHIPMENTS.length; j++) {
+          if (SHIPMENTS[j].id === (d.shipmentId || d.id)) { exists = true; break; }
+        }
+        if (!exists) {
+          SHIPMENTS.unshift({
+            id: d.shipmentId || d.id,
+            client: d.client || d.orderId || '',
+            origin: d.origin || 'Miami, Main Warehouse',
+            dest: d.destination || '--',
+            carrier: d.carrier || '--',
+            tracking: d.tracking || '--',
+            status: d.status || 'scheduled',
+            boxes: 1,
+            weight: (d.weight || 0) + ' lbs',
+            shipped: d.createdAt || null,
+            eta: '--',
+            progress: d.status === 'delivered' ? 100 : d.status === 'transit' ? 50 : 10
+          });
+        }
+      }
+      renderAll();
+      console.log('[7G] Despachos: loaded ' + dispatches.length + ' real dispatches from DB');
+    }
+  } catch(e) { console.warn('[7G] Despachos: DB load failed', e); }
+}
+
+var _origDispatchOrder = dispatchOrder;
+dispatchOrder = async function(idx) {
+  var d = DISPATCH_READY[idx];
+  _origDispatchOrder(idx);
+  if (typeof DB !== 'undefined' && d) {
+    await DB.createDispatch({
+      orderId: d.id,
+      carrier: d.carrier,
+      destination: d.client,
+      origin: 'Miami Warehouse',
+      weight: parseFloat(d.weight) || 0,
+      cost: 0,
+      tracking: d.tracking
+    });
+  }
+};
+
+loadRealDispatches();
 </script>
 </body>
 </html>

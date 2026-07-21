@@ -295,6 +295,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 <div class="foot">7group -- Logistics Intelligence Platform</div>
 </div>
 
+<script src="../firebase-config.js?v=2"></script>
 <script>
 /* =============== AUTH =============== */
 var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
@@ -581,6 +582,52 @@ function renderClients(){
 
 /* =============== INIT =============== */
 applyLang();
+
+async function loadRealDashboard() {
+  if (typeof DB === 'undefined') return;
+  try {
+    var stats = await DB.getDashboardStats();
+    if (stats.totalSKUs > 0 || stats.totalOrders > 0) {
+      var realActivity = [];
+      var activity = await (function() {
+        return new Promise(function(resolve) {
+          var unsub = DB.onActivityChange(function(data) {
+            resolve(data);
+            if (unsub) unsub();
+          });
+        });
+      })();
+      if (activity && activity.length > 0) {
+        for (var i = 0; i < Math.min(activity.length, 8); i++) {
+          var a = activity[i];
+          var ts = a.timestamp ? new Date(a.timestamp) : new Date();
+          var timeStr = ts.getHours().toString().padStart(2,'0') + ':' + ts.getMinutes().toString().padStart(2,'0');
+          ACTIVITY.unshift({
+            event: { es: a.description || a.action, en: a.description || a.action },
+            module: a.module || '--',
+            time: timeStr,
+            status: a.action === 'create' ? 'complete' : 'processing'
+          });
+        }
+        if (ACTIVITY.length > 12) ACTIVITY.length = 12;
+      }
+      if (stats.totalSKUs > 0) {
+        INV_HEALTH[0].val += stats.totalSKUs - stats.lowStock - stats.outOfStock;
+        INV_HEALTH[1].val += stats.lowStock;
+        INV_HEALTH[2].val += stats.outOfStock;
+        var totalInv = INV_HEALTH[0].val + INV_HEALTH[1].val + INV_HEALTH[2].val + INV_HEALTH[3].val;
+        INV_HEALTH[0].pct = Math.round(INV_HEALTH[0].val / totalInv * 100);
+        INV_HEALTH[1].pct = Math.round(INV_HEALTH[1].val / totalInv * 100);
+        INV_HEALTH[2].pct = Math.round(INV_HEALTH[2].val / totalInv * 100);
+        INV_HEALTH[3].pct = 100 - INV_HEALTH[0].pct - INV_HEALTH[1].pct - INV_HEALTH[2].pct;
+      }
+      renderAll();
+      console.log('[7G] Dashboard: loaded real stats', stats);
+    }
+  } catch(e) { console.warn('[7G] Dashboard: DB load failed', e); }
+}
+
+loadRealDashboard();
 </script>
 </body>
 </html>

@@ -347,6 +347,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 <div class="foot">7group -- Logistics Intelligence Platform</div>
 </div><!-- /app-wrap -->
 
+<script src="../firebase-config.js?v=2"></script>
 <script>
 /* =============== AUTH =============== */
 var GOOGLE_CLIENT_ID = '160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
@@ -747,6 +748,70 @@ function renderAlerts(){
 
 /* =============== INIT =============== */
 applyLang();
+
+async function loadRealInventory() {
+  if (typeof DB === 'undefined') return;
+  try {
+    var inv = await DB.getInventory();
+    if (inv && inv.length > 0) {
+      for (var i = 0; i < inv.length; i++) {
+        var item = inv[i];
+        var exists = false;
+        for (var j = 0; j < PRODUCTS.length; j++) {
+          if (PRODUCTS[j].sku === item.sku) {
+            PRODUCTS[j].avail = parseInt(item.quantity) || 0;
+            PRODUCTS[j].cost = parseFloat(item.unitCost) || PRODUCTS[j].cost;
+            exists = true;
+            break;
+          }
+        }
+        if (!exists) {
+          PRODUCTS.push({
+            sku: item.sku,
+            desc: item.name || item.sku,
+            avail: parseInt(item.quantity) || 0,
+            commit: 0,
+            transit: 0,
+            cost: parseFloat(item.unitCost) || 0,
+            min: parseInt(item.minStock) || 10,
+            max: 999,
+            weight: parseFloat(item.weight) || 0
+          });
+          if (item.location) {
+            var newLoc = {
+              code: item.location,
+              zone: {es:'Recibo',en:'Receiving'},
+              sku: item.sku,
+              qty: parseInt(item.quantity) || 0
+            };
+            LOCATIONS.push(newLoc);
+          }
+          if (item.lot || item.poNumber) {
+            LOTS.push({
+              lot: item.lot || ('LOT-' + item.poNumber),
+              sku: item.sku,
+              qty: parseInt(item.quantity) || 0,
+              cost: parseFloat(item.unitCost) || 0,
+              loc: item.location || '--',
+              dateIn: (item.updatedAt || new Date().toISOString()).split('T')[0],
+              expiry: item.expiry || null
+            });
+          }
+        }
+      }
+      renderAll();
+      console.log('[7G] Inventario: loaded ' + inv.length + ' real items from DB');
+    }
+  } catch(e) { console.warn('[7G] Inventario: DB load failed', e); }
+}
+
+DB && DB.onInventoryChange(function(data) {
+  if (data && data.length > 0) {
+    loadRealInventory();
+  }
+});
+
+loadRealInventory();
 </script>
 </body>
 </html>

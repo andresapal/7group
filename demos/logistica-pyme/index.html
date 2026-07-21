@@ -344,23 +344,23 @@ code,.mono{font-family:'JetBrains Mono',monospace}
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label" data-t="lblBL">Numero BL / AWB</label>
-          <input class="form-input mono" id="fBL" placeholder="MSKU1234567890" value="MSKU9284710365">
+          <input class="form-input mono" id="fBL" placeholder="BOL-7G-2024-0847" value="BOL-7G-2024-0847">
         </div>
         <div class="form-group">
           <label class="form-label" data-t="lblSupplier">Proveedor</label>
           <select class="form-select" id="fSupplier">
-            <option value="shenzhen">Shenzhen Electronics Co. (China)</option>
-            <option value="taipei">Taipei Components Ltd. (Taiwan)</option>
-            <option value="hanoi">Hanoi Manufacturing (Vietnam)</option>
+            <option value="atlantic" selected>Atlantic Supply Co. (Jacksonville, FL)</option>
+            <option value="techdist">TechDist USA (Orlando, FL)</option>
+            <option value="netpro">NetPro Wholesale (Tampa, FL)</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label" data-t="lblContainer">Contenedor / Tracking</label>
-          <input class="form-input mono" id="fContainer" placeholder="CSQU3054831" value="CSQU3054831">
+          <input class="form-input mono" id="fContainer" placeholder="PRO# 4847-2910-38" value="4847-2910-38">
         </div>
         <div class="form-group">
           <label class="form-label" data-t="lblPO">Orden de Compra</label>
-          <input class="form-input mono" id="fPO" placeholder="PO-2026-889" value="PO-2026-0714">
+          <input class="form-input mono" id="fPO" placeholder="PO-7G-2024-0847" value="PO-7G-2024-0847">
         </div>
         <div class="form-group">
           <label class="form-label" data-t="lblPort">Puerto de Entrada</label>
@@ -551,6 +551,26 @@ code,.mono{font-family:'JetBrains Mono',monospace}
           <label class="form-label" data-t="lblAssignSku">Asignando SKU</label>
           <div id="locSku" class="mono" style="font-size:14px;font-weight:600;color:var(--cyan);padding:8px 0">--</div>
         </div>
+      </div>
+      <div class="form-grid" id="newItemFields" style="display:none;margin-bottom:16px;border:1px solid rgba(234,179,8,.15);border-radius:8px;padding:16px;background:rgba(234,179,8,.03)">
+        <div class="form-group">
+          <label class="form-label">Descripcion / Description</label>
+          <input class="form-input" id="newItemDesc" placeholder="Nombre del producto...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cantidad / Qty</label>
+          <input class="form-input mono" id="newItemQty" type="number" min="1" value="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Costo Unitario / Unit Cost</label>
+          <input class="form-input mono" id="newItemCost" type="number" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Peso (lbs) / Weight</label>
+          <input class="form-input mono" id="newItemWeight" type="number" step="0.1" min="0" placeholder="0.0">
+        </div>
+      </div>
+      <div class="form-grid">
         <div class="form-group">
           <label class="form-label" data-t="lblLot">Numero de Lote</label>
           <input class="form-input mono" id="lotNumber" placeholder="LOT-2026-07A">
@@ -584,7 +604,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 
   <div class="alert alert-success">
     <span class="alert-icon">OK</span>
-    <div data-t="alertDone">Recibo completado. Todos los items validados, ubicaciones asignadas e inventario actualizado. Datos sincronizados a Google Sheets.</div>
+    <div data-t="alertDone">Recibo completado. Todos los items validados, ubicaciones asignadas e inventario actualizado. Datos sincronizados a Firebase en tiempo real.</div>
   </div>
 
   <div class="sec">
@@ -598,7 +618,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 
   <div class="sec">
     <div class="sec-head">
-      <div class="sec-title" data-t="secSheets">Sincronizacion Google Sheets</div>
+      <div class="sec-title" data-t="secSheets">Sincronizacion Firebase</div>
       <span class="sec-tag tag-done" data-t="synced">Sincronizado</span>
     </div>
     <div class="sec-body">
@@ -746,10 +766,10 @@ var T = {
   lblLocSelect:   {es:'Escanear QR o Seleccionar',en:'Scan Shelf QR or Select'},
   btnConfirmLoc:  {es:'Confirmar Ubicacion',     en:'Confirm Location'},
   btnComplete:    {es:'Completar Recibo',        en:'Complete Receiving'},
-  alertDone:      {es:'Recibo completado. Todos los items validados, ubicaciones asignadas e inventario actualizado. Datos sincronizados a Google Sheets.',
-                   en:'Receiving complete. All items validated, locations assigned, and inventory updated. Data synced to Google Sheets.'},
+  alertDone:      {es:'Recibo completado. Todos los items validados, ubicaciones asignadas e inventario actualizado. Datos sincronizados a Firebase en tiempo real.',
+                   en:'Receiving complete. All items validated, locations assigned, and inventory updated. Data synced to Firebase in real-time.'},
   secSummary:     {es:'Resumen de Recibo',       en:'Receiving Summary'},
-  secSheets:      {es:'Sincronizacion Google Sheets',en:'Google Sheets Sync'},
+  secSheets:      {es:'Sincronizacion Firebase',en:'Firebase Sync'},
   synced:         {es:'Sincronizado',            en:'Synced'},
   secImpact:      {es:'Impacto en Inventario',   en:'Inventory Impact'},
   thRecvd:        {es:'Recibido',                en:'Received'},
@@ -772,7 +792,7 @@ var T = {
   totalUnits:     {es:'Unidades Totales',        en:'Total Units'},
   invoiceVal:     {es:'Valor Factura',           en:'Invoice Value'},
   grossWeight:    {es:'Peso Bruto',              en:'Gross Weight'},
-  alertSkuNotFound:{es:'SKU no encontrado en este embarque: ',en:'SKU not found in this shipment: '},
+  alertSkuNotFound:{es:'Producto nuevo detectado: ',en:'New product detected: '},
   alertAlreadyRecvd:{es:' ya fue recibido.',      en:' already received.'},
   alertSelectLoc: {es:'Seleccione una ubicacion de bodega.',en:'Select a warehouse location.'},
   alertEnterLot:  {es:'Ingrese un numero de lote.',en:'Enter a lot number.'},
@@ -893,36 +913,29 @@ var DOCS = {
 };
 
 var SAMPLE_ITEMS = [
-  {sku:'SZ-LED-4K-55',desc:'LED Panel 55" 4K UHD',qty:120,cost:185.00,hs:'8528.72.6400',weight:14.2},
-  {sku:'SZ-PWR-500W',desc:'Power Supply Unit 500W',qty:300,cost:24.50,hs:'8504.40.9540',weight:1.8},
-  {sku:'SZ-CBL-HDMI2',desc:'HDMI 2.1 Cable 6ft',qty:1000,cost:3.80,hs:'8544.42.9090',weight:0.15},
-  {sku:'SZ-MNT-WALL',desc:'Wall Mount Universal',qty:200,cost:12.40,hs:'8529.90.0600',weight:2.1},
-  {sku:'SZ-RMT-BT',desc:'Bluetooth Remote Control',qty:500,cost:6.20,hs:'8526.92.5000',weight:0.12},
-  {sku:'SZ-ADP-USB3',desc:'USB-C Adapter Hub 7-in-1',qty:400,cost:8.90,hs:'8473.30.5100',weight:0.08},
-  {sku:'SZ-SPK-20W',desc:'Soundbar 20W Bluetooth',qty:150,cost:32.00,hs:'8518.22.0000',weight:1.5},
-  {sku:'SZ-CAM-1080',desc:'Security Camera 1080p WiFi',qty:250,cost:18.50,hs:'8525.89.4500',weight:0.35}
+  {sku:'NET-RTR-X7',desc:'Wireless Router Pro X7',qty:50,cost:89.99,hs:'8517.62.0090',weight:2.4},
+  {sku:'NET-CAT6-50',desc:'Cat6 Ethernet Cable 50ft',qty:100,cost:24.99,hs:'8544.42.9090',weight:0.8},
+  {sku:'SEC-CAM-4K',desc:'Smart Security Camera 4K',qty:25,cost:149.99,hs:'8525.89.4500',weight:1.6},
+  {sku:'ACC-DOCK-UC',desc:'USB-C Docking Station',qty:30,cost:79.99,hs:'8473.30.5100',weight:1.2},
+  {sku:'ACC-SURG-12',desc:'Surge Protector 12-Outlet',qty:75,cost:34.99,hs:'8536.30.8000',weight:1.8}
 ];
 
 var LOCATIONS = [
-  {code:'A-01-01',zone:{es:'Electronica',en:'Electronics'},status:'empty'},{code:'A-01-02',zone:{es:'Electronica',en:'Electronics'},status:'empty'},
-  {code:'A-02-01',zone:{es:'Electronica',en:'Electronics'},status:'occupied'},{code:'A-02-02',zone:{es:'Electronica',en:'Electronics'},status:'empty'},
-  {code:'A-03-01',zone:{es:'Electronica',en:'Electronics'},status:'empty'},{code:'A-03-02',zone:{es:'Electronica',en:'Electronics'},status:'occupied'},
-  {code:'B-01-01',zone:{es:'Componentes',en:'Components'},status:'empty'},{code:'B-01-02',zone:{es:'Componentes',en:'Components'},status:'empty'},
-  {code:'B-02-01',zone:{es:'Componentes',en:'Components'},status:'occupied'},{code:'B-02-02',zone:{es:'Componentes',en:'Components'},status:'empty'},
-  {code:'C-01-01',zone:{es:'Accesorios',en:'Accessories'},status:'empty'},{code:'C-01-02',zone:{es:'Accesorios',en:'Accessories'},status:'empty'},
-  {code:'D-01-01',zone:{es:'Cables',en:'Cables'},status:'empty'},{code:'D-01-02',zone:{es:'Cables',en:'Cables'},status:'occupied'},
-  {code:'E-01-01',zone:{es:'Almacen General',en:'Bulk Storage'},status:'empty'},{code:'E-01-02',zone:{es:'Almacen General',en:'Bulk Storage'},status:'empty'}
+  {code:'A-01-01',zone:{es:'Networking',en:'Networking'},status:'empty'},{code:'A-01-02',zone:{es:'Networking',en:'Networking'},status:'empty'},
+  {code:'A-02-01',zone:{es:'Networking',en:'Networking'},status:'occupied'},{code:'A-02-02',zone:{es:'Networking',en:'Networking'},status:'empty'},
+  {code:'B-01-01',zone:{es:'Seguridad',en:'Security'},status:'empty'},{code:'B-01-02',zone:{es:'Seguridad',en:'Security'},status:'empty'},
+  {code:'C-01-01',zone:{es:'Accesorios',en:'Accessories'},status:'empty'},{code:'C-01-02',zone:{es:'Accesorios',en:'Accessories'},status:'occupied'},
+  {code:'D-01-01',zone:{es:'Cables',en:'Cables'},status:'empty'},{code:'D-01-02',zone:{es:'Cables',en:'Cables'},status:'empty'},
+  {code:'E-01-01',zone:{es:'Proteccion',en:'Protection'},status:'empty'},{code:'E-01-02',zone:{es:'Proteccion',en:'Protection'},status:'empty'}
 ];
 
 var AI_STEPS = [
-  {title:{es:'Ingestion de documentos',en:'Document ingestion'},detail:{es:'6 documentos subidos (4 PDF, 2 imagenes escaneadas) a la cola de procesamiento',en:'Uploaded 6 documents (4 PDF, 2 scanned images) to processing queue'},time:'0.3s'},
-  {title:{es:'Extraccion de texto (pdfplumber)',en:'Text extraction (pdfplumber)'},detail:{es:'847 bloques de texto extraidos de 6 documentos, 23 paginas en total',en:'Extracted 847 text blocks from 6 documents, 23 pages total'},time:'1.2s'},
-  {title:{es:'OCR de imagenes (Tesseract)',en:'Image OCR (Tesseract)'},detail:{es:'2 documentos escaneados procesados: Lista de Empaque + Certificado de Origen',en:'Processed 2 scanned documents: Packing List + Certificate of Origin'},time:'3.8s'},
-  {title:{es:'Estructuracion IA (Gemini API)',en:'AI structuring (Gemini API)'},detail:{es:'Texto mapeado a esquema JSON: 8 items, 14 campos de encabezado, 3 referencias cruzadas',en:'Mapped extracted text to JSON schema: 8 line items, 14 header fields, 3 cross-references'},time:'2.4s'},
-  {title:{es:'Validacion cruzada con PO',en:'PO cross-validation'},detail:{es:'8 SKUs verificados contra PO-2026-0714. Cantidades validadas. 0 discrepancias.',en:'All 8 SKUs matched against PO-2026-0714. Quantities validated. 0 discrepancies.'},time:'0.5s'},
-  {title:{es:'Verificacion de codigos HS',en:'HS code verification'},detail:{es:'Codigos arancelarios validados contra base HTS de EE.UU. Todos activos para 2026.',en:'Tariff codes validated against US HTS database. All codes active for 2026.'},time:'0.8s'},
-  {title:{es:'Verificacion de cumplimiento aduanero',en:'Customs compliance check'},detail:{es:'ISF 10+2 presentado. Fianza verificada. Aviso previo FDA: no requerido para este embarque.',en:'ISF 10+2 filed. Bond verified. FDA Prior Notice: not required for this shipment.'},time:'0.6s'},
-  {title:{es:'Generacion de recibo esperado',en:'Expected receipt generation'},detail:{es:'Registro de recibo creado con 8 SKUs, 2,920 unidades totales. Listo para recibo fisico.',en:'Created receiving record with 8 SKUs, 2,920 total units. Ready for physical receiving.'},time:'0.2s'}
+  {title:{es:'Ingestion de documentos',en:'Document ingestion'},detail:{es:'4 documentos subidos (PDF) a la cola de procesamiento',en:'Uploaded 4 documents (PDF) to processing queue'},time:'0.3s'},
+  {title:{es:'Extraccion de texto (pdfplumber)',en:'Text extraction (pdfplumber)'},detail:{es:'312 bloques de texto extraidos de 4 documentos, 4 paginas en total',en:'Extracted 312 text blocks from 4 documents, 4 pages total'},time:'1.2s'},
+  {title:{es:'Estructuracion IA (Gemini API)',en:'AI structuring (Gemini API)'},detail:{es:'Texto mapeado a esquema JSON: 5 items, 12 campos de encabezado, 4 referencias cruzadas',en:'Mapped extracted text to JSON schema: 5 line items, 12 header fields, 4 cross-references'},time:'2.4s'},
+  {title:{es:'Validacion cruzada con PO',en:'PO cross-validation'},detail:{es:'5 SKUs verificados contra PO-7G-2024-0847. 280 unidades. 0 discrepancias.',en:'All 5 SKUs matched against PO-7G-2024-0847. 280 units. 0 discrepancies.'},time:'0.5s'},
+  {title:{es:'Verificacion de codigos HS',en:'HS code verification'},detail:{es:'Codigos arancelarios validados contra base HTS de EE.UU. Todos activos para 2024.',en:'Tariff codes validated against US HTS database. All codes active for 2024.'},time:'0.8s'},
+  {title:{es:'Sincronizacion con Firestore',en:'Firestore sync'},detail:{es:'Registro de recibo creado en Firebase. 5 SKUs, 280 unidades totales. Listo para recibo fisico.',en:'Receiving record created in Firebase. 5 SKUs, 280 total units. Ready for physical receiving.'},time:'0.4s'}
 ];
 
 /* =============== STATE =============== */
@@ -997,9 +1010,24 @@ function renderDocList(containerId, docs) {
   el.innerHTML = h;
 }
 
-function uploadDoc(id) {
-  docsUploaded[id] = true;
-  var item = document.getElementById('doc-' + id);
+var fileInput = document.createElement('input');
+fileInput.type = 'file';
+fileInput.accept = '.pdf,.jpg,.jpeg,.png';
+fileInput.style.display = 'none';
+document.body.appendChild(fileInput);
+var pendingDocId = null;
+var uploadedFiles = {};
+
+fileInput.addEventListener('change', function() {
+  if (!fileInput.files.length || !pendingDocId) return;
+  var file = fileInput.files[0];
+  var docId = pendingDocId;
+  pendingDocId = null;
+
+  uploadedFiles[docId] = file;
+  docsUploaded[docId] = true;
+
+  var item = document.getElementById('doc-' + docId);
   item.classList.add('processed');
   var icon = item.querySelector('.doc-icon');
   icon.className = 'doc-icon ok';
@@ -1009,9 +1037,29 @@ function uploadDoc(id) {
     var span = document.createElement('span');
     span.className = 'doc-status';
     span.style.color = 'var(--green)';
-    span.textContent = t('uploaded');
+    span.textContent = file.name;
+    span.style.fontSize = '10px';
+    span.style.maxWidth = '140px';
+    span.style.overflow = 'hidden';
+    span.style.textOverflow = 'ellipsis';
+    span.style.whiteSpace = 'nowrap';
     btn.parentNode.replaceChild(span, btn);
   }
+
+  if (typeof DB !== 'undefined' && DB.saveDocument) {
+    DB.saveDocument({
+      docType: docId,
+      fileName: file.name,
+      fileSize: file.size,
+      poNumber: document.getElementById('fPO').value
+    }).catch(function(e) { console.log('[7G] Doc save skipped:', e.message); });
+  }
+  fileInput.value = '';
+});
+
+function uploadDoc(id) {
+  pendingDocId = id;
+  fileInput.click();
 }
 
 function processAllDocs() {
@@ -1090,7 +1138,7 @@ function showOCRResults() {
     vessel:   {es:'Buque / Vuelo',en:'Vessel / Flight'}
   };
 
-  var refs = LANG === 'es' ? '8 referencias' : '8 references';
+  var refs = LANG === 'es' ? '5 referencias' : '5 references';
 
   var fields = [
     {label:tl(LBL.bl),val:bl,cls:'match'},
@@ -1102,9 +1150,9 @@ function showOCRResults() {
     {label:tl(LBL.skus),val:refs,cls:'match'},
     {label:tl(LBL.units),val:totalUnits.toLocaleString(),cls:''},
     {label:tl(LBL.invoice),val:'$' + totalValue.toLocaleString('en-US',{minimumFractionDigits:2}),cls:''},
-    {label:tl(LBL.weight),val:'3,847 kg',cls:''},
-    {label:tl(LBL.cbm),val:'34.2 / 37.0',cls:selectedCargo === 'hc40' ? 'match' : 'warn'},
-    {label:tl(LBL.vessel),val:'MSC ISABELLA V.026E',cls:''}
+    {label:tl(LBL.weight),val:'411 lbs',cls:''},
+    {label:'Boxes',val:'12',cls:'match'},
+    {label:tl(LBL.vessel),val:'FedEx Freight',cls:''}
   ];
 
   var h = '';
@@ -1160,7 +1208,7 @@ function renderReceivingList() {
   var bar = document.getElementById('recvBar');
   bar.style.width = pct + '%';
   if (pct >= 100) bar.classList.add('complete');
-  document.getElementById('btnFinish').disabled = received < SAMPLE_ITEMS.length;
+  document.getElementById('btnFinish').disabled = received === 0;
 }
 
 function toggleScanner() {
@@ -1215,7 +1263,19 @@ function scanItem() {
       break;
     }
   }
-  if (!found) { alert(t('alertSkuNotFound') + code); return; }
+  if (!found) {
+    var inv = (typeof LocalCache !== 'undefined') ? LocalCache.get('inventory') : [];
+    for (var j = 0; j < inv.length; j++) {
+      if (inv[j].sku === code || code.indexOf(inv[j].sku) !== -1) {
+        found = { sku: inv[j].sku, desc: inv[j].name || inv[j].sku, qty: parseInt(inv[j].quantity) || 0, cost: parseFloat(inv[j].unitCost) || 0, hs: inv[j].hsCode || '--', weight: parseFloat(inv[j].weight) || 0 };
+        break;
+      }
+    }
+  }
+  if (!found) {
+    found = { sku: code, desc: '', qty: 1, cost: 0, hs: '--', weight: 0, isNew: true };
+    SAMPLE_ITEMS.push(found);
+  }
   if (receivedItems[found.sku]) { alert(found.sku + t('alertAlreadyRecvd')); return; }
   currentScanItem = found;
   showLocationAssignment(found);
@@ -1233,7 +1293,18 @@ function manualReceive(sku) {
 
 function showLocationAssignment(item) {
   document.getElementById('locSection').style.display = 'block';
-  document.getElementById('locSku').textContent = item.sku + ' -- ' + item.desc + ' (' + item.qty + (LANG === 'es' ? ' unidades)' : ' units)');
+  var newFields = document.getElementById('newItemFields');
+  if (item.isNew) {
+    document.getElementById('locSku').innerHTML = '<span style="color:var(--cyan)">' + item.sku + '</span> <span style="font-size:11px;color:var(--yellow)">' + (LANG === 'es' ? '(nuevo producto escaneado)' : '(new scanned product)') + '</span>';
+    newFields.style.display = 'grid';
+    document.getElementById('newItemDesc').value = item.desc || '';
+    document.getElementById('newItemQty').value = item.qty || 1;
+    document.getElementById('newItemCost').value = item.cost || '';
+    document.getElementById('newItemWeight').value = item.weight || '';
+  } else {
+    document.getElementById('locSku').textContent = item.sku + ' -- ' + item.desc + ' (' + item.qty + (LANG === 'es' ? ' unidades)' : ' units)');
+    newFields.style.display = 'none';
+  }
   var today = new Date();
   document.getElementById('lotNumber').value = 'LOT-' + today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0');
   renderLocGrid();
@@ -1275,11 +1346,37 @@ function confirmLocation() {
   if (!loc) { alert(t('alertSelectLoc')); return; }
   if (!lot) { alert(t('alertEnterLot')); return; }
 
+  if (currentScanItem.isNew) {
+    var desc = document.getElementById('newItemDesc').value.trim();
+    if (!desc) { document.getElementById('newItemDesc').style.borderColor = 'var(--red)'; document.getElementById('newItemDesc').focus(); return; }
+    currentScanItem.desc = desc;
+    currentScanItem.qty = parseInt(document.getElementById('newItemQty').value) || 1;
+    currentScanItem.cost = parseFloat(document.getElementById('newItemCost').value) || 0;
+    currentScanItem.weight = parseFloat(document.getElementById('newItemWeight').value) || 0;
+    currentScanItem.isNew = false;
+  }
+
   receivedItems[currentScanItem.sku] = true;
   itemLocations[currentScanItem.sku] = {code: loc, lot: lot, expiry: document.getElementById('lotExpiry').value || 'N/A'};
 
   for (var i = 0; i < LOCATIONS.length; i++) {
     if (LOCATIONS[i].code === loc) { LOCATIONS[i].status = 'occupied'; break; }
+  }
+
+  // Write to Firebase inventory
+  if (typeof DB !== 'undefined' && DB && DB.upsertInventoryItem) {
+    DB.upsertInventoryItem(currentScanItem.sku, {
+      name: currentScanItem.desc,
+      quantityAdd: currentScanItem.qty,
+      unitCost: currentScanItem.cost,
+      location: loc,
+      lot: lot,
+      expiry: document.getElementById('lotExpiry').value || 'N/A',
+      poNumber: document.getElementById('fPO').value,
+      weight: currentScanItem.weight,
+      hsCode: currentScanItem.hs,
+      minStock: Math.round(currentScanItem.qty * 0.2)
+    }).catch(function(e) { console.log('[7G] Firestore write skipped:', e.message); });
   }
 
   document.getElementById('locSection').style.display = 'none';
@@ -1305,18 +1402,39 @@ function renderConfirmation() {
 
   var sp = document.getElementById('sheetsPreview');
   var sh = '<div class="sheets-bar">';
-  sh += '<svg class="sheets-bar-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" fill="#0f7b3e"/><path d="M7 7h4v4H7zM13 7h4v4h-4zM7 13h4v4H7zM13 13h4v4h-4z" fill="#fff" opacity=".3"/></svg>';
-  sh += '<span class="sheets-bar-title">Recepciones_Esperadas -- ' + t('synced') + '</span></div>';
-  sh += '<div class="sheets-grid"><table><thead><tr><th>id_recepcion</th><th>sku</th><th>' + t('thDesc').toLowerCase() + '</th><th>' + t('thQty').toLowerCase() + '</th><th>' + t('thUnitCost').toLowerCase() + '</th><th>' + t('thLot').toLowerCase() + '</th><th>' + t('thLocation').toLowerCase() + '</th><th>fecha_ingreso</th><th>po</th></tr></thead><tbody>';
+  sh += '<svg class="sheets-bar-icon" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" fill="#f97316"/><path d="M7 8h10M7 12h7M7 16h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".6"/></svg>';
+  sh += '<span class="sheets-bar-title">Firestore: receiving / inventory -- ' + t('synced') + '</span></div>';
+  sh += '<div class="sheets-grid"><table><thead><tr><th>collection</th><th>doc_id</th><th>sku</th><th>' + t('thQty').toLowerCase() + '</th><th>cost</th><th>' + t('thLot').toLowerCase() + '</th><th>' + t('thLocation').toLowerCase() + '</th><th>timestamp</th><th>po</th></tr></thead><tbody>';
   var today = new Date().toISOString().split('T')[0];
   var po = document.getElementById('fPO').value;
   for (var j = 0; j < SAMPLE_ITEMS.length; j++) {
     var it = SAMPLE_ITEMS[j];
     var loc = itemLocations[it.sku] || {code:'--',lot:'--'};
-    sh += '<tr><td>RCV-' + (1000 + j) + '</td><td>' + it.sku + '</td><td>' + it.desc + '</td><td>' + it.qty + '</td><td>' + it.cost.toFixed(2) + '</td><td>' + loc.lot + '</td><td>' + loc.code + '</td><td>' + today + '</td><td>' + po + '</td></tr>';
+    sh += '<tr><td style="color:var(--orange)">inventory</td><td style="color:var(--cyan)">' + it.sku + '</td><td>' + it.sku + '</td><td>' + it.qty + '</td><td>$' + it.cost.toFixed(2) + '</td><td>' + loc.lot + '</td><td>' + loc.code + '</td><td>' + today + '</td><td>' + po + '</td></tr>';
   }
   sh += '</tbody></table></div>';
   sp.innerHTML = sh;
+
+  // Write receiving record to Firebase
+  if (typeof DB !== 'undefined' && DB && DB.createReceiving) {
+    var recvItems = SAMPLE_ITEMS.map(function(it) {
+      var loc = itemLocations[it.sku] || {code:'--',lot:'--',expiry:'N/A'};
+      return { sku: it.sku, name: it.desc, qty: it.qty, cost: it.cost, location: loc.code, lot: loc.lot, expiry: loc.expiry };
+    });
+    DB.createReceiving({
+      poNumber: po,
+      blNumber: document.getElementById('fBL').value,
+      supplier: document.getElementById('fSupplier').options[document.getElementById('fSupplier').selectedIndex].text,
+      container: document.getElementById('fContainer').value,
+      items: recvItems,
+      totalUnits: totalUnits,
+      totalValue: totalValue,
+      status: 'completed',
+      documentsUploaded: Object.keys(uploadedFiles).length
+    }).then(function(ref) {
+      console.log('[7G] Receiving record saved:', ref.id);
+    }).catch(function(e) { console.log('[7G] Firestore receiving write skipped:', e.message); });
+  }
 
   var ib = '';
   for (var k = 0; k < SAMPLE_ITEMS.length; k++) {
@@ -1332,5 +1450,6 @@ function renderConfirmation() {
 /* =============== INIT =============== */
 applyLang();
 </script>
+<script src="firebase-config.js?v=2"></script>
 </body>
 </html>

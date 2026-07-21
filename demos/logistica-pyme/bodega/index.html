@@ -159,6 +159,20 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 .tl-detail{font-size:11px;color:var(--dim);margin-top:1px}
 .tl-time{font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:2px}
 
+/* SEARCH INPUT */
+.search-input{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:9px 14px;font-size:13px;color:var(--white);font-family:inherit;outline:none;transition:.2s}
+.search-input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.search-input::placeholder{color:var(--dim)}
+
+/* INV ITEM ROW */
+.inv-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;margin-bottom:6px;transition:.2s}
+.inv-row:hover{border-color:var(--cyan)}
+.inv-sku{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);min-width:110px;font-weight:600}
+.inv-name{font-size:12px;color:var(--white);flex:1}
+.inv-avail{font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;min-width:60px;text-align:right}
+.inv-qty-input{width:60px;background:var(--bg4);border:1px solid var(--border3);border-radius:4px;padding:4px 8px;font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center;outline:none}
+.inv-qty-input:focus{border-color:var(--cyan)}
+
 /* FOOTER */
 .foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
 
@@ -229,6 +243,35 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 
 <!-- TAB 0: ORDERS -->
 <div class="panel active" id="panel0">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+    <button class="btn btn-primary" onclick="showNewOrderForm()" id="btnNewOrder" data-t="btnNewOrder">+ Nueva Orden</button>
+  </div>
+  <div id="newOrderForm" style="display:none">
+    <div class="sec">
+      <div class="sec-head">
+        <div class="sec-title" data-t="secNewOrder">Crear Nueva Orden</div>
+        <button class="btn btn-sm btn-secondary" onclick="hideNewOrderForm()">X</button>
+      </div>
+      <div class="sec-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div>
+            <label style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;display:block;margin-bottom:4px">Cliente</label>
+            <input id="newOrderClient" class="search-input" style="width:100%;min-width:0" placeholder="Nombre del cliente">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;display:block;margin-bottom:4px">Destino</label>
+            <input id="newOrderDest" class="search-input" style="width:100%;min-width:0" placeholder="Ciudad, direccion">
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:8px">Seleccionar Items del Inventario</div>
+        <div id="invItemsList"></div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+          <button class="btn btn-secondary" onclick="hideNewOrderForm()">Cancelar</button>
+          <button class="btn btn-primary" onclick="submitNewOrder()">Crear Orden</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="ordersList"></div>
 </div>
 
@@ -351,6 +394,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 <div class="foot">7group -- Logistics Intelligence Platform</div>
 </div>
 
+<script src="../firebase-config.js?v=2"></script>
 <script>
 /* =============== AUTH =============== */
 var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
@@ -390,6 +434,8 @@ var T={
   btnStartPick:{es:'Iniciar Picking',en:'Start Picking'},
   btnDispatch:{es:'Despachar',en:'Dispatch'},
   btnDispatched:{es:'Despachado',en:'Dispatched'},
+  btnNewOrder:{es:'+ Nueva Orden',en:'+ New Order'},
+  secNewOrder:{es:'Crear Nueva Orden',en:'Create New Order'},
   pending:{es:'Pendiente',en:'Pending'},picking:{es:'Picking',en:'Picking'},packing:{es:'Packing',en:'Packing'},ready:{es:'Listo',en:'Ready'},shipped:{es:'Despachado',en:'Shipped'},
   items:{es:'items',en:'items'},boxes:{es:'cajas',en:'boxes'}
 };
@@ -624,6 +670,143 @@ function renderHistory(){
 
 /* =============== INIT =============== */
 applyLang();
+
+function showNewOrderForm() {
+  document.getElementById('newOrderForm').style.display = 'block';
+  document.getElementById('btnNewOrder').style.display = 'none';
+  var inv = (typeof DB !== 'undefined') ? LocalCache.get('inventory') : [];
+  var h = '';
+  if (inv.length === 0) {
+    h = '<div style="text-align:center;color:var(--dim);padding:20px">' + (LANG === 'es' ? 'No hay items en inventario. Procese un recibo primero.' : 'No inventory items. Process a receipt first.') + '</div>';
+  }
+  for (var i = 0; i < inv.length; i++) {
+    var item = inv[i];
+    var qty = parseInt(item.quantity) || 0;
+    if (qty <= 0) continue;
+    h += '<div class="inv-row">' +
+      '<span class="inv-sku">' + item.sku + '</span>' +
+      '<span class="inv-name">' + (item.name || item.sku) + '</span>' +
+      '<span class="inv-avail">' + qty + ' disp.</span>' +
+      '<input type="number" class="inv-qty-input" data-sku="' + item.sku + '" data-name="' + (item.name || '').replace(/"/g,'&quot;') + '" data-max="' + qty + '" data-cost="' + (item.unitCost || 0) + '" data-loc="' + (item.location || '--') + '" min="0" max="' + qty + '" value="0" placeholder="0">' +
+    '</div>';
+  }
+  document.getElementById('invItemsList').innerHTML = h;
+}
+
+function hideNewOrderForm() {
+  document.getElementById('newOrderForm').style.display = 'none';
+  document.getElementById('btnNewOrder').style.display = '';
+}
+
+async function submitNewOrder() {
+  var client = document.getElementById('newOrderClient').value.trim();
+  var dest = document.getElementById('newOrderDest').value.trim();
+  if (!client) { document.getElementById('newOrderClient').style.borderColor = 'var(--red)'; return; }
+  var inputs = document.querySelectorAll('.inv-qty-input');
+  var items = [];
+  var totalUnits = 0;
+  var totalValue = 0;
+  for (var i = 0; i < inputs.length; i++) {
+    var qty = parseInt(inputs[i].value) || 0;
+    if (qty > 0) {
+      items.push({
+        sku: inputs[i].getAttribute('data-sku'),
+        name: inputs[i].getAttribute('data-name'),
+        desc: inputs[i].getAttribute('data-name'),
+        qty: qty,
+        loc: inputs[i].getAttribute('data-loc')
+      });
+      totalUnits += qty;
+      totalValue += qty * (parseFloat(inputs[i].getAttribute('data-cost')) || 0);
+    }
+  }
+  if (items.length === 0) return;
+
+  if (typeof DB !== 'undefined') {
+    var orderId = await DB.createOrder({
+      client: client,
+      destination: dest || '--',
+      items: items,
+      totalUnits: totalUnits,
+      totalValue: Math.round(totalValue * 100) / 100
+    });
+    ORDERS.unshift({
+      id: orderId,
+      client: client,
+      date: new Date().toISOString().split('T')[0],
+      status: 'pending',
+      priority: 'medium',
+      items: items.map(function(it) { return { sku: it.sku, desc: it.name, qty: it.qty, loc: it.loc }; })
+    });
+  }
+  hideNewOrderForm();
+  document.getElementById('newOrderClient').value = '';
+  document.getElementById('newOrderDest').value = '';
+  renderAll();
+}
+
+async function loadRealOrders() {
+  if (typeof DB === 'undefined') return;
+  try {
+    var orders = await DB.getOrders();
+    if (orders && orders.length > 0) {
+      for (var i = 0; i < orders.length; i++) {
+        var o = orders[i];
+        var exists = false;
+        for (var j = 0; j < ORDERS.length; j++) {
+          if (ORDERS[j].id === (o.orderId || o.id)) { exists = true; break; }
+        }
+        if (!exists) {
+          var items = o.items;
+          if (typeof items === 'string') try { items = JSON.parse(items); } catch(e) { items = []; }
+          if (!Array.isArray(items)) items = [];
+          ORDERS.unshift({
+            id: o.orderId || o.id,
+            client: o.client || 'Client',
+            date: (o.createdAt || '').split('T')[0] || new Date().toISOString().split('T')[0],
+            status: o.status || 'pending',
+            priority: 'medium',
+            items: items.map(function(it) {
+              return { sku: it.sku || '', desc: it.name || it.desc || '', qty: parseInt(it.qty || it.quantity) || 0, loc: it.location || it.loc || '--' };
+            })
+          });
+        }
+      }
+      renderAll();
+      console.log('[7G] Bodega: loaded ' + orders.length + ' real orders from DB');
+    }
+  } catch(e) { console.warn('[7G] Bodega: DB load failed', e); }
+}
+
+var _origStartPicking = startPicking;
+startPicking = function(orderId) {
+  _origStartPicking(orderId);
+  if (typeof DB !== 'undefined') {
+    DB.updateOrder(orderId, { status: 'picking' });
+  }
+};
+
+var _origCompleteAllPicks = completeAllPicks;
+completeAllPicks = function() {
+  var order = null;
+  for (var i = 0; i < ORDERS.length; i++) { if (ORDERS[i].status === 'picking') { order = ORDERS[i]; break; } }
+  _origCompleteAllPicks();
+  if (order && typeof DB !== 'undefined') {
+    DB.updateOrder(order.id, { status: 'packing' });
+  }
+};
+
+var _origCompletePacking = completePacking;
+completePacking = function() {
+  var order = null;
+  for (var i = 0; i < ORDERS.length; i++) { if (ORDERS[i].status === 'packing') { order = ORDERS[i]; break; } }
+  _origCompletePacking();
+  if (order && typeof DB !== 'undefined') {
+    DB.updateOrder(order.id, { status: 'ready' });
+  }
+};
+
+loadRealOrders();
 </script>
 </body>
 </html>

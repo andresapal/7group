@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample Documents -- 7Group Logistics</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:rgba(94,231,247,.15)}
+
+.main{max-width:900px;margin:0 auto;padding:32px 24px}
+.page-title{font-size:22px;font-weight:800;margin-bottom:6px}
+.page-sub{font-size:13px;color:var(--dim);margin-bottom:32px;line-height:1.6}
+
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.doc-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:24px;transition:.3s}
+.doc-card:hover{border-color:var(--cyan);transform:translateY(-2px)}
+.doc-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.doc-icon.po{background:rgba(94,231,247,.1);color:var(--cyan)}
+.doc-icon.pl{background:rgba(34,197,94,.1);color:var(--green)}
+.doc-icon.inv{background:rgba(249,115,22,.1);color:var(--orange)}
+.doc-icon.bol{background:rgba(167,139,250,.1);color:var(--purple)}
+.doc-name{font-size:14px;font-weight:700;margin-bottom:4px}
+.doc-id{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--cyan);margin-bottom:8px}
+.doc-desc{font-size:12px;color:var(--dim);line-height:1.5;margin-bottom:16px}
+.doc-meta{display:flex;gap:12px;margin-bottom:16px}
+.doc-meta span{font-size:10px;color:var(--dim);background:var(--bg3);padding:3px 8px;border-radius:4px}
+.doc-dl{width:100%;padding:10px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.2);border-radius:6px;color:var(--cyan);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.doc-dl:hover{background:rgba(94,231,247,.15)}
+.doc-dl svg{width:14px;height:14px}
+
+.info-box{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:20px;margin-top:32px}
+.info-box h3{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.info-box ol{padding-left:20px;font-size:12px;color:var(--dim);line-height:2}
+.info-box code{font-family:'JetBrains Mono',monospace;background:var(--bg3);padding:2px 6px;border-radius:3px;font-size:11px;color:var(--cyan)}
+
+.all-btn{width:100%;padding:14px;background:rgba(94,231,247,.1);border:2px solid rgba(94,231,247,.3);border-radius:10px;color:var(--cyan);font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:.2s;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.all-btn:hover{background:rgba(94,231,247,.2);border-color:var(--cyan)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7 G R O U P</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="docBadge">DOCUMENTOS MODELO</span>
+  </div>
+  <div class="tb-right">
+    <a href="/demos/logistica-pyme/" class="tb-btn" data-t="backRecv">Volver a Recibo</a>
+    <button class="tb-toggle" onclick="toggleTheme()">LIGHT</button>
+  </div>
+</div>
+
+<div class="main">
+  <h1 class="page-title" data-t="pageTitle">Documentos Modelo</h1>
+  <p class="page-sub" data-t="pageSub">Descarga estos documentos ficticios para probar el flujo completo de trazabilidad: carga la Orden de Compra en Recibo, verifica el inventario, crea un pedido y despacha.</p>
+
+  <div class="doc-grid">
+    <div class="doc-card">
+      <div class="doc-icon po">PO</div>
+      <div class="doc-name" data-t="poName">Purchase Order</div>
+      <div class="doc-id">PO-7G-2024-0847</div>
+      <div class="doc-desc" data-t="poDesc">Orden de compra de Atlantic Supply Co. para equipos de red y seguridad. 5 SKUs, 280 unidades, $21,871.05 total.</div>
+      <div class="doc-meta"><span>280 units</span><span>5 SKUs</span><span>$21,871.05</span></div>
+      <button class="doc-dl" onclick="generatePO()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        <span data-t="dlPdf">Descargar PDF</span>
+      </button>
+    </div>
+
+    <div class="doc-card">
+      <div class="doc-icon pl">PL</div>
+      <div class="doc-name" data-t="plName">Packing List</div>
+      <div class="doc-id">PL-7G-2024-0847</div>
+      <div class="doc-desc" data-t="plDesc">Lista de empaque con detalle de cajas, pesos y dimensiones. 12 cajas, 847 lbs peso total bruto.</div>
+      <div class="doc-meta"><span>12 boxes</span><span>847 lbs</span><span>PO-0847</span></div>
+      <button class="doc-dl" onclick="generatePL()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        <span data-t="dlPdf">Descargar PDF</span>
+      </button>
+    </div>
+
+    <div class="doc-card">
+      <div class="doc-icon inv">$</div>
+      <div class="doc-name" data-t="invName">Commercial Invoice</div>
+      <div class="doc-id">INV-7G-2024-3291</div>
+      <div class="doc-desc" data-t="invDesc">Factura comercial con terminos Net 30, impuestos Florida 7%, desglose por linea de producto.</div>
+      <div class="doc-meta"><span>Net 30</span><span>7% tax</span><span>$23,401.02</span></div>
+      <button class="doc-dl" onclick="generateINV()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        <span data-t="dlPdf">Descargar PDF</span>
+      </button>
+    </div>
+
+    <div class="doc-card">
+      <div class="doc-icon bol">BL</div>
+      <div class="doc-name" data-t="bolName">Bill of Lading</div>
+      <div class="doc-id">BOL-7G-2024-0847</div>
+      <div class="doc-desc" data-t="bolDesc">Guia de transporte FedEx Freight. Origen: Jacksonville, FL. Destino: Miami warehouse. Tracking incluido.</div>
+      <div class="doc-meta"><span>FedEx Freight</span><span>JAX-MIA</span><span>847 lbs</span></div>
+      <button class="doc-dl" onclick="generateBOL()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        <span data-t="dlPdf">Descargar PDF</span>
+      </button>
+    </div>
+  </div>
+
+  <button class="all-btn" onclick="downloadAll()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    <span data-t="dlAll">Descargar Todos (4 PDFs)</span>
+  </button>
+
+  <div class="info-box">
+    <h3 data-t="howTitle">Como usar estos documentos</h3>
+    <ol>
+      <li data-t="step1">Descarga la <code>Purchase Order</code> (PO-7G-2024-0847)</li>
+      <li data-t="step2">Ve a <code>Recibo</code> y carga el PDF en el paso de Document Upload</li>
+      <li data-t="step3">El sistema extrae los datos automaticamente (AI Document Processing)</li>
+      <li data-t="step4">Confirma la recepcion fisica de las 12 cajas</li>
+      <li data-t="step5">Revisa en <code>Inventario</code> que los 5 SKUs se actualizaron</li>
+      <li data-t="step6">Ve a <code>Bodega</code> y crea un pedido con parte de la mercancia</li>
+      <li data-t="step7">En <code>Despachos</code>, asigna transportista y despacha el pedido</li>
+      <li data-t="step8">El <code>Dashboard</code> muestra la trazabilidad completa en tiempo real</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+const {jsPDF} = window.jspdf;
+
+const ITEMS = [
+  { sku:'NET-RTR-X7', name:'Wireless Router Pro X7', qty:50, price:89.99, weight:2.4, box:'A' },
+  { sku:'NET-CAT6-50', name:'Cat6 Ethernet Cable 50ft', qty:100, price:24.99, weight:0.8, box:'B' },
+  { sku:'SEC-CAM-4K', name:'Smart Security Camera 4K', qty:25, price:149.99, weight:1.6, box:'C' },
+  { sku:'ACC-DOCK-UC', name:'USB-C Docking Station', qty:30, price:79.99, weight:1.2, box:'D' },
+  { sku:'ACC-SURG-12', name:'Surge Protector 12-Outlet', qty:75, price:34.99, weight:1.8, box:'E' }
+];
+
+const SUPPLIER = {
+  name: 'Atlantic Supply Co.',
+  addr: '4520 NW 72nd Ave',
+  city: 'Jacksonville, FL 32256',
+  phone: '(904) 555-0147',
+  email: 'orders@atlanticsupply.com',
+  ein: '59-3847261'
+};
+
+const BUYER = {
+  name: '7Group Corp.',
+  addr: '1200 Brickell Ave, Suite 1400',
+  city: 'Miami, FL 33131',
+  phone: '(305) 555-0198',
+  email: 'receiving@7group.site'
+};
+
+function addHeader(doc, title, docId, date) {
+  doc.setFontSize(20);
+  doc.setFont('helvetica','bold');
+  doc.text(title, 20, 25);
+  doc.setFontSize(10);
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(100);
+  doc.text(docId, 190, 20, {align:'right'});
+  doc.text('Date: ' + date, 190, 26, {align:'right'});
+  doc.setDrawColor(94,231,247);
+  doc.setLineWidth(0.5);
+  doc.line(20, 32, 190, 32);
+  doc.setTextColor(0);
+  return 40;
+}
+
+function addParties(doc, y) {
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(100);
+  doc.text('FROM / SUPPLIER', 20, y);
+  doc.text('TO / BUYER', 110, y);
+  y += 6;
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(0);
+  doc.setFontSize(9);
+  doc.text(SUPPLIER.name, 20, y);
+  doc.text(BUYER.name, 110, y);
+  y += 5;
+  doc.text(SUPPLIER.addr, 20, y);
+  doc.text(BUYER.addr, 110, y);
+  y += 5;
+  doc.text(SUPPLIER.city, 20, y);
+  doc.text(BUYER.city, 110, y);
+  y += 5;
+  doc.text(SUPPLIER.phone, 20, y);
+  doc.text(BUYER.phone, 110, y);
+  y += 5;
+  doc.text(SUPPLIER.email, 20, y);
+  doc.text(BUYER.email, 110, y);
+  return y + 12;
+}
+
+function addItemsTable(doc, y, showPrice) {
+  const cols = showPrice
+    ? [{h:'SKU',x:20,w:30},{h:'Description',x:50,w:60},{h:'Qty',x:115,w:15},{h:'Unit Price',x:135,w:25},{h:'Total',x:165,w:25}]
+    : [{h:'SKU',x:20,w:30},{h:'Description',x:50,w:70},{h:'Qty',x:125,w:20},{h:'Weight (lbs)',x:150,w:25}];
+
+  doc.setFillColor(240,240,240);
+  doc.rect(18, y-4, 174, 8, 'F');
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  cols.forEach(c => doc.text(c.h, c.x, y));
+  y += 8;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+
+  let subtotal = 0;
+  ITEMS.forEach((item, i) => {
+    if (i % 2 === 0) {
+      doc.setFillColor(248,248,248);
+      doc.rect(18, y-4, 174, 7, 'F');
+    }
+    doc.text(item.sku, 20, y);
+    doc.text(item.name, 50, y);
+    doc.text(String(item.qty), 125, y, showPrice ? {align:'right'} : undefined);
+    if (showPrice) {
+      doc.text('$' + item.price.toFixed(2), 155, y, {align:'right'});
+      const total = item.qty * item.price;
+      subtotal += total;
+      doc.text('$' + total.toFixed(2), 190, y, {align:'right'});
+    } else {
+      doc.text((item.qty * item.weight).toFixed(1), 165, y);
+    }
+    y += 7;
+  });
+
+  if (showPrice) {
+    y += 4;
+    doc.setDrawColor(200);
+    doc.line(140, y-2, 190, y-2);
+    doc.setFont('helvetica','bold');
+    doc.text('Subtotal:', 140, y+2);
+    doc.text('$' + subtotal.toFixed(2), 190, y+2, {align:'right'});
+    const tax = subtotal * 0.07;
+    y += 7;
+    doc.setFont('helvetica','normal');
+    doc.text('Tax (7% FL):', 140, y);
+    doc.text('$' + tax.toFixed(2), 190, y, {align:'right'});
+    y += 7;
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(11);
+    doc.text('TOTAL:', 140, y);
+    doc.text('$' + (subtotal + tax).toFixed(2), 190, y, {align:'right'});
+  }
+  return y + 10;
+}
+
+function addFooter(doc) {
+  doc.setFontSize(7);
+  doc.setTextColor(150);
+  doc.text('This is a sample/demo document generated by 7Group Logistics Platform for testing purposes only.', 105, 282, {align:'center'});
+  doc.text('7group.site | Miami, FL', 105, 287, {align:'center'});
+}
+
+function generatePO() {
+  const doc = new jsPDF();
+  let y = addHeader(doc, 'PURCHASE ORDER', 'PO-7G-2024-0847', 'Jul 15, 2024');
+  y = addParties(doc, y);
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(100);
+  doc.text('TERMS', 20, y);
+  doc.text('SHIP VIA', 70, y);
+  doc.text('SHIP TO', 120, y);
+  y += 5;
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(0);
+  doc.setFontSize(9);
+  doc.text('Net 30', 20, y);
+  doc.text('FedEx Freight', 70, y);
+  doc.text('Miami Warehouse', 120, y);
+  y += 5;
+  doc.text('', 20, y);
+  doc.text('PRO# 4847-2910-38', 70, y);
+  doc.text('1200 Brickell Ave, Miami FL', 120, y);
+  y += 12;
+
+  y = addItemsTable(doc, y, true);
+
+  y += 8;
+  doc.setFontSize(8);
+  doc.setTextColor(100);
+  doc.text('Notes: Please ship all items together. Partial shipments not accepted.', 20, y);
+  y += 5;
+  doc.text('Delivery expected within 5 business days.', 20, y);
+
+  y += 15;
+  doc.setTextColor(0);
+  doc.setFontSize(9);
+  doc.line(20, y, 80, y);
+  doc.text('Authorized Signature', 20, y+5);
+  doc.line(120, y, 180, y);
+  doc.text('Date', 120, y+5);
+
+  addFooter(doc);
+  doc.save('PO-7G-2024-0847.pdf');
+}
+
+function generatePL() {
+  const doc = new jsPDF();
+  let y = addHeader(doc, 'PACKING LIST', 'PL-7G-2024-0847', 'Jul 18, 2024');
+  y = addParties(doc, y);
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(100);
+  doc.text('PO REFERENCE', 20, y);
+  doc.text('CARRIER', 70, y);
+  doc.text('TOTAL BOXES', 130, y);
+  y += 5;
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(0);
+  doc.setFontSize(9);
+  doc.text('PO-7G-2024-0847', 20, y);
+  doc.text('FedEx Freight', 70, y);
+  doc.text('12', 130, y);
+  y += 12;
+
+  doc.setFillColor(240,240,240);
+  doc.rect(18, y-4, 174, 8, 'F');
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  doc.text('Box #', 20, y);
+  doc.text('Contents', 40, y);
+  doc.text('SKU', 100, y);
+  doc.text('Qty', 130, y);
+  doc.text('Weight (lbs)', 150, y);
+  y += 8;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+
+  const boxes = [
+    {box:'1-3', content:'Wireless Router Pro X7', sku:'NET-RTR-X7', qty:'50 (17+17+16)', wt:'120.0'},
+    {box:'4-6', content:'Cat6 Ethernet Cable 50ft', sku:'NET-CAT6-50', qty:'100 (34+33+33)', wt:'80.0'},
+    {box:'7-8', content:'Smart Security Camera 4K', sku:'SEC-CAM-4K', qty:'25 (13+12)', wt:'40.0'},
+    {box:'9-10', content:'USB-C Docking Station', sku:'ACC-DOCK-UC', qty:'30 (15+15)', wt:'36.0'},
+    {box:'11-12', content:'Surge Protector 12-Outlet', sku:'ACC-SURG-12', qty:'75 (38+37)', wt:'135.0'}
+  ];
+
+  let totalWt = 0;
+  boxes.forEach((b, i) => {
+    if (i % 2 === 0) {
+      doc.setFillColor(248,248,248);
+      doc.rect(18, y-4, 174, 7, 'F');
+    }
+    doc.text(b.box, 20, y);
+    doc.text(b.content, 40, y);
+    doc.text(b.sku, 100, y);
+    doc.text(b.qty, 130, y);
+    doc.text(b.wt, 160, y);
+    totalWt += parseFloat(b.wt);
+    y += 7;
+  });
+
+  y += 6;
+  doc.setDrawColor(200);
+  doc.line(140, y-2, 190, y-2);
+  doc.setFont('helvetica','bold');
+  doc.text('Gross Weight:', 140, y+2);
+  doc.text(totalWt.toFixed(1) + ' lbs', 190, y+2, {align:'right'});
+  y += 7;
+  doc.text('Net Weight:', 140, y);
+  doc.text((totalWt * 0.92).toFixed(1) + ' lbs', 190, y, {align:'right'});
+
+  y += 15;
+  doc.setFontSize(8);
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(100);
+  doc.text('Packed by: J. Rodriguez  |  Checked by: M. Thompson  |  Date: Jul 18, 2024', 20, y);
+
+  addFooter(doc);
+  doc.save('PL-7G-2024-0847.pdf');
+}
+
+function generateINV() {
+  const doc = new jsPDF();
+  let y = addHeader(doc, 'COMMERCIAL INVOICE', 'INV-7G-2024-3291', 'Jul 18, 2024');
+  y = addParties(doc, y);
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(100);
+  doc.text('PO REFERENCE', 20, y);
+  doc.text('PAYMENT TERMS', 70, y);
+  doc.text('DUE DATE', 130, y);
+  y += 5;
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(0);
+  doc.setFontSize(9);
+  doc.text('PO-7G-2024-0847', 20, y);
+  doc.text('Net 30', 70, y);
+  doc.text('Aug 17, 2024', 130, y);
+  y += 5;
+  doc.setFontSize(8);
+  doc.setTextColor(100);
+  doc.text('EIN: ' + SUPPLIER.ein, 20, y);
+  y += 12;
+
+  y = addItemsTable(doc, y, true);
+
+  y += 12;
+  doc.setFontSize(8);
+  doc.setTextColor(100);
+  doc.text('Payment Instructions:', 20, y);
+  y += 5;
+  doc.setTextColor(0);
+  doc.text('Bank: First National Bank of Florida', 20, y); y += 4;
+  doc.text('Account: XXXX-XXXX-4821', 20, y); y += 4;
+  doc.text('Routing: 063XXXXX9', 20, y); y += 4;
+  doc.text('Reference: INV-7G-2024-3291', 20, y);
+
+  addFooter(doc);
+  doc.save('INV-7G-2024-3291.pdf');
+}
+
+function generateBOL() {
+  const doc = new jsPDF();
+  let y = addHeader(doc, 'BILL OF LADING', 'BOL-7G-2024-0847', 'Jul 18, 2024');
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(100);
+  doc.text('CARRIER', 20, y);
+  doc.text('PRO NUMBER', 70, y);
+  doc.text('TRACKING', 130, y);
+  y += 5;
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(0);
+  doc.setFontSize(9);
+  doc.text('FedEx Freight', 20, y);
+  doc.text('4847-2910-38', 70, y);
+  doc.text('7948 2847 3019', 130, y);
+  y += 12;
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(100);
+  doc.text('SHIPPER / ORIGIN', 20, y);
+  doc.text('CONSIGNEE / DESTINATION', 110, y);
+  y += 6;
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(0);
+  doc.setFontSize(9);
+  doc.text(SUPPLIER.name, 20, y); doc.text(BUYER.name, 110, y); y += 5;
+  doc.text(SUPPLIER.addr, 20, y); doc.text(BUYER.addr, 110, y); y += 5;
+  doc.text(SUPPLIER.city, 20, y); doc.text(BUYER.city, 110, y); y += 12;
+
+  doc.setFillColor(240,240,240);
+  doc.rect(18, y-4, 174, 8, 'F');
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  doc.text('Handling Unit', 20, y);
+  doc.text('Description', 55, y);
+  doc.text('Pieces', 115, y);
+  doc.text('Weight (lbs)', 140, y);
+  doc.text('Class', 175, y);
+  y += 8;
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  const freight = [
+    {hu:'Pallet 1', desc:'Electronics - Routers & Cables', pcs:'6 boxes', wt:'200.0', cls:'85'},
+    {hu:'Pallet 2', desc:'Security Cameras & Accessories', pcs:'4 boxes', wt:'76.0', cls:'92.5'},
+    {hu:'Pallet 3', desc:'Power Equipment', pcs:'2 boxes', wt:'135.0', cls:'85'}
+  ];
+  let totalW = 0;
+  freight.forEach((f, i) => {
+    if (i%2===0){doc.setFillColor(248,248,248);doc.rect(18,y-4,174,7,'F');}
+    doc.text(f.hu, 20, y);
+    doc.text(f.desc, 55, y);
+    doc.text(f.pcs, 115, y);
+    doc.text(f.wt, 150, y);
+    doc.text(f.cls, 178, y);
+    totalW += parseFloat(f.wt);
+    y += 7;
+  });
+
+  y += 4;
+  doc.setDrawColor(200);
+  doc.line(130,y-2,190,y-2);
+  doc.setFont('helvetica','bold');
+  doc.text('Total Weight:', 130, y+2);
+  doc.text(totalW.toFixed(1) + ' lbs', 190, y+2, {align:'right'});
+  doc.text('Total Pieces:', 130, y+9);
+  doc.text('12 boxes / 3 pallets', 190, y+9, {align:'right'});
+
+  y += 22;
+  doc.setFontSize(8);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(100);
+  doc.text('SPECIAL INSTRUCTIONS', 20, y);
+  y += 5;
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(0);
+  doc.text('Fragile electronics - handle with care. Delivery appointment required.', 20, y);
+  y += 4;
+  doc.text('Call (305) 555-0198 30 min prior to delivery. Dock #4 preferred.', 20, y);
+
+  y += 15;
+  doc.setTextColor(0);
+  doc.setFontSize(9);
+  doc.line(20, y, 80, y);
+  doc.text('Shipper Signature', 20, y+5);
+  doc.line(110, y, 190, y);
+  doc.text('Carrier Signature / Date', 110, y+5);
+
+  addFooter(doc);
+  doc.save('BOL-7G-2024-0847.pdf');
+}
+
+function downloadAll() {
+  generatePO();
+  setTimeout(() => generatePL(), 500);
+  setTimeout(() => generateINV(), 1000);
+  setTimeout(() => generateBOL(), 1500);
+}
+
+// Theme
+function toggleTheme() {
+  document.documentElement.classList.toggle('light');
+  localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+}
+if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light');
+</script>
+</body>
+</html>
