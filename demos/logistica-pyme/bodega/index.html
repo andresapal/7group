@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operaciones de Bodega -- 7Group Logistics</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+/* AUTH */
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.auth-gate.hidden{opacity:0;pointer-events:none}
+.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:20px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+/* TOPBAR */
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:rgba(94,231,247,.15)}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+/* MODULE NAV */
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;gap:0}
+.mod-link{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
+
+/* TABS */
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto}
+.tab{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.tab:hover{color:var(--white)}.tab.active{color:var(--cyan);border-color:var(--cyan)}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:24px}
+.panel{display:none}.panel.active{display:block}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:18px 20px}
+.kpi-val{font-size:28px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;margin-bottom:2px}
+.kpi-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.yellow{color:var(--yellow)}.kpi-val.red{color:var(--red)}.kpi-val.blue{color:var(--blue)}.kpi-val.purple{color:var(--purple)}
+
+/* SEC */
+.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.sec-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.sec-title{font-size:13px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:8px}
+.sec-body{padding:20px}
+.sec-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+
+/* ORDER CARD */
+.order-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:10px;transition:.2s}
+.order-card:hover{border-color:var(--cyan)}
+.order-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.order-id{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--cyan)}
+.order-client{font-size:12px;color:var(--white);font-weight:600}
+.order-date{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.order-status{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:4px}
+.st-pending{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.15)}
+.st-picking{background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)}
+.st-packing{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.15)}
+.st-ready{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.st-shipped{background:rgba(100,116,139,.1);color:var(--dim);border:1px solid rgba(100,116,139,.15)}
+.order-items{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.order-item{font-size:11px;padding:4px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-family:'JetBrains Mono',monospace;color:var(--white)}
+.order-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.order-meta{font-size:11px;color:var(--dim)}
+.order-meta span{margin-right:14px}
+.order-actions{display:flex;gap:6px}
+.btn{padding:7px 14px;border-radius:5px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:var(--cyan);color:#060a0e}.btn-primary:hover{background:#7bf0ff}
+.btn-sm{padding:5px 10px;font-size:10px}
+.btn-secondary{background:var(--bg4);color:var(--white);border:1px solid var(--border3)}.btn-secondary:hover{border-color:var(--cyan)}
+
+/* PICK LIST */
+.pick-item{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;margin-bottom:6px;transition:.2s}
+.pick-item.done{border-color:rgba(34,197,94,.2);opacity:.7}
+.pick-check{width:22px;height:22px;border-radius:5px;border:2px solid var(--border3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;flex-shrink:0;font-size:12px;font-weight:700;color:transparent}
+.pick-check:hover{border-color:var(--cyan)}
+.pick-check.checked{background:var(--green);border-color:var(--green);color:#fff}
+.pick-sku{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--cyan);min-width:110px}
+.pick-desc{font-size:12px;color:var(--white);flex:1}
+.pick-loc{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim)}
+.pick-qty{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--white);min-width:50px;text-align:right}
+
+/* PACK ZONE */
+.pack-box{background:var(--bg3);border:2px dashed var(--border3);border-radius:10px;padding:20px;text-align:center;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:.2s;margin-bottom:12px}
+.pack-box.active{border-color:var(--cyan);border-style:solid;background:rgba(94,231,247,.03)}
+.pack-box-title{font-size:12px;font-weight:700;color:var(--white)}
+.pack-box-detail{font-size:11px;color:var(--dim)}
+.pack-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:768px){.pack-grid{grid-template-columns:1fr}}
+
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s;background:var(--cyan)}
+.progress-fill.complete{background:var(--green)}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border2);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--white);white-space:nowrap}
+.tbl tr:hover td{background:rgba(94,231,247,.02)}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:11px}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column}
+.tl-step{display:flex;gap:12px;padding:8px 0}
+.tl-dot-col{display:flex;flex-direction:column;align-items:center;width:20px}
+.tl-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--border3);flex-shrink:0}
+.tl-dot.done{background:var(--green);border-color:var(--green)}
+.tl-dot.active{background:var(--cyan);border-color:var(--cyan)}
+.tl-line{width:1px;flex:1;background:var(--border2);margin:4px 0}
+.tl-step:last-child .tl-line{display:none}
+.tl-content{flex:1;padding-bottom:6px}
+.tl-title{font-size:12px;font-weight:600;color:var(--white)}
+.tl-detail{font-size:11px;color:var(--dim);margin-top:1px}
+.tl-time{font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+/* FOOTER */
+.foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+@media(max-width:640px){
+  .main{padding:16px}
+  .sec-body{padding:14px}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .topbar{padding:0 12px}
+  .tb-right{gap:4px}
+  .order-head{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-footer">Solo personal autorizado</div>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
+
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/logistica-pyme/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="badge">Operaciones de Bodega</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+    <a id="scheduleLink" href="/agendar/" class="tb-btn" data-t="schedule">Agendar llamada</a>
+  </div>
+</nav>
+
+<div class="mod-nav">
+  <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
+  <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
+  <a href="/demos/logistica-pyme/bodega/" class="mod-link active" data-t="modWh">Bodega</a>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="goTab(0)" id="tab0" data-t="tabOrders">Ordenes</div>
+  <div class="tab" onclick="goTab(1)" id="tab1" data-t="tabPicking">Picking</div>
+  <div class="tab" onclick="goTab(2)" id="tab2" data-t="tabPacking">Packing</div>
+  <div class="tab" onclick="goTab(3)" id="tab3" data-t="tabDispatch">Despacho</div>
+  <div class="tab" onclick="goTab(4)" id="tab4" data-t="tabHistory">Historial</div>
+</div>
+
+<div class="main">
+
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- TAB 0: ORDERS -->
+<div class="panel active" id="panel0">
+  <div id="ordersList"></div>
+</div>
+
+<!-- TAB 1: PICKING -->
+<div class="panel" id="panel1">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secPickActive">Orden Activa de Picking</div>
+      <span class="sec-tag st-picking" id="pickOrderId">ORD-4530</span>
+    </div>
+    <div class="sec-body">
+      <div style="margin-bottom:12px;font-size:12px;color:var(--dim)" data-t="pickInstructions">Recorra las ubicaciones en orden. Marque cada item al recogerlo del estante.</div>
+      <div class="progress-bar"><div class="progress-fill" id="pickBar" style="width:0%"></div></div>
+      <div style="text-align:right;font-size:11px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-bottom:12px" id="pickProgress">0 / 0</div>
+      <div id="pickList"></div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button class="btn btn-primary" onclick="completeAllPicks()" data-t="btnPickAll">Completar Todo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: PACKING -->
+<div class="panel" id="panel2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secPackStation">Estacion de Packing</div>
+      <span class="sec-tag st-packing" id="packOrderId">ORD-4530</span>
+    </div>
+    <div class="sec-body">
+      <div class="pack-grid">
+        <div class="pack-box active" id="packBox1">
+          <div class="pack-box-title">Caja 1 / Box 1</div>
+          <div class="pack-box-detail" id="packBox1Detail">0 items</div>
+        </div>
+        <div class="pack-box" id="packBox2">
+          <div class="pack-box-title">Caja 2 / Box 2</div>
+          <div class="pack-box-detail" id="packBox2Detail">0 items</div>
+        </div>
+        <div class="pack-box" id="packBox3">
+          <div class="pack-box-title">Caja 3 / Box 3</div>
+          <div class="pack-box-detail" id="packBox3Detail">0 items</div>
+        </div>
+      </div>
+      <div class="sec" style="margin-top:16px">
+        <div class="sec-head">
+          <div class="sec-title" data-t="secPackItems">Items para Empacar</div>
+        </div>
+        <div class="sec-body">
+          <div id="packItems"></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button class="btn btn-primary" onclick="completePacking()" data-t="btnSealBoxes">Sellar Cajas y Generar Guia</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: DISPATCH -->
+<div class="panel" id="panel3">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secDispatchReady">Listos para Despacho</div>
+    </div>
+    <div class="sec-body">
+      <div class="tbl-wrap">
+        <table class="tbl" id="dispatchTable">
+          <thead><tr>
+            <th data-t="thOrder">Orden</th>
+            <th data-t="thClient">Cliente</th>
+            <th data-t="thBoxes">Cajas</th>
+            <th data-t="thWeight">Peso</th>
+            <th data-t="thCarrier">Transportista</th>
+            <th data-t="thTracking">Guia</th>
+            <th data-t="thAction">Accion</th>
+          </tr></thead>
+          <tbody id="dispatchBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: HISTORY -->
+<div class="panel" id="panel4">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secTimeline">Linea de Tiempo de Operaciones</div>
+    </div>
+    <div class="sec-body">
+      <div class="timeline" id="historyTimeline"></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secCompleted">Ordenes Completadas</div>
+    </div>
+    <div class="sec-body">
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th data-t="thOrder">Orden</th>
+            <th data-t="thClient">Cliente</th>
+            <th data-t="thItems">Items</th>
+            <th data-t="thBoxes">Cajas</th>
+            <th data-t="thShipped">Despachado</th>
+            <th data-t="thCarrier">Transportista</th>
+            <th data-t="thTracking">Guia</th>
+            <th data-t="thTime">Tiempo Total</th>
+          </tr></thead>
+          <tbody id="completedBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div>
+
+<script>
+/* =============== AUTH =============== */
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){document.getElementById('authGate').classList.add('hidden');document.getElementById('appWrap').classList.add('visible');}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+(function(){var s=sessionStorage.getItem('7g-auth');if(s&&ALLOWED_EMAILS.indexOf(s)!==-1)unlockApp();else initGoogleAuth();})();
+
+/* =============== THEME =============== */
+function toggleTheme(){var l=document.documentElement.classList.toggle('light');localStorage.setItem('7g-theme',l?'light':'dark');updateThemeButton(l);}
+function updateThemeButton(l){document.getElementById('themeToggle').innerHTML=l?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8.5a5.5 5.5 0 01-6-6 5.5 5.5 0 106 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
+(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();
+
+/* =============== LANG =============== */
+var LANG='es';
+(function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
+
+var T={
+  badge:{es:'Operaciones de Bodega',en:'Warehouse Operations'},
+  schedule:{es:'Agendar llamada',en:'Schedule a call'},
+  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},
+  tabOrders:{es:'Ordenes',en:'Orders'},tabPicking:{es:'Picking',en:'Picking'},tabPacking:{es:'Packing',en:'Packing'},tabDispatch:{es:'Despacho',en:'Dispatch'},tabHistory:{es:'Historial',en:'History'},
+  kpiPending:{es:'Pendientes',en:'Pending'},kpiPicking:{es:'En Picking',en:'Picking'},kpiPacking:{es:'En Packing',en:'Packing'},kpiReady:{es:'Listos',en:'Ready'},
+  secPickActive:{es:'Orden Activa de Picking',en:'Active Picking Order'},
+  pickInstructions:{es:'Recorra las ubicaciones en orden. Marque cada item al recogerlo del estante.',en:'Walk locations in order. Check each item as you pick it from the shelf.'},
+  btnPickAll:{es:'Completar Todo',en:'Complete All'},
+  secPackStation:{es:'Estacion de Packing',en:'Packing Station'},
+  secPackItems:{es:'Items para Empacar',en:'Items to Pack'},
+  btnSealBoxes:{es:'Sellar Cajas y Generar Guia',en:'Seal Boxes & Generate Label'},
+  secDispatchReady:{es:'Listos para Despacho',en:'Ready for Dispatch'},
+  secTimeline:{es:'Linea de Tiempo de Operaciones',en:'Operations Timeline'},
+  secCompleted:{es:'Ordenes Completadas',en:'Completed Orders'},
+  thOrder:{es:'Orden',en:'Order'},thClient:{es:'Cliente',en:'Client'},thBoxes:{es:'Cajas',en:'Boxes'},thWeight:{es:'Peso',en:'Weight'},
+  thCarrier:{es:'Transportista',en:'Carrier'},thTracking:{es:'Guia',en:'Tracking'},thAction:{es:'Accion',en:'Action'},
+  thItems:{es:'Items',en:'Items'},thShipped:{es:'Despachado',en:'Shipped'},thTime:{es:'Tiempo Total',en:'Total Time'},
+  btnStartPick:{es:'Iniciar Picking',en:'Start Picking'},
+  btnDispatch:{es:'Despachar',en:'Dispatch'},
+  btnDispatched:{es:'Despachado',en:'Dispatched'},
+  pending:{es:'Pendiente',en:'Pending'},picking:{es:'Picking',en:'Picking'},packing:{es:'Packing',en:'Packing'},ready:{es:'Listo',en:'Ready'},shipped:{es:'Despachado',en:'Shipped'},
+  items:{es:'items',en:'items'},boxes:{es:'cajas',en:'boxes'}
+};
+function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
+function tl(o){if(!o)return'';if(typeof o==='string')return o;return o[LANG]||o.en||'';}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.title=LANG==='es'?'Operaciones de Bodega -- 7Group Logistica':'Warehouse Operations -- 7Group Logistics';
+  var els=document.querySelectorAll('[data-t]');
+  for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
+  document.getElementById('langES').classList.toggle('active',LANG==='es');
+  document.getElementById('langEN').classList.toggle('active',LANG==='en');
+  document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
+  var lp=LANG==='en'?'?lang=en':'';
+  document.querySelector('.mod-link[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
+  document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
+  document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
+  renderAll();
+}
+function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
+
+/* =============== DATA =============== */
+var ORDERS=[
+  {id:'ORD-4530',client:'TechRetail Inc.',date:'2026-07-20',status:'pending',priority:'high',
+    items:[{sku:'SZ-LED-4K-55',desc:'LED Panel 55" 4K UHD',qty:12,loc:'A-01-01'},{sku:'SZ-MNT-WALL',desc:'Wall Mount Universal',qty:12,loc:'A-03-01'},{sku:'SZ-CBL-HDMI2',desc:'HDMI 2.1 Cable 6ft',qty:24,loc:'D-01-01'},{sku:'SZ-RMT-BT',desc:'Bluetooth Remote Control',qty:12,loc:'C-01-01'}]},
+  {id:'ORD-4531',client:'AV Solutions LLC',date:'2026-07-20',status:'picking',priority:'medium',
+    items:[{sku:'SZ-SPK-20W',desc:'Soundbar 20W Bluetooth',qty:20,loc:'E-01-01'},{sku:'SZ-CBL-HDMI2',desc:'HDMI 2.1 Cable 6ft',qty:40,loc:'D-01-01'},{sku:'SZ-ADP-USB3',desc:'USB-C Adapter Hub',qty:10,loc:'C-01-02'}]},
+  {id:'ORD-4532',client:'SmartHome Corp.',date:'2026-07-19',status:'packing',priority:'medium',
+    items:[{sku:'SZ-RMT-BT',desc:'Bluetooth Remote Control',qty:50,loc:'C-01-01'},{sku:'SZ-PWR-500W',desc:'Power Supply 500W',qty:30,loc:'B-01-01'}]},
+  {id:'ORD-4533',client:'DataLink LLC',date:'2026-07-19',status:'ready',priority:'low',
+    items:[{sku:'SZ-ADP-USB3',desc:'USB-C Adapter Hub',qty:25,loc:'C-01-02'},{sku:'SZ-CBL-HDMI2',desc:'HDMI 2.1 Cable 6ft',qty:100,loc:'D-01-01'}]},
+  {id:'ORD-4528',client:'BrightScreen Ltd.',date:'2026-07-18',status:'shipped',priority:'high',
+    items:[{sku:'SZ-LED-4K-55',desc:'LED Panel 55" 4K UHD',qty:24,loc:'A-01-02'},{sku:'SZ-PWR-500W',desc:'Power Supply 500W',qty:24,loc:'B-01-02'}]}
+];
+
+var DISPATCH_READY=[
+  {id:'ORD-4533',client:'DataLink LLC',boxes:2,weight:'14.8 kg',carrier:'FedEx Ground',tracking:'7961 2384 0012',status:'ready'},
+  {id:'ORD-4529',client:'NetGear Solutions',boxes:3,weight:'32.1 kg',carrier:'UPS 2nd Day',tracking:'1Z999AA10123456784',status:'ready'}
+];
+
+var COMPLETED=[
+  {id:'ORD-4528',client:'BrightScreen Ltd.',items:2,boxes:4,shipped:'2026-07-18',carrier:'FedEx Express',tracking:'7961 2200 8834',time:'4h 22m'},
+  {id:'ORD-4525',client:'ProDisplay Co.',items:3,boxes:2,shipped:'2026-07-17',carrier:'UPS Ground',tracking:'1Z999AA10123456700',time:'3h 45m'},
+  {id:'ORD-4520',client:'CableMaster Inc.',items:1,boxes:1,shipped:'2026-07-16',carrier:'USPS Priority',tracking:'9400 1118 0211 2345 6789',time:'1h 15m'},
+  {id:'ORD-4518',client:'AV Solutions LLC',items:2,boxes:3,shipped:'2026-07-15',carrier:'FedEx Ground',tracking:'7961 1100 4456',time:'5h 10m'}
+];
+
+var TIMELINE_EVENTS=[
+  {status:'done',title:{es:'ORD-4533 listo para despacho',en:'ORD-4533 ready for dispatch'},detail:{es:'2 cajas selladas, guia FedEx generada',en:'2 boxes sealed, FedEx label generated'},time:'14:30'},
+  {status:'done',title:{es:'ORD-4532 packing iniciado',en:'ORD-4532 packing started'},detail:{es:'2 SKUs, 80 unidades en estacion de packing',en:'2 SKUs, 80 units at packing station'},time:'13:45'},
+  {status:'done',title:{es:'ORD-4531 picking iniciado',en:'ORD-4531 picking started'},detail:{es:'3 ubicaciones a recorrer: E-01-01, D-01-01, C-01-02',en:'3 locations to walk: E-01-01, D-01-01, C-01-02'},time:'12:20'},
+  {status:'active',title:{es:'ORD-4530 recibida',en:'ORD-4530 received'},detail:{es:'4 SKUs, 60 unidades, prioridad alta -- TechRetail Inc.',en:'4 SKUs, 60 units, high priority -- TechRetail Inc.'},time:'11:00'},
+  {status:'done',title:{es:'ORD-4528 despachado',en:'ORD-4528 dispatched'},detail:{es:'FedEx Express, 4 cajas, 48 unidades a BrightScreen Ltd.',en:'FedEx Express, 4 boxes, 48 units to BrightScreen Ltd.'},time:'09:15'},
+  {status:'done',title:{es:'Turno iniciado',en:'Shift started'},detail:{es:'Operador: J. Martinez -- Bodega principal',en:'Operator: J. Martinez -- Main warehouse'},time:'08:00'}
+];
+
+/* =============== STATE =============== */
+var currentTab=0;
+var pickedItems={};
+var packedBoxes={1:[],2:[],3:[]};
+
+/* =============== TABS =============== */
+function goTab(n){currentTab=n;for(var i=0;i<5;i++){document.getElementById('panel'+i).classList.toggle('active',i===n);document.getElementById('tab'+i).classList.toggle('active',i===n);}}
+
+/* =============== RENDER =============== */
+function renderAll(){renderKPIs();renderOrders();renderPicking();renderPacking();renderDispatch();renderHistory();}
+
+function renderKPIs(){
+  var counts={pending:0,picking:0,packing:0,ready:0};
+  for(var i=0;i<ORDERS.length;i++){var s=ORDERS[i].status;if(counts[s]!==undefined)counts[s]++;}
+  counts.ready+=DISPATCH_READY.length;
+  document.getElementById('kpiRow').innerHTML=
+    '<div class="kpi"><div class="kpi-val yellow">'+counts.pending+'</div><div class="kpi-label">'+t('kpiPending')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val cyan">'+counts.picking+'</div><div class="kpi-label">'+t('kpiPicking')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val purple">'+counts.packing+'</div><div class="kpi-label">'+t('kpiPacking')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val green">'+counts.ready+'</div><div class="kpi-label">'+t('kpiReady')+'</div></div>';
+}
+
+function renderOrders(){
+  var el=document.getElementById('ordersList');
+  var h='';
+  for(var i=0;i<ORDERS.length;i++){
+    var o=ORDERS[i];
+    var stCls='st-'+o.status;
+    var totalQty=0;for(var j=0;j<o.items.length;j++)totalQty+=o.items[j].qty;
+    h+='<div class="order-card">';
+    h+='<div class="order-head"><div><span class="order-id">'+o.id+'</span> <span class="order-client">'+o.client+'</span></div><div style="display:flex;gap:8px;align-items:center"><span class="order-date">'+o.date+'</span><span class="order-status '+stCls+'">'+t(o.status)+'</span></div></div>';
+    h+='<div class="order-items">';
+    for(var k=0;k<o.items.length;k++){h+='<span class="order-item">'+o.items[k].sku+' x'+o.items[k].qty+'</span>';}
+    h+='</div>';
+    h+='<div class="order-footer"><div class="order-meta"><span>'+o.items.length+' SKUs</span><span>'+totalQty+' '+t('items')+'</span></div>';
+    if(o.status==='pending'){h+='<div class="order-actions"><button class="btn btn-sm btn-primary" onclick="startPicking(\''+o.id+'\')">'+t('btnStartPick')+'</button></div>';}
+    h+='</div></div>';
+  }
+  el.innerHTML=h;
+}
+
+function startPicking(orderId){
+  for(var i=0;i<ORDERS.length;i++){if(ORDERS[i].id===orderId){ORDERS[i].status='picking';break;}}
+  pickedItems={};
+  goTab(1);
+  renderAll();
+}
+
+function renderPicking(){
+  var order=null;
+  for(var i=0;i<ORDERS.length;i++){if(ORDERS[i].status==='picking'){order=ORDERS[i];break;}}
+  if(!order){document.getElementById('pickList').innerHTML='<div style="text-align:center;color:var(--dim);padding:20px">'+(LANG==='es'?'No hay ordenes en picking':'No orders in picking')+'</div>';return;}
+  document.getElementById('pickOrderId').textContent=order.id;
+  var h='';var done=0;
+  for(var j=0;j<order.items.length;j++){
+    var it=order.items[j];
+    var picked=pickedItems[it.sku];
+    if(picked)done++;
+    h+='<div class="pick-item'+(picked?' done':'')+'">';
+    h+='<div class="pick-check'+(picked?' checked':'')+'" onclick="togglePick(\''+it.sku+'\')">'+(picked?'OK':'')+'</div>';
+    h+='<div class="pick-sku">'+it.sku+'</div>';
+    h+='<div class="pick-desc">'+it.desc+'</div>';
+    h+='<div class="pick-loc">'+it.loc+'</div>';
+    h+='<div class="pick-qty">x'+it.qty+'</div>';
+    h+='</div>';
+  }
+  document.getElementById('pickList').innerHTML=h;
+  document.getElementById('pickProgress').textContent=done+' / '+order.items.length;
+  var pct=order.items.length>0?(done/order.items.length*100):0;
+  var bar=document.getElementById('pickBar');
+  bar.style.width=pct+'%';
+  if(pct>=100)bar.classList.add('complete');else bar.classList.remove('complete');
+}
+
+function togglePick(sku){pickedItems[sku]=!pickedItems[sku];renderPicking();}
+
+function completeAllPicks(){
+  var order=null;
+  for(var i=0;i<ORDERS.length;i++){if(ORDERS[i].status==='picking'){order=ORDERS[i];break;}}
+  if(!order)return;
+  for(var j=0;j<order.items.length;j++)pickedItems[order.items[j].sku]=true;
+  order.status='packing';
+  goTab(2);
+  renderAll();
+}
+
+function renderPacking(){
+  var order=null;
+  for(var i=0;i<ORDERS.length;i++){if(ORDERS[i].status==='packing'){order=ORDERS[i];break;}}
+  if(!order){document.getElementById('packItems').innerHTML='<div style="text-align:center;color:var(--dim);padding:20px">'+(LANG==='es'?'No hay ordenes en packing':'No orders in packing')+'</div>';return;}
+  document.getElementById('packOrderId').textContent=order.id;
+  var h='';
+  for(var j=0;j<order.items.length;j++){
+    var it=order.items[j];
+    h+='<div class="pick-item">';
+    h+='<div class="pick-sku">'+it.sku+'</div>';
+    h+='<div class="pick-desc">'+it.desc+'</div>';
+    h+='<div class="pick-qty">x'+it.qty+'</div>';
+    h+='</div>';
+  }
+  document.getElementById('packItems').innerHTML=h;
+  var totalItems=0;for(var k=0;k<order.items.length;k++)totalItems+=order.items[k].qty;
+  var perBox=Math.ceil(totalItems/3);
+  document.getElementById('packBox1Detail').textContent=Math.min(perBox,totalItems)+' '+t('items');
+  document.getElementById('packBox2Detail').textContent=Math.min(perBox,Math.max(0,totalItems-perBox))+' '+t('items');
+  document.getElementById('packBox3Detail').textContent=Math.max(0,totalItems-perBox*2)+' '+t('items');
+  document.getElementById('packBox1').classList.add('active');
+  document.getElementById('packBox2').classList.add('active');
+  if(totalItems>perBox*2)document.getElementById('packBox3').classList.add('active');
+}
+
+function completePacking(){
+  for(var i=0;i<ORDERS.length;i++){if(ORDERS[i].status==='packing'){ORDERS[i].status='ready';break;}}
+  goTab(3);
+  renderAll();
+}
+
+function renderDispatch(){
+  var h='';
+  for(var i=0;i<DISPATCH_READY.length;i++){
+    var d=DISPATCH_READY[i];
+    h+='<tr>';
+    h+='<td class="mono" style="color:var(--cyan)">'+d.id+'</td>';
+    h+='<td>'+d.client+'</td>';
+    h+='<td class="mono">'+d.boxes+'</td>';
+    h+='<td class="mono">'+d.weight+'</td>';
+    h+='<td>'+d.carrier+'</td>';
+    h+='<td class="mono" style="font-size:10px">'+d.tracking+'</td>';
+    h+='<td><button class="btn btn-sm btn-primary" onclick="dispatchOrder('+i+')">'+t('btnDispatch')+'</button></td>';
+    h+='</tr>';
+  }
+  for(var j=0;j<ORDERS.length;j++){
+    if(ORDERS[j].status==='ready'){
+      h+='<tr>';
+      h+='<td class="mono" style="color:var(--cyan)">'+ORDERS[j].id+'</td>';
+      h+='<td>'+ORDERS[j].client+'</td>';
+      h+='<td class="mono">2</td>';
+      h+='<td class="mono">--</td>';
+      h+='<td>--</td>';
+      h+='<td class="mono" style="font-size:10px">'+(LANG==='es'?'Guia pendiente':'Label pending')+'</td>';
+      h+='<td><button class="btn btn-sm btn-secondary" disabled>'+t('btnDispatch')+'</button></td>';
+      h+='</tr>';
+    }
+  }
+  document.getElementById('dispatchBody').innerHTML=h;
+}
+
+function dispatchOrder(idx){
+  DISPATCH_READY[idx].status='shipped';
+  renderDispatch();
+  renderKPIs();
+}
+
+function renderHistory(){
+  var tl_el=document.getElementById('historyTimeline');
+  var h='';
+  for(var i=0;i<TIMELINE_EVENTS.length;i++){
+    var ev=TIMELINE_EVENTS[i];
+    h+='<div class="tl-step">';
+    h+='<div class="tl-dot-col"><div class="tl-dot '+ev.status+'"></div><div class="tl-line"></div></div>';
+    h+='<div class="tl-content"><div class="tl-title">'+tl(ev.title)+'</div><div class="tl-detail">'+tl(ev.detail)+'</div><div class="tl-time">'+ev.time+'</div></div>';
+    h+='</div>';
+  }
+  tl_el.innerHTML=h;
+
+  var ch='';
+  for(var j=0;j<COMPLETED.length;j++){
+    var c=COMPLETED[j];
+    ch+='<tr><td class="mono" style="color:var(--cyan)">'+c.id+'</td><td>'+c.client+'</td><td class="mono">'+c.items+'</td><td class="mono">'+c.boxes+'</td><td class="mono">'+c.shipped+'</td><td>'+c.carrier+'</td><td class="mono" style="font-size:10px">'+c.tracking+'</td><td class="mono" style="color:var(--green)">'+c.time+'</td></tr>';
+  }
+  document.getElementById('completedBody').innerHTML=ch;
+}
+
+/* =============== INIT =============== */
+applyLang();
+</script>
+</body>
+</html>
