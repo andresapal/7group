@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CEO Dashboard -- 7Group Logistica</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.auth-gate.hidden{opacity:0;pointer-events:none}
+.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:20px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:rgba(94,231,247,.15)}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;gap:0}
+.mod-link{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
+
+.main{max-width:1200px;margin:0 auto;padding:24px}
+
+/* HERO KPI */
+.hero-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.hero-kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.hero-kpi-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.hero-kpi-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:8px}
+.hero-kpi-val{font-size:32px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;line-height:1}
+.hero-kpi-change{font-size:11px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:4px}
+.hero-kpi-change.up{color:var(--green)}.hero-kpi-change.down{color:var(--red)}
+.hero-kpi-sub{font-size:10px;color:var(--dim);margin-top:4px}
+
+/* SEC */
+.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.sec-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.sec-title{font-size:13px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:8px}
+.sec-body{padding:20px}
+
+/* GRID LAYOUTS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:140px;padding:10px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bar{border-radius:4px 4px 0 0;transition:height .6s;min-width:16px;width:100%}
+.bar-val{font-size:9px;font-weight:700;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center}
+.bar-label{font-size:8px;color:var(--dim);font-weight:600;white-space:nowrap;text-align:center}
+
+/* MINI KPI */
+.mini-kpi{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:14px 16px}
+.mini-kpi-val{font-size:20px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+.mini-kpi-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.mini-kpi-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:8px}
+.mini-kpi-fill{height:100%;border-radius:2px;transition:width .6s}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border2);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--white);white-space:nowrap}
+.tbl tr:hover td{background:rgba(94,231,247,.02)}
+
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.donut-svg{width:120px;height:120px;flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:8px}
+.donut-leg-item{display:flex;align-items:center;gap:8px;font-size:11px}
+.donut-leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.donut-leg-val{font-family:'JetBrains Mono',monospace;font-weight:600;margin-left:auto;min-width:40px;text-align:right}
+
+/* ALERTS */
+.alert-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.alert-row:last-child{border:none}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.alert-text{font-size:12px;color:var(--white);flex:1}
+.alert-time{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+
+/* SCORE RING */
+.score-ring{display:flex;align-items:center;gap:16px}
+.score-svg{width:80px;height:80px}
+.score-label{font-size:11px;color:var(--dim)}
+.score-val{font-size:24px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif}
+
+/* FOOTER */
+.foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+@media(max-width:640px){
+  .main{padding:16px}
+  .hero-kpis{grid-template-columns:1fr 1fr}
+  .topbar{padding:0 12px}
+  .tb-right{gap:4px}
+}
+</style>
+</head>
+<body>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-footer">Solo personal autorizado</div>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
+
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="badge">CEO Dashboard</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+    <a id="scheduleLink" href="/agendar/" class="tb-btn" data-t="schedule">Agendar llamada</a>
+  </div>
+</nav>
+
+<div class="mod-nav">
+  <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
+  <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
+  <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
+  <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/dashboard/" class="mod-link active" data-t="modDash">Dashboard</a>
+</div>
+
+<div class="main">
+
+<!-- HERO KPIs -->
+<div class="hero-kpis" id="heroKpis"></div>
+
+<!-- ROW 1: Revenue + Orders Chart -->
+<div class="grid-2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secRevenue">Ingresos Mensuales</div>
+    </div>
+    <div class="sec-body">
+      <div class="bar-chart" id="revenueChart"></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secOrders">Ordenes por Semana</div>
+    </div>
+    <div class="sec-body">
+      <div class="bar-chart" id="ordersChart"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 2: Operations Score + Inventory Health -->
+<div class="grid-2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secOpsScore">Puntaje Operativo</div>
+    </div>
+    <div class="sec-body" id="opsScorePanel"></div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secInvHealth">Salud del Inventario</div>
+    </div>
+    <div class="sec-body" id="invHealthPanel"></div>
+  </div>
+</div>
+
+<!-- ROW 3: Dispatch by Carrier + Warehouse Utilization -->
+<div class="grid-2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secCarrierMix">Distribucion por Transportista</div>
+    </div>
+    <div class="sec-body" id="carrierDonut"></div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secWhUtil">Utilizacion de Bodega</div>
+    </div>
+    <div class="sec-body" id="whUtilPanel"></div>
+  </div>
+</div>
+
+<!-- ROW 4: Recent Activity + Alerts -->
+<div class="grid-2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secActivity">Actividad Reciente</div>
+    </div>
+    <div class="sec-body">
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th data-t="thEvent">Evento</th>
+            <th data-t="thModule">Modulo</th>
+            <th data-t="thTime">Hora</th>
+            <th data-t="thStatus">Estado</th>
+          </tr></thead>
+          <tbody id="activityBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secAlerts">Alertas Activas</div>
+      <span style="font-size:11px;font-weight:700;color:var(--red);font-family:'JetBrains Mono',monospace" id="alertCount">0</span>
+    </div>
+    <div class="sec-body" id="alertsPanel"></div>
+  </div>
+</div>
+
+<!-- ROW 5: Top Clients -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="sec-title" data-t="secTopClients">Top Clientes (30 dias)</div>
+  </div>
+  <div class="sec-body">
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>#</th>
+          <th data-t="thClient">Cliente</th>
+          <th data-t="thOrders2">Ordenes</th>
+          <th data-t="thUnits">Unidades</th>
+          <th data-t="thRevenue">Ingreso</th>
+          <th data-t="thOnTime">A Tiempo</th>
+          <th data-t="thShare">Participacion</th>
+        </tr></thead>
+        <tbody id="clientsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div>
+
+<script>
+/* =============== AUTH =============== */
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){document.getElementById('authGate').classList.add('hidden');document.getElementById('appWrap').classList.add('visible');}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+(function(){var s=sessionStorage.getItem('7g-auth');if(s&&ALLOWED_EMAILS.indexOf(s)!==-1)unlockApp();else initGoogleAuth();})();
+
+/* =============== THEME =============== */
+function toggleTheme(){var l=document.documentElement.classList.toggle('light');localStorage.setItem('7g-theme',l?'light':'dark');updateThemeButton(l);}
+function updateThemeButton(l){document.getElementById('themeToggle').innerHTML=l?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8.5a5.5 5.5 0 01-6-6 5.5 5.5 0 106 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
+(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();
+
+/* =============== LANG =============== */
+var LANG='es';
+(function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
+
+var T={
+  badge:{es:'CEO Dashboard',en:'CEO Dashboard'},
+  schedule:{es:'Agendar llamada',en:'Schedule a call'},
+  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'},
+  secRevenue:{es:'Ingresos Mensuales',en:'Monthly Revenue'},
+  secOrders:{es:'Ordenes por Semana',en:'Orders per Week'},
+  secOpsScore:{es:'Puntaje Operativo',en:'Operations Score'},
+  secInvHealth:{es:'Salud del Inventario',en:'Inventory Health'},
+  secCarrierMix:{es:'Distribucion por Transportista',en:'Carrier Distribution'},
+  secWhUtil:{es:'Utilizacion de Bodega',en:'Warehouse Utilization'},
+  secActivity:{es:'Actividad Reciente',en:'Recent Activity'},
+  secAlerts:{es:'Alertas Activas',en:'Active Alerts'},
+  secTopClients:{es:'Top Clientes (30 dias)',en:'Top Clients (30 days)'},
+  thEvent:{es:'Evento',en:'Event'},thModule:{es:'Modulo',en:'Module'},thTime:{es:'Hora',en:'Time'},thStatus:{es:'Estado',en:'Status'},
+  thClient:{es:'Cliente',en:'Client'},thOrders2:{es:'Ordenes',en:'Orders'},thUnits:{es:'Unidades',en:'Units'},thRevenue:{es:'Ingreso',en:'Revenue'},thOnTime:{es:'A Tiempo',en:'On Time'},thShare:{es:'Participacion',en:'Share'},
+  kpiRevenue:{es:'Ingreso Mensual',en:'Monthly Revenue'},
+  kpiOrders:{es:'Ordenes Procesadas',en:'Orders Processed'},
+  kpiDeliveryRate:{es:'Tasa de Entrega',en:'Delivery Rate'},
+  kpiAvgTime:{es:'Tiempo Promedio',en:'Average Time'},
+  lblReceiving:{es:'Recibo',en:'Receiving'},lblInventory:{es:'Inventario',en:'Inventory'},lblWarehouse:{es:'Bodega',en:'Warehouse'},lblDispatches:{es:'Despachos',en:'Dispatches'},
+  lblAccuracy:{es:'Precision de Recibo',en:'Receiving Accuracy'},lblPickRate:{es:'Tasa de Picking',en:'Pick Rate'},lblOnTime:{es:'Entregas a Tiempo',en:'On-Time Delivery'},lblDamageRate:{es:'Tasa de Dano',en:'Damage Rate'},
+  lblInStock:{es:'En Stock',en:'In Stock'},lblLowStock:{es:'Stock Bajo',en:'Low Stock'},lblOutOfStock:{es:'Agotado',en:'Out of Stock'},lblOverstock:{es:'Sobre-stock',en:'Overstock'},
+  lblOccupied:{es:'Ocupadas',en:'Occupied'},lblAvailable:{es:'Disponibles',en:'Available'},lblCapacity:{es:'Capacidad',en:'Capacity'},lblTurnover:{es:'Rotacion',en:'Turnover'},
+  lblComplete:{es:'Completado',en:'Complete'},lblProcessing:{es:'En Proceso',en:'Processing'},lblAlert:{es:'Alerta',en:'Alert'}
+};
+function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
+function tl(o){if(!o)return'';if(typeof o==='string')return o;return o[LANG]||o.en||'';}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.title=LANG==='es'?'CEO Dashboard -- 7Group Logistica':'CEO Dashboard -- 7Group Logistics';
+  var els=document.querySelectorAll('[data-t]');
+  for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
+  document.getElementById('langES').classList.toggle('active',LANG==='es');
+  document.getElementById('langEN').classList.toggle('active',LANG==='en');
+  document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
+  var lp=LANG==='en'?'?lang=en':'';
+  document.querySelector('.mod-link[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
+  document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
+  document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
+  document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
+  document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
+  renderAll();
+}
+function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
+
+/* =============== DATA =============== */
+var REVENUE_DATA=[
+  {label:'Jan',val:42},{label:'Feb',val:38},{label:'Mar',val:55},{label:'Apr',val:48},
+  {label:'May',val:62},{label:'Jun',val:71},{label:'Jul',val:85}
+];
+
+var ORDERS_WEEKLY=[
+  {label:'W28',val:32},{label:'W29',val:28},{label:'W30',val:41},{label:'W31',val:38},
+  {label:'W32',val:45},{label:'W33',val:52},{label:'W34',val:48}
+];
+
+var OPS_SCORES=[
+  {key:'lblAccuracy',val:98.5,color:'var(--green)'},
+  {key:'lblPickRate',val:94.2,color:'var(--cyan)'},
+  {key:'lblOnTime',val:96.1,color:'var(--green)'},
+  {key:'lblDamageRate',val:0.3,color:'var(--green)',invert:true}
+];
+
+var INV_HEALTH=[
+  {key:'lblInStock',val:142,pct:72,color:'var(--green)'},
+  {key:'lblLowStock',val:38,pct:19,color:'var(--yellow)'},
+  {key:'lblOutOfStock',val:8,pct:4,color:'var(--red)'},
+  {key:'lblOverstock',val:10,pct:5,color:'var(--orange)'}
+];
+
+var CARRIER_MIX=[
+  {name:'FedEx Ground',pct:35,color:'var(--cyan)'},
+  {name:'UPS Ground',pct:27,color:'var(--green)'},
+  {name:'FedEx Express',pct:18,color:'var(--orange)'},
+  {name:'UPS 2nd Day',pct:13,color:'var(--yellow)'},
+  {name:'USPS Priority',pct:7,color:'var(--purple)'}
+];
+
+var WH_UTIL={occupied:12,total:16,turnover:4.2};
+
+var ACTIVITY=[
+  {event:{es:'SHP-7801 en transito a Orlando',en:'SHP-7801 in transit to Orlando'},module:'Dispatches',time:'14:30',status:'processing'},
+  {event:{es:'ORD-4532 packing completado',en:'ORD-4532 packing completed'},module:'Warehouse',time:'13:45',status:'complete'},
+  {event:{es:'Alerta: SZ-CAM-1080 agotado',en:'Alert: SZ-CAM-1080 out of stock'},module:'Inventory',time:'12:15',status:'alert'},
+  {event:{es:'Recibo PO-2026-0847 procesado',en:'Receipt PO-2026-0847 processed'},module:'Receiving',time:'11:00',status:'complete'},
+  {event:{es:'SHP-7805 entregado Fort Lauderdale',en:'SHP-7805 delivered Fort Lauderdale'},module:'Dispatches',time:'10:20',status:'complete'},
+  {event:{es:'ORD-4531 picking iniciado',en:'ORD-4531 picking started'},module:'Warehouse',time:'09:30',status:'processing'},
+  {event:{es:'Alerta: SZ-ADP-USB3 stock critico',en:'Alert: SZ-ADP-USB3 critical stock'},module:'Inventory',time:'09:15',status:'alert'},
+  {event:{es:'Turno iniciado -- J. Martinez',en:'Shift started -- J. Martinez'},module:'Warehouse',time:'08:00',status:'complete'}
+];
+
+var ALERTS=[
+  {level:'red',text:{es:'SZ-CAM-1080 agotado -- 250 unidades en transito, ETA 2026-08-05',en:'SZ-CAM-1080 out of stock -- 250 units in transit, ETA 2026-08-05'},time:'12:15'},
+  {level:'red',text:{es:'SHP-7806 retrasado -- Charlotte, NC -- 24h fuera de ETA',en:'SHP-7806 delayed -- Charlotte, NC -- 24h past ETA'},time:'11:00'},
+  {level:'yellow',text:{es:'SZ-ADP-USB3 stock critico -- 12 disponibles (min: 50)',en:'SZ-ADP-USB3 critical stock -- 12 available (min: 50)'},time:'09:15'},
+  {level:'yellow',text:{es:'SZ-MNT-WALL bajo minimo -- 45 disponibles (min: 80)',en:'SZ-MNT-WALL below minimum -- 45 available (min: 80)'},time:'09:15'},
+  {level:'cyan',text:{es:'Capacidad bodega al 75% -- considerar expansion zona E',en:'Warehouse at 75% capacity -- consider expanding zone E'},time:'08:30'},
+  {level:'cyan',text:{es:'3 ordenes pendientes de asignacion de carrier',en:'3 orders pending carrier assignment'},time:'08:00'}
+];
+
+var TOP_CLIENTS=[
+  {name:'TechRetail Inc.',orders:18,units:840,revenue:'$42,500',onTime:'96%',share:28},
+  {name:'AV Solutions LLC',orders:14,units:620,revenue:'$31,200',onTime:'93%',share:21},
+  {name:'SmartHome Corp.',orders:12,units:510,revenue:'$25,800',onTime:'100%',share:17},
+  {name:'BrightScreen Ltd.',orders:10,units:480,revenue:'$22,100',onTime:'90%',share:15},
+  {name:'DataLink LLC',orders:8,units:350,revenue:'$16,400',onTime:'100%',share:11},
+  {name:'NetGear Solutions',orders:5,units:180,revenue:'$8,200',onTime:'80%',share:5},
+  {name:'ProDisplay Co.',orders:3,units:90,revenue:'$4,500',onTime:'100%',share:3}
+];
+
+/* =============== RENDER =============== */
+function renderAll(){renderHeroKPIs();renderRevenueChart();renderOrdersChart();renderOpsScore();renderInvHealth();renderCarrierDonut();renderWhUtil();renderActivity();renderAlerts();renderClients();}
+
+function renderHeroKPIs(){
+  var h='';
+  var kpis=[
+    {label:t('kpiRevenue'),val:'$152.4K',change:'+18.3%',dir:'up',color:'var(--green)',sub:LANG==='es'?'vs $128.8K mes anterior':'vs $128.8K last month'},
+    {label:t('kpiOrders'),val:'284',change:'+12%',dir:'up',color:'var(--cyan)',sub:LANG==='es'?'128 completadas esta semana':'128 completed this week'},
+    {label:t('kpiDeliveryRate'),val:'96.1%',change:'+2.4%',dir:'up',color:'var(--green)',sub:LANG==='es'?'273 de 284 a tiempo':'273 of 284 on time'},
+    {label:t('kpiAvgTime'),val:'2.1d',change:'-0.3d',dir:'up',color:'var(--cyan)',sub:LANG==='es'?'Picking a entrega':'Picking to delivery'}
+  ];
+  var colors=['var(--green)','var(--cyan)','var(--green)','var(--cyan)'];
+  for(var i=0;i<kpis.length;i++){
+    var k=kpis[i];
+    h+='<div class="hero-kpi"><div class="hero-kpi-accent" style="background:'+colors[i]+'"></div>'+
+      '<div class="hero-kpi-label">'+k.label+'</div>'+
+      '<div class="hero-kpi-val" style="color:'+k.color+'">'+k.val+'</div>'+
+      '<div class="hero-kpi-change '+k.dir+'">'+
+        (k.dir==='up'?'&#9650;':'&#9660;')+' '+k.change+
+      '</div>'+
+      '<div class="hero-kpi-sub">'+k.sub+'</div>'+
+    '</div>';
+  }
+  document.getElementById('heroKpis').innerHTML=h;
+}
+
+function renderBarChart(id,data,color){
+  var max=0;for(var i=0;i<data.length;i++)if(data[i].val>max)max=data[i].val;
+  var h='';
+  for(var i=0;i<data.length;i++){
+    var d=data[i];
+    var pct=Math.round(d.val/max*100);
+    h+='<div class="bar-col">'+
+      '<div class="bar-val">'+d.val+'</div>'+
+      '<div class="bar" style="height:'+pct+'%;background:'+color+'"></div>'+
+      '<div class="bar-label">'+d.label+'</div>'+
+    '</div>';
+  }
+  document.getElementById(id).innerHTML=h;
+}
+
+function renderRevenueChart(){renderBarChart('revenueChart',REVENUE_DATA,'var(--green)');}
+function renderOrdersChart(){renderBarChart('ordersChart',ORDERS_WEEKLY,'var(--cyan)');}
+
+function renderOpsScore(){
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  for(var i=0;i<OPS_SCORES.length;i++){
+    var s=OPS_SCORES[i];
+    var pct=s.invert?100-s.val:s.val;
+    h+='<div class="mini-kpi">'+
+      '<div class="mini-kpi-val" style="color:'+s.color+'">'+s.val+(s.invert?'%':'%')+'</div>'+
+      '<div class="mini-kpi-label">'+t(s.key)+'</div>'+
+      '<div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+pct+'%;background:'+s.color+'"></div></div>'+
+    '</div>';
+  }
+  h+='</div>';
+  document.getElementById('opsScorePanel').innerHTML=h;
+}
+
+function renderInvHealth(){
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  for(var i=0;i<INV_HEALTH.length;i++){
+    var item=INV_HEALTH[i];
+    h+='<div class="mini-kpi">'+
+      '<div class="mini-kpi-val" style="color:'+item.color+'">'+item.val+'</div>'+
+      '<div class="mini-kpi-label">'+t(item.key)+' ('+item.pct+'%)</div>'+
+      '<div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+item.pct+'%;background:'+item.color+'"></div></div>'+
+    '</div>';
+  }
+  h+='</div>';
+  document.getElementById('invHealthPanel').innerHTML=h;
+}
+
+function renderCarrierDonut(){
+  var size=120,cx=60,cy=60,r=48,sw=18;
+  var circ=2*Math.PI*r;
+  var svg='<svg class="donut-svg" viewBox="0 0 '+size+' '+size+'">';
+  var offset=0;
+  for(var i=0;i<CARRIER_MIX.length;i++){
+    var c=CARRIER_MIX[i];
+    var len=circ*c.pct/100;
+    var gap=circ-len;
+    svg+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+c.color+'" stroke-width="'+sw+'" stroke-dasharray="'+len+' '+gap+'" stroke-dashoffset="'+(-offset)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+    offset+=len;
+  }
+  svg+='<text x="'+cx+'" y="'+cy+'" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:800;fill:var(--white);font-family:Plus Jakarta Sans">100%</text>';
+  svg+='</svg>';
+
+  var legend='<div class="donut-legend">';
+  for(var i=0;i<CARRIER_MIX.length;i++){
+    var c=CARRIER_MIX[i];
+    legend+='<div class="donut-leg-item"><div class="donut-leg-dot" style="background:'+c.color+'"></div><span>'+c.name+'</span><span class="donut-leg-val">'+c.pct+'%</span></div>';
+  }
+  legend+='</div>';
+
+  document.getElementById('carrierDonut').innerHTML='<div class="donut-wrap">'+svg+legend+'</div>';
+}
+
+function renderWhUtil(){
+  var u=WH_UTIL;
+  var pct=Math.round(u.occupied/u.total*100);
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+    '<div class="mini-kpi"><div class="mini-kpi-val" style="color:var(--cyan)">'+u.occupied+'/'+u.total+'</div><div class="mini-kpi-label">'+t('lblOccupied')+'</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+pct+'%;background:var(--cyan)"></div></div></div>'+
+    '<div class="mini-kpi"><div class="mini-kpi-val" style="color:var(--green)">'+(u.total-u.occupied)+'</div><div class="mini-kpi-label">'+t('lblAvailable')+'</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+(100-pct)+'%;background:var(--green)"></div></div></div>'+
+    '<div class="mini-kpi"><div class="mini-kpi-val" style="color:var(--yellow)">'+pct+'%</div><div class="mini-kpi-label">'+t('lblCapacity')+'</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+pct+'%;background:'+(pct>80?'var(--orange)':'var(--yellow)')+'"></div></div></div>'+
+    '<div class="mini-kpi"><div class="mini-kpi-val" style="color:var(--purple)">'+u.turnover+'x</div><div class="mini-kpi-label">'+t('lblTurnover')+'</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+(u.turnover/6*100)+'%;background:var(--purple)"></div></div></div>'+
+  '</div>';
+  document.getElementById('whUtilPanel').innerHTML=h;
+}
+
+function renderActivity(){
+  var h='';
+  for(var i=0;i<ACTIVITY.length;i++){
+    var a=ACTIVITY[i];
+    var stColor=a.status==='complete'?'var(--green)':a.status==='alert'?'var(--red)':'var(--cyan)';
+    var stLabel=t('lbl'+a.status.charAt(0).toUpperCase()+a.status.slice(1));
+    h+='<tr>'+
+      '<td style="max-width:220px;white-space:normal;font-size:11px">'+tl(a.event)+'</td>'+
+      '<td style="font-size:11px;color:var(--dim)">'+a.module+'</td>'+
+      '<td style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--cyan)">'+a.time+'</td>'+
+      '<td style="font-size:10px;font-weight:600;color:'+stColor+'">'+stLabel+'</td>'+
+    '</tr>';
+  }
+  document.getElementById('activityBody').innerHTML=h;
+}
+
+function renderAlerts(){
+  document.getElementById('alertCount').textContent=ALERTS.length;
+  var h='';
+  for(var i=0;i<ALERTS.length;i++){
+    var a=ALERTS[i];
+    var dotColor=a.level==='red'?'var(--red)':a.level==='yellow'?'var(--yellow)':'var(--cyan)';
+    h+='<div class="alert-row"><div class="alert-dot" style="background:'+dotColor+'"></div><div class="alert-text">'+tl(a.text)+'</div><div class="alert-time">'+a.time+'</div></div>';
+  }
+  document.getElementById('alertsPanel').innerHTML=h;
+}
+
+function renderClients(){
+  var h='';
+  for(var i=0;i<TOP_CLIENTS.length;i++){
+    var c=TOP_CLIENTS[i];
+    var otColor=parseInt(c.onTime)>=95?'var(--green)':parseInt(c.onTime)>=90?'var(--yellow)':'var(--red)';
+    h+='<tr>'+
+      '<td style="font-weight:700;color:var(--cyan);font-family:JetBrains Mono,monospace">'+(i+1)+'</td>'+
+      '<td style="font-weight:600">'+c.name+'</td>'+
+      '<td style="font-family:JetBrains Mono,monospace">'+c.orders+'</td>'+
+      '<td style="font-family:JetBrains Mono,monospace">'+c.units+'</td>'+
+      '<td style="font-family:JetBrains Mono,monospace;font-weight:600;color:var(--green)">'+c.revenue+'</td>'+
+      '<td style="font-weight:600;color:'+otColor+'">'+c.onTime+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+c.share+'%;background:var(--cyan);border-radius:2px"></div></div><span style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--dim);min-width:28px;text-align:right">'+c.share+'%</span></div></td>'+
+    '</tr>';
+  }
+  document.getElementById('clientsBody').innerHTML=h;
+}
+
+/* =============== INIT =============== */
+applyLang();
+</script>
+</body>
+</html>

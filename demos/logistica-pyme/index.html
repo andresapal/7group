@@ -310,6 +310,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
 <div class="steps-bar">
@@ -780,7 +781,7 @@ var T = {
   authDesc:       {es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
   authError:      {es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
   authFooter:     {es:'Solo personal autorizado',en:'Authorized personnel only'},
-  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'}
+  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'}
 };
 
 function t(k) { return T[k] ? (T[k][LANG] || T[k].en) : k; }
@@ -805,6 +806,7 @@ function applyLang() {
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
+  document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
   var sl2 = document.getElementById('scheduleLink2');
   if (sl2) sl2.href = '/agendar/' + (LANG === 'en' ? '?lang=en' : '');
 

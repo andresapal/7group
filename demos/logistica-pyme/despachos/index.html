@@ -247,6 +247,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link active" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
 <div class="tabs">
@@ -380,7 +381,7 @@ var LANG='es';
 var T={
   badge:{es:'Despachos',en:'Dispatches'},
   schedule:{es:'Agendar llamada',en:'Schedule a call'},
-  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},
+  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'},
   tabShipments:{es:'Envios',en:'Shipments'},tabRoutes:{es:'Rutas',en:'Routes'},tabTracking:{es:'Seguimiento',en:'Tracking'},tabCarriers:{es:'Transportistas',en:'Carriers'},tabAnalytics:{es:'Analiticas',en:'Analytics'},
   kpiActive:{es:'Envios Activos',en:'Active Shipments'},kpiTransit:{es:'En Transito',en:'In Transit'},kpiDelivered:{es:'Entregados Hoy',en:'Delivered Today'},kpiOnTime:{es:'A Tiempo',en:'On Time'},
   secActiveRoutes:{es:'Rutas Activas',en:'Active Routes'},
@@ -418,6 +419,7 @@ function applyLang(){
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
+  document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
   renderAll();
 }
 function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
