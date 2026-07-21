@@ -190,7 +190,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 
 <nav class="topbar">
   <div class="tb-left">
-    <a href="/demos/logistica-pyme/" class="tb-logo">7group</a>
+    <a href="/demos/" class="tb-logo">7group</a>
     <div class="tb-sep"></div>
     <span class="tb-badge" data-t="badge">Operaciones de Bodega</span>
   </div>
@@ -211,6 +211,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
   <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link active" data-t="modWh">Bodega</a>
+  <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
 </div>
 
 <div class="tabs">
@@ -370,7 +371,7 @@ var LANG='es';
 var T={
   badge:{es:'Operaciones de Bodega',en:'Warehouse Operations'},
   schedule:{es:'Agendar llamada',en:'Schedule a call'},
-  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},
+  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},
   tabOrders:{es:'Ordenes',en:'Orders'},tabPicking:{es:'Picking',en:'Picking'},tabPacking:{es:'Packing',en:'Packing'},tabDispatch:{es:'Despacho',en:'Dispatch'},tabHistory:{es:'Historial',en:'History'},
   kpiPending:{es:'Pendientes',en:'Pending'},kpiPicking:{es:'En Picking',en:'Picking'},kpiPacking:{es:'En Packing',en:'Packing'},kpiReady:{es:'Listos',en:'Ready'},
   secPickActive:{es:'Orden Activa de Picking',en:'Active Picking Order'},
@@ -406,6 +407,7 @@ function applyLang(){
   document.querySelector('.mod-link[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
+  document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
   renderAll();
 }
 function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
@@ -425,8 +427,8 @@ var ORDERS=[
 ];
 
 var DISPATCH_READY=[
-  {id:'ORD-4533',client:'DataLink LLC',boxes:2,weight:'14.8 kg',carrier:'FedEx Ground',tracking:'7961 2384 0012',status:'ready'},
-  {id:'ORD-4529',client:'NetGear Solutions',boxes:3,weight:'32.1 kg',carrier:'UPS 2nd Day',tracking:'1Z999AA10123456784',status:'ready'}
+  {id:'ORD-4533',client:'DataLink LLC',boxes:2,weight:'32.6 lbs',carrier:'FedEx Ground',tracking:'7961 2384 0012',status:'ready'},
+  {id:'ORD-4529',client:'NetGear Solutions',boxes:3,weight:'70.8 lbs',carrier:'UPS 2nd Day',tracking:'1Z999AA10123456784',status:'ready'}
 ];
 
 var COMPLETED=[

@@ -196,7 +196,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 
 <nav class="topbar">
   <div class="tb-left">
-    <a href="/demos/logistica-pyme/" class="tb-logo">7group</a>
+    <a href="/demos/" class="tb-logo">7group</a>
     <div class="tb-sep"></div>
     <span class="tb-badge" data-t="badge">Motor de Inventario</span>
   </div>
@@ -217,6 +217,8 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 <div class="mod-nav">
   <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
   <a href="/demos/logistica-pyme/inventario/" class="mod-link active" data-t="modInv">Inventario</a>
+  <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
+  <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
 </div>
 
 <!-- TABS -->
@@ -400,6 +402,8 @@ var T = {
   schedule:      {es:'Agendar llamada',en:'Schedule a call'},
   modRecv:       {es:'Recibo',en:'Receiving'},
   modInv:        {es:'Inventario',en:'Inventory'},
+  modWh:         {es:'Bodega',en:'Warehouse'},
+  modDisp:       {es:'Despachos',en:'Dispatches'},
   tabProducts:   {es:'Productos',en:'Products'},
   tabLots:       {es:'Lotes FIFO/FEFO',en:'Lots FIFO/FEFO'},
   tabWarehouse:  {es:'Bodega',en:'Warehouse'},
@@ -483,6 +487,10 @@ function applyLang() {
   if(recvLink) recvLink.href='/demos/logistica-pyme/'+(LANG==='en'?'?lang=en':'');
   var invLink = document.querySelector('.mod-link[data-t="modInv"]');
   if(invLink) invLink.href='/demos/logistica-pyme/inventario/'+(LANG==='en'?'?lang=en':'');
+  var whLink = document.querySelector('.mod-link[data-t="modWh"]');
+  if(whLink) whLink.href='/demos/logistica-pyme/bodega/'+(LANG==='en'?'?lang=en':'');
+  var dispLink = document.querySelector('.mod-link[data-t="modDisp"]');
+  if(dispLink) dispLink.href='/demos/logistica-pyme/despachos/'+(LANG==='en'?'?lang=en':'');
 
   renderAll();
 }

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Despachos -- 7Group Logistica</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+/* AUTH */
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.auth-gate.hidden{opacity:0;pointer-events:none}
+.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:20px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+/* TOPBAR */
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:rgba(94,231,247,.15)}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+/* MODULE NAV */
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;gap:0}
+.mod-link{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
+
+/* TABS */
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto}
+.tab{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.tab:hover{color:var(--white)}.tab.active{color:var(--cyan);border-color:var(--cyan)}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:24px}
+.panel{display:none}.panel.active{display:block}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:18px 20px}
+.kpi-val{font-size:28px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;margin-bottom:2px}
+.kpi-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.yellow{color:var(--yellow)}.kpi-val.red{color:var(--red)}.kpi-val.blue{color:var(--blue)}.kpi-val.purple{color:var(--purple)}.kpi-val.orange{color:var(--orange)}
+
+/* SEC */
+.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.sec-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.sec-title{font-size:13px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:8px}
+.sec-body{padding:20px}
+.sec-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+
+/* SHIPMENT CARD */
+.ship-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:10px;transition:.2s}
+.ship-card:hover{border-color:var(--cyan)}
+.ship-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.ship-id{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--cyan)}
+.ship-client{font-size:12px;color:var(--white);font-weight:600}
+.ship-status{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:4px}
+.st-scheduled{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.15)}
+.st-loading{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.15)}
+.st-transit{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.15)}
+.st-delivered{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.st-delayed{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}
+.ship-details{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:10px}
+.ship-detail{display:flex;flex-direction:column;gap:2px}
+.ship-detail-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.ship-detail-value{font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace}
+.ship-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.ship-meta{font-size:11px;color:var(--dim)}
+
+/* ROUTE CARD */
+.route-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:10px}
+.route-stops{display:flex;flex-direction:column;gap:0}
+.route-stop{display:flex;gap:12px;padding:8px 0}
+.route-dot-col{display:flex;flex-direction:column;align-items:center;width:20px}
+.route-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--border3);flex-shrink:0}
+.route-dot.origin{background:var(--cyan);border-color:var(--cyan)}
+.route-dot.stop{background:var(--yellow);border-color:var(--yellow)}
+.route-dot.dest{background:var(--green);border-color:var(--green)}
+.route-dot.current{box-shadow:0 0 0 3px rgba(94,231,247,.3)}
+.route-line{width:2px;flex:1;background:var(--border2);margin:2px 0}
+.route-stop:last-child .route-line{display:none}
+.route-info{flex:1;padding-bottom:4px}
+.route-name{font-size:12px;font-weight:600;color:var(--white)}
+.route-addr{font-size:11px;color:var(--dim);margin-top:1px}
+.route-eta{font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+/* TRACKING BAR */
+.track-bar{display:flex;align-items:center;gap:0;margin:16px 0}
+.track-step{flex:1;text-align:center;position:relative}
+.track-step::before{content:'';position:absolute;top:11px;left:0;right:0;height:2px;background:var(--border2)}
+.track-step:first-child::before{left:50%}
+.track-step:last-child::before{right:50%}
+.track-step.done::before,.track-step.active::before{background:var(--cyan)}
+.track-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border3);background:var(--bg2);position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:transparent;transition:.3s}
+.track-step.done .track-dot{background:var(--green);border-color:var(--green);color:#fff}
+.track-step.active .track-dot{background:var(--cyan);border-color:var(--cyan);color:#060a0e;box-shadow:0 0 0 4px rgba(94,231,247,.2)}
+.track-label{font-size:9px;color:var(--dim);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.track-step.done .track-label{color:var(--green)}
+.track-step.active .track-label{color:var(--cyan)}
+
+/* CARRIER BADGE */
+.carrier-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:11px;font-weight:600;color:var(--white)}
+.carrier-dot{width:6px;height:6px;border-radius:50%}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:5px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:var(--cyan);color:#060a0e}.btn-primary:hover{background:#7bf0ff}
+.btn-sm{padding:5px 10px;font-size:10px}
+.btn-secondary{background:var(--bg4);color:var(--white);border:1px solid var(--border3)}.btn-secondary:hover{border-color:var(--cyan)}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{opacity:.9}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s;background:var(--cyan)}
+.progress-fill.complete{background:var(--green)}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border2);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--white);white-space:nowrap}
+.tbl tr:hover td{background:rgba(94,231,247,.02)}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:11px}
+
+/* METRIC CARD */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.metric{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:14px 16px}
+.metric-val{font-size:20px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+.metric-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.metric-change{font-size:10px;font-weight:600;margin-top:4px}
+.metric-change.up{color:var(--green)}.metric-change.down{color:var(--red)}
+
+/* BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding:10px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.bar{width:100%;border-radius:4px 4px 0 0;transition:height .6s;min-width:20px;position:relative}
+.bar-val{font-size:9px;font-weight:700;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center}
+.bar-label{font-size:9px;color:var(--dim);font-weight:600;white-space:nowrap}
+
+/* FOOTER */
+.foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+/* ALERT */
+.alert{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:8px;margin-bottom:12px;font-size:12px;line-height:1.5}
+.alert-info{background:rgba(94,231,247,.06);border:1px solid rgba(94,231,247,.12);color:var(--cyan)}
+.alert-warn{background:rgba(234,179,8,.06);border:1px solid rgba(234,179,8,.12);color:var(--yellow)}
+.alert-success{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12);color:var(--green)}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border-radius:5px;font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:1px solid var(--border3);background:var(--bg3);color:var(--dim);letter-spacing:.3px}
+.filter-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.filter-btn.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+
+@media(max-width:640px){
+  .main{padding:16px}
+  .sec-body{padding:14px}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .topbar{padding:0 12px}
+  .tb-right{gap:4px}
+  .ship-head{flex-direction:column;align-items:flex-start}
+  .track-label{font-size:7px}
+  .metric-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-footer">Solo personal autorizado</div>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
+
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="badge">Despachos</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+    <a id="scheduleLink" href="/agendar/" class="tb-btn" data-t="schedule">Agendar llamada</a>
+  </div>
+</nav>
+
+<div class="mod-nav">
+  <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
+  <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
+  <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
+  <a href="/demos/logistica-pyme/despachos/" class="mod-link active" data-t="modDisp">Despachos</a>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="goTab(0)" id="tab0" data-t="tabShipments">Envios</div>
+  <div class="tab" onclick="goTab(1)" id="tab1" data-t="tabRoutes">Rutas</div>
+  <div class="tab" onclick="goTab(2)" id="tab2" data-t="tabTracking">Seguimiento</div>
+  <div class="tab" onclick="goTab(3)" id="tab3" data-t="tabCarriers">Transportistas</div>
+  <div class="tab" onclick="goTab(4)" id="tab4" data-t="tabAnalytics">Analiticas</div>
+</div>
+
+<div class="main">
+
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- TAB 0: SHIPMENTS -->
+<div class="panel active" id="panel0">
+  <div class="filter-bar" id="filterBar"></div>
+  <div id="shipmentsList"></div>
+</div>
+
+<!-- TAB 1: ROUTES -->
+<div class="panel" id="panel1">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secActiveRoutes">Rutas Activas</div>
+      <span class="sec-tag" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)" id="routeCount">3</span>
+    </div>
+    <div class="sec-body" id="routesList"></div>
+  </div>
+</div>
+
+<!-- TAB 2: TRACKING -->
+<div class="panel" id="panel2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secLiveTracking">Seguimiento en Vivo</div>
+    </div>
+    <div class="sec-body" id="trackingPanel"></div>
+  </div>
+</div>
+
+<!-- TAB 3: CARRIERS -->
+<div class="panel" id="panel3">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secCarrierPerf">Rendimiento de Transportistas</div>
+    </div>
+    <div class="sec-body">
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th data-t="thCarrier">Transportista</th>
+            <th data-t="thShipments">Envios</th>
+            <th data-t="thOnTime">A Tiempo</th>
+            <th data-t="thAvgDays">Dias Prom.</th>
+            <th data-t="thCost">Costo Prom.</th>
+            <th data-t="thRating">Calificacion</th>
+            <th data-t="thStatus">Estado</th>
+          </tr></thead>
+          <tbody id="carrierBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secCarrierCost">Costo por Transportista (Ultimos 30 dias)</div>
+    </div>
+    <div class="sec-body">
+      <div class="bar-chart" id="carrierChart"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: ANALYTICS -->
+<div class="panel" id="panel4">
+  <div class="metric-grid" id="metricsGrid"></div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secWeeklyVol">Volumen Semanal de Despachos</div>
+    </div>
+    <div class="sec-body">
+      <div class="bar-chart" id="weeklyChart"></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secRecentDel">Entregas Recientes</div>
+    </div>
+    <div class="sec-body">
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th data-t="thShipId">Envio</th>
+            <th data-t="thClient">Cliente</th>
+            <th data-t="thDest">Destino</th>
+            <th data-t="thCarrier">Transportista</th>
+            <th data-t="thDays">Dias</th>
+            <th data-t="thCostCol">Costo</th>
+            <th data-t="thResult">Resultado</th>
+          </tr></thead>
+          <tbody id="deliveryBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div>
+
+<script>
+/* =============== AUTH =============== */
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){document.getElementById('authGate').classList.add('hidden');document.getElementById('appWrap').classList.add('visible');}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+(function(){var s=sessionStorage.getItem('7g-auth');if(s&&ALLOWED_EMAILS.indexOf(s)!==-1)unlockApp();else initGoogleAuth();})();
+
+/* =============== THEME =============== */
+function toggleTheme(){var l=document.documentElement.classList.toggle('light');localStorage.setItem('7g-theme',l?'light':'dark');updateThemeButton(l);}
+function updateThemeButton(l){document.getElementById('themeToggle').innerHTML=l?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8.5a5.5 5.5 0 01-6-6 5.5 5.5 0 106 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
+(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();
+
+/* =============== LANG =============== */
+var LANG='es';
+(function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
+
+var T={
+  badge:{es:'Despachos',en:'Dispatches'},
+  schedule:{es:'Agendar llamada',en:'Schedule a call'},
+  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},
+  tabShipments:{es:'Envios',en:'Shipments'},tabRoutes:{es:'Rutas',en:'Routes'},tabTracking:{es:'Seguimiento',en:'Tracking'},tabCarriers:{es:'Transportistas',en:'Carriers'},tabAnalytics:{es:'Analiticas',en:'Analytics'},
+  kpiActive:{es:'Envios Activos',en:'Active Shipments'},kpiTransit:{es:'En Transito',en:'In Transit'},kpiDelivered:{es:'Entregados Hoy',en:'Delivered Today'},kpiOnTime:{es:'A Tiempo',en:'On Time'},
+  secActiveRoutes:{es:'Rutas Activas',en:'Active Routes'},
+  secLiveTracking:{es:'Seguimiento en Vivo',en:'Live Tracking'},
+  secCarrierPerf:{es:'Rendimiento de Transportistas',en:'Carrier Performance'},
+  secCarrierCost:{es:'Costo por Transportista (Ultimos 30 dias)',en:'Cost per Carrier (Last 30 days)'},
+  secWeeklyVol:{es:'Volumen Semanal de Despachos',en:'Weekly Dispatch Volume'},
+  secRecentDel:{es:'Entregas Recientes',en:'Recent Deliveries'},
+  thCarrier:{es:'Transportista',en:'Carrier'},thShipments:{es:'Envios',en:'Shipments'},thOnTime:{es:'A Tiempo',en:'On Time'},
+  thAvgDays:{es:'Dias Prom.',en:'Avg Days'},thCost:{es:'Costo Prom.',en:'Avg Cost'},thRating:{es:'Calificacion',en:'Rating'},thStatus:{es:'Estado',en:'Status'},
+  thShipId:{es:'Envio',en:'Shipment'},thClient:{es:'Cliente',en:'Client'},thDest:{es:'Destino',en:'Destination'},
+  thDays:{es:'Dias',en:'Days'},thCostCol:{es:'Costo',en:'Cost'},thResult:{es:'Resultado',en:'Result'},
+  filterAll:{es:'Todos',en:'All'},filterScheduled:{es:'Programados',en:'Scheduled'},filterLoading:{es:'Cargando',en:'Loading'},filterTransit:{es:'En Transito',en:'In Transit'},filterDelivered:{es:'Entregados',en:'Delivered'},filterDelayed:{es:'Retrasados',en:'Delayed'},
+  scheduled:{es:'Programado',en:'Scheduled'},loading:{es:'Cargando',en:'Loading'},transit:{es:'En Transito',en:'In Transit'},delivered:{es:'Entregado',en:'Delivered'},delayed:{es:'Retrasado',en:'Delayed'},
+  lblOrigin:{es:'Origen',en:'Origin'},lblDest:{es:'Destino',en:'Destination'},lblCarrier:{es:'Transportista',en:'Carrier'},lblTracking:{es:'Guia',en:'Tracking'},lblWeight:{es:'Peso',en:'Weight'},lblBoxes:{es:'Cajas',en:'Boxes'},lblETA:{es:'ETA',en:'ETA'},
+  lblPickup:{es:'Recogida',en:'Pickup'},lblInTransit:{es:'En Transito',en:'In Transit'},lblOutForDel:{es:'En Reparto',en:'Out for Delivery'},lblDelivered:{es:'Entregado',en:'Delivered'},
+  btnConfirmDel:{es:'Confirmar Entrega',en:'Confirm Delivery'},btnViewRoute:{es:'Ver Ruta',en:'View Route'},
+  metDeliveries:{es:'Entregas (30d)',en:'Deliveries (30d)'},metOnTimeRate:{es:'Tasa A Tiempo',en:'On-Time Rate'},metAvgCost:{es:'Costo Promedio',en:'Average Cost'},metAvgTransit:{es:'Transito Promedio',en:'Average Transit'},
+  onTime:{es:'A tiempo',en:'On time'},late:{es:'Retrasado',en:'Late'},
+  active:{es:'Activo',en:'Active'},preferred:{es:'Preferido',en:'Preferred'},backup:{es:'Respaldo',en:'Backup'}
+};
+function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
+function tl(o){if(!o)return'';if(typeof o==='string')return o;return o[LANG]||o.en||'';}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.title=LANG==='es'?'Despachos -- 7Group Logistica':'Dispatches -- 7Group Logistics';
+  var els=document.querySelectorAll('[data-t]');
+  for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
+  document.getElementById('langES').classList.toggle('active',LANG==='es');
+  document.getElementById('langEN').classList.toggle('active',LANG==='en');
+  document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
+  var lp=LANG==='en'?'?lang=en':'';
+  document.querySelector('.mod-link[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
+  document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
+  document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
+  document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
+  renderAll();
+}
+function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
+
+/* =============== DATA =============== */
+var SHIPMENTS=[
+  {id:'SHP-7801',client:'TechRetail Inc.',origin:'Miami, Main Warehouse',dest:'Orlando, Distribution Center',carrier:'FedEx Ground',tracking:'7961 2384 0012 3456',status:'transit',
+   boxes:4,weight:'71.6 lbs',shipped:'2026-07-19 08:30',eta:'2026-07-21 14:00',progress:65},
+  {id:'SHP-7802',client:'AV Solutions LLC',origin:'Miami, Main Warehouse',dest:'Tampa, Westshore Hub',carrier:'UPS 2nd Day',tracking:'1Z999AA10123456784',status:'transit',
+   boxes:3,weight:'40.1 lbs',shipped:'2026-07-19 10:15',eta:'2026-07-21 09:00',progress:40},
+  {id:'SHP-7803',client:'SmartHome Corp.',origin:'Miami, Main Warehouse',dest:'Jacksonville, Southside Blvd',carrier:'FedEx Freight',tracking:'7961 5500 8834 2210',status:'loading',
+   boxes:6,weight:'99.2 lbs',shipped:null,eta:'2026-07-23 11:00',progress:15},
+  {id:'SHP-7804',client:'DataLink LLC',origin:'Miami, Main Warehouse',dest:'Atlanta, GA - Peachtree Ind.',carrier:'UPS Ground',tracking:'1Z999AA10123456800',status:'scheduled',
+   boxes:2,weight:'32.6 lbs',shipped:null,eta:'2026-07-24 16:00',progress:0},
+  {id:'SHP-7805',client:'BrightScreen Ltd.',origin:'Miami, Main Warehouse',dest:'Fort Lauderdale, Cypress Creek',carrier:'FedEx Express',tracking:'7961 2200 8834 1100',status:'delivered',
+   boxes:4,weight:'62.4 lbs',shipped:'2026-07-16 07:00',eta:'2026-07-17 12:00',delivered:'2026-07-17 11:20',progress:100},
+  {id:'SHP-7806',client:'NetGear Solutions',origin:'Miami, Main Warehouse',dest:'Charlotte, NC - University Area',carrier:'UPS 2nd Day',tracking:'1Z999AA10123456811',status:'delayed',
+   boxes:3,weight:'48.7 lbs',shipped:'2026-07-17 09:00',eta:'2026-07-19 15:00',progress:80},
+  {id:'SHP-7807',client:'ProDisplay Co.',origin:'Miami, Main Warehouse',dest:'West Palm Beach, Okeechobee',carrier:'FedEx Ground',tracking:'7961 3300 7745 0022',status:'delivered',
+   boxes:2,weight:'25.4 lbs',shipped:'2026-07-15 08:00',eta:'2026-07-16 14:00',delivered:'2026-07-16 13:40',progress:100},
+  {id:'SHP-7808',client:'CableMaster Inc.',origin:'Miami, Main Warehouse',dest:'Naples, FL - Industrial Park',carrier:'USPS Priority',tracking:'9400 1118 0211 2345 6789',status:'delivered',
+   boxes:1,weight:'11.5 lbs',shipped:'2026-07-14 11:00',eta:'2026-07-16 10:00',delivered:'2026-07-16 09:15',progress:100}
+];
+
+var ROUTES=[
+  {id:'R-301',name:{es:'Miami - Orlando (I-95 / Turnpike)',en:'Miami - Orlando (I-95 / Turnpike)'},
+   shipments:['SHP-7801'],distance:'235 mi',estTime:'3h 45m',
+   stops:[
+     {name:'Main Warehouse',addr:'Miami, NW 25th St',type:'origin',time:'08:30',status:'done'},
+     {name:'FedEx Hub Fort Pierce',addr:'Fort Pierce, FL',type:'stop',time:'10:45',status:'done'},
+     {name:{es:'Punto Control Vero Beach',en:'Vero Beach Checkpoint'},addr:'Vero Beach, FL',type:'stop',time:'11:30',status:'current'},
+     {name:'Distribution Center',addr:'Orlando, FL - Semoran Blvd',type:'dest',time:'12:15',status:'pending'}
+   ]},
+  {id:'R-302',name:{es:'Miami - Tampa (I-75 Alligator Alley)',en:'Miami - Tampa (I-75 Alligator Alley)'},
+   shipments:['SHP-7802'],distance:'280 mi',estTime:'4h 15m',
+   stops:[
+     {name:'Main Warehouse',addr:'Miami, NW 25th St',type:'origin',time:'10:15',status:'done'},
+     {name:'Naples',addr:'Naples, FL - Industrial Blvd',type:'stop',time:'12:30',status:'current'},
+     {name:'Sarasota',addr:'Sarasota, FL - Fruitville Rd',type:'stop',time:'14:00',status:'pending'},
+     {name:'Westshore Hub',addr:'Tampa, FL - Westshore Blvd',type:'dest',time:'15:30',status:'pending'}
+   ]},
+  {id:'R-303',name:{es:'Miami - Jacksonville (I-95 North)',en:'Miami - Jacksonville (I-95 North)'},
+   shipments:['SHP-7803'],distance:'345 mi',estTime:'5h 15m',
+   stops:[
+     {name:'Main Warehouse',addr:'Miami, NW 25th St',type:'origin',time:'--',status:'pending'},
+     {name:'Daytona Beach',addr:'Daytona Beach, FL - LPGA Blvd',type:'stop',time:'--',status:'pending'},
+     {name:'Southside Blvd',addr:'Jacksonville, FL - Southside Blvd',type:'dest',time:'--',status:'pending'}
+   ]}
+];
+
+var CARRIERS=[
+  {name:'FedEx Ground',shipments:42,onTime:96,avgDays:1.8,cost:'$18.5K',rating:4.8,color:'var(--cyan)',status:'preferred',costVal:185},
+  {name:'UPS Ground',shipments:35,onTime:94,avgDays:2.0,cost:'$15.2K',rating:4.6,color:'var(--green)',status:'active',costVal:152},
+  {name:'FedEx Express',shipments:18,onTime:99,avgDays:1.0,cost:'$12.4K',rating:4.9,color:'var(--orange)',status:'active',costVal:124},
+  {name:'UPS 2nd Day',shipments:22,onTime:93,avgDays:1.5,cost:'$9.8K',rating:4.5,color:'var(--yellow)',status:'active',costVal:98},
+  {name:'USPS Priority',shipments:15,onTime:88,avgDays:2.5,cost:'$4.2K',rating:4.1,color:'var(--purple)',status:'backup',costVal:42}
+];
+
+var WEEKLY_DATA=[
+  {label:'Sem 28',val:18},{label:'Sem 29',val:24},{label:'Sem 30',val:21},
+  {label:'Sem 31',val:32},{label:'Sem 32',val:28},{label:'Sem 33',val:35},{label:'Sem 34',val:22}
+];
+
+var RECENT_DELIVERIES=[
+  {id:'SHP-7805',client:'BrightScreen Ltd.',dest:'Fort Lauderdale',carrier:'FedEx Express',days:1,cost:'$485',result:'onTime'},
+  {id:'SHP-7807',client:'ProDisplay Co.',dest:'West Palm Beach',carrier:'FedEx Ground',days:1,cost:'$220',result:'onTime'},
+  {id:'SHP-7808',client:'CableMaster Inc.',dest:'Naples',carrier:'USPS Priority',days:2,cost:'$152',result:'onTime'},
+  {id:'SHP-7795',client:'SmartHome Corp.',dest:'Orlando',carrier:'UPS Ground',days:3,cost:'$623',result:'late'},
+  {id:'SHP-7790',client:'AV Solutions LLC',dest:'Tampa',carrier:'UPS 2nd Day',days:2,cost:'$358',result:'onTime'},
+  {id:'SHP-7788',client:'DataLink LLC',dest:'Atlanta, GA',carrier:'FedEx Ground',days:3,cost:'$281',result:'onTime'}
+];
+
+/* =============== STATE =============== */
+var currentTab=0;
+var currentFilter='all';
+
+/* =============== TABS =============== */
+function goTab(n){currentTab=n;for(var i=0;i<5;i++){document.getElementById('panel'+i).classList.toggle('active',i===n);document.getElementById('tab'+i).classList.toggle('active',i===n);}}
+
+/* =============== RENDER =============== */
+function renderAll(){renderKPIs();renderFilters();renderShipments();renderRoutes();renderTracking();renderCarriers();renderAnalytics();}
+
+function renderKPIs(){
+  var active=0,transit=0,delivered=0,total=0,onTime=0;
+  for(var i=0;i<SHIPMENTS.length;i++){
+    var s=SHIPMENTS[i].status;
+    if(s!=='delivered')active++;
+    if(s==='transit')transit++;
+    if(s==='delivered'){delivered++;total++;onTime++;}
+    if(s==='delayed')total++;
+  }
+  var rate=total>0?Math.round(onTime/total*100):100;
+  document.getElementById('kpiRow').innerHTML=
+    '<div class="kpi"><div class="kpi-val cyan">'+active+'</div><div class="kpi-label">'+t('kpiActive')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val yellow">'+transit+'</div><div class="kpi-label">'+t('kpiTransit')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val green">'+delivered+'</div><div class="kpi-label">'+t('kpiDelivered')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val '+(rate>=90?'green':'red')+'">'+rate+'%</div><div class="kpi-label">'+t('kpiOnTime')+'</div></div>';
+}
+
+function renderFilters(){
+  var filters=['all','scheduled','loading','transit','delivered','delayed'];
+  var keys=['filterAll','filterScheduled','filterLoading','filterTransit','filterDelivered','filterDelayed'];
+  var h='';
+  for(var i=0;i<filters.length;i++){
+    h+='<button class="filter-btn'+(currentFilter===filters[i]?' active':'')+'" onclick="setFilter(\''+filters[i]+'\')">'+t(keys[i])+'</button>';
+  }
+  document.getElementById('filterBar').innerHTML=h;
+}
+
+function setFilter(f){currentFilter=f;renderFilters();renderShipments();}
+
+function renderShipments(){
+  var h='';
+  for(var i=0;i<SHIPMENTS.length;i++){
+    var s=SHIPMENTS[i];
+    if(currentFilter!=='all'&&s.status!==currentFilter)continue;
+    var stClass='st-'+s.status;
+    h+='<div class="ship-card">'+
+      '<div class="ship-head">'+
+        '<div><span class="ship-id">'+s.id+'</span> <span class="ship-client">'+s.client+'</span></div>'+
+        '<span class="ship-status '+stClass+'">'+t(s.status)+'</span>'+
+      '</div>'+
+      '<div class="ship-details">'+
+        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblOrigin')+'</span><span class="ship-detail-value">'+s.origin.split(',')[1].trim()+'</span></div>'+
+        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblDest')+'</span><span class="ship-detail-value">'+s.dest.split(',')[0]+'</span></div>'+
+        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblCarrier')+'</span><span class="ship-detail-value">'+s.carrier+'</span></div>'+
+        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblTracking')+'</span><span class="ship-detail-value">'+s.tracking+'</span></div>'+
+        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblBoxes')+'</span><span class="ship-detail-value">'+s.boxes+'</span></div>'+
+        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblWeight')+'</span><span class="ship-detail-value">'+s.weight+'</span></div>'+
+      '</div>';
+    if(s.status==='transit'||s.status==='delayed'){
+      h+='<div class="progress-bar"><div class="progress-fill" style="width:'+s.progress+'%"></div></div>'+
+         '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:8px">'+
+           '<span>'+s.progress+'%</span><span>ETA: '+s.eta.split(' ')[0]+'</span></div>';
+    }
+    h+='<div class="ship-footer">'+
+        '<span class="ship-meta">'+(s.shipped?s.shipped:t('lblETA')+': '+s.eta.split(' ')[0])+'</span>'+
+        '<div style="display:flex;gap:6px">';
+    if(s.status==='transit')h+='<button class="btn btn-sm btn-secondary" onclick="goTab(2)">'+t('btnViewRoute')+'</button>';
+    if(s.status==='delayed')h+='<button class="btn btn-sm btn-danger">'+t('delayed')+'</button>';
+    h+='</div></div></div>';
+  }
+  document.getElementById('shipmentsList').innerHTML=h;
+}
+
+function renderRoutes(){
+  var h='';
+  document.getElementById('routeCount').textContent=ROUTES.length;
+  for(var r=0;r<ROUTES.length;r++){
+    var route=ROUTES[r];
+    h+='<div class="route-card">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">'+
+        '<div><span style="font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:700;color:var(--cyan)">'+route.id+'</span> '+
+        '<span style="font-size:12px;font-weight:600;color:var(--white)">'+tl(route.name)+'</span></div>'+
+        '<div style="display:flex;gap:12px;font-size:11px;color:var(--dim)"><span>'+route.distance+'</span><span>'+route.estTime+'</span></div>'+
+      '</div>'+
+      '<div class="route-stops">';
+    for(var s=0;s<route.stops.length;s++){
+      var stop=route.stops[s];
+      var dotClass='route-dot '+stop.type;
+      if(stop.status==='current')dotClass+=' current';
+      h+='<div class="route-stop">'+
+        '<div class="route-dot-col"><div class="'+dotClass+'"></div>'+(s<route.stops.length-1?'<div class="route-line"></div>':'')+'</div>'+
+        '<div class="route-info">'+
+          '<div class="route-name">'+tl(stop.name)+'</div>'+
+          '<div class="route-addr">'+stop.addr+'</div>'+
+          '<div class="route-eta">'+stop.time+'</div>'+
+        '</div></div>';
+    }
+    h+='</div></div>';
+  }
+  document.getElementById('routesList').innerHTML=h;
+}
+
+function renderTracking(){
+  var h='';
+  for(var i=0;i<SHIPMENTS.length;i++){
+    var s=SHIPMENTS[i];
+    if(s.status!=='transit'&&s.status!=='delayed')continue;
+    var steps=['lblPickup','lblInTransit','lblOutForDel','lblDelivered'];
+    var activeStep=s.status==='transit'?(s.progress>60?2:1):1;
+
+    h+='<div class="ship-card" style="margin-bottom:16px">'+
+      '<div class="ship-head">'+
+        '<div><span class="ship-id">'+s.id+'</span> <span class="ship-client">'+s.client+'</span></div>'+
+        '<span class="ship-status st-'+s.status+'">'+t(s.status)+'</span>'+
+      '</div>'+
+      '<div style="margin:8px 0;font-size:12px;color:var(--dim)">'+s.origin+' &rarr; '+s.dest+'</div>'+
+      '<div class="track-bar">';
+    for(var j=0;j<steps.length;j++){
+      var cls=j<activeStep?'done':(j===activeStep?'active':'');
+      h+='<div class="track-step '+cls+'"><div class="track-dot">'+(j<activeStep?'&#10003;':(j===activeStep?'&bull;':''))+'</div><div class="track-label">'+t(steps[j])+'</div></div>';
+    }
+    h+='</div>'+
+      '<div style="display:flex;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px">'+
+        '<div style="display:flex;gap:16px;font-size:11px;color:var(--dim)">'+
+          '<span>'+t('lblCarrier')+': <strong style="color:var(--white)">'+s.carrier+'</strong></span>'+
+          '<span>'+t('lblTracking')+': <strong style="color:var(--white)">'+s.tracking+'</strong></span>'+
+        '</div>'+
+        '<span style="font-size:11px;color:var(--cyan);font-family:\'JetBrains Mono\',monospace">ETA: '+s.eta+'</span>'+
+      '</div>'+
+    '</div>';
+  }
+  if(!h)h='<div class="alert alert-info">'+( LANG==='es'?'No hay envios en transito actualmente.':'No active shipments in transit.')+'</div>';
+  document.getElementById('trackingPanel').innerHTML=h;
+}
+
+function renderCarriers(){
+  var h='';
+  for(var i=0;i<CARRIERS.length;i++){
+    var c=CARRIERS[i];
+    var stars='';for(var s=0;s<5;s++)stars+=s<Math.round(c.rating)?'&#9733;':'&#9734;';
+    var stLabel=t(c.status);
+    var stColor=c.status==='preferred'?'var(--green)':c.status==='active'?'var(--cyan)':'var(--dim)';
+    h+='<tr>'+
+      '<td><span class="carrier-badge"><span class="carrier-dot" style="background:'+c.color+'"></span>'+c.name+'</span></td>'+
+      '<td class="mono">'+c.shipments+'</td>'+
+      '<td class="mono" style="color:'+(c.onTime>=90?'var(--green)':'var(--yellow)')+'">'+c.onTime+'%</td>'+
+      '<td class="mono">'+c.avgDays+'</td>'+
+      '<td class="mono">'+c.cost+'</td>'+
+      '<td style="color:var(--yellow)">'+stars+' <span style="font-size:10px;color:var(--dim)">'+c.rating+'</span></td>'+
+      '<td><span style="font-size:10px;font-weight:600;color:'+stColor+'">'+stLabel+'</span></td>'+
+    '</tr>';
+  }
+  document.getElementById('carrierBody').innerHTML=h;
+
+  var maxCost=0;
+  for(var i=0;i<CARRIERS.length;i++)if(CARRIERS[i].costVal>maxCost)maxCost=CARRIERS[i].costVal;
+  var ch='';
+  for(var i=0;i<CARRIERS.length;i++){
+    var c=CARRIERS[i];
+    var pct=Math.round(c.costVal/maxCost*100);
+    ch+='<div class="bar-col">'+
+      '<div class="bar-val">'+c.cost+'</div>'+
+      '<div class="bar" style="height:'+pct+'%;background:'+c.color+';flex:none;height:'+pct+'%"></div>'+
+      '<div class="bar-label">'+c.name+'</div>'+
+    '</div>';
+  }
+  document.getElementById('carrierChart').innerHTML=ch;
+}
+
+function renderAnalytics(){
+  var metrics=[
+    {val:'128',label:t('metDeliveries'),change:'+12%',dir:'up',color:'cyan'},
+    {val:'94.2%',label:t('metOnTimeRate'),change:'+2.1%',dir:'up',color:'green'},
+    {val:'$38.5K',label:t('metAvgCost'),change:'-5%',dir:'up',color:'yellow'},
+    {val:'2.3d',label:t('metAvgTransit'),change:'-0.2d',dir:'up',color:'purple'}
+  ];
+  var mh='';
+  for(var i=0;i<metrics.length;i++){
+    var m=metrics[i];
+    mh+='<div class="metric"><div class="metric-val '+m.color+'">'+m.val+'</div><div class="metric-label">'+m.label+'</div><div class="metric-change '+m.dir+'">'+m.change+'</div></div>';
+  }
+  document.getElementById('metricsGrid').innerHTML=mh;
+
+  var maxW=0;
+  for(var i=0;i<WEEKLY_DATA.length;i++)if(WEEKLY_DATA[i].val>maxW)maxW=WEEKLY_DATA[i].val;
+  var wh='';
+  for(var i=0;i<WEEKLY_DATA.length;i++){
+    var d=WEEKLY_DATA[i];
+    var pct=Math.round(d.val/maxW*100);
+    wh+='<div class="bar-col">'+
+      '<div class="bar-val">'+d.val+'</div>'+
+      '<div class="bar" style="height:'+pct+'%;background:var(--cyan);flex:none;height:'+pct+'%"></div>'+
+      '<div class="bar-label">'+d.label+'</div>'+
+    '</div>';
+  }
+  document.getElementById('weeklyChart').innerHTML=wh;
+
+  var dh='';
+  for(var i=0;i<RECENT_DELIVERIES.length;i++){
+    var d=RECENT_DELIVERIES[i];
+    var resColor=d.result==='onTime'?'var(--green)':'var(--red)';
+    var resText=d.result==='onTime'?t('onTime'):t('late');
+    dh+='<tr>'+
+      '<td class="mono" style="color:var(--cyan)">'+d.id+'</td>'+
+      '<td>'+d.client+'</td>'+
+      '<td>'+d.dest+'</td>'+
+      '<td>'+d.carrier+'</td>'+
+      '<td class="mono">'+d.days+'</td>'+
+      '<td class="mono">'+d.cost+'</td>'+
+      '<td style="color:'+resColor+';font-weight:600;font-size:11px">'+resText+'</td>'+
+    '</tr>';
+  }
+  document.getElementById('deliveryBody').innerHTML=dh;
+}
+
+/* =============== INIT =============== */
+applyLang();
+</script>
+</body>
+</html>

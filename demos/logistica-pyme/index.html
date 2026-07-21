@@ -38,7 +38,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 /* TOPBAR */
 .topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
 .tb-left{display:flex;align-items:center;gap:12px}
-.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
 .tb-sep{width:1px;height:18px;background:var(--border3)}
 .tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
 .tb-right{display:flex;align-items:center;gap:8px}
@@ -52,6 +52,11 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .lang-opt:first-child{border-right:1px solid var(--border3)}
 .lang-opt:hover{color:var(--cyan)}
 .lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+
+/* MODULE NAV */
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;gap:0}
+.mod-link{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
 
 /* STEPS BAR */
 .steps-bar{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;-webkit-overflow-scrolling:touch;transition:background .3s}
@@ -283,7 +288,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 <div class="app-wrap" id="appWrap">
 <nav class="topbar">
   <div class="tb-left">
-    <span class="tb-logo">7group</span>
+    <a href="/demos/" class="tb-logo">7group</a>
     <div class="tb-sep"></div>
     <span class="tb-badge" data-t="badge">Modulo de Recibo</span>
   </div>
@@ -299,6 +304,13 @@ code,.mono{font-family:'JetBrains Mono',monospace}
     <a id="scheduleLink" href="/agendar/" class="tb-btn" data-t="schedule">Agendar llamada</a>
   </div>
 </nav>
+
+<div class="mod-nav">
+  <a href="/demos/logistica-pyme/" class="mod-link active" data-t="modRecv">Recibo</a>
+  <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
+  <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
+  <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
+</div>
 
 <div class="steps-bar">
   <div class="step-tab active" onclick="goStep(0)" id="stab0"><span class="step-num">1</span> <span data-t="step0">Embarque</span></div>
@@ -767,7 +779,8 @@ var T = {
   location:       {es:'Ubicacion',               en:'Location'},
   authDesc:       {es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
   authError:      {es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
-  authFooter:     {es:'Solo personal autorizado',en:'Authorized personnel only'}
+  authFooter:     {es:'Solo personal autorizado',en:'Authorized personnel only'},
+  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'}
 };
 
 function t(k) { return T[k] ? (T[k][LANG] || T[k].en) : k; }
@@ -787,6 +800,11 @@ function applyLang() {
 
   var base = LANG === 'en' ? '?lang=en' : '';
   document.getElementById('scheduleLink').href = '/agendar/' + (LANG === 'en' ? '?lang=en' : '');
+  var lp=LANG==='en'?'?lang=en':'';
+  document.querySelector('.mod-link[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
+  document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
+  document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
+  document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
   var sl2 = document.getElementById('scheduleLink2');
   if (sl2) sl2.href = '/agendar/' + (LANG === 'en' ? '?lang=en' : '');
 

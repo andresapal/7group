@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal -- 7Group</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+/* AUTH */
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.auth-gate.hidden{opacity:0;pointer-events:none}
+.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:20px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+/* TOPBAR */
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:rgba(94,231,247,.15)}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:24px}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.toolbar-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar-right{display:flex;align-items:center;gap:8px}
+.search-box{padding:7px 12px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;color:var(--white);font-size:12px;font-family:inherit;outline:none;transition:.2s;width:220px}
+.search-box:focus{border-color:var(--cyan)}
+.search-box::placeholder{color:var(--muted)}
+.sort-select{padding:6px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;color:var(--dim);font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;letter-spacing:.3px;outline:none;appearance:none;-webkit-appearance:none;padding-right:24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.sort-select:hover{border-color:var(--cyan);color:var(--cyan)}
+.view-btn{padding:6px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
+.view-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.view-btn.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+
+/* FILTER CHIPS */
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.filter-chip{padding:5px 14px;border-radius:20px;font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:1px solid var(--border3);background:var(--bg3);color:var(--dim);letter-spacing:.3px}
+.filter-chip:hover{border-color:var(--cyan);color:var(--cyan)}
+.filter-chip.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+.filter-count{font-size:9px;font-family:'JetBrains Mono',monospace;margin-left:4px;opacity:.7}
+
+/* FOLDER GRID */
+.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.folder-list{display:flex;flex-direction:column;gap:10px}
+
+/* FOLDER CARD */
+.folder{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;cursor:pointer;transition:.25s;position:relative;overflow:hidden}
+.folder:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.folder-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.folder-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px}
+.folder-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.folder-icon svg{width:18px;height:18px}
+.folder-badge{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.folder-title{font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+.folder-client{font-size:11px;color:var(--dim);margin-bottom:10px}
+.folder-meta{display:flex;gap:16px;font-size:10px;color:var(--dim);margin-bottom:12px;flex-wrap:wrap}
+.folder-meta-item{display:flex;align-items:center;gap:4px}
+.folder-meta-dot{width:5px;height:5px;border-radius:50%}
+.folder-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.folder-tag{font-size:9px;padding:2px 8px;background:var(--bg4);border:1px solid var(--border);border-radius:3px;color:var(--dim);font-weight:600;letter-spacing:.3px}
+.folder-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
+.folder-date{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.folder-revenue{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.folder-arrow{color:var(--muted);transition:.2s}
+.folder:hover .folder-arrow{color:var(--cyan);transform:translateX(3px)}
+
+/* LIST VIEW */
+.folder-list .folder{padding:14px 18px}
+.folder-list .folder-head{margin-bottom:6px}
+.folder-list .folder-meta{margin-bottom:6px}
+.folder-list .folder-tags{margin-bottom:6px}
+
+/* STATS BAR */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:24px}
+.stat{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:14px 16px}
+.stat-val{font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em;margin-bottom:1px}
+.stat-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--dim)}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:.4}
+.empty-text{font-size:13px}
+
+/* FOOTER */
+.foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+@media(max-width:640px){
+  .main{padding:16px}
+  .topbar{padding:0 12px}
+  .tb-right{gap:4px}
+  .folder-grid{grid-template-columns:1fr}
+  .search-box{width:100%}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .toolbar-left,.toolbar-right{justify-content:space-between}
+}
+</style>
+</head>
+<body>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc" id="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-footer">Solo personal autorizado</div>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
+
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="badge">Portal</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+    <a id="scheduleLink" href="/agendar/" class="tb-btn" data-t="schedule">Agendar llamada</a>
+  </div>
+</nav>
+
+<div class="main">
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="toolbar">
+  <div class="toolbar-left">
+    <input type="text" class="search-box" id="searchBox" placeholder="Buscar proyecto..." oninput="renderProjects()">
+  </div>
+  <div class="toolbar-right">
+    <select class="sort-select" id="sortSelect" onchange="renderProjects()">
+      <option value="revenue" data-t-opt="sortRevenue">Mayor ingreso</option>
+      <option value="recent" data-t-opt="sortRecent">Mas reciente</option>
+      <option value="oldest" data-t-opt="sortOldest">Mas antiguo</option>
+      <option value="az" data-t-opt="sortAZ">A - Z</option>
+      <option value="za" data-t-opt="sortZA">Z - A</option>
+    </select>
+    <button class="view-btn active" id="viewGrid" onclick="setView('grid')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+    </button>
+    <button class="view-btn" id="viewList" onclick="setView('list')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M1 7h12M1 11h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="filter-row" id="filterRow"></div>
+
+<div class="folder-grid" id="projectsContainer"></div>
+
+</div>
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div>
+
+<script>
+/* =============== AUTH =============== */
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){document.getElementById('authGate').classList.add('hidden');document.getElementById('appWrap').classList.add('visible');}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+(function(){var s=sessionStorage.getItem('7g-auth');if(s&&ALLOWED_EMAILS.indexOf(s)!==-1)unlockApp();else initGoogleAuth();})();
+
+/* =============== THEME =============== */
+function toggleTheme(){var l=document.documentElement.classList.toggle('light');localStorage.setItem('7g-theme',l?'light':'dark');updateThemeButton(l);}
+function updateThemeButton(l){document.getElementById('themeToggle').innerHTML=l?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8.5a5.5 5.5 0 01-6-6 5.5 5.5 0 106 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
+(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();
+
+/* =============== LANG =============== */
+var LANG='es';
+(function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
+
+var T={
+  badge:{es:'Portal',en:'Portal'},
+  schedule:{es:'Agendar llamada',en:'Schedule a call'},
+  searchPlaceholder:{es:'Buscar proyecto...',en:'Search project...'},
+  sortRevenue:{es:'Mayor ingreso',en:'Highest revenue'},
+  sortRecent:{es:'Mas reciente',en:'Most recent'},
+  sortOldest:{es:'Mas antiguo',en:'Oldest'},
+  sortAZ:{es:'A - Z',en:'A - Z'},
+  sortZA:{es:'Z - A',en:'Z - A'},
+  statProjects:{es:'Proyectos',en:'Projects'},
+  statActive:{es:'Activos',en:'Active'},
+  statRevenue:{es:'Ingresos Totales',en:'Total Revenue'},
+  statPending:{es:'Pendientes',en:'Pending'},
+  filterAll:{es:'Todos',en:'All'},
+  logistics:{es:'Logistica',en:'Logistics'},
+  construction:{es:'Construccion',en:'Construction'},
+  retail:{es:'Retail',en:'Retail'},
+  accounting:{es:'Contabilidad',en:'Accounting'},
+  consulting:{es:'Consultoria',en:'Consulting'},
+  technology:{es:'Tecnologia',en:'Technology'},
+  lblOnboarding:{es:'Onboarding',en:'Onboarding'},
+  lblDiagnostic:{es:'Diagnostico',en:'Diagnostic'},
+  lblActive:{es:'Activo',en:'Active'},
+  lblPending:{es:'Pendiente',en:'Pending'},
+  lblCompleted:{es:'Completado',en:'Completed'},
+  lblLead:{es:'Lead',en:'Lead'},
+  lblDocs:{es:'docs',en:'docs'},
+  lblLastActivity:{es:'Ultima actividad',en:'Last activity'},
+  lblCreated:{es:'Creado',en:'Created'}
+};
+function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
+function tl(o){if(!o)return'';if(typeof o==='string')return o;return o[LANG]||o.en||'';}
+
+/* =============== BUSINESS TYPE CONFIG =============== */
+var BIZ_TYPES={
+  logistics:{color:'var(--cyan)',bg:'rgba(94,231,247,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 4v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'},
+  construction:{color:'var(--orange)',bg:'rgba(249,115,22,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"/><path d="M5 20V8l7-5 7 5v12"/><path d="M9 20v-6h6v6"/></svg>'},
+  retail:{color:'var(--green)',bg:'rgba(34,197,94,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 7v13a1 1 0 001 1h16a1 1 0 001-1V7l-3-5z"/><path d="M3 7h18"/><path d="M16 11a4 4 0 01-8 0"/></svg>'},
+  accounting:{color:'var(--yellow)',bg:'rgba(234,179,8,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M8 3v18"/><path d="M12 13h4M12 17h4"/></svg>'},
+  consulting:{color:'var(--purple)',bg:'rgba(167,139,250,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
+  technology:{color:'var(--blue)',bg:'rgba(59,130,246,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>'}
+};
+
+/* =============== PROJECTS DATA =============== */
+var PROJECTS=[
+  {
+    id:'logistics-pyme',
+    title:{es:'Logistica PyME',en:'SMB Logistics'},
+    client:'TechRetail Inc.',
+    type:'logistics',
+    status:'active',
+    phase:'diagnostic',
+    revenue:12500,
+    created:'2026-07-15',
+    lastActivity:'2026-07-20',
+    docs:5,
+    tags:['Receiving','Inventory','Warehouse','Dispatches','CEO Dashboard'],
+    link:'/demos/logistica-pyme/',
+    region:'Florida, US'
+  },
+  {
+    id:'land-marmoles',
+    title:{es:'Land Marmoles',en:'Land Marbles'},
+    client:'Ricardo Lancheros',
+    type:'construction',
+    status:'active',
+    phase:'onboarding',
+    revenue:4800,
+    created:'2026-06-20',
+    lastActivity:'2026-07-18',
+    docs:3,
+    tags:['Landing Page','WhatsApp','Telegram Alerts'],
+    link:null,
+    region:'Bogota, CO'
+  },
+  {
+    id:'bike-shop-base',
+    title:{es:'Base Tiendas de Bicicleta',en:'Bicycle Shop Base'},
+    client:'Multi-client',
+    type:'retail',
+    status:'active',
+    phase:'diagnostic',
+    revenue:3200,
+    created:'2026-07-01',
+    lastActivity:'2026-07-16',
+    docs:2,
+    tags:['POS','Inventory','E-commerce'],
+    link:null,
+    region:'Florida, US'
+  },
+  {
+    id:'contabilidad-7g',
+    title:{es:'Contabilidad 7Group',en:'7Group Accounting'},
+    client:'7Group Corp.',
+    type:'accounting',
+    status:'active',
+    phase:'onboarding',
+    revenue:0,
+    created:'2026-07-20',
+    lastActivity:'2026-07-20',
+    docs:0,
+    tags:['Invoicing','Expenses','P&L','Tax Reports'],
+    link:null,
+    region:'Internal'
+  },
+  {
+    id:'consulting-demo',
+    title:{es:'Consultoria Operativa',en:'Operational Consulting'},
+    client:'Pipeline Lead',
+    type:'consulting',
+    status:'pending',
+    phase:'lead',
+    revenue:0,
+    created:'2026-07-10',
+    lastActivity:'2026-07-14',
+    docs:1,
+    tags:['Process Audit','KPIs'],
+    link:null,
+    region:'Georgia, US'
+  },
+  {
+    id:'tech-saas-lead',
+    title:{es:'SaaS Startup Setup',en:'SaaS Startup Setup'},
+    client:'Pipeline Lead',
+    type:'technology',
+    status:'pending',
+    phase:'lead',
+    revenue:0,
+    created:'2026-07-12',
+    lastActivity:'2026-07-13',
+    docs:1,
+    tags:['Infrastructure','CI/CD','MVP'],
+    link:null,
+    region:'Texas, US'
+  }
+];
+
+/* =============== STATE =============== */
+var currentView='grid';
+var currentFilter='all';
+
+function setView(v){
+  currentView=v;
+  document.getElementById('viewGrid').classList.toggle('active',v==='grid');
+  document.getElementById('viewList').classList.toggle('active',v==='list');
+  renderProjects();
+}
+
+/* =============== RENDER =============== */
+function renderAll(){renderStats();renderFilters();renderProjects();}
+
+function renderStats(){
+  var total=PROJECTS.length;
+  var active=0,rev=0,pending=0;
+  for(var i=0;i<PROJECTS.length;i++){
+    if(PROJECTS[i].status==='active')active++;
+    if(PROJECTS[i].status==='pending')pending++;
+    rev+=PROJECTS[i].revenue;
+  }
+  document.getElementById('statsBar').innerHTML=
+    '<div class="stat"><div class="stat-val" style="color:var(--cyan)">'+total+'</div><div class="stat-label">'+t('statProjects')+'</div></div>'+
+    '<div class="stat"><div class="stat-val" style="color:var(--green)">'+active+'</div><div class="stat-label">'+t('statActive')+'</div></div>'+
+    '<div class="stat"><div class="stat-val" style="color:var(--yellow)">$'+formatNum(rev)+'</div><div class="stat-label">'+t('statRevenue')+'</div></div>'+
+    '<div class="stat"><div class="stat-val" style="color:var(--orange)">'+pending+'</div><div class="stat-label">'+t('statPending')+'</div></div>';
+}
+
+function formatNum(n){if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
+
+function renderFilters(){
+  var counts={all:PROJECTS.length};
+  for(var i=0;i<PROJECTS.length;i++){
+    var tp=PROJECTS[i].type;
+    counts[tp]=(counts[tp]||0)+1;
+  }
+  var types=['all','logistics','construction','retail','accounting','consulting','technology'];
+  var h='';
+  for(var i=0;i<types.length;i++){
+    var tp=types[i];
+    var label=tp==='all'?t('filterAll'):t(tp);
+    var cnt=counts[tp]||0;
+    h+='<button class="filter-chip'+(currentFilter===tp?' active':'')+'" onclick="setFilter(\''+tp+'\')">'+label+'<span class="filter-count">'+cnt+'</span></button>';
+  }
+  document.getElementById('filterRow').innerHTML=h;
+}
+
+function setFilter(f){currentFilter=f;renderFilters();renderProjects();}
+
+function getSortedProjects(){
+  var search=document.getElementById('searchBox').value.toLowerCase();
+  var sort=document.getElementById('sortSelect').value;
+  var list=[];
+  for(var i=0;i<PROJECTS.length;i++){
+    var p=PROJECTS[i];
+    if(currentFilter!=='all'&&p.type!==currentFilter)continue;
+    if(search){
+      var haystack=(tl(p.title)+' '+p.client+' '+p.tags.join(' ')+' '+p.region).toLowerCase();
+      if(haystack.indexOf(search)===-1)continue;
+    }
+    list.push(p);
+  }
+  list.sort(function(a,b){
+    if(sort==='revenue')return b.revenue-a.revenue;
+    if(sort==='recent')return new Date(b.lastActivity)-new Date(a.lastActivity);
+    if(sort==='oldest')return new Date(a.created)-new Date(b.created);
+    if(sort==='az')return tl(a.title).localeCompare(tl(b.title));
+    if(sort==='za')return tl(b.title).localeCompare(tl(a.title));
+    return 0;
+  });
+  return list;
+}
+
+function renderProjects(){
+  var list=getSortedProjects();
+  var container=document.getElementById('projectsContainer');
+  container.className=currentView==='grid'?'folder-grid':'folder-list';
+
+  if(list.length===0){
+    container.innerHTML='<div class="empty"><div class="empty-icon">--</div><div class="empty-text">'+(LANG==='es'?'No se encontraron proyectos':'No projects found')+'</div></div>';
+    return;
+  }
+
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var p=list[i];
+    var biz=BIZ_TYPES[p.type]||BIZ_TYPES.logistics;
+    var statusLabel=t('lbl'+p.status.charAt(0).toUpperCase()+p.status.slice(1));
+    var phaseLabel=t('lbl'+p.phase.charAt(0).toUpperCase()+p.phase.slice(1));
+    var statusColor=p.status==='active'?'var(--green)':p.status==='pending'?'var(--yellow)':'var(--dim)';
+    var revStr=p.revenue>0?'$'+formatNum(p.revenue):'--';
+    var revColor=p.revenue>0?'color:var(--green)':'color:var(--muted)';
+    var onclick=p.link?'onclick="window.location.href=\''+p.link+'\'"':'';
+
+    h+='<div class="folder" '+onclick+' style="'+(p.link?'':'opacity:.85;cursor:default')+'">'+
+      '<div class="folder-accent" style="background:'+biz.color+'"></div>'+
+      '<div class="folder-head">'+
+        '<div style="display:flex;align-items:center;gap:10px">'+
+          '<div class="folder-icon" style="background:'+biz.bg+';color:'+biz.color+'">'+biz.icon+'</div>'+
+          '<div>'+
+            '<div class="folder-title">'+tl(p.title)+'</div>'+
+            '<div class="folder-client">'+p.client+' &middot; '+p.region+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<span class="folder-badge" style="background:'+biz.bg+';color:'+biz.color+';border:1px solid '+biz.color.replace(')',',0.15)')+'">'+t(p.type)+'</span>'+
+      '</div>'+
+      '<div class="folder-meta">'+
+        '<div class="folder-meta-item"><div class="folder-meta-dot" style="background:'+statusColor+'"></div>'+statusLabel+'</div>'+
+        '<div class="folder-meta-item">'+phaseLabel+'</div>'+
+        '<div class="folder-meta-item">'+p.docs+' '+t('lblDocs')+'</div>'+
+      '</div>'+
+      '<div class="folder-tags">';
+    for(var j=0;j<p.tags.length;j++){
+      h+='<span class="folder-tag">'+p.tags[j]+'</span>';
+    }
+    h+='</div>'+
+      '<div class="folder-footer">'+
+        '<span class="folder-date">'+t('lblLastActivity')+': '+p.lastActivity+'</span>'+
+        '<div style="display:flex;align-items:center;gap:12px">'+
+          '<span class="folder-revenue" style="'+revColor+'">'+revStr+'</span>'+
+          (p.link?'<span class="folder-arrow">&rarr;</span>':'')+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }
+  container.innerHTML=h;
+}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.title=LANG==='es'?'Portal -- 7Group':'Portal -- 7Group';
+  var els=document.querySelectorAll('[data-t]');
+  for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
+  document.getElementById('langES').classList.toggle('active',LANG==='es');
+  document.getElementById('langEN').classList.toggle('active',LANG==='en');
+  document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
+  document.getElementById('searchBox').placeholder=t('searchPlaceholder');
+  var opts=document.querySelectorAll('[data-t-opt]');
+  for(var i=0;i<opts.length;i++){var k=opts[i].getAttribute('data-t-opt');if(T[k])opts[i].textContent=T[k][LANG];}
+  renderAll();
+}
+
+function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
+
+/* =============== INIT =============== */
+applyLang();
+</script>
+</body>
+</html>
