@@ -929,7 +929,8 @@ function renderScanChecklist() {
     html += '<button class="check-flag' + (st === 'flagged' ? ' active' : '') + '" onclick="markItemFlag(\'' + it.sku + '\')" title="' + t('flagged') + '">&#10007;</button>';
     html += '</div>';
     html += '</div>';
-    if (st === 'flagged') {
+    var showObs = st === 'flagged' || obs;
+    if (showObs) {
       html += '<div class="check-item-obs"><textarea class="check-obs" rows="2" placeholder="' + t('obsPlaceholder') + '" onchange="saveObs(\'' + it.sku + '\',this.value)" onblur="saveObs(\'' + it.sku + '\',this.value)">' + obs + '</textarea></div>';
     }
     html += '</div>';
@@ -947,7 +948,6 @@ function renderScanChecklist() {
 
 function markItemOK(sku) {
   itemStatus[sku] = itemStatus[sku] === 'ok' ? '' : 'ok';
-  if (itemStatus[sku] === 'ok') itemObs[sku] = '';
   renderScanChecklist();
 }
 
