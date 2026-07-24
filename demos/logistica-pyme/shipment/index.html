@@ -923,7 +923,7 @@ function renderScanChecklist() {
     html += '<div class="check-item ' + rowClass + '">';
     html += '<div class="check-icon">' + icon + '</div>';
     html += '<div class="check-info"><div class="check-name">' + it.name + '</div><div class="check-sku">' + it.sku + '</div></div>';
-    html += '<div class="check-qty"><div class="check-qty-val ' + qtyClass + '">' + scanned + '/' + it.qty + '</div><div class="check-qty-label">' + t('scanned') + '</div></div>';
+    html += '<div class="check-qty"><div class="check-qty-val ' + qtyClass + '">' + scanned + '/' + it.qty + '</div><div class="check-qty-label">' + (scanned >= it.qty ? 'OK' : scanned > 0 ? (LANG === 'es' ? 'Parcial' : 'Partial') : (LANG === 'es' ? 'Doc' : 'Doc')) + '</div></div>';
     html += '<div class="check-actions">';
     html += '<button class="check-ok' + (st === 'ok' ? ' active' : '') + '" onclick="markItemOK(\'' + it.sku + '\')" title="OK">&#10003;</button>';
     html += '<button class="check-flag' + (st === 'flagged' ? ' active' : '') + '" onclick="markItemFlag(\'' + it.sku + '\')" title="' + t('flagged') + '">&#10007;</button>';
@@ -1093,6 +1093,17 @@ function renderShipmentsList() {
     else if (s.damagePhotos > 0) html += '<span style="color:var(--red)">' + s.damagePhotos + ' ' + t('damages') + '</span>';
     html += '<span>' + timeStr + '</span>';
     html += '</div>';
+    if (s.itemObs) {
+      var obsKeys = Object.keys(s.itemObs).filter(function(k){ return s.itemObs[k]; });
+      if (obsKeys.length > 0) {
+        html += '<div style="margin-top:6px;padding:8px 10px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.1);border-radius:6px;font-size:10px">';
+        for (var oi = 0; oi < obsKeys.length; oi++) {
+          var oSku = obsKeys[oi];
+          html += '<div style="margin-bottom:' + (oi < obsKeys.length - 1 ? '4px' : '0') + '"><span style="color:var(--red);font-weight:700;font-family:\'JetBrains Mono\',monospace">' + oSku + ':</span> <span style="color:var(--dim)">' + s.itemObs[oSku] + '</span></div>';
+        }
+        html += '</div>';
+      }
+    }
     html += '<div class="shipment-card-actions">';
     html += '<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();generatePreReceipt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ' + t('btnPDF') + '</button>';
     html += '</div>';
@@ -1125,10 +1136,14 @@ function generatePreReceipt(idx) {
       rows += '<tr>';
       rows += '<td style="font-family:monospace;font-size:11px">' + it.sku + '</td>';
       rows += '<td>' + it.name + '</td>';
-      rows += '<td style="text-align:center">' + it.qty + '</td>';
-      rows += '<td style="text-align:center">' + sc + '</td>';
+      var diff = sc - it.qty;
+      var diffStr = diff === 0 ? '=' : (diff > 0 ? '+' + diff : '' + diff);
+      var diffColor = diff === 0 ? '#22c55e' : '#ef4444';
+      rows += '<td style="text-align:center;font-weight:700">' + it.qty + '</td>';
+      rows += '<td style="text-align:center;font-weight:700">' + sc + '</td>';
+      rows += '<td style="text-align:center;font-weight:700;color:' + diffColor + '">' + diffStr + '</td>';
       rows += '<td style="text-align:center;color:' + stColor + ';font-weight:700">' + stLabel + '</td>';
-      rows += '<td style="font-size:11px;color:#64748b">' + (ob || '—') + '</td>';
+      rows += '<td style="font-size:11px;' + (ob ? 'color:#ef4444;font-weight:600' : 'color:#94a3b8') + '">' + (ob || '—') + '</td>';
       rows += '</tr>';
     }
   }
@@ -1169,7 +1184,7 @@ function generatePreReceipt(idx) {
 
   html += '<h3 style="font-size:13px;margin-bottom:4px">' + t('pdfItemList') + '</h3>';
   html += '<table><thead><tr>';
-  html += '<th>' + t('pdfSKU') + '</th><th>' + t('pdfDesc') + '</th><th style="text-align:center">' + t('pdfQty') + '</th><th style="text-align:center">' + t('pdfScanned') + '</th><th style="text-align:center">' + t('pdfStatus') + '</th><th>' + t('pdfObs') + '</th>';
+  html += '<th>' + t('pdfSKU') + '</th><th>' + t('pdfDesc') + '</th><th style="text-align:center">' + (LANG==='es'?'Doc':'Doc') + '</th><th style="text-align:center">' + (LANG==='es'?'Fisico':'Physical') + '</th><th style="text-align:center">' + (LANG==='es'?'Dif':'Diff') + '</th><th style="text-align:center">' + t('pdfStatus') + '</th><th>' + t('pdfObs') + '</th>';
   html += '</tr></thead><tbody>' + rows + '</tbody></table>';
 
   html += '<div class="summary-box">';
