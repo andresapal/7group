@@ -563,7 +563,6 @@ function toggleTheme() {
 })();
 
 /* =============== STATE =============== */
-var currentShipment = null;
 var docPhotos = [];
 var cargoPhotos = [];
 var damagePhotos = [];
@@ -678,10 +677,10 @@ function renderPhotoGrid() {
 
 function removePhoto(type, idx) {
   if (type === 'damage') {
-    var cargoLen = cargoPhotos.length;
-    damagePhotos.splice(idx - cargoLen, 1);
+    var di = idx - cargoPhotos.length;
+    if (di >= 0 && di < damagePhotos.length) damagePhotos.splice(di, 1);
   } else {
-    cargoPhotos.splice(idx, 1);
+    if (idx >= 0 && idx < cargoPhotos.length) cargoPhotos.splice(idx, 1);
   }
   renderPhotoGrid();
   updateSendButton();
@@ -986,6 +985,7 @@ function updateSendButton() {
 
 function sendToWarehouse() {
   if (!extractedData) return;
+  if (!confirm(LANG === 'es' ? 'Enviar preaviso a bodega?' : 'Send heads-up to warehouse?')) return;
 
   var shipment = {
     id: 'SHP-' + Date.now(),
@@ -1002,6 +1002,9 @@ function sendToWarehouse() {
     itemObs: JSON.parse(JSON.stringify(itemObs)),
     scannedAtPort: getTotalScanned(),
     flaggedItems: Object.keys(itemStatus).filter(function(k){ return itemStatus[k] === 'flagged'; }).length,
+    docPhotoURLs: docPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
+    cargoPhotoURLs: cargoPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
+    damagePhotoURLs: damagePhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
     docPhotos: docPhotos.length,
     cargoPhotos: cargoPhotos.length,
     damagePhotos: damagePhotos.length,
@@ -1106,6 +1109,7 @@ function renderShipmentsList() {
     }
     html += '<div class="shipment-card-actions">';
     html += '<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();generatePreReceipt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ' + t('btnPDF') + '</button>';
+    html += '<button class="btn btn-sm" style="background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.15)" onclick="event.stopPropagation();deleteShipment(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> ' + (LANG==='es'?'Eliminar':'Delete') + '</button>';
     html += '</div>';
     html += '</div>';
   }
@@ -1205,6 +1209,16 @@ function generatePreReceipt(idx) {
   w.document.write(html);
   w.document.close();
   setTimeout(function(){ w.print(); }, 600);
+}
+
+/* =============== DELETE SHIPMENT =============== */
+function deleteShipment(idx) {
+  var s = shipments[idx];
+  if (!s) return;
+  if (!confirm((LANG === 'es' ? 'Eliminar envio ' : 'Delete shipment ') + s.blNumber + '?')) return;
+  shipments.splice(idx, 1);
+  saveShipments();
+  renderShipmentsList();
 }
 
 /* =============== INIT =============== */

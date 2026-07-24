@@ -312,9 +312,13 @@ input[type="file"]{display:none}
     </div>
   </div>
 
-  <div style="margin-top:12px">
+  <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
     <button class="btn btn-primary" id="btnCompleteRecv" onclick="completeReception()" disabled>
       <span data-t="btnComplete">Completar recibo</span>
+    </button>
+    <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="generateRecvPDF()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span data-t="btnRecvPDF">PDF Recibo</span>
     </button>
   </div>
 </div>
@@ -335,6 +339,7 @@ input[type="file"]{display:none}
       <div class="inv-wrap" id="invTableWrap"></div>
     </div>
   </div>
+  <div id="activityLogWrap"></div>
 </div>
 
 <!-- ========== TAB: MAPA 3D ========== -->
@@ -436,6 +441,7 @@ var T={
   authDesc:{es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
   authError:{es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
   authFooter:{es:'Solo personal autorizado',en:'Authorized personnel only'},
+  btnRecvPDF:{es:'PDF Recibo',en:'Receipt PDF'},
   modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'}
 };
 
@@ -570,7 +576,9 @@ function renderPreavisos(){
     if(s.flaggedItems>0)h+='<span style="color:var(--red)">'+s.flaggedItems+' '+t('flagged')+'</span>';
     h+='<span>'+dateStr+'</span>';
     h+='</div>';
-    h+='<div class="pa-actions"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDetail(\''+s.id+'\')">'+btnLabel+'</button></div>';
+    h+='<div class="pa-actions"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDetail(\''+s.id+'\')">'+btnLabel+'</button>';
+    if(st!=='pending')h+='<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDetailForPDF(\''+s.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>';
+    h+='</div>';
     h+='</div>';
   }
   el.innerHTML=h;
@@ -601,11 +609,24 @@ function openDetail(shipId){
     }
     saveReceptions();
   }
+  var shipIdx=-1;
+  for(var si=0;si<shipments.length;si++){if(shipments[si].id===shipId){shipIdx=si;break;}}
+  if(shipIdx>=0&&shipments[shipIdx].status==='pending'){shipments[shipIdx].status='in_progress';saveShipments();}
+
   document.getElementById('viewRecv').style.display='none';
   document.getElementById('viewDetail').style.display='block';
   renderDetailHeader();
   renderRecvItems();
   document.getElementById('locAssignSec').style.display='none';
+}
+
+function openDetailForPDF(shipId){
+  var ship=null;
+  for(var i=0;i<shipments.length;i++){if(shipments[i].id===shipId){ship=shipments[i];break;}}
+  if(!ship)return;
+  currentDetail=ship;
+  generateRecvPDF();
+  currentDetail=null;
 }
 
 function closeDetail(){
@@ -632,7 +653,8 @@ function renderRecvItems(){
   if(!currentDetail||!currentDetail.items)return;
   var recv=receptions[currentDetail.id]||{verified:{},locations:{},observations:{},itemStatus:{}};
   var items=currentDetail.items;
-  var totalExpected=0,totalVerified=0,allLocated=true;
+  var totalExpected=0,totalVerified=0;
+  var isCompleted=recv.status==='completed';
   var h='';
   for(var i=0;i<items.length;i++){
     var it=items[i];
@@ -641,7 +663,6 @@ function renderRecvItems(){
     var st=recv.itemStatus[it.sku]||'';
     var obs=recv.observations[it.sku]||'';
     totalExpected+=it.qty;totalVerified+=v;
-    if(!loc)allLocated=false;
     var cls=st==='ok'?'done':st==='flagged'?'flagged':v>0?'done':'';
     var icon=st==='ok'?'&#10003;':st==='flagged'?'&#10007;':v>0?'&#10003;':'';
 
@@ -650,20 +671,29 @@ function renderRecvItems(){
     h+='<div class="rv-icon">'+icon+'</div>';
     h+='<div class="rv-info"><div class="rv-name">'+it.name+'</div><div class="rv-sku">'+it.sku+' -- '+it.weight+'</div></div>';
     h+='<div class="rv-qty '+(v>=it.qty?'full':'zero')+'">'+v+'/'+it.qty+'</div>';
-    h+='<div class="rv-acts">';
-    h+='<button class="rv-ok'+(st==='ok'?' active':'')+'" onclick="markRecvOK(\''+it.sku+'\','+i+')">&#10003;</button>';
-    h+='<button class="rv-fl'+(st==='flagged'?' active':'')+'" onclick="markRecvFlag(\''+it.sku+'\','+i+')">&#10007;</button>';
+    if(!isCompleted){
+      h+='<div class="rv-acts">';
+      h+='<button class="rv-ok'+(st==='ok'?' active':'')+'" onclick="markRecvOK(\''+it.sku+'\','+i+')">&#10003;</button>';
+      h+='<button class="rv-fl'+(st==='flagged'?' active':'')+'" onclick="markRecvFlag(\''+it.sku+'\','+i+')">&#10007;</button>';
+      h+='</div>';
+    }
     h+='</div>';
-    h+='</div>';
-    if(st==='flagged'){
-      h+='<textarea class="rv-obs" rows="2" placeholder="'+t('obsPlaceholder')+'" onchange="saveRecvObs(\''+it.sku+'\',this.value)" onblur="saveRecvObs(\''+it.sku+'\',this.value)">'+obs+'</textarea>';
+    if(st==='flagged'||obs){
+      h+='<textarea class="rv-obs" rows="2" placeholder="'+t('obsPlaceholder')+'"'+(isCompleted?' disabled style="opacity:.6"':' onchange="saveRecvObs(\''+it.sku+'\',this.value)" onblur="saveRecvObs(\''+it.sku+'\',this.value)"')+'>'+obs+'</textarea>';
     }
     if(loc){
       h+='<div class="rv-loc">'+loc.zone+(loc.sub?' > '+loc.sub:'')+(loc.pos?' > '+loc.pos:'')+' | Lot: '+(loc.lot||'--')+'</div>';
-    } else if(v>0||st){
+    } else if(!isCompleted&&(v>0||st)){
       h+='<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();startLocAssign(\''+it.sku+'\')" style="margin-top:4px;width:100%;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> '+t('secLocAssign')+'</button>';
     }
     h+='</div>';
+  }
+  if(isCompleted){
+    document.getElementById('recvSkuInput').disabled=true;
+    document.querySelector('.scan-btn').disabled=true;
+  }else{
+    document.getElementById('recvSkuInput').disabled=false;
+    document.querySelector('.scan-btn').disabled=false;
   }
   document.getElementById('recvItemsList').innerHTML=h;
   var pct=totalExpected>0?Math.round(totalVerified/totalExpected*100):0;
@@ -674,13 +704,14 @@ function renderRecvItems(){
   document.getElementById('detailProgress').textContent=totalVerified+'/'+totalExpected;
   document.getElementById('detailProgress').className='sec-tag '+(pct>=100?'tag-done':'tag-progress');
 
+  var alreadyDone=recv.status==='completed';
   var allDone=true;
   for(var j=0;j<items.length;j++){
     var sk=items[j].sku;
-    if(!recv.locations[sk])allDone=false;
     if(!recv.itemStatus[sk]&&!(recv.verified[sk]>0))allDone=false;
   }
-  document.getElementById('btnCompleteRecv').disabled=!allDone;
+  document.getElementById('btnCompleteRecv').disabled=alreadyDone||!allDone;
+  if(alreadyDone)document.getElementById('btnCompleteRecv').querySelector('span').textContent=t('filterDone');
 }
 
 function recvScan(){
@@ -708,7 +739,6 @@ function markRecvOK(sku){
   var recv=receptions[currentDetail.id];
   recv.itemStatus[sku]=recv.itemStatus[sku]==='ok'?'':'ok';
   if(recv.itemStatus[sku]==='ok'){
-    recv.observations[sku]='';
     var item=null;
     for(var i=0;i<currentDetail.items.length;i++){if(currentDetail.items[i].sku===sku){item=currentDetail.items[i];break;}}
     if(item&&!(recv.verified[sku]>0))recv.verified[sku]=item.qty;
@@ -784,9 +814,12 @@ function confirmItemLoc(){
 function completeReception(){
   if(!currentDetail)return;
   var recv=receptions[currentDetail.id];
+  if(recv.status==='completed')return;
+  if(!confirm(LANG==='es'?'Completar recibo y mover items a inventario?':'Complete receiving and move items to inventory?'))return;
   recv.status='completed';
 
   for(var i=0;i<currentDetail.items.length;i++){
+    logActivity('recv',currentDetail.items[i].sku,(currentDetail.items[i].qty||0)+' units from '+currentDetail.blNumber);
     var it=currentDetail.items[i];
     var loc=recv.locations[it.sku]||{};
     var st=recv.itemStatus[it.sku]||'ok';
@@ -898,9 +931,12 @@ function renderInventory(){
 
   if(filtered.length===0){
     document.getElementById('invTableWrap').innerHTML='<div style="padding:20px;text-align:center;color:var(--dim);font-size:12px">'+t('emptyTitle')+'</div>';
+    document.getElementById('activityLogWrap').innerHTML=renderActivityLog();
     return;
   }
-  var th='<table class="inv-table"><thead><tr><th>'+t('thSKU')+'</th><th>'+t('thName')+'</th><th>'+t('thQty')+'</th><th>'+t('thLoc')+'</th><th>'+t('thLot')+'</th><th>'+t('thMin')+'</th><th>'+t('thStatus')+'</th></tr></thead><tbody>';
+  var thSource=LANG==='es'?'Origen':'Source';
+  var thActions=LANG==='es'?'Acc.':'Act.';
+  var th='<table class="inv-table"><thead><tr><th>'+t('thSKU')+'</th><th>'+t('thName')+'</th><th>'+t('thQty')+'</th><th>'+t('thLoc')+'</th><th>'+t('thLot')+'</th><th>'+t('thMin')+'</th><th>'+t('thStatus')+'</th><th>'+thSource+'</th><th>'+thActions+'</th></tr></thead><tbody>';
   for(var b=0;b<filtered.length;b++){
     var r=filtered[b];
     var q=parseInt(r.qty)||0;
@@ -915,10 +951,13 @@ function renderInventory(){
     th+='<td class="mono" style="font-size:10px">'+(r.lot||'--')+'</td>';
     th+='<td class="mono">'+mn+'</td>';
     th+='<td style="color:'+stColor+';font-weight:700;font-size:10px">'+stText+'</td>';
+    th+='<td class="mono" style="font-size:10px;color:var(--cyan)">'+(r.blNumber||'--')+'</td>';
+    th+='<td><button class="btn btn-sm btn-secondary" style="padding:3px 6px;font-size:9px" onclick="editInvItem('+b+')">Ed</button> <button class="btn btn-sm" style="padding:3px 6px;font-size:9px;background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.15)" onclick="deleteInvItem('+b+')">X</button></td>';
     th+='</tr>';
   }
   th+='</tbody></table>';
   document.getElementById('invTableWrap').innerHTML=th;
+  document.getElementById('activityLogWrap').innerHTML=renderActivityLog();
 }
 
 /* =============== 3D WAREHOUSE MAP =============== */
@@ -1036,8 +1075,165 @@ function addZone(){
 }
 
 function deleteZone(id){
-  zones=zones.filter(function(z){return z.id!==id;});
+  var z=null;
+  for(var i=0;i<zones.length;i++){if(zones[i].id===id){z=zones[i];break;}}
+  if(!z)return;
+  var inUse=inventory.filter(function(it){return(it.location||'').indexOf(z.name)===0;}).length;
+  if(inUse>0){
+    if(!confirm((LANG==='es'?'Esta zona tiene '+inUse+' items en inventario. Eliminar de todas formas?':'This zone has '+inUse+' inventory items. Delete anyway?')))return;
+  }
+  zones=zones.filter(function(zn){return zn.id!==id;});
   saveZones();renderZones();
+}
+
+/* =============== EDIT/DELETE INVENTORY (R9) =============== */
+function editInvItem(idx){
+  var search=(document.getElementById('invSearch')?document.getElementById('invSearch').value:'').toLowerCase();
+  var filtered=inventory.filter(function(it){
+    if(!search)return true;
+    return(it.sku||'').toLowerCase().indexOf(search)!==-1||(it.name||'').toLowerCase().indexOf(search)!==-1||(it.location||'').toLowerCase().indexOf(search)!==-1;
+  });
+  var item=filtered[idx];
+  if(!item)return;
+  var realIdx=inventory.indexOf(item);
+  var newQty=prompt((LANG==='es'?'Nueva cantidad para ':'New quantity for ')+item.sku+':',item.qty);
+  if(newQty===null)return;
+  newQty=parseInt(newQty);
+  if(isNaN(newQty)||newQty<0)return;
+  var newMin=prompt((LANG==='es'?'Stock minimo:':'Min stock:'),item.minStock||1);
+  if(newMin===null)return;
+  newMin=parseInt(newMin);
+  if(isNaN(newMin)||newMin<0)newMin=1;
+  logActivity('edit',item.sku,item.qty+'->'+newQty);
+  inventory[realIdx].qty=newQty;
+  inventory[realIdx].minStock=newMin;
+  saveInventory();renderInventory();
+}
+
+function deleteInvItem(idx){
+  var search=(document.getElementById('invSearch')?document.getElementById('invSearch').value:'').toLowerCase();
+  var filtered=inventory.filter(function(it){
+    if(!search)return true;
+    return(it.sku||'').toLowerCase().indexOf(search)!==-1||(it.name||'').toLowerCase().indexOf(search)!==-1||(it.location||'').toLowerCase().indexOf(search)!==-1;
+  });
+  var item=filtered[idx];
+  if(!item)return;
+  if(!confirm((LANG==='es'?'Eliminar ':'Delete ')+item.sku+'?'))return;
+  var realIdx=inventory.indexOf(item);
+  logActivity('delete',item.sku,item.qty+' units');
+  inventory.splice(realIdx,1);
+  saveInventory();renderInventory();
+}
+
+/* =============== ACTIVITY LOG (F3) =============== */
+function logActivity(action,sku,detail){
+  var log=[];
+  try{log=JSON.parse(localStorage.getItem('7g-activity')||'[]');}catch(e){}
+  log.unshift({action:action,sku:sku,detail:detail||'',time:new Date().toISOString(),user:sessionStorage.getItem('7g-auth')||'system'});
+  if(log.length>100)log=log.slice(0,100);
+  localStorage.setItem('7g-activity',JSON.stringify(log));
+}
+
+function renderActivityLog(){
+  var log=[];
+  try{log=JSON.parse(localStorage.getItem('7g-activity')||'[]');}catch(e){}
+  if(log.length===0)return'';
+  var h='<div class="sec" style="margin-top:12px"><div class="sec-head"><div class="sec-title">'+(LANG==='es'?'Historial de movimientos':'Movement history')+'</div><span class="sec-tag" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">'+log.length+'</span></div><div class="sec-body" style="max-height:200px;overflow-y:auto">';
+  var max=Math.min(log.length,20);
+  for(var i=0;i<max;i++){
+    var e=log[i];
+    var d=new Date(e.time);
+    var icon=e.action==='recv'?'&#10003;':e.action==='edit'?'Ed':e.action==='delete'?'X':'--';
+    var color=e.action==='recv'?'var(--green)':e.action==='edit'?'var(--cyan)':e.action==='delete'?'var(--red)':'var(--dim)';
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px">';
+    h+='<span style="color:'+color+';font-weight:700;min-width:20px;text-align:center">'+icon+'</span>';
+    h+='<span class="mono" style="color:var(--cyan)">'+e.sku+'</span>';
+    h+='<span style="color:var(--dim);flex:1">'+e.detail+'</span>';
+    h+='<span style="color:var(--muted)">'+d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'</span>';
+    h+='</div>';
+  }
+  h+='</div></div>';
+  return h;
+}
+
+/* =============== RECV PDF (R6) =============== */
+function generateRecvPDF(){
+  if(!currentDetail)return;
+  var s=currentDetail;
+  var recv=receptions[s.id]||{verified:{},locations:{},observations:{},itemStatus:{}};
+  var date=new Date(s.createdAt);
+  var dateStr=date.toLocaleDateString()+' '+date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var totalExpected=0,totalVerified=0,totalFlagged=0;
+  var rows='';
+  if(s.items){
+    for(var j=0;j<s.items.length;j++){
+      var it=s.items[j];
+      totalExpected+=it.qty;
+      var v=recv.verified[it.sku]||0;
+      var st=recv.itemStatus[it.sku]||'';
+      var ob=recv.observations[it.sku]||'';
+      var loc=recv.locations[it.sku];
+      var locStr=loc?(loc.zone+(loc.sub?' > '+loc.sub:'')+(loc.pos?' > '+loc.pos:'')):'--';
+      totalVerified+=v;
+      if(st==='flagged')totalFlagged++;
+      var diff=v-it.qty;
+      var diffStr=diff===0?'=':(diff>0?'+'+diff:''+diff);
+      var diffColor=diff===0?'#22c55e':'#ef4444';
+      var stLabel=st==='ok'?(LANG==='es'?'OK':'OK'):st==='flagged'?(LANG==='es'?'Observacion':'Flagged'):(LANG==='es'?'Pendiente':'Pending');
+      var stColor=st==='ok'?'#22c55e':st==='flagged'?'#ef4444':'#94a3b8';
+      rows+='<tr>';
+      rows+='<td style="font-family:monospace;font-size:11px">'+it.sku+'</td>';
+      rows+='<td>'+it.name+'</td>';
+      rows+='<td style="text-align:center;font-weight:700">'+it.qty+'</td>';
+      rows+='<td style="text-align:center;font-weight:700">'+v+'</td>';
+      rows+='<td style="text-align:center;font-weight:700;color:'+diffColor+'">'+diffStr+'</td>';
+      rows+='<td style="text-align:center;color:'+stColor+';font-weight:700">'+stLabel+'</td>';
+      rows+='<td style="font-size:10px">'+locStr+'</td>';
+      rows+='<td style="font-size:11px;'+(ob?'color:#ef4444;font-weight:600':'color:#94a3b8')+'">'+(ob||'--')+'</td>';
+      rows+='</tr>';
+    }
+  }
+  var title=LANG==='es'?'Recibo de Mercancia':'Goods Receipt';
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+' -- '+s.blNumber+'</title>';
+  html+='<style>body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:13px}';
+  html+='.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #060a0e;padding-bottom:16px;margin-bottom:20px}';
+  html+='.logo{font-size:22px;font-weight:900;letter-spacing:-1px}.logo-sub{font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase}';
+  html+='.doc-title{text-align:right}.doc-title h1{font-size:16px;margin:0 0 4px}.doc-title .bl{font-family:monospace;font-size:14px;color:#0ea5e9}';
+  html+='table{width:100%;border-collapse:collapse;margin:12px 0}';
+  html+='th{background:#f1f5f9;text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#475569;border:1px solid #e2e8f0}';
+  html+='td{padding:7px 10px;border:1px solid #e2e8f0;font-size:12px}';
+  html+='.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px}';
+  html+='.info-item{display:flex;flex-direction:column;gap:2px}.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600}.info-val{font-size:13px;font-weight:600}';
+  html+='.summary-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:14px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}';
+  html+='.summary-num{font-size:22px;font-weight:800}.summary-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}';
+  html+='.signatures{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;padding-top:16px}';
+  html+='.sig-line{border-top:1px solid #1e293b;padding-top:6px;text-align:center;font-size:11px;color:#64748b}';
+  html+='.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
+  html+='@media print{body{padding:12px}@page{margin:15mm}}</style></head><body>';
+  html+='<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
+  html+='<div class="doc-title"><h1>'+title+'</h1><div class="bl">'+s.blNumber+'</div>'+(recv.status==='completed'?'<div style="color:#22c55e;font-weight:700;font-size:11px;margin-top:4px">'+(LANG==='es'?'COMPLETADO':'COMPLETED')+'</div>':'')+'</div></div>';
+  html+='<div class="info-grid">';
+  html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Envio':'Shipment')+'</span><span class="info-val">'+s.id+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Fecha':'Date')+'</span><span class="info-val">'+dateStr+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Proveedor':'Supplier')+'</span><span class="info-val">'+s.supplier+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Peso Total':'Total Weight')+'</span><span class="info-val">'+s.totalWeight+'</span></div>';
+  html+='</div>';
+  html+='<h3 style="font-size:13px;margin-bottom:4px">'+(LANG==='es'?'Detalle de Recepcion':'Reception Detail')+'</h3>';
+  html+='<table><thead><tr>';
+  html+='<th>SKU</th><th>'+(LANG==='es'?'Descripcion':'Description')+'</th><th style="text-align:center">Doc</th><th style="text-align:center">'+(LANG==='es'?'Fisico':'Physical')+'</th><th style="text-align:center">'+(LANG==='es'?'Dif':'Diff')+'</th><th style="text-align:center">'+(LANG==='es'?'Estado':'Status')+'</th><th>'+(LANG==='es'?'Ubicacion':'Location')+'</th><th>'+(LANG==='es'?'Observacion':'Observation')+'</th>';
+  html+='</tr></thead><tbody>'+rows+'</tbody></table>';
+  html+='<div class="summary-box">';
+  html+='<div><div class="summary-num">'+totalExpected+'</div><div class="summary-label">'+(LANG==='es'?'Total items':'Total items')+'</div></div>';
+  html+='<div><div class="summary-num" style="color:#22c55e">'+totalVerified+'</div><div class="summary-label">'+(LANG==='es'?'Verificados':'Verified')+'</div></div>';
+  html+='<div><div class="summary-num" style="color:'+(totalFlagged>0?'#ef4444':'#22c55e')+'">'+totalFlagged+'</div><div class="summary-label">'+(LANG==='es'?'Con observacion':'Flagged')+'</div></div>';
+  html+='</div>';
+  html+='<div class="signatures"><div><div class="sig-line">'+(LANG==='es'?'Firma Receptor':'Receiver Signature')+'</div></div><div><div class="sig-line">'+(LANG==='es'?'Firma Bodega':'Warehouse Signature')+'</div></div></div>';
+  html+='<div class="footer">'+(LANG==='es'?'Generado por':'Generated by')+' 7Group Logistics Intelligence -- '+dateStr+'</div>';
+  html+='</body></html>';
+  var w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){w.print();},600);
 }
 
 /* =============== INIT =============== */
