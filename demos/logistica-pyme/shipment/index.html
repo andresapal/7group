@@ -145,6 +145,19 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .check-qty-val.zero{color:var(--dim)}
 .check-qty-val.partial{color:var(--yellow)}
 .check-qty-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.check-actions{display:flex;gap:4px;flex-shrink:0;margin-left:6px}
+.check-ok,.check-flag{width:32px;height:32px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;transition:.2s}
+.check-ok{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.check-ok:hover{background:rgba(34,197,94,.2)}
+.check-ok.active{background:rgba(34,197,94,.25);border-color:var(--green)}
+.check-flag{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.check-flag:hover{background:rgba(239,68,68,.2)}
+.check-flag.active{background:rgba(239,68,68,.25);border-color:var(--red)}
+.check-obs{margin-top:6px;width:100%;background:var(--bg2);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--white);font-family:inherit;outline:none;resize:none;transition:.2s}
+.check-obs:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(239,68,68,.1)}
+.check-obs::placeholder{color:var(--dim)}
+.check-item-wrap{margin-bottom:6px}
+.check-item-obs{padding:6px 12px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.1);border-radius:0 0 8px 8px;margin-top:-2px}
 .check-progress{height:4px;background:var(--bg4);border-radius:2px;margin-top:8px;overflow:hidden}
 .check-progress-fill{height:100%;border-radius:2px;background:var(--cyan);transition:width .4s}
 .check-progress-fill.complete{background:var(--green)}
@@ -171,6 +184,9 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .shipment-card-info{font-size:11px;color:var(--dim);line-height:1.5}
 .shipment-card-meta{display:flex;gap:12px;margin-top:6px;font-size:10px;color:var(--dim)}
 .shipment-card-meta span{display:flex;align-items:center;gap:4px}
+
+.shipment-card-actions{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.shipment-card-actions .btn{flex:1;justify-content:center;font-size:10px;padding:8px 6px}
 
 .empty-state{text-align:center;padding:32px 16px;color:var(--dim)}
 .empty-state svg{width:48px;height:48px;color:var(--muted);margin-bottom:12px}
@@ -356,11 +372,6 @@ input[type="file"]{display:none}
 
   <input type="file" id="fileCargo" accept="image/*" capture="environment" onchange="handleFileCargo(event)">
 
-  <!-- DAMAGE -->
-  <button class="damage-btn" onclick="captureDamage()" data-t="btnDamage">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    <span>Marcar danio</span>
-  </button>
   <input type="file" id="fileDamage" accept="image/*" capture="environment" onchange="handleFileDamage(event)">
 
   <!-- SEND TO WAREHOUSE -->
@@ -467,7 +478,35 @@ var T = {
   scanAlert:   {es:'Escaneado: ',                 en:'Scanned: '},
   scanNotFound:{es:'No coincide con ningun item del envio',en:'Does not match any item in this shipment'},
   scanDone:    {es:'Ya escaneado completamente',  en:'Already fully scanned'},
+  obsPlaceholder:{es:'Observacion: que encontraste?',en:'Observation: what did you find?'},
+  flagged:     {es:'Observacion',                en:'Flagged'},
   sentOK:      {es:'Preaviso enviado a bodega',   en:'Heads-up sent to warehouse'},
+  btnPDF:      {es:'Pre-recibo PDF',              en:'Pre-receipt PDF'},
+  pdfTitle:    {es:'Pre-Recibo de Mercancia',     en:'Pre-Receipt of Goods'},
+  pdfShipment: {es:'Envio',                       en:'Shipment'},
+  pdfDate:     {es:'Fecha',                       en:'Date'},
+  pdfSupplier: {es:'Proveedor',                   en:'Supplier'},
+  pdfConsignee:{es:'Consignatario',               en:'Consignee'},
+  pdfVessel:   {es:'Buque / Vuelo',               en:'Vessel / Flight'},
+  pdfPort:     {es:'Puerto / Aeropuerto',         en:'Port / Airport'},
+  pdfWeight:   {es:'Peso Total',                  en:'Total Weight'},
+  pdfItemList: {es:'Detalle de Items',            en:'Item Detail'},
+  pdfSKU:      {es:'SKU',                         en:'SKU'},
+  pdfDesc:     {es:'Descripcion',                 en:'Description'},
+  pdfQty:      {es:'Cant.',                       en:'Qty'},
+  pdfScanned:  {es:'Verificado',                  en:'Verified'},
+  pdfStatus:   {es:'Estado',                      en:'Status'},
+  pdfObs:      {es:'Observacion',                 en:'Observation'},
+  pdfOK:       {es:'OK',                          en:'OK'},
+  pdfFlagged:  {es:'Observacion',                 en:'Flagged'},
+  pdfPending:  {es:'Pendiente',                   en:'Pending'},
+  pdfSummary:  {es:'Resumen de Verificacion',     en:'Verification Summary'},
+  pdfTotalItems:{es:'Total items',                en:'Total items'},
+  pdfVerified: {es:'Verificados en puerto',       en:'Verified at port'},
+  pdfFlagCount:{es:'Con observacion',             en:'Flagged'},
+  pdfSignRecv: {es:'Firma Receptor',              en:'Receiver Signature'},
+  pdfSignWh:   {es:'Firma Bodega',                en:'Warehouse Signature'},
+  pdfGenBy:    {es:'Generado por 7Group Logistics Intelligence',en:'Generated by 7Group Logistics Intelligence'},
   authDesc:    {es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
   authError:   {es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
   authFooter:  {es:'Solo personal autorizado',    en:'Authorized personnel only'},
@@ -531,6 +570,8 @@ var damagePhotos = [];
 var extractedData = null;
 var shipments = [];
 var scannedItems = {};
+var itemStatus = {};
+var itemObs = {};
 var portScannerActive = false;
 var portCameraStream = null;
 
@@ -726,8 +767,13 @@ function showScanSection() {
   if (!extractedData || !extractedData.items || extractedData.items.length === 0) return;
   document.getElementById('scanSection').style.display = 'block';
   scannedItems = {};
+  itemStatus = {};
+  itemObs = {};
   for (var i = 0; i < extractedData.items.length; i++) {
-    scannedItems[extractedData.items[i].sku] = 0;
+    var sku = extractedData.items[i].sku;
+    scannedItems[sku] = 0;
+    itemStatus[sku] = '';
+    itemObs[sku] = '';
   }
   renderScanChecklist();
 }
@@ -741,8 +787,11 @@ function togglePortScanner() {
   btn.style.display = portScannerActive ? 'none' : 'flex';
   skip.style.display = portScannerActive ? 'none' : 'block';
   if (portScannerActive) {
-    document.getElementById('portSkuInput').focus();
+    var inp = document.getElementById('portSkuInput');
+    inp.focus();
+    inp.addEventListener('blur', refocusPortInput);
   } else {
+    document.getElementById('portSkuInput').removeEventListener('blur', refocusPortInput);
     stopPortCamera();
   }
 }
@@ -862,16 +911,27 @@ function renderScanChecklist() {
   for (var i = 0; i < extractedData.items.length; i++) {
     var it = extractedData.items[i];
     var scanned = scannedItems[it.sku] || 0;
+    var st = itemStatus[it.sku] || '';
+    var obs = itemObs[it.sku] || '';
     totalExpected += it.qty;
     totalScanned += scanned;
-    var status = scanned >= it.qty ? 'scanned' : scanned > 0 ? 'partial' : '';
-    var icon = scanned >= it.qty ? '&#10003;' : scanned > 0 ? scanned : '';
+    var rowClass = st === 'ok' ? 'scanned' : st === 'flagged' ? 'partial' : scanned > 0 ? 'partial' : '';
+    var icon = st === 'ok' ? '&#10003;' : st === 'flagged' ? '&#10007;' : scanned > 0 ? scanned : '';
     var qtyClass = scanned >= it.qty ? 'full' : scanned > 0 ? 'partial' : 'zero';
 
-    html += '<div class="check-item ' + status + '">';
+    html += '<div class="check-item-wrap">';
+    html += '<div class="check-item ' + rowClass + '">';
     html += '<div class="check-icon">' + icon + '</div>';
     html += '<div class="check-info"><div class="check-name">' + it.name + '</div><div class="check-sku">' + it.sku + '</div></div>';
     html += '<div class="check-qty"><div class="check-qty-val ' + qtyClass + '">' + scanned + '/' + it.qty + '</div><div class="check-qty-label">' + t('scanned') + '</div></div>';
+    html += '<div class="check-actions">';
+    html += '<button class="check-ok' + (st === 'ok' ? ' active' : '') + '" onclick="markItemOK(\'' + it.sku + '\')" title="OK">&#10003;</button>';
+    html += '<button class="check-flag' + (st === 'flagged' ? ' active' : '') + '" onclick="markItemFlag(\'' + it.sku + '\')" title="' + t('flagged') + '">&#10007;</button>';
+    html += '</div>';
+    html += '</div>';
+    if (st === 'flagged') {
+      html += '<div class="check-item-obs"><textarea class="check-obs" rows="2" placeholder="' + t('obsPlaceholder') + '" onchange="saveObs(\'' + it.sku + '\',this.value)" onblur="saveObs(\'' + it.sku + '\',this.value)">' + obs + '</textarea></div>';
+    }
     html += '</div>';
   }
   list.innerHTML = html;
@@ -883,6 +943,33 @@ function renderScanChecklist() {
   var bar = document.getElementById('scanBar');
   bar.style.width = pct + '%';
   bar.className = 'check-progress-fill' + (pct >= 100 ? ' complete' : '');
+}
+
+function markItemOK(sku) {
+  itemStatus[sku] = itemStatus[sku] === 'ok' ? '' : 'ok';
+  if (itemStatus[sku] === 'ok') itemObs[sku] = '';
+  renderScanChecklist();
+}
+
+function markItemFlag(sku) {
+  itemStatus[sku] = itemStatus[sku] === 'flagged' ? '' : 'flagged';
+  renderScanChecklist();
+  if (itemStatus[sku] === 'flagged') {
+    var obs = document.querySelector('.check-obs');
+    if (obs) obs.focus();
+  }
+}
+
+function saveObs(sku, val) {
+  itemObs[sku] = val;
+}
+
+function refocusPortInput() {
+  if (!portScannerActive) return;
+  setTimeout(function() {
+    var inp = document.getElementById('portSkuInput');
+    if (inp && !document.activeElement.classList.contains('check-obs')) inp.focus();
+  }, 200);
 }
 
 function getTotalScanned() {
@@ -911,7 +998,10 @@ function sendToWarehouse() {
     totalWeight: extractedData.totalWeight,
     items: extractedData.items,
     scannedItems: JSON.parse(JSON.stringify(scannedItems)),
+    itemStatus: JSON.parse(JSON.stringify(itemStatus)),
+    itemObs: JSON.parse(JSON.stringify(itemObs)),
     scannedAtPort: getTotalScanned(),
+    flaggedItems: Object.keys(itemStatus).filter(function(k){ return itemStatus[k] === 'flagged'; }).length,
     docPhotos: docPhotos.length,
     cargoPhotos: cargoPhotos.length,
     damagePhotos: damagePhotos.length,
@@ -958,6 +1048,8 @@ function resetCapture() {
   damagePhotos = [];
   extractedData = null;
   scannedItems = {};
+  itemStatus = {};
+  itemObs = {};
   portScannerActive = false;
   stopPortCamera();
   document.getElementById('extractedSection').style.display = 'none';
@@ -997,13 +1089,107 @@ function renderShipmentsList() {
     html += '<span>' + (s.items ? s.items.length : 0) + ' ' + t('items') + '</span>';
     if (s.scannedAtPort > 0) html += '<span style="color:var(--green)">' + s.scannedAtPort + ' ' + t('scanned') + '</span>';
     html += '<span>' + (s.cargoPhotos || 0) + ' ' + t('photos') + '</span>';
-    if (s.damagePhotos > 0) html += '<span style="color:var(--red)">' + s.damagePhotos + ' ' + t('damages') + '</span>';
+    if (s.flaggedItems > 0) html += '<span style="color:var(--red)">' + s.flaggedItems + ' ' + t('flagged') + '</span>';
+    else if (s.damagePhotos > 0) html += '<span style="color:var(--red)">' + s.damagePhotos + ' ' + t('damages') + '</span>';
     html += '<span>' + timeStr + '</span>';
+    html += '</div>';
+    html += '<div class="shipment-card-actions">';
+    html += '<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();generatePreReceipt(' + i + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ' + t('btnPDF') + '</button>';
     html += '</div>';
     html += '</div>';
   }
   html += '</div>';
   container.innerHTML = html;
+}
+
+/* =============== PDF PRE-RECEIPT =============== */
+function generatePreReceipt(idx) {
+  var s = shipments[idx];
+  if (!s) return;
+  var date = new Date(s.createdAt);
+  var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  var totalExpected = 0;
+  var totalVerified = s.scannedAtPort || 0;
+  var totalFlagged = s.flaggedItems || 0;
+  if (s.items) for (var i = 0; i < s.items.length; i++) totalExpected += s.items[i].qty;
+
+  var rows = '';
+  if (s.items) {
+    for (var j = 0; j < s.items.length; j++) {
+      var it = s.items[j];
+      var sc = s.scannedItems ? (s.scannedItems[it.sku] || 0) : 0;
+      var st = s.itemStatus ? (s.itemStatus[it.sku] || '') : '';
+      var ob = s.itemObs ? (s.itemObs[it.sku] || '') : '';
+      var stLabel = st === 'ok' ? t('pdfOK') : st === 'flagged' ? t('pdfFlagged') : t('pdfPending');
+      var stColor = st === 'ok' ? '#22c55e' : st === 'flagged' ? '#ef4444' : '#94a3b8';
+      rows += '<tr>';
+      rows += '<td style="font-family:monospace;font-size:11px">' + it.sku + '</td>';
+      rows += '<td>' + it.name + '</td>';
+      rows += '<td style="text-align:center">' + it.qty + '</td>';
+      rows += '<td style="text-align:center">' + sc + '</td>';
+      rows += '<td style="text-align:center;color:' + stColor + ';font-weight:700">' + stLabel + '</td>';
+      rows += '<td style="font-size:11px;color:#64748b">' + (ob || '—') + '</td>';
+      rows += '</tr>';
+    }
+  }
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
+  html += '<title>' + t('pdfTitle') + ' — ' + s.blNumber + '</title>';
+  html += '<style>';
+  html += 'body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:13px}';
+  html += '.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #060a0e;padding-bottom:16px;margin-bottom:20px}';
+  html += '.logo{font-size:22px;font-weight:900;letter-spacing:-1px}.logo-sub{font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase}';
+  html += '.doc-title{text-align:right}.doc-title h1{font-size:16px;margin:0 0 4px}.doc-title .bl{font-family:monospace;font-size:14px;color:#0ea5e9}';
+  html += 'table{width:100%;border-collapse:collapse;margin:12px 0}';
+  html += 'th{background:#f1f5f9;text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#475569;border:1px solid #e2e8f0}';
+  html += 'td{padding:7px 10px;border:1px solid #e2e8f0;font-size:12px}';
+  html += '.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px}';
+  html += '.info-item{display:flex;flex-direction:column;gap:2px}.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600}.info-val{font-size:13px;font-weight:600}';
+  html += '.summary-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:14px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}';
+  html += '.summary-num{font-size:22px;font-weight:800}.summary-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}';
+  html += '.signatures{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;padding-top:16px}';
+  html += '.sig-line{border-top:1px solid #1e293b;padding-top:6px;text-align:center;font-size:11px;color:#64748b}';
+  html += '.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
+  html += '@media print{body{padding:12px}@page{margin:15mm}}';
+  html += '</style></head><body>';
+
+  html += '<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
+  html += '<div class="doc-title"><h1>' + t('pdfTitle') + '</h1><div class="bl">' + s.blNumber + '</div></div></div>';
+
+  html += '<div class="info-grid">';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfShipment') + '</span><span class="info-val">' + s.id + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfDate') + '</span><span class="info-val">' + dateStr + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfSupplier') + '</span><span class="info-val">' + s.supplier + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfConsignee') + '</span><span class="info-val">' + s.consignee + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfVessel') + '</span><span class="info-val">' + s.vessel + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfPort') + '</span><span class="info-val">' + s.port + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('lblDocType') + '</span><span class="info-val">' + s.docType + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfWeight') + '</span><span class="info-val">' + s.totalWeight + '</span></div>';
+  html += '</div>';
+
+  html += '<h3 style="font-size:13px;margin-bottom:4px">' + t('pdfItemList') + '</h3>';
+  html += '<table><thead><tr>';
+  html += '<th>' + t('pdfSKU') + '</th><th>' + t('pdfDesc') + '</th><th style="text-align:center">' + t('pdfQty') + '</th><th style="text-align:center">' + t('pdfScanned') + '</th><th style="text-align:center">' + t('pdfStatus') + '</th><th>' + t('pdfObs') + '</th>';
+  html += '</tr></thead><tbody>' + rows + '</tbody></table>';
+
+  html += '<div class="summary-box">';
+  html += '<div><div class="summary-num">' + totalExpected + '</div><div class="summary-label">' + t('pdfTotalItems') + '</div></div>';
+  html += '<div><div class="summary-num" style="color:#22c55e">' + totalVerified + '</div><div class="summary-label">' + t('pdfVerified') + '</div></div>';
+  html += '<div><div class="summary-num" style="color:' + (totalFlagged > 0 ? '#ef4444' : '#22c55e') + '">' + totalFlagged + '</div><div class="summary-label">' + t('pdfFlagCount') + '</div></div>';
+  html += '</div>';
+
+  html += '<div class="signatures">';
+  html += '<div><div class="sig-line">' + t('pdfSignRecv') + '</div></div>';
+  html += '<div><div class="sig-line">' + t('pdfSignWh') + '</div></div>';
+  html += '</div>';
+
+  html += '<div class="footer">' + t('pdfGenBy') + ' — ' + dateStr + '</div>';
+  html += '</body></html>';
+
+  var w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 600);
 }
 
 /* =============== INIT =============== */
