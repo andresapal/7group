@@ -222,6 +222,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 </nav>
 
 <div class="mod-nav">
+  <a href="/demos/logistica-pyme/shipment/" class="mod-link" data-t="modShip">Shipment</a>
   <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link active" data-t="modWh">Bodega</a>
@@ -416,7 +417,7 @@ var LANG='es';
 var T={
   badge:{es:'Operaciones de Bodega',en:'Warehouse Operations'},
   schedule:{es:'Agendar llamada',en:'Schedule a call'},
-  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'},
+  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'},
   tabOrders:{es:'Ordenes',en:'Orders'},tabPicking:{es:'Picking',en:'Picking'},tabPacking:{es:'Packing',en:'Packing'},tabDispatch:{es:'Despacho',en:'Dispatch'},tabHistory:{es:'Historial',en:'History'},
   kpiPending:{es:'Pendientes',en:'Pending'},kpiPicking:{es:'En Picking',en:'Picking'},kpiPacking:{es:'En Packing',en:'Packing'},kpiReady:{es:'Listos',en:'Ready'},
   secPickActive:{es:'Orden Activa de Picking',en:'Active Picking Order'},
@@ -451,6 +452,7 @@ function applyLang(){
   document.getElementById('langEN').classList.toggle('active',LANG==='en');
   document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
   var lp=LANG==='en'?'?lang=en':'';
+  document.querySelector('.mod-link[data-t="modShip"]').href='/demos/logistica-pyme/shipment/'+lp;
   document.querySelector('.mod-link[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;

@@ -215,6 +215,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 
 <!-- MODULE NAV -->
 <div class="mod-nav">
+  <a href="/demos/logistica-pyme/shipment/" class="mod-link" data-t="modShip">Shipment</a>
   <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
   <a href="/demos/logistica-pyme/inventario/" class="mod-link active" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
@@ -402,6 +403,7 @@ var LANG = 'es';
 var T = {
   badge:         {es:'Motor de Inventario',en:'Inventory Engine'},
   schedule:      {es:'Agendar llamada',en:'Schedule a call'},
+  modShip:       {es:'Shipment',en:'Shipment'},
   modRecv:       {es:'Recibo',en:'Receiving'},
   modInv:        {es:'Inventario',en:'Inventory'},
   modWh:         {es:'Bodega',en:'Warehouse'},
@@ -486,6 +488,8 @@ function applyLang() {
   document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
   document.getElementById('searchSku').placeholder=t('searchPlaceholder');
 
+  var shipLink = document.querySelector('.mod-link[data-t="modShip"]');
+  if(shipLink) shipLink.href='/demos/logistica-pyme/shipment/'+(LANG==='en'?'?lang=en':'');
   var recvLink = document.querySelector('.mod-link[data-t="modRecv"]');
   if(recvLink) recvLink.href='/demos/logistica-pyme/'+(LANG==='en'?'?lang=en':'');
   var invLink = document.querySelector('.mod-link[data-t="modInv"]');

@@ -175,6 +175,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 </nav>
 
 <div class="mod-nav">
+  <a href="/demos/logistica-pyme/shipment/" class="mod-link" data-t="modShip">Shipment</a>
   <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
@@ -317,7 +318,7 @@ var LANG='es';
 var T={
   badge:{es:'CEO Dashboard',en:'CEO Dashboard'},
   schedule:{es:'Agendar llamada',en:'Schedule a call'},
-  modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'},
+  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'},
   secRevenue:{es:'Ingresos Mensuales',en:'Monthly Revenue'},
   secOrders:{es:'Ordenes por Semana',en:'Orders per Week'},
   secOpsScore:{es:'Puntaje Operativo',en:'Operations Score'},
@@ -351,6 +352,7 @@ function applyLang(){
   document.getElementById('langEN').classList.toggle('active',LANG==='en');
   document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
   var lp=LANG==='en'?'?lang=en':'';
+  document.querySelector('.mod-link[data-t="modShip"]').href='/demos/logistica-pyme/shipment/'+lp;
   document.querySelector('.mod-link[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
