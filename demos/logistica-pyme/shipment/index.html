@@ -6,6 +6,7 @@
 <title>Shipment Capture -- 7Group Logistics</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -340,10 +341,8 @@ input[type="file"]{display:none}
           <span class="sec-tag tag-count" id="scanProgress">0 / 0</span>
         </div>
         <div class="sec-body">
-          <div class="scanner-area" id="portScannerArea" style="display:none">
-            <video id="portScanVideo" autoplay playsinline muted></video>
-            <div class="scan-overlay"><div class="scan-frame"><div class="scan-line"></div></div></div>
-            <div class="scanner-status"><span class="dot"></span> <span data-t="scanning">Escaneando...</span></div>
+          <div id="portScannerArea" style="display:none">
+            <div id="html5QrReader" style="width:100%;border-radius:8px;overflow:hidden"></div>
           </div>
           <div class="scan-input-row">
             <input class="scan-input" id="portSkuInput" placeholder="SKU..." onkeydown="if(event.key==='Enter')scanPortItem()">
@@ -597,7 +596,6 @@ var itemDamageType = {};
 var itemNovQty = {};
 var skuIndex = {};
 var portScannerActive = false;
-var portCameraStream = null;
 var checklistFilter = '';
 
 function buildSkuIndex() {
@@ -882,6 +880,8 @@ function togglePortScanner() {
   }
 }
 
+var html5QrScanner = null;
+
 function togglePortCamera() {
   var area = document.getElementById('portScannerArea');
   var btn = document.getElementById('portCamToggle');
@@ -900,54 +900,54 @@ function togglePortCamera() {
 }
 
 function startPortCamera() {
-  if (portCameraStream) return;
-  var video = document.getElementById('portScanVideo');
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-    .then(function(stream) {
-      portCameraStream = stream;
-      video.srcObject = stream;
-      video.play();
-      startBarcodeDetection(video);
-    })
-    .catch(function() {});
+  if (html5QrScanner) return;
+  if (typeof Html5Qrcode === 'undefined') {
+    showScanFeedback(LANG === 'es' ? 'Libreria de escaneo no cargada. Verifique conexion a internet.' : 'Scan library not loaded. Check internet connection.', 'error');
+    return;
+  }
+  html5QrScanner = new Html5Qrcode('html5QrReader');
+  var lastScan = '';
+  var lastTime = 0;
+  html5QrScanner.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: { width: 250, height: 150 }, aspectRatio: 1.5, formatsToSupport: [
+      Html5QrcodeSupportedFormats.QR_CODE,
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.ITF,
+      Html5QrcodeSupportedFormats.CODABAR
+    ]},
+    function onSuccess(code) {
+      var c = code.trim().toUpperCase();
+      var now = Date.now();
+      if (c !== lastScan || now - lastTime > 3000) {
+        lastScan = c;
+        lastTime = now;
+        document.getElementById('portSkuInput').value = c;
+        scanPortItem();
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      }
+    },
+    function onError() {}
+  ).catch(function(err) {
+    showScanFeedback(LANG === 'es' ? 'No se pudo acceder a la camara.' : 'Could not access camera.', 'error');
+    html5QrScanner = null;
+  });
 }
 
 function stopPortCamera() {
-  if (portCameraStream) {
-    portCameraStream.getTracks().forEach(function(t) { t.stop(); });
-    portCameraStream = null;
+  if (html5QrScanner) {
+    html5QrScanner.stop().then(function() {
+      html5QrScanner.clear();
+      html5QrScanner = null;
+    }).catch(function() {
+      html5QrScanner = null;
+    });
   }
-  var video = document.getElementById('portScanVideo');
-  if (video) video.srcObject = null;
-}
-
-function startBarcodeDetection(video) {
-  if (!('BarcodeDetector' in window)) {
-    showScanFeedback(LANG === 'es' ? 'Lectura automatica no disponible en este navegador. Ingrese SKU manualmente.' : 'Auto-scan not available in this browser. Enter SKU manually.', 'error');
-    return;
-  }
-  var detector = new BarcodeDetector({ formats: ['qr_code','ean_13','ean_8','code_128','code_39','upc_a','upc_e','codabar','itf'] });
-  var lastScan = '';
-  var lastTime = 0;
-  function detect() {
-    if (!portCameraStream) return;
-    detector.detect(video).then(function(barcodes) {
-      if (barcodes.length > 0) {
-        var code = barcodes[0].rawValue.trim().toUpperCase();
-        var now = Date.now();
-        if (code !== lastScan || now - lastTime > 3000) {
-          lastScan = code;
-          lastTime = now;
-          document.getElementById('portSkuInput').value = code;
-          scanPortItem();
-          if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        }
-      }
-    }).catch(function(){});
-    requestAnimationFrame(detect);
-  }
-  detect();
 }
 
 function scanPortItem() {
@@ -1130,8 +1130,13 @@ function markItemOK(sku) {
     itemStatus[sku] = '';
   } else {
     itemStatus[sku] = 'ok';
-    scannedItems[sku] = findItemQty(sku);
-    if (itemObs[sku]) itemObs[sku] = '';
+    var docQty = findItemQty(sku);
+    var novT = itemDamageType[sku] || '';
+    var novQ = itemNovQty[sku] || 0;
+    if (novT === 'faltante') { scannedItems[sku] = Math.max(0, docQty - novQ); }
+    else if (novT === 'sobrante') { scannedItems[sku] = docQty + novQ; }
+    else { scannedItems[sku] = docQty; }
+    if (!novT && itemObs[sku]) itemObs[sku] = '';
   }
   renderScanChecklist();
   saveWIP();
@@ -1376,7 +1381,7 @@ function deleteShipment(idx) {
 }
 
 /* =============== PREVIEW PDF (before sending) =============== */
-function buildPreReceiptHTML(s) {
+function buildPreReceiptHTML(s, isPreview) {
   var date = new Date(s.createdAt || new Date().toISOString());
   var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   var totalExpected = 0, totalVerified = 0, totalFlagged = 0;
@@ -1441,10 +1446,16 @@ function buildPreReceiptHTML(s) {
   html += '.back-btn{font-size:12px;padding:6px 16px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;color:#1e293b;cursor:pointer;font-family:inherit;font-weight:600}';
   html += '.back-btn:hover{background:#e2e8f0}.print-btn{font-size:12px;padding:6px 16px;border:none;border-radius:6px;background:#060a0e;color:#fff;cursor:pointer;font-family:inherit;font-weight:600}';
   html += '.print-btn:hover{background:#1e293b}';
+  html += '.send-btn{font-size:12px;padding:6px 16px;border:none;border-radius:6px;background:#22c55e;color:#fff;cursor:pointer;font-family:inherit;font-weight:700}';
+  html += '.send-btn:hover{background:#16a34a}';
   html += '.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
   html += '@media print{.back-bar{display:none!important}.sig-actions{display:none!important}body{padding:12px}@page{margin:15mm}}</style></head><body>';
 
-  html += '<div class="back-bar"><button class="back-btn" onclick="window.close()">' + (LANG==='es'?'&#8592; Regresar':'&#8592; Go back') + '</button><button class="print-btn" onclick="window.print()">' + (LANG==='es'?'Imprimir / Guardar PDF':'Print / Save PDF') + '</button></div>';
+  html += '<div class="back-bar"><button class="back-btn" onclick="window.close()">' + (LANG==='es'?'&#8592; Regresar':'&#8592; Go back') + '</button><div style="display:flex;gap:8px">';
+  if (isPreview) {
+    html += '<button class="send-btn" onclick="confirmSend()">' + (LANG==='es'?'Cerrar y Enviar a Recibo':'Close &amp; Send to Receiving') + '</button>';
+  }
+  html += '<button class="print-btn" onclick="window.print()">' + (LANG==='es'?'Imprimir / Guardar PDF':'Print / Save PDF') + '</button></div></div>';
   html += '<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
   html += '<div class="doc-title"><h1>' + t('pdfTitle') + '</h1><div class="bl">' + s.blNumber + '</div></div></div>';
 
@@ -1491,6 +1502,11 @@ function buildPreReceiptHTML(s) {
   html += 'c.addEventListener("touchstart",start,{passive:false});c.addEventListener("touchmove",move,{passive:false});c.addEventListener("touchend",stop)}';
   html += 'function clearSig(id){var c=document.getElementById(id);c.getContext("2d").clearRect(0,0,c.width,c.height)}';
   html += 'initSig("sigRecv");initSig("sigWh");';
+  if (isPreview) {
+    html += 'function confirmSend(){';
+    html += 'var msg=' + (LANG==='es' ? '"Se enviara este shipment a Recibo. \\u00BFConfirma el envio?"' : '"This shipment will be sent to Receiving. Confirm?"') + ';';
+    html += 'if(confirm(msg)){if(window.opener&&window.opener.sendToRecibo){window.opener.sendToRecibo();window.close()}else{alert(' + (LANG==='es' ? '"No se pudo conectar con la ventana principal. Cierre y envie desde ahi."' : '"Could not connect to main window. Close and send from there."') + ')}}}';
+  }
   html += '<\/script>';
 
   html += '</body></html>';
@@ -1523,7 +1539,7 @@ function currentShipmentSnapshot() {
 function previewPDF() {
   if (!extractedData) return;
   var snap = currentShipmentSnapshot();
-  var html = buildPreReceiptHTML(snap);
+  var html = buildPreReceiptHTML(snap, true);
   var w = window.open('', '_blank');
   w.document.write(html);
   w.document.close();
