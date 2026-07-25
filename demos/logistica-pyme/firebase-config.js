@@ -7,6 +7,7 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyixJTQxqegAxF-XYpOe2Xn3M27ef7oxV55oraU5ffZTBxDr92MTYSiskRhl5mPwQWL/exec';
 
 const SHEET_NAMES = {
+  shipments: 'Embarques',
   inventory: 'Inventario',
   receiving: 'Recepciones',
   orders: 'Pedidos',
@@ -81,6 +82,67 @@ const LocalCache = {
 // Writes to both Sheets (persistent) and localStorage (speed)
 // ============================================================
 const DB = {
+
+  // --- Shipments ---
+  async saveShipment(shipment) {
+    const col = LocalCache.get('shipments');
+    const idx = col.findIndex(r => r.id === shipment.id);
+    if (idx !== -1) {
+      col[idx] = { ...col[idx], ...shipment, updatedAt: new Date().toISOString() };
+    } else {
+      col.unshift(shipment);
+    }
+    LocalCache.set('shipments', col);
+
+    // Also keep 7g-shipments in sync for modules that read it directly
+    try { localStorage.setItem('7g-shipments', JSON.stringify(col)); } catch(e) {}
+
+    await SheetsAPI.post({
+      action: idx !== -1 ? 'update' : 'append',
+      sheet: SHEET_NAMES.shipments,
+      key: 'id', keyValue: shipment.id,
+      row: {
+        id: shipment.id,
+        blNumber: shipment.blNumber || '',
+        docType: shipment.docType || '',
+        supplier: shipment.supplier || '',
+        consignee: shipment.consignee || '',
+        vessel: shipment.vessel || '',
+        port: shipment.port || '',
+        totalWeight: shipment.totalWeight || '',
+        itemCount: shipment.items ? shipment.items.length : 0,
+        scannedAtPort: shipment.scannedAtPort || 0,
+        flaggedItems: shipment.flaggedItems || 0,
+        crossDock: shipment.crossDock || false,
+        xdMode: shipment.xdMode || '',
+        xdDestCount: shipment.xdDestinations ? shipment.xdDestinations.length : 0,
+        status: shipment.status || 'pending',
+        createdAt: shipment.createdAt,
+        createdBy: shipment.createdBy || '',
+        _json: JSON.stringify(shipment)
+      }
+    });
+
+    await DB.logActivity('shipments', 'create', shipment.id, shipment.blNumber || shipment.id);
+  },
+
+  async getShipments() {
+    const remote = await SheetsAPI.get(SHEET_NAMES.shipments);
+    if (remote && remote.length > 0) {
+      const parsed = remote.map(r => {
+        if (r._json) { try { return JSON.parse(r._json); } catch(e) {} }
+        return r;
+      });
+      LocalCache.set('shipments', parsed);
+      try { localStorage.setItem('7g-shipments', JSON.stringify(parsed)); } catch(e) {}
+      return parsed;
+    }
+    return LocalCache.get('shipments');
+  },
+
+  onShipmentsChange(callback) {
+    return LocalCache.listen('shipments', callback);
+  },
 
   // --- Receiving ---
   async createReceiving(data) {

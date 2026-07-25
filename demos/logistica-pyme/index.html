@@ -490,6 +490,24 @@ function loadData(){
   try{inventory=JSON.parse(localStorage.getItem('7g-inventory')||'[]');}catch(e){inventory=[];}
   try{zones=JSON.parse(localStorage.getItem('7g-wh-zones')||'null');if(!zones||!zones.length)zones=DEFAULT_ZONES;}catch(e){zones=DEFAULT_ZONES;}
   try{receptions=JSON.parse(localStorage.getItem('7g-receptions')||'{}');}catch(e){receptions={};}
+  syncShipmentsFromCloud();
+}
+function syncShipmentsFromCloud(){
+  if(typeof DB==='undefined'||!DB.getShipments)return;
+  DB.getShipments().then(function(remote){
+    if(!remote||!remote.length)return;
+    var localIds={};
+    for(var i=0;i<shipments.length;i++)localIds[shipments[i].id]=true;
+    var added=0;
+    for(var j=0;j<remote.length;j++){
+      if(!localIds[remote[j].id]){shipments.push(remote[j]);added++;}
+    }
+    if(added>0){
+      saveShipments();
+      renderFilters();
+      renderPreavisos();
+    }
+  }).catch(function(){});
 }
 function saveInventory(){localStorage.setItem('7g-inventory',JSON.stringify(inventory));}
 function saveZones(){localStorage.setItem('7g-wh-zones',JSON.stringify(zones));}

@@ -713,9 +713,29 @@ function buildSkuIndex() {
 
 function loadShipments() {
   try { shipments = JSON.parse(localStorage.getItem('7g-shipments') || '[]'); } catch(e) { shipments = []; }
+  syncShipmentsFromCloud();
 }
 function saveShipments() {
   localStorage.setItem('7g-shipments', JSON.stringify(shipments));
+}
+function syncShipmentsFromCloud() {
+  if (typeof DB === 'undefined' || !DB.getShipments) return;
+  DB.getShipments().then(function(remote) {
+    if (!remote || !remote.length) return;
+    var localIds = {};
+    for (var i = 0; i < shipments.length; i++) localIds[shipments[i].id] = true;
+    var added = 0;
+    for (var j = 0; j < remote.length; j++) {
+      if (!localIds[remote[j].id]) {
+        shipments.push(remote[j]);
+        added++;
+      }
+    }
+    if (added > 0) {
+      saveShipments();
+      renderShipmentsList();
+    }
+  }).catch(function() {});
 }
 
 /* =============== INDEXEDDB FOR PHOTOS =============== */
@@ -1684,6 +1704,7 @@ function sendToWarehouse(skipConfirm) {
 
   shipments.push(shipment);
   saveShipments();
+  if (typeof DB !== 'undefined' && DB.saveShipment) DB.saveShipment(shipment);
 
   if (crossDockEnabled && xdDestinations.length > 0 && typeof DB !== 'undefined' && DB.createDispatch) {
     for (var d = 0; d < xdDestinations.length; d++) {
