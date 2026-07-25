@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Despachos -- 7Group Logistica</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Despachos -- 7Group Logistics</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -13,7 +13,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
 h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
 code,.mono{font-family:'JetBrains Mono',monospace}
 :root{
@@ -31,101 +31,78 @@ code,.mono{font-family:'JetBrains Mono',monospace}
   --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
 }
 
-/* AUTH */
-.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
-.auth-gate.hidden{opacity:0;pointer-events:none}
-.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
-.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
-.auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
-.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.5}
-.auth-divider{height:1px;background:var(--border2);margin:20px 0}
-.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
-.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
-#g_id_signin{display:flex;justify-content:center}
-.app-wrap{display:none}.app-wrap.visible{display:block}
-
-/* TOPBAR */
-.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
-.tb-left{display:flex;align-items:center;gap:12px}
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
+.tb-left{display:flex;align-items:center;gap:10px}
 .tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
-.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-sep{width:1px;height:16px;background:var(--border3)}
 .tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
-.tb-right{display:flex;align-items:center;gap:8px}
-.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
-.tb-btn:hover{background:rgba(94,231,247,.15)}
-.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
-.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:6px}
 .lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
-.lang-opt{padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt{padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
 .lang-opt:first-child{border-right:1px solid var(--border3)}
 .lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.tb-toggle{padding:4px 8px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
 .theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
 
-/* MODULE NAV */
-.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;gap:0}
-.mod-link{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.mod-link{padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
 .mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
 
-/* TABS */
-.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto}
-.tab{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
-.tab:hover{color:var(--white)}.tab.active{color:var(--cyan);border-color:var(--cyan)}
+.main{max-width:600px;margin:0 auto;padding:16px}
 
-/* MAIN */
-.main{max-width:1100px;margin:0 auto;padding:24px}
-.panel{display:none}.panel.active{display:block}
+.view-tabs{display:flex;gap:0;border:1px solid var(--border3);border-radius:6px;overflow:hidden;margin-bottom:12px}
+.vtab{flex:1;padding:8px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;background:var(--bg3);color:var(--dim);border:none;font-family:inherit;transition:.2s}
+.vtab:not(:last-child){border-right:1px solid var(--border3)}
+.vtab.active{background:rgba(94,231,247,.1);color:var(--cyan)}
 
-/* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
-.kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:18px 20px}
-.kpi-val{font-size:28px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;margin-bottom:2px}
-.kpi-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.yellow{color:var(--yellow)}.kpi-val.red{color:var(--red)}.kpi-val.blue{color:var(--blue)}.kpi-val.purple{color:var(--purple)}.kpi-val.orange{color:var(--orange)}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px}
+.kpi-val{font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+.kpi-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.yellow{color:var(--yellow)}.kpi-val.red{color:var(--red)}
 
-/* SEC */
-.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:16px;overflow:hidden}
-.sec-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.sec-title{font-size:13px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:8px}
-.sec-body{padding:20px}
-.sec-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.filter-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.fpill{padding:5px 12px;border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border3);background:var(--bg3);color:var(--dim);font-family:inherit;transition:.2s;white-space:nowrap}
+.fpill:hover{border-color:var(--cyan);color:var(--cyan)}
+.fpill.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+.fpill .pill-count{display:inline-block;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:8px;font-size:9px;font-weight:700;margin-left:4px;background:var(--bg4);color:var(--dim)}
+.fpill.active .pill-count{background:rgba(94,231,247,.2);color:var(--cyan)}
 
-/* SHIPMENT CARD */
-.ship-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:10px;transition:.2s}
-.ship-card:hover{border-color:var(--cyan)}
-.ship-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
-.ship-id{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--cyan)}
-.ship-client{font-size:12px;color:var(--white);font-weight:600}
-.ship-status{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:4px}
-.st-scheduled{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.15)}
-.st-loading{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.15)}
-.st-transit{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.15)}
-.st-delivered{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.15)}
-.st-delayed{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}
-.ship-details{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:10px}
-.ship-detail{display:flex;flex-direction:column;gap:2px}
-.ship-detail-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-.ship-detail-value{font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace}
-.ship-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.ship-meta{font-size:11px;color:var(--dim)}
+.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.sec-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sec-title{font-size:12px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:6px}
+.sec-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.sec-body{padding:16px}
+.tag-prep{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.15)}
+.tag-shipped{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.15)}
+.tag-delivered{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.tag-cancelled{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}
 
-/* ROUTE CARD */
-.route-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:10px}
-.route-stops{display:flex;flex-direction:column;gap:0}
-.route-stop{display:flex;gap:12px;padding:8px 0}
-.route-dot-col{display:flex;flex-direction:column;align-items:center;width:20px}
-.route-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--border3);flex-shrink:0}
-.route-dot.origin{background:var(--cyan);border-color:var(--cyan)}
-.route-dot.stop{background:var(--yellow);border-color:var(--yellow)}
-.route-dot.dest{background:var(--green);border-color:var(--green)}
-.route-dot.current{box-shadow:0 0 0 3px rgba(94,231,247,.3)}
-.route-line{width:2px;flex:1;background:var(--border2);margin:2px 0}
-.route-stop:last-child .route-line{display:none}
-.route-info{flex:1;padding-bottom:4px}
-.route-name{font-size:12px;font-weight:600;color:var(--white)}
-.route-addr{font-size:11px;color:var(--dim);margin-top:1px}
-.route-eta{font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.dsp-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s}
+.dsp-card:hover{border-color:var(--cyan)}
+.dsp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.dsp-id{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--cyan)}
+.dsp-info{font-size:11px;color:var(--dim);line-height:1.5}
+.dsp-meta{display:flex;gap:10px;margin-top:6px;font-size:10px;color:var(--dim);flex-wrap:wrap}
+.dsp-meta span{display:flex;align-items:center;gap:3px}
+.dsp-actions{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
 
-/* TRACKING BAR */
+.form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.form-row input,.form-row select,.form-row textarea{flex:1;min-width:100px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--white);font-family:inherit;outline:none;transition:.2s}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.form-row select{-webkit-appearance:none;appearance:none}
+.form-row textarea{resize:none}
+
+.inv-pick{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;margin-bottom:6px;transition:.2s}
+.inv-pick.selected{border-color:rgba(94,231,247,.3);background:rgba(94,231,247,.04)}
+.inv-pick-info{flex:1;min-width:0}
+.inv-pick-name{font-size:12px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inv-pick-sku{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.inv-pick-stock{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--green);flex-shrink:0;margin-right:6px}
+.inv-pick-qty{width:60px;background:var(--bg2);border:1px solid var(--border3);border-radius:4px;padding:6px 8px;font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center;outline:none}
+.inv-pick-qty:focus{border-color:var(--cyan)}
+
 .track-bar{display:flex;align-items:center;gap:0;margin:16px 0}
 .track-step{flex:1;text-align:center;position:relative}
 .track-step::before{content:'';position:absolute;top:11px;left:0;right:0;height:2px;background:var(--border2)}
@@ -139,72 +116,37 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .track-step.done .track-label{color:var(--green)}
 .track-step.active .track-label{color:var(--cyan)}
 
-/* CARRIER BADGE */
-.carrier-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;font-size:11px;font-weight:600;color:var(--white)}
-.carrier-dot{width:6px;height:6px;border-radius:50%}
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--cyan);color:#060a0e;width:100%;justify-content:center;padding:14px}
+.btn-primary:hover{background:#7bf0ff}.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{opacity:.4;cursor:default;transform:none}
+.btn-secondary{background:var(--bg3);color:var(--white);border:1px solid var(--border3)}
+.btn-sm{padding:6px 12px;font-size:11px}
+.btn-success{background:var(--green);color:#fff;width:100%;justify-content:center;padding:14px}
+.btn-success:hover{opacity:.9}
+.btn-danger{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.15)}
 
-/* BUTTONS */
-.btn{padding:7px 14px;border-radius:5px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:5px}
-.btn-primary{background:var(--cyan);color:#060a0e}.btn-primary:hover{background:#7bf0ff}
-.btn-sm{padding:5px 10px;font-size:10px}
-.btn-secondary{background:var(--bg4);color:var(--white);border:1px solid var(--border3)}.btn-secondary:hover{border-color:var(--cyan)}
-.btn-success{background:var(--green);color:#fff}.btn-success:hover{opacity:.9}
-.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}.btn-danger:hover{background:rgba(239,68,68,.2)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
+.empty-state{text-align:center;padding:32px 16px;color:var(--dim)}
+.empty-state svg{width:48px;height:48px;color:var(--muted);margin-bottom:12px}
+.empty-state p{font-size:13px;margin-bottom:4px}
+.empty-state small{font-size:11px;color:var(--muted)}
 
-/* PROGRESS */
-.progress-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin:8px 0}
-.progress-fill{height:100%;border-radius:3px;transition:width .5s;background:var(--cyan)}
-.progress-fill.complete{background:var(--green)}
+.foot{text-align:center;padding:16px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
 
-/* TABLE */
-.tbl-wrap{overflow-x:auto}
-table.tbl{width:100%;border-collapse:collapse;font-size:12px}
-.tbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border2);white-space:nowrap}
-.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--white);white-space:nowrap}
-.tbl tr:hover td{background:rgba(94,231,247,.02)}
-.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:11px}
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.auth-gate.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
+.auth-box{text-align:center;max-width:340px;padding:32px 24px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:11px;color:var(--dim);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:12px;color:var(--dim);margin-bottom:24px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:16px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:12px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
 
-/* METRIC CARD */
-.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:16px}
-.metric{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:14px 16px}
-.metric-val{font-size:20px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
-.metric-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
-.metric-change{font-size:10px;font-weight:600;margin-top:4px}
-.metric-change.up{color:var(--green)}.metric-change.down{color:var(--red)}
-
-/* BAR CHART */
-.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding:10px 0}
-.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
-.bar{width:100%;border-radius:4px 4px 0 0;transition:height .6s;min-width:20px;position:relative}
-.bar-val{font-size:9px;font-weight:700;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center}
-.bar-label{font-size:9px;color:var(--dim);font-weight:600;white-space:nowrap}
-
-/* FOOTER */
-.foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
-
-/* ALERT */
-.alert{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:8px;margin-bottom:12px;font-size:12px;line-height:1.5}
-.alert-info{background:rgba(94,231,247,.06);border:1px solid rgba(94,231,247,.12);color:var(--cyan)}
-.alert-warn{background:rgba(234,179,8,.06);border:1px solid rgba(234,179,8,.12);color:var(--yellow)}
-.alert-success{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12);color:var(--green)}
-
-/* FILTER BAR */
-.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.filter-btn{padding:6px 14px;border-radius:5px;font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:1px solid var(--border3);background:var(--bg3);color:var(--dim);letter-spacing:.3px}
-.filter-btn:hover{border-color:var(--cyan);color:var(--cyan)}
-.filter-btn.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
-
-@media(max-width:640px){
-  .main{padding:16px}
-  .sec-body{padding:14px}
-  .kpi-row{grid-template-columns:1fr 1fr}
-  .topbar{padding:0 12px}
-  .tb-right{gap:4px}
-  .ship-head{flex-direction:column;align-items:flex-start}
-  .track-label{font-size:7px}
-  .metric-grid{grid-template-columns:1fr 1fr}
-}
+input[type="file"]{display:none}
+@media(max-width:480px){.main{padding:12px}.kpi-row{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -214,15 +156,14 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
     <div class="auth-logo">7group</div>
     <div class="auth-sub">Logistics Intelligence</div>
     <div class="auth-divider"></div>
-    <div class="auth-desc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div class="auth-desc" data-t="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
     <div id="g_id_signin"></div>
-    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
-    <div class="auth-footer">Solo personal autorizado</div>
+    <div class="auth-error" id="authError" data-t="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-footer" data-t="authFooter">Solo personal autorizado</div>
   </div>
 </div>
 
 <div class="app-wrap" id="appWrap">
-
 <nav class="topbar">
   <div class="tb-left">
     <a href="/demos/" class="tb-logo">7group</a>
@@ -238,7 +179,6 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
       <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       LIGHT
     </button>
-    <a id="scheduleLink" href="/agendar/" class="tb-btn" data-t="schedule">Agendar llamada</a>
   </div>
 </nav>
 
@@ -251,110 +191,69 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
   <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
-<div class="tabs">
-  <div class="tab active" onclick="goTab(0)" id="tab0" data-t="tabShipments">Envios</div>
-  <div class="tab" onclick="goTab(1)" id="tab1" data-t="tabRoutes">Rutas</div>
-  <div class="tab" onclick="goTab(2)" id="tab2" data-t="tabTracking">Seguimiento</div>
-  <div class="tab" onclick="goTab(3)" id="tab3" data-t="tabCarriers">Transportistas</div>
-  <div class="tab" onclick="goTab(4)" id="tab4" data-t="tabAnalytics">Analiticas</div>
-</div>
-
 <div class="main">
 
-<div class="kpi-row" id="kpiRow"></div>
-
-<!-- TAB 0: SHIPMENTS -->
-<div class="panel active" id="panel0">
-  <div class="filter-bar" id="filterBar"></div>
-  <div id="shipmentsList"></div>
+<div class="view-tabs">
+  <button class="vtab active" id="tabOrders" onclick="showTab('orders')" data-t="tabOrders">Ordenes</button>
+  <button class="vtab" id="tabNew" onclick="showTab('new')" data-t="tabNew">Nuevo despacho</button>
 </div>
 
-<!-- TAB 1: ROUTES -->
-<div class="panel" id="panel1">
-  <div class="sec">
-    <div class="sec-head">
-      <div class="sec-title" data-t="secActiveRoutes">Rutas Activas</div>
-      <span class="sec-tag" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)" id="routeCount">3</span>
-    </div>
-    <div class="sec-body" id="routesList"></div>
-  </div>
+<!-- ========== TAB: ORDENES ========== -->
+<div id="viewOrders">
+  <div class="kpi-row" id="dspKpis"></div>
+  <div class="filter-row" id="filterRow"></div>
+  <div id="ordersList"></div>
 </div>
 
-<!-- TAB 2: TRACKING -->
-<div class="panel" id="panel2">
+<!-- ========== TAB: NUEVO DESPACHO ========== -->
+<div id="viewNew" style="display:none">
   <div class="sec">
     <div class="sec-head">
-      <div class="sec-title" data-t="secLiveTracking">Seguimiento en Vivo</div>
-    </div>
-    <div class="sec-body" id="trackingPanel"></div>
-  </div>
-</div>
-
-<!-- TAB 3: CARRIERS -->
-<div class="panel" id="panel3">
-  <div class="sec">
-    <div class="sec-head">
-      <div class="sec-title" data-t="secCarrierPerf">Rendimiento de Transportistas</div>
+      <div class="sec-title" data-t="secClient">Datos del despacho</div>
     </div>
     <div class="sec-body">
-      <div class="tbl-wrap">
-        <table class="tbl">
-          <thead><tr>
-            <th data-t="thCarrier">Transportista</th>
-            <th data-t="thShipments">Envios</th>
-            <th data-t="thOnTime">A Tiempo</th>
-            <th data-t="thAvgDays">Dias Prom.</th>
-            <th data-t="thCost">Costo Prom.</th>
-            <th data-t="thRating">Calificacion</th>
-            <th data-t="thStatus">Estado</th>
-          </tr></thead>
-          <tbody id="carrierBody"></tbody>
-        </table>
+      <div class="form-row">
+        <input id="dspClient" placeholder="Cliente / destinatario...">
+      </div>
+      <div class="form-row">
+        <input id="dspDest" placeholder="Destino (direccion)...">
+      </div>
+      <div class="form-row">
+        <input id="dspCarrier" placeholder="Transportista..." style="flex:1">
+        <input id="dspTracking" placeholder="# Guia / tracking..." style="flex:1" class="mono">
+      </div>
+      <div class="form-row">
+        <textarea id="dspNotes" rows="2" placeholder="Notas..."></textarea>
       </div>
     </div>
   </div>
+
   <div class="sec">
     <div class="sec-head">
-      <div class="sec-title" data-t="secCarrierCost">Costo por Transportista (Ultimos 30 dias)</div>
+      <div class="sec-title" data-t="secPickItems">Seleccionar items de inventario</div>
+      <span class="sec-tag" id="pickCount" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">0</span>
     </div>
     <div class="sec-body">
-      <div class="bar-chart" id="carrierChart"></div>
+      <div class="form-row">
+        <input id="pickSearch" placeholder="Buscar SKU, nombre..." oninput="renderPicker()" style="width:100%">
+      </div>
+      <div id="pickerList"></div>
     </div>
   </div>
+
+  <button class="btn btn-primary" id="btnCreateDsp" onclick="createDispatch()" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+    <span data-t="btnCreate">Crear orden de despacho</span>
+  </button>
 </div>
 
-<!-- TAB 4: ANALYTICS -->
-<div class="panel" id="panel4">
-  <div class="metric-grid" id="metricsGrid"></div>
-  <div class="sec">
-    <div class="sec-head">
-      <div class="sec-title" data-t="secWeeklyVol">Volumen Semanal de Despachos</div>
-    </div>
-    <div class="sec-body">
-      <div class="bar-chart" id="weeklyChart"></div>
-    </div>
-  </div>
-  <div class="sec">
-    <div class="sec-head">
-      <div class="sec-title" data-t="secRecentDel">Entregas Recientes</div>
-    </div>
-    <div class="sec-body">
-      <div class="tbl-wrap">
-        <table class="tbl">
-          <thead><tr>
-            <th data-t="thShipId">Envio</th>
-            <th data-t="thClient">Cliente</th>
-            <th data-t="thDest">Destino</th>
-            <th data-t="thCarrier">Transportista</th>
-            <th data-t="thDays">Dias</th>
-            <th data-t="thCostCol">Costo</th>
-            <th data-t="thResult">Resultado</th>
-          </tr></thead>
-          <tbody id="deliveryBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+<!-- ========== DETALLE ORDEN ========== -->
+<div id="viewDetail" style="display:none">
+  <button class="btn btn-secondary btn-sm" onclick="closeDetail()" style="margin-bottom:12px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+    <span data-t="btnBack">Volver</span>
+  </button>
+  <div id="detailContent"></div>
 </div>
 
 </div>
@@ -372,41 +271,47 @@ function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setT
 (function(){var s=sessionStorage.getItem('7g-auth');if(s&&ALLOWED_EMAILS.indexOf(s)!==-1)unlockApp();else initGoogleAuth();})();
 
 /* =============== THEME =============== */
-function toggleTheme(){var l=document.documentElement.classList.toggle('light');localStorage.setItem('7g-theme',l?'light':'dark');updateThemeButton(l);}
-function updateThemeButton(l){document.getElementById('themeToggle').innerHTML=l?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8.5a5.5 5.5 0 01-6-6 5.5 5.5 0 106 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
-(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();
+function toggleTheme(){document.documentElement.classList.toggle('light');var il=document.documentElement.classList.contains('light');document.getElementById('themeToggle').innerHTML=il?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.9 8.8a6 6 0 0 1-6.7-6.7A6 6 0 1 0 13.9 8.8z" stroke="currentColor" stroke-width="1.5"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';localStorage.setItem('7g-theme',il?'light':'dark');}
+(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');setTimeout(function(){document.getElementById('themeToggle').innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.9 8.8a6 6 0 0 1-6.7-6.7A6 6 0 1 0 13.9 8.8z" stroke="currentColor" stroke-width="1.5"/></svg> DARK';},0);}})();
 
-/* =============== LANG =============== */
+/* =============== LANGUAGE =============== */
 var LANG='es';
 (function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
 
 var T={
   badge:{es:'Despachos',en:'Dispatches'},
-  schedule:{es:'Agendar llamada',en:'Schedule a call'},
-  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'},
-  tabShipments:{es:'Envios',en:'Shipments'},tabRoutes:{es:'Rutas',en:'Routes'},tabTracking:{es:'Seguimiento',en:'Tracking'},tabCarriers:{es:'Transportistas',en:'Carriers'},tabAnalytics:{es:'Analiticas',en:'Analytics'},
-  kpiActive:{es:'Envios Activos',en:'Active Shipments'},kpiTransit:{es:'En Transito',en:'In Transit'},kpiDelivered:{es:'Entregados Hoy',en:'Delivered Today'},kpiOnTime:{es:'A Tiempo',en:'On Time'},
-  secActiveRoutes:{es:'Rutas Activas',en:'Active Routes'},
-  secLiveTracking:{es:'Seguimiento en Vivo',en:'Live Tracking'},
-  secCarrierPerf:{es:'Rendimiento de Transportistas',en:'Carrier Performance'},
-  secCarrierCost:{es:'Costo por Transportista (Ultimos 30 dias)',en:'Cost per Carrier (Last 30 days)'},
-  secWeeklyVol:{es:'Volumen Semanal de Despachos',en:'Weekly Dispatch Volume'},
-  secRecentDel:{es:'Entregas Recientes',en:'Recent Deliveries'},
-  thCarrier:{es:'Transportista',en:'Carrier'},thShipments:{es:'Envios',en:'Shipments'},thOnTime:{es:'A Tiempo',en:'On Time'},
-  thAvgDays:{es:'Dias Prom.',en:'Avg Days'},thCost:{es:'Costo Prom.',en:'Avg Cost'},thRating:{es:'Calificacion',en:'Rating'},thStatus:{es:'Estado',en:'Status'},
-  thShipId:{es:'Envio',en:'Shipment'},thClient:{es:'Cliente',en:'Client'},thDest:{es:'Destino',en:'Destination'},
-  thDays:{es:'Dias',en:'Days'},thCostCol:{es:'Costo',en:'Cost'},thResult:{es:'Resultado',en:'Result'},
-  filterAll:{es:'Todos',en:'All'},filterScheduled:{es:'Programados',en:'Scheduled'},filterLoading:{es:'Cargando',en:'Loading'},filterTransit:{es:'En Transito',en:'In Transit'},filterDelivered:{es:'Entregados',en:'Delivered'},filterDelayed:{es:'Retrasados',en:'Delayed'},
-  scheduled:{es:'Programado',en:'Scheduled'},loading:{es:'Cargando',en:'Loading'},transit:{es:'En Transito',en:'In Transit'},delivered:{es:'Entregado',en:'Delivered'},delayed:{es:'Retrasado',en:'Delayed'},
-  lblOrigin:{es:'Origen',en:'Origin'},lblDest:{es:'Destino',en:'Destination'},lblCarrier:{es:'Transportista',en:'Carrier'},lblTracking:{es:'Guia',en:'Tracking'},lblWeight:{es:'Peso',en:'Weight'},lblBoxes:{es:'Cajas',en:'Boxes'},lblETA:{es:'ETA',en:'ETA'},
-  lblPickup:{es:'Recogida',en:'Pickup'},lblInTransit:{es:'En Transito',en:'In Transit'},lblOutForDel:{es:'En Reparto',en:'Out for Delivery'},lblDelivered:{es:'Entregado',en:'Delivered'},
-  btnConfirmDel:{es:'Confirmar Entrega',en:'Confirm Delivery'},btnViewRoute:{es:'Ver Ruta',en:'View Route'},
-  metDeliveries:{es:'Entregas (30d)',en:'Deliveries (30d)'},metOnTimeRate:{es:'Tasa A Tiempo',en:'On-Time Rate'},metAvgCost:{es:'Costo Promedio',en:'Average Cost'},metAvgTransit:{es:'Transito Promedio',en:'Average Transit'},
-  onTime:{es:'A tiempo',en:'On time'},late:{es:'Retrasado',en:'Late'},
-  active:{es:'Activo',en:'Active'},preferred:{es:'Preferido',en:'Preferred'},backup:{es:'Respaldo',en:'Backup'}
+  tabOrders:{es:'Ordenes',en:'Orders'},tabNew:{es:'Nuevo despacho',en:'New dispatch'},
+  secClient:{es:'Datos del despacho',en:'Dispatch data'},
+  secPickItems:{es:'Seleccionar items de inventario',en:'Select inventory items'},
+  btnCreate:{es:'Crear orden de despacho',en:'Create dispatch order'},
+  btnBack:{es:'Volver',en:'Back'},
+  filterAll:{es:'Todos',en:'All'},filterPrep:{es:'Preparando',en:'Preparing'},filterShipped:{es:'Enviado',en:'Shipped'},filterDelivered:{es:'Entregado',en:'Delivered'},filterCancelled:{es:'Cancelado',en:'Cancelled'},
+  kpiActive:{es:'Activos',en:'Active'},kpiShipped:{es:'En transito',en:'In transit'},kpiDelivered:{es:'Entregados',en:'Delivered'},kpiUnits:{es:'Uds. despachadas',en:'Units dispatched'},
+  emptyTitle:{es:'Sin ordenes de despacho',en:'No dispatch orders'},
+  emptySub:{es:'Cree una nueva orden desde la tab "Nuevo despacho"',en:'Create a new order from the "New dispatch" tab'},
+  emptyInv:{es:'Inventario vacio. Complete un recibo primero.',en:'Empty inventory. Complete a receiving first.'},
+  statusPrep:{es:'Preparando',en:'Preparing'},statusShipped:{es:'Enviado',en:'Shipped'},statusDelivered:{es:'Entregado',en:'Delivered'},statusCancelled:{es:'Cancelado',en:'Cancelled'},
+  lblClient:{es:'Cliente',en:'Client'},lblDest:{es:'Destino',en:'Destination'},lblCarrier:{es:'Transportista',en:'Carrier'},lblTracking:{es:'Guia',en:'Tracking'},
+  items:{es:'items',en:'items'},units:{es:'uds',en:'units'},
+  btnShip:{es:'Marcar como enviado',en:'Mark as shipped'},
+  btnDeliver:{es:'Confirmar entrega',en:'Confirm delivery'},
+  btnCancel:{es:'Cancelar orden',en:'Cancel order'},
+  btnPDF:{es:'PDF Despacho',en:'Dispatch PDF'},
+  stepPrep:{es:'Preparacion',en:'Preparation'},stepShipped:{es:'Enviado',en:'Shipped'},stepTransit:{es:'En transito',en:'In transit'},stepDelivered:{es:'Entregado',en:'Delivered'},
+  confirmCreate:{es:'Crear orden de despacho? El stock se descontara del inventario.',en:'Create dispatch order? Stock will be deducted from inventory.'},
+  confirmShip:{es:'Marcar como enviado?',en:'Mark as shipped?'},
+  confirmDeliver:{es:'Confirmar entrega?',en:'Confirm delivery?'},
+  confirmCancel:{es:'Cancelar orden? El stock volvera al inventario.',en:'Cancel order? Stock will return to inventory.'},
+  created:{es:'Orden creada',en:'Order created'},
+  noItems:{es:'Seleccione al menos un item',en:'Select at least one item'},
+  noClient:{es:'Ingrese un cliente',en:'Enter a client'},
+  authDesc:{es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
+  authError:{es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
+  authFooter:{es:'Solo personal autorizado',en:'Authorized personnel only'},
+  btnDemo:{es:'Cargar datos demo',en:'Load demo data'},
+  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'}
 };
 function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
-function tl(o){if(!o)return'';if(typeof o==='string')return o;return o[LANG]||o.en||'';}
 
 function applyLang(){
   document.documentElement.lang=LANG;
@@ -415,7 +320,6 @@ function applyLang(){
   for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
   document.getElementById('langES').classList.toggle('active',LANG==='es');
   document.getElementById('langEN').classList.toggle('active',LANG==='en');
-  document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
   var lp=LANG==='en'?'?lang=en':'';
   document.querySelector('.mod-link[data-t="modShip"]').href='/demos/logistica-pyme/shipment/'+lp;
   document.querySelector('.mod-link[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
@@ -427,344 +331,430 @@ function applyLang(){
 }
 function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
 
-/* =============== DATA =============== */
-var SHIPMENTS=[
-  {id:'SHP-7801',client:'TechRetail Inc.',origin:'Miami, Main Warehouse',dest:'Orlando, Distribution Center',carrier:'FedEx Ground',tracking:'7961 2384 0012 3456',status:'transit',
-   boxes:4,weight:'71.6 lbs',shipped:'2026-07-19 08:30',eta:'2026-07-21 14:00',progress:65},
-  {id:'SHP-7802',client:'AV Solutions LLC',origin:'Miami, Main Warehouse',dest:'Tampa, Westshore Hub',carrier:'UPS 2nd Day',tracking:'1Z999AA10123456784',status:'transit',
-   boxes:3,weight:'40.1 lbs',shipped:'2026-07-19 10:15',eta:'2026-07-21 09:00',progress:40},
-  {id:'SHP-7803',client:'SmartHome Corp.',origin:'Miami, Main Warehouse',dest:'Jacksonville, Southside Blvd',carrier:'FedEx Freight',tracking:'7961 5500 8834 2210',status:'loading',
-   boxes:6,weight:'99.2 lbs',shipped:null,eta:'2026-07-23 11:00',progress:15},
-  {id:'SHP-7804',client:'DataLink LLC',origin:'Miami, Main Warehouse',dest:'Atlanta, GA - Peachtree Ind.',carrier:'UPS Ground',tracking:'1Z999AA10123456800',status:'scheduled',
-   boxes:2,weight:'32.6 lbs',shipped:null,eta:'2026-07-24 16:00',progress:0},
-  {id:'SHP-7805',client:'BrightScreen Ltd.',origin:'Miami, Main Warehouse',dest:'Fort Lauderdale, Cypress Creek',carrier:'FedEx Express',tracking:'7961 2200 8834 1100',status:'delivered',
-   boxes:4,weight:'62.4 lbs',shipped:'2026-07-16 07:00',eta:'2026-07-17 12:00',delivered:'2026-07-17 11:20',progress:100},
-  {id:'SHP-7806',client:'NetGear Solutions',origin:'Miami, Main Warehouse',dest:'Charlotte, NC - University Area',carrier:'UPS 2nd Day',tracking:'1Z999AA10123456811',status:'delayed',
-   boxes:3,weight:'48.7 lbs',shipped:'2026-07-17 09:00',eta:'2026-07-19 15:00',progress:80},
-  {id:'SHP-7807',client:'ProDisplay Co.',origin:'Miami, Main Warehouse',dest:'West Palm Beach, Okeechobee',carrier:'FedEx Ground',tracking:'7961 3300 7745 0022',status:'delivered',
-   boxes:2,weight:'25.4 lbs',shipped:'2026-07-15 08:00',eta:'2026-07-16 14:00',delivered:'2026-07-16 13:40',progress:100},
-  {id:'SHP-7808',client:'CableMaster Inc.',origin:'Miami, Main Warehouse',dest:'Naples, FL - Industrial Park',carrier:'USPS Priority',tracking:'9400 1118 0211 2345 6789',status:'delivered',
-   boxes:1,weight:'11.5 lbs',shipped:'2026-07-14 11:00',eta:'2026-07-16 10:00',delivered:'2026-07-16 09:15',progress:100}
-];
-
-var ROUTES=[
-  {id:'R-301',name:{es:'Miami - Orlando (I-95 / Turnpike)',en:'Miami - Orlando (I-95 / Turnpike)'},
-   shipments:['SHP-7801'],distance:'235 mi',estTime:'3h 45m',
-   stops:[
-     {name:'Main Warehouse',addr:'Miami, NW 25th St',type:'origin',time:'08:30',status:'done'},
-     {name:'FedEx Hub Fort Pierce',addr:'Fort Pierce, FL',type:'stop',time:'10:45',status:'done'},
-     {name:{es:'Punto Control Vero Beach',en:'Vero Beach Checkpoint'},addr:'Vero Beach, FL',type:'stop',time:'11:30',status:'current'},
-     {name:'Distribution Center',addr:'Orlando, FL - Semoran Blvd',type:'dest',time:'12:15',status:'pending'}
-   ]},
-  {id:'R-302',name:{es:'Miami - Tampa (I-75 Alligator Alley)',en:'Miami - Tampa (I-75 Alligator Alley)'},
-   shipments:['SHP-7802'],distance:'280 mi',estTime:'4h 15m',
-   stops:[
-     {name:'Main Warehouse',addr:'Miami, NW 25th St',type:'origin',time:'10:15',status:'done'},
-     {name:'Naples',addr:'Naples, FL - Industrial Blvd',type:'stop',time:'12:30',status:'current'},
-     {name:'Sarasota',addr:'Sarasota, FL - Fruitville Rd',type:'stop',time:'14:00',status:'pending'},
-     {name:'Westshore Hub',addr:'Tampa, FL - Westshore Blvd',type:'dest',time:'15:30',status:'pending'}
-   ]},
-  {id:'R-303',name:{es:'Miami - Jacksonville (I-95 North)',en:'Miami - Jacksonville (I-95 North)'},
-   shipments:['SHP-7803'],distance:'345 mi',estTime:'5h 15m',
-   stops:[
-     {name:'Main Warehouse',addr:'Miami, NW 25th St',type:'origin',time:'--',status:'pending'},
-     {name:'Daytona Beach',addr:'Daytona Beach, FL - LPGA Blvd',type:'stop',time:'--',status:'pending'},
-     {name:'Southside Blvd',addr:'Jacksonville, FL - Southside Blvd',type:'dest',time:'--',status:'pending'}
-   ]}
-];
-
-var CARRIERS=[
-  {name:'FedEx Ground',shipments:42,onTime:96,avgDays:1.8,cost:'$18.5K',rating:4.8,color:'var(--cyan)',status:'preferred',costVal:185},
-  {name:'UPS Ground',shipments:35,onTime:94,avgDays:2.0,cost:'$15.2K',rating:4.6,color:'var(--green)',status:'active',costVal:152},
-  {name:'FedEx Express',shipments:18,onTime:99,avgDays:1.0,cost:'$12.4K',rating:4.9,color:'var(--orange)',status:'active',costVal:124},
-  {name:'UPS 2nd Day',shipments:22,onTime:93,avgDays:1.5,cost:'$9.8K',rating:4.5,color:'var(--yellow)',status:'active',costVal:98},
-  {name:'USPS Priority',shipments:15,onTime:88,avgDays:2.5,cost:'$4.2K',rating:4.1,color:'var(--purple)',status:'backup',costVal:42}
-];
-
-var WEEKLY_DATA=[
-  {label:'Sem 28',val:18},{label:'Sem 29',val:24},{label:'Sem 30',val:21},
-  {label:'Sem 31',val:32},{label:'Sem 32',val:28},{label:'Sem 33',val:35},{label:'Sem 34',val:22}
-];
-
-var RECENT_DELIVERIES=[
-  {id:'SHP-7805',client:'BrightScreen Ltd.',dest:'Fort Lauderdale',carrier:'FedEx Express',days:1,cost:'$485',result:'onTime'},
-  {id:'SHP-7807',client:'ProDisplay Co.',dest:'West Palm Beach',carrier:'FedEx Ground',days:1,cost:'$220',result:'onTime'},
-  {id:'SHP-7808',client:'CableMaster Inc.',dest:'Naples',carrier:'USPS Priority',days:2,cost:'$152',result:'onTime'},
-  {id:'SHP-7795',client:'SmartHome Corp.',dest:'Orlando',carrier:'UPS Ground',days:3,cost:'$623',result:'late'},
-  {id:'SHP-7790',client:'AV Solutions LLC',dest:'Tampa',carrier:'UPS 2nd Day',days:2,cost:'$358',result:'onTime'},
-  {id:'SHP-7788',client:'DataLink LLC',dest:'Atlanta, GA',carrier:'FedEx Ground',days:3,cost:'$281',result:'onTime'}
-];
-
 /* =============== STATE =============== */
-var currentTab=0;
-var currentFilter='all';
+var inventory=[];
+var dispatches=[];
+var activeFilter='all';
+var currentOrder=null;
+
+function loadData(){
+  try{inventory=JSON.parse(localStorage.getItem('7g-inventory')||'[]');}catch(e){inventory=[];}
+  try{dispatches=JSON.parse(localStorage.getItem('7g-dispatches')||'[]');}catch(e){dispatches=[];}
+}
+function saveInventory(){localStorage.setItem('7g-inventory',JSON.stringify(inventory));}
+function saveDispatches(){localStorage.setItem('7g-dispatches',JSON.stringify(dispatches));}
 
 /* =============== TABS =============== */
-function goTab(n){currentTab=n;for(var i=0;i<5;i++){document.getElementById('panel'+i).classList.toggle('active',i===n);document.getElementById('tab'+i).classList.toggle('active',i===n);}}
+function showTab(tab){
+  document.getElementById('viewOrders').style.display=tab==='orders'?'block':'none';
+  document.getElementById('viewNew').style.display=tab==='new'?'block':'none';
+  document.getElementById('viewDetail').style.display='none';
+  document.getElementById('tabOrders').classList.toggle('active',tab==='orders');
+  document.getElementById('tabNew').classList.toggle('active',tab==='new');
+  if(tab==='new')renderPicker();
+  if(tab==='orders')renderAll();
+}
 
 /* =============== RENDER =============== */
-function renderAll(){renderKPIs();renderFilters();renderShipments();renderRoutes();renderTracking();renderCarriers();renderAnalytics();}
+function renderAll(){renderKPIs();renderFilters();renderOrders();}
 
 function renderKPIs(){
-  var active=0,transit=0,delivered=0,total=0,onTime=0;
-  for(var i=0;i<SHIPMENTS.length;i++){
-    var s=SHIPMENTS[i].status;
-    if(s!=='delivered')active++;
-    if(s==='transit')transit++;
-    if(s==='delivered'){delivered++;total++;onTime++;}
-    if(s==='delayed')total++;
+  var active=0,shipped=0,delivered=0,totalUnits=0;
+  for(var i=0;i<dispatches.length;i++){
+    var d=dispatches[i];
+    if(d.status==='preparing')active++;
+    if(d.status==='shipped')shipped++;
+    if(d.status==='delivered'){delivered++;for(var j=0;j<d.items.length;j++)totalUnits+=d.items[j].qty;}
+    if(d.status==='preparing'||d.status==='shipped'){for(var j2=0;j2<d.items.length;j2++)totalUnits+=d.items[j2].qty;}
   }
-  var rate=total>0?Math.round(onTime/total*100):100;
-  document.getElementById('kpiRow').innerHTML=
+  document.getElementById('dspKpis').innerHTML=
     '<div class="kpi"><div class="kpi-val cyan">'+active+'</div><div class="kpi-label">'+t('kpiActive')+'</div></div>'+
-    '<div class="kpi"><div class="kpi-val yellow">'+transit+'</div><div class="kpi-label">'+t('kpiTransit')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val yellow">'+shipped+'</div><div class="kpi-label">'+t('kpiShipped')+'</div></div>'+
     '<div class="kpi"><div class="kpi-val green">'+delivered+'</div><div class="kpi-label">'+t('kpiDelivered')+'</div></div>'+
-    '<div class="kpi"><div class="kpi-val '+(rate>=90?'green':'red')+'">'+rate+'%</div><div class="kpi-label">'+t('kpiOnTime')+'</div></div>';
+    '<div class="kpi"><div class="kpi-val cyan">'+totalUnits+'</div><div class="kpi-label">'+t('kpiUnits')+'</div></div>';
 }
 
 function renderFilters(){
-  var filters=['all','scheduled','loading','transit','delivered','delayed'];
-  var keys=['filterAll','filterScheduled','filterLoading','filterTransit','filterDelivered','filterDelayed'];
-  var h='';
-  for(var i=0;i<filters.length;i++){
-    h+='<button class="filter-btn'+(currentFilter===filters[i]?' active':'')+'" onclick="setFilter(\''+filters[i]+'\')">'+t(keys[i])+'</button>';
-  }
-  document.getElementById('filterBar').innerHTML=h;
-}
-
-function setFilter(f){currentFilter=f;renderFilters();renderShipments();}
-
-function renderShipments(){
-  var h='';
-  for(var i=0;i<SHIPMENTS.length;i++){
-    var s=SHIPMENTS[i];
-    if(currentFilter!=='all'&&s.status!==currentFilter)continue;
-    var stClass='st-'+s.status;
-    h+='<div class="ship-card">'+
-      '<div class="ship-head">'+
-        '<div><span class="ship-id">'+s.id+'</span> <span class="ship-client">'+s.client+'</span></div>'+
-        '<span class="ship-status '+stClass+'">'+t(s.status)+'</span>'+
-      '</div>'+
-      '<div class="ship-details">'+
-        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblOrigin')+'</span><span class="ship-detail-value">'+s.origin.split(',')[1].trim()+'</span></div>'+
-        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblDest')+'</span><span class="ship-detail-value">'+s.dest.split(',')[0]+'</span></div>'+
-        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblCarrier')+'</span><span class="ship-detail-value">'+s.carrier+'</span></div>'+
-        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblTracking')+'</span><span class="ship-detail-value">'+s.tracking+'</span></div>'+
-        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblBoxes')+'</span><span class="ship-detail-value">'+s.boxes+'</span></div>'+
-        '<div class="ship-detail"><span class="ship-detail-label">'+t('lblWeight')+'</span><span class="ship-detail-value">'+s.weight+'</span></div>'+
-      '</div>';
-    if(s.status==='transit'||s.status==='delayed'){
-      h+='<div class="progress-bar"><div class="progress-fill" style="width:'+s.progress+'%"></div></div>'+
-         '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:8px">'+
-           '<span>'+s.progress+'%</span><span>ETA: '+s.eta.split(' ')[0]+'</span></div>';
-    }
-    h+='<div class="ship-footer">'+
-        '<span class="ship-meta">'+(s.shipped?s.shipped:t('lblETA')+': '+s.eta.split(' ')[0])+'</span>'+
-        '<div style="display:flex;gap:6px">';
-    if(s.status==='transit')h+='<button class="btn btn-sm btn-secondary" onclick="goTab(2)">'+t('btnViewRoute')+'</button>';
-    if(s.status==='delayed')h+='<button class="btn btn-sm btn-danger">'+t('delayed')+'</button>';
-    h+='</div></div></div>';
-  }
-  document.getElementById('shipmentsList').innerHTML=h;
-}
-
-function renderRoutes(){
-  var h='';
-  document.getElementById('routeCount').textContent=ROUTES.length;
-  for(var r=0;r<ROUTES.length;r++){
-    var route=ROUTES[r];
-    h+='<div class="route-card">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">'+
-        '<div><span style="font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:700;color:var(--cyan)">'+route.id+'</span> '+
-        '<span style="font-size:12px;font-weight:600;color:var(--white)">'+tl(route.name)+'</span></div>'+
-        '<div style="display:flex;gap:12px;font-size:11px;color:var(--dim)"><span>'+route.distance+'</span><span>'+route.estTime+'</span></div>'+
-      '</div>'+
-      '<div class="route-stops">';
-    for(var s=0;s<route.stops.length;s++){
-      var stop=route.stops[s];
-      var dotClass='route-dot '+stop.type;
-      if(stop.status==='current')dotClass+=' current';
-      h+='<div class="route-stop">'+
-        '<div class="route-dot-col"><div class="'+dotClass+'"></div>'+(s<route.stops.length-1?'<div class="route-line"></div>':'')+'</div>'+
-        '<div class="route-info">'+
-          '<div class="route-name">'+tl(stop.name)+'</div>'+
-          '<div class="route-addr">'+stop.addr+'</div>'+
-          '<div class="route-eta">'+stop.time+'</div>'+
-        '</div></div>';
-    }
-    h+='</div></div>';
-  }
-  document.getElementById('routesList').innerHTML=h;
-}
-
-function renderTracking(){
-  var h='';
-  for(var i=0;i<SHIPMENTS.length;i++){
-    var s=SHIPMENTS[i];
-    if(s.status!=='transit'&&s.status!=='delayed')continue;
-    var steps=['lblPickup','lblInTransit','lblOutForDel','lblDelivered'];
-    var activeStep=s.status==='transit'?(s.progress>60?2:1):1;
-
-    h+='<div class="ship-card" style="margin-bottom:16px">'+
-      '<div class="ship-head">'+
-        '<div><span class="ship-id">'+s.id+'</span> <span class="ship-client">'+s.client+'</span></div>'+
-        '<span class="ship-status st-'+s.status+'">'+t(s.status)+'</span>'+
-      '</div>'+
-      '<div style="margin:8px 0;font-size:12px;color:var(--dim)">'+s.origin+' &rarr; '+s.dest+'</div>'+
-      '<div class="track-bar">';
-    for(var j=0;j<steps.length;j++){
-      var cls=j<activeStep?'done':(j===activeStep?'active':'');
-      h+='<div class="track-step '+cls+'"><div class="track-dot">'+(j<activeStep?'&#10003;':(j===activeStep?'&bull;':''))+'</div><div class="track-label">'+t(steps[j])+'</div></div>';
-    }
-    h+='</div>'+
-      '<div style="display:flex;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px">'+
-        '<div style="display:flex;gap:16px;font-size:11px;color:var(--dim)">'+
-          '<span>'+t('lblCarrier')+': <strong style="color:var(--white)">'+s.carrier+'</strong></span>'+
-          '<span>'+t('lblTracking')+': <strong style="color:var(--white)">'+s.tracking+'</strong></span>'+
-        '</div>'+
-        '<span style="font-size:11px;color:var(--cyan);font-family:\'JetBrains Mono\',monospace">ETA: '+s.eta+'</span>'+
-      '</div>'+
-    '</div>';
-  }
-  if(!h)h='<div class="alert alert-info">'+( LANG==='es'?'No hay envios en transito actualmente.':'No active shipments in transit.')+'</div>';
-  document.getElementById('trackingPanel').innerHTML=h;
-}
-
-function renderCarriers(){
-  var h='';
-  for(var i=0;i<CARRIERS.length;i++){
-    var c=CARRIERS[i];
-    var stars='';for(var s=0;s<5;s++)stars+=s<Math.round(c.rating)?'&#9733;':'&#9734;';
-    var stLabel=t(c.status);
-    var stColor=c.status==='preferred'?'var(--green)':c.status==='active'?'var(--cyan)':'var(--dim)';
-    h+='<tr>'+
-      '<td><span class="carrier-badge"><span class="carrier-dot" style="background:'+c.color+'"></span>'+c.name+'</span></td>'+
-      '<td class="mono">'+c.shipments+'</td>'+
-      '<td class="mono" style="color:'+(c.onTime>=90?'var(--green)':'var(--yellow)')+'">'+c.onTime+'%</td>'+
-      '<td class="mono">'+c.avgDays+'</td>'+
-      '<td class="mono">'+c.cost+'</td>'+
-      '<td style="color:var(--yellow)">'+stars+' <span style="font-size:10px;color:var(--dim)">'+c.rating+'</span></td>'+
-      '<td><span style="font-size:10px;font-weight:600;color:'+stColor+'">'+stLabel+'</span></td>'+
-    '</tr>';
-  }
-  document.getElementById('carrierBody').innerHTML=h;
-
-  var maxCost=0;
-  for(var i=0;i<CARRIERS.length;i++)if(CARRIERS[i].costVal>maxCost)maxCost=CARRIERS[i].costVal;
-  var ch='';
-  for(var i=0;i<CARRIERS.length;i++){
-    var c=CARRIERS[i];
-    var pct=Math.round(c.costVal/maxCost*100);
-    ch+='<div class="bar-col">'+
-      '<div class="bar-val">'+c.cost+'</div>'+
-      '<div class="bar" style="height:'+pct+'%;background:'+c.color+';flex:none;height:'+pct+'%"></div>'+
-      '<div class="bar-label">'+c.name+'</div>'+
-    '</div>';
-  }
-  document.getElementById('carrierChart').innerHTML=ch;
-}
-
-function renderAnalytics(){
-  var metrics=[
-    {val:'128',label:t('metDeliveries'),change:'+12%',dir:'up',color:'cyan'},
-    {val:'94.2%',label:t('metOnTimeRate'),change:'+2.1%',dir:'up',color:'green'},
-    {val:'$38.5K',label:t('metAvgCost'),change:'-5%',dir:'up',color:'yellow'},
-    {val:'2.3d',label:t('metAvgTransit'),change:'-0.2d',dir:'up',color:'purple'}
+  var counts={all:0,preparing:0,shipped:0,delivered:0,cancelled:0};
+  for(var i=0;i<dispatches.length;i++){counts.all++;counts[dispatches[i].status]++;}
+  var pills=[
+    {key:'all',label:t('filterAll'),count:counts.all},
+    {key:'preparing',label:t('filterPrep'),count:counts.preparing},
+    {key:'shipped',label:t('filterShipped'),count:counts.shipped},
+    {key:'delivered',label:t('filterDelivered'),count:counts.delivered}
   ];
-  var mh='';
-  for(var i=0;i<metrics.length;i++){
-    var m=metrics[i];
-    mh+='<div class="metric"><div class="metric-val '+m.color+'">'+m.val+'</div><div class="metric-label">'+m.label+'</div><div class="metric-change '+m.dir+'">'+m.change+'</div></div>';
+  if(counts.cancelled>0)pills.push({key:'cancelled',label:t('filterCancelled'),count:counts.cancelled});
+  var h='';
+  for(var j=0;j<pills.length;j++){
+    var p=pills[j];
+    h+='<button class="fpill'+(activeFilter===p.key?' active':'')+'" onclick="setFilter(\''+p.key+'\')">'+p.label+'<span class="pill-count">'+p.count+'</span></button>';
   }
-  document.getElementById('metricsGrid').innerHTML=mh;
+  document.getElementById('filterRow').innerHTML=h;
+}
 
-  var maxW=0;
-  for(var i=0;i<WEEKLY_DATA.length;i++)if(WEEKLY_DATA[i].val>maxW)maxW=WEEKLY_DATA[i].val;
-  var wh='';
-  for(var i=0;i<WEEKLY_DATA.length;i++){
-    var d=WEEKLY_DATA[i];
-    var pct=Math.round(d.val/maxW*100);
-    wh+='<div class="bar-col">'+
-      '<div class="bar-val">'+d.val+'</div>'+
-      '<div class="bar" style="height:'+pct+'%;background:var(--cyan);flex:none;height:'+pct+'%"></div>'+
-      '<div class="bar-label">'+d.label+'</div>'+
-    '</div>';
-  }
-  document.getElementById('weeklyChart').innerHTML=wh;
+function setFilter(f){activeFilter=f;renderFilters();renderOrders();}
 
-  var dh='';
-  for(var i=0;i<RECENT_DELIVERIES.length;i++){
-    var d=RECENT_DELIVERIES[i];
-    var resColor=d.result==='onTime'?'var(--green)':'var(--red)';
-    var resText=d.result==='onTime'?t('onTime'):t('late');
-    dh+='<tr>'+
-      '<td class="mono" style="color:var(--cyan)">'+d.id+'</td>'+
-      '<td>'+d.client+'</td>'+
-      '<td>'+d.dest+'</td>'+
-      '<td>'+d.carrier+'</td>'+
-      '<td class="mono">'+d.days+'</td>'+
-      '<td class="mono">'+d.cost+'</td>'+
-      '<td style="color:'+resColor+';font-weight:600;font-size:11px">'+resText+'</td>'+
-    '</tr>';
+function renderOrders(){
+  var el=document.getElementById('ordersList');
+  var filtered=[];
+  for(var i=dispatches.length-1;i>=0;i--){
+    if(activeFilter==='all'||dispatches[i].status===activeFilter)filtered.push(dispatches[i]);
   }
-  document.getElementById('deliveryBody').innerHTML=dh;
+  if(filtered.length===0){
+    el.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg><p>'+t('emptyTitle')+'</p><small>'+t('emptySub')+'</small><br><button class="btn btn-secondary btn-sm" style="margin-top:12px" onclick="loadDemoData()">'+t('btnDemo')+'</button></div>';
+    return;
+  }
+  var h='';
+  for(var j=0;j<filtered.length;j++){
+    var d=filtered[j];
+    var tagClass=d.status==='preparing'?'tag-prep':d.status==='shipped'?'tag-shipped':d.status==='delivered'?'tag-delivered':'tag-cancelled';
+    var tagText=d.status==='preparing'?t('statusPrep'):d.status==='shipped'?t('statusShipped'):d.status==='delivered'?t('statusDelivered'):t('statusCancelled');
+    var date=new Date(d.createdAt);
+    var dateStr=date.toLocaleDateString()+' '+date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    var totalQty=0;for(var k=0;k<d.items.length;k++)totalQty+=d.items[k].qty;
+
+    h+='<div class="dsp-card" onclick="openDetail(\''+d.id+'\')">';
+    h+='<div class="dsp-head"><span class="dsp-id">'+d.id+'</span><span class="sec-tag '+tagClass+'">'+tagText+'</span></div>';
+    h+='<div class="dsp-info"><strong>'+d.client+'</strong> -- '+d.destination+'</div>';
+    h+='<div class="dsp-meta">';
+    h+='<span>'+d.items.length+' '+t('items')+'</span>';
+    h+='<span>'+totalQty+' '+t('units')+'</span>';
+    if(d.carrier)h+='<span>'+d.carrier+'</span>';
+    h+='<span>'+dateStr+'</span>';
+    h+='</div>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+/* =============== ITEM PICKER =============== */
+function renderPicker(){
+  var search=(document.getElementById('pickSearch')?document.getElementById('pickSearch').value:'').toLowerCase();
+  var el=document.getElementById('pickerList');
+  var avail=inventory.filter(function(it){
+    if((parseInt(it.qty)||0)<=0)return false;
+    if(!search)return true;
+    return(it.sku||'').toLowerCase().indexOf(search)!==-1||(it.name||'').toLowerCase().indexOf(search)!==-1;
+  });
+  if(avail.length===0){
+    el.innerHTML='<div style="text-align:center;padding:20px;color:var(--dim);font-size:12px">'+t('emptyInv')+'</div>';
+    return;
+  }
+  var h='';
+  for(var i=0;i<avail.length;i++){
+    var it=avail[i];
+    h+='<div class="inv-pick" id="pick-'+it.sku+'">';
+    h+='<div class="inv-pick-info"><div class="inv-pick-name">'+it.name+'</div><div class="inv-pick-sku">'+it.sku+(it.location?' -- '+it.location:'')+'</div></div>';
+    h+='<div class="inv-pick-stock">'+(parseInt(it.qty)||0)+'</div>';
+    h+='<input type="number" class="inv-pick-qty" id="qty-'+it.sku+'" min="0" max="'+(parseInt(it.qty)||0)+'" value="0" onchange="updatePickState()" oninput="updatePickState()">';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+  document.getElementById('pickCount').textContent=avail.length;
+}
+
+function updatePickState(){
+  var hasItems=false;
+  var inputs=document.querySelectorAll('.inv-pick-qty');
+  for(var i=0;i<inputs.length;i++){
+    var val=parseInt(inputs[i].value)||0;
+    var wrap=inputs[i].closest('.inv-pick');
+    if(val>0){hasItems=true;wrap.classList.add('selected');}
+    else{wrap.classList.remove('selected');}
+  }
+  var client=(document.getElementById('dspClient').value||'').trim();
+  document.getElementById('btnCreateDsp').disabled=!hasItems||!client;
+}
+
+/* =============== CREATE DISPATCH =============== */
+function createDispatch(){
+  var client=(document.getElementById('dspClient').value||'').trim();
+  if(!client){showFeedback(t('noClient'),'red');return;}
+
+  var items=[];
+  var inputs=document.querySelectorAll('.inv-pick-qty');
+  for(var i=0;i<inputs.length;i++){
+    var qty=parseInt(inputs[i].value)||0;
+    if(qty<=0)continue;
+    var sku=inputs[i].id.replace('qty-','');
+    var invItem=null;
+    for(var j=0;j<inventory.length;j++){if(inventory[j].sku===sku){invItem=inventory[j];break;}}
+    if(!invItem)continue;
+    if(qty>parseInt(invItem.qty))qty=parseInt(invItem.qty);
+    items.push({sku:invItem.sku,name:invItem.name,qty:qty,weight:invItem.weight||'',location:invItem.location||''});
+  }
+  if(items.length===0){showFeedback(t('noItems'),'red');return;}
+  if(!confirm(t('confirmCreate')))return;
+
+  var dispatch={
+    id:'DSP-'+Date.now(),
+    client:client,
+    destination:(document.getElementById('dspDest').value||'').trim(),
+    carrier:(document.getElementById('dspCarrier').value||'').trim(),
+    tracking:(document.getElementById('dspTracking').value||'').trim(),
+    notes:(document.getElementById('dspNotes').value||'').trim(),
+    items:items,
+    status:'preparing',
+    createdAt:new Date().toISOString(),
+    shippedAt:null,
+    deliveredAt:null,
+    createdBy:sessionStorage.getItem('7g-auth')||'unknown'
+  };
+
+  for(var k=0;k<items.length;k++){
+    for(var m=0;m<inventory.length;m++){
+      if(inventory[m].sku===items[k].sku){
+        inventory[m].qty=(parseInt(inventory[m].qty)||0)-items[k].qty;
+        if(inventory[m].qty<0)inventory[m].qty=0;
+        break;
+      }
+    }
+    logActivity('dispatch',items[k].sku,items[k].qty+' units -> '+client);
+  }
+
+  dispatches.push(dispatch);
+  saveDispatches();
+  saveInventory();
+
+  document.getElementById('dspClient').value='';
+  document.getElementById('dspDest').value='';
+  document.getElementById('dspCarrier').value='';
+  document.getElementById('dspTracking').value='';
+  document.getElementById('dspNotes').value='';
+
+  showFeedback(t('created'),'green');
+  setTimeout(function(){showTab('orders');},1000);
+}
+
+/* =============== ORDER DETAIL =============== */
+function openDetail(id){
+  var d=null;
+  for(var i=0;i<dispatches.length;i++){if(dispatches[i].id===id){d=dispatches[i];break;}}
+  if(!d)return;
+  currentOrder=d;
+  document.getElementById('viewOrders').style.display='none';
+  document.getElementById('viewDetail').style.display='block';
+  renderDetail();
+}
+
+function closeDetail(){
+  document.getElementById('viewDetail').style.display='none';
+  document.getElementById('viewOrders').style.display='block';
+  currentOrder=null;
+  renderAll();
+}
+
+function renderDetail(){
+  var d=currentOrder;
+  if(!d)return;
+  var date=new Date(d.createdAt);
+  var dateStr=date.toLocaleDateString()+' '+date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var totalQty=0;for(var i=0;i<d.items.length;i++)totalQty+=d.items[i].qty;
+
+  var tagClass=d.status==='preparing'?'tag-prep':d.status==='shipped'?'tag-shipped':d.status==='delivered'?'tag-delivered':'tag-cancelled';
+  var tagText=d.status==='preparing'?t('statusPrep'):d.status==='shipped'?t('statusShipped'):d.status==='delivered'?t('statusDelivered'):t('statusCancelled');
+
+  var h='<div class="sec"><div class="sec-head"><div class="sec-title">'+d.id+'</div><span class="sec-tag '+tagClass+'">'+tagText+'</span></div>';
+  h+='<div class="sec-body">';
+
+  var steps=[{k:'stepPrep',s:'preparing'},{k:'stepShipped',s:'shipped'},{k:'stepTransit',s:'shipped'},{k:'stepDelivered',s:'delivered'}];
+  var stepIdx=d.status==='preparing'?0:d.status==='shipped'?2:d.status==='delivered'?3:-1;
+  if(d.status!=='cancelled'){
+    h+='<div class="track-bar">';
+    for(var si=0;si<steps.length;si++){
+      var cls=si<stepIdx?'done':(si===stepIdx?'active':'');
+      h+='<div class="track-step '+cls+'"><div class="track-dot">'+(si<stepIdx?'&#10003;':(si===stepIdx?'&#8226;':''))+'</div><div class="track-label">'+t(steps[si].k)+'</div></div>';
+    }
+    h+='</div>';
+  }
+
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;margin-top:12px">';
+  h+='<div><span style="color:var(--dim)">'+t('lblClient')+'</span><br><strong>'+d.client+'</strong></div>';
+  h+='<div><span style="color:var(--dim)">'+t('lblDest')+'</span><br><strong>'+(d.destination||'--')+'</strong></div>';
+  h+='<div><span style="color:var(--dim)">'+t('lblCarrier')+'</span><br><strong>'+(d.carrier||'--')+'</strong></div>';
+  h+='<div><span style="color:var(--dim)">'+t('lblTracking')+'</span><br><strong class="mono">'+(d.tracking||'--')+'</strong></div>';
+  h+='</div>';
+  if(d.notes)h+='<div style="margin-top:8px;padding:8px 10px;background:var(--bg3);border-radius:6px;font-size:11px;color:var(--dim)">'+d.notes+'</div>';
+  h+='</div></div>';
+
+  h+='<div class="sec"><div class="sec-head"><div class="sec-title">Items</div><span class="sec-tag" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">'+d.items.length+' / '+totalQty+' '+t('units')+'</span></div>';
+  h+='<div class="sec-body">';
+  for(var j=0;j<d.items.length;j++){
+    var it=d.items[j];
+    h+='<div class="inv-pick" style="cursor:default">';
+    h+='<div class="inv-pick-info"><div class="inv-pick-name">'+it.name+'</div><div class="inv-pick-sku">'+it.sku+(it.location?' -- '+it.location:'')+'</div></div>';
+    h+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:14px;font-weight:700;color:var(--cyan)">'+it.qty+'</div>';
+    h+='</div>';
+  }
+  h+='</div></div>';
+
+  h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">';
+  if(d.status==='preparing'){
+    h+='<button class="btn btn-primary" onclick="markShipped()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> '+t('btnShip')+'</button>';
+    h+='<button class="btn btn-danger" style="width:100%;justify-content:center;padding:14px" onclick="cancelOrder()">'+t('btnCancel')+'</button>';
+  }
+  if(d.status==='shipped'){
+    h+='<button class="btn btn-success" onclick="markDelivered()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> '+t('btnDeliver')+'</button>';
+  }
+  h+='<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="generateDispatchPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+t('btnPDF')+'</button>';
+  h+='</div>';
+
+  h+='<div style="margin-top:12px;font-size:10px;color:var(--dim);text-align:center">'+dateStr;
+  if(d.shippedAt)h+=' | Shipped: '+new Date(d.shippedAt).toLocaleDateString();
+  if(d.deliveredAt)h+=' | Delivered: '+new Date(d.deliveredAt).toLocaleDateString();
+  h+='</div>';
+
+  document.getElementById('detailContent').innerHTML=h;
+}
+
+/* =============== STATUS CHANGES =============== */
+function markShipped(){
+  if(!currentOrder||currentOrder.status!=='preparing')return;
+  var tracking=currentOrder.tracking;
+  if(!tracking){
+    tracking=prompt(LANG==='es'?'Numero de guia / tracking:':'Tracking number:','');
+    if(tracking===null)return;
+    currentOrder.tracking=tracking;
+  }
+  if(!confirm(t('confirmShip')))return;
+  currentOrder.status='shipped';
+  currentOrder.shippedAt=new Date().toISOString();
+  for(var i=0;i<currentOrder.items.length;i++){
+    logActivity('ship',currentOrder.items[i].sku,currentOrder.items[i].qty+' units -> '+currentOrder.client);
+  }
+  saveDispatches();
+  showFeedback(t('statusShipped'),'green');
+  renderDetail();
+}
+
+function markDelivered(){
+  if(!currentOrder||currentOrder.status!=='shipped')return;
+  if(!confirm(t('confirmDeliver')))return;
+  currentOrder.status='delivered';
+  currentOrder.deliveredAt=new Date().toISOString();
+  for(var i=0;i<currentOrder.items.length;i++){
+    logActivity('deliver',currentOrder.items[i].sku,currentOrder.items[i].qty+' units delivered to '+currentOrder.client);
+  }
+  saveDispatches();
+  showFeedback(t('statusDelivered'),'green');
+  renderDetail();
+}
+
+function cancelOrder(){
+  if(!currentOrder||currentOrder.status!=='preparing')return;
+  if(!confirm(t('confirmCancel')))return;
+  for(var i=0;i<currentOrder.items.length;i++){
+    var it=currentOrder.items[i];
+    for(var j=0;j<inventory.length;j++){
+      if(inventory[j].sku===it.sku){
+        inventory[j].qty=(parseInt(inventory[j].qty)||0)+it.qty;
+        break;
+      }
+    }
+    logActivity('cancel-return',it.sku,it.qty+' units returned to inventory');
+  }
+  currentOrder.status='cancelled';
+  saveDispatches();
+  saveInventory();
+  showFeedback(t('statusCancelled'),'red');
+  renderDetail();
+}
+
+/* =============== PDF =============== */
+function generateDispatchPDF(){
+  if(!currentOrder)return;
+  var d=currentOrder;
+  var date=new Date(d.createdAt);
+  var dateStr=date.toLocaleDateString()+' '+date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var totalQty=0;
+  var rows='';
+  for(var i=0;i<d.items.length;i++){
+    var it=d.items[i];
+    totalQty+=it.qty;
+    rows+='<tr><td style="font-family:monospace;font-size:11px">'+it.sku+'</td><td>'+it.name+'</td><td style="text-align:center;font-weight:700">'+it.qty+'</td><td style="font-size:10px">'+(it.weight||'--')+'</td><td style="font-size:10px">'+(it.location||'--')+'</td></tr>';
+  }
+  var title=LANG==='es'?'Orden de Despacho':'Dispatch Order';
+  var stText=d.status==='preparing'?t('statusPrep'):d.status==='shipped'?t('statusShipped'):d.status==='delivered'?t('statusDelivered'):t('statusCancelled');
+  var stColor=d.status==='preparing'?'#3b82f6':d.status==='shipped'?'#eab308':d.status==='delivered'?'#22c55e':'#ef4444';
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+' -- '+d.id+'</title>';
+  html+='<style>body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:13px}';
+  html+='.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #060a0e;padding-bottom:16px;margin-bottom:20px}';
+  html+='.logo{font-size:22px;font-weight:900;letter-spacing:-1px}.logo-sub{font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase}';
+  html+='.doc-title{text-align:right}.doc-title h1{font-size:16px;margin:0 0 4px}.doc-title .id{font-family:monospace;font-size:14px;color:#0ea5e9}';
+  html+='table{width:100%;border-collapse:collapse;margin:12px 0}';
+  html+='th{background:#f1f5f9;text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#475569;border:1px solid #e2e8f0}';
+  html+='td{padding:7px 10px;border:1px solid #e2e8f0;font-size:12px}';
+  html+='.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px}';
+  html+='.info-item{display:flex;flex-direction:column;gap:2px}.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600}.info-val{font-size:13px;font-weight:600}';
+  html+='.signatures{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;padding-top:16px}';
+  html+='.sig-line{border-top:1px solid #1e293b;padding-top:6px;text-align:center;font-size:11px;color:#64748b}';
+  html+='.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
+  html+='@media print{body{padding:12px}@page{margin:15mm}}</style></head><body>';
+
+  html+='<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
+  html+='<div class="doc-title"><h1>'+title+'</h1><div class="id">'+d.id+'</div><div style="color:'+stColor+';font-weight:700;font-size:11px;margin-top:4px">'+stText.toUpperCase()+'</div></div></div>';
+
+  html+='<div class="info-grid">';
+  html+='<div class="info-item"><span class="info-label">'+t('lblClient')+'</span><span class="info-val">'+d.client+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Fecha':'Date')+'</span><span class="info-val">'+dateStr+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+t('lblDest')+'</span><span class="info-val">'+(d.destination||'--')+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+t('lblCarrier')+'</span><span class="info-val">'+(d.carrier||'--')+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+t('lblTracking')+'</span><span class="info-val" style="font-family:monospace">'+(d.tracking||'--')+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">Total</span><span class="info-val">'+d.items.length+' items / '+totalQty+' '+t('units')+'</span></div>';
+  html+='</div>';
+
+  html+='<table><thead><tr><th>SKU</th><th>'+(LANG==='es'?'Descripcion':'Description')+'</th><th style="text-align:center">'+(LANG==='es'?'Cant.':'Qty')+'</th><th>'+(LANG==='es'?'Peso':'Weight')+'</th><th>'+(LANG==='es'?'Ubicacion':'Location')+'</th></tr></thead><tbody>'+rows+'</tbody></table>';
+
+  if(d.notes)html+='<div style="margin:16px 0;padding:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"><strong>'+(LANG==='es'?'Notas:':'Notes:')+'</strong> '+d.notes+'</div>';
+
+  html+='<div class="signatures"><div><div class="sig-line">'+(LANG==='es'?'Firma Despacho':'Dispatch Signature')+'</div></div><div><div class="sig-line">'+(LANG==='es'?'Firma Transportista':'Carrier Signature')+'</div></div></div>';
+  html+='<div class="footer">'+(LANG==='es'?'Generado por':'Generated by')+' 7Group Logistics Intelligence -- '+dateStr+'</div>';
+  html+='</body></html>';
+
+  var w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){w.print();},600);
+}
+
+/* =============== ACTIVITY LOG =============== */
+function logActivity(action,sku,detail){
+  var log=[];
+  try{log=JSON.parse(localStorage.getItem('7g-activity')||'[]');}catch(e){}
+  log.unshift({action:action,sku:sku,detail:detail||'',time:new Date().toISOString(),user:sessionStorage.getItem('7g-auth')||'system'});
+  if(log.length>100)log=log.slice(0,100);
+  localStorage.setItem('7g-activity',JSON.stringify(log));
+}
+
+/* =============== FEEDBACK =============== */
+function showFeedback(msg,color){
+  var el=document.createElement('div');
+  el.style.cssText='position:fixed;bottom:20px;left:16px;right:16px;max-width:500px;margin:0 auto;z-index:200;padding:12px 16px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;background:rgba('+(color==='green'?'34,197,94':color==='red'?'239,68,68':'234,179,8')+',.12);border:1px solid rgba('+(color==='green'?'34,197,94':color==='red'?'239,68,68':'234,179,8')+',.25);color:var(--'+(color==='yellow'?'yellow':color)+')';
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},2500);
+}
+
+/* =============== DEMO DATA =============== */
+function loadDemoData(){
+  var now=Date.now();
+  var demoDispatches=[
+    {id:'DSP-'+String(now-86400000*5),client:'BuildRight Construction LLC',destination:'4520 Industrial Blvd, Houston TX 77033',carrier:'FedEx Freight',tracking:'FXF-884521790',notes:'Fragile, handle with care',items:[{sku:'MAT-001',name:'Porcelain tile 24x24 white',qty:120,weight:'3.9lb',location:'A1-01'},{sku:'MAT-002',name:'Thinset mortar 50lb bag',qty:30,weight:'50lb',location:'A1-02'}],status:'delivered',createdAt:new Date(now-86400000*5).toISOString(),shippedAt:new Date(now-86400000*4).toISOString(),deliveredAt:new Date(now-86400000*2).toISOString(),createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-86400000*3),client:'Premier Finishes Inc',destination:'1280 Commerce Dr, Miami FL 33166',carrier:'XPO Logistics',tracking:'XPO-773201',notes:'',items:[{sku:'MAT-003',name:'Marble slab 80x80 Carrara',qty:80,weight:'4.8lb',location:'B2-01'},{sku:'MAT-004',name:'Aluminum baseboard 8ft',qty:50,weight:'1.7lb',location:'C1-03'},{sku:'MAT-005',name:'Clear silicone sealant 10oz',qty:24,weight:'0.7lb',location:'C2-01'}],status:'shipped',createdAt:new Date(now-86400000*3).toISOString(),shippedAt:new Date(now-86400000*2).toISOString(),deliveredAt:null,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-86400000*1),client:'Apex Builders Group',destination:'9100 Westheimer Rd, Houston TX 77063',carrier:'Old Dominion',tracking:'',notes:'Deliver to job site, ask for Project Mgr Davis',items:[{sku:'MAT-006',name:'Portland cement 94lb bag',qty:200,weight:'94lb',location:'A2-01'},{sku:'MAT-007',name:'Rebar #4 20ft',qty:150,weight:'10lb',location:'A3-01'}],status:'preparing',createdAt:new Date(now-86400000*1).toISOString(),shippedAt:null,deliveredAt:null,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-3600000*6),client:'Home Depot Pro - Orlando',destination:'3800 Vineland Rd, Orlando FL 32811',carrier:'UPS Freight',tracking:'UPS-551098224',notes:'',items:[{sku:'MAT-008',name:'Interior latex paint white 5gal',qty:40,weight:'44lb',location:'B1-02'},{sku:'MAT-009',name:'Professional roller 9in',qty:60,weight:'0.4lb',location:'C1-01'}],status:'preparing',createdAt:new Date(now-3600000*6).toISOString(),shippedAt:null,deliveredAt:null,createdBy:'7groupcorp@zohomail.com'},
+    {id:'DSP-'+String(now-86400000*8),client:'Southern Supply Co',destination:'720 Canal St, New Orleans LA 70130',carrier:'FedEx Freight',tracking:'FXF-662310485',notes:'Customer reported shortage',items:[{sku:'MAT-010',name:'PVC pipe 4in x10ft',qty:60,weight:'7.5lb',location:'A3-02'}],status:'delivered',createdAt:new Date(now-86400000*8).toISOString(),shippedAt:new Date(now-86400000*7).toISOString(),deliveredAt:new Date(now-86400000*5).toISOString(),createdBy:'andresapal@gmail.com'}
+  ];
+  dispatches=demoDispatches;
+  saveDispatches();
+  renderAll();
 }
 
 /* =============== INIT =============== */
+loadData();
 applyLang();
-
-async function loadRealDispatches() {
-  if (typeof DB === 'undefined') return;
-  try {
-    var dispatches = await DB.getDispatches();
-    if (dispatches && dispatches.length > 0) {
-      for (var i = 0; i < dispatches.length; i++) {
-        var d = dispatches[i];
-        var exists = false;
-        for (var j = 0; j < SHIPMENTS.length; j++) {
-          if (SHIPMENTS[j].id === (d.shipmentId || d.id)) { exists = true; break; }
-        }
-        if (!exists) {
-          SHIPMENTS.unshift({
-            id: d.shipmentId || d.id,
-            client: d.client || d.orderId || '',
-            origin: d.origin || 'Miami, Main Warehouse',
-            dest: d.destination || '--',
-            carrier: d.carrier || '--',
-            tracking: d.tracking || '--',
-            status: d.status || 'scheduled',
-            boxes: 1,
-            weight: (d.weight || 0) + ' lbs',
-            shipped: d.createdAt || null,
-            eta: '--',
-            progress: d.status === 'delivered' ? 100 : d.status === 'transit' ? 50 : 10
-          });
-        }
-      }
-      renderAll();
-      console.log('[7G] Despachos: loaded ' + dispatches.length + ' real dispatches from DB');
-    }
-  } catch(e) { console.warn('[7G] Despachos: DB load failed', e); }
-}
-
-var _origDispatchOrder = dispatchOrder;
-dispatchOrder = async function(idx) {
-  var d = DISPATCH_READY[idx];
-  _origDispatchOrder(idx);
-  if (typeof DB !== 'undefined' && d) {
-    await DB.createDispatch({
-      orderId: d.id,
-      carrier: d.carrier,
-      destination: d.client,
-      origin: 'Miami Warehouse',
-      weight: parseFloat(d.weight) || 0,
-      cost: 0,
-      tracking: d.tracking
-    });
-  }
-};
-
-loadRealDispatches();
+document.getElementById('dspClient').addEventListener('input',updatePickState);
 </script>
 </body>
 </html>

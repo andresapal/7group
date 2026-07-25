@@ -899,7 +899,7 @@ function renderInventory(){
   var search=(document.getElementById('invSearch')?document.getElementById('invSearch').value:'').toLowerCase();
   var filtered=inventory.filter(function(it){
     if(!search)return true;
-    return(it.sku||'').toLowerCase().indexOf(search)!==-1||(it.name||'').toLowerCase().indexOf(search)!==-1||(it.location||'').toLowerCase().indexOf(search)!==-1;
+    return(it.sku||'').toLowerCase().indexOf(search)!==-1||(it.name||'').toLowerCase().indexOf(search)!==-1||(it.location||'').toLowerCase().indexOf(search)!==-1||(it.lot||'').toLowerCase().indexOf(search)!==-1||(it.blNumber||'').toLowerCase().indexOf(search)!==-1;
   });
 
   var totalItems=inventory.length,totalUnits=0,lowCount=0;
@@ -1091,7 +1091,7 @@ function editInvItem(idx){
   var search=(document.getElementById('invSearch')?document.getElementById('invSearch').value:'').toLowerCase();
   var filtered=inventory.filter(function(it){
     if(!search)return true;
-    return(it.sku||'').toLowerCase().indexOf(search)!==-1||(it.name||'').toLowerCase().indexOf(search)!==-1||(it.location||'').toLowerCase().indexOf(search)!==-1;
+    return(it.sku||'').toLowerCase().indexOf(search)!==-1||(it.name||'').toLowerCase().indexOf(search)!==-1||(it.location||'').toLowerCase().indexOf(search)!==-1||(it.lot||'').toLowerCase().indexOf(search)!==-1||(it.blNumber||'').toLowerCase().indexOf(search)!==-1;
   });
   var item=filtered[idx];
   if(!item)return;
@@ -1114,7 +1114,7 @@ function deleteInvItem(idx){
   var search=(document.getElementById('invSearch')?document.getElementById('invSearch').value:'').toLowerCase();
   var filtered=inventory.filter(function(it){
     if(!search)return true;
-    return(it.sku||'').toLowerCase().indexOf(search)!==-1||(it.name||'').toLowerCase().indexOf(search)!==-1||(it.location||'').toLowerCase().indexOf(search)!==-1;
+    return(it.sku||'').toLowerCase().indexOf(search)!==-1||(it.name||'').toLowerCase().indexOf(search)!==-1||(it.location||'').toLowerCase().indexOf(search)!==-1||(it.lot||'').toLowerCase().indexOf(search)!==-1||(it.blNumber||'').toLowerCase().indexOf(search)!==-1;
   });
   var item=filtered[idx];
   if(!item)return;
