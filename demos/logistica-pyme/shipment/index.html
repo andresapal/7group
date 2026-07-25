@@ -187,6 +187,15 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .xd-assign-row select{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:11px;color:var(--white);font-family:inherit;outline:none;-webkit-appearance:none;appearance:none}
 .xd-assign-row input[type=number]{width:60px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center;outline:none}
 .xd-nav-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);border-radius:5px;color:var(--orange);font-size:10px;font-weight:600;cursor:pointer;text-decoration:none}
+.xd-nav-btn:active{background:rgba(249,115,22,.25)}
+.xd-nav-big{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.25);border-radius:8px;color:var(--orange);font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:8px}
+.xd-nav-big:active{background:rgba(249,115,22,.3)}
+.xd-nav-big svg{flex-shrink:0}
+.xd-mode-btn{flex:1;padding:8px 10px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
+.xd-mode-btn.active{background:rgba(249,115,22,.12);border-color:rgba(249,115,22,.3);color:var(--orange)}
+.xd-route-num{width:28px;height:28px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.xd-route-line{width:2px;height:16px;background:rgba(249,115,22,.3);margin:0 auto}
+.xd-dest-full{font-size:11px;color:var(--dim);line-height:1.4}
 .xd-summary{padding:10px;background:rgba(249,115,22,.04);border:1px solid rgba(249,115,22,.1);border-radius:6px;margin-top:8px}
 .xd-summary-line{font-size:11px;color:var(--dim);display:flex;justify-content:space-between;padding:2px 0}
 .xd-summary-line .val{font-weight:700;color:var(--white);font-family:'JetBrains Mono',monospace}
@@ -403,13 +412,39 @@ input[type="file"]{display:none}
         </div>
       </label>
       <div id="xdPanel" style="display:none">
-        <div class="xd-add-row">
-          <input id="xdDestName" placeholder="Nombre destino..." data-t-placeholder="xdDestName">
-          <input id="xdDestAddr" placeholder="Direccion..." data-t-placeholder="xdDestAddr" style="flex:2">
-          <button class="xd-add-btn" onclick="addXDDestination()" data-t="xdAddDest">+ Destino</button>
+        <!-- Delivery mode -->
+        <div style="display:flex;gap:6px;margin-bottom:12px">
+          <button class="xd-mode-btn active" id="xdModeIndiv" onclick="setXDMode('individual')" data-t="xdModeIndiv">Entregas individuales</button>
+          <button class="xd-mode-btn" id="xdModeRoute" onclick="setXDMode('route')" data-t="xdModeRoute">Ruta en vehiculo</button>
         </div>
-        <div id="xdDestList"></div>
+        <div id="xdVehicleInfo" style="display:none;margin-bottom:10px">
+          <div class="xd-add-row">
+            <input id="xdVehiclePlate" placeholder="Placa vehiculo..." style="flex:1">
+            <input id="xdDriverName" placeholder="Conductor..." style="flex:1">
+          </div>
+        </div>
+        <!-- Add destination form -->
+        <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:12px">
+          <div style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px" data-t="xdNewDest">Nuevo destino</div>
+          <div class="xd-add-row">
+            <input id="xdDestName" placeholder="Cliente / Nombre...">
+            <input id="xdDestContact" placeholder="Tel contacto...">
+          </div>
+          <div class="xd-add-row">
+            <input id="xdDestAddr" placeholder="Direccion..." style="flex:3">
+            <input id="xdDestCity" placeholder="Ciudad..." style="flex:2">
+          </div>
+          <div class="xd-add-row">
+            <input id="xdDestState" placeholder="Estado..." style="flex:2">
+            <input id="xdDestZip" placeholder="ZIP code..." style="flex:1">
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:4px">
+            <button class="xd-add-btn" onclick="addXDDestination()" data-t="xdAddDest">+ Agregar destino</button>
+          </div>
+        </div>
         <div id="xdAlerts"></div>
+        <div id="xdDestList"></div>
+        <div id="xdRouteBar" style="display:none"></div>
         <div id="xdSummary"></div>
       </div>
     </div>
@@ -665,6 +700,7 @@ var portScannerActive = false;
 var checklistFilter = '';
 var crossDockEnabled = false;
 var xdDestinations = [];
+var xdMode = 'individual';
 
 function buildSkuIndex() {
   skuIndex = {};
@@ -1306,27 +1342,81 @@ function toggleCrossDock(enabled) {
   document.getElementById('xdPanel').style.display = enabled ? 'block' : 'none';
   if (enabled) {
     checkXDInventoryAlerts();
+    renderXDDestinations();
     renderXDSummary();
   }
   saveWIP();
 }
 
-function addXDDestination() {
-  var nameInput = document.getElementById('xdDestName');
-  var addrInput = document.getElementById('xdDestAddr');
-  var name = nameInput.value.trim();
-  var addr = addrInput.value.trim();
-  if (!name) { nameInput.focus(); return; }
-  xdDestinations.push({ id: 'XD-' + Date.now(), name: name, address: addr, items: {} });
-  nameInput.value = '';
-  addrInput.value = '';
+function setXDMode(mode) {
+  xdMode = mode;
+  document.getElementById('xdModeIndiv').classList.toggle('active', mode === 'individual');
+  document.getElementById('xdModeRoute').classList.toggle('active', mode === 'route');
+  document.getElementById('xdVehicleInfo').style.display = mode === 'route' ? 'block' : 'none';
   renderXDDestinations();
+  renderXDSummary();
+  saveWIP();
+}
+
+function buildFullAddress(dest) {
+  var parts = [];
+  if (dest.address) parts.push(dest.address);
+  if (dest.city) parts.push(dest.city);
+  if (dest.state) parts.push(dest.state);
+  if (dest.zip) parts.push(dest.zip);
+  return parts.join(', ');
+}
+
+function mapsLink(fullAddr) {
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(fullAddr);
+}
+function wazeLink(fullAddr) {
+  return 'https://waze.com/ul?q=' + encodeURIComponent(fullAddr);
+}
+
+function addXDDestination() {
+  var name = document.getElementById('xdDestName').value.trim();
+  if (!name) { document.getElementById('xdDestName').focus(); return; }
+  var dest = {
+    id: 'XD-' + Date.now(),
+    name: name,
+    contact: document.getElementById('xdDestContact').value.trim(),
+    address: document.getElementById('xdDestAddr').value.trim(),
+    city: document.getElementById('xdDestCity').value.trim(),
+    state: document.getElementById('xdDestState').value.trim(),
+    zip: document.getElementById('xdDestZip').value.trim(),
+    items: {},
+    order: xdDestinations.length
+  };
+  xdDestinations.push(dest);
+  document.getElementById('xdDestName').value = '';
+  document.getElementById('xdDestContact').value = '';
+  document.getElementById('xdDestAddr').value = '';
+  document.getElementById('xdDestCity').value = '';
+  document.getElementById('xdDestState').value = '';
+  document.getElementById('xdDestZip').value = '';
+  renderXDDestinations();
+  checkXDInventoryAlerts();
   renderXDSummary();
   saveWIP();
 }
 
 function removeXDDestination(idx) {
   xdDestinations.splice(idx, 1);
+  for (var i = 0; i < xdDestinations.length; i++) xdDestinations[i].order = i;
+  renderXDDestinations();
+  renderXDSummary();
+  saveWIP();
+}
+
+function moveXDDest(idx, dir) {
+  var newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= xdDestinations.length) return;
+  var tmp = xdDestinations[idx];
+  xdDestinations[idx] = xdDestinations[newIdx];
+  xdDestinations[newIdx] = tmp;
+  xdDestinations[idx].order = idx;
+  xdDestinations[newIdx].order = newIdx;
   renderXDDestinations();
   renderXDSummary();
   saveWIP();
@@ -1335,21 +1425,21 @@ function removeXDDestination(idx) {
 function assignXDItem(destIdx, sku, qty) {
   if (destIdx < 0 || destIdx >= xdDestinations.length) return;
   var q = Math.max(0, parseInt(qty) || 0);
-  if (q === 0) {
-    delete xdDestinations[destIdx].items[sku];
-  } else {
-    xdDestinations[destIdx].items[sku] = q;
-  }
-  renderXDDestinations();
+  if (q === 0) { delete xdDestinations[destIdx].items[sku]; }
+  else { xdDestinations[destIdx].items[sku] = q; }
   renderXDSummary();
   saveWIP();
 }
 
 function getXDAllocated(sku) {
   var total = 0;
-  for (var i = 0; i < xdDestinations.length; i++) {
-    total += (xdDestinations[i].items[sku] || 0);
-  }
+  for (var i = 0; i < xdDestinations.length; i++) total += (xdDestinations[i].items[sku] || 0);
+  return total;
+}
+
+function getDestUnits(dest) {
+  var total = 0;
+  for (var sk in dest.items) total += dest.items[sk];
   return total;
 }
 
@@ -1357,62 +1447,145 @@ function renderXDDestinations() {
   var el = document.getElementById('xdDestList');
   if (!el || !extractedData) return;
   var items = extractedData.items || [];
+  var isRoute = xdMode === 'route';
   var h = '';
+
   for (var d = 0; d < xdDestinations.length; d++) {
     var dest = xdDestinations[d];
-    var totalUnits = 0;
-    for (var sk in dest.items) totalUnits += dest.items[sk];
-    var mapsUrl = dest.address ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(dest.address) : '';
-    var wazeUrl = dest.address ? 'https://waze.com/ul?q=' + encodeURIComponent(dest.address) : '';
+    var totalUnits = getDestUnits(dest);
+    var fullAddr = buildFullAddress(dest);
+    var hasAddr = fullAddr.length > 0;
+
+    if (isRoute) {
+      h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:2px">';
+      h += '<div style="display:flex;flex-direction:column;align-items:center">';
+      h += '<div class="xd-route-num">' + (d + 1) + '</div>';
+      if (d < xdDestinations.length - 1) h += '<div class="xd-route-line"></div>';
+      h += '</div>';
+      h += '<div style="flex:1">';
+    }
 
     h += '<div class="xd-dest-card">';
-    h += '<div class="xd-dest-head"><span class="xd-dest-name">' + dest.name + '</span>';
-    h += '<button onclick="removeXDDestination(' + d + ')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:4px">&#10005;</button></div>';
-    if (dest.address) {
-      h += '<div class="xd-dest-addr">';
-      h += '<span>' + dest.address + '</span> ';
-      h += '<a href="' + mapsUrl + '" target="_blank" class="xd-nav-btn" style="margin-left:4px">Maps</a> ';
-      h += '<a href="' + wazeUrl + '" target="_blank" class="xd-nav-btn">Waze</a>';
+
+    h += '<div class="xd-dest-head">';
+    h += '<span class="xd-dest-name">' + dest.name + '</span>';
+    h += '<div style="display:flex;gap:4px;align-items:center">';
+    if (isRoute && xdDestinations.length > 1) {
+      if (d > 0) h += '<button onclick="moveXDDest(' + d + ',-1)" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:2px" title="Subir">&#9650;</button>';
+      if (d < xdDestinations.length - 1) h += '<button onclick="moveXDDest(' + d + ',1)" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:2px" title="Bajar">&#9660;</button>';
+    }
+    h += '<button onclick="removeXDDestination(' + d + ')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:2px 4px">&#10005;</button>';
+    h += '</div></div>';
+
+    if (hasAddr) {
+      h += '<div class="xd-dest-full">' + fullAddr + '</div>';
+    }
+    if (dest.contact) {
+      h += '<div style="font-size:10px;color:var(--dim);margin-top:2px">Tel: ' + dest.contact + '</div>';
+    }
+
+    if (hasAddr) {
+      h += '<div style="display:flex;gap:6px;margin:8px 0">';
+      h += '<a href="' + mapsLink(fullAddr) + '" target="_blank" class="xd-nav-btn" style="flex:1;justify-content:center;padding:8px">';
+      h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> Google Maps</a>';
+      h += '<a href="' + wazeLink(fullAddr) + '" target="_blank" class="xd-nav-btn" style="flex:1;justify-content:center;padding:8px">';
+      h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Waze</a>';
       h += '</div>';
     }
 
-    h += '<div style="margin-bottom:6px">';
+    h += '<div style="margin:8px 0 4px;font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.3px;text-transform:uppercase">' + t('xdAssign') + '</div>';
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
       var assigned = dest.items[it.sku] || 0;
-      var maxQty = it.qty - getXDAllocated(it.sku) + assigned;
+      var otherAlloc = getXDAllocated(it.sku) - assigned;
+      var maxQty = it.qty - otherAlloc;
       h += '<div class="xd-assign-row">';
-      h += '<span style="font-size:10px;color:var(--dim);font-family:monospace;min-width:80px">' + it.sku + '</span>';
+      h += '<span style="font-size:10px;color:var(--dim);font-family:monospace;min-width:70px;flex-shrink:0">' + it.sku + '</span>';
       h += '<span style="font-size:10px;color:var(--white);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + it.name + '</span>';
       h += '<input type="number" min="0" max="' + maxQty + '" value="' + (assigned || '') + '" placeholder="0" onfocus="this.select()" oninput="assignXDItem(' + d + ',\'' + it.sku + '\',this.value)">';
-      h += '<span style="font-size:9px;color:var(--dim)">/ ' + it.qty + '</span>';
+      h += '<span style="font-size:9px;color:var(--dim);min-width:30px;text-align:right">/ ' + it.qty + '</span>';
       h += '</div>';
     }
-    h += '</div>';
 
     if (totalUnits > 0) {
-      h += '<div class="xd-dest-items">';
-      h += '<span class="xd-chip xd-chip-item">' + totalUnits + ' ' + (LANG === 'es' ? 'unidades' : 'units') + '</span>';
+      h += '<div style="display:flex;justify-content:flex-end;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">';
+      h += '<span class="xd-chip xd-chip-item">' + totalUnits + ' ' + (LANG === 'es' ? 'unidades asignadas' : 'units assigned') + '</span>';
       h += '</div>';
     }
-    h += '</div>';
-  }
 
-  if (xdDestinations.length > 1) {
-    var allAddrs = [];
-    for (var j = 0; j < xdDestinations.length; j++) {
-      if (xdDestinations[j].address) allAddrs.push(xdDestinations[j].address);
-    }
-    if (allAddrs.length > 1) {
-      var routeUrl = 'https://www.google.com/maps/dir/' + allAddrs.map(function(a) { return encodeURIComponent(a); }).join('/');
-      h += '<div style="text-align:center;margin:8px 0"><a href="' + routeUrl + '" target="_blank" class="xd-nav-btn" style="padding:8px 16px;font-size:12px">';
-      h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> ';
-      h += t('xdRouteAll') + ' (' + allAddrs.length + ' ' + t('xdDests').toLowerCase() + ')</a></div>';
+    h += '</div>';
+
+    if (isRoute) {
+      h += '</div></div>';
     }
   }
 
   el.innerHTML = h;
   document.getElementById('xdCount').textContent = xdDestinations.length;
+  renderXDRouteBar();
+}
+
+function renderXDRouteBar() {
+  var el = document.getElementById('xdRouteBar');
+  if (!el) return;
+  if (xdDestinations.length < 1) { el.style.display = 'none'; el.innerHTML = ''; return; }
+
+  var allAddrs = [];
+  for (var j = 0; j < xdDestinations.length; j++) {
+    var fa = buildFullAddress(xdDestinations[j]);
+    if (fa) allAddrs.push(fa);
+  }
+  if (allAddrs.length < 1) { el.style.display = 'none'; el.innerHTML = ''; return; }
+
+  el.style.display = 'block';
+  var h = '';
+
+  if (xdMode === 'individual') {
+    h += '<div style="font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">' + (LANG === 'es' ? 'Navegacion individual' : 'Individual navigation') + '</div>';
+    for (var k = 0; k < xdDestinations.length; k++) {
+      var fa2 = buildFullAddress(xdDestinations[k]);
+      if (!fa2) continue;
+      h += '<div style="display:flex;gap:6px;margin-bottom:4px">';
+      h += '<span style="font-size:11px;color:var(--white);flex:1;align-self:center">' + xdDestinations[k].name + '</span>';
+      h += '<a href="' + mapsLink(fa2) + '" target="_blank" class="xd-nav-btn">Maps</a>';
+      h += '<a href="' + wazeLink(fa2) + '" target="_blank" class="xd-nav-btn">Waze</a>';
+      h += '</div>';
+    }
+  }
+
+  if (xdMode === 'route' && allAddrs.length > 1) {
+    var plate = document.getElementById('xdVehiclePlate') ? document.getElementById('xdVehiclePlate').value.trim() : '';
+    var driver = document.getElementById('xdDriverName') ? document.getElementById('xdDriverName').value.trim() : '';
+    var routeUrl = 'https://www.google.com/maps/dir/' + allAddrs.map(function(a) { return encodeURIComponent(a); }).join('/');
+    var wazeRoute = 'https://waze.com/ul?q=' + encodeURIComponent(allAddrs[0]) + '&navigate=yes';
+
+    if (plate || driver) {
+      h += '<div style="font-size:11px;color:var(--dim);margin-bottom:6px">';
+      if (plate) h += '<strong>' + (LANG === 'es' ? 'Vehiculo' : 'Vehicle') + ':</strong> ' + plate + ' ';
+      if (driver) h += '<strong>' + (LANG === 'es' ? 'Conductor' : 'Driver') + ':</strong> ' + driver;
+      h += '</div>';
+    }
+
+    h += '<a href="' + routeUrl + '" target="_blank" class="xd-nav-big">';
+    h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+    h += (LANG === 'es' ? 'Abrir ruta completa en Google Maps' : 'Open full route in Google Maps') + ' (' + allAddrs.length + ' ' + t('xdDests').toLowerCase() + ')</a>';
+
+    h += '<a href="' + wazeRoute + '" target="_blank" class="xd-nav-big" style="margin-top:6px;background:rgba(51,183,255,.1);border-color:rgba(51,183,255,.25);color:#33b7ff">';
+    h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+    h += (LANG === 'es' ? 'Iniciar navegacion en Waze' : 'Start navigation in Waze') + '</a>';
+
+    h += '<div style="margin-top:10px;font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">' + (LANG === 'es' ? 'Orden de paradas' : 'Stop order') + '</div>';
+    for (var s = 0; s < xdDestinations.length; s++) {
+      var u = getDestUnits(xdDestinations[s]);
+      h += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">';
+      h += '<div class="xd-route-num" style="width:22px;height:22px;font-size:10px">' + (s + 1) + '</div>';
+      h += '<span style="font-size:11px;color:var(--white);flex:1">' + xdDestinations[s].name + '</span>';
+      if (u > 0) h += '<span class="xd-chip xd-chip-item">' + u + ' uds</span>';
+      h += '</div>';
+    }
+  }
+
+  el.innerHTML = h;
 }
 
 function checkXDInventoryAlerts() {
@@ -1428,10 +1601,12 @@ function checkXDInventoryAlerts() {
     var it = extractedData.items[i];
     for (var j = 0; j < inv.length; j++) {
       if (inv[j].sku === it.sku && (inv[j].quantity || 0) > 0) {
-        h += '<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.15);border-radius:6px;margin-bottom:4px">';
-        h += '<svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" width="14" height="14"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
-        h += '<span style="font-size:11px;color:var(--yellow)"><strong>' + it.sku + '</strong>: ' + t('xdAlertStock') + ' <strong>' + inv[j].quantity + '</strong> ' + (LANG === 'es' ? 'uds' : 'units') + '. ' + t('xdAlertHint') + '.</span>';
-        h += '</div>';
+        h += '<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.15);border-radius:6px;margin-bottom:4px">';
+        h += '<svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" width="16" height="16"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+        h += '<div style="flex:1"><span style="font-size:11px;color:var(--yellow)">';
+        h += '<strong>' + it.sku + '</strong>: ' + t('xdAlertStock') + ' <strong>' + inv[j].quantity + '</strong> ' + (LANG === 'es' ? 'uds en bodega' : 'units in warehouse') + '.</span>';
+        h += '<div style="font-size:10px;color:var(--yellow);opacity:.7;margin-top:2px">' + t('xdAlertHint') + '</div>';
+        h += '</div></div>';
         break;
       }
     }
@@ -1450,18 +1625,29 @@ function renderXDSummary() {
     for (var sk in xdDestinations[d].items) totalXD += xdDestinations[d].items[sk];
   }
   var totalWH = totalAll - totalXD;
+  var modeLabel = xdMode === 'route'
+    ? (LANG === 'es' ? 'Ruta en vehiculo' : 'Vehicle route')
+    : (LANG === 'es' ? 'Entregas individuales' : 'Individual deliveries');
 
   var h = '<div class="xd-summary">';
-  h += '<div class="xd-summary-line"><span>' + t('xdTotalXD') + '</span><span class="val" style="color:var(--orange)">' + totalXD + '</span></div>';
-  h += '<div class="xd-summary-line"><span>' + t('xdTotalWH') + '</span><span class="val">' + Math.max(0, totalWH) + '</span></div>';
+  h += '<div class="xd-summary-line" style="padding-bottom:6px;margin-bottom:4px;border-bottom:1px solid var(--border)"><span style="font-weight:700;color:var(--orange)">' + (LANG === 'es' ? 'Resumen Cross-Dock' : 'Cross-Dock Summary') + '</span></div>';
+  h += '<div class="xd-summary-line"><span>' + (LANG === 'es' ? 'Modo' : 'Mode') + '</span><span class="val" style="color:var(--orange)">' + modeLabel + '</span></div>';
   h += '<div class="xd-summary-line"><span>' + t('xdDests') + '</span><span class="val">' + xdDestinations.length + '</span></div>';
+  h += '<div class="xd-summary-line"><span>' + t('xdTotalXD') + ' (' + (LANG === 'es' ? 'no va a bodega' : 'skip warehouse') + ')</span><span class="val" style="color:var(--orange)">' + totalXD + '</span></div>';
+  h += '<div class="xd-summary-line"><span>' + t('xdTotalWH') + ' (' + (LANG === 'es' ? 'va a inventario' : 'to inventory') + ')</span><span class="val">' + Math.max(0, totalWH) + '</span></div>';
+
+  for (var dd = 0; dd < xdDestinations.length; dd++) {
+    var du = getDestUnits(xdDestinations[dd]);
+    h += '<div class="xd-summary-line"><span style="padding-left:10px">' + (xdMode === 'route' ? (dd + 1) + '. ' : '') + xdDestinations[dd].name + '</span><span class="val">' + du + '</span></div>';
+  }
+
   h += '</div>';
   el.innerHTML = h;
 }
 
-function sendToWarehouse() {
+function sendToWarehouse(skipConfirm) {
   if (!extractedData) return;
-  if (!confirm(LANG === 'es' ? 'Enviar preaviso a bodega?' : 'Send heads-up to warehouse?')) return;
+  if (!skipConfirm && !confirm(LANG === 'es' ? 'Enviar preaviso a bodega?' : 'Send heads-up to warehouse?')) return;
 
   var shipment = {
     id: 'SHP-' + Date.now(),
@@ -1487,6 +1673,9 @@ function sendToWarehouse() {
     cargoPhotos: cargoPhotos.length,
     damagePhotos: damagePhotos.length,
     crossDock: crossDockEnabled,
+    xdMode: crossDockEnabled ? xdMode : '',
+    xdVehiclePlate: crossDockEnabled && xdMode === 'route' ? (document.getElementById('xdVehiclePlate').value.trim()) : '',
+    xdDriverName: crossDockEnabled && xdMode === 'route' ? (document.getElementById('xdDriverName').value.trim()) : '',
     xdDestinations: crossDockEnabled ? JSON.parse(JSON.stringify(xdDestinations)) : [],
     status: 'pending',
     createdAt: new Date().toISOString(),
@@ -1578,6 +1767,7 @@ function resetCapture() {
   portScannerActive = false;
   crossDockEnabled = false;
   xdDestinations = [];
+  xdMode = 'individual';
   clearWIP();
   stopPortCamera();
   document.getElementById('extractedSection').style.display = 'none';
@@ -1773,26 +1963,52 @@ function buildPreReceiptHTML(s, isPreview) {
   html += photoSection;
 
   if (s.crossDock && s.xdDestinations && s.xdDestinations.length > 0) {
-    html += '<h3 style="font-size:13px;margin:16px 0 8px;color:#f97316">Cross-Docking — ' + s.xdDestinations.length + ' ' + (LANG==='es'?'destinos':'destinations') + '</h3>';
+    var isRoute = s.xdMode === 'route';
+    var modeStr = isRoute ? (LANG==='es'?'Ruta en vehiculo':'Vehicle route') : (LANG==='es'?'Entregas individuales':'Individual deliveries');
+    html += '<h3 style="font-size:13px;margin:16px 0 4px;color:#f97316">Cross-Docking — ' + s.xdDestinations.length + ' ' + (LANG==='es'?'destinos':'destinations') + '</h3>';
+    html += '<div style="font-size:11px;color:#9a3412;margin-bottom:8px">' + (LANG==='es'?'Modo':'Mode') + ': <strong>' + modeStr + '</strong>';
+    if (isRoute && s.xdVehiclePlate) html += ' | ' + (LANG==='es'?'Vehiculo':'Vehicle') + ': <strong>' + s.xdVehiclePlate + '</strong>';
+    if (isRoute && s.xdDriverName) html += ' | ' + (LANG==='es'?'Conductor':'Driver') + ': <strong>' + s.xdDriverName + '</strong>';
+    html += '</div>';
+
+    var xdGrandTotal = 0;
     for (var xd = 0; xd < s.xdDestinations.length; xd++) {
       var dest = s.xdDestinations[xd];
       var destTotal = 0;
+      var addrParts = [];
+      if (dest.address) addrParts.push(dest.address);
+      if (dest.city) addrParts.push(dest.city);
+      if (dest.state) addrParts.push(dest.state);
+      if (dest.zip) addrParts.push(dest.zip);
+      var fullAddr = addrParts.join(', ');
+
       html += '<div style="background:#fff8f1;border:1px solid #fed7aa;border-radius:6px;padding:10px 12px;margin-bottom:8px">';
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
+      if (isRoute) html += '<div style="width:24px;height:24px;border-radius:50%;background:#f97316;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">' + (xd + 1) + '</div>';
       html += '<div style="font-weight:700;font-size:12px;color:#c2410c">' + dest.name + '</div>';
-      if (dest.address) html += '<div style="font-size:11px;color:#9a3412;margin-bottom:6px">' + dest.address + '</div>';
-      html += '<table style="margin:4px 0"><thead><tr><th>SKU</th><th style="text-align:center">' + (LANG==='es'?'Cantidad':'Qty') + '</th></tr></thead><tbody>';
+      html += '</div>';
+      if (fullAddr) html += '<div style="font-size:11px;color:#9a3412;margin-bottom:2px">' + fullAddr + '</div>';
+      if (dest.contact) html += '<div style="font-size:10px;color:#9a3412;margin-bottom:4px">Tel: ' + dest.contact + '</div>';
+      html += '<table style="margin:4px 0"><thead><tr><th>SKU</th><th>' + (LANG==='es'?'Descripcion':'Description') + '</th><th style="text-align:center">' + (LANG==='es'?'Cantidad':'Qty') + '</th></tr></thead><tbody>';
       for (var dsk in dest.items) {
         if (dest.items[dsk] > 0) {
           destTotal += dest.items[dsk];
           var itemName = '';
-          if (s.items) { for (var fi = 0; fi < s.items.length; fi++) { if (s.items[fi].sku === dsk) { itemName = ' — ' + s.items[fi].name; break; } } }
-          html += '<tr><td style="font-family:monospace;font-size:11px">' + dsk + itemName + '</td><td style="text-align:center;font-weight:700">' + dest.items[dsk] + '</td></tr>';
+          if (s.items) { for (var fi = 0; fi < s.items.length; fi++) { if (s.items[fi].sku === dsk) { itemName = s.items[fi].name; break; } } }
+          html += '<tr><td style="font-family:monospace;font-size:11px">' + dsk + '</td><td style="font-size:11px">' + itemName + '</td><td style="text-align:center;font-weight:700">' + dest.items[dsk] + '</td></tr>';
         }
       }
       html += '</tbody></table>';
       html += '<div style="font-size:10px;color:#9a3412;font-weight:700;text-align:right">' + destTotal + ' ' + (LANG==='es'?'unidades':'units') + '</div>';
       html += '</div>';
+      xdGrandTotal += destTotal;
     }
+
+    var whTotal = totalExpected - xdGrandTotal;
+    html += '<div style="display:flex;gap:12px;padding:8px 12px;background:#fff0e6;border:1px solid #fed7aa;border-radius:6px;margin-bottom:8px">';
+    html += '<div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:800;color:#f97316">' + xdGrandTotal + '</div><div style="font-size:9px;color:#9a3412;text-transform:uppercase;letter-spacing:.5px">' + (LANG==='es'?'Cross-dock':'Cross-dock') + '</div></div>';
+    html += '<div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:800;color:#1e293b">' + Math.max(0, whTotal) + '</div><div style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.5px">' + (LANG==='es'?'A bodega':'To warehouse') + '</div></div>';
+    html += '</div>';
   }
 
   var sigLabelRecv = LANG === 'es' ? 'Firma — Receptor' : 'Signature — Receiver';
@@ -1819,7 +2035,7 @@ function buildPreReceiptHTML(s, isPreview) {
   if (isPreview) {
     html += 'function confirmSend(){';
     html += 'var msg=' + (LANG==='es' ? '"Se enviara este shipment a Recibo. \\u00BFConfirma el envio?"' : '"This shipment will be sent to Receiving. Confirm?"') + ';';
-    html += 'if(confirm(msg)){if(window.opener&&window.opener.sendToRecibo){window.opener.sendToRecibo();window.close()}else{alert(' + (LANG==='es' ? '"No se pudo conectar con la ventana principal. Cierre y envie desde ahi."' : '"Could not connect to main window. Close and send from there."') + ')}}}';
+    html += 'if(confirm(msg)){try{localStorage.setItem("7g-send-signal",Date.now().toString())}catch(e){}window.close()}}';
   }
   html += '<\/script>';
 
@@ -1870,7 +2086,10 @@ function saveWIP() {
     itemDamageType: itemDamageType,
     itemNovQty: itemNovQty,
     crossDockEnabled: crossDockEnabled,
+    xdMode: xdMode,
     xdDestinations: xdDestinations,
+    xdVehiclePlate: document.getElementById('xdVehiclePlate') ? document.getElementById('xdVehiclePlate').value.trim() : '',
+    xdDriverName: document.getElementById('xdDriverName') ? document.getElementById('xdDriverName').value.trim() : '',
     savedAt: new Date().toISOString()
   };
   try { localStorage.setItem('7g-shipment-wip', JSON.stringify(wip)); } catch(e) {}
@@ -1892,6 +2111,7 @@ function loadWIP() {
     itemDamageType = wip.itemDamageType || {};
     itemNovQty = wip.itemNovQty || {};
     crossDockEnabled = wip.crossDockEnabled || false;
+    xdMode = wip.xdMode || 'individual';
     xdDestinations = wip.xdDestinations || [];
     buildSkuIndex();
     renderExtractedData();
@@ -1902,6 +2122,9 @@ function loadWIP() {
       if (crossDockEnabled) {
         document.getElementById('xdEnabled').checked = true;
         document.getElementById('xdPanel').style.display = 'block';
+        setXDMode(xdMode);
+        if (wip.xdVehiclePlate) document.getElementById('xdVehiclePlate').value = wip.xdVehiclePlate;
+        if (wip.xdDriverName) document.getElementById('xdDriverName').value = wip.xdDriverName;
         renderXDDestinations();
         checkXDInventoryAlerts();
         renderXDSummary();
@@ -1934,6 +2157,13 @@ window.addEventListener('beforeunload', function(e) {
 loadShipments();
 applyLang();
 loadWIP();
+
+window.addEventListener('storage', function(e) {
+  if (e.key === '7g-send-signal' && extractedData) {
+    localStorage.removeItem('7g-send-signal');
+    sendToWarehouse(true);
+  }
+});
 </script>
 </body>
 </html>
