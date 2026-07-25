@@ -348,9 +348,9 @@ input[type="file"]{display:none}
             <input class="scan-input" id="portSkuInput" placeholder="SKU..." onkeydown="if(event.key==='Enter')scanPortItem()">
             <button class="scan-submit" onclick="scanPortItem()" data-t="btnScan">Escanear</button>
           </div>
-          <button class="btn btn-sm btn-secondary" id="portCamToggle" onclick="togglePortCamera()" style="width:100%;justify-content:center;margin-bottom:12px" data-t="btnOpenCam">
+          <button class="btn btn-sm btn-secondary" id="portCamToggle" onclick="togglePortCamera()" style="width:100%;justify-content:center;margin-bottom:12px">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span data-t="btnOpenCam">Abrir camara</span>
+            <span data-t="btnOpenCam">Iniciar escaneo con camara</span>
           </button>
           <div class="check-progress"><div class="check-progress-fill" id="scanBar" style="width:0%"></div></div>
           <div class="check-summary">
@@ -905,22 +905,23 @@ function startPortCamera() {
     showScanFeedback(LANG === 'es' ? 'Libreria de escaneo no cargada. Verifique conexion a internet.' : 'Scan library not loaded. Check internet connection.', 'error');
     return;
   }
-  html5QrScanner = new Html5Qrcode('html5QrReader');
+  var formats = [
+    Html5QrcodeSupportedFormats.QR_CODE,
+    Html5QrcodeSupportedFormats.EAN_13,
+    Html5QrcodeSupportedFormats.EAN_8,
+    Html5QrcodeSupportedFormats.CODE_128,
+    Html5QrcodeSupportedFormats.CODE_39,
+    Html5QrcodeSupportedFormats.UPC_A,
+    Html5QrcodeSupportedFormats.UPC_E,
+    Html5QrcodeSupportedFormats.ITF,
+    Html5QrcodeSupportedFormats.CODABAR
+  ];
+  html5QrScanner = new Html5Qrcode('html5QrReader', { formatsToSupport: formats, verbose: false });
   var lastScan = '';
   var lastTime = 0;
   html5QrScanner.start(
     { facingMode: 'environment' },
-    { fps: 10, qrbox: { width: 250, height: 150 }, aspectRatio: 1.5, formatsToSupport: [
-      Html5QrcodeSupportedFormats.QR_CODE,
-      Html5QrcodeSupportedFormats.EAN_13,
-      Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.CODE_128,
-      Html5QrcodeSupportedFormats.CODE_39,
-      Html5QrcodeSupportedFormats.UPC_A,
-      Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.ITF,
-      Html5QrcodeSupportedFormats.CODABAR
-    ]},
+    { fps: 15, qrbox: { width: 250, height: 150 } },
     function onSuccess(code) {
       var c = code.trim().toUpperCase();
       var now = Date.now();
@@ -1043,7 +1044,7 @@ function renderChecklistRow(it) {
     h += '<option value="sobrante"' + (dmgType==='sobrante'?' selected':'') + '>' + (LANG==='es'?'Sobrante':'Surplus') + '</option>';
     h += '<option value="averia"' + (dmgType==='averia'?' selected':'') + '>' + (LANG==='es'?'Averia':'Damage') + '</option>';
     h += '</select>';
-    h += '<input type="number" class="check-nov-qty" min="0" max="9999" value="' + novQty + '" placeholder="0" onchange="applyNovedad(\'' + it.sku + '\',null,this.value)" onblur="applyNovedad(\'' + it.sku + '\',null,this.value)">';
+    h += '<input type="number" class="check-nov-qty" min="0" max="9999" value="' + (novQty || '') + '" placeholder="0" onfocus="this.select()" oninput="applyNovedad(\'' + it.sku + '\',null,this.value)" onblur="applyNovedad(\'' + it.sku + '\',null,this.value)">';
     h += '</div>';
     if (dmgType && novQty > 0) {
       var adjusted = scanned;
