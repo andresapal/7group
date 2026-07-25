@@ -591,7 +591,7 @@ function openDetail(shipId){
   if(!ship)return;
   currentDetail=ship;
   if(!receptions[shipId]){
-    receptions[shipId]={status:'in_progress',verified:{},locations:{},observations:{},itemStatus:{}};
+    receptions[shipId]={status:'in_progress',verified:{},locations:{},observations:{},itemStatus:{},damageType:{}};
     if(ship.itemStatus){
       for(var k in ship.itemStatus){
         if(ship.itemStatus[k])receptions[shipId].itemStatus[k]=ship.itemStatus[k];
@@ -605,6 +605,11 @@ function openDetail(shipId){
     if(ship.scannedItems){
       for(var k3 in ship.scannedItems){
         if(ship.scannedItems[k3]>0)receptions[shipId].verified[k3]=ship.scannedItems[k3];
+      }
+    }
+    if(ship.itemDamageType){
+      for(var k4 in ship.itemDamageType){
+        if(ship.itemDamageType[k4])receptions[shipId].damageType[k4]=ship.itemDamageType[k4];
       }
     }
     saveReceptions();
@@ -678,7 +683,12 @@ function renderRecvItems(){
       h+='</div>';
     }
     h+='</div>';
-    if(st==='flagged'||obs){
+    var dt=recv.damageType?recv.damageType[it.sku]||'':'';
+    if(st==='flagged'||obs||dt){
+      var dtLabels={unit:{es:'Unidad(es)',en:'Unit(s)'},box:{es:'Caja(s)',en:'Box(es)'},lot:{es:'Lote completo',en:'Full lot'},ref:{es:'Referencia(s)',en:'Reference(s)'}};
+      if(dt&&dtLabels[dt]){
+        h+='<div style="margin-top:4px;margin-bottom:2px"><span style="background:rgba(239,68,68,.12);color:var(--red);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">'+dtLabels[dt][LANG]+'</span></div>';
+      }
       h+='<textarea class="rv-obs" rows="2" placeholder="'+t('obsPlaceholder')+'"'+(isCompleted?' disabled style="opacity:.6"':' onchange="saveRecvObs(\''+it.sku+'\',this.value)" onblur="saveRecvObs(\''+it.sku+'\',this.value)"')+'>'+obs+'</textarea>';
     }
     if(loc){

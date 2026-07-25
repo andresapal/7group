@@ -153,7 +153,9 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .check-flag{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
 .check-flag:hover{background:rgba(239,68,68,.2)}
 .check-flag.active{background:rgba(239,68,68,.25);border-color:var(--red)}
-.check-obs{margin-top:6px;width:100%;background:var(--bg2);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--white);font-family:inherit;outline:none;resize:none;transition:.2s}
+.check-dmg-type{width:100%;background:var(--bg2);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--white);font-family:inherit;outline:none;margin-bottom:6px;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.check-dmg-type:focus{border-color:var(--red)}
+.check-obs{width:100%;background:var(--bg2);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--white);font-family:inherit;outline:none;resize:none;transition:.2s}
 .check-obs:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(239,68,68,.1)}
 .check-obs::placeholder{color:var(--dim)}
 .check-item-wrap{margin-bottom:6px}
@@ -375,7 +377,7 @@ input[type="file"]{display:none}
 
   <button class="damage-btn" onclick="captureDamage()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    <span data-t="btnDamage">Registrar daño (foto)</span>
+    <span data-t="btnDamage">Registrar observacion (foto)</span>
   </button>
 
   <!-- PREVIEW + SEND TO WAREHOUSE -->
@@ -457,7 +459,7 @@ var T = {
   secExtracted:{es:'Datos extraidos',             en:'Extracted data'},
   secItems:    {es:'Items detectados',            en:'Detected items'},
   secPhotos:   {es:'Fotos de carga',              en:'Cargo photos'},
-  btnDamage:   {es:'Registrar daño (foto)',         en:'Report damage (photo)'},
+  btnDamage:   {es:'Registrar observacion (foto)',   en:'Report observation (photo)'},
   btnSend:     {es:'Enviar preaviso a bodega',    en:'Send heads-up to warehouse'},
   emptyTitle:  {es:'No hay envios capturados',    en:'No shipments captured'},
   emptySub:    {es:'Toma una foto de un BL o AWB para comenzar',en:'Snap a BL or AWB photo to start'},
@@ -474,7 +476,7 @@ var T = {
   statusArrived:  {es:'Llegada',                  en:'Arrived'},
   photos:      {es:'fotos',                       en:'photos'},
   items:       {es:'items',                       en:'items'},
-  damages:     {es:'daños',                        en:'damages'},
+  damages:     {es:'observaciones',                 en:'observations'},
   btnScanNow:  {es:'Escanear carga ahora',        en:'Scan cargo now'},
   skipScan:    {es:'O salta y escanea en bodega',en:'Or skip and scan at warehouse'},
   secScanPort: {es:'Escaneo en puerto',           en:'Port scanning'},
@@ -580,6 +582,7 @@ var shipments = [];
 var scannedItems = {};
 var itemStatus = {};
 var itemObs = {};
+var itemDamageType = {};
 var portScannerActive = false;
 var portCameraStream = null;
 
@@ -677,7 +680,7 @@ function renderPhotoGrid() {
   for (var i = 0; i < all.length; i++) {
     var p = all[i];
     var typeClass = p.type === 'damage' ? 'damage' : 'cargo';
-    var typeLabel = p.type === 'damage' ? (LANG === 'es' ? 'DAÑO' : 'DAMAGE') : (LANG === 'es' ? 'CARGA' : 'CARGO');
+    var typeLabel = p.type === 'damage' ? (LANG === 'es' ? 'OBS' : 'OBS') : (LANG === 'es' ? 'CARGA' : 'CARGO');
     html += '<div class="photo-thumb">';
     html += '<img src="' + p.url + '" alt="' + p.name + '">';
     html += '<span class="photo-type ' + typeClass + '">' + typeLabel + '</span>';
@@ -781,11 +784,13 @@ function showScanSection() {
   scannedItems = {};
   itemStatus = {};
   itemObs = {};
+  itemDamageType = {};
   for (var i = 0; i < extractedData.items.length; i++) {
     var sku = extractedData.items[i].sku;
     scannedItems[sku] = 0;
     itemStatus[sku] = '';
     itemObs[sku] = '';
+    itemDamageType[sku] = '';
   }
   renderScanChecklist();
 }
@@ -935,11 +940,12 @@ function renderScanChecklist() {
     var icon = st === 'ok' ? '&#10003;' : st === 'flagged' ? '&#10007;' : scanned > 0 ? scanned : '';
     var qtyClass = scanned >= it.qty ? 'full' : scanned > 0 ? 'partial' : 'zero';
 
+    var dmgType = itemDamageType[it.sku] || '';
     html += '<div class="check-item-wrap">';
     html += '<div class="check-item ' + rowClass + '">';
     html += '<div class="check-icon">' + icon + '</div>';
     html += '<div class="check-info"><div class="check-name">' + it.name + '</div><div class="check-sku">' + it.sku + '</div></div>';
-    html += '<div class="check-qty"><div class="check-qty-val ' + qtyClass + '">' + scanned + '/' + it.qty + '</div><div class="check-qty-label">' + (scanned >= it.qty ? 'OK' : scanned > 0 ? (LANG === 'es' ? 'Parcial' : 'Partial') : (LANG === 'es' ? 'Doc' : 'Doc')) + '</div></div>';
+    html += '<div class="check-qty"><div class="check-qty-val ' + qtyClass + '">' + scanned + '/' + it.qty + '</div><div class="check-qty-label">' + (st === 'ok' ? (LANG==='es'?'Verificado':'Verified') : scanned >= it.qty ? 'OK' : scanned > 0 ? (LANG === 'es' ? 'Parcial' : 'Partial') : (LANG === 'es' ? 'Doc' : 'Doc')) + '</div></div>';
     html += '<div class="check-actions">';
     html += '<button class="check-ok' + (st === 'ok' ? ' active' : '') + '" onclick="markItemOK(\'' + it.sku + '\')" title="OK">&#10003;</button>';
     html += '<button class="check-flag' + (st === 'flagged' ? ' active' : '') + '" onclick="markItemFlag(\'' + it.sku + '\')" title="' + t('flagged') + '">&#10007;</button>';
@@ -947,7 +953,16 @@ function renderScanChecklist() {
     html += '</div>';
     var showObs = st === 'flagged' || obs;
     if (showObs) {
-      html += '<div class="check-item-obs"><textarea class="check-obs" rows="2" placeholder="' + t('obsPlaceholder') + '" onchange="saveObs(\'' + it.sku + '\',this.value)" onblur="saveObs(\'' + it.sku + '\',this.value)">' + obs + '</textarea></div>';
+      html += '<div class="check-item-obs-wrap" data-sku="' + it.sku + '">';
+      html += '<select class="check-dmg-type" onchange="saveDamageType(\'' + it.sku + '\',this.value)">';
+      html += '<option value="">' + (LANG==='es'?'-- Tipo de averia --':'-- Damage type --') + '</option>';
+      html += '<option value="unit"' + (dmgType==='unit'?' selected':'') + '>' + (LANG==='es'?'Unidad(es)':'Unit(s)') + '</option>';
+      html += '<option value="box"' + (dmgType==='box'?' selected':'') + '>' + (LANG==='es'?'Caja(s)':'Box(es)') + '</option>';
+      html += '<option value="lot"' + (dmgType==='lot'?' selected':'') + '>' + (LANG==='es'?'Lote completo':'Full lot') + '</option>';
+      html += '<option value="ref"' + (dmgType==='ref'?' selected':'') + '>' + (LANG==='es'?'Referencia(s)':'Reference(s)') + '</option>';
+      html += '</select>';
+      html += '<textarea class="check-obs" rows="2" placeholder="' + t('obsPlaceholder') + '" onchange="saveObs(\'' + it.sku + '\',this.value)" onblur="saveObs(\'' + it.sku + '\',this.value)">' + obs + '</textarea>';
+      html += '</div>';
     }
     html += '</div>';
   }
@@ -962,24 +977,46 @@ function renderScanChecklist() {
   bar.className = 'check-progress-fill' + (pct >= 100 ? ' complete' : '');
 }
 
+function findItemQty(sku) {
+  if (!extractedData || !extractedData.items) return 0;
+  for (var i = 0; i < extractedData.items.length; i++) {
+    if (extractedData.items[i].sku === sku) return extractedData.items[i].qty;
+  }
+  return 0;
+}
+
 function markItemOK(sku) {
-  itemStatus[sku] = itemStatus[sku] === 'ok' ? '' : 'ok';
+  if (itemStatus[sku] === 'ok') {
+    itemStatus[sku] = '';
+  } else {
+    itemStatus[sku] = 'ok';
+    scannedItems[sku] = findItemQty(sku);
+    if (itemObs[sku]) itemObs[sku] = '';
+  }
   renderScanChecklist();
   saveWIP();
 }
 
 function markItemFlag(sku) {
   itemStatus[sku] = itemStatus[sku] === 'flagged' ? '' : 'flagged';
+  itemDamageType[sku] = itemDamageType[sku] || '';
   renderScanChecklist();
   saveWIP();
   if (itemStatus[sku] === 'flagged') {
-    var obs = document.querySelector('.check-obs');
-    if (obs) obs.focus();
+    setTimeout(function(){
+      var wrap = document.querySelector('.check-item-obs-wrap[data-sku="' + sku + '"]');
+      if (wrap) { var ta = wrap.querySelector('.check-obs'); if(ta) ta.focus(); }
+    }, 100);
   }
 }
 
 function saveObs(sku, val) {
   itemObs[sku] = val;
+  saveWIP();
+}
+
+function saveDamageType(sku, val) {
+  itemDamageType[sku] = val;
   saveWIP();
 }
 
@@ -1022,6 +1059,7 @@ function sendToWarehouse() {
     scannedItems: JSON.parse(JSON.stringify(scannedItems)),
     itemStatus: JSON.parse(JSON.stringify(itemStatus)),
     itemObs: JSON.parse(JSON.stringify(itemObs)),
+    itemDamageType: JSON.parse(JSON.stringify(itemDamageType)),
     scannedAtPort: getTotalScanned(),
     flaggedItems: Object.keys(itemStatus).filter(function(k){ return itemStatus[k] === 'flagged'; }).length,
     docPhotoURLs: docPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
@@ -1082,6 +1120,7 @@ function resetCapture() {
   scannedItems = {};
   itemStatus = {};
   itemObs = {};
+  itemDamageType = {};
   portScannerActive = false;
   clearWIP();
   stopPortCamera();
@@ -1173,6 +1212,7 @@ function buildPreReceiptHTML(s) {
   var date = new Date(s.createdAt || new Date().toISOString());
   var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   var totalExpected = 0, totalVerified = 0, totalFlagged = 0;
+  var dmgLabels = {unit:{es:'Unidad(es)',en:'Unit(s)'},box:{es:'Caja(s)',en:'Box(es)'},lot:{es:'Lote completo',en:'Full lot'},ref:{es:'Referencia(s)',en:'Reference(s)'}};
   var rows = '';
   if (s.items) {
     for (var j = 0; j < s.items.length; j++) {
@@ -1180,6 +1220,7 @@ function buildPreReceiptHTML(s) {
       var sc = s.scannedItems ? (s.scannedItems[it.sku] || 0) : 0;
       var st = s.itemStatus ? (s.itemStatus[it.sku] || '') : '';
       var ob = s.itemObs ? (s.itemObs[it.sku] || '') : '';
+      var dt = s.itemDamageType ? (s.itemDamageType[it.sku] || '') : '';
       totalExpected += it.qty;
       totalVerified += sc;
       if (st === 'flagged') totalFlagged++;
@@ -1188,7 +1229,11 @@ function buildPreReceiptHTML(s) {
       var diff = sc - it.qty;
       var diffStr = diff === 0 ? '=' : (diff > 0 ? '+' + diff : '' + diff);
       var diffColor = diff === 0 ? '#22c55e' : '#ef4444';
-      rows += '<tr><td style="font-family:monospace;font-size:11px">' + it.sku + '</td><td>' + it.name + '</td><td style="text-align:center;font-weight:700">' + it.qty + '</td><td style="text-align:center;font-weight:700">' + sc + '</td><td style="text-align:center;font-weight:700;color:' + diffColor + '">' + diffStr + '</td><td style="text-align:center;color:' + stColor + ';font-weight:700">' + stLabel + '</td><td style="font-size:11px;' + (ob ? 'color:#ef4444;font-weight:600' : 'color:#94a3b8') + '">' + (ob || '—') + '</td></tr>';
+      var obsText = '';
+      if (dt && dmgLabels[dt]) obsText += '<span style="background:#fef2f2;color:#ef4444;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">' + dmgLabels[dt][LANG] + '</span> ';
+      if (ob) obsText += ob;
+      if (!obsText) obsText = '—';
+      rows += '<tr><td style="font-family:monospace;font-size:11px">' + it.sku + '</td><td>' + it.name + '</td><td style="text-align:center;font-weight:700">' + it.qty + '</td><td style="text-align:center;font-weight:700">' + sc + '</td><td style="text-align:center;font-weight:700;color:' + diffColor + '">' + diffStr + '</td><td style="text-align:center;color:' + stColor + ';font-weight:700">' + stLabel + '</td><td style="font-size:11px">' + obsText + '</td></tr>';
     }
   }
 
@@ -1199,8 +1244,8 @@ function buildPreReceiptHTML(s) {
     photoSection += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">';
     for (var pi = 0; pi < allPhotos.length; pi++) {
       var ph = allPhotos[pi];
-      var pType = (s.damagePhotoURLs || []).indexOf(ph) !== -1 ? (LANG === 'es' ? 'DAÑO' : 'DAMAGE') : (s.docPhotoURLs || []).indexOf(ph) !== -1 ? 'DOC' : (LANG === 'es' ? 'CARGA' : 'CARGO');
-      var pColor = pType === 'DOC' ? '#0ea5e9' : pType === 'DAÑO' || pType === 'DAMAGE' ? '#ef4444' : '#22c55e';
+      var pType = (s.damagePhotoURLs || []).indexOf(ph) !== -1 ? 'OBS' : (s.docPhotoURLs || []).indexOf(ph) !== -1 ? 'DOC' : (LANG === 'es' ? 'CARGA' : 'CARGO');
+      var pColor = pType === 'DOC' ? '#0ea5e9' : pType === 'OBS' ? '#ef4444' : '#22c55e';
       photoSection += '<div style="text-align:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px"><img src="' + ph.url + '" style="width:100%;height:180px;object-fit:contain;border-radius:3px"><div style="font-size:9px;font-weight:700;color:' + pColor + ';margin-top:4px">' + pType + '</div></div>';
     }
     photoSection += '</div>';
@@ -1294,6 +1339,7 @@ function currentShipmentSnapshot() {
     scannedItems: scannedItems,
     itemStatus: itemStatus,
     itemObs: itemObs,
+    itemDamageType: itemDamageType,
     docPhotoURLs: docPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
     cargoPhotoURLs: cargoPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
     damagePhotoURLs: damagePhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
@@ -1318,6 +1364,7 @@ function saveWIP() {
     scannedItems: scannedItems,
     itemStatus: itemStatus,
     itemObs: itemObs,
+    itemDamageType: itemDamageType,
     docPhotos: docPhotos,
     cargoPhotos: cargoPhotos,
     damagePhotos: damagePhotos,
@@ -1336,11 +1383,15 @@ function loadWIP() {
     scannedItems = wip.scannedItems || {};
     itemStatus = wip.itemStatus || {};
     itemObs = wip.itemObs || {};
+    itemDamageType = wip.itemDamageType || {};
     docPhotos = wip.docPhotos || [];
     cargoPhotos = wip.cargoPhotos || [];
     damagePhotos = wip.damagePhotos || [];
     renderExtractedData();
-    showScanSection();
+    if (extractedData && extractedData.items && extractedData.items.length > 0) {
+      document.getElementById('scanSection').style.display = 'block';
+      renderScanChecklist();
+    }
     renderPhotoGrid();
     updateSendButton();
     return true;
