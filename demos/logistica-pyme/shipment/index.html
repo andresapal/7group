@@ -1756,23 +1756,28 @@ function sendToWarehouse(skipConfirm) {
     }
   }
 
-  var pdfHTML = buildPreReceiptHTML(shipment);
-  var pdfWin = window.open('', '_blank');
-  pdfWin.document.write(pdfHTML);
-  pdfWin.document.close();
-
   clearWIP();
+
+  try {
+    var pdfHTML = buildPreReceiptHTML(shipment);
+    var pdfWin = window.open('', '_blank');
+    if (pdfWin) {
+      pdfWin.document.write(pdfHTML);
+      pdfWin.document.close();
+    }
+  } catch(e) {}
 
   var statusEl = document.getElementById('aiStatus');
   statusEl.style.display = 'flex';
   statusEl.className = 'ai-status done';
-  document.getElementById('aiStatusText').textContent = t('sentOK');
+  document.getElementById('aiStatusText').textContent = LANG === 'es' ? 'Shipment enviado a Recibo correctamente' : 'Shipment sent to Receiving successfully';
 
   resetCapture();
+  renderShipmentsList();
   setTimeout(function() {
     statusEl.style.display = 'none';
     showView('list');
-  }, 2000);
+  }, 3000);
 }
 
 function resetCapture() {

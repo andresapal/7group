@@ -596,6 +596,7 @@ function renderPreavisos(){
     h+='</div>';
     h+='<div class="pa-actions"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDetail(\''+s.id+'\')">'+btnLabel+'</button>';
     if(st!=='pending')h+='<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDetailForPDF(\''+s.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>';
+    h+='<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();deleteShipmentFromRecv(\''+s.id+'\')" style="color:var(--red);border-color:rgba(239,68,68,.3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
     h+='</div>';
     h+='</div>';
   }
@@ -661,6 +662,22 @@ function closeDetail(){
   document.getElementById('viewDetail').style.display='none';
   document.getElementById('viewRecv').style.display='block';
   currentDetail=null;currentLocItem=null;
+  renderFilters();renderPreavisos();
+}
+
+function deleteShipmentFromRecv(shipId){
+  var msg=LANG==='es'?'Eliminar este shipment de Recibo? (solo demo)':'Delete this shipment from Receiving? (demo only)';
+  if(!confirm(msg))return;
+  for(var i=0;i<shipments.length;i++){
+    if(shipments[i].id===shipId){shipments.splice(i,1);break;}
+  }
+  if(receptions[shipId])delete receptions[shipId];
+  saveShipments();saveReceptions();
+  if(currentDetail&&currentDetail.id===shipId){
+    document.getElementById('viewDetail').style.display='none';
+    document.getElementById('viewRecv').style.display='block';
+    currentDetail=null;currentLocItem=null;
+  }
   renderFilters();renderPreavisos();
 }
 
