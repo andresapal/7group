@@ -1201,7 +1201,7 @@ function buildPreReceiptHTML(s) {
       var ph = allPhotos[pi];
       var pType = (s.damagePhotoURLs || []).indexOf(ph) !== -1 ? (LANG === 'es' ? 'DAÑO' : 'DAMAGE') : (s.docPhotoURLs || []).indexOf(ph) !== -1 ? 'DOC' : (LANG === 'es' ? 'CARGA' : 'CARGO');
       var pColor = pType === 'DOC' ? '#0ea5e9' : pType === 'DAÑO' || pType === 'DAMAGE' ? '#ef4444' : '#22c55e';
-      photoSection += '<div style="text-align:center"><img src="' + ph.url + '" style="width:100%;max-height:160px;object-fit:cover;border-radius:4px;border:1px solid #e2e8f0"><div style="font-size:9px;font-weight:700;color:' + pColor + ';margin-top:4px">' + pType + '</div></div>';
+      photoSection += '<div style="text-align:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px"><img src="' + ph.url + '" style="width:100%;height:180px;object-fit:contain;border-radius:3px"><div style="font-size:9px;font-weight:700;color:' + pColor + ';margin-top:4px">' + pType + '</div></div>';
     }
     photoSection += '</div>';
   }
@@ -1214,10 +1214,20 @@ function buildPreReceiptHTML(s) {
   html += 'table{width:100%;border-collapse:collapse;margin:12px 0}th{background:#f1f5f9;text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#475569;border:1px solid #e2e8f0}td{padding:7px 10px;border:1px solid #e2e8f0;font-size:12px}';
   html += '.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px}.info-item{display:flex;flex-direction:column;gap:2px}.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600}.info-val{font-size:13px;font-weight:600}';
   html += '.summary-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:14px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}.summary-num{font-size:22px;font-weight:800}.summary-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}';
-  html += '.signatures{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;padding-top:16px}.sig-line{border-top:1px solid #1e293b;padding-top:6px;text-align:center;font-size:11px;color:#64748b}';
+  html += '.signatures{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;padding-top:16px}';
+  html += '.sig-block{text-align:center}.sig-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600;margin-bottom:6px}';
+  html += '.sig-canvas{border:1px solid #cbd5e1;border-radius:6px;cursor:crosshair;touch-action:none;background:#fff;display:block;margin:0 auto}';
+  html += '.sig-actions{margin-top:6px;display:flex;justify-content:center;gap:8px}';
+  html += '.sig-btn{font-size:10px;padding:4px 12px;border:1px solid #cbd5e1;border-radius:4px;background:#f8fafc;color:#475569;cursor:pointer;font-family:inherit}';
+  html += '.sig-btn:hover{background:#e2e8f0}';
+  html += '.back-bar{position:sticky;top:0;background:#fff;padding:10px 0;border-bottom:1px solid #e2e8f0;margin:-24px -24px 20px;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;z-index:10}';
+  html += '.back-btn{font-size:12px;padding:6px 16px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;color:#1e293b;cursor:pointer;font-family:inherit;font-weight:600}';
+  html += '.back-btn:hover{background:#e2e8f0}.print-btn{font-size:12px;padding:6px 16px;border:none;border-radius:6px;background:#060a0e;color:#fff;cursor:pointer;font-family:inherit;font-weight:600}';
+  html += '.print-btn:hover{background:#1e293b}';
   html += '.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
-  html += '@media print{body{padding:12px}@page{margin:15mm}}</style></head><body>';
+  html += '@media print{.back-bar{display:none!important}.sig-actions{display:none!important}body{padding:12px}@page{margin:15mm}}</style></head><body>';
 
+  html += '<div class="back-bar"><button class="back-btn" onclick="window.close()">' + (LANG==='es'?'&#8592; Regresar':'&#8592; Go back') + '</button><button class="print-btn" onclick="window.print()">' + (LANG==='es'?'Imprimir / Guardar PDF':'Print / Save PDF') + '</button></div>';
   html += '<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
   html += '<div class="doc-title"><h1>' + t('pdfTitle') + '</h1><div class="bl">' + s.blNumber + '</div></div></div>';
 
@@ -1243,8 +1253,29 @@ function buildPreReceiptHTML(s) {
 
   html += photoSection;
 
-  html += '<div class="signatures"><div><div class="sig-line">' + t('pdfSignRecv') + '</div></div><div><div class="sig-line">' + t('pdfSignWh') + '</div></div></div>';
+  var sigLabelRecv = LANG === 'es' ? 'Firma — Receptor' : 'Signature — Receiver';
+  var sigLabelWh = LANG === 'es' ? 'Firma — Bodega' : 'Signature — Warehouse';
+  var clearLabel = LANG === 'es' ? 'Limpiar' : 'Clear';
+
+  html += '<div class="signatures">';
+  html += '<div class="sig-block"><div class="sig-label">' + sigLabelRecv + '</div><canvas id="sigRecv" class="sig-canvas" width="300" height="120"></canvas><div class="sig-actions"><button class="sig-btn" onclick="clearSig(\'sigRecv\')">' + clearLabel + '</button></div></div>';
+  html += '<div class="sig-block"><div class="sig-label">' + sigLabelWh + '</div><canvas id="sigWh" class="sig-canvas" width="300" height="120"></canvas><div class="sig-actions"><button class="sig-btn" onclick="clearSig(\'sigWh\')">' + clearLabel + '</button></div></div>';
+  html += '</div>';
+
   html += '<div class="footer">' + t('pdfGenBy') + ' — ' + dateStr + '</div>';
+
+  html += '<script>';
+  html += 'function initSig(id){var c=document.getElementById(id),ctx=c.getContext("2d"),drawing=false;';
+  html += 'function pos(e){var r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top}}';
+  html += 'function start(e){e.preventDefault();drawing=true;ctx.beginPath();var p=pos(e);ctx.moveTo(p.x,p.y)}';
+  html += 'function move(e){if(!drawing)return;e.preventDefault();var p=pos(e);ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#1e293b";ctx.lineTo(p.x,p.y);ctx.stroke()}';
+  html += 'function stop(){drawing=false}';
+  html += 'c.addEventListener("mousedown",start);c.addEventListener("mousemove",move);c.addEventListener("mouseup",stop);c.addEventListener("mouseleave",stop);';
+  html += 'c.addEventListener("touchstart",start,{passive:false});c.addEventListener("touchmove",move,{passive:false});c.addEventListener("touchend",stop)}';
+  html += 'function clearSig(id){var c=document.getElementById(id);c.getContext("2d").clearRect(0,0,c.width,c.height)}';
+  html += 'initSig("sigRecv");initSig("sigWh");';
+  html += '<\/script>';
+
   html += '</body></html>';
   return html;
 }
