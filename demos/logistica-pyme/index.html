@@ -591,7 +591,7 @@ function openDetail(shipId){
   if(!ship)return;
   currentDetail=ship;
   if(!receptions[shipId]){
-    receptions[shipId]={status:'in_progress',verified:{},locations:{},observations:{},itemStatus:{},damageType:{}};
+    receptions[shipId]={status:'in_progress',verified:{},locations:{},observations:{},itemStatus:{},novType:{},novQty:{}};
     if(ship.itemStatus){
       for(var k in ship.itemStatus){
         if(ship.itemStatus[k])receptions[shipId].itemStatus[k]=ship.itemStatus[k];
@@ -609,7 +609,12 @@ function openDetail(shipId){
     }
     if(ship.itemDamageType){
       for(var k4 in ship.itemDamageType){
-        if(ship.itemDamageType[k4])receptions[shipId].damageType[k4]=ship.itemDamageType[k4];
+        if(ship.itemDamageType[k4])receptions[shipId].novType[k4]=ship.itemDamageType[k4];
+      }
+    }
+    if(ship.itemNovQty){
+      for(var k5 in ship.itemNovQty){
+        if(ship.itemNovQty[k5])receptions[shipId].novQty[k5]=ship.itemNovQty[k5];
       }
     }
     saveReceptions();
@@ -683,11 +688,13 @@ function renderRecvItems(){
       h+='</div>';
     }
     h+='</div>';
-    var dt=recv.damageType?recv.damageType[it.sku]||'':'';
-    if(st==='flagged'||obs||dt){
-      var dtLabels={unit:{es:'Unidad(es)',en:'Unit(s)'},box:{es:'Caja(s)',en:'Box(es)'},lot:{es:'Lote completo',en:'Full lot'},ref:{es:'Referencia(s)',en:'Reference(s)'}};
-      if(dt&&dtLabels[dt]){
-        h+='<div style="margin-top:4px;margin-bottom:2px"><span style="background:rgba(239,68,68,.12);color:var(--red);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">'+dtLabels[dt][LANG]+'</span></div>';
+    var nt=recv.novType?recv.novType[it.sku]||'':'';
+    var nq=recv.novQty?recv.novQty[it.sku]||0:0;
+    if(st==='flagged'||obs||nt){
+      var novLabels={faltante:{es:'Faltante',en:'Shortage'},sobrante:{es:'Sobrante',en:'Surplus'},averia:{es:'Averia',en:'Damage'}};
+      if(nt&&novLabels[nt]){
+        var novColor=nt==='sobrante'?'#f59e0b':'var(--red)';
+        h+='<div style="margin-top:4px;margin-bottom:2px"><span style="background:rgba(239,68,68,.12);color:'+novColor+';padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">'+novLabels[nt][LANG]+(nq>0?': '+nq:'')+'</span></div>';
       }
       h+='<textarea class="rv-obs" rows="2" placeholder="'+t('obsPlaceholder')+'"'+(isCompleted?' disabled style="opacity:.6"':' onchange="saveRecvObs(\''+it.sku+'\',this.value)" onblur="saveRecvObs(\''+it.sku+'\',this.value)"')+'>'+obs+'</textarea>';
     }

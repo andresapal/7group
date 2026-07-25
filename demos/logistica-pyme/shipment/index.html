@@ -155,6 +155,11 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .check-flag.active{background:rgba(239,68,68,.25);border-color:var(--red)}
 .check-dmg-type{width:100%;background:var(--bg2);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--white);font-family:inherit;outline:none;margin-bottom:6px;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
 .check-dmg-type:focus{border-color:var(--red)}
+.check-nov-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.check-nov-qty{width:70px;background:var(--bg2);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--white);font-family:'JetBrains Mono',monospace;outline:none;text-align:center}
+.check-nov-qty:focus{border-color:var(--red)}
+.check-nov-result{font-size:11px;color:var(--dim);padding:4px 0;font-family:'JetBrains Mono',monospace}
+.check-nov-result span{font-weight:700}
 .check-obs{width:100%;background:var(--bg2);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--white);font-family:inherit;outline:none;resize:none;transition:.2s}
 .check-obs:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(239,68,68,.1)}
 .check-obs::placeholder{color:var(--dim)}
@@ -353,7 +358,8 @@ input[type="file"]{display:none}
             <span id="scanSummaryText">0 / 0</span>
             <span id="scanSummaryPct">0%</span>
           </div>
-          <div class="checklist" id="scanChecklist" style="margin-top:10px"></div>
+          <input class="scan-input" id="checklistSearch" placeholder="Buscar SKU o nombre..." oninput="filterChecklist(this.value)" style="margin-top:10px;margin-bottom:6px;font-size:12px">
+          <div class="checklist" id="scanChecklist" style="max-height:60vh;overflow-y:auto"></div>
         </div>
       </div>
     </div>
@@ -380,7 +386,7 @@ input[type="file"]{display:none}
     <span data-t="btnDamage">Registrar observacion (foto)</span>
   </button>
 
-  <!-- PREVIEW + SEND TO WAREHOUSE -->
+  <!-- PREVIEW + SEND + CLEAR -->
   <div class="actions">
     <button class="btn btn-secondary" id="btnPreview" onclick="previewPDF()" style="width:100%;justify-content:center;padding:14px;display:none">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -388,6 +394,10 @@ input[type="file"]{display:none}
     </button>
     <button class="btn btn-primary" id="btnSend" onclick="sendToWarehouse()" disabled>
       <span data-t="btnSend">Enviar preaviso a bodega</span>
+    </button>
+    <button class="btn btn-secondary" id="btnClear" onclick="clearCapture()" style="width:100%;justify-content:center;padding:12px;display:none;border-color:rgba(239,68,68,.3);color:var(--red)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      <span data-t="btnClear">Limpiar y capturar nuevo</span>
     </button>
   </div>
 
@@ -492,6 +502,7 @@ var T = {
   flagged:     {es:'Observacion',                en:'Flagged'},
   sentOK:      {es:'Preaviso enviado a bodega',   en:'Heads-up sent to warehouse'},
   btnPreviewPDF:{es:'Ver PDF preaviso',            en:'Preview PDF'},
+  btnClear:    {es:'Limpiar y capturar nuevo',    en:'Clear and start new'},
   btnPDF:      {es:'Pre-recibo PDF',              en:'Pre-receipt PDF'},
   pdfTitle:    {es:'Pre-Recibo de Mercancia',     en:'Pre-Receipt of Goods'},
   pdfShipment: {es:'Envio',                       en:'Shipment'},
@@ -583,14 +594,68 @@ var scannedItems = {};
 var itemStatus = {};
 var itemObs = {};
 var itemDamageType = {};
+var itemNovQty = {};
+var skuIndex = {};
 var portScannerActive = false;
 var portCameraStream = null;
+var checklistFilter = '';
+
+function buildSkuIndex() {
+  skuIndex = {};
+  if (!extractedData || !extractedData.items) return;
+  for (var i = 0; i < extractedData.items.length; i++) {
+    var it = extractedData.items[i];
+    skuIndex[it.sku] = it;
+  }
+}
 
 function loadShipments() {
   try { shipments = JSON.parse(localStorage.getItem('7g-shipments') || '[]'); } catch(e) { shipments = []; }
 }
 function saveShipments() {
   localStorage.setItem('7g-shipments', JSON.stringify(shipments));
+}
+
+/* =============== INDEXEDDB FOR PHOTOS =============== */
+var photoDB = null;
+function openPhotoDB(cb) {
+  if (photoDB) { cb(photoDB); return; }
+  var req = indexedDB.open('7g-photos', 1);
+  req.onupgradeneeded = function(e) {
+    var db = e.target.result;
+    if (!db.objectStoreNames.contains('photos')) db.createObjectStore('photos', {keyPath:'id',autoIncrement:true});
+    if (!db.objectStoreNames.contains('wip-photos')) db.createObjectStore('wip-photos', {keyPath:'key'});
+  };
+  req.onsuccess = function(e) { photoDB = e.target.result; cb(photoDB); };
+  req.onerror = function() { cb(null); };
+}
+
+function savePhotosIDB(key, photos, cb) {
+  openPhotoDB(function(db) {
+    if (!db) { if(cb)cb(); return; }
+    var tx = db.transaction('wip-photos', 'readwrite');
+    tx.objectStore('wip-photos').put({key:key, data:photos});
+    tx.oncomplete = function() { if(cb)cb(); };
+    tx.onerror = function() { if(cb)cb(); };
+  });
+}
+
+function loadPhotosIDB(key, cb) {
+  openPhotoDB(function(db) {
+    if (!db) { cb([]); return; }
+    var tx = db.transaction('wip-photos', 'readonly');
+    var req = tx.objectStore('wip-photos').get(key);
+    req.onsuccess = function() { cb(req.result ? req.result.data : []); };
+    req.onerror = function() { cb([]); };
+  });
+}
+
+function clearPhotosIDB() {
+  openPhotoDB(function(db) {
+    if (!db) return;
+    var tx = db.transaction('wip-photos', 'readwrite');
+    tx.objectStore('wip-photos').clear();
+  });
 }
 
 /* =============== VIEWS =============== */
@@ -775,6 +840,7 @@ function renderExtractedData() {
     }
     document.getElementById('itemsList').innerHTML = ihtml;
   }
+  buildSkuIndex();
 }
 
 /* =============== PORT SCANNER =============== */
@@ -791,7 +857,10 @@ function showScanSection() {
     itemStatus[sku] = '';
     itemObs[sku] = '';
     itemDamageType[sku] = '';
+    itemNovQty[sku] = 0;
   }
+  buildSkuIndex();
+  checklistFilter = '';
   renderScanChecklist();
 }
 
@@ -816,14 +885,17 @@ function togglePortScanner() {
 function togglePortCamera() {
   var area = document.getElementById('portScannerArea');
   var btn = document.getElementById('portCamToggle');
+  var span = btn.querySelector('span');
   if (area.style.display === 'none') {
     area.style.display = 'block';
     startPortCamera();
-    btn.querySelector('span').textContent = t('btnCloseCam');
+    span.textContent = t('btnCloseCam');
+    span.setAttribute('data-t', 'btnCloseCam');
   } else {
     area.style.display = 'none';
     stopPortCamera();
-    btn.querySelector('span').textContent = t('btnOpenCam');
+    span.textContent = t('btnOpenCam');
+    span.setAttribute('data-t', 'btnOpenCam');
   }
 }
 
@@ -851,7 +923,10 @@ function stopPortCamera() {
 }
 
 function startBarcodeDetection(video) {
-  if (!('BarcodeDetector' in window)) return;
+  if (!('BarcodeDetector' in window)) {
+    showScanFeedback(LANG === 'es' ? 'Lectura automatica no disponible en este navegador. Ingrese SKU manualmente.' : 'Auto-scan not available in this browser. Enter SKU manually.', 'error');
+    return;
+  }
   var detector = new BarcodeDetector({ formats: ['qr_code','ean_13','ean_8','code_128','code_39','upc_a','upc_e','codabar','itf'] });
   var lastScan = '';
   var lastTime = 0;
@@ -866,6 +941,7 @@ function startBarcodeDetection(video) {
           lastTime = now;
           document.getElementById('portSkuInput').value = code;
           scanPortItem();
+          if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
         }
       }
     }).catch(function(){});
@@ -879,12 +955,10 @@ function scanPortItem() {
   var code = input.value.trim().toUpperCase();
   if (!code || !extractedData) return;
 
-  var matched = null;
-  for (var i = 0; i < extractedData.items.length; i++) {
-    var it = extractedData.items[i];
-    if (it.sku === code || code.indexOf(it.sku) !== -1 || it.sku.indexOf(code) !== -1) {
-      matched = it;
-      break;
+  var matched = skuIndex[code] || null;
+  if (!matched) {
+    for (var sk in skuIndex) {
+      if (code.indexOf(sk) !== -1 || sk.indexOf(code) !== -1) { matched = skuIndex[sk]; break; }
     }
   }
 
@@ -922,48 +996,100 @@ function showScanFeedback(msg, type) {
   setTimeout(function() { status.style.display = 'none'; }, 2500);
 }
 
+var CHECKLIST_PAGE_SIZE = 50;
+var checklistRendered = 0;
+var checklistFiltered = [];
+
+function filterChecklist(val) {
+  checklistFilter = (val || '').trim().toUpperCase();
+  renderScanChecklist();
+}
+
+function getFilteredItems() {
+  if (!extractedData || !extractedData.items) return [];
+  if (!checklistFilter) return extractedData.items;
+  var f = checklistFilter;
+  return extractedData.items.filter(function(it) {
+    return it.sku.toUpperCase().indexOf(f) !== -1 || it.name.toUpperCase().indexOf(f) !== -1;
+  });
+}
+
+function renderChecklistRow(it) {
+  var scanned = scannedItems[it.sku] || 0;
+  var st = itemStatus[it.sku] || '';
+  var obs = itemObs[it.sku] || '';
+  var dmgType = itemDamageType[it.sku] || '';
+  var rowClass = st === 'ok' ? 'scanned' : st === 'flagged' ? 'partial' : scanned > 0 ? 'partial' : '';
+  var icon = st === 'ok' ? '&#10003;' : st === 'flagged' ? '&#10007;' : scanned > 0 ? scanned : '';
+  var qtyClass = scanned >= it.qty ? 'full' : scanned > 0 ? 'partial' : 'zero';
+
+  var h = '<div class="check-item-wrap">';
+  h += '<div class="check-item ' + rowClass + '">';
+  h += '<div class="check-icon">' + icon + '</div>';
+  h += '<div class="check-info"><div class="check-name">' + it.name + '</div><div class="check-sku">' + it.sku + '</div></div>';
+  h += '<div class="check-qty"><div class="check-qty-val ' + qtyClass + '">' + scanned + '/' + it.qty + '</div><div class="check-qty-label">' + (st === 'ok' ? (LANG==='es'?'Verificado':'Verified') : scanned >= it.qty ? 'OK' : scanned > 0 ? (LANG === 'es' ? 'Parcial' : 'Partial') : (LANG === 'es' ? 'Doc' : 'Doc')) + '</div></div>';
+  h += '<div class="check-actions">';
+  h += '<button class="check-ok' + (st === 'ok' ? ' active' : '') + '" onclick="markItemOK(\'' + it.sku + '\')" title="OK">&#10003;</button>';
+  h += '<button class="check-flag' + (st === 'flagged' ? ' active' : '') + '" onclick="markItemFlag(\'' + it.sku + '\')" title="' + t('flagged') + '">&#10007;</button>';
+  h += '</div></div>';
+  var novQty = itemNovQty ? (itemNovQty[it.sku] || 0) : 0;
+  var showObs = st === 'flagged' || obs;
+  if (showObs) {
+    h += '<div class="check-item-obs-wrap" data-sku="' + it.sku + '">';
+    h += '<div class="check-nov-row">';
+    h += '<select class="check-dmg-type" onchange="applyNovedad(\'' + it.sku + '\',this.value,null)">';
+    h += '<option value="">' + (LANG==='es'?'-- Novedad --':'-- Issue --') + '</option>';
+    h += '<option value="faltante"' + (dmgType==='faltante'?' selected':'') + '>' + (LANG==='es'?'Faltante':'Shortage') + '</option>';
+    h += '<option value="sobrante"' + (dmgType==='sobrante'?' selected':'') + '>' + (LANG==='es'?'Sobrante':'Surplus') + '</option>';
+    h += '<option value="averia"' + (dmgType==='averia'?' selected':'') + '>' + (LANG==='es'?'Averia':'Damage') + '</option>';
+    h += '</select>';
+    h += '<input type="number" class="check-nov-qty" min="0" max="9999" value="' + novQty + '" placeholder="0" onchange="applyNovedad(\'' + it.sku + '\',null,this.value)" onblur="applyNovedad(\'' + it.sku + '\',null,this.value)">';
+    h += '</div>';
+    if (dmgType && novQty > 0) {
+      var adjusted = scanned;
+      var resultColor = '#22c55e';
+      var resultText = '';
+      if (dmgType === 'faltante') {
+        adjusted = it.qty - novQty;
+        resultColor = '#ef4444';
+        resultText = (LANG==='es'?'Fisico ajustado: ':'Adjusted physical: ') + '<span style="color:' + resultColor + '">' + adjusted + '</span> (' + (LANG==='es'?'de ':'of ') + it.qty + ')';
+      } else if (dmgType === 'sobrante') {
+        adjusted = it.qty + novQty;
+        resultColor = '#f59e0b';
+        resultText = (LANG==='es'?'Fisico ajustado: ':'Adjusted physical: ') + '<span style="color:' + resultColor + '">' + adjusted + '</span> (' + (LANG==='es'?'de ':'of ') + it.qty + ')';
+      } else if (dmgType === 'averia') {
+        resultText = (LANG==='es'?'Averia: ':'Damaged: ') + '<span style="color:#ef4444">' + novQty + '</span> ' + (LANG==='es'?'und (sin ajuste al total)':'units (no adjustment)');
+      }
+      h += '<div class="check-nov-result">' + resultText + '</div>';
+    }
+    h += '<textarea class="check-obs" rows="2" placeholder="' + t('obsPlaceholder') + '" onchange="saveObs(\'' + it.sku + '\',this.value)" onblur="saveObs(\'' + it.sku + '\',this.value)">' + obs + '</textarea>';
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
 function renderScanChecklist() {
   if (!extractedData || !extractedData.items) return;
   var list = document.getElementById('scanChecklist');
-  var totalExpected = 0;
-  var totalScanned = 0;
-  var html = '';
+  var totalExpected = 0, totalScanned = 0;
 
   for (var i = 0; i < extractedData.items.length; i++) {
     var it = extractedData.items[i];
-    var scanned = scannedItems[it.sku] || 0;
-    var st = itemStatus[it.sku] || '';
-    var obs = itemObs[it.sku] || '';
     totalExpected += it.qty;
-    totalScanned += scanned;
-    var rowClass = st === 'ok' ? 'scanned' : st === 'flagged' ? 'partial' : scanned > 0 ? 'partial' : '';
-    var icon = st === 'ok' ? '&#10003;' : st === 'flagged' ? '&#10007;' : scanned > 0 ? scanned : '';
-    var qtyClass = scanned >= it.qty ? 'full' : scanned > 0 ? 'partial' : 'zero';
+    totalScanned += (scannedItems[it.sku] || 0);
+  }
 
-    var dmgType = itemDamageType[it.sku] || '';
-    html += '<div class="check-item-wrap">';
-    html += '<div class="check-item ' + rowClass + '">';
-    html += '<div class="check-icon">' + icon + '</div>';
-    html += '<div class="check-info"><div class="check-name">' + it.name + '</div><div class="check-sku">' + it.sku + '</div></div>';
-    html += '<div class="check-qty"><div class="check-qty-val ' + qtyClass + '">' + scanned + '/' + it.qty + '</div><div class="check-qty-label">' + (st === 'ok' ? (LANG==='es'?'Verificado':'Verified') : scanned >= it.qty ? 'OK' : scanned > 0 ? (LANG === 'es' ? 'Parcial' : 'Partial') : (LANG === 'es' ? 'Doc' : 'Doc')) + '</div></div>';
-    html += '<div class="check-actions">';
-    html += '<button class="check-ok' + (st === 'ok' ? ' active' : '') + '" onclick="markItemOK(\'' + it.sku + '\')" title="OK">&#10003;</button>';
-    html += '<button class="check-flag' + (st === 'flagged' ? ' active' : '') + '" onclick="markItemFlag(\'' + it.sku + '\')" title="' + t('flagged') + '">&#10007;</button>';
-    html += '</div>';
-    html += '</div>';
-    var showObs = st === 'flagged' || obs;
-    if (showObs) {
-      html += '<div class="check-item-obs-wrap" data-sku="' + it.sku + '">';
-      html += '<select class="check-dmg-type" onchange="saveDamageType(\'' + it.sku + '\',this.value)">';
-      html += '<option value="">' + (LANG==='es'?'-- Tipo de averia --':'-- Damage type --') + '</option>';
-      html += '<option value="unit"' + (dmgType==='unit'?' selected':'') + '>' + (LANG==='es'?'Unidad(es)':'Unit(s)') + '</option>';
-      html += '<option value="box"' + (dmgType==='box'?' selected':'') + '>' + (LANG==='es'?'Caja(s)':'Box(es)') + '</option>';
-      html += '<option value="lot"' + (dmgType==='lot'?' selected':'') + '>' + (LANG==='es'?'Lote completo':'Full lot') + '</option>';
-      html += '<option value="ref"' + (dmgType==='ref'?' selected':'') + '>' + (LANG==='es'?'Referencia(s)':'Reference(s)') + '</option>';
-      html += '</select>';
-      html += '<textarea class="check-obs" rows="2" placeholder="' + t('obsPlaceholder') + '" onchange="saveObs(\'' + it.sku + '\',this.value)" onblur="saveObs(\'' + it.sku + '\',this.value)">' + obs + '</textarea>';
-      html += '</div>';
-    }
+  checklistFiltered = getFilteredItems();
+  var end = Math.min(CHECKLIST_PAGE_SIZE, checklistFiltered.length);
+  checklistRendered = end;
+  var html = '';
+  for (var j = 0; j < end; j++) {
+    html += renderChecklistRow(checklistFiltered[j]);
+  }
+  if (checklistFiltered.length > end) {
+    html += '<div class="check-load-more" id="checklistLoadMore">';
+    html += '<button class="btn btn-secondary btn-sm" onclick="loadMoreChecklist()" style="width:100%;justify-content:center">' + (LANG==='es'?'Ver mas':'Show more') + ' (' + (checklistFiltered.length - end) + ' ' + (LANG==='es'?'restantes':'remaining') + ')</button>';
     html += '</div>';
   }
   list.innerHTML = html;
@@ -977,12 +1103,26 @@ function renderScanChecklist() {
   bar.className = 'check-progress-fill' + (pct >= 100 ? ' complete' : '');
 }
 
-function findItemQty(sku) {
-  if (!extractedData || !extractedData.items) return 0;
-  for (var i = 0; i < extractedData.items.length; i++) {
-    if (extractedData.items[i].sku === sku) return extractedData.items[i].qty;
+function loadMoreChecklist() {
+  var list = document.getElementById('scanChecklist');
+  var loadBtn = document.getElementById('checklistLoadMore');
+  if (loadBtn) loadBtn.remove();
+  var end = Math.min(checklistRendered + CHECKLIST_PAGE_SIZE, checklistFiltered.length);
+  var frag = '';
+  for (var j = checklistRendered; j < end; j++) {
+    frag += renderChecklistRow(checklistFiltered[j]);
   }
-  return 0;
+  checklistRendered = end;
+  if (checklistFiltered.length > end) {
+    frag += '<div class="check-load-more" id="checklistLoadMore">';
+    frag += '<button class="btn btn-secondary btn-sm" onclick="loadMoreChecklist()" style="width:100%;justify-content:center">' + (LANG==='es'?'Ver mas':'Show more') + ' (' + (checklistFiltered.length - end) + ' ' + (LANG==='es'?'restantes':'remaining') + ')</button>';
+    frag += '</div>';
+  }
+  list.insertAdjacentHTML('beforeend', frag);
+}
+
+function findItemQty(sku) {
+  return skuIndex[sku] ? skuIndex[sku].qty : 0;
 }
 
 function markItemOK(sku) {
@@ -1015,8 +1155,20 @@ function saveObs(sku, val) {
   saveWIP();
 }
 
-function saveDamageType(sku, val) {
-  itemDamageType[sku] = val;
+function applyNovedad(sku, type, qty) {
+  if (type !== null) itemDamageType[sku] = type;
+  if (qty !== null) itemNovQty[sku] = Math.max(0, parseInt(qty) || 0);
+  var t = itemDamageType[sku] || '';
+  var q = itemNovQty[sku] || 0;
+  var docQty = findItemQty(sku);
+  if (t === 'faltante') {
+    scannedItems[sku] = Math.max(0, docQty - q);
+  } else if (t === 'sobrante') {
+    scannedItems[sku] = docQty + q;
+  } else if (t === 'averia') {
+    scannedItems[sku] = docQty;
+  }
+  renderScanChecklist();
   saveWIP();
 }
 
@@ -1038,8 +1190,22 @@ function getTotalScanned() {
 function updateSendButton() {
   var btn = document.getElementById('btnSend');
   var prev = document.getElementById('btnPreview');
+  var clr = document.getElementById('btnClear');
   btn.disabled = !extractedData;
   prev.style.display = extractedData ? 'flex' : 'none';
+  clr.style.display = extractedData ? 'flex' : 'none';
+}
+
+function clearCapture() {
+  var msg = LANG === 'es'
+    ? 'Limpiar toda la captura actual? Los datos no enviados se perderan.'
+    : 'Clear current capture? Unsent data will be lost.';
+  if (!confirm(msg)) return;
+  resetCapture();
+  renderPhotoGrid();
+  updateSendButton();
+  showView('capture');
+  showScanFeedback(LANG === 'es' ? 'Captura limpia. Listo para nuevo embarque.' : 'Capture cleared. Ready for new shipment.', 'done');
 }
 
 function sendToWarehouse() {
@@ -1060,6 +1226,7 @@ function sendToWarehouse() {
     itemStatus: JSON.parse(JSON.stringify(itemStatus)),
     itemObs: JSON.parse(JSON.stringify(itemObs)),
     itemDamageType: JSON.parse(JSON.stringify(itemDamageType)),
+    itemNovQty: JSON.parse(JSON.stringify(itemNovQty)),
     scannedAtPort: getTotalScanned(),
     flaggedItems: Object.keys(itemStatus).filter(function(k){ return itemStatus[k] === 'flagged'; }).length,
     docPhotoURLs: docPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
@@ -1121,6 +1288,7 @@ function resetCapture() {
   itemStatus = {};
   itemObs = {};
   itemDamageType = {};
+  itemNovQty = {};
   portScannerActive = false;
   clearWIP();
   stopPortCamera();
@@ -1212,7 +1380,7 @@ function buildPreReceiptHTML(s) {
   var date = new Date(s.createdAt || new Date().toISOString());
   var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   var totalExpected = 0, totalVerified = 0, totalFlagged = 0;
-  var dmgLabels = {unit:{es:'Unidad(es)',en:'Unit(s)'},box:{es:'Caja(s)',en:'Box(es)'},lot:{es:'Lote completo',en:'Full lot'},ref:{es:'Referencia(s)',en:'Reference(s)'}};
+  var novLabels = {faltante:{es:'Faltante',en:'Shortage'},sobrante:{es:'Sobrante',en:'Surplus'},averia:{es:'Averia',en:'Damage'}};
   var rows = '';
   if (s.items) {
     for (var j = 0; j < s.items.length; j++) {
@@ -1221,6 +1389,7 @@ function buildPreReceiptHTML(s) {
       var st = s.itemStatus ? (s.itemStatus[it.sku] || '') : '';
       var ob = s.itemObs ? (s.itemObs[it.sku] || '') : '';
       var dt = s.itemDamageType ? (s.itemDamageType[it.sku] || '') : '';
+      var nq = s.itemNovQty ? (s.itemNovQty[it.sku] || 0) : 0;
       totalExpected += it.qty;
       totalVerified += sc;
       if (st === 'flagged') totalFlagged++;
@@ -1230,7 +1399,10 @@ function buildPreReceiptHTML(s) {
       var diffStr = diff === 0 ? '=' : (diff > 0 ? '+' + diff : '' + diff);
       var diffColor = diff === 0 ? '#22c55e' : '#ef4444';
       var obsText = '';
-      if (dt && dmgLabels[dt]) obsText += '<span style="background:#fef2f2;color:#ef4444;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">' + dmgLabels[dt][LANG] + '</span> ';
+      if (dt && novLabels[dt]) {
+        var novColor = dt === 'sobrante' ? '#f59e0b' : '#ef4444';
+        obsText += '<span style="background:#fef2f2;color:' + novColor + ';padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">' + novLabels[dt][LANG] + (nq > 0 ? ': ' + nq : '') + '</span> ';
+      }
       if (ob) obsText += ob;
       if (!obsText) obsText = '—';
       rows += '<tr><td style="font-family:monospace;font-size:11px">' + it.sku + '</td><td>' + it.name + '</td><td style="text-align:center;font-weight:700">' + it.qty + '</td><td style="text-align:center;font-weight:700">' + sc + '</td><td style="text-align:center;font-weight:700;color:' + diffColor + '">' + diffStr + '</td><td style="text-align:center;color:' + stColor + ';font-weight:700">' + stLabel + '</td><td style="font-size:11px">' + obsText + '</td></tr>';
@@ -1340,6 +1512,7 @@ function currentShipmentSnapshot() {
     itemStatus: itemStatus,
     itemObs: itemObs,
     itemDamageType: itemDamageType,
+    itemNovQty: itemNovQty,
     docPhotoURLs: docPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
     cargoPhotoURLs: cargoPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
     damagePhotoURLs: damagePhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
@@ -1358,19 +1531,20 @@ function previewPDF() {
 
 /* =============== WIP PERSISTENCE (issue 7) =============== */
 function saveWIP() {
-  if (!extractedData) { localStorage.removeItem('7g-shipment-wip'); return; }
+  if (!extractedData) { localStorage.removeItem('7g-shipment-wip'); clearPhotosIDB(); return; }
   var wip = {
     extractedData: extractedData,
     scannedItems: scannedItems,
     itemStatus: itemStatus,
     itemObs: itemObs,
     itemDamageType: itemDamageType,
-    docPhotos: docPhotos,
-    cargoPhotos: cargoPhotos,
-    damagePhotos: damagePhotos,
+    itemNovQty: itemNovQty,
     savedAt: new Date().toISOString()
   };
   try { localStorage.setItem('7g-shipment-wip', JSON.stringify(wip)); } catch(e) {}
+  savePhotosIDB('doc', docPhotos);
+  savePhotosIDB('cargo', cargoPhotos);
+  savePhotosIDB('damage', damagePhotos);
 }
 
 function loadWIP() {
@@ -1384,21 +1558,27 @@ function loadWIP() {
     itemStatus = wip.itemStatus || {};
     itemObs = wip.itemObs || {};
     itemDamageType = wip.itemDamageType || {};
-    docPhotos = wip.docPhotos || [];
-    cargoPhotos = wip.cargoPhotos || [];
-    damagePhotos = wip.damagePhotos || [];
+    itemNovQty = wip.itemNovQty || {};
+    buildSkuIndex();
     renderExtractedData();
     if (extractedData && extractedData.items && extractedData.items.length > 0) {
       document.getElementById('scanSection').style.display = 'block';
       renderScanChecklist();
     }
-    renderPhotoGrid();
+    var loaded = 0;
+    function checkReady() { loaded++; if (loaded >= 3) { renderPhotoGrid(); updateSendButton(); } }
+    loadPhotosIDB('doc', function(d) { docPhotos = d || []; checkReady(); });
+    loadPhotosIDB('cargo', function(d) { cargoPhotos = d || []; checkReady(); });
+    loadPhotosIDB('damage', function(d) { damagePhotos = d || []; checkReady(); });
     updateSendButton();
     return true;
   } catch(e) { return false; }
 }
 
-function clearWIP() { localStorage.removeItem('7g-shipment-wip'); }
+function clearWIP() {
+  localStorage.removeItem('7g-shipment-wip');
+  clearPhotosIDB();
+}
 
 window.addEventListener('beforeunload', function(e) {
   if (extractedData) {
