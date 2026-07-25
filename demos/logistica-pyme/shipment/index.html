@@ -166,6 +166,30 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .check-obs::placeholder{color:var(--dim)}
 .check-item-wrap{margin-bottom:6px}
 .check-item-obs{padding:6px 12px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.1);border-radius:0 0 8px 8px;margin-top:-2px}
+.xd-toggle{display:flex;align-items:center;gap:10px;padding:12px;background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.15);border-radius:8px;margin-bottom:10px;cursor:pointer}
+.xd-toggle input{width:18px;height:18px;accent-color:var(--orange)}
+.xd-toggle-label{font-size:12px;font-weight:700;color:var(--orange);letter-spacing:.3px}
+.xd-toggle-sub{font-size:10px;color:var(--dim);margin-top:2px}
+.xd-dest-card{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.xd-dest-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.xd-dest-name{font-size:13px;font-weight:700;color:var(--white)}
+.xd-dest-addr{font-size:11px;color:var(--dim);margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.xd-dest-items{display:flex;flex-wrap:wrap;gap:4px}
+.xd-chip{font-size:10px;padding:3px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-weight:600}
+.xd-chip-item{background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.2)}
+.xd-chip-alert{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.2);font-family:inherit}
+.xd-add-row{display:flex;gap:6px;margin-bottom:10px}
+.xd-add-row input{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--white);font-family:inherit;outline:none}
+.xd-add-row input:focus{border-color:var(--orange)}
+.xd-add-row input::placeholder{color:var(--dim)}
+.xd-add-btn{padding:8px 14px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.3);border-radius:6px;color:var(--orange);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.xd-assign-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.xd-assign-row select{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:11px;color:var(--white);font-family:inherit;outline:none;-webkit-appearance:none;appearance:none}
+.xd-assign-row input[type=number]{width:60px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center;outline:none}
+.xd-nav-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);border-radius:5px;color:var(--orange);font-size:10px;font-weight:600;cursor:pointer;text-decoration:none}
+.xd-summary{padding:10px;background:rgba(249,115,22,.04);border:1px solid rgba(249,115,22,.1);border-radius:6px;margin-top:8px}
+.xd-summary-line{font-size:11px;color:var(--dim);display:flex;justify-content:space-between;padding:2px 0}
+.xd-summary-line .val{font-weight:700;color:var(--white);font-family:'JetBrains Mono',monospace}
 .check-progress{height:4px;background:var(--bg4);border-radius:2px;margin-top:8px;overflow:hidden}
 .check-progress-fill{height:100%;border-radius:2px;background:var(--cyan);transition:width .4s}
 .check-progress-fill.complete{background:var(--green)}
@@ -364,6 +388,33 @@ input[type="file"]{display:none}
     </div>
   </div>
 
+  <!-- CROSS-DOCKING -->
+  <div class="sec" id="crossDockSection" style="display:none">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secCrossDock">Cross-Docking</div>
+      <span class="sec-tag" style="background:rgba(249,115,22,.15);color:var(--orange)" id="xdCount">0</span>
+    </div>
+    <div class="sec-body">
+      <label class="xd-toggle">
+        <input type="checkbox" id="xdEnabled" onchange="toggleCrossDock(this.checked)">
+        <div>
+          <div class="xd-toggle-label" data-t="xdEnable">Activar cross-docking en este embarque</div>
+          <div class="xd-toggle-sub" data-t="xdEnableSub">Items asignados salen directo sin pasar por inventario</div>
+        </div>
+      </label>
+      <div id="xdPanel" style="display:none">
+        <div class="xd-add-row">
+          <input id="xdDestName" placeholder="Nombre destino..." data-t-placeholder="xdDestName">
+          <input id="xdDestAddr" placeholder="Direccion..." data-t-placeholder="xdDestAddr" style="flex:2">
+          <button class="xd-add-btn" onclick="addXDDestination()" data-t="xdAddDest">+ Destino</button>
+        </div>
+        <div id="xdDestList"></div>
+        <div id="xdAlerts"></div>
+        <div id="xdSummary"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- CARGO PHOTOS -->
   <div class="sec" id="cargoSection">
     <div class="sec-head">
@@ -502,6 +553,21 @@ var T = {
   sentOK:      {es:'Preaviso enviado a bodega',   en:'Heads-up sent to warehouse'},
   btnPreviewPDF:{es:'Ver PDF preaviso',            en:'Preview PDF'},
   btnClear:    {es:'Limpiar y capturar nuevo',    en:'Clear and start new'},
+  secCrossDock:{es:'Cross-Docking',               en:'Cross-Docking'},
+  xdEnable:    {es:'Activar cross-docking en este embarque', en:'Enable cross-docking for this shipment'},
+  xdEnableSub: {es:'Items asignados salen directo sin pasar por inventario', en:'Assigned items ship out directly, skip inventory'},
+  xdDestName:  {es:'Nombre destino...',           en:'Destination name...'},
+  xdDestAddr:  {es:'Direccion...',                en:'Address...'},
+  xdAddDest:   {es:'+ Destino',                   en:'+ Destination'},
+  xdAssign:    {es:'Asignar items',               en:'Assign items'},
+  xdBodega:    {es:'Bodega (inventario)',          en:'Warehouse (inventory)'},
+  xdRoute:     {es:'Ver ruta',                    en:'View route'},
+  xdRouteAll:  {es:'Ruta completa',               en:'Full route'},
+  xdAlertStock:{es:'En bodega hay',               en:'Warehouse has'},
+  xdAlertHint: {es:'Despachar primero desde bodega',en:'Dispatch from warehouse first'},
+  xdTotalXD:   {es:'Total cross-dock',            en:'Total cross-dock'},
+  xdTotalWH:   {es:'Total a bodega',              en:'Total to warehouse'},
+  xdDests:     {es:'Destinos',                    en:'Destinations'},
   btnPDF:      {es:'Pre-recibo PDF',              en:'Pre-receipt PDF'},
   pdfTitle:    {es:'Pre-Recibo de Mercancia',     en:'Pre-Receipt of Goods'},
   pdfShipment: {es:'Envio',                       en:'Shipment'},
@@ -597,6 +663,8 @@ var itemNovQty = {};
 var skuIndex = {};
 var portScannerActive = false;
 var checklistFilter = '';
+var crossDockEnabled = false;
+var xdDestinations = [];
 
 function buildSkuIndex() {
   skuIndex = {};
@@ -860,6 +928,7 @@ function showScanSection() {
   buildSkuIndex();
   checklistFilter = '';
   renderScanChecklist();
+  document.getElementById('crossDockSection').style.display = 'block';
 }
 
 function togglePortScanner() {
@@ -881,21 +950,26 @@ function togglePortScanner() {
 }
 
 var html5QrScanner = null;
+var scannerLastCode = '';
+var scannerLastTime = 0;
+
+function setCamButtonText(isOpen) {
+  var btn = document.getElementById('portCamToggle');
+  if (!btn) return;
+  var span = btn.querySelector('span[data-t]');
+  if (!span) return;
+  var key = isOpen ? 'btnCloseCam' : 'btnOpenCam';
+  span.textContent = t(key);
+  span.setAttribute('data-t', key);
+}
 
 function togglePortCamera() {
   var area = document.getElementById('portScannerArea');
-  var btn = document.getElementById('portCamToggle');
-  var span = btn.querySelector('span');
-  if (area.style.display === 'none') {
+  if (html5QrScanner) {
+    stopPortCamera();
+  } else {
     area.style.display = 'block';
     startPortCamera();
-    span.textContent = t('btnCloseCam');
-    span.setAttribute('data-t', 'btnCloseCam');
-  } else {
-    area.style.display = 'none';
-    stopPortCamera();
-    span.textContent = t('btnOpenCam');
-    span.setAttribute('data-t', 'btnOpenCam');
   }
 }
 
@@ -905,50 +979,62 @@ function startPortCamera() {
     showScanFeedback(LANG === 'es' ? 'Libreria de escaneo no cargada. Verifique conexion a internet.' : 'Scan library not loaded. Check internet connection.', 'error');
     return;
   }
-  var formats = [
-    Html5QrcodeSupportedFormats.QR_CODE,
-    Html5QrcodeSupportedFormats.EAN_13,
-    Html5QrcodeSupportedFormats.EAN_8,
-    Html5QrcodeSupportedFormats.CODE_128,
-    Html5QrcodeSupportedFormats.CODE_39,
-    Html5QrcodeSupportedFormats.UPC_A,
-    Html5QrcodeSupportedFormats.UPC_E,
-    Html5QrcodeSupportedFormats.ITF,
-    Html5QrcodeSupportedFormats.CODABAR
-  ];
-  html5QrScanner = new Html5Qrcode('html5QrReader', { formatsToSupport: formats, verbose: false });
-  var lastScan = '';
-  var lastTime = 0;
+  html5QrScanner = new Html5Qrcode('html5QrReader', {
+    formatsToSupport: [
+      Html5QrcodeSupportedFormats.QR_CODE,
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.ITF,
+      Html5QrcodeSupportedFormats.CODABAR
+    ],
+    experimentalFeatures: { useBarCodeDetectorIfSupported: false },
+    verbose: false
+  });
+  var readerW = document.getElementById('html5QrReader').offsetWidth || 300;
+  var boxW = Math.min(280, Math.floor(readerW * 0.85));
+  var boxH = Math.floor(boxW * 0.5);
   html5QrScanner.start(
     { facingMode: 'environment' },
-    { fps: 15, qrbox: { width: 250, height: 150 } },
-    function onSuccess(code) {
-      var c = code.trim().toUpperCase();
+    { fps: 10, qrbox: { width: boxW, height: boxH }, disableFlip: false },
+    function onSuccess(code, result) {
+      var c = code.trim();
       var now = Date.now();
-      if (c !== lastScan || now - lastTime > 3000) {
-        lastScan = c;
-        lastTime = now;
-        document.getElementById('portSkuInput').value = c;
-        scanPortItem();
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-      }
+      if (c === scannerLastCode && now - scannerLastTime < 3000) return;
+      scannerLastCode = c;
+      scannerLastTime = now;
+      document.getElementById('portSkuInput').value = c;
+      scanPortItem();
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      showScanFeedback((LANG === 'es' ? 'Leido: ' : 'Read: ') + c, 'success');
     },
     function onError() {}
-  ).catch(function(err) {
-    showScanFeedback(LANG === 'es' ? 'No se pudo acceder a la camara.' : 'Could not access camera.', 'error');
+  ).then(function() {
+    setCamButtonText(true);
+    portScannerActive = true;
+  }).catch(function(err) {
+    showScanFeedback((LANG === 'es' ? 'No se pudo acceder a la camara: ' : 'Could not access camera: ') + (err.message || err), 'error');
     html5QrScanner = null;
   });
 }
 
 function stopPortCamera() {
-  if (html5QrScanner) {
-    html5QrScanner.stop().then(function() {
-      html5QrScanner.clear();
-      html5QrScanner = null;
-    }).catch(function() {
-      html5QrScanner = null;
-    });
-  }
+  if (!html5QrScanner) return;
+  html5QrScanner.stop().then(function() {
+    html5QrScanner.clear();
+    html5QrScanner = null;
+    portScannerActive = false;
+    document.getElementById('portScannerArea').style.display = 'none';
+    setCamButtonText(false);
+  }).catch(function() {
+    html5QrScanner = null;
+    portScannerActive = false;
+    document.getElementById('portScannerArea').style.display = 'none';
+    setCamButtonText(false);
+  });
 }
 
 function scanPortItem() {
@@ -1214,6 +1300,165 @@ function clearCapture() {
   showScanFeedback(LANG === 'es' ? 'Captura limpia. Listo para nuevo embarque.' : 'Capture cleared. Ready for new shipment.', 'done');
 }
 
+/* =============== CROSS-DOCKING =============== */
+function toggleCrossDock(enabled) {
+  crossDockEnabled = enabled;
+  document.getElementById('xdPanel').style.display = enabled ? 'block' : 'none';
+  if (enabled) {
+    checkXDInventoryAlerts();
+    renderXDSummary();
+  }
+  saveWIP();
+}
+
+function addXDDestination() {
+  var nameInput = document.getElementById('xdDestName');
+  var addrInput = document.getElementById('xdDestAddr');
+  var name = nameInput.value.trim();
+  var addr = addrInput.value.trim();
+  if (!name) { nameInput.focus(); return; }
+  xdDestinations.push({ id: 'XD-' + Date.now(), name: name, address: addr, items: {} });
+  nameInput.value = '';
+  addrInput.value = '';
+  renderXDDestinations();
+  renderXDSummary();
+  saveWIP();
+}
+
+function removeXDDestination(idx) {
+  xdDestinations.splice(idx, 1);
+  renderXDDestinations();
+  renderXDSummary();
+  saveWIP();
+}
+
+function assignXDItem(destIdx, sku, qty) {
+  if (destIdx < 0 || destIdx >= xdDestinations.length) return;
+  var q = Math.max(0, parseInt(qty) || 0);
+  if (q === 0) {
+    delete xdDestinations[destIdx].items[sku];
+  } else {
+    xdDestinations[destIdx].items[sku] = q;
+  }
+  renderXDDestinations();
+  renderXDSummary();
+  saveWIP();
+}
+
+function getXDAllocated(sku) {
+  var total = 0;
+  for (var i = 0; i < xdDestinations.length; i++) {
+    total += (xdDestinations[i].items[sku] || 0);
+  }
+  return total;
+}
+
+function renderXDDestinations() {
+  var el = document.getElementById('xdDestList');
+  if (!el || !extractedData) return;
+  var items = extractedData.items || [];
+  var h = '';
+  for (var d = 0; d < xdDestinations.length; d++) {
+    var dest = xdDestinations[d];
+    var totalUnits = 0;
+    for (var sk in dest.items) totalUnits += dest.items[sk];
+    var mapsUrl = dest.address ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(dest.address) : '';
+    var wazeUrl = dest.address ? 'https://waze.com/ul?q=' + encodeURIComponent(dest.address) : '';
+
+    h += '<div class="xd-dest-card">';
+    h += '<div class="xd-dest-head"><span class="xd-dest-name">' + dest.name + '</span>';
+    h += '<button onclick="removeXDDestination(' + d + ')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:4px">&#10005;</button></div>';
+    if (dest.address) {
+      h += '<div class="xd-dest-addr">';
+      h += '<span>' + dest.address + '</span> ';
+      h += '<a href="' + mapsUrl + '" target="_blank" class="xd-nav-btn" style="margin-left:4px">Maps</a> ';
+      h += '<a href="' + wazeUrl + '" target="_blank" class="xd-nav-btn">Waze</a>';
+      h += '</div>';
+    }
+
+    h += '<div style="margin-bottom:6px">';
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var assigned = dest.items[it.sku] || 0;
+      var maxQty = it.qty - getXDAllocated(it.sku) + assigned;
+      h += '<div class="xd-assign-row">';
+      h += '<span style="font-size:10px;color:var(--dim);font-family:monospace;min-width:80px">' + it.sku + '</span>';
+      h += '<span style="font-size:10px;color:var(--white);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + it.name + '</span>';
+      h += '<input type="number" min="0" max="' + maxQty + '" value="' + (assigned || '') + '" placeholder="0" onfocus="this.select()" oninput="assignXDItem(' + d + ',\'' + it.sku + '\',this.value)">';
+      h += '<span style="font-size:9px;color:var(--dim)">/ ' + it.qty + '</span>';
+      h += '</div>';
+    }
+    h += '</div>';
+
+    if (totalUnits > 0) {
+      h += '<div class="xd-dest-items">';
+      h += '<span class="xd-chip xd-chip-item">' + totalUnits + ' ' + (LANG === 'es' ? 'unidades' : 'units') + '</span>';
+      h += '</div>';
+    }
+    h += '</div>';
+  }
+
+  if (xdDestinations.length > 1) {
+    var allAddrs = [];
+    for (var j = 0; j < xdDestinations.length; j++) {
+      if (xdDestinations[j].address) allAddrs.push(xdDestinations[j].address);
+    }
+    if (allAddrs.length > 1) {
+      var routeUrl = 'https://www.google.com/maps/dir/' + allAddrs.map(function(a) { return encodeURIComponent(a); }).join('/');
+      h += '<div style="text-align:center;margin:8px 0"><a href="' + routeUrl + '" target="_blank" class="xd-nav-btn" style="padding:8px 16px;font-size:12px">';
+      h += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> ';
+      h += t('xdRouteAll') + ' (' + allAddrs.length + ' ' + t('xdDests').toLowerCase() + ')</a></div>';
+    }
+  }
+
+  el.innerHTML = h;
+  document.getElementById('xdCount').textContent = xdDestinations.length;
+}
+
+function checkXDInventoryAlerts() {
+  var el = document.getElementById('xdAlerts');
+  if (!el || !extractedData) return;
+  var inv = [];
+  try { inv = JSON.parse(localStorage.getItem('7g-inventory') || '[]'); } catch(e) {}
+  if (!inv.length) { try { inv = JSON.parse(localStorage.getItem('7g_inventory') || '[]'); } catch(e) {} }
+  if (!inv.length) { el.innerHTML = ''; return; }
+
+  var h = '';
+  for (var i = 0; i < extractedData.items.length; i++) {
+    var it = extractedData.items[i];
+    for (var j = 0; j < inv.length; j++) {
+      if (inv[j].sku === it.sku && (inv[j].quantity || 0) > 0) {
+        h += '<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.15);border-radius:6px;margin-bottom:4px">';
+        h += '<svg viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" width="14" height="14"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+        h += '<span style="font-size:11px;color:var(--yellow)"><strong>' + it.sku + '</strong>: ' + t('xdAlertStock') + ' <strong>' + inv[j].quantity + '</strong> ' + (LANG === 'es' ? 'uds' : 'units') + '. ' + t('xdAlertHint') + '.</span>';
+        h += '</div>';
+        break;
+      }
+    }
+  }
+  el.innerHTML = h;
+}
+
+function renderXDSummary() {
+  var el = document.getElementById('xdSummary');
+  if (!el || !extractedData) return;
+  if (!xdDestinations.length) { el.innerHTML = ''; return; }
+
+  var totalXD = 0, totalAll = 0;
+  for (var i = 0; i < extractedData.items.length; i++) totalAll += extractedData.items[i].qty;
+  for (var d = 0; d < xdDestinations.length; d++) {
+    for (var sk in xdDestinations[d].items) totalXD += xdDestinations[d].items[sk];
+  }
+  var totalWH = totalAll - totalXD;
+
+  var h = '<div class="xd-summary">';
+  h += '<div class="xd-summary-line"><span>' + t('xdTotalXD') + '</span><span class="val" style="color:var(--orange)">' + totalXD + '</span></div>';
+  h += '<div class="xd-summary-line"><span>' + t('xdTotalWH') + '</span><span class="val">' + Math.max(0, totalWH) + '</span></div>';
+  h += '<div class="xd-summary-line"><span>' + t('xdDests') + '</span><span class="val">' + xdDestinations.length + '</span></div>';
+  h += '</div>';
+  el.innerHTML = h;
+}
+
 function sendToWarehouse() {
   if (!extractedData) return;
   if (!confirm(LANG === 'es' ? 'Enviar preaviso a bodega?' : 'Send heads-up to warehouse?')) return;
@@ -1241,6 +1486,8 @@ function sendToWarehouse() {
     docPhotos: docPhotos.length,
     cargoPhotos: cargoPhotos.length,
     damagePhotos: damagePhotos.length,
+    crossDock: crossDockEnabled,
+    xdDestinations: crossDockEnabled ? JSON.parse(JSON.stringify(xdDestinations)) : [],
     status: 'pending',
     createdAt: new Date().toISOString(),
     createdBy: sessionStorage.getItem('7g-auth') || 'unknown'
@@ -1249,21 +1496,54 @@ function sendToWarehouse() {
   shipments.push(shipment);
   saveShipments();
 
+  if (crossDockEnabled && xdDestinations.length > 0 && typeof DB !== 'undefined' && DB.createDispatch) {
+    for (var d = 0; d < xdDestinations.length; d++) {
+      var dest = xdDestinations[d];
+      var destItems = [];
+      var destUnits = 0;
+      for (var sk in dest.items) {
+        if (dest.items[sk] > 0) {
+          destItems.push({ sku: sk, name: (skuIndex[sk] || {}).name || sk, qty: dest.items[sk] });
+          destUnits += dest.items[sk];
+        }
+      }
+      if (destItems.length > 0) {
+        DB.createDispatch({
+          shipmentId: shipment.id,
+          blNumber: shipment.blNumber,
+          destination: dest.address || dest.name,
+          client: dest.name,
+          items: destItems,
+          totalUnits: destUnits,
+          carrier: '',
+          origin: shipment.port || 'Warehouse',
+          crossDock: true
+        });
+      }
+    }
+  }
+
   if (typeof DB !== 'undefined' && DB.createReceiving) {
     var recvItems = [];
     for (var i = 0; i < extractedData.items.length; i++) {
       var it = extractedData.items[i];
-      recvItems.push({ sku: it.sku, name: it.name, expectedQty: it.qty, receivedQty: scannedItems[it.sku] || 0, weight: it.weight });
+      var xdQty = crossDockEnabled ? getXDAllocated(it.sku) : 0;
+      var whQty = it.qty - xdQty;
+      if (whQty > 0) {
+        recvItems.push({ sku: it.sku, name: it.name, expectedQty: whQty, receivedQty: Math.min(scannedItems[it.sku] || 0, whQty), weight: it.weight });
+      }
     }
-    DB.createReceiving({
-      shipmentId: shipment.id,
-      blNumber: shipment.blNumber,
-      supplier: shipment.supplier,
-      status: 'pending',
-      items: recvItems,
-      totalWeight: shipment.totalWeight,
-      timestamp: shipment.createdAt
-    });
+    if (recvItems.length > 0) {
+      DB.createReceiving({
+        shipmentId: shipment.id,
+        blNumber: shipment.blNumber,
+        supplier: shipment.supplier,
+        status: 'pending',
+        items: recvItems,
+        totalWeight: shipment.totalWeight,
+        timestamp: shipment.createdAt
+      });
+    }
   }
 
   var pdfHTML = buildPreReceiptHTML(shipment);
@@ -1296,11 +1576,20 @@ function resetCapture() {
   itemDamageType = {};
   itemNovQty = {};
   portScannerActive = false;
+  crossDockEnabled = false;
+  xdDestinations = [];
   clearWIP();
   stopPortCamera();
   document.getElementById('extractedSection').style.display = 'none';
   document.getElementById('itemsSection').style.display = 'none';
   document.getElementById('scanSection').style.display = 'none';
+  document.getElementById('crossDockSection').style.display = 'none';
+  document.getElementById('xdEnabled').checked = false;
+  document.getElementById('xdPanel').style.display = 'none';
+  document.getElementById('xdDestList').innerHTML = '';
+  document.getElementById('xdAlerts').innerHTML = '';
+  document.getElementById('xdSummary').innerHTML = '';
+  document.getElementById('xdCount').textContent = '0';
   document.getElementById('portScannerWrap').style.display = 'none';
   document.getElementById('scanToggleBtn').style.display = 'flex';
   document.getElementById('skipScanLink').style.display = 'block';
@@ -1337,6 +1626,7 @@ function renderShipmentsList() {
     html += '<span>' + (s.cargoPhotos || 0) + ' ' + t('photos') + '</span>';
     if (s.flaggedItems > 0) html += '<span style="color:var(--red)">' + s.flaggedItems + ' ' + t('flagged') + '</span>';
     else if (s.damagePhotos > 0) html += '<span style="color:var(--red)">' + s.damagePhotos + ' ' + t('damages') + '</span>';
+    if (s.crossDock && s.xdDestinations && s.xdDestinations.length > 0) html += '<span style="color:var(--orange);font-weight:700">XD: ' + s.xdDestinations.length + ' ' + t('xdDests').toLowerCase() + '</span>';
     html += '<span>' + timeStr + '</span>';
     html += '</div>';
     if (s.itemObs) {
@@ -1482,6 +1772,29 @@ function buildPreReceiptHTML(s, isPreview) {
 
   html += photoSection;
 
+  if (s.crossDock && s.xdDestinations && s.xdDestinations.length > 0) {
+    html += '<h3 style="font-size:13px;margin:16px 0 8px;color:#f97316">Cross-Docking — ' + s.xdDestinations.length + ' ' + (LANG==='es'?'destinos':'destinations') + '</h3>';
+    for (var xd = 0; xd < s.xdDestinations.length; xd++) {
+      var dest = s.xdDestinations[xd];
+      var destTotal = 0;
+      html += '<div style="background:#fff8f1;border:1px solid #fed7aa;border-radius:6px;padding:10px 12px;margin-bottom:8px">';
+      html += '<div style="font-weight:700;font-size:12px;color:#c2410c">' + dest.name + '</div>';
+      if (dest.address) html += '<div style="font-size:11px;color:#9a3412;margin-bottom:6px">' + dest.address + '</div>';
+      html += '<table style="margin:4px 0"><thead><tr><th>SKU</th><th style="text-align:center">' + (LANG==='es'?'Cantidad':'Qty') + '</th></tr></thead><tbody>';
+      for (var dsk in dest.items) {
+        if (dest.items[dsk] > 0) {
+          destTotal += dest.items[dsk];
+          var itemName = '';
+          if (s.items) { for (var fi = 0; fi < s.items.length; fi++) { if (s.items[fi].sku === dsk) { itemName = ' — ' + s.items[fi].name; break; } } }
+          html += '<tr><td style="font-family:monospace;font-size:11px">' + dsk + itemName + '</td><td style="text-align:center;font-weight:700">' + dest.items[dsk] + '</td></tr>';
+        }
+      }
+      html += '</tbody></table>';
+      html += '<div style="font-size:10px;color:#9a3412;font-weight:700;text-align:right">' + destTotal + ' ' + (LANG==='es'?'unidades':'units') + '</div>';
+      html += '</div>';
+    }
+  }
+
   var sigLabelRecv = LANG === 'es' ? 'Firma — Receptor' : 'Signature — Receiver';
   var sigLabelWh = LANG === 'es' ? 'Firma — Bodega' : 'Signature — Warehouse';
   var clearLabel = LANG === 'es' ? 'Limpiar' : 'Clear';
@@ -1556,6 +1869,8 @@ function saveWIP() {
     itemObs: itemObs,
     itemDamageType: itemDamageType,
     itemNovQty: itemNovQty,
+    crossDockEnabled: crossDockEnabled,
+    xdDestinations: xdDestinations,
     savedAt: new Date().toISOString()
   };
   try { localStorage.setItem('7g-shipment-wip', JSON.stringify(wip)); } catch(e) {}
@@ -1576,11 +1891,21 @@ function loadWIP() {
     itemObs = wip.itemObs || {};
     itemDamageType = wip.itemDamageType || {};
     itemNovQty = wip.itemNovQty || {};
+    crossDockEnabled = wip.crossDockEnabled || false;
+    xdDestinations = wip.xdDestinations || [];
     buildSkuIndex();
     renderExtractedData();
     if (extractedData && extractedData.items && extractedData.items.length > 0) {
       document.getElementById('scanSection').style.display = 'block';
+      document.getElementById('crossDockSection').style.display = 'block';
       renderScanChecklist();
+      if (crossDockEnabled) {
+        document.getElementById('xdEnabled').checked = true;
+        document.getElementById('xdPanel').style.display = 'block';
+        renderXDDestinations();
+        checkXDInventoryAlerts();
+        renderXDSummary();
+      }
     }
     var loaded = 0;
     function checkReady() { loaded++; if (loaded >= 3) { renderPhotoGrid(); updateSendButton(); } }

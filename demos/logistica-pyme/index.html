@@ -1256,6 +1256,21 @@ function generateRecvPDF(){
 /* =============== INIT =============== */
 loadData();
 applyLang();
+
+window.addEventListener('storage', function(e) {
+  if (e.key === '7g-shipments') {
+    loadData();
+    renderFilters();
+    renderPreavisos();
+  }
+});
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    loadData();
+    renderFilters();
+    renderPreavisos();
+  }
+});
 </script>
 </body>
 </html>
