@@ -375,11 +375,15 @@ input[type="file"]{display:none}
 
   <button class="damage-btn" onclick="captureDamage()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    <span data-t="btnDamage">Marcar danio</span>
+    <span data-t="btnDamage">Registrar daño (foto)</span>
   </button>
 
-  <!-- SEND TO WAREHOUSE -->
+  <!-- PREVIEW + SEND TO WAREHOUSE -->
   <div class="actions">
+    <button class="btn btn-secondary" id="btnPreview" onclick="previewPDF()" style="width:100%;justify-content:center;padding:14px;display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span data-t="btnPreviewPDF">Ver PDF preaviso</span>
+    </button>
     <button class="btn btn-primary" id="btnSend" onclick="sendToWarehouse()" disabled>
       <span data-t="btnSend">Enviar preaviso a bodega</span>
     </button>
@@ -453,7 +457,7 @@ var T = {
   secExtracted:{es:'Datos extraidos',             en:'Extracted data'},
   secItems:    {es:'Items detectados',            en:'Detected items'},
   secPhotos:   {es:'Fotos de carga',              en:'Cargo photos'},
-  btnDamage:   {es:'Marcar danio',                en:'Flag damage'},
+  btnDamage:   {es:'Registrar daño (foto)',         en:'Report damage (photo)'},
   btnSend:     {es:'Enviar preaviso a bodega',    en:'Send heads-up to warehouse'},
   emptyTitle:  {es:'No hay envios capturados',    en:'No shipments captured'},
   emptySub:    {es:'Toma una foto de un BL o AWB para comenzar',en:'Snap a BL or AWB photo to start'},
@@ -470,14 +474,14 @@ var T = {
   statusArrived:  {es:'Llegada',                  en:'Arrived'},
   photos:      {es:'fotos',                       en:'photos'},
   items:       {es:'items',                       en:'items'},
-  damages:     {es:'danios',                      en:'damages'},
+  damages:     {es:'daños',                        en:'damages'},
   btnScanNow:  {es:'Escanear carga ahora',        en:'Scan cargo now'},
   skipScan:    {es:'O salta y escanea en bodega',en:'Or skip and scan at warehouse'},
   secScanPort: {es:'Escaneo en puerto',           en:'Port scanning'},
   scanning:    {es:'Escaneando...',               en:'Scanning...'},
   btnScan:     {es:'Escanear',                    en:'Scan'},
-  btnOpenCam:  {es:'Abrir camara',                en:'Open camera'},
-  btnCloseCam: {es:'Cerrar camara',               en:'Close camera'},
+  btnOpenCam:  {es:'Iniciar escaneo con camara',   en:'Start camera scan'},
+  btnCloseCam: {es:'Cerrar escaneo',              en:'Stop scanning'},
   scanned:     {es:'Escaneado',                   en:'Scanned'},
   scanAlert:   {es:'Escaneado: ',                 en:'Scanned: '},
   scanNotFound:{es:'No coincide con ningun item del envio',en:'Does not match any item in this shipment'},
@@ -485,6 +489,7 @@ var T = {
   obsPlaceholder:{es:'Observacion: que encontraste?',en:'Observation: what did you find?'},
   flagged:     {es:'Observacion',                en:'Flagged'},
   sentOK:      {es:'Preaviso enviado a bodega',   en:'Heads-up sent to warehouse'},
+  btnPreviewPDF:{es:'Ver PDF preaviso',            en:'Preview PDF'},
   btnPDF:      {es:'Pre-recibo PDF',              en:'Pre-receipt PDF'},
   pdfTitle:    {es:'Pre-Recibo de Mercancia',     en:'Pre-Receipt of Goods'},
   pdfShipment: {es:'Envio',                       en:'Shipment'},
@@ -621,6 +626,7 @@ function handleFileDoc(e) {
     docPhotos.push({ url: dataURL, name: file.name, type: 'doc', time: new Date().toISOString() });
     renderPhotoGrid();
     simulateAIExtraction(dataURL, file.name);
+    saveWIP();
   });
   e.target.value = '';
 }
@@ -632,6 +638,7 @@ function handleFilePDF(e) {
     docPhotos.push({ url: dataURL, name: file.name, type: 'doc', time: new Date().toISOString() });
     renderPhotoGrid();
     simulateAIExtraction(dataURL, file.name);
+    saveWIP();
   });
   e.target.value = '';
 }
@@ -643,6 +650,7 @@ function handleFileCargo(e) {
     cargoPhotos.push({ url: dataURL, name: file.name, type: 'cargo', time: new Date().toISOString() });
     renderPhotoGrid();
     updateSendButton();
+    saveWIP();
   });
   e.target.value = '';
 }
@@ -654,6 +662,7 @@ function handleFileDamage(e) {
     damagePhotos.push({ url: dataURL, name: file.name, type: 'damage', time: new Date().toISOString() });
     renderPhotoGrid();
     updateSendButton();
+    saveWIP();
   });
   e.target.value = '';
 }
@@ -668,7 +677,7 @@ function renderPhotoGrid() {
   for (var i = 0; i < all.length; i++) {
     var p = all[i];
     var typeClass = p.type === 'damage' ? 'damage' : 'cargo';
-    var typeLabel = p.type === 'damage' ? (LANG === 'es' ? 'DANIO' : 'DAMAGE') : (LANG === 'es' ? 'CARGA' : 'CARGO');
+    var typeLabel = p.type === 'damage' ? (LANG === 'es' ? 'DAÑO' : 'DAMAGE') : (LANG === 'es' ? 'CARGA' : 'CARGO');
     html += '<div class="photo-thumb">';
     html += '<img src="' + p.url + '" alt="' + p.name + '">';
     html += '<span class="photo-type ' + typeClass + '">' + typeLabel + '</span>';
@@ -801,12 +810,15 @@ function togglePortScanner() {
 
 function togglePortCamera() {
   var area = document.getElementById('portScannerArea');
+  var btn = document.getElementById('portCamToggle');
   if (area.style.display === 'none') {
     area.style.display = 'block';
     startPortCamera();
+    btn.querySelector('span').textContent = t('btnCloseCam');
   } else {
     area.style.display = 'none';
     stopPortCamera();
+    btn.querySelector('span').textContent = t('btnOpenCam');
   }
 }
 
@@ -891,6 +903,7 @@ function scanPortItem() {
   input.focus();
   renderScanChecklist();
   updateSendButton();
+  saveWIP();
 
   if (navigator.vibrate) navigator.vibrate(100);
 }
@@ -952,11 +965,13 @@ function renderScanChecklist() {
 function markItemOK(sku) {
   itemStatus[sku] = itemStatus[sku] === 'ok' ? '' : 'ok';
   renderScanChecklist();
+  saveWIP();
 }
 
 function markItemFlag(sku) {
   itemStatus[sku] = itemStatus[sku] === 'flagged' ? '' : 'flagged';
   renderScanChecklist();
+  saveWIP();
   if (itemStatus[sku] === 'flagged') {
     var obs = document.querySelector('.check-obs');
     if (obs) obs.focus();
@@ -965,6 +980,7 @@ function markItemFlag(sku) {
 
 function saveObs(sku, val) {
   itemObs[sku] = val;
+  saveWIP();
 }
 
 function refocusPortInput() {
@@ -984,7 +1000,9 @@ function getTotalScanned() {
 /* =============== SEND TO WAREHOUSE =============== */
 function updateSendButton() {
   var btn = document.getElementById('btnSend');
+  var prev = document.getElementById('btnPreview');
   btn.disabled = !extractedData;
+  prev.style.display = extractedData ? 'flex' : 'none';
 }
 
 function sendToWarehouse() {
@@ -1037,6 +1055,13 @@ function sendToWarehouse() {
     });
   }
 
+  var pdfHTML = buildPreReceiptHTML(shipment);
+  var pdfWin = window.open('', '_blank');
+  pdfWin.document.write(pdfHTML);
+  pdfWin.document.close();
+
+  clearWIP();
+
   var statusEl = document.getElementById('aiStatus');
   statusEl.style.display = 'flex';
   statusEl.className = 'ai-status done';
@@ -1058,6 +1083,7 @@ function resetCapture() {
   itemStatus = {};
   itemObs = {};
   portScannerActive = false;
+  clearWIP();
   stopPortCamera();
   document.getElementById('extractedSection').style.display = 'none';
   document.getElementById('itemsSection').style.display = 'none';
@@ -1125,90 +1151,7 @@ function renderShipmentsList() {
 function generatePreReceipt(idx) {
   var s = shipments[idx];
   if (!s) return;
-  var date = new Date(s.createdAt);
-  var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  var totalExpected = 0;
-  var totalVerified = s.scannedAtPort || 0;
-  var totalFlagged = s.flaggedItems || 0;
-  if (s.items) for (var i = 0; i < s.items.length; i++) totalExpected += s.items[i].qty;
-
-  var rows = '';
-  if (s.items) {
-    for (var j = 0; j < s.items.length; j++) {
-      var it = s.items[j];
-      var sc = s.scannedItems ? (s.scannedItems[it.sku] || 0) : 0;
-      var st = s.itemStatus ? (s.itemStatus[it.sku] || '') : '';
-      var ob = s.itemObs ? (s.itemObs[it.sku] || '') : '';
-      var stLabel = st === 'ok' ? t('pdfOK') : st === 'flagged' ? t('pdfFlagged') : t('pdfPending');
-      var stColor = st === 'ok' ? '#22c55e' : st === 'flagged' ? '#ef4444' : '#94a3b8';
-      rows += '<tr>';
-      rows += '<td style="font-family:monospace;font-size:11px">' + it.sku + '</td>';
-      rows += '<td>' + it.name + '</td>';
-      var diff = sc - it.qty;
-      var diffStr = diff === 0 ? '=' : (diff > 0 ? '+' + diff : '' + diff);
-      var diffColor = diff === 0 ? '#22c55e' : '#ef4444';
-      rows += '<td style="text-align:center;font-weight:700">' + it.qty + '</td>';
-      rows += '<td style="text-align:center;font-weight:700">' + sc + '</td>';
-      rows += '<td style="text-align:center;font-weight:700;color:' + diffColor + '">' + diffStr + '</td>';
-      rows += '<td style="text-align:center;color:' + stColor + ';font-weight:700">' + stLabel + '</td>';
-      rows += '<td style="font-size:11px;' + (ob ? 'color:#ef4444;font-weight:600' : 'color:#94a3b8') + '">' + (ob || '—') + '</td>';
-      rows += '</tr>';
-    }
-  }
-
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
-  html += '<title>' + t('pdfTitle') + ' — ' + s.blNumber + '</title>';
-  html += '<style>';
-  html += 'body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:13px}';
-  html += '.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #060a0e;padding-bottom:16px;margin-bottom:20px}';
-  html += '.logo{font-size:22px;font-weight:900;letter-spacing:-1px}.logo-sub{font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase}';
-  html += '.doc-title{text-align:right}.doc-title h1{font-size:16px;margin:0 0 4px}.doc-title .bl{font-family:monospace;font-size:14px;color:#0ea5e9}';
-  html += 'table{width:100%;border-collapse:collapse;margin:12px 0}';
-  html += 'th{background:#f1f5f9;text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#475569;border:1px solid #e2e8f0}';
-  html += 'td{padding:7px 10px;border:1px solid #e2e8f0;font-size:12px}';
-  html += '.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px}';
-  html += '.info-item{display:flex;flex-direction:column;gap:2px}.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600}.info-val{font-size:13px;font-weight:600}';
-  html += '.summary-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:14px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}';
-  html += '.summary-num{font-size:22px;font-weight:800}.summary-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}';
-  html += '.signatures{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;padding-top:16px}';
-  html += '.sig-line{border-top:1px solid #1e293b;padding-top:6px;text-align:center;font-size:11px;color:#64748b}';
-  html += '.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
-  html += '@media print{body{padding:12px}@page{margin:15mm}}';
-  html += '</style></head><body>';
-
-  html += '<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
-  html += '<div class="doc-title"><h1>' + t('pdfTitle') + '</h1><div class="bl">' + s.blNumber + '</div></div></div>';
-
-  html += '<div class="info-grid">';
-  html += '<div class="info-item"><span class="info-label">' + t('pdfShipment') + '</span><span class="info-val">' + s.id + '</span></div>';
-  html += '<div class="info-item"><span class="info-label">' + t('pdfDate') + '</span><span class="info-val">' + dateStr + '</span></div>';
-  html += '<div class="info-item"><span class="info-label">' + t('pdfSupplier') + '</span><span class="info-val">' + s.supplier + '</span></div>';
-  html += '<div class="info-item"><span class="info-label">' + t('pdfConsignee') + '</span><span class="info-val">' + s.consignee + '</span></div>';
-  html += '<div class="info-item"><span class="info-label">' + t('pdfVessel') + '</span><span class="info-val">' + s.vessel + '</span></div>';
-  html += '<div class="info-item"><span class="info-label">' + t('pdfPort') + '</span><span class="info-val">' + s.port + '</span></div>';
-  html += '<div class="info-item"><span class="info-label">' + t('lblDocType') + '</span><span class="info-val">' + s.docType + '</span></div>';
-  html += '<div class="info-item"><span class="info-label">' + t('pdfWeight') + '</span><span class="info-val">' + s.totalWeight + '</span></div>';
-  html += '</div>';
-
-  html += '<h3 style="font-size:13px;margin-bottom:4px">' + t('pdfItemList') + '</h3>';
-  html += '<table><thead><tr>';
-  html += '<th>' + t('pdfSKU') + '</th><th>' + t('pdfDesc') + '</th><th style="text-align:center">' + (LANG==='es'?'Doc':'Doc') + '</th><th style="text-align:center">' + (LANG==='es'?'Fisico':'Physical') + '</th><th style="text-align:center">' + (LANG==='es'?'Dif':'Diff') + '</th><th style="text-align:center">' + t('pdfStatus') + '</th><th>' + t('pdfObs') + '</th>';
-  html += '</tr></thead><tbody>' + rows + '</tbody></table>';
-
-  html += '<div class="summary-box">';
-  html += '<div><div class="summary-num">' + totalExpected + '</div><div class="summary-label">' + t('pdfTotalItems') + '</div></div>';
-  html += '<div><div class="summary-num" style="color:#22c55e">' + totalVerified + '</div><div class="summary-label">' + t('pdfVerified') + '</div></div>';
-  html += '<div><div class="summary-num" style="color:' + (totalFlagged > 0 ? '#ef4444' : '#22c55e') + '">' + totalFlagged + '</div><div class="summary-label">' + t('pdfFlagCount') + '</div></div>';
-  html += '</div>';
-
-  html += '<div class="signatures">';
-  html += '<div><div class="sig-line">' + t('pdfSignRecv') + '</div></div>';
-  html += '<div><div class="sig-line">' + t('pdfSignWh') + '</div></div>';
-  html += '</div>';
-
-  html += '<div class="footer">' + t('pdfGenBy') + ' — ' + dateStr + '</div>';
-  html += '</body></html>';
-
+  var html = buildPreReceiptHTML(s);
   var w = window.open('', '_blank');
   w.document.write(html);
   w.document.close();
@@ -1225,9 +1168,168 @@ function deleteShipment(idx) {
   renderShipmentsList();
 }
 
+/* =============== PREVIEW PDF (before sending) =============== */
+function buildPreReceiptHTML(s) {
+  var date = new Date(s.createdAt || new Date().toISOString());
+  var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  var totalExpected = 0, totalVerified = 0, totalFlagged = 0;
+  var rows = '';
+  if (s.items) {
+    for (var j = 0; j < s.items.length; j++) {
+      var it = s.items[j];
+      var sc = s.scannedItems ? (s.scannedItems[it.sku] || 0) : 0;
+      var st = s.itemStatus ? (s.itemStatus[it.sku] || '') : '';
+      var ob = s.itemObs ? (s.itemObs[it.sku] || '') : '';
+      totalExpected += it.qty;
+      totalVerified += sc;
+      if (st === 'flagged') totalFlagged++;
+      var stLabel = st === 'ok' ? t('pdfOK') : st === 'flagged' ? t('pdfFlagged') : t('pdfPending');
+      var stColor = st === 'ok' ? '#22c55e' : st === 'flagged' ? '#ef4444' : '#94a3b8';
+      var diff = sc - it.qty;
+      var diffStr = diff === 0 ? '=' : (diff > 0 ? '+' + diff : '' + diff);
+      var diffColor = diff === 0 ? '#22c55e' : '#ef4444';
+      rows += '<tr><td style="font-family:monospace;font-size:11px">' + it.sku + '</td><td>' + it.name + '</td><td style="text-align:center;font-weight:700">' + it.qty + '</td><td style="text-align:center;font-weight:700">' + sc + '</td><td style="text-align:center;font-weight:700;color:' + diffColor + '">' + diffStr + '</td><td style="text-align:center;color:' + stColor + ';font-weight:700">' + stLabel + '</td><td style="font-size:11px;' + (ob ? 'color:#ef4444;font-weight:600' : 'color:#94a3b8') + '">' + (ob || '—') + '</td></tr>';
+    }
+  }
+
+  var photoSection = '';
+  var allPhotos = (s.docPhotoURLs || []).concat(s.cargoPhotoURLs || []).concat(s.damagePhotoURLs || []);
+  if (allPhotos.length > 0) {
+    photoSection += '<h3 style="font-size:13px;margin:16px 0 8px">' + (LANG === 'es' ? 'Registro Fotografico' : 'Photo Record') + '</h3>';
+    photoSection += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">';
+    for (var pi = 0; pi < allPhotos.length; pi++) {
+      var ph = allPhotos[pi];
+      var pType = (s.damagePhotoURLs || []).indexOf(ph) !== -1 ? (LANG === 'es' ? 'DAÑO' : 'DAMAGE') : (s.docPhotoURLs || []).indexOf(ph) !== -1 ? 'DOC' : (LANG === 'es' ? 'CARGA' : 'CARGO');
+      var pColor = pType === 'DOC' ? '#0ea5e9' : pType === 'DAÑO' || pType === 'DAMAGE' ? '#ef4444' : '#22c55e';
+      photoSection += '<div style="text-align:center"><img src="' + ph.url + '" style="width:100%;max-height:160px;object-fit:cover;border-radius:4px;border:1px solid #e2e8f0"><div style="font-size:9px;font-weight:700;color:' + pColor + ';margin-top:4px">' + pType + '</div></div>';
+    }
+    photoSection += '</div>';
+  }
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + t('pdfTitle') + ' — ' + s.blNumber + '</title>';
+  html += '<style>body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:13px}';
+  html += '.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #060a0e;padding-bottom:16px;margin-bottom:20px}';
+  html += '.logo{font-size:22px;font-weight:900;letter-spacing:-1px}.logo-sub{font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase}';
+  html += '.doc-title{text-align:right}.doc-title h1{font-size:16px;margin:0 0 4px}.doc-title .bl{font-family:monospace;font-size:14px;color:#0ea5e9}';
+  html += 'table{width:100%;border-collapse:collapse;margin:12px 0}th{background:#f1f5f9;text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#475569;border:1px solid #e2e8f0}td{padding:7px 10px;border:1px solid #e2e8f0;font-size:12px}';
+  html += '.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px}.info-item{display:flex;flex-direction:column;gap:2px}.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600}.info-val{font-size:13px;font-weight:600}';
+  html += '.summary-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:14px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}.summary-num{font-size:22px;font-weight:800}.summary-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}';
+  html += '.signatures{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px;padding-top:16px}.sig-line{border-top:1px solid #1e293b;padding-top:6px;text-align:center;font-size:11px;color:#64748b}';
+  html += '.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
+  html += '@media print{body{padding:12px}@page{margin:15mm}}</style></head><body>';
+
+  html += '<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
+  html += '<div class="doc-title"><h1>' + t('pdfTitle') + '</h1><div class="bl">' + s.blNumber + '</div></div></div>';
+
+  html += '<div class="info-grid">';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfShipment') + '</span><span class="info-val">' + (s.id || 'PREVIEW') + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfDate') + '</span><span class="info-val">' + dateStr + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfSupplier') + '</span><span class="info-val">' + s.supplier + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfConsignee') + '</span><span class="info-val">' + s.consignee + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfVessel') + '</span><span class="info-val">' + s.vessel + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfPort') + '</span><span class="info-val">' + s.port + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('lblDocType') + '</span><span class="info-val">' + s.docType + '</span></div>';
+  html += '<div class="info-item"><span class="info-label">' + t('pdfWeight') + '</span><span class="info-val">' + s.totalWeight + '</span></div>';
+  html += '</div>';
+
+  html += '<h3 style="font-size:13px;margin-bottom:4px">' + t('pdfItemList') + '</h3>';
+  html += '<table><thead><tr><th>' + t('pdfSKU') + '</th><th>' + t('pdfDesc') + '</th><th style="text-align:center">Doc</th><th style="text-align:center">' + (LANG==='es'?'Fisico':'Physical') + '</th><th style="text-align:center">' + (LANG==='es'?'Dif':'Diff') + '</th><th style="text-align:center">' + t('pdfStatus') + '</th><th>' + t('pdfObs') + '</th></tr></thead><tbody>' + rows + '</tbody></table>';
+
+  html += '<div class="summary-box">';
+  html += '<div><div class="summary-num">' + totalExpected + '</div><div class="summary-label">' + t('pdfTotalItems') + '</div></div>';
+  html += '<div><div class="summary-num" style="color:#22c55e">' + totalVerified + '</div><div class="summary-label">' + t('pdfVerified') + '</div></div>';
+  html += '<div><div class="summary-num" style="color:' + (totalFlagged > 0 ? '#ef4444' : '#22c55e') + '">' + totalFlagged + '</div><div class="summary-label">' + t('pdfFlagCount') + '</div></div>';
+  html += '</div>';
+
+  html += photoSection;
+
+  html += '<div class="signatures"><div><div class="sig-line">' + t('pdfSignRecv') + '</div></div><div><div class="sig-line">' + t('pdfSignWh') + '</div></div></div>';
+  html += '<div class="footer">' + t('pdfGenBy') + ' — ' + dateStr + '</div>';
+  html += '</body></html>';
+  return html;
+}
+
+function currentShipmentSnapshot() {
+  return {
+    id: 'PREVIEW',
+    blNumber: extractedData.blNumber,
+    docType: extractedData.docType,
+    supplier: extractedData.supplier,
+    consignee: extractedData.consignee,
+    vessel: extractedData.vessel,
+    port: extractedData.port,
+    totalWeight: extractedData.totalWeight,
+    items: extractedData.items,
+    scannedItems: scannedItems,
+    itemStatus: itemStatus,
+    itemObs: itemObs,
+    docPhotoURLs: docPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
+    cargoPhotoURLs: cargoPhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
+    damagePhotoURLs: damagePhotos.map(function(p){return {url:p.url,name:p.name,time:p.time};}),
+    createdAt: new Date().toISOString()
+  };
+}
+
+function previewPDF() {
+  if (!extractedData) return;
+  var snap = currentShipmentSnapshot();
+  var html = buildPreReceiptHTML(snap);
+  var w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+/* =============== WIP PERSISTENCE (issue 7) =============== */
+function saveWIP() {
+  if (!extractedData) { localStorage.removeItem('7g-shipment-wip'); return; }
+  var wip = {
+    extractedData: extractedData,
+    scannedItems: scannedItems,
+    itemStatus: itemStatus,
+    itemObs: itemObs,
+    docPhotos: docPhotos,
+    cargoPhotos: cargoPhotos,
+    damagePhotos: damagePhotos,
+    savedAt: new Date().toISOString()
+  };
+  try { localStorage.setItem('7g-shipment-wip', JSON.stringify(wip)); } catch(e) {}
+}
+
+function loadWIP() {
+  try {
+    var raw = localStorage.getItem('7g-shipment-wip');
+    if (!raw) return false;
+    var wip = JSON.parse(raw);
+    if (!wip.extractedData) return false;
+    extractedData = wip.extractedData;
+    scannedItems = wip.scannedItems || {};
+    itemStatus = wip.itemStatus || {};
+    itemObs = wip.itemObs || {};
+    docPhotos = wip.docPhotos || [];
+    cargoPhotos = wip.cargoPhotos || [];
+    damagePhotos = wip.damagePhotos || [];
+    renderExtractedData();
+    showScanSection();
+    renderPhotoGrid();
+    updateSendButton();
+    return true;
+  } catch(e) { return false; }
+}
+
+function clearWIP() { localStorage.removeItem('7g-shipment-wip'); }
+
+window.addEventListener('beforeunload', function(e) {
+  if (extractedData) {
+    saveWIP();
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
 /* =============== INIT =============== */
 loadShipments();
 applyLang();
+loadWIP();
 </script>
 </body>
 </html>
