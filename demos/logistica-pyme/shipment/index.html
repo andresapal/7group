@@ -7,6 +7,7 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -816,7 +817,7 @@ function handleFileDoc(e) {
   fileToDataURL(file, function(dataURL) {
     docPhotos.push({ url: dataURL, name: file.name, type: 'doc', time: new Date().toISOString() });
     renderPhotoGrid();
-    simulateAIExtraction(dataURL, file.name);
+    extractDocument(dataURL, file.name);
     saveWIP();
   });
   e.target.value = '';
@@ -828,7 +829,7 @@ function handleFilePDF(e) {
   fileToDataURL(file, function(dataURL) {
     docPhotos.push({ url: dataURL, name: file.name, type: 'doc', time: new Date().toISOString() });
     renderPhotoGrid();
-    simulateAIExtraction(dataURL, file.name);
+    extractDocument(dataURL, file.name);
     saveWIP();
   });
   e.target.value = '';
@@ -890,40 +891,147 @@ function removePhoto(type, idx) {
   updateSendButton();
 }
 
-/* =============== AI EXTRACTION (SIMULATED) =============== */
-function simulateAIExtraction(dataURL, fileName) {
+/* =============== AI EXTRACTION =============== */
+function extractDocument(dataURL, fileName) {
   var status = document.getElementById('aiStatus');
   var text = document.getElementById('aiStatusText');
   status.style.display = 'flex';
   status.className = 'ai-status processing';
   text.textContent = t('aiProcessing');
 
-  setTimeout(function() {
-    var isBL = Math.random() > 0.3;
-    extractedData = {
-      docType: isBL ? 'Bill of Lading (BL)' : 'Air Waybill (AWB)',
-      blNumber: isBL ? 'MSKU' + Math.floor(1000000 + Math.random() * 9000000) : 'AWB-' + Math.floor(100 + Math.random() * 900) + '-' + Math.floor(10000000 + Math.random() * 90000000),
-      supplier: ['Atlantic Supply Co.', 'TechDist USA', 'Pacific Imports LLC', 'Global Parts Inc.'][Math.floor(Math.random() * 4)],
-      consignee: '7Group Corp',
-      vessel: isBL ? 'MSC AURORA / VOY 247W' : 'AA 2847 / MIA',
-      port: isBL ? 'PortMiami, FL' : 'MIA - Miami Intl Airport',
-      items: [
-        { sku: 'NET-SW48-' + Math.floor(100 + Math.random() * 900), name: 'Network Switch 48-Port', qty: Math.floor(2 + Math.random() * 8), weight: '12.5 lbs' },
-        { sku: 'CAB-CAT6-' + Math.floor(100 + Math.random() * 900), name: 'Cat6 Cable Box 1000ft', qty: Math.floor(5 + Math.random() * 15), weight: '38 lbs' },
-        { sku: 'SRV-R740-' + Math.floor(100 + Math.random() * 900), name: 'Server Rack Unit 2U', qty: Math.floor(1 + Math.random() * 3), weight: '45 lbs' }
-      ],
-      totalWeight: Math.floor(200 + Math.random() * 500) + ' lbs'
-    };
+  var isPDF = fileName && fileName.toLowerCase().endsWith('.pdf');
+  if (isPDF && typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var raw = atob(dataURL.split(',')[1]);
+    var arr = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    pdfjsLib.getDocument({data: arr}).promise.then(function(pdf) {
+      var allText = '';
+      var pending = pdf.numPages;
+      for (var p = 1; p <= pdf.numPages; p++) {
+        (function(pageNum) {
+          pdf.getPage(pageNum).then(function(page) {
+            page.getTextContent().then(function(tc) {
+              var lines = [];
+              var lastY = null;
+              for (var ti = 0; ti < tc.items.length; ti++) {
+                var item = tc.items[ti];
+                var y = Math.round(item.transform[5]);
+                if (lastY !== null && Math.abs(y - lastY) > 3) lines.push('\n');
+                lines.push(item.str);
+                if (item.hasEOL) lines.push('\n');
+                lastY = y;
+              }
+              allText += lines.join(' ') + '\n---PAGE---\n';
+              pending--;
+              if (pending === 0) {
+                extractedData = parseDocumentText(allText);
+                finishExtraction(status, text);
+              }
+            });
+          });
+        })(p);
+      }
+    }).catch(function(err) {
+      console.error('PDF parse error:', err);
+      text.textContent = 'Error reading PDF';
+      status.className = 'ai-status';
+      setTimeout(function() { status.style.display = 'none'; }, 3000);
+    });
+  } else {
+    text.textContent = LANG === 'es' ? 'Sube un PDF para extraccion automatica' : 'Upload a PDF for auto-extraction';
+    status.className = 'ai-status';
+    setTimeout(function() { status.style.display = 'none'; }, 4000);
+  }
+}
 
-    status.className = 'ai-status done';
-    text.textContent = t('aiDone');
+function parseDocumentText(txt) {
+  var lines = txt.replace(/\r/g, '').split('\n');
+  var full = txt;
 
-    renderExtractedData();
-    showScanSection();
-    updateSendButton();
+  var docType = 'Document';
+  if (/air\s*waybill|guia\s*aerea|awb/i.test(full)) docType = 'Air Waybill (AWB)';
+  else if (/bill\s*of\s*lading|conocimiento\s*de\s*embarque|b\/l/i.test(full)) docType = 'Bill of Lading (BL)';
 
-    setTimeout(function() { status.style.display = 'none'; }, 3000);
-  }, 2500);
+  var blNumber = '';
+  var m = full.match(/(?:AWB|B\/L|BL|MAWB|HAWB)\s*(?:Number|No\.?|#)?\s*[:\-]?\s*([A-Z0-9][\w\-]{4,})/i);
+  if (m) blNumber = m[1];
+  if (!blNumber) { m = full.match(/(\d{3}\s*-\s*\d{7,8})/); if (m) blNumber = m[1].replace(/\s/g, ''); }
+
+  var supplier = '';
+  m = full.match(/(?:shipper|expedidor|exporter)\s*(?:\/[^:]*)?[:\s]+([A-Z][A-Za-z0-9 &.,'-]{3,})/i);
+  if (m) supplier = m[1].trim().replace(/\s{2,}/g, ' ');
+
+  var consignee = '';
+  m = full.match(/(?:consignee|consignatario|destinatario)\s*(?:\/[^:]*)?[:\s]+([A-Z][A-Za-z0-9 &.,'-]{3,})/i);
+  if (m) consignee = m[1].trim().replace(/\s{2,}/g, ' ');
+
+  var vessel = '';
+  m = full.match(/(?:vessel|flight|vuelo|buque)\s*(?:\/[^:]*)?[:\s]+([A-Z0-9][A-Za-z0-9 \/.,\-]{3,})/i);
+  if (m) vessel = m[1].trim();
+
+  var port = '';
+  m = full.match(/(?:destination|destino|port\s*of\s*discharge|dest)\s*(?:\/[^:]*)?[:\s]+([A-Z][A-Za-z0-9 ,.\-]{3,})/i);
+  if (m) port = m[1].trim();
+
+  var totalWeight = '';
+  m = full.match(/(?:gross\s*weight|peso\s*bruto|total\s*weight)\s*(?:\/[^:]*)?[:\s]+([\d,.]+ ?\s*(?:kg|lbs?|tons?))/i);
+  if (m) totalWeight = m[1].trim();
+
+  var items = [];
+  var skuPattern = /([A-Z]{2,4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,6})/g;
+  var skuMatches = [];
+  var sm;
+  while ((sm = skuPattern.exec(full)) !== null) {
+    if (skuMatches.indexOf(sm[1]) === -1) skuMatches.push(sm[1]);
+  }
+
+  for (var si = 0; si < skuMatches.length; si++) {
+    var sku = skuMatches[si];
+    var desc = '';
+    var qty = 0;
+    for (var li = 0; li < lines.length; li++) {
+      if (lines[li].indexOf(sku) >= 0) {
+        var after = lines[li].substring(lines[li].indexOf(sku) + sku.length).trim();
+        var descM = after.match(/([A-Za-z][A-Za-z0-9 \/\-"'.]+)/);
+        if (descM) desc = descM[1].trim();
+        var qtyM = after.match(/(\d{2,})/);
+        if (qtyM) qty = parseInt(qtyM[1]);
+        if (!qty) {
+          var before = lines[li].substring(0, lines[li].indexOf(sku)).trim();
+          qtyM = before.match(/(\d{2,})/);
+          if (qtyM) qty = parseInt(qtyM[1]);
+        }
+        if (!desc && li + 1 < lines.length) {
+          var nextLine = lines[li + 1].trim();
+          if (nextLine.length > 3 && /^[A-Za-z]/.test(nextLine)) desc = nextLine.substring(0, 60);
+        }
+        break;
+      }
+    }
+    if (!desc) desc = sku;
+    items.push({ sku: sku, name: desc, qty: qty || 1, weight: '' });
+  }
+
+  return {
+    docType: docType,
+    blNumber: blNumber || 'N/A',
+    supplier: supplier || 'N/A',
+    consignee: consignee || '7Group Corp',
+    vessel: vessel || 'N/A',
+    port: port || 'N/A',
+    items: items,
+    totalWeight: totalWeight || 'N/A'
+  };
+}
+
+function finishExtraction(status, text) {
+  status.className = 'ai-status done';
+  text.textContent = t('aiDone');
+  renderExtractedData();
+  showScanSection();
+  updateSendButton();
+  setTimeout(function() { status.style.display = 'none'; }, 3000);
 }
 
 function renderExtractedData() {
