@@ -950,126 +950,89 @@ function parseDocumentText(txt) {
   console.log(txt);
   console.log('=== END RAW TEXT ===');
 
-  var noiseWords = ['IMPRIMIR','Tamano Barcode','Todos','filter','Orlando','Tampa','Sebring','Hollywood','Bodega Miami'];
-  var clean = txt;
-  for (var nw = 0; nw < noiseWords.length; nw++) {
-    clean = clean.split(noiseWords[nw]).join('');
-  }
-
-  var lines = clean.replace(/\r/g, '').split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length > 0; });
+  var lines = txt.replace(/\r/g,'').split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>0 && !/^---PAGE---$/.test(l);});
   var full = lines.join(' ');
 
   var docType = 'Document';
-  if (/air\s*waybill|guia\s*aerea|awb/i.test(full)) docType = 'Air Waybill (AWB)';
-  else if (/bill\s*of\s*lading|conocimiento\s*de\s*embarque|b[\s\/]?l\b/i.test(full)) docType = 'Bill of Lading (BL)';
+  if (/air\s*waybill|guia\s*aerea|\bawb\b/i.test(full)) docType = 'Air Waybill (AWB)';
+  else if (/bill\s*of\s*lading|conocimiento\s*de\s*embarque|\bb[\s\/]?l\b/i.test(full)) docType = 'Bill of Lading (BL)';
   else if (/packing\s*list/i.test(full)) docType = 'Packing List';
   else if (/commercial\s*invoice|factura/i.test(full)) docType = 'Commercial Invoice';
 
-  var blNumber = '';
-  var m;
-  m = full.match(/(\d{3}[\s\-]+\d{7,8})/);
-  if (m) blNumber = m[1].replace(/\s/g, '');
+  var blNumber = '', m;
+  m = full.match(/(\d{3})\s*[\-]\s*(\d{7,8})/);
+  if (m) blNumber = m[1]+'-'+m[2];
   if (!blNumber) { m = full.match(/(?:MSKU|MAEU|MSCU|HLCU|COSU|OOLU|CMDU|EGLV|MEDU|TEMU|TCNU|FCIU)[A-Z0-9]{5,}/i); if (m) blNumber = m[0]; }
   if (!blNumber) { m = full.match(/(?:AWB|MAWB|HAWB)[\s#:\-]*([A-Z0-9][\w\-]{5,})/i); if (m) blNumber = m[1]; }
   if (!blNumber) { m = full.match(/(?:B\/L|BL)[\s#:\-]*([A-Z0-9][\w\-]{5,})/i); if (m) blNumber = m[1]; }
 
-  function findValueAfterLabel(text, labelPatterns) {
-    for (var lp = 0; lp < labelPatterns.length; lp++) {
-      var re = new RegExp(labelPatterns[lp] + '[\\s\\/]*[^\\n]*?[:\\s]+([A-Z][A-Za-z0-9 &.,\\'\\-()]{3,60})', 'im');
-      var match = text.match(re);
-      if (match) {
-        var val = match[1].trim();
-        if (val.length > 3 && !/^(AWB|BL|MAWB|Number|No\b)/i.test(val)) return val;
-      }
-    }
-    for (var lp2 = 0; lp2 < labelPatterns.length; lp2++) {
-      for (var li = 0; li < lines.length; li++) {
-        if (new RegExp(labelPatterns[lp2], 'i').test(lines[li])) {
-          for (var nxt = li + 1; nxt < Math.min(li + 4, lines.length); nxt++) {
-            var candidate = lines[nxt].trim();
-            if (candidate.length > 3 && /^[A-Z]/.test(candidate) && !/^(AWB|Date|Flight|Origin|Dest|Gross|Volume|Special|Pieces|Warehouse)/i.test(candidate)) {
-              return candidate.substring(0, 60);
-            }
-          }
+  function grabAfterLabel(labelRe) {
+    for (var i=0;i<lines.length;i++) {
+      if (labelRe.test(lines[i])) {
+        var sameLineVal = lines[i].replace(labelRe,'').replace(/^[\s:\/]+/,'').trim();
+        if (sameLineVal.length>3 && /[a-zA-Z]/.test(sameLineVal) && !/^\d+$/.test(sameLineVal)) return sameLineVal.substring(0,80);
+        for (var j=i+1;j<Math.min(i+5,lines.length);j++) {
+          var c = lines[j].trim();
+          if (c.length>3 && /[a-zA-Z]/.test(c) && !/^\d+[\s]*$/.test(c) && !/^(AWB|BL|MAWB|Date|No\.|#)/i.test(c)) return c.substring(0,80);
         }
       }
     }
     return '';
   }
 
-  var supplier = findValueAfterLabel(clean, ['shipper', 'expedidor', 'exporter', 'remitente']);
-  var consignee = findValueAfterLabel(clean, ['consignee', 'consignatario', 'destinatario', 'notify']);
-  var vessel = findValueAfterLabel(clean, ['flight', 'vuelo', 'vessel', 'buque', 'voyage']);
-  var port = findValueAfterLabel(clean, ['destination.*destino', 'port of discharge', 'puerto de descarga', 'dest\\.?\\s*\\/']);
-
-  if (!port) {
-    m = full.match(/([A-Z]{3})\s*[\-–]\s*([A-Za-z ]+(?:,\s*[A-Z]{2})?\s*(?:,\s*USA)?)/);
-    if (m) port = m[1] + ' - ' + m[2].trim();
-  }
+  var supplier = grabAfterLabel(/shipper|expedidor|exporter|remitente/i);
+  var consignee = grabAfterLabel(/consignee|consignatario|destinatario/i);
+  if (!consignee) consignee = grabAfterLabel(/notify/i);
+  var vessel = grabAfterLabel(/flight|vuelo|vessel|buque|voyage/i);
+  var port = grabAfterLabel(/port\s*of\s*discharge|puerto\s*de\s*descarga|airport\s*of\s*dest|dest\.?\s*airport/i);
+  if (!port) port = grabAfterLabel(/destination|destino/i);
+  if (!port) { m = full.match(/([A-Z]{3})\s*[\-\u2013]\s*([A-Z][A-Za-z ]+)/); if (m) port = m[1]+' - '+m[2].trim(); }
 
   var totalWeight = '';
-  m = full.match(/(?:gross\s*weight|peso\s*bruto|total\s*weight|weight)[^\n]*?([\d,.]+)\s*(kg|lbs?|tons?|kilos?)/i);
-  if (m) totalWeight = m[1] + ' ' + m[2];
-  if (!totalWeight) { m = full.match(/([\d,.]+)\s*(kg|lbs)\b/i); if (m) totalWeight = m[1] + ' ' + m[2]; }
+  m = full.match(/(?:gross\s*weight|peso\s*bruto|total\s*weight|chargeable\s*weight|actual\s*weight)[^\n]*?([\d,\.]+)\s*(kg|lbs?|tons?|kilos?)/i);
+  if (m) totalWeight = m[1]+' '+m[2];
+  if (!totalWeight) { m = full.match(/([\d,\.]+)\s*(kg|lbs)\b/i); if (m) totalWeight = m[1]+' '+m[2]; }
 
   var items = [];
   var seenSkus = {};
-  var skuPatterns = [
-    /([A-Z]{2,4}-[A-Z0-9]{1,8}-[A-Z0-9]{1,8})/g,
-    /([A-Z]{2,4}-[A-Z0-9]{2,8})/g
-  ];
+  var skipPrefixes = /^(AWB|BL|MAWB|HAWB|LOT|USD|CBM|NW|FL|GW|KG|LB|HS|HT|US|NE)-/i;
 
-  for (var sp = 0; sp < skuPatterns.length; sp++) {
-    var skuRe = skuPatterns[sp];
-    var sm;
-    while ((sm = skuRe.exec(full)) !== null) {
-      var sku = sm[1];
-      if (seenSkus[sku]) continue;
-      if (/^(AWB|BL|MAWB|HAWB|LOT|USD|CBM|NW|FL)-/i.test(sku) && sp > 0) continue;
-      seenSkus[sku] = true;
+  var skuRe1 = /\b([A-Z]{2,4}-[A-Z0-9]{1,8}-[A-Z0-9]{1,8})\b/g;
+  var sm;
+  while ((sm = skuRe1.exec(full)) !== null) {
+    var sku = sm[1];
+    if (seenSkus[sku] || skipPrefixes.test(sku)) continue;
+    seenSkus[sku] = true;
+    var info = extractItemInfo(sku, lines);
+    items.push({ sku: sku, name: info.desc || sku, qty: info.qty || 1, weight: info.wt || '' });
+  }
 
-      var desc = '';
-      var qty = 0;
-      for (var li = 0; li < lines.length; li++) {
-        var idx = lines[li].indexOf(sku);
-        if (idx < 0) continue;
-        var afterSku = lines[li].substring(idx + sku.length).trim();
-        var descMatch = afterSku.match(/([A-Za-z][A-Za-z0-9 \/\-"'.&]+[A-Za-z0-9"'])/);
-        if (descMatch && descMatch[1].length > 3) desc = descMatch[1].trim();
-        var nums = afterSku.match(/\b(\d{2,5})\b/g);
-        if (nums) {
-          for (var ni = 0; ni < nums.length; ni++) {
-            var n = parseInt(nums[ni]);
-            if (n >= 1 && n <= 99999) { qty = n; break; }
-          }
-        }
-        if (!qty) {
-          var beforeSku = lines[li].substring(0, idx).trim();
-          nums = beforeSku.match(/\b(\d{2,5})\b/g);
-          if (nums) qty = parseInt(nums[nums.length - 1]);
-        }
-        if (!desc) {
-          for (var nxt = li + 1; nxt < Math.min(li + 3, lines.length); nxt++) {
-            var nxtLine = lines[nxt].trim();
-            if (nxtLine.length > 5 && /^[A-Z]/i.test(nxtLine) && !/^[A-Z]{2,4}-/.test(nxtLine)) {
-              desc = nxtLine.substring(0, 60);
-              if (!qty) { var qm = nxtLine.match(/\b(\d{2,5})\b/); if (qm) qty = parseInt(qm[1]); }
-              break;
-            }
-          }
-        }
-        break;
-      }
-      if (!desc) desc = sku;
-      items.push({ sku: sku, name: desc, qty: qty || 1, weight: '' });
+  if (items.length === 0) {
+    var skuRe2 = /\b([A-Z]{2,4}-[A-Z0-9]{2,8})\b/g;
+    while ((sm = skuRe2.exec(full)) !== null) {
+      var sku2 = sm[1];
+      if (seenSkus[sku2] || skipPrefixes.test(sku2)) continue;
+      seenSkus[sku2] = true;
+      var info2 = extractItemInfo(sku2, lines);
+      items.push({ sku: sku2, name: info2.desc || sku2, qty: info2.qty || 1, weight: info2.wt || '' });
     }
-    if (items.length > 0) break;
+  }
+
+  if (items.length === 0) {
+    for (var li = 0; li < lines.length; li++) {
+      var tabRow = lines[li].match(/^(\d+)\s+(.{3,40}?)\s+(\d{1,6})\s/);
+      if (tabRow) {
+        var rowSku = 'ITEM-' + String(items.length + 1).padStart(3, '0');
+        items.push({ sku: rowSku, name: tabRow[2].trim(), qty: parseInt(tabRow[3]), weight: '' });
+      }
+    }
   }
 
   console.log('=== PARSED RESULT ===');
   console.log('docType:', docType, '| blNumber:', blNumber, '| supplier:', supplier);
   console.log('consignee:', consignee, '| vessel:', vessel, '| port:', port);
   console.log('weight:', totalWeight, '| items:', items.length);
+  if (items.length > 0) console.log('First 3 items:', JSON.stringify(items.slice(0, 3)));
 
   return {
     docType: docType,
@@ -1081,6 +1044,37 @@ function parseDocumentText(txt) {
     items: items,
     totalWeight: totalWeight || 'N/A'
   };
+}
+
+function extractItemInfo(sku, lines) {
+  var desc='', qty=0, wt='';
+  for (var i=0;i<lines.length;i++) {
+    var idx = lines[i].indexOf(sku);
+    if (idx < 0) continue;
+    var after = lines[i].substring(idx + sku.length).trim();
+    var dm = after.match(/([A-Za-z][A-Za-z0-9 \/\-"'.&]+[A-Za-z0-9"'])/);
+    if (dm && dm[1].length > 3) desc = dm[1].trim().substring(0, 60);
+    var nums = after.match(/\b(\d{1,6})\b/g);
+    if (nums) {
+      for (var ni=0;ni<nums.length;ni++) {
+        var n=parseInt(nums[ni]);
+        if (n>=1 && n<=99999){qty=n;break;}
+      }
+    }
+    if (!qty) {
+      var before = lines[i].substring(0,idx).trim();
+      nums = before.match(/\b(\d{1,6})\b/g);
+      if (nums) qty = parseInt(nums[nums.length-1]);
+    }
+    var wm = after.match(/([\d,.]+)\s*(kg|lbs?)\b/i);
+    if (wm) wt = wm[1]+' '+wm[2];
+    if (!desc && i+1<lines.length) {
+      var nxt = lines[i+1].trim();
+      if (nxt.length>3 && /[a-zA-Z]/.test(nxt) && !/^[A-Z]{2,4}-/.test(nxt)) desc = nxt.substring(0,60);
+    }
+    break;
+  }
+  return {desc:desc, qty:qty, wt:wt};
 }
 
 function finishExtraction(status, text) {

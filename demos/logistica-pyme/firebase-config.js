@@ -415,6 +415,24 @@ const DB = {
     return LocalCache.listen('dispatches', callback);
   },
 
+  // --- Delete Shipment ---
+  async deleteShipment(shipId) {
+    const col = LocalCache.get('shipments');
+    const idx = col.findIndex(r => r.id === shipId);
+    if (idx !== -1) col.splice(idx, 1);
+    LocalCache.set('shipments', col);
+    try { localStorage.setItem('7g-shipments', JSON.stringify(col)); } catch(e) {}
+
+    await SheetsAPI.post({
+      action: 'delete',
+      sheet: SHEET_NAMES.shipments,
+      key: 'id',
+      keyValue: shipId
+    });
+
+    await DB.logActivity('shipments', 'delete', shipId, 'Shipment deleted');
+  },
+
   // --- Documents ---
   async saveDocument(data) {
     const id = LocalCache.genId();

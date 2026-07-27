@@ -495,13 +495,14 @@ function loadData(){
 }
 function syncShipmentsFromCloud(){
   if(typeof DB==='undefined'||!DB.getShipments)return;
+  var deleted=JSON.parse(localStorage.getItem('7g-deleted-shipments')||'[]');
   DB.getShipments().then(function(remote){
     if(!remote||!remote.length)return;
     var localIds={};
     for(var i=0;i<shipments.length;i++)localIds[shipments[i].id]=true;
     var added=0;
     for(var j=0;j<remote.length;j++){
-      if(!localIds[remote[j].id]){shipments.push(remote[j]);added++;}
+      if(!localIds[remote[j].id]&&deleted.indexOf(remote[j].id)===-1){shipments.push(remote[j]);added++;}
     }
     if(added>0){
       saveShipments();
@@ -667,13 +668,19 @@ function closeDetail(){
 }
 
 function deleteShipmentFromRecv(shipId){
-  var msg=LANG==='es'?'Eliminar este shipment de Recibo? (solo demo)':'Delete this shipment from Receiving? (demo only)';
+  var msg=LANG==='es'?'Eliminar este shipment de Recibo?':'Delete this shipment from Receiving?';
   if(!confirm(msg))return;
   for(var i=0;i<shipments.length;i++){
     if(shipments[i].id===shipId){shipments.splice(i,1);break;}
   }
   if(receptions[shipId])delete receptions[shipId];
+  var deleted=JSON.parse(localStorage.getItem('7g-deleted-shipments')||'[]');
+  if(deleted.indexOf(shipId)===-1)deleted.push(shipId);
+  localStorage.setItem('7g-deleted-shipments',JSON.stringify(deleted));
   saveShipments();saveReceptions();
+  if(typeof DB!=='undefined'&&DB.deleteShipment){
+    DB.deleteShipment(shipId).catch(function(){});
+  }
   if(currentDetail&&currentDetail.id===shipId){
     document.getElementById('viewDetail').style.display='none';
     document.getElementById('viewRecv').style.display='block';
