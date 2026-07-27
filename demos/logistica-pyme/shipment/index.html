@@ -946,78 +946,136 @@ function extractDocument(dataURL, fileName) {
 }
 
 function parseDocumentText(txt) {
-  var lines = txt.replace(/\r/g, '').split('\n');
-  var full = txt;
+  console.log('=== PDF RAW TEXT ===');
+  console.log(txt);
+  console.log('=== END RAW TEXT ===');
+
+  var noiseWords = ['IMPRIMIR','Tamano Barcode','Todos','filter','Orlando','Tampa','Sebring','Hollywood','Bodega Miami'];
+  var clean = txt;
+  for (var nw = 0; nw < noiseWords.length; nw++) {
+    clean = clean.split(noiseWords[nw]).join('');
+  }
+
+  var lines = clean.replace(/\r/g, '').split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length > 0; });
+  var full = lines.join(' ');
 
   var docType = 'Document';
   if (/air\s*waybill|guia\s*aerea|awb/i.test(full)) docType = 'Air Waybill (AWB)';
-  else if (/bill\s*of\s*lading|conocimiento\s*de\s*embarque|b\/l/i.test(full)) docType = 'Bill of Lading (BL)';
+  else if (/bill\s*of\s*lading|conocimiento\s*de\s*embarque|b[\s\/]?l\b/i.test(full)) docType = 'Bill of Lading (BL)';
+  else if (/packing\s*list/i.test(full)) docType = 'Packing List';
+  else if (/commercial\s*invoice|factura/i.test(full)) docType = 'Commercial Invoice';
 
   var blNumber = '';
-  var m = full.match(/(?:AWB|B\/L|BL|MAWB|HAWB)\s*(?:Number|No\.?|#)?\s*[:\-]?\s*([A-Z0-9][\w\-]{4,})/i);
-  if (m) blNumber = m[1];
-  if (!blNumber) { m = full.match(/(\d{3}\s*-\s*\d{7,8})/); if (m) blNumber = m[1].replace(/\s/g, ''); }
+  var m;
+  m = full.match(/(\d{3}[\s\-]+\d{7,8})/);
+  if (m) blNumber = m[1].replace(/\s/g, '');
+  if (!blNumber) { m = full.match(/(?:MSKU|MAEU|MSCU|HLCU|COSU|OOLU|CMDU|EGLV|MEDU|TEMU|TCNU|FCIU)[A-Z0-9]{5,}/i); if (m) blNumber = m[0]; }
+  if (!blNumber) { m = full.match(/(?:AWB|MAWB|HAWB)[\s#:\-]*([A-Z0-9][\w\-]{5,})/i); if (m) blNumber = m[1]; }
+  if (!blNumber) { m = full.match(/(?:B\/L|BL)[\s#:\-]*([A-Z0-9][\w\-]{5,})/i); if (m) blNumber = m[1]; }
 
-  var supplier = '';
-  m = full.match(/(?:shipper|expedidor|exporter)\s*(?:\/[^:]*)?[:\s]+([A-Z][A-Za-z0-9 &.,'-]{3,})/i);
-  if (m) supplier = m[1].trim().replace(/\s{2,}/g, ' ');
-
-  var consignee = '';
-  m = full.match(/(?:consignee|consignatario|destinatario)\s*(?:\/[^:]*)?[:\s]+([A-Z][A-Za-z0-9 &.,'-]{3,})/i);
-  if (m) consignee = m[1].trim().replace(/\s{2,}/g, ' ');
-
-  var vessel = '';
-  m = full.match(/(?:vessel|flight|vuelo|buque)\s*(?:\/[^:]*)?[:\s]+([A-Z0-9][A-Za-z0-9 \/.,\-]{3,})/i);
-  if (m) vessel = m[1].trim();
-
-  var port = '';
-  m = full.match(/(?:destination|destino|port\s*of\s*discharge|dest)\s*(?:\/[^:]*)?[:\s]+([A-Z][A-Za-z0-9 ,.\-]{3,})/i);
-  if (m) port = m[1].trim();
-
-  var totalWeight = '';
-  m = full.match(/(?:gross\s*weight|peso\s*bruto|total\s*weight)\s*(?:\/[^:]*)?[:\s]+([\d,.]+ ?\s*(?:kg|lbs?|tons?))/i);
-  if (m) totalWeight = m[1].trim();
-
-  var items = [];
-  var skuPattern = /([A-Z]{2,4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,6})/g;
-  var skuMatches = [];
-  var sm;
-  while ((sm = skuPattern.exec(full)) !== null) {
-    if (skuMatches.indexOf(sm[1]) === -1) skuMatches.push(sm[1]);
+  function findValueAfterLabel(text, labelPatterns) {
+    for (var lp = 0; lp < labelPatterns.length; lp++) {
+      var re = new RegExp(labelPatterns[lp] + '[\\s\\/]*[^\\n]*?[:\\s]+([A-Z][A-Za-z0-9 &.,\\'\\-()]{3,60})', 'im');
+      var match = text.match(re);
+      if (match) {
+        var val = match[1].trim();
+        if (val.length > 3 && !/^(AWB|BL|MAWB|Number|No\b)/i.test(val)) return val;
+      }
+    }
+    for (var lp2 = 0; lp2 < labelPatterns.length; lp2++) {
+      for (var li = 0; li < lines.length; li++) {
+        if (new RegExp(labelPatterns[lp2], 'i').test(lines[li])) {
+          for (var nxt = li + 1; nxt < Math.min(li + 4, lines.length); nxt++) {
+            var candidate = lines[nxt].trim();
+            if (candidate.length > 3 && /^[A-Z]/.test(candidate) && !/^(AWB|Date|Flight|Origin|Dest|Gross|Volume|Special|Pieces|Warehouse)/i.test(candidate)) {
+              return candidate.substring(0, 60);
+            }
+          }
+        }
+      }
+    }
+    return '';
   }
 
-  for (var si = 0; si < skuMatches.length; si++) {
-    var sku = skuMatches[si];
-    var desc = '';
-    var qty = 0;
-    for (var li = 0; li < lines.length; li++) {
-      if (lines[li].indexOf(sku) >= 0) {
-        var after = lines[li].substring(lines[li].indexOf(sku) + sku.length).trim();
-        var descM = after.match(/([A-Za-z][A-Za-z0-9 \/\-"'.]+)/);
-        if (descM) desc = descM[1].trim();
-        var qtyM = after.match(/(\d{2,})/);
-        if (qtyM) qty = parseInt(qtyM[1]);
-        if (!qty) {
-          var before = lines[li].substring(0, lines[li].indexOf(sku)).trim();
-          qtyM = before.match(/(\d{2,})/);
-          if (qtyM) qty = parseInt(qtyM[1]);
+  var supplier = findValueAfterLabel(clean, ['shipper', 'expedidor', 'exporter', 'remitente']);
+  var consignee = findValueAfterLabel(clean, ['consignee', 'consignatario', 'destinatario', 'notify']);
+  var vessel = findValueAfterLabel(clean, ['flight', 'vuelo', 'vessel', 'buque', 'voyage']);
+  var port = findValueAfterLabel(clean, ['destination.*destino', 'port of discharge', 'puerto de descarga', 'dest\\.?\\s*\\/']);
+
+  if (!port) {
+    m = full.match(/([A-Z]{3})\s*[\-–]\s*([A-Za-z ]+(?:,\s*[A-Z]{2})?\s*(?:,\s*USA)?)/);
+    if (m) port = m[1] + ' - ' + m[2].trim();
+  }
+
+  var totalWeight = '';
+  m = full.match(/(?:gross\s*weight|peso\s*bruto|total\s*weight|weight)[^\n]*?([\d,.]+)\s*(kg|lbs?|tons?|kilos?)/i);
+  if (m) totalWeight = m[1] + ' ' + m[2];
+  if (!totalWeight) { m = full.match(/([\d,.]+)\s*(kg|lbs)\b/i); if (m) totalWeight = m[1] + ' ' + m[2]; }
+
+  var items = [];
+  var seenSkus = {};
+  var skuPatterns = [
+    /([A-Z]{2,4}-[A-Z0-9]{1,8}-[A-Z0-9]{1,8})/g,
+    /([A-Z]{2,4}-[A-Z0-9]{2,8})/g
+  ];
+
+  for (var sp = 0; sp < skuPatterns.length; sp++) {
+    var skuRe = skuPatterns[sp];
+    var sm;
+    while ((sm = skuRe.exec(full)) !== null) {
+      var sku = sm[1];
+      if (seenSkus[sku]) continue;
+      if (/^(AWB|BL|MAWB|HAWB|LOT|USD|CBM|NW|FL)-/i.test(sku) && sp > 0) continue;
+      seenSkus[sku] = true;
+
+      var desc = '';
+      var qty = 0;
+      for (var li = 0; li < lines.length; li++) {
+        var idx = lines[li].indexOf(sku);
+        if (idx < 0) continue;
+        var afterSku = lines[li].substring(idx + sku.length).trim();
+        var descMatch = afterSku.match(/([A-Za-z][A-Za-z0-9 \/\-"'.&]+[A-Za-z0-9"'])/);
+        if (descMatch && descMatch[1].length > 3) desc = descMatch[1].trim();
+        var nums = afterSku.match(/\b(\d{2,5})\b/g);
+        if (nums) {
+          for (var ni = 0; ni < nums.length; ni++) {
+            var n = parseInt(nums[ni]);
+            if (n >= 1 && n <= 99999) { qty = n; break; }
+          }
         }
-        if (!desc && li + 1 < lines.length) {
-          var nextLine = lines[li + 1].trim();
-          if (nextLine.length > 3 && /^[A-Za-z]/.test(nextLine)) desc = nextLine.substring(0, 60);
+        if (!qty) {
+          var beforeSku = lines[li].substring(0, idx).trim();
+          nums = beforeSku.match(/\b(\d{2,5})\b/g);
+          if (nums) qty = parseInt(nums[nums.length - 1]);
+        }
+        if (!desc) {
+          for (var nxt = li + 1; nxt < Math.min(li + 3, lines.length); nxt++) {
+            var nxtLine = lines[nxt].trim();
+            if (nxtLine.length > 5 && /^[A-Z]/i.test(nxtLine) && !/^[A-Z]{2,4}-/.test(nxtLine)) {
+              desc = nxtLine.substring(0, 60);
+              if (!qty) { var qm = nxtLine.match(/\b(\d{2,5})\b/); if (qm) qty = parseInt(qm[1]); }
+              break;
+            }
+          }
         }
         break;
       }
+      if (!desc) desc = sku;
+      items.push({ sku: sku, name: desc, qty: qty || 1, weight: '' });
     }
-    if (!desc) desc = sku;
-    items.push({ sku: sku, name: desc, qty: qty || 1, weight: '' });
+    if (items.length > 0) break;
   }
+
+  console.log('=== PARSED RESULT ===');
+  console.log('docType:', docType, '| blNumber:', blNumber, '| supplier:', supplier);
+  console.log('consignee:', consignee, '| vessel:', vessel, '| port:', port);
+  console.log('weight:', totalWeight, '| items:', items.length);
 
   return {
     docType: docType,
     blNumber: blNumber || 'N/A',
     supplier: supplier || 'N/A',
-    consignee: consignee || '7Group Corp',
+    consignee: consignee || 'N/A',
     vessel: vessel || 'N/A',
     port: port || 'N/A',
     items: items,
