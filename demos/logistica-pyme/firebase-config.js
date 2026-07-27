@@ -12,6 +12,7 @@ const SHEET_NAMES = {
   receiving: 'Recepciones',
   orders: 'Pedidos',
   dispatches: 'Despachos',
+  clients: 'Clientes',
   activity: 'Actividad'
 };
 
@@ -431,6 +432,86 @@ const DB = {
     });
 
     await DB.logActivity('shipments', 'delete', shipId, 'Shipment deleted');
+  },
+
+  // --- Clients ---
+  async saveClient(client) {
+    const id = client.id || LocalCache.genId();
+    const now = new Date().toISOString();
+    const record = { id, ...client, updatedAt: now };
+    if (!record.createdAt) record.createdAt = now;
+
+    const col = LocalCache.get('clients');
+    const idx = col.findIndex(r => r.id === id);
+    if (idx !== -1) {
+      col[idx] = { ...col[idx], ...record };
+    } else {
+      col.unshift(record);
+    }
+    LocalCache.set('clients', col);
+
+    await SheetsAPI.post({
+      action: idx !== -1 ? 'update' : 'append',
+      sheet: SHEET_NAMES.clients,
+      key: 'id', keyValue: id,
+      row: {
+        id, name: record.name || '',
+        contact: record.contact || '',
+        phone: record.phone || '',
+        email: record.email || '',
+        taxId: record.taxId || '',
+        address: record.address || '',
+        city: record.city || '',
+        state: record.state || '',
+        zip: record.zip || '',
+        country: record.country || 'US',
+        notes: record.notes || '',
+        createdAt: record.createdAt,
+        updatedAt: now
+      }
+    });
+
+    await DB.logActivity('clients', idx !== -1 ? 'update' : 'create', id, record.name || id);
+    return { id };
+  },
+
+  async getClients() {
+    const remote = await SheetsAPI.get(SHEET_NAMES.clients);
+    if (remote && remote.length > 0) {
+      LocalCache.set('clients', remote);
+      return remote;
+    }
+    return LocalCache.get('clients');
+  },
+
+  async deleteClient(clientId) {
+    const col = LocalCache.get('clients');
+    const idx = col.findIndex(r => r.id === clientId);
+    if (idx !== -1) col.splice(idx, 1);
+    LocalCache.set('clients', col);
+
+    await SheetsAPI.post({
+      action: 'delete',
+      sheet: SHEET_NAMES.clients,
+      key: 'id', keyValue: clientId
+    });
+    await DB.logActivity('clients', 'delete', clientId, 'Client deleted');
+  },
+
+  onClientsChange(callback) {
+    return LocalCache.listen('clients', callback);
+  },
+
+  searchClients(query) {
+    const q = (query || '').toLowerCase();
+    if (q.length < 2) return [];
+    const col = LocalCache.get('clients');
+    return col.filter(c =>
+      (c.name || '').toLowerCase().includes(q) ||
+      (c.contact || '').toLowerCase().includes(q) ||
+      (c.city || '').toLowerCase().includes(q) ||
+      (c.phone || '').includes(q)
+    ).slice(0, 10);
   },
 
   // --- Documents ---

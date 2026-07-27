@@ -166,6 +166,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/clientes/" class="mod-link" data-t="modClients">Clientes</a>
   <a href="/demos/logistica-pyme/dashboard/" class="mod-link active" data-t="modDash">Dashboard</a>
 </div>
 
@@ -297,7 +298,7 @@ var LANG='es';
 var T={
   badge:{es:'CEO Dashboard',en:'CEO Dashboard'},
   schedule:{es:'Agendar llamada',en:'Schedule a call'},
-  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'},
+  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modClients:{es:'Clientes',en:'Clients'},modDash:{es:'Dashboard',en:'Dashboard'},
   secUnits:{es:'Unidades Despachadas / Semana',en:'Units Dispatched / Week'},
   secOrders:{es:'Ordenes por Semana',en:'Orders per Week'},
   secOpsScore:{es:'Puntaje Operativo',en:'Operations Score'},
@@ -336,6 +337,7 @@ function applyLang(){
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
+  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/logistica-pyme/clientes/'+lp;
   document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
   renderAll();
 }

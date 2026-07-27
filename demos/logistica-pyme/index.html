@@ -247,6 +247,7 @@ input[type="file"]{display:none}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/clientes/" class="mod-link" data-t="modClients">Clientes</a>
   <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
@@ -443,7 +444,7 @@ var T={
   authError:{es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
   authFooter:{es:'Solo personal autorizado',en:'Authorized personnel only'},
   btnRecvPDF:{es:'PDF Recibo',en:'Receipt PDF'},
-  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'}
+  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modClients:{es:'Clientes',en:'Clients'},modDash:{es:'Dashboard',en:'Dashboard'}
 };
 
 function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
@@ -461,6 +462,7 @@ function applyLang(){
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
+  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/logistica-pyme/clientes/'+lp;
   document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
   renderFilters();renderPreavisos();renderInventory();renderZones();
 }
@@ -875,25 +877,53 @@ function completeReception(){
   if(!currentDetail)return;
   var recv=receptions[currentDetail.id];
   if(recv.status==='completed')return;
-  if(!confirm(LANG==='es'?'Completar recibo y mover items a inventario?':'Complete receiving and move items to inventory?'))return;
+
+  var isXD=currentDetail.crossDock&&currentDetail.xdDestinations&&currentDetail.xdDestinations.length>0;
+  var confirmMsg=LANG==='es'?'Completar recibo y mover items a inventario?':'Complete receiving and move items to inventory?';
+  if(isXD) confirmMsg=LANG==='es'
+    ?'Completar recibo?\n- Items XD salen directo a destinos\n- Stock existente en bodega sale primero (FIFO)\n- Solo el restante entra a inventario'
+    :'Complete receiving?\n- XD items ship directly\n- Existing warehouse stock ships first (FIFO)\n- Only remainder enters inventory';
+  if(!confirm(confirmMsg))return;
   recv.status='completed';
 
+  var xdAlloc={};
+  if(isXD){
+    for(var d=0;d<currentDetail.xdDestinations.length;d++){
+      var dest=currentDetail.xdDestinations[d];
+      for(var sk in dest.items){
+        xdAlloc[sk]=(xdAlloc[sk]||0)+(parseInt(dest.items[sk])||0);
+      }
+    }
+  }
+
   for(var i=0;i<currentDetail.items.length;i++){
-    logActivity('recv',currentDetail.items[i].sku,(currentDetail.items[i].qty||0)+' units from '+currentDetail.blNumber);
     var it=currentDetail.items[i];
+    var totalArriving=parseInt(it.qty)||0;
+    var totalXD=xdAlloc[it.sku]||0;
     var loc=recv.locations[it.sku]||{};
     var st=recv.itemStatus[it.sku]||'ok';
     var obs=recv.observations[it.sku]||'';
+
     var existing=null;
     for(var j=0;j<inventory.length;j++){
       if(inventory[j].sku===it.sku){existing=inventory[j];break;}
     }
+    var existingQty=existing?(parseInt(existing.qty)||0):0;
+
+    var fromWarehouse=Math.min(existingQty,totalXD);
+    var fromNewCargo=totalXD-fromWarehouse;
+    var toInventory=totalArriving-fromNewCargo;
+
+    if(fromWarehouse>0&&existing){
+      existing.qty=existingQty-fromWarehouse;
+    }
+
     var locStr=loc.zone||'';
     if(loc.sub)locStr+=' > '+loc.sub;
     if(loc.pos)locStr+=' > '+loc.pos;
 
     if(existing){
-      existing.qty=(parseInt(existing.qty)||0)+(parseInt(it.qty)||0);
+      existing.qty=(parseInt(existing.qty)||0)+toInventory;
       existing.location=locStr;
       existing.lot=loc.lot||existing.lot;
       existing.expiry=loc.expiry||existing.expiry;
@@ -902,21 +932,51 @@ function completeReception(){
       if(obs)existing.observation=obs;
     }else{
       inventory.push({
-        sku:it.sku,
-        name:it.name,
-        qty:parseInt(it.qty)||0,
-        weight:it.weight||'',
-        location:locStr,
-        lot:loc.lot||'',
-        expiry:loc.expiry||'',
-        minStock:Math.max(1,Math.round((parseInt(it.qty)||0)*0.2)),
-        status:st,
-        observation:obs,
-        shipmentId:currentDetail.id,
-        blNumber:currentDetail.blNumber,
-        supplier:currentDetail.supplier,
-        lastReceived:new Date().toISOString()
+        sku:it.sku,name:it.name,qty:toInventory,weight:it.weight||'',
+        location:locStr,lot:loc.lot||'',expiry:loc.expiry||'',
+        minStock:Math.max(1,Math.round(toInventory*0.2)),
+        status:st,observation:obs,
+        shipmentId:currentDetail.id,blNumber:currentDetail.blNumber,
+        supplier:currentDetail.supplier,lastReceived:new Date().toISOString()
       });
+    }
+
+    var logMsg=totalArriving+' arrived';
+    if(totalXD>0) logMsg+=' | XD:'+totalXD+' ('+fromWarehouse+' from stock, '+fromNewCargo+' from cargo) | To inv:'+toInventory;
+    logActivity('recv',it.sku,logMsg+' from '+currentDetail.blNumber);
+  }
+
+  if(isXD&&typeof DB!=='undefined'&&DB.createDispatch){
+    for(var dd=0;dd<currentDetail.xdDestinations.length;dd++){
+      var xdDest=currentDetail.xdDestinations[dd];
+      var dispItems=[];var dispUnits=0;
+      for(var dsk in xdDest.items){
+        var dqty=parseInt(xdDest.items[dsk])||0;
+        if(dqty>0){
+          var itemName=dsk;
+          for(var fi=0;fi<currentDetail.items.length;fi++){
+            if(currentDetail.items[fi].sku===dsk){itemName=currentDetail.items[fi].name;break;}
+          }
+          dispItems.push({sku:dsk,name:itemName,qty:dqty});
+          dispUnits+=dqty;
+        }
+      }
+      if(dispItems.length>0){
+        var fullAddr=xdDest.address||'';
+        if(xdDest.city)fullAddr+=(fullAddr?', ':'')+xdDest.city;
+        if(xdDest.state)fullAddr+=' '+xdDest.state;
+        if(xdDest.zip)fullAddr+=' '+xdDest.zip;
+        DB.createDispatch({
+          shipmentId:currentDetail.id,blNumber:currentDetail.blNumber,
+          destination:fullAddr||xdDest.name,client:xdDest.name,
+          contact:xdDest.contact||'',
+          items:dispItems,totalUnits:dispUnits,
+          carrier:currentDetail.xdVehiclePlate||'',
+          driverName:currentDetail.xdDriverName||'',
+          origin:'7Group Warehouse - Doral, FL',
+          crossDock:true,xdMode:currentDetail.xdMode||'individual'
+        });
+      }
     }
   }
 
@@ -930,9 +990,12 @@ function completeReception(){
     for(var m=0;m<currentDetail.items.length;m++){
       var ci=currentDetail.items[m];
       var cl=recv.locations[ci.sku]||{};
+      var ciXD=xdAlloc[ci.sku]||0;
+      var ciExist=0;
+      for(var ej=0;ej<inventory.length;ej++){if(inventory[ej].sku===ci.sku){ciExist=parseInt(inventory[ej].qty)||0;break;}}
       try{
         DB.upsertInventoryItem(ci.sku,{
-          name:ci.name,quantityAdd:ci.qty,
+          name:ci.name,quantity:ciExist,
           location:(cl.zone||'')+(cl.sub?' > '+cl.sub:'')+(cl.pos?' > '+cl.pos:''),
           lot:cl.lot||'',expiry:cl.expiry||'',
           poNumber:currentDetail.blNumber,weight:ci.weight

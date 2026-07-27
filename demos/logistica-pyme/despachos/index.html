@@ -57,11 +57,11 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .vtab:not(:last-child){border-right:1px solid var(--border3)}
 .vtab.active{background:rgba(94,231,247,.1);color:var(--cyan)}
 
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:12px}
 .kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px}
 .kpi-val{font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
 .kpi-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
-.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.yellow{color:var(--yellow)}.kpi-val.red{color:var(--red)}
+.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.yellow{color:var(--yellow)}.kpi-val.red{color:var(--red)}.kpi-val.purple{color:var(--purple)}.kpi-val.orange{color:var(--orange)}
 
 .filter-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
 .fpill{padding:5px 12px;border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border3);background:var(--bg3);color:var(--dim);font-family:inherit;transition:.2s;white-space:nowrap}
@@ -76,8 +76,9 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .sec-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
 .sec-body{padding:16px}
 .tag-prep{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.15)}
-.tag-shipped{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.15)}
+.tag-enroute{background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.15)}
 .tag-delivered{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.tag-invoiced{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.15)}
 .tag-cancelled{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}
 
 .dsp-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s}
@@ -101,8 +102,10 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .inv-pick-name{font-size:12px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .inv-pick-sku{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace}
 .inv-pick-stock{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--green);flex-shrink:0;margin-right:6px}
-.inv-pick-qty{width:60px;background:var(--bg2);border:1px solid var(--border3);border-radius:4px;padding:6px 8px;font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center;outline:none}
+.inv-pick-qty{width:50px;background:var(--bg2);border:1px solid var(--border3);border-radius:4px;padding:6px 4px;font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center;outline:none}
 .inv-pick-qty:focus{border-color:var(--cyan)}
+.inv-pick-price{width:70px;background:var(--bg2);border:1px solid var(--border3);border-radius:4px;padding:6px 4px;font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center;outline:none}
+.inv-pick-price:focus{border-color:var(--cyan)}
 
 .track-bar{display:flex;align-items:center;gap:0;margin:16px 0}
 .track-step{flex:1;text-align:center;position:relative}
@@ -125,6 +128,10 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .btn-sm{padding:6px 12px;font-size:11px}
 .btn-success{background:var(--green);color:#fff;width:100%;justify-content:center;padding:14px}
 .btn-success:hover{opacity:.9}
+.btn-orange{background:var(--orange);color:#fff;width:100%;justify-content:center;padding:14px}
+.btn-orange:hover{opacity:.9}
+.btn-purple{background:var(--purple);color:#fff;width:100%;justify-content:center;padding:14px}
+.btn-purple:hover{opacity:.9}
 .btn-danger{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.15)}
 
 .empty-state{text-align:center;padding:32px 16px;color:var(--dim)}
@@ -146,7 +153,28 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 #g_id_signin{display:flex;justify-content:center}
 .app-wrap{display:none}.app-wrap.visible{display:block}
 
+/* SIGNATURE OVERLAY */
+.sig-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.sig-overlay.hidden{display:none}
+.sig-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:500px;overflow:hidden}
+.sig-header{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sig-header-title{font-size:13px;font-weight:700;color:var(--white)}
+.sig-header-sub{font-size:10px;color:var(--dim);margin-top:2px}
+.sig-canvas-wrap{padding:16px;display:flex;flex-direction:column;align-items:center}
+.sig-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px}
+.sig-pad{border:2px dashed var(--border3);border-radius:10px;background:#fff;cursor:crosshair;touch-action:none;width:100%;max-width:460px;height:180px}
+.sig-name{width:100%;max-width:460px;margin-top:10px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--white);font-family:inherit;outline:none;text-align:center}
+.sig-name:focus{border-color:var(--cyan)}
+.sig-actions{display:flex;gap:8px;padding:16px;border-top:1px solid var(--border)}
+.sig-actions .btn{flex:1;justify-content:center}
+
+/* SIGNATURE PREVIEW IN DETAIL */
+.sig-preview{margin-top:12px;padding:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;text-align:center}
+.sig-preview img{max-width:280px;width:100%;border-radius:6px;border:1px solid var(--border3);background:#fff}
+.sig-preview-name{font-size:11px;color:var(--dim);margin-top:6px;font-weight:600}
+
 input[type="file"]{display:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @media(max-width:480px){.main{padding:12px}.kpi-row{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -189,6 +217,7 @@ input[type="file"]{display:none}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link active" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/clientes/" class="mod-link" data-t="modClients">Clientes</a>
   <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
@@ -220,6 +249,9 @@ input[type="file"]{display:none}
         <input id="dspDest" placeholder="Destino (direccion)...">
       </div>
       <div class="form-row">
+        <input id="dspContact" placeholder="Contacto / telefono...">
+      </div>
+      <div class="form-row">
         <input id="dspCarrier" placeholder="Transportista..." style="flex:1">
         <input id="dspTracking" placeholder="# Guia / tracking..." style="flex:1" class="mono">
       </div>
@@ -235,6 +267,12 @@ input[type="file"]{display:none}
       <span class="sec-tag" id="pickCount" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">0</span>
     </div>
     <div class="sec-body">
+      <div style="display:flex;gap:6px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);padding:0 12px 6px;margin-bottom:4px;border-bottom:1px solid var(--border)">
+        <span style="flex:1" data-t="colItem">Item</span>
+        <span style="width:40px;text-align:center" data-t="colStock">Stock</span>
+        <span style="width:50px;text-align:center" data-t="colQty">Cant</span>
+        <span style="width:70px;text-align:center" data-t="colPrice">Precio</span>
+      </div>
       <div class="form-row">
         <input id="pickSearch" placeholder="Buscar SKU, nombre..." oninput="renderPicker()" style="width:100%">
       </div>
@@ -261,6 +299,28 @@ input[type="file"]{display:none}
 <div class="foot">7group -- Logistics Intelligence Platform</div>
 </div>
 
+<!-- SIGNATURE OVERLAY -->
+<div class="sig-overlay hidden" id="sigOverlay">
+  <div class="sig-box">
+    <div class="sig-header">
+      <div>
+        <div class="sig-header-title" data-t="sigTitle">Captura de firma</div>
+        <div class="sig-header-sub" id="sigClientName">--</div>
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="closeSigOverlay()">X</button>
+    </div>
+    <div class="sig-canvas-wrap">
+      <div class="sig-label" data-t="sigLabel">Firma del receptor</div>
+      <canvas class="sig-pad" id="sigCanvas" width="460" height="180"></canvas>
+      <input class="sig-name" id="sigReceiverName" placeholder="Nombre de quien recibe...">
+    </div>
+    <div class="sig-actions">
+      <button class="btn btn-secondary" onclick="clearSigCanvas()" data-t="sigClear">Limpiar</button>
+      <button class="btn btn-success" onclick="confirmDeliveryWithSignature()" data-t="sigConfirm">Confirmar entrega</button>
+    </div>
+  </div>
+</div>
+
 <script src="../firebase-config.js?v=2"></script>
 <script>
 /* =============== AUTH =============== */
@@ -284,33 +344,47 @@ var T={
   tabOrders:{es:'Ordenes',en:'Orders'},tabNew:{es:'Nuevo despacho',en:'New dispatch'},
   secClient:{es:'Datos del despacho',en:'Dispatch data'},
   secPickItems:{es:'Seleccionar items de inventario',en:'Select inventory items'},
+  colItem:{es:'Item',en:'Item'},colStock:{es:'Stock',en:'Stock'},colQty:{es:'Cant',en:'Qty'},colPrice:{es:'Precio',en:'Price'},
   btnCreate:{es:'Crear orden de despacho',en:'Create dispatch order'},
   btnBack:{es:'Volver',en:'Back'},
-  filterAll:{es:'Todos',en:'All'},filterPrep:{es:'Preparando',en:'Preparing'},filterShipped:{es:'Enviado',en:'Shipped'},filterDelivered:{es:'Entregado',en:'Delivered'},filterCancelled:{es:'Cancelado',en:'Cancelled'},
-  kpiActive:{es:'Activos',en:'Active'},kpiShipped:{es:'En transito',en:'In transit'},kpiDelivered:{es:'Entregados',en:'Delivered'},kpiUnits:{es:'Uds. despachadas',en:'Units dispatched'},
+  filterAll:{es:'Todos',en:'All'},filterPrep:{es:'Preparando',en:'Preparing'},filterEnRoute:{es:'En ruta',en:'En route'},filterDelivered:{es:'Entregado',en:'Delivered'},filterInvoiced:{es:'Facturado',en:'Invoiced'},filterCancelled:{es:'Cancelado',en:'Cancelled'},
+  kpiPrep:{es:'Preparando',en:'Preparing'},kpiEnRoute:{es:'En ruta',en:'En route'},kpiDelivered:{es:'Entregados',en:'Delivered'},kpiInvoiced:{es:'Facturados',en:'Invoiced'},kpiRevenue:{es:'Facturado $',en:'Invoiced $'},
   emptyTitle:{es:'Sin ordenes de despacho',en:'No dispatch orders'},
   emptySub:{es:'Cree una nueva orden desde la tab "Nuevo despacho"',en:'Create a new order from the "New dispatch" tab'},
   emptyInv:{es:'Inventario vacio. Complete un recibo primero.',en:'Empty inventory. Complete a receiving first.'},
-  statusPrep:{es:'Preparando',en:'Preparing'},statusShipped:{es:'Enviado',en:'Shipped'},statusDelivered:{es:'Entregado',en:'Delivered'},statusCancelled:{es:'Cancelado',en:'Cancelled'},
-  lblClient:{es:'Cliente',en:'Client'},lblDest:{es:'Destino',en:'Destination'},lblCarrier:{es:'Transportista',en:'Carrier'},lblTracking:{es:'Guia',en:'Tracking'},
+  statusPrep:{es:'Preparando',en:'Preparing'},statusEnRoute:{es:'En ruta',en:'En route'},statusDelivered:{es:'Entregado',en:'Delivered'},statusInvoiced:{es:'Facturado',en:'Invoiced'},statusCancelled:{es:'Cancelado',en:'Cancelled'},
+  lblClient:{es:'Cliente',en:'Client'},lblDest:{es:'Destino',en:'Destination'},lblCarrier:{es:'Transportista',en:'Carrier'},lblTracking:{es:'Guia',en:'Tracking'},lblContact:{es:'Contacto',en:'Contact'},
   items:{es:'items',en:'items'},units:{es:'uds',en:'units'},
-  btnShip:{es:'Marcar como enviado',en:'Mark as shipped'},
-  btnDeliver:{es:'Confirmar entrega',en:'Confirm delivery'},
+  btnEnRoute:{es:'Marcar en ruta',en:'Mark en route'},
+  btnSignDeliver:{es:'Entregar con firma',en:'Deliver with signature'},
+  btnInvoice:{es:'Generar factura',en:'Generate invoice'},
   btnCancel:{es:'Cancelar orden',en:'Cancel order'},
-  btnPDF:{es:'PDF Despacho',en:'Dispatch PDF'},
-  stepPrep:{es:'Preparacion',en:'Preparation'},stepShipped:{es:'Enviado',en:'Shipped'},stepTransit:{es:'En transito',en:'In transit'},stepDelivered:{es:'Entregado',en:'Delivered'},
+  btnRemision:{es:'PDF Remision',en:'Delivery Note PDF'},
+  btnInvoicePDF:{es:'PDF Factura',en:'Invoice PDF'},
+  stepPrep:{es:'Preparacion',en:'Preparation'},stepEnRoute:{es:'En ruta',en:'En route'},stepDelivered:{es:'Entregado',en:'Delivered'},stepInvoiced:{es:'Facturado',en:'Invoiced'},
   confirmCreate:{es:'Crear orden de despacho? El stock se descontara del inventario.',en:'Create dispatch order? Stock will be deducted from inventory.'},
-  confirmShip:{es:'Marcar como enviado?',en:'Mark as shipped?'},
-  confirmDeliver:{es:'Confirmar entrega?',en:'Confirm delivery?'},
+  confirmEnRoute:{es:'Marcar como en ruta?',en:'Mark as en route?'},
   confirmCancel:{es:'Cancelar orden? El stock volvera al inventario.',en:'Cancel order? Stock will return to inventory.'},
   created:{es:'Orden creada',en:'Order created'},
   noItems:{es:'Seleccione al menos un item',en:'Select at least one item'},
   noClient:{es:'Ingrese un cliente',en:'Enter a client'},
+  sigTitle:{es:'Captura de firma',en:'Signature capture'},
+  sigLabel:{es:'Firma del receptor',en:'Receiver signature'},
+  sigClear:{es:'Limpiar',en:'Clear'},
+  sigConfirm:{es:'Confirmar entrega',en:'Confirm delivery'},
+  sigNoSign:{es:'Se requiere firma para confirmar la entrega',en:'Signature required to confirm delivery'},
+  sigDelivered:{es:'Entrega confirmada con firma',en:'Delivery confirmed with signature'},
+  invNumber:{es:'Factura',en:'Invoice'},
+  invSubtotal:{es:'Subtotal',en:'Subtotal'},
+  invTax:{es:'IVA (19%)',en:'Tax (19%)'},
+  invTotal:{es:'Total',en:'Total'},
+  invGenerated:{es:'Factura generada',en:'Invoice generated'},
+  remTitle:{es:'Remision de entrega',en:'Delivery note'},
   authDesc:{es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
   authError:{es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
   authFooter:{es:'Solo personal autorizado',en:'Authorized personnel only'},
   btnDemo:{es:'Cargar datos demo',en:'Load demo data'},
-  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'}
+  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modClients:{es:'Clientes',en:'Clients'},modDash:{es:'Dashboard',en:'Dashboard'}
 };
 function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
 
@@ -327,6 +401,7 @@ function applyLang(){
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
+  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/logistica-pyme/clientes/'+lp;
   document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
   renderAll();
 }
@@ -337,13 +412,19 @@ var inventory=[];
 var dispatches=[];
 var activeFilter='all';
 var currentOrder=null;
+var remisionCounter=0;
+var invoiceCounter=0;
 
 function loadData(){
   try{inventory=JSON.parse(localStorage.getItem('7g-inventory')||'[]');}catch(e){inventory=[];}
   try{dispatches=JSON.parse(localStorage.getItem('7g-dispatches')||'[]');}catch(e){dispatches=[];}
+  try{remisionCounter=parseInt(localStorage.getItem('7g-remision-counter')||'0');}catch(e){remisionCounter=0;}
+  try{invoiceCounter=parseInt(localStorage.getItem('7g-invoice-counter')||'0');}catch(e){invoiceCounter=0;}
 }
 function saveInventory(){localStorage.setItem('7g-inventory',JSON.stringify(inventory));}
 function saveDispatches(){localStorage.setItem('7g-dispatches',JSON.stringify(dispatches));}
+function nextRemision(){remisionCounter++;localStorage.setItem('7g-remision-counter',String(remisionCounter));return 'REM-'+String(remisionCounter).padStart(4,'0');}
+function nextInvoice(){invoiceCounter++;localStorage.setItem('7g-invoice-counter',String(invoiceCounter));return 'FAC-'+String(invoiceCounter).padStart(4,'0');}
 
 /* =============== TABS =============== */
 function showTab(tab){
@@ -360,46 +441,62 @@ function showTab(tab){
 function renderAll(){renderKPIs();renderFilters();renderOrders();}
 
 function renderKPIs(){
-  var active=0,shipped=0,delivered=0,totalUnits=0;
+  var prep=0,enroute=0,delivered=0,invoiced=0,revenue=0;
   for(var i=0;i<dispatches.length;i++){
     var d=dispatches[i];
-    if(d.status==='preparing')active++;
-    if(d.status==='shipped')shipped++;
-    if(d.status==='delivered'){delivered++;for(var j=0;j<d.items.length;j++)totalUnits+=d.items[j].qty;}
-    if(d.status==='preparing'||d.status==='shipped'){for(var j2=0;j2<d.items.length;j2++)totalUnits+=d.items[j2].qty;}
+    if(d.status==='preparing')prep++;
+    else if(d.status==='en_ruta')enroute++;
+    else if(d.status==='delivered')delivered++;
+    else if(d.status==='invoiced'){invoiced++;if(d.invoiceTotal)revenue+=d.invoiceTotal;}
   }
   document.getElementById('dspKpis').innerHTML=
-    '<div class="kpi"><div class="kpi-val cyan">'+active+'</div><div class="kpi-label">'+t('kpiActive')+'</div></div>'+
-    '<div class="kpi"><div class="kpi-val yellow">'+shipped+'</div><div class="kpi-label">'+t('kpiShipped')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val cyan">'+prep+'</div><div class="kpi-label">'+t('kpiPrep')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val orange">'+enroute+'</div><div class="kpi-label">'+t('kpiEnRoute')+'</div></div>'+
     '<div class="kpi"><div class="kpi-val green">'+delivered+'</div><div class="kpi-label">'+t('kpiDelivered')+'</div></div>'+
-    '<div class="kpi"><div class="kpi-val cyan">'+totalUnits+'</div><div class="kpi-label">'+t('kpiUnits')+'</div></div>';
+    '<div class="kpi"><div class="kpi-val purple">'+invoiced+'</div><div class="kpi-label">'+t('kpiInvoiced')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val green">$'+formatNum(revenue)+'</div><div class="kpi-label">'+t('kpiRevenue')+'</div></div>';
 }
 
+function formatNum(n){return n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
+
 function renderFilters(){
-  var counts={all:0,preparing:0,shipped:0,delivered:0,cancelled:0};
-  for(var i=0;i<dispatches.length;i++){counts.all++;counts[dispatches[i].status]++;}
+  var counts={all:0,preparing:0,en_ruta:0,delivered:0,invoiced:0,cancelled:0};
+  for(var i=0;i<dispatches.length;i++){counts.all++;counts[dispatches[i].status]=(counts[dispatches[i].status]||0)+1;}
   var pills=[
     {key:'all',label:t('filterAll'),count:counts.all},
     {key:'preparing',label:t('filterPrep'),count:counts.preparing},
-    {key:'shipped',label:t('filterShipped'),count:counts.shipped},
-    {key:'delivered',label:t('filterDelivered'),count:counts.delivered}
+    {key:'en_ruta',label:t('filterEnRoute'),count:counts.en_ruta},
+    {key:'delivered',label:t('filterDelivered'),count:counts.delivered},
+    {key:'invoiced',label:t('filterInvoiced'),count:counts.invoiced}
   ];
   if(counts.cancelled>0)pills.push({key:'cancelled',label:t('filterCancelled'),count:counts.cancelled});
   var h='';
   for(var j=0;j<pills.length;j++){
     var p=pills[j];
-    h+='<button class="fpill'+(activeFilter===p.key?' active':'')+'" onclick="setFilter(\''+p.key+'\')">'+p.label+'<span class="pill-count">'+p.count+'</span></button>';
+    h+='<button class="fpill'+(activeFilter===p.key?' active':'')+'" onclick="setFilter(\''+p.key+'\')">'+p.label+'<span class="pill-count">'+(p.count||0)+'</span></button>';
   }
   document.getElementById('filterRow').innerHTML=h;
 }
 
 function setFilter(f){activeFilter=f;renderFilters();renderOrders();}
 
+function statusTag(s){
+  if(s==='preparing')return{cls:'tag-prep',text:t('statusPrep')};
+  if(s==='en_ruta')return{cls:'tag-enroute',text:t('statusEnRoute')};
+  if(s==='delivered')return{cls:'tag-delivered',text:t('statusDelivered')};
+  if(s==='invoiced')return{cls:'tag-invoiced',text:t('statusInvoiced')};
+  if(s==='cancelled')return{cls:'tag-cancelled',text:t('statusCancelled')};
+  if(s==='shipped')return{cls:'tag-enroute',text:t('statusEnRoute')};
+  return{cls:'tag-prep',text:s};
+}
+
 function renderOrders(){
   var el=document.getElementById('ordersList');
   var filtered=[];
   for(var i=dispatches.length-1;i>=0;i--){
-    if(activeFilter==='all'||dispatches[i].status===activeFilter)filtered.push(dispatches[i]);
+    var d=dispatches[i];
+    if(d.status==='shipped')d.status='en_ruta';
+    if(activeFilter==='all'||d.status===activeFilter)filtered.push(d);
   }
   if(filtered.length===0){
     el.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg><p>'+t('emptyTitle')+'</p><small>'+t('emptySub')+'</small><br><button class="btn btn-secondary btn-sm" style="margin-top:12px" onclick="loadDemoData()">'+t('btnDemo')+'</button></div>';
@@ -408,24 +505,33 @@ function renderOrders(){
   var h='';
   for(var j=0;j<filtered.length;j++){
     var d=filtered[j];
-    var tagClass=d.status==='preparing'?'tag-prep':d.status==='shipped'?'tag-shipped':d.status==='delivered'?'tag-delivered':'tag-cancelled';
-    var tagText=d.status==='preparing'?t('statusPrep'):d.status==='shipped'?t('statusShipped'):d.status==='delivered'?t('statusDelivered'):t('statusCancelled');
+    var st=statusTag(d.status);
     var date=new Date(d.createdAt);
     var dateStr=date.toLocaleDateString()+' '+date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
     var totalQty=0;for(var k=0;k<d.items.length;k++)totalQty+=d.items[k].qty;
+    var totalVal=calcOrderTotal(d);
 
     h+='<div class="dsp-card" onclick="openDetail(\''+d.id+'\')">';
-    h+='<div class="dsp-head"><span class="dsp-id">'+d.id+'</span><span class="sec-tag '+tagClass+'">'+tagText+'</span></div>';
-    h+='<div class="dsp-info"><strong>'+d.client+'</strong> -- '+d.destination+'</div>';
+    h+='<div class="dsp-head"><span class="dsp-id">'+(d.remisionNumber||d.id)+'</span><span class="sec-tag '+st.cls+'">'+st.text+'</span></div>';
+    h+='<div class="dsp-info"><strong>'+d.client+'</strong> -- '+(d.destination||'')+'</div>';
     h+='<div class="dsp-meta">';
     h+='<span>'+d.items.length+' '+t('items')+'</span>';
     h+='<span>'+totalQty+' '+t('units')+'</span>';
-    if(d.carrier)h+='<span>'+d.carrier+'</span>';
+    if(totalVal>0)h+='<span>$'+formatNum(totalVal)+'</span>';
+    if(d.signatureData)h+='<span style="color:var(--green)">Firmado</span>';
     h+='<span>'+dateStr+'</span>';
     h+='</div>';
     h+='</div>';
   }
   el.innerHTML=h;
+}
+
+function calcOrderTotal(d){
+  var total=0;
+  for(var i=0;i<d.items.length;i++){
+    total+=(d.items[i].qty||0)*(d.items[i].unitPrice||0);
+  }
+  return total;
 }
 
 /* =============== ITEM PICKER =============== */
@@ -448,6 +554,7 @@ function renderPicker(){
     h+='<div class="inv-pick-info"><div class="inv-pick-name">'+it.name+'</div><div class="inv-pick-sku">'+it.sku+(it.location?' -- '+it.location:'')+'</div></div>';
     h+='<div class="inv-pick-stock">'+(parseInt(it.qty)||0)+'</div>';
     h+='<input type="number" class="inv-pick-qty" id="qty-'+it.sku+'" min="0" max="'+(parseInt(it.qty)||0)+'" value="0" onchange="updatePickState()" oninput="updatePickState()">';
+    h+='<input type="number" class="inv-pick-price" id="price-'+it.sku+'" min="0" step="0.01" value="0" placeholder="$" oninput="updatePickState()">';
     h+='</div>';
   }
   el.innerHTML=h;
@@ -478,27 +585,36 @@ function createDispatch(){
     var qty=parseInt(inputs[i].value)||0;
     if(qty<=0)continue;
     var sku=inputs[i].id.replace('qty-','');
+    var unitPrice=parseFloat(document.getElementById('price-'+sku).value)||0;
     var invItem=null;
     for(var j=0;j<inventory.length;j++){if(inventory[j].sku===sku){invItem=inventory[j];break;}}
     if(!invItem)continue;
     if(qty>parseInt(invItem.qty))qty=parseInt(invItem.qty);
-    items.push({sku:invItem.sku,name:invItem.name,qty:qty,weight:invItem.weight||'',location:invItem.location||''});
+    items.push({sku:invItem.sku,name:invItem.name,qty:qty,weight:invItem.weight||'',location:invItem.location||'',unitPrice:unitPrice});
   }
   if(items.length===0){showFeedback(t('noItems'),'red');return;}
   if(!confirm(t('confirmCreate')))return;
 
+  var remNum=nextRemision();
   var dispatch={
     id:'DSP-'+Date.now(),
+    remisionNumber:remNum,
     client:client,
     destination:(document.getElementById('dspDest').value||'').trim(),
+    contact:(document.getElementById('dspContact').value||'').trim(),
     carrier:(document.getElementById('dspCarrier').value||'').trim(),
     tracking:(document.getElementById('dspTracking').value||'').trim(),
     notes:(document.getElementById('dspNotes').value||'').trim(),
     items:items,
     status:'preparing',
     createdAt:new Date().toISOString(),
-    shippedAt:null,
+    enRouteAt:null,
     deliveredAt:null,
+    invoicedAt:null,
+    signatureData:null,
+    receiverName:null,
+    invoiceNumber:null,
+    invoiceTotal:null,
     createdBy:sessionStorage.getItem('7g-auth')||'unknown'
   };
 
@@ -519,11 +635,12 @@ function createDispatch(){
 
   document.getElementById('dspClient').value='';
   document.getElementById('dspDest').value='';
+  document.getElementById('dspContact').value='';
   document.getElementById('dspCarrier').value='';
   document.getElementById('dspTracking').value='';
   document.getElementById('dspNotes').value='';
 
-  showFeedback(t('created'),'green');
+  showFeedback(t('created')+' -- '+remNum,'green');
   setTimeout(function(){showTab('orders');},1000);
 }
 
@@ -548,18 +665,19 @@ function closeDetail(){
 function renderDetail(){
   var d=currentOrder;
   if(!d)return;
+  if(d.status==='shipped')d.status='en_ruta';
   var date=new Date(d.createdAt);
   var dateStr=date.toLocaleDateString()+' '+date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  var totalQty=0;for(var i=0;i<d.items.length;i++)totalQty+=d.items[i].qty;
+  var totalQty=0;var totalVal=0;
+  for(var i=0;i<d.items.length;i++){totalQty+=d.items[i].qty;totalVal+=(d.items[i].qty||0)*(d.items[i].unitPrice||0);}
 
-  var tagClass=d.status==='preparing'?'tag-prep':d.status==='shipped'?'tag-shipped':d.status==='delivered'?'tag-delivered':'tag-cancelled';
-  var tagText=d.status==='preparing'?t('statusPrep'):d.status==='shipped'?t('statusShipped'):d.status==='delivered'?t('statusDelivered'):t('statusCancelled');
+  var st=statusTag(d.status);
 
-  var h='<div class="sec"><div class="sec-head"><div class="sec-title">'+d.id+'</div><span class="sec-tag '+tagClass+'">'+tagText+'</span></div>';
+  var h='<div class="sec"><div class="sec-head"><div class="sec-title">'+(d.remisionNumber||d.id)+'</div><span class="sec-tag '+st.cls+'">'+st.text+'</span></div>';
   h+='<div class="sec-body">';
 
-  var steps=[{k:'stepPrep',s:'preparing'},{k:'stepShipped',s:'shipped'},{k:'stepTransit',s:'shipped'},{k:'stepDelivered',s:'delivered'}];
-  var stepIdx=d.status==='preparing'?0:d.status==='shipped'?2:d.status==='delivered'?3:-1;
+  var steps=[{k:'stepPrep',s:'preparing'},{k:'stepEnRoute',s:'en_ruta'},{k:'stepDelivered',s:'delivered'},{k:'stepInvoiced',s:'invoiced'}];
+  var stepIdx=d.status==='preparing'?0:d.status==='en_ruta'?1:d.status==='delivered'?2:d.status==='invoiced'?3:-1;
   if(d.status!=='cancelled'){
     h+='<div class="track-bar">';
     for(var si=0;si<steps.length;si++){
@@ -572,8 +690,10 @@ function renderDetail(){
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;margin-top:12px">';
   h+='<div><span style="color:var(--dim)">'+t('lblClient')+'</span><br><strong>'+d.client+'</strong></div>';
   h+='<div><span style="color:var(--dim)">'+t('lblDest')+'</span><br><strong>'+(d.destination||'--')+'</strong></div>';
+  h+='<div><span style="color:var(--dim)">'+t('lblContact')+'</span><br><strong>'+(d.contact||'--')+'</strong></div>';
   h+='<div><span style="color:var(--dim)">'+t('lblCarrier')+'</span><br><strong>'+(d.carrier||'--')+'</strong></div>';
-  h+='<div><span style="color:var(--dim)">'+t('lblTracking')+'</span><br><strong class="mono">'+(d.tracking||'--')+'</strong></div>';
+  if(d.tracking)h+='<div><span style="color:var(--dim)">'+t('lblTracking')+'</span><br><strong class="mono">'+d.tracking+'</strong></div>';
+  if(d.invoiceNumber)h+='<div><span style="color:var(--dim)">'+t('invNumber')+'</span><br><strong class="mono" style="color:var(--purple)">'+d.invoiceNumber+'</strong></div>';
   h+='</div>';
   if(d.notes)h+='<div style="margin-top:8px;padding:8px 10px;background:var(--bg3);border-radius:6px;font-size:11px;color:var(--dim)">'+d.notes+'</div>';
   h+='</div></div>';
@@ -582,62 +702,68 @@ function renderDetail(){
   h+='<div class="sec-body">';
   for(var j=0;j<d.items.length;j++){
     var it=d.items[j];
+    var lineTotal=(it.qty||0)*(it.unitPrice||0);
     h+='<div class="inv-pick" style="cursor:default">';
     h+='<div class="inv-pick-info"><div class="inv-pick-name">'+it.name+'</div><div class="inv-pick-sku">'+it.sku+(it.location?' -- '+it.location:'')+'</div></div>';
+    h+='<div style="text-align:right;flex-shrink:0">';
     h+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:14px;font-weight:700;color:var(--cyan)">'+it.qty+'</div>';
+    if(it.unitPrice>0)h+='<div style="font-size:10px;color:var(--dim)">$'+it.unitPrice.toFixed(2)+' = $'+lineTotal.toFixed(2)+'</div>';
     h+='</div>';
+    h+='</div>';
+  }
+  if(totalVal>0){
+    h+='<div style="text-align:right;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:13px;font-weight:700;color:var(--white)">Total: $'+formatNum(totalVal)+'</div>';
   }
   h+='</div></div>';
 
+  if(d.signatureData){
+    h+='<div class="sec"><div class="sec-head"><div class="sec-title">'+t('sigLabel')+'</div><span class="sec-tag tag-delivered">'+t('statusDelivered')+'</span></div>';
+    h+='<div class="sec-body"><div class="sig-preview"><img src="'+d.signatureData+'" alt="Firma">';
+    if(d.receiverName)h+='<div class="sig-preview-name">'+d.receiverName+'</div>';
+    h+='<div style="font-size:10px;color:var(--dim);margin-top:4px">'+new Date(d.deliveredAt).toLocaleString()+'</div>';
+    h+='</div></div></div>';
+  }
+
   h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">';
   if(d.status==='preparing'){
-    h+='<button class="btn btn-primary" onclick="markShipped()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> '+t('btnShip')+'</button>';
+    h+='<button class="btn btn-orange" onclick="markEnRoute()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> '+t('btnEnRoute')+'</button>';
     h+='<button class="btn btn-danger" style="width:100%;justify-content:center;padding:14px" onclick="cancelOrder()">'+t('btnCancel')+'</button>';
   }
-  if(d.status==='shipped'){
-    h+='<button class="btn btn-success" onclick="markDelivered()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg> '+t('btnDeliver')+'</button>';
+  if(d.status==='en_ruta'){
+    h+='<button class="btn btn-success" onclick="openSigOverlay()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> '+t('btnSignDeliver')+'</button>';
+    h+='<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="generateRemisionPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+t('btnRemision')+'</button>';
   }
-  h+='<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="generateDispatchPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+t('btnPDF')+'</button>';
+  if(d.status==='delivered'){
+    h+='<button class="btn btn-purple" onclick="generateInvoice()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> '+t('btnInvoice')+'</button>';
+    h+='<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="generateRemisionPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+t('btnRemision')+'</button>';
+  }
+  if(d.status==='invoiced'){
+    h+='<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="generateInvoicePDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+t('btnInvoicePDF')+'</button>';
+    h+='<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="generateRemisionPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+t('btnRemision')+'</button>';
+  }
   h+='</div>';
 
   h+='<div style="margin-top:12px;font-size:10px;color:var(--dim);text-align:center">'+dateStr;
-  if(d.shippedAt)h+=' | Shipped: '+new Date(d.shippedAt).toLocaleDateString();
-  if(d.deliveredAt)h+=' | Delivered: '+new Date(d.deliveredAt).toLocaleDateString();
+  if(d.enRouteAt)h+=' | En ruta: '+new Date(d.enRouteAt).toLocaleDateString();
+  if(d.deliveredAt)h+=' | Entregado: '+new Date(d.deliveredAt).toLocaleDateString();
+  if(d.invoicedAt)h+=' | Facturado: '+new Date(d.invoicedAt).toLocaleDateString();
   h+='</div>';
 
   document.getElementById('detailContent').innerHTML=h;
 }
 
 /* =============== STATUS CHANGES =============== */
-function markShipped(){
+function markEnRoute(){
   if(!currentOrder||currentOrder.status!=='preparing')return;
-  var tracking=currentOrder.tracking;
-  if(!tracking){
-    tracking=prompt(LANG==='es'?'Numero de guia / tracking:':'Tracking number:','');
-    if(tracking===null)return;
-    currentOrder.tracking=tracking;
-  }
-  if(!confirm(t('confirmShip')))return;
-  currentOrder.status='shipped';
-  currentOrder.shippedAt=new Date().toISOString();
+  if(!confirm(t('confirmEnRoute')))return;
+  currentOrder.status='en_ruta';
+  currentOrder.enRouteAt=new Date().toISOString();
+  if(!currentOrder.remisionNumber)currentOrder.remisionNumber=nextRemision();
   for(var i=0;i<currentOrder.items.length;i++){
-    logActivity('ship',currentOrder.items[i].sku,currentOrder.items[i].qty+' units -> '+currentOrder.client);
+    logActivity('en_ruta',currentOrder.items[i].sku,currentOrder.items[i].qty+' units -> '+currentOrder.client);
   }
   saveDispatches();
-  showFeedback(t('statusShipped'),'green');
-  renderDetail();
-}
-
-function markDelivered(){
-  if(!currentOrder||currentOrder.status!=='shipped')return;
-  if(!confirm(t('confirmDeliver')))return;
-  currentOrder.status='delivered';
-  currentOrder.deliveredAt=new Date().toISOString();
-  for(var i=0;i<currentOrder.items.length;i++){
-    logActivity('deliver',currentOrder.items[i].sku,currentOrder.items[i].qty+' units delivered to '+currentOrder.client);
-  }
-  saveDispatches();
-  showFeedback(t('statusDelivered'),'green');
+  showFeedback(t('statusEnRoute'),'green');
   renderDetail();
 }
 
@@ -661,24 +787,123 @@ function cancelOrder(){
   renderDetail();
 }
 
-/* =============== PDF =============== */
-function generateDispatchPDF(){
+/* =============== SIGNATURE CANVAS =============== */
+var sigDrawing=false;
+var sigCtx=null;
+var sigHasContent=false;
+
+function initSigCanvas(){
+  var canvas=document.getElementById('sigCanvas');
+  sigCtx=canvas.getContext('2d');
+  var rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*2;
+  canvas.height=rect.height*2;
+  sigCtx.scale(2,2);
+  sigCtx.strokeStyle='#1e293b';
+  sigCtx.lineWidth=2.5;
+  sigCtx.lineCap='round';
+  sigCtx.lineJoin='round';
+
+  canvas.addEventListener('pointerdown',function(e){
+    e.preventDefault();
+    sigDrawing=true;
+    sigHasContent=true;
+    var r=canvas.getBoundingClientRect();
+    sigCtx.beginPath();
+    sigCtx.moveTo(e.clientX-r.left,e.clientY-r.top);
+  });
+  canvas.addEventListener('pointermove',function(e){
+    if(!sigDrawing)return;
+    e.preventDefault();
+    var r=canvas.getBoundingClientRect();
+    sigCtx.lineTo(e.clientX-r.left,e.clientY-r.top);
+    sigCtx.stroke();
+  });
+  canvas.addEventListener('pointerup',function(){sigDrawing=false;});
+  canvas.addEventListener('pointerleave',function(){sigDrawing=false;});
+}
+
+function clearSigCanvas(){
+  var canvas=document.getElementById('sigCanvas');
+  sigCtx.clearRect(0,0,canvas.width,canvas.height);
+  sigHasContent=false;
+}
+
+function openSigOverlay(){
+  if(!currentOrder)return;
+  document.getElementById('sigOverlay').classList.remove('hidden');
+  document.getElementById('sigClientName').textContent=currentOrder.client+' -- '+(currentOrder.remisionNumber||currentOrder.id);
+  document.getElementById('sigReceiverName').value='';
+  setTimeout(function(){initSigCanvas();},100);
+}
+
+function closeSigOverlay(){
+  document.getElementById('sigOverlay').classList.add('hidden');
+  sigDrawing=false;
+  sigHasContent=false;
+}
+
+function confirmDeliveryWithSignature(){
+  if(!sigHasContent){showFeedback(t('sigNoSign'),'red');return;}
+  var canvas=document.getElementById('sigCanvas');
+  var sigData=canvas.toDataURL('image/png');
+  var receiverName=(document.getElementById('sigReceiverName').value||'').trim();
+
+  currentOrder.status='delivered';
+  currentOrder.deliveredAt=new Date().toISOString();
+  currentOrder.signatureData=sigData;
+  currentOrder.receiverName=receiverName||null;
+  for(var i=0;i<currentOrder.items.length;i++){
+    logActivity('deliver',currentOrder.items[i].sku,currentOrder.items[i].qty+' units delivered to '+currentOrder.client+' (signed)');
+  }
+  saveDispatches();
+  closeSigOverlay();
+  showFeedback(t('sigDelivered'),'green');
+  renderDetail();
+}
+
+/* =============== INVOICE GENERATION =============== */
+function generateInvoice(){
+  if(!currentOrder||currentOrder.status!=='delivered')return;
+  var invNum=nextInvoice();
+  var subtotal=calcOrderTotal(currentOrder);
+  var tax=Math.round(subtotal*0.19);
+  var total=subtotal+tax;
+
+  currentOrder.status='invoiced';
+  currentOrder.invoicedAt=new Date().toISOString();
+  currentOrder.invoiceNumber=invNum;
+  currentOrder.invoiceTotal=total;
+  saveDispatches();
+  showFeedback(t('invGenerated')+' -- '+invNum,'green');
+  renderDetail();
+  setTimeout(function(){generateInvoicePDF();},500);
+}
+
+/* =============== REMISION PDF =============== */
+function generateRemisionPDF(){
   if(!currentOrder)return;
   var d=currentOrder;
   var date=new Date(d.createdAt);
   var dateStr=date.toLocaleDateString()+' '+date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  var totalQty=0;
+  var totalQty=0;var totalVal=0;
   var rows='';
   for(var i=0;i<d.items.length;i++){
     var it=d.items[i];
     totalQty+=it.qty;
-    rows+='<tr><td style="font-family:monospace;font-size:11px">'+it.sku+'</td><td>'+it.name+'</td><td style="text-align:center;font-weight:700">'+it.qty+'</td><td style="font-size:10px">'+(it.weight||'--')+'</td><td style="font-size:10px">'+(it.location||'--')+'</td></tr>';
+    var lineTotal=(it.qty||0)*(it.unitPrice||0);
+    totalVal+=lineTotal;
+    rows+='<tr><td style="text-align:center">'+(i+1)+'</td><td style="font-family:monospace;font-size:11px">'+it.sku+'</td><td>'+it.name+'</td><td style="text-align:center;font-weight:700">'+it.qty+'</td><td style="text-align:center;font-size:10px">'+(it.weight||'--')+'</td>';
+    if(it.unitPrice>0)rows+='<td style="text-align:right">$'+it.unitPrice.toFixed(2)+'</td><td style="text-align:right;font-weight:600">$'+lineTotal.toFixed(2)+'</td>';
+    else rows+='<td></td><td></td>';
+    rows+='</tr>';
   }
-  var title=LANG==='es'?'Orden de Despacho':'Dispatch Order';
-  var stText=d.status==='preparing'?t('statusPrep'):d.status==='shipped'?t('statusShipped'):d.status==='delivered'?t('statusDelivered'):t('statusCancelled');
-  var stColor=d.status==='preparing'?'#3b82f6':d.status==='shipped'?'#eab308':d.status==='delivered'?'#22c55e':'#ef4444';
 
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+' -- '+d.id+'</title>';
+  var title=t('remTitle');
+  var st=statusTag(d.status);
+  var stColor=d.status==='preparing'?'#3b82f6':d.status==='en_ruta'?'#f97316':d.status==='delivered'?'#22c55e':d.status==='invoiced'?'#a78bfa':'#ef4444';
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+' -- '+(d.remisionNumber||d.id)+'</title>';
   html+='<style>body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:13px}';
   html+='.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #060a0e;padding-bottom:16px;margin-bottom:20px}';
   html+='.logo{font-size:22px;font-weight:900;letter-spacing:-1px}.logo-sub{font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase}';
@@ -694,23 +919,115 @@ function generateDispatchPDF(){
   html+='@media print{body{padding:12px}@page{margin:15mm}}</style></head><body>';
 
   html+='<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
-  html+='<div class="doc-title"><h1>'+title+'</h1><div class="id">'+d.id+'</div><div style="color:'+stColor+';font-weight:700;font-size:11px;margin-top:4px">'+stText.toUpperCase()+'</div></div></div>';
+  html+='<div class="doc-title"><h1>'+title+'</h1><div class="id">'+(d.remisionNumber||d.id)+'</div><div style="color:'+stColor+';font-weight:700;font-size:11px;margin-top:4px">'+st.text.toUpperCase()+'</div></div></div>';
 
   html+='<div class="info-grid">';
   html+='<div class="info-item"><span class="info-label">'+t('lblClient')+'</span><span class="info-val">'+d.client+'</span></div>';
   html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Fecha':'Date')+'</span><span class="info-val">'+dateStr+'</span></div>';
   html+='<div class="info-item"><span class="info-label">'+t('lblDest')+'</span><span class="info-val">'+(d.destination||'--')+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+t('lblContact')+'</span><span class="info-val">'+(d.contact||'--')+'</span></div>';
   html+='<div class="info-item"><span class="info-label">'+t('lblCarrier')+'</span><span class="info-val">'+(d.carrier||'--')+'</span></div>';
   html+='<div class="info-item"><span class="info-label">'+t('lblTracking')+'</span><span class="info-val" style="font-family:monospace">'+(d.tracking||'--')+'</span></div>';
   html+='<div class="info-item"><span class="info-label">Total</span><span class="info-val">'+d.items.length+' items / '+totalQty+' '+t('units')+'</span></div>';
+  if(d.invoiceNumber)html+='<div class="info-item"><span class="info-label">'+t('invNumber')+'</span><span class="info-val" style="font-family:monospace">'+d.invoiceNumber+'</span></div>';
   html+='</div>';
 
-  html+='<table><thead><tr><th>SKU</th><th>'+(LANG==='es'?'Descripcion':'Description')+'</th><th style="text-align:center">'+(LANG==='es'?'Cant.':'Qty')+'</th><th>'+(LANG==='es'?'Peso':'Weight')+'</th><th>'+(LANG==='es'?'Ubicacion':'Location')+'</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  html+='<table><thead><tr><th style="text-align:center;width:30px">#</th><th>SKU</th><th>'+(LANG==='es'?'Descripcion':'Description')+'</th><th style="text-align:center">'+(LANG==='es'?'Cant.':'Qty')+'</th><th style="text-align:center">'+(LANG==='es'?'Peso':'Weight')+'</th><th style="text-align:right">'+(LANG==='es'?'P. Unit':'Unit P.')+'</th><th style="text-align:right">Total</th></tr></thead><tbody>'+rows+'</tbody>';
+  if(totalVal>0){
+    html+='<tfoot><tr><td colspan="5"></td><td style="text-align:right;font-weight:700;border:1px solid #e2e8f0">Total</td><td style="text-align:right;font-weight:700;border:1px solid #e2e8f0">$'+totalVal.toFixed(2)+'</td></tr></tfoot>';
+  }
+  html+='</table>';
 
   if(d.notes)html+='<div style="margin:16px 0;padding:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"><strong>'+(LANG==='es'?'Notas:':'Notes:')+'</strong> '+d.notes+'</div>';
 
-  html+='<div class="signatures"><div><div class="sig-line">'+(LANG==='es'?'Firma Despacho':'Dispatch Signature')+'</div></div><div><div class="sig-line">'+(LANG==='es'?'Firma Transportista':'Carrier Signature')+'</div></div></div>';
+  if(d.signatureData){
+    html+='<div style="margin:20px 0;padding:16px;border:1px solid #e2e8f0;border-radius:8px">';
+    html+='<div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#64748b;font-weight:600;margin-bottom:8px">'+(LANG==='es'?'Firma de recibido':'Proof of delivery')+'</div>';
+    html+='<img src="'+d.signatureData+'" style="max-width:300px;border:1px solid #e2e8f0;border-radius:4px">';
+    if(d.receiverName)html+='<div style="margin-top:6px;font-size:12px;font-weight:600">'+d.receiverName+'</div>';
+    html+='<div style="font-size:10px;color:#64748b">'+new Date(d.deliveredAt).toLocaleString()+'</div>';
+    html+='</div>';
+  }else{
+    html+='<div class="signatures"><div><div style="height:60px"></div><div class="sig-line">'+(LANG==='es'?'Firma Despacho':'Dispatch Signature')+'</div></div><div><div style="height:60px"></div><div class="sig-line">'+(LANG==='es'?'Firma Recibido':'Receiver Signature')+'</div></div></div>';
+  }
+
   html+='<div class="footer">'+(LANG==='es'?'Generado por':'Generated by')+' 7Group Logistics Intelligence -- '+dateStr+'</div>';
+  html+='</body></html>';
+
+  var w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){w.print();},600);
+}
+
+/* =============== INVOICE PDF =============== */
+function generateInvoicePDF(){
+  if(!currentOrder)return;
+  var d=currentOrder;
+  if(!d.invoiceNumber){showFeedback('No invoice generated yet','red');return;}
+
+  var date=new Date(d.invoicedAt||d.createdAt);
+  var dateStr=date.toLocaleDateString();
+  var subtotal=calcOrderTotal(d);
+  var tax=Math.round(subtotal*0.19);
+  var total=subtotal+tax;
+
+  var rows='';
+  for(var i=0;i<d.items.length;i++){
+    var it=d.items[i];
+    var lineTotal=(it.qty||0)*(it.unitPrice||0);
+    rows+='<tr><td style="text-align:center">'+(i+1)+'</td><td style="font-family:monospace;font-size:11px">'+it.sku+'</td><td>'+it.name+'</td><td style="text-align:center;font-weight:700">'+it.qty+'</td><td style="text-align:right">$'+(it.unitPrice||0).toFixed(2)+'</td><td style="text-align:right;font-weight:600">$'+lineTotal.toFixed(2)+'</td></tr>';
+  }
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+t('invNumber')+' '+d.invoiceNumber+'</title>';
+  html+='<style>body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:13px}';
+  html+='.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #060a0e;padding-bottom:16px;margin-bottom:20px}';
+  html+='.logo{font-size:22px;font-weight:900;letter-spacing:-1px}.logo-sub{font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase}';
+  html+='.doc-title{text-align:right}.doc-title h1{font-size:16px;margin:0 0 4px;color:#a78bfa}.doc-title .id{font-family:monospace;font-size:18px;font-weight:900;color:#a78bfa}';
+  html+='table{width:100%;border-collapse:collapse;margin:12px 0}';
+  html+='th{background:#f1f5f9;text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#475569;border:1px solid #e2e8f0}';
+  html+='td{padding:7px 10px;border:1px solid #e2e8f0;font-size:12px}';
+  html+='.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px}';
+  html+='.info-item{display:flex;flex-direction:column;gap:2px}.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600}.info-val{font-size:13px;font-weight:600}';
+  html+='.totals{margin-left:auto;width:280px;margin-top:16px}';
+  html+='.totals-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #e2e8f0}';
+  html+='.totals-row.grand{font-size:16px;font-weight:900;border-top:2px solid #1e293b;border-bottom:2px solid #1e293b;margin-top:4px;padding:10px 0;color:#a78bfa}';
+  html+='.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
+  html+='@media print{body{padding:12px}@page{margin:15mm}}</style></head><body>';
+
+  html+='<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
+  html+='<div class="doc-title"><h1>'+t('invNumber').toUpperCase()+'</h1><div class="id">'+d.invoiceNumber+'</div><div style="font-size:11px;color:#64748b;margin-top:4px">'+dateStr+'</div></div></div>';
+
+  html+='<div class="info-grid">';
+  html+='<div class="info-item"><span class="info-label">'+t('lblClient')+'</span><span class="info-val">'+d.client+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Remision':'Delivery note')+'</span><span class="info-val" style="font-family:monospace">'+(d.remisionNumber||d.id)+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+t('lblDest')+'</span><span class="info-val">'+(d.destination||'--')+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+t('lblContact')+'</span><span class="info-val">'+(d.contact||'--')+'</span></div>';
+  if(d.deliveredAt)html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Fecha entrega':'Delivery date')+'</span><span class="info-val">'+new Date(d.deliveredAt).toLocaleDateString()+'</span></div>';
+  if(d.receiverName)html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Recibido por':'Received by')+'</span><span class="info-val">'+d.receiverName+'</span></div>';
+  html+='</div>';
+
+  html+='<table><thead><tr><th style="text-align:center;width:30px">#</th><th>SKU</th><th>'+(LANG==='es'?'Descripcion':'Description')+'</th><th style="text-align:center">'+(LANG==='es'?'Cant.':'Qty')+'</th><th style="text-align:right">'+(LANG==='es'?'P. Unitario':'Unit Price')+'</th><th style="text-align:right">Total</th></tr></thead><tbody>'+rows+'</tbody></table>';
+
+  html+='<div class="totals">';
+  html+='<div class="totals-row"><span>'+t('invSubtotal')+'</span><span>$'+subtotal.toFixed(2)+'</span></div>';
+  html+='<div class="totals-row"><span>'+t('invTax')+'</span><span>$'+tax.toFixed(2)+'</span></div>';
+  html+='<div class="totals-row grand"><span>'+t('invTotal')+'</span><span>$'+total.toFixed(2)+'</span></div>';
+  html+='</div>';
+
+  if(d.signatureData){
+    html+='<div style="margin:24px 0;padding:12px;border:1px solid #e2e8f0;border-radius:8px;display:inline-block">';
+    html+='<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#64748b;font-weight:600;margin-bottom:6px">'+(LANG==='es'?'Prueba de entrega':'Proof of delivery')+'</div>';
+    html+='<img src="'+d.signatureData+'" style="max-width:200px;border:1px solid #e2e8f0;border-radius:4px">';
+    if(d.receiverName)html+='<div style="font-size:11px;font-weight:600;margin-top:4px">'+d.receiverName+'</div>';
+    html+='</div>';
+  }
+
+  html+='<div style="margin:20px 0;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#64748b">';
+  html+=(LANG==='es'?'Condiciones de pago: Te enviamos los datos por WhatsApp al cerrar el trato':'Payment terms: We will send payment details via WhatsApp upon closing the deal');
+  html+='</div>';
+
+  html+='<div class="footer">'+(LANG==='es'?'Generado por':'Generated by')+' 7Group Logistics Intelligence -- '+d.invoiceNumber+' -- '+dateStr+'</div>';
   html+='</body></html>';
 
   var w=window.open('','_blank');
@@ -731,7 +1048,7 @@ function logActivity(action,sku,detail){
 /* =============== FEEDBACK =============== */
 function showFeedback(msg,color){
   var el=document.createElement('div');
-  el.style.cssText='position:fixed;bottom:20px;left:16px;right:16px;max-width:500px;margin:0 auto;z-index:200;padding:12px 16px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;background:rgba('+(color==='green'?'34,197,94':color==='red'?'239,68,68':'234,179,8')+',.12);border:1px solid rgba('+(color==='green'?'34,197,94':color==='red'?'239,68,68':'234,179,8')+',.25);color:var(--'+(color==='yellow'?'yellow':color)+')';
+  el.style.cssText='position:fixed;bottom:20px;left:16px;right:16px;max-width:500px;margin:0 auto;z-index:600;padding:12px 16px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;background:rgba('+(color==='green'?'34,197,94':color==='red'?'239,68,68':'234,179,8')+',.12);border:1px solid rgba('+(color==='green'?'34,197,94':color==='red'?'239,68,68':'234,179,8')+',.25);color:var(--'+(color==='yellow'?'yellow':color)+')';
   el.textContent=msg;
   document.body.appendChild(el);
   setTimeout(function(){el.remove();},2500);
@@ -741,13 +1058,16 @@ function showFeedback(msg,color){
 function loadDemoData(){
   var now=Date.now();
   var demoDispatches=[
-    {id:'DSP-'+String(now-86400000*5),client:'BuildRight Construction LLC',destination:'4520 Industrial Blvd, Houston TX 77033',carrier:'FedEx Freight',tracking:'FXF-884521790',notes:'Fragile, handle with care',items:[{sku:'MAT-001',name:'Porcelain tile 24x24 white',qty:120,weight:'3.9lb',location:'A1-01'},{sku:'MAT-002',name:'Thinset mortar 50lb bag',qty:30,weight:'50lb',location:'A1-02'}],status:'delivered',createdAt:new Date(now-86400000*5).toISOString(),shippedAt:new Date(now-86400000*4).toISOString(),deliveredAt:new Date(now-86400000*2).toISOString(),createdBy:'andresapalt@gmail.com'},
-    {id:'DSP-'+String(now-86400000*3),client:'Premier Finishes Inc',destination:'1280 Commerce Dr, Miami FL 33166',carrier:'XPO Logistics',tracking:'XPO-773201',notes:'',items:[{sku:'MAT-003',name:'Marble slab 80x80 Carrara',qty:80,weight:'4.8lb',location:'B2-01'},{sku:'MAT-004',name:'Aluminum baseboard 8ft',qty:50,weight:'1.7lb',location:'C1-03'},{sku:'MAT-005',name:'Clear silicone sealant 10oz',qty:24,weight:'0.7lb',location:'C2-01'}],status:'shipped',createdAt:new Date(now-86400000*3).toISOString(),shippedAt:new Date(now-86400000*2).toISOString(),deliveredAt:null,createdBy:'andresapalt@gmail.com'},
-    {id:'DSP-'+String(now-86400000*1),client:'Apex Builders Group',destination:'9100 Westheimer Rd, Houston TX 77063',carrier:'Old Dominion',tracking:'',notes:'Deliver to job site, ask for Project Mgr Davis',items:[{sku:'MAT-006',name:'Portland cement 94lb bag',qty:200,weight:'94lb',location:'A2-01'},{sku:'MAT-007',name:'Rebar #4 20ft',qty:150,weight:'10lb',location:'A3-01'}],status:'preparing',createdAt:new Date(now-86400000*1).toISOString(),shippedAt:null,deliveredAt:null,createdBy:'andresapalt@gmail.com'},
-    {id:'DSP-'+String(now-3600000*6),client:'Home Depot Pro - Orlando',destination:'3800 Vineland Rd, Orlando FL 32811',carrier:'UPS Freight',tracking:'UPS-551098224',notes:'',items:[{sku:'MAT-008',name:'Interior latex paint white 5gal',qty:40,weight:'44lb',location:'B1-02'},{sku:'MAT-009',name:'Professional roller 9in',qty:60,weight:'0.4lb',location:'C1-01'}],status:'preparing',createdAt:new Date(now-3600000*6).toISOString(),shippedAt:null,deliveredAt:null,createdBy:'7groupcorp@zohomail.com'},
-    {id:'DSP-'+String(now-86400000*8),client:'Southern Supply Co',destination:'720 Canal St, New Orleans LA 70130',carrier:'FedEx Freight',tracking:'FXF-662310485',notes:'Customer reported shortage',items:[{sku:'MAT-010',name:'PVC pipe 4in x10ft',qty:60,weight:'7.5lb',location:'A3-02'}],status:'delivered',createdAt:new Date(now-86400000*8).toISOString(),shippedAt:new Date(now-86400000*7).toISOString(),deliveredAt:new Date(now-86400000*5).toISOString(),createdBy:'andresapal@gmail.com'}
+    {id:'DSP-'+String(now-86400000*5),remisionNumber:'REM-0001',client:'BuildRight Construction LLC',destination:'4520 Industrial Blvd, Houston TX 77033',contact:'John Davis / +1 713-555-0142',carrier:'FedEx Freight',tracking:'FXF-884521790',notes:'',items:[{sku:'MAT-001',name:'Porcelain tile 24x24 white',qty:120,weight:'3.9lb',location:'A1-01',unitPrice:12.50},{sku:'MAT-002',name:'Thinset mortar 50lb bag',qty:30,weight:'50lb',location:'A1-02',unitPrice:18.00}],status:'invoiced',createdAt:new Date(now-86400000*5).toISOString(),enRouteAt:new Date(now-86400000*4).toISOString(),deliveredAt:new Date(now-86400000*3).toISOString(),invoicedAt:new Date(now-86400000*2).toISOString(),signatureData:null,receiverName:'John Davis',invoiceNumber:'FAC-0001',invoiceTotal:2380,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-86400000*3),remisionNumber:'REM-0002',client:'Premier Finishes Inc',destination:'1280 Commerce Dr, Miami FL 33166',contact:'Maria Lopez / +1 305-555-0198',carrier:'XPO Logistics',tracking:'XPO-773201',notes:'',items:[{sku:'MAT-003',name:'Marble slab 80x80 Carrara',qty:80,weight:'4.8lb',location:'B2-01',unitPrice:45.00},{sku:'MAT-004',name:'Aluminum baseboard 8ft',qty:50,weight:'1.7lb',location:'C1-03',unitPrice:8.50},{sku:'MAT-005',name:'Clear silicone sealant 10oz',qty:24,weight:'0.7lb',location:'C2-01',unitPrice:6.75}],status:'en_ruta',createdAt:new Date(now-86400000*3).toISOString(),enRouteAt:new Date(now-86400000*2).toISOString(),deliveredAt:null,invoicedAt:null,signatureData:null,receiverName:null,invoiceNumber:null,invoiceTotal:null,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-86400000*1),remisionNumber:'REM-0003',client:'Apex Builders Group',destination:'9100 Westheimer Rd, Houston TX 77063',contact:'Project Mgr Davis / +1 832-555-0167',carrier:'Old Dominion',tracking:'',notes:'Deliver to job site',items:[{sku:'MAT-006',name:'Portland cement 94lb bag',qty:200,weight:'94lb',location:'A2-01',unitPrice:14.00},{sku:'MAT-007',name:'Rebar #4 20ft',qty:150,weight:'10lb',location:'A3-01',unitPrice:22.00}],status:'preparing',createdAt:new Date(now-86400000*1).toISOString(),enRouteAt:null,deliveredAt:null,invoicedAt:null,signatureData:null,receiverName:null,invoiceNumber:null,invoiceTotal:null,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-3600000*6),remisionNumber:'REM-0004',client:'Home Depot Pro - Orlando',destination:'3800 Vineland Rd, Orlando FL 32811',contact:'Warehouse Receiving / +1 407-555-0223',carrier:'UPS Freight',tracking:'UPS-551098224',notes:'',items:[{sku:'MAT-008',name:'Interior latex paint white 5gal',qty:40,weight:'44lb',location:'B1-02',unitPrice:89.00},{sku:'MAT-009',name:'Professional roller 9in',qty:60,weight:'0.4lb',location:'C1-01',unitPrice:4.50}],status:'preparing',createdAt:new Date(now-3600000*6).toISOString(),enRouteAt:null,deliveredAt:null,invoicedAt:null,signatureData:null,receiverName:null,invoiceNumber:null,invoiceTotal:null,createdBy:'7groupcorp@zohomail.com'}
   ];
   dispatches=demoDispatches;
+  remisionCounter=4;
+  invoiceCounter=1;
+  localStorage.setItem('7g-remision-counter','4');
+  localStorage.setItem('7g-invoice-counter','1');
   saveDispatches();
   renderAll();
 }

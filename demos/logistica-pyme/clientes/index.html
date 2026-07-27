@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Clientes -- 7Group Logistics</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --cyan:#0e7490;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:16px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:6px}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.tb-toggle{padding:4px 8px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.mod-link{padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
+
+.main{max-width:600px;margin:0 auto;padding:16px}
+
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px}
+.kpi-val{font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+.kpi-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.orange{color:var(--orange)}
+
+.search-bar{display:flex;gap:8px;margin-bottom:12px}
+.search-bar input{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--white);font-family:inherit;outline:none;transition:.2s}
+.search-bar input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.search-bar input::placeholder{color:var(--dim)}
+
+.client-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s}
+.client-card:hover{border-color:var(--cyan)}
+.client-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.client-name{font-size:14px;font-weight:700;color:var(--white)}
+.client-info{font-size:11px;color:var(--dim);line-height:1.6}
+.client-meta{display:flex;gap:10px;margin-top:6px;font-size:10px;color:var(--dim);flex-wrap:wrap}
+.client-meta span{display:flex;align-items:center;gap:3px}
+
+.form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.form-row input,.form-row select,.form-row textarea{flex:1;min-width:100px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--white);font-family:inherit;outline:none;transition:.2s}
+.form-row input:focus,.form-row textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.form-row textarea{resize:none}
+.form-label{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+
+.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.sec-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sec-title{font-size:12px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:6px}
+.sec-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.sec-body{padding:16px}
+
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--cyan);color:#060a0e;width:100%;justify-content:center;padding:14px}
+.btn-primary:hover{background:#7bf0ff}.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{opacity:.4;cursor:default;transform:none}
+.btn-secondary{background:var(--bg3);color:var(--white);border:1px solid var(--border3)}
+.btn-sm{padding:6px 12px;font-size:11px}
+.btn-danger{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.15)}
+
+.empty-state{text-align:center;padding:32px 16px;color:var(--dim)}
+.empty-state p{font-size:13px;margin-bottom:4px}
+.empty-state small{font-size:11px;color:var(--muted)}
+
+.foot{text-align:center;padding:16px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.auth-gate.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
+.auth-box{text-align:center;max-width:340px;padding:32px 24px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:11px;color:var(--dim);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:12px;color:var(--dim);margin-bottom:24px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:16px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:12px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+.detail-overlay{position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;display:none}
+.detail-overlay.visible{display:block}
+.detail-header{position:sticky;top:0;z-index:10;background:var(--topbar-bg);backdrop-filter:blur(20px);padding:12px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.detail-back{background:none;border:none;color:var(--cyan);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px}
+.detail-content{max-width:600px;margin:0 auto;padding:16px}
+
+@media(max-width:480px){.main{padding:12px}.kpi-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<script src="../firebase-config.js"></script>
+
+<script>
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){
+  document.getElementById('authGate').classList.add('hidden');
+  document.getElementById('appWrap').classList.add('visible');
+  loadClients();
+}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+(function(){var s=sessionStorage.getItem('7g-auth');if(s&&ALLOWED_EMAILS.indexOf(s)!==-1)unlockApp();else initGoogleAuth();})();
+</script>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc" data-t="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-error" id="authError" data-t="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-footer" data-t="authFooter">Solo personal autorizado</div>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="badge">Clientes</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+  </div>
+</nav>
+
+<div class="mod-nav">
+  <a href="/demos/logistica-pyme/shipment/" class="mod-link" data-t="modShip">Shipment</a>
+  <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
+  <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
+  <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
+  <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/clientes/" class="mod-link active" data-t="modClients">Clientes</a>
+  <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
+</div>
+
+<div class="main" id="mainView">
+
+<div class="kpi-row" id="kpiRow">
+  <div class="kpi"><div class="kpi-val cyan" id="kpiTotal">0</div><div class="kpi-label" data-t="kpiTotal">Total clientes</div></div>
+  <div class="kpi"><div class="kpi-val green" id="kpiRecent">0</div><div class="kpi-label" data-t="kpiRecent">Recientes (30d)</div></div>
+  <div class="kpi"><div class="kpi-val orange" id="kpiCities">0</div><div class="kpi-label" data-t="kpiCities">Ciudades</div></div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Buscar por nombre, ciudad, telefono..." oninput="filterClients(this.value)" data-t-ph="searchPH">
+</div>
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+  <button class="btn btn-sm btn-secondary" onclick="showNewClientForm()" data-t="btnNew">+ Nuevo cliente</button>
+</div>
+
+<div id="clientList"></div>
+
+</div>
+
+<!-- NEW / EDIT CLIENT FORM -->
+<div class="detail-overlay" id="clientFormOverlay">
+  <div class="detail-header">
+    <button class="detail-back" onclick="closeForm()">&#8592; <span data-t="back">Volver</span></button>
+    <span style="font-size:12px;font-weight:700;color:var(--white)" id="formTitle" data-t="formTitleNew">Nuevo cliente</span>
+    <div style="width:60px"></div>
+  </div>
+  <div class="detail-content">
+    <input type="hidden" id="editClientId" value="">
+
+    <div class="form-label" data-t="lblCompany">Empresa</div>
+    <div class="form-row">
+      <input id="fName" placeholder="Nombre de empresa...">
+    </div>
+
+    <div class="form-label" data-t="lblContact">Contacto</div>
+    <div class="form-row">
+      <input id="fContact" placeholder="Nombre contacto...">
+      <input id="fPhone" placeholder="Tel / WhatsApp...">
+    </div>
+    <div class="form-row">
+      <input id="fEmail" placeholder="Email...">
+    </div>
+
+    <div class="form-label" data-t="lblTax">Fiscal</div>
+    <div class="form-row">
+      <input id="fTaxId" placeholder="Tax ID / NIT / EIN...">
+    </div>
+
+    <div class="form-label" data-t="lblAddress">Direccion</div>
+    <div class="form-row">
+      <input id="fAddress" placeholder="Direccion..." style="flex:3">
+      <input id="fCity" placeholder="Ciudad..." style="flex:2">
+    </div>
+    <div class="form-row">
+      <input id="fState" placeholder="Estado..." style="flex:2">
+      <input id="fZip" placeholder="ZIP code..." style="flex:1">
+      <input id="fCountry" placeholder="Pais..." value="US" style="flex:1">
+    </div>
+
+    <div class="form-label" data-t="lblNotes">Notas</div>
+    <div class="form-row">
+      <textarea id="fNotes" rows="3" placeholder="Notas internas..."></textarea>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn btn-primary" onclick="saveClientForm()" data-t="btnSave">Guardar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT DETAIL -->
+<div class="detail-overlay" id="clientDetailOverlay">
+  <div class="detail-header">
+    <button class="detail-back" onclick="closeDetail()">&#8592; <span data-t="back">Volver</span></button>
+    <span style="font-size:12px;font-weight:700;color:var(--white)" data-t="detailTitle">Detalle cliente</span>
+    <div style="width:60px"></div>
+  </div>
+  <div class="detail-content" id="detailContent"></div>
+</div>
+
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div>
+
+<script>
+/* =============== LANGUAGE =============== */
+var LANG='es';
+(function(){var p=new URLSearchParams(window.location.search);if(p.get('lang')==='en')LANG='en';})();
+
+var T={
+  badge:       {es:'Clientes',                    en:'Clients'},
+  modShip:     {es:'Shipment',                    en:'Shipment'},
+  modRecv:     {es:'Recibo',                      en:'Receiving'},
+  modInv:      {es:'Inventario',                  en:'Inventory'},
+  modWh:       {es:'Bodega',                      en:'Warehouse'},
+  modDisp:     {es:'Despachos',                   en:'Dispatches'},
+  modClients:  {es:'Clientes',                    en:'Clients'},
+  modDash:     {es:'Dashboard',                   en:'Dashboard'},
+  kpiTotal:    {es:'Total clientes',              en:'Total clients'},
+  kpiRecent:   {es:'Recientes (30d)',             en:'Recent (30d)'},
+  kpiCities:   {es:'Ciudades',                    en:'Cities'},
+  searchPH:    {es:'Buscar por nombre, ciudad, telefono...', en:'Search by name, city, phone...'},
+  btnNew:      {es:'+ Nuevo cliente',             en:'+ New client'},
+  formTitleNew:{es:'Nuevo cliente',               en:'New client'},
+  formTitleEdit:{es:'Editar cliente',             en:'Edit client'},
+  lblCompany:  {es:'Empresa',                     en:'Company'},
+  lblContact:  {es:'Contacto',                    en:'Contact'},
+  lblTax:      {es:'Fiscal',                      en:'Tax'},
+  lblAddress:  {es:'Direccion',                   en:'Address'},
+  lblNotes:    {es:'Notas',                       en:'Notes'},
+  btnSave:     {es:'Guardar cliente',             en:'Save client'},
+  btnEdit:     {es:'Editar',                      en:'Edit'},
+  btnDelete:   {es:'Eliminar',                    en:'Delete'},
+  back:        {es:'Volver',                      en:'Back'},
+  detailTitle: {es:'Detalle cliente',             en:'Client detail'},
+  emptyTitle:  {es:'No hay clientes',             en:'No clients'},
+  emptySub:    {es:'Agrega tu primer cliente',    en:'Add your first client'},
+  noResults:   {es:'Sin resultados',              en:'No results'},
+  confirmDel:  {es:'Eliminar este cliente?',      en:'Delete this client?'},
+  saved:       {es:'Cliente guardado',             en:'Client saved'},
+  deleted:     {es:'Cliente eliminado',            en:'Client deleted'},
+  authDesc:    {es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.', en:'Restricted access. Sign in with your authorized Google account.'},
+  authError:   {es:'Este correo no tiene acceso autorizado.', en:'This email is not authorized.'},
+  authFooter:  {es:'Solo personal autorizado',    en:'Authorized personnel only'}
+};
+
+function t(k){return T[k]?T[k][LANG]||T[k].es||k:k;}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langES').classList.toggle('active',l==='es');
+  document.getElementById('langEN').classList.toggle('active',l==='en');
+  document.querySelectorAll('[data-t]').forEach(function(el){var k=el.getAttribute('data-t');if(T[k])el.textContent=t(k);});
+  document.querySelectorAll('[data-t-ph]').forEach(function(el){var k=el.getAttribute('data-t-ph');if(T[k])el.placeholder=t(k);});
+  renderClients();
+}
+
+/* =============== THEME =============== */
+(function(){var s=localStorage.getItem('7g-theme');if(s==='light')document.documentElement.classList.add('light');})();
+function toggleTheme(){
+  var isLight=document.documentElement.classList.toggle('light');
+  localStorage.setItem('7g-theme',isLight?'light':'dark');
+  var btn=document.getElementById('themeToggle');
+  if(isLight){btn.innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.9 8.8a6 6 0 0 1-6.7-6.7A6 6 0 1 0 13.9 8.8z" stroke="currentColor" stroke-width="1.5"/></svg> DARK';}
+  else{btn.innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
+}
+
+/* =============== DATA =============== */
+var clients=[];
+var searchQuery='';
+
+function loadClients(){
+  clients=LocalCache.get('clients');
+  renderKPIs();
+  renderClients();
+  if(typeof DB!=='undefined'&&DB.getClients){
+    DB.getClients().then(function(remote){
+      if(remote&&remote.length>0){clients=remote;renderKPIs();renderClients();}
+    }).catch(function(){});
+  }
+}
+
+function renderKPIs(){
+  document.getElementById('kpiTotal').textContent=clients.length;
+  var now=Date.now();
+  var d30=30*24*60*60*1000;
+  var recent=0;
+  var cities={};
+  for(var i=0;i<clients.length;i++){
+    var c=clients[i];
+    if(c.createdAt&&(now-new Date(c.createdAt).getTime())<d30)recent++;
+    if(c.city)cities[c.city.toLowerCase()]=true;
+  }
+  document.getElementById('kpiRecent').textContent=recent;
+  document.getElementById('kpiCities').textContent=Object.keys(cities).length;
+}
+
+function filterClients(q){
+  searchQuery=(q||'').toLowerCase();
+  renderClients();
+}
+
+function renderClients(){
+  var el=document.getElementById('clientList');
+  var filtered=clients;
+  if(searchQuery.length>=2){
+    filtered=clients.filter(function(c){
+      return (c.name||'').toLowerCase().indexOf(searchQuery)>=0
+        ||(c.contact||'').toLowerCase().indexOf(searchQuery)>=0
+        ||(c.city||'').toLowerCase().indexOf(searchQuery)>=0
+        ||(c.phone||'').indexOf(searchQuery)>=0
+        ||(c.email||'').toLowerCase().indexOf(searchQuery)>=0;
+    });
+  }
+
+  if(filtered.length===0){
+    var msg=searchQuery.length>=2?t('noResults'):t('emptyTitle');
+    var sub=searchQuery.length>=2?'':t('emptySub');
+    el.innerHTML='<div class="empty-state"><p>'+msg+'</p><small>'+sub+'</small></div>';
+    return;
+  }
+
+  var h='';
+  for(var i=0;i<filtered.length;i++){
+    var c=filtered[i];
+    var addr=[c.city,c.state].filter(Boolean).join(', ');
+    h+='<div class="client-card" onclick="showDetail(\''+c.id+'\')">';
+    h+='<div class="client-head"><span class="client-name">'+esc(c.name||'')+'</span>';
+    if(c.taxId)h+='<span style="font-size:10px;color:var(--dim);font-family:\'JetBrains Mono\',monospace">'+esc(c.taxId)+'</span>';
+    h+='</div>';
+    h+='<div class="client-info">';
+    if(c.contact)h+=esc(c.contact);
+    if(c.contact&&c.phone)h+=' -- ';
+    if(c.phone)h+=esc(c.phone);
+    h+='</div>';
+    if(addr)h+='<div class="client-meta"><span>'+esc(addr)+'</span></div>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+/* =============== FORM =============== */
+function showNewClientForm(){
+  document.getElementById('editClientId').value='';
+  document.getElementById('formTitle').textContent=t('formTitleNew');
+  ['fName','fContact','fPhone','fEmail','fTaxId','fAddress','fCity','fState','fZip','fNotes'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('fCountry').value='US';
+  document.getElementById('clientFormOverlay').classList.add('visible');
+}
+
+function editClient(id){
+  var c=null;
+  for(var i=0;i<clients.length;i++){if(clients[i].id===id){c=clients[i];break;}}
+  if(!c)return;
+  document.getElementById('editClientId').value=id;
+  document.getElementById('formTitle').textContent=t('formTitleEdit');
+  document.getElementById('fName').value=c.name||'';
+  document.getElementById('fContact').value=c.contact||'';
+  document.getElementById('fPhone').value=c.phone||'';
+  document.getElementById('fEmail').value=c.email||'';
+  document.getElementById('fTaxId').value=c.taxId||'';
+  document.getElementById('fAddress').value=c.address||'';
+  document.getElementById('fCity').value=c.city||'';
+  document.getElementById('fState').value=c.state||'';
+  document.getElementById('fZip').value=c.zip||'';
+  document.getElementById('fCountry').value=c.country||'US';
+  document.getElementById('fNotes').value=c.notes||'';
+  document.getElementById('clientFormOverlay').classList.add('visible');
+  closeDetail();
+}
+
+function closeForm(){
+  document.getElementById('clientFormOverlay').classList.remove('visible');
+}
+
+function saveClientForm(){
+  var name=document.getElementById('fName').value.trim();
+  if(!name){document.getElementById('fName').focus();return;}
+  var id=document.getElementById('editClientId').value||'';
+  var data={
+    name:name,
+    contact:document.getElementById('fContact').value.trim(),
+    phone:document.getElementById('fPhone').value.trim(),
+    email:document.getElementById('fEmail').value.trim(),
+    taxId:document.getElementById('fTaxId').value.trim(),
+    address:document.getElementById('fAddress').value.trim(),
+    city:document.getElementById('fCity').value.trim(),
+    state:document.getElementById('fState').value.trim(),
+    zip:document.getElementById('fZip').value.trim(),
+    country:document.getElementById('fCountry').value.trim()||'US',
+    notes:document.getElementById('fNotes').value.trim()
+  };
+  if(id)data.id=id;
+
+  if(typeof DB!=='undefined'&&DB.saveClient){
+    DB.saveClient(data).then(function(){
+      loadClients();
+      closeForm();
+      showFeedback(t('saved'),'green');
+    });
+  } else {
+    if(id){
+      for(var i=0;i<clients.length;i++){
+        if(clients[i].id===id){clients[i]=Object.assign(clients[i],data,{updatedAt:new Date().toISOString()});break;}
+      }
+    } else {
+      data.id='CLI-'+Date.now();
+      data.createdAt=new Date().toISOString();
+      clients.unshift(data);
+    }
+    LocalCache.set('clients',clients);
+    renderKPIs();renderClients();
+    closeForm();
+    showFeedback(t('saved'),'green');
+  }
+}
+
+/* =============== DETAIL =============== */
+function showDetail(id){
+  var c=null;
+  for(var i=0;i<clients.length;i++){if(clients[i].id===id){c=clients[i];break;}}
+  if(!c)return;
+
+  var addr=[c.address,c.city,c.state,c.zip,c.country].filter(Boolean).join(', ');
+  var h='';
+
+  h+='<div style="margin-bottom:16px">';
+  h+='<div style="font-size:20px;font-weight:800;color:var(--white);font-family:\'Plus Jakarta Sans\',sans-serif;letter-spacing:-.03em">'+esc(c.name||'')+'</div>';
+  if(c.taxId)h+='<div style="font-size:11px;color:var(--dim);font-family:\'JetBrains Mono\',monospace;margin-top:4px">'+esc(c.taxId)+'</div>';
+  h+='</div>';
+
+  h+='<div class="sec"><div class="sec-head"><span class="sec-title">'+t('lblContact')+'</span></div><div class="sec-body">';
+  if(c.contact)h+='<div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px">'+esc(c.contact)+'</div>';
+  if(c.phone)h+='<div style="font-size:12px;color:var(--dim);margin-bottom:2px"><a href="tel:'+esc(c.phone)+'" style="color:var(--cyan);text-decoration:none">'+esc(c.phone)+'</a></div>';
+  if(c.email)h+='<div style="font-size:12px;color:var(--dim)"><a href="mailto:'+esc(c.email)+'" style="color:var(--cyan);text-decoration:none">'+esc(c.email)+'</a></div>';
+  if(!c.contact&&!c.phone&&!c.email)h+='<div style="font-size:11px;color:var(--muted)">--</div>';
+  h+='</div></div>';
+
+  h+='<div class="sec"><div class="sec-head"><span class="sec-title">'+t('lblAddress')+'</span></div><div class="sec-body">';
+  if(addr){
+    h+='<div style="font-size:12px;color:var(--white);line-height:1.5;margin-bottom:8px">'+esc(addr)+'</div>';
+    h+='<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr)+'" target="_blank" style="font-size:11px;color:var(--cyan);text-decoration:none;font-weight:600">Ver en Google Maps &#8599;</a>';
+  } else {
+    h+='<div style="font-size:11px;color:var(--muted)">--</div>';
+  }
+  h+='</div></div>';
+
+  if(c.notes){
+    h+='<div class="sec"><div class="sec-head"><span class="sec-title">'+t('lblNotes')+'</span></div><div class="sec-body">';
+    h+='<div style="font-size:12px;color:var(--dim);line-height:1.5;white-space:pre-wrap">'+esc(c.notes)+'</div>';
+    h+='</div></div>';
+  }
+
+  h+='<div style="font-size:10px;color:var(--muted);margin-bottom:16px">';
+  if(c.createdAt)h+='Creado: '+new Date(c.createdAt).toLocaleDateString();
+  if(c.updatedAt)h+=' | Actualizado: '+new Date(c.updatedAt).toLocaleDateString();
+  h+='</div>';
+
+  h+='<div style="display:flex;gap:8px">';
+  h+='<button class="btn btn-secondary btn-sm" onclick="editClient(\''+c.id+'\')" style="flex:1;justify-content:center">'+t('btnEdit')+'</button>';
+  h+='<button class="btn btn-danger btn-sm" onclick="deleteClient(\''+c.id+'\')" style="justify-content:center">'+t('btnDelete')+'</button>';
+  h+='</div>';
+
+  document.getElementById('detailContent').innerHTML=h;
+  document.getElementById('clientDetailOverlay').classList.add('visible');
+}
+
+function closeDetail(){
+  document.getElementById('clientDetailOverlay').classList.remove('visible');
+}
+
+function deleteClient(id){
+  if(!confirm(t('confirmDel')))return;
+  if(typeof DB!=='undefined'&&DB.deleteClient){
+    DB.deleteClient(id).then(function(){
+      loadClients();
+      closeDetail();
+      showFeedback(t('deleted'),'red');
+    });
+  } else {
+    for(var i=0;i<clients.length;i++){
+      if(clients[i].id===id){clients.splice(i,1);break;}
+    }
+    LocalCache.set('clients',clients);
+    renderKPIs();renderClients();
+    closeDetail();
+    showFeedback(t('deleted'),'red');
+  }
+}
+
+/* =============== FEEDBACK =============== */
+function showFeedback(msg,color){
+  var el=document.createElement('div');
+  el.textContent=msg;
+  el.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;color:#fff;background:'+(color==='green'?'var(--green)':'var(--red)');
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},2500);
+}
+
+/* =============== INIT LANG =============== */
+(function(){
+  if(LANG==='en'){
+    document.getElementById('langES').classList.remove('active');
+    document.getElementById('langEN').classList.add('active');
+  }
+  setTimeout(function(){
+    document.querySelectorAll('[data-t]').forEach(function(el){var k=el.getAttribute('data-t');if(T[k])el.textContent=t(k);});
+    document.querySelectorAll('[data-t-ph]').forEach(function(el){var k=el.getAttribute('data-t-ph');if(T[k])el.placeholder=t(k);});
+  },0);
+  if(document.documentElement.classList.contains('light')){
+    setTimeout(function(){document.getElementById('themeToggle').innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.9 8.8a6 6 0 0 1-6.7-6.7A6 6 0 1 0 13.9 8.8z" stroke="currentColor" stroke-width="1.5"/></svg> DARK';},0);
+  }
+})();
+</script>
+</body>
+</html>

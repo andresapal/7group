@@ -216,6 +216,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link active" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/clientes/" class="mod-link" data-t="modClients">Clientes</a>
   <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
@@ -404,6 +405,7 @@ var T = {
   modInv:        {es:'Inventario',en:'Inventory'},
   modWh:         {es:'Bodega',en:'Warehouse'},
   modDisp:       {es:'Despachos',en:'Dispatches'},
+  modClients:    {es:'Clientes',en:'Clients'},
   modDash:       {es:'Dashboard',en:'Dashboard'},
   tabProducts:   {es:'Productos',en:'Products'},
   tabLots:       {es:'Lotes FIFO/FEFO',en:'Lots FIFO/FEFO'},
@@ -494,6 +496,8 @@ function applyLang() {
   if(whLink) whLink.href='/demos/logistica-pyme/bodega/'+(LANG==='en'?'?lang=en':'');
   var dispLink = document.querySelector('.mod-link[data-t="modDisp"]');
   if(dispLink) dispLink.href='/demos/logistica-pyme/despachos/'+(LANG==='en'?'?lang=en':'');
+  var cliLink = document.querySelector('.mod-link[data-t="modClients"]');
+  if(cliLink) cliLink.href='/demos/logistica-pyme/clientes/'+(LANG==='en'?'?lang=en':'');
   var dashLink = document.querySelector('.mod-link[data-t="modDash"]');
   if(dashLink) dashLink.href='/demos/logistica-pyme/dashboard/'+(LANG==='en'?'?lang=en':'');
 

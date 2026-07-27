@@ -307,6 +307,7 @@ input[type="file"]{display:none}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/clientes/" class="mod-link" data-t="modClients">Clientes</a>
   <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
@@ -428,21 +429,43 @@ input[type="file"]{display:none}
         <!-- Add destination form -->
         <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:12px">
           <div style="font-size:10px;font-weight:700;color:var(--orange);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px" data-t="xdNewDest">Nuevo destino</div>
-          <div class="xd-add-row">
-            <input id="xdDestName" placeholder="Cliente / Nombre...">
-            <input id="xdDestContact" placeholder="Tel contacto...">
+          <div class="xd-add-row" style="position:relative">
+            <input id="xdClientSearch" placeholder="Buscar cliente..." oninput="searchClientXD(this.value)" onfocus="searchClientXD(this.value)" autocomplete="off">
+            <button class="xd-add-btn" onclick="toggleNewClientForm()" id="btnNewClient" style="font-size:10px">+ Nuevo</button>
+            <div id="xdClientResults" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:var(--bg2);border:1px solid var(--border2);border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4)"></div>
           </div>
-          <div class="xd-add-row">
-            <input id="xdDestAddr" placeholder="Direccion..." style="flex:3">
-            <input id="xdDestCity" placeholder="Ciudad..." style="flex:2">
+          <div id="xdClientForm" style="display:none">
+            <div class="xd-add-row">
+              <input id="xdDestName" placeholder="Empresa / Nombre...">
+              <input id="xdDestContact" placeholder="Contacto...">
+            </div>
+            <div class="xd-add-row">
+              <input id="xdDestPhone" placeholder="Tel / WhatsApp...">
+              <input id="xdDestEmail" placeholder="Email..." style="flex:2">
+            </div>
+            <div class="xd-add-row">
+              <input id="xdDestTaxId" placeholder="Tax ID / NIT / EIN...">
+            </div>
+            <div class="xd-add-row">
+              <input id="xdDestAddr" placeholder="Direccion..." style="flex:3">
+              <input id="xdDestCity" placeholder="Ciudad..." style="flex:2">
+            </div>
+            <div class="xd-add-row">
+              <input id="xdDestState" placeholder="Estado..." style="flex:2">
+              <input id="xdDestZip" placeholder="ZIP code..." style="flex:1">
+            </div>
+            <div class="xd-add-row">
+              <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--dim);cursor:pointer">
+                <input type="checkbox" id="xdSaveClient" checked style="accent-color:var(--orange)">
+                <span data-t="xdSaveClient">Guardar como cliente</span>
+              </label>
+            </div>
+            <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:4px">
+              <button class="xd-add-btn" onclick="cancelClientForm()" style="background:transparent;border-color:var(--border2);color:var(--dim)">Cancelar</button>
+              <button class="xd-add-btn" onclick="addXDDestination()" data-t="xdAddDest">+ Agregar destino</button>
+            </div>
           </div>
-          <div class="xd-add-row">
-            <input id="xdDestState" placeholder="Estado..." style="flex:2">
-            <input id="xdDestZip" placeholder="ZIP code..." style="flex:1">
-          </div>
-          <div style="display:flex;justify-content:flex-end;margin-top:4px">
-            <button class="xd-add-btn" onclick="addXDDestination()" data-t="xdAddDest">+ Agregar destino</button>
-          </div>
+          <div id="xdSelectedClient" style="display:none"></div>
         </div>
         <div id="xdAlerts"></div>
         <div id="xdDestList"></div>
@@ -525,7 +548,13 @@ function handleCredentialResponse(response) {
 function unlockApp() {
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('appWrap').classList.add('visible');
+  if (typeof DB !== 'undefined' && DB.getClients) DB.getClients().catch(function(){});
 }
+document.addEventListener('click', function(e) {
+  var res = document.getElementById('xdClientResults');
+  var search = document.getElementById('xdClientSearch');
+  if (res && search && !res.contains(e.target) && e.target !== search) res.style.display = 'none';
+});
 function initGoogleAuth() {
   if (typeof google === 'undefined' || !google.accounts) { setTimeout(initGoogleAuth, 200); return; }
   google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
@@ -605,6 +634,13 @@ var T = {
   xdTotalXD:   {es:'Total cross-dock',            en:'Total cross-dock'},
   xdTotalWH:   {es:'Total a bodega',              en:'Total to warehouse'},
   xdDests:     {es:'Destinos',                    en:'Destinations'},
+  xdSearchClient:{es:'Buscar cliente...',          en:'Search client...'},
+  xdNewClient: {es:'+ Nuevo',                     en:'+ New'},
+  xdSaveClient:{es:'Guardar como cliente',         en:'Save as client'},
+  xdClientSaved:{es:'Cliente guardado',            en:'Client saved'},
+  xdModeIndiv: {es:'Entregas individuales',        en:'Individual deliveries'},
+  xdModeRoute: {es:'Ruta en vehiculo',             en:'Vehicle route'},
+  xdNewDest:   {es:'Nuevo destino',                en:'New destination'},
   btnPDF:      {es:'Pre-recibo PDF',              en:'Pre-receipt PDF'},
   pdfTitle:    {es:'Pre-Recibo de Mercancia',     en:'Pre-Receipt of Goods'},
   pdfShipment: {es:'Envio',                       en:'Shipment'},
@@ -634,7 +670,7 @@ var T = {
   authDesc:    {es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
   authError:   {es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
   authFooter:  {es:'Solo personal autorizado',    en:'Authorized personnel only'},
-  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modDash:{es:'Dashboard',en:'Dashboard'}
+  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modClients:{es:'Clientes',en:'Clients'},modDash:{es:'Dashboard',en:'Dashboard'}
 };
 
 function t(k) { return T[k] ? (T[k][LANG] || T[k].en) : k; }
@@ -656,6 +692,7 @@ function applyLang() {
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
+  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/logistica-pyme/clientes/'+lp;
   document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
 
   renderShipmentsList();
@@ -1586,6 +1623,122 @@ function wazeLink(fullAddr) {
   return 'https://waze.com/ul?q=' + encodeURIComponent(fullAddr);
 }
 
+var selectedClientId = null;
+
+function searchClientXD(query) {
+  var el = document.getElementById('xdClientResults');
+  if (!query || query.length < 2 || typeof DB === 'undefined' || !DB.searchClients) {
+    el.style.display = 'none'; return;
+  }
+  var results = DB.searchClients(query);
+  if (results.length === 0) {
+    el.style.display = 'none'; return;
+  }
+  var h = '';
+  for (var i = 0; i < results.length; i++) {
+    var c = results[i];
+    var sub = [c.city, c.state].filter(Boolean).join(', ');
+    h += '<div onclick="selectClientXD(\'' + c.id + '\')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:.15s" onmouseover="this.style.background=\'rgba(249,115,22,.1)\'" onmouseout="this.style.background=\'transparent\'">';
+    h += '<div style="font-size:12px;font-weight:700;color:var(--white)">' + (c.name || '') + '</div>';
+    if (c.contact) h += '<div style="font-size:10px;color:var(--dim)">' + c.contact + (c.phone ? ' -- ' + c.phone : '') + '</div>';
+    if (sub) h += '<div style="font-size:10px;color:var(--dim)">' + sub + '</div>';
+    h += '</div>';
+  }
+  el.innerHTML = h;
+  el.style.display = 'block';
+}
+
+function selectClientXD(clientId) {
+  var clients = (typeof DB !== 'undefined') ? LocalCache.get('clients') : [];
+  var c = null;
+  for (var i = 0; i < clients.length; i++) { if (clients[i].id === clientId) { c = clients[i]; break; } }
+  if (!c) return;
+
+  selectedClientId = clientId;
+  document.getElementById('xdClientResults').style.display = 'none';
+  document.getElementById('xdClientSearch').value = '';
+  document.getElementById('xdClientForm').style.display = 'none';
+
+  var addr = [c.address, c.city, c.state, c.zip].filter(Boolean).join(', ');
+  var h = '<div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:8px;padding:10px 12px;margin-bottom:8px">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center">';
+  h += '<div><div style="font-size:13px;font-weight:700;color:var(--orange)">' + (c.name || '') + '</div>';
+  if (c.contact) h += '<div style="font-size:11px;color:var(--dim)">' + c.contact + (c.phone ? ' -- ' + c.phone : '') + '</div>';
+  if (addr) h += '<div style="font-size:10px;color:var(--dim);margin-top:2px">' + addr + '</div>';
+  h += '</div>';
+  h += '<button onclick="clearSelectedClient()" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:4px">&#10005;</button>';
+  h += '</div>';
+  h += '<div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end">';
+  h += '<button class="xd-add-btn" onclick="addXDFromClient()">' + t('xdAddDest') + '</button>';
+  h += '</div></div>';
+
+  document.getElementById('xdSelectedClient').innerHTML = h;
+  document.getElementById('xdSelectedClient').style.display = 'block';
+}
+
+function addXDFromClient() {
+  var clients = (typeof DB !== 'undefined') ? LocalCache.get('clients') : [];
+  var c = null;
+  for (var i = 0; i < clients.length; i++) { if (clients[i].id === selectedClientId) { c = clients[i]; break; } }
+  if (!c) return;
+
+  var dest = {
+    id: 'XD-' + Date.now(),
+    clientId: c.id,
+    name: c.name || '',
+    contact: c.contact || '',
+    phone: c.phone || '',
+    email: c.email || '',
+    taxId: c.taxId || '',
+    address: c.address || '',
+    city: c.city || '',
+    state: c.state || '',
+    zip: c.zip || '',
+    items: {},
+    order: xdDestinations.length
+  };
+  xdDestinations.push(dest);
+  clearSelectedClient();
+  renderXDDestinations();
+  checkXDInventoryAlerts();
+  renderXDSummary();
+  saveWIP();
+}
+
+function clearSelectedClient() {
+  selectedClientId = null;
+  document.getElementById('xdSelectedClient').style.display = 'none';
+  document.getElementById('xdSelectedClient').innerHTML = '';
+}
+
+function toggleNewClientForm() {
+  var form = document.getElementById('xdClientForm');
+  var isVisible = form.style.display !== 'none';
+  form.style.display = isVisible ? 'none' : 'block';
+  document.getElementById('xdClientResults').style.display = 'none';
+  clearSelectedClient();
+  if (!isVisible) {
+    var search = document.getElementById('xdClientSearch').value.trim();
+    if (search.length > 0) {
+      document.getElementById('xdDestName').value = search;
+      document.getElementById('xdClientSearch').value = '';
+    }
+    document.getElementById('xdDestName').focus();
+  }
+}
+
+function cancelClientForm() {
+  document.getElementById('xdClientForm').style.display = 'none';
+  clearFormFields();
+}
+
+function clearFormFields() {
+  ['xdDestName','xdDestContact','xdDestPhone','xdDestEmail','xdDestTaxId','xdDestAddr','xdDestCity','xdDestState','xdDestZip'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
 function addXDDestination() {
   var name = document.getElementById('xdDestName').value.trim();
   if (!name) { document.getElementById('xdDestName').focus(); return; }
@@ -1593,6 +1746,9 @@ function addXDDestination() {
     id: 'XD-' + Date.now(),
     name: name,
     contact: document.getElementById('xdDestContact').value.trim(),
+    phone: (document.getElementById('xdDestPhone') || {}).value || '',
+    email: (document.getElementById('xdDestEmail') || {}).value || '',
+    taxId: (document.getElementById('xdDestTaxId') || {}).value || '',
     address: document.getElementById('xdDestAddr').value.trim(),
     city: document.getElementById('xdDestCity').value.trim(),
     state: document.getElementById('xdDestState').value.trim(),
@@ -1600,13 +1756,22 @@ function addXDDestination() {
     items: {},
     order: xdDestinations.length
   };
+
+  var saveCheck = document.getElementById('xdSaveClient');
+  if (saveCheck && saveCheck.checked && typeof DB !== 'undefined' && DB.saveClient) {
+    DB.saveClient({
+      name: dest.name, contact: dest.contact, phone: dest.phone,
+      email: dest.email, taxId: dest.taxId, address: dest.address,
+      city: dest.city, state: dest.state, zip: dest.zip
+    }).then(function(res) {
+      dest.clientId = res.id;
+      saveWIP();
+    });
+  }
+
   xdDestinations.push(dest);
-  document.getElementById('xdDestName').value = '';
-  document.getElementById('xdDestContact').value = '';
-  document.getElementById('xdDestAddr').value = '';
-  document.getElementById('xdDestCity').value = '';
-  document.getElementById('xdDestState').value = '';
-  document.getElementById('xdDestZip').value = '';
+  clearFormFields();
+  document.getElementById('xdClientForm').style.display = 'none';
   renderXDDestinations();
   checkXDInventoryAlerts();
   renderXDSummary();
