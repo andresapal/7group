@@ -906,25 +906,41 @@ function extractDocument(dataURL, fileName) {
     var arr = new Uint8Array(raw.length);
     for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
     pdfjsLib.getDocument({data: arr}).promise.then(function(pdf) {
-      var allText = '';
+      var pageTexts = new Array(pdf.numPages);
       var pending = pdf.numPages;
       for (var p = 1; p <= pdf.numPages; p++) {
         (function(pageNum) {
           pdf.getPage(pageNum).then(function(page) {
             page.getTextContent().then(function(tc) {
-              var lines = [];
-              var lastY = null;
-              for (var ti = 0; ti < tc.items.length; ti++) {
-                var item = tc.items[ti];
-                var y = Math.round(item.transform[5]);
-                if (lastY !== null && Math.abs(y - lastY) > 3) lines.push('\n');
-                lines.push(item.str);
-                if (item.hasEOL) lines.push('\n');
-                lastY = y;
+              var items = tc.items.filter(function(it){return it.str.trim().length>0;});
+              items.sort(function(a,b){
+                var ya=Math.round(a.transform[5]),yb=Math.round(b.transform[5]);
+                if(Math.abs(ya-yb)>3) return yb-ya;
+                return a.transform[4]-b.transform[4];
+              });
+              var pageLines=[],curLine='',lastY=null,lastRight=0;
+              for(var ti=0;ti<items.length;ti++){
+                var item=items[ti];
+                var y=Math.round(item.transform[5]);
+                var x=Math.round(item.transform[4]);
+                if(lastY!==null && Math.abs(y-lastY)>3){
+                  if(curLine) pageLines.push(curLine);
+                  curLine='';lastRight=0;
+                }
+                if(curLine.length>0 && x-lastRight>30){
+                  curLine+='\t';
+                } else if(curLine.length>0){
+                  curLine+=' ';
+                }
+                curLine+=item.str;
+                lastRight=x+(item.width||0);
+                lastY=y;
               }
-              allText += lines.join(' ') + '\n---PAGE---\n';
+              if(curLine) pageLines.push(curLine);
+              pageTexts[pageNum-1]=pageLines.join('\n');
               pending--;
-              if (pending === 0) {
+              if(pending===0){
+                var allText=pageTexts.join('\n---PAGE---\n');
                 extractedData = parseDocumentText(allText);
                 finishExtraction(status, text);
               }
@@ -951,7 +967,7 @@ function parseDocumentText(txt) {
   console.log('=== END RAW TEXT ===');
 
   var lines = txt.replace(/\r/g,'').split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>0 && !/^---PAGE---$/.test(l);});
-  var full = lines.join(' ');
+  var full = lines.join(' ').replace(/\t/g,' ');
 
   var docType = 'Document';
   if (/air\s*waybill|guia\s*aerea|\bawb\b/i.test(full)) docType = 'Air Waybill (AWB)';
@@ -966,14 +982,29 @@ function parseDocumentText(txt) {
   if (!blNumber) { m = full.match(/(?:AWB|MAWB|HAWB)[\s#:\-]*([A-Z0-9][\w\-]{5,})/i); if (m) blNumber = m[1]; }
   if (!blNumber) { m = full.match(/(?:B\/L|BL)[\s#:\-]*([A-Z0-9][\w\-]{5,})/i); if (m) blNumber = m[1]; }
 
+  var labelNoise = /\b(shipper|expedidor|exporter|remitente|consignee|consignatario|destinatario|notify|origin|origen|destination|destino|flight|vuelo|vessel|buque|voyage|warehouse|bodega|weight|peso|bruto|volume|volumen|declared|value|special|handling|pieces|bultos|number|numero|awb|mawb|hawb|date|fecha|port|discharge|descarga|airport|air|waybill|guia|aerea|gross|total|bill|lading|conocimiento|embarque)\b/gi;
+
   function grabAfterLabel(labelRe) {
     for (var i=0;i<lines.length;i++) {
-      if (labelRe.test(lines[i])) {
-        var sameLineVal = lines[i].replace(labelRe,'').replace(/^[\s:\/]+/,'').trim();
-        if (sameLineVal.length>3 && /[a-zA-Z]/.test(sameLineVal) && !/^\d+$/.test(sameLineVal)) return sameLineVal.substring(0,80);
+      var cols = lines[i].split('\t');
+      for (var ci=0;ci<cols.length;ci++) {
+        if (!labelRe.test(cols[ci])) continue;
+        var val = cols[ci].replace(labelNoise,'').replace(/[\/:()]+/g,' ').replace(/\s+/g,' ').trim();
+        if (val.length>3 && /[a-zA-Z]/.test(val) && !/^\d+$/.test(val)) return val.substring(0,80);
         for (var j=i+1;j<Math.min(i+5,lines.length);j++) {
-          var c = lines[j].trim();
-          if (c.length>3 && /[a-zA-Z]/.test(c) && !/^\d+[\s]*$/.test(c) && !/^(AWB|BL|MAWB|Date|No\.|#)/i.test(c)) return c.substring(0,80);
+          var nextCols = lines[j].split('\t');
+          var target = ci<nextCols.length ? nextCols[ci].trim() : '';
+          if (target.length>3 && /[a-zA-Z]/.test(target) && !/^\d+$/.test(target)) {
+            var stripped = target.replace(labelNoise,'').trim();
+            if (stripped.length>3) return target.substring(0,80);
+          }
+          for (var nci=0;nci<nextCols.length;nci++) {
+            var nc = nextCols[nci].trim();
+            if (nc.length>3 && /[a-zA-Z]/.test(nc) && !/^\d+$/.test(nc)) {
+              var ns = nc.replace(labelNoise,'').trim();
+              if (ns.length>3) return nc.substring(0,80);
+            }
+          }
         }
       }
     }
@@ -986,10 +1017,10 @@ function parseDocumentText(txt) {
   var vessel = grabAfterLabel(/flight|vuelo|vessel|buque|voyage/i);
   var port = grabAfterLabel(/port\s*of\s*discharge|puerto\s*de\s*descarga|airport\s*of\s*dest|dest\.?\s*airport/i);
   if (!port) port = grabAfterLabel(/destination|destino/i);
-  if (!port) { m = full.match(/([A-Z]{3})\s*[\-\u2013]\s*([A-Z][A-Za-z ]+)/); if (m) port = m[1]+' - '+m[2].trim(); }
+  if (!port) { m = full.match(/([A-Z]{3})\s*[\-–]\s*([A-Z][A-Za-z, ]+)/); if (m) port = m[1]+' - '+m[2].trim(); }
 
   var totalWeight = '';
-  m = full.match(/(?:gross\s*weight|peso\s*bruto|total\s*weight|chargeable\s*weight|actual\s*weight)[^\n]*?([\d,\.]+)\s*(kg|lbs?|tons?|kilos?)/i);
+  m = full.match(/(?:gross\s*weight|peso\s*bruto|total\s*weight|chargeable\s*weight|actual\s*weight)[^\t\n]*?([\d,\.]+)\s*(kg|lbs?|tons?|kilos?)/i);
   if (m) totalWeight = m[1]+' '+m[2];
   if (!totalWeight) { m = full.match(/([\d,\.]+)\s*(kg|lbs)\b/i); if (m) totalWeight = m[1]+' '+m[2]; }
 
@@ -1018,21 +1049,11 @@ function parseDocumentText(txt) {
     }
   }
 
-  if (items.length === 0) {
-    for (var li = 0; li < lines.length; li++) {
-      var tabRow = lines[li].match(/^(\d+)\s+(.{3,40}?)\s+(\d{1,6})\s/);
-      if (tabRow) {
-        var rowSku = 'ITEM-' + String(items.length + 1).padStart(3, '0');
-        items.push({ sku: rowSku, name: tabRow[2].trim(), qty: parseInt(tabRow[3]), weight: '' });
-      }
-    }
-  }
-
   console.log('=== PARSED RESULT ===');
   console.log('docType:', docType, '| blNumber:', blNumber, '| supplier:', supplier);
   console.log('consignee:', consignee, '| vessel:', vessel, '| port:', port);
   console.log('weight:', totalWeight, '| items:', items.length);
-  if (items.length > 0) console.log('First 3 items:', JSON.stringify(items.slice(0, 3)));
+  if (items.length>0) console.log('First 3 items:', JSON.stringify(items.slice(0,3)));
 
   return {
     docType: docType,
@@ -1047,34 +1068,44 @@ function parseDocumentText(txt) {
 }
 
 function extractItemInfo(sku, lines) {
-  var desc='', qty=0, wt='';
+  var desc='',qty=0,wt='';
   for (var i=0;i<lines.length;i++) {
-    var idx = lines[i].indexOf(sku);
-    if (idx < 0) continue;
-    var after = lines[i].substring(idx + sku.length).trim();
-    var dm = after.match(/([A-Za-z][A-Za-z0-9 \/\-"'.&]+[A-Za-z0-9"'])/);
-    if (dm && dm[1].length > 3) desc = dm[1].trim().substring(0, 60);
-    var nums = after.match(/\b(\d{1,6})\b/g);
-    if (nums) {
-      for (var ni=0;ni<nums.length;ni++) {
-        var n=parseInt(nums[ni]);
-        if (n>=1 && n<=99999){qty=n;break;}
+    if (lines[i].indexOf(sku)<0) continue;
+    var cols = lines[i].split('\t');
+    if (cols.length>=3) {
+      var skuCol=-1;
+      for (var c=0;c<cols.length;c++){if(cols[c].indexOf(sku)>=0){skuCol=c;break;}}
+      for (var c2=skuCol+1;c2<cols.length;c2++){
+        var cv=cols[c2].trim();
+        if (!desc && cv.length>3 && /[a-zA-Z]/.test(cv) && !/^\d+$/.test(cv)) desc=cv.substring(0,60);
+        else if (!qty && /^\d{1,6}$/.test(cv)) qty=parseInt(cv);
+        var wm=cv.match(/([\d,.]+)\s*(kg|lbs?)\b/i);
+        if (wm && !wt) wt=wm[1]+' '+wm[2];
       }
+      if (desc||qty) return {desc:desc,qty:qty,wt:wt};
+    }
+    var idx=lines[i].indexOf(sku);
+    var after=lines[i].substring(idx+sku.length).trim();
+    var dm=after.match(/([A-Za-z][A-Za-z0-9 \/\-"'.&]+[A-Za-z0-9"'])/);
+    if (dm && dm[1].length>3) desc=dm[1].trim().substring(0,60);
+    var qtyRe=/\b(\d{1,6})\b(?!\s*(?:GB|TB|MB|MHz|GHz|mm|cm|"|inch|mAh|dpi|MP))/g;
+    var qm;
+    while ((qm=qtyRe.exec(after))!==null){
+      var n=parseInt(qm[1]);
+      if (n>=10 && n<=99999){qty=n;break;}
     }
     if (!qty) {
-      var before = lines[i].substring(0,idx).trim();
-      nums = before.match(/\b(\d{1,6})\b/g);
-      if (nums) qty = parseInt(nums[nums.length-1]);
+      for (var j=i+1;j<Math.min(i+4,lines.length);j++){
+        var nxt=lines[j].trim();
+        if (/^\d{1,6}$/.test(nxt)){qty=parseInt(nxt);break;}
+        if (!desc && nxt.length>3 && /[a-zA-Z]/.test(nxt) && !/^[A-Z]{2,4}-/.test(nxt)) desc=nxt.substring(0,60);
+      }
     }
-    var wm = after.match(/([\d,.]+)\s*(kg|lbs?)\b/i);
-    if (wm) wt = wm[1]+' '+wm[2];
-    if (!desc && i+1<lines.length) {
-      var nxt = lines[i+1].trim();
-      if (nxt.length>3 && /[a-zA-Z]/.test(nxt) && !/^[A-Z]{2,4}-/.test(nxt)) desc = nxt.substring(0,60);
-    }
+    var wm2=after.match(/([\d,.]+)\s*(kg|lbs?)\b/i);
+    if (wm2) wt=wm2[1]+' '+wm2[2];
     break;
   }
-  return {desc:desc, qty:qty, wt:wt};
+  return {desc:desc,qty:qty,wt:wt};
 }
 
 function finishExtraction(status, text) {
