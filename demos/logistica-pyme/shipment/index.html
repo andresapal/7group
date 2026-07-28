@@ -189,7 +189,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .xd-field-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:3px;display:block}
 .xd-field-group{display:flex;flex-direction:column;flex:1;min-width:0}
 .xd-add-btn{padding:8px 14px;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.3);border-radius:6px;color:var(--orange);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
-@media(max-width:420px){.xd-add-row{flex-direction:column}.xd-add-row input,.xd-add-row select,.xd-field-group{flex:none;width:100%}}
+@media(max-width:480px){.xd-add-row{flex-direction:column;gap:4px}.xd-add-row input,.xd-add-row select,.xd-field-group{flex:none;width:100%}#xdClientForm{padding:8px;background:var(--bg2);border-radius:8px;border:1px solid var(--border2)}}
 .xd-assign-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
 .xd-assign-row select{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:11px;color:var(--white);font-family:inherit;outline:none;-webkit-appearance:none;appearance:none}
 .xd-assign-row input[type=number]{width:60px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:12px;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center;outline:none}
@@ -442,19 +442,23 @@ input[type="file"]{display:none}
               <input id="xdDestContact" placeholder="Contacto...">
             </div>
             <div class="xd-add-row">
-              <input id="xdDestPhone" placeholder="Tel / WhatsApp...">
+              <select id="xdPhoneCountry" style="flex:0 0 90px" onchange="updatePhoneMask()"><option value="US">US +1</option><option value="CO">CO +57</option></select>
+              <input id="xdDestPhone" placeholder="(000) 000-0000" maxlength="14" oninput="formatPhoneXD(this)">
               <input id="xdDestEmail" placeholder="Email..." style="flex:2">
             </div>
             <div class="xd-add-row">
               <input id="xdDestTaxId" placeholder="Tax ID / NIT / EIN...">
             </div>
             <div class="xd-add-row">
-              <input id="xdDestAddr" placeholder="Direccion..." style="flex:3">
-              <input id="xdDestCity" placeholder="Ciudad..." style="flex:2">
+              <input id="xdDestAddr" placeholder="Address line 1..." style="flex:1">
             </div>
             <div class="xd-add-row">
-              <input id="xdDestState" placeholder="Estado..." style="flex:2">
-              <input id="xdDestZip" placeholder="ZIP code..." style="flex:1">
+              <input id="xdDestAddr2" placeholder="Apt, suite, unit, floor (optional)..." style="flex:1">
+            </div>
+            <div class="xd-add-row">
+              <input id="xdDestCity" placeholder="City..." style="flex:2">
+              <select id="xdDestState" style="flex:2"><option value="">State...</option></select>
+              <input id="xdDestZip" placeholder="ZIP..." style="flex:1" maxlength="10">
             </div>
             <div class="xd-add-row">
               <label style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--dim);cursor:pointer">
@@ -567,6 +571,35 @@ function initGoogleAuth() {
   if (saved && ALLOWED_EMAILS.indexOf(saved) !== -1) unlockApp();
   else initGoogleAuth();
 })();
+
+/* =============== PHONE FORMAT =============== */
+function updatePhoneMask(){
+  var c=document.getElementById('xdPhoneCountry').value;
+  var p=document.getElementById('xdDestPhone');
+  p.value='';
+  if(c==='US'){p.placeholder='(000) 000-0000';p.maxLength=14;}
+  else{p.placeholder='300 000 0000';p.maxLength=12;}
+}
+function formatPhoneXD(el){
+  var c=document.getElementById('xdPhoneCountry').value;
+  var d=el.value.replace(/\D/g,'');
+  if(c==='US'){
+    if(d.length>10)d=d.slice(0,10);
+    if(d.length>=7)el.value='('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6);
+    else if(d.length>=4)el.value='('+d.slice(0,3)+') '+d.slice(3);
+    else if(d.length>0)el.value='('+d;
+    else el.value='';
+  }else{
+    if(d.length>10)d=d.slice(0,10);
+    if(d.length>=7)el.value=d.slice(0,3)+' '+d.slice(3,6)+' '+d.slice(6);
+    else if(d.length>=4)el.value=d.slice(0,3)+' '+d.slice(3);
+    else el.value=d;
+  }
+}
+
+/* =============== US STATES =============== */
+var US_STATES=[['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming'],['DC','Washington DC'],['PR','Puerto Rico']];
+(function(){var sel=document.getElementById('xdDestState');if(!sel)return;US_STATES.forEach(function(s){var o=document.createElement('option');o.value=s[0];o.textContent=s[0]+' - '+s[1];sel.appendChild(o);});})();
 
 /* =============== LANGUAGE =============== */
 var LANG = 'es';
@@ -1813,23 +1846,19 @@ function searchClientXD(query) {
     el.style.display = 'none'; return;
   }
 
-  if (!contactsLoaded && !contactsToken) {
-    el.innerHTML = '<div style="padding:12px;text-align:center"><button class="xd-add-btn" onclick="initContactsToken(function(){searchClientXD(document.getElementById(\'xdClientSearch\').value)})">' + (LANG==='es'?'Conectar contactos Google':'Connect Google contacts') + '</button></div>';
-    el.style.display = 'block';
-    return;
-  }
-
   var q = query.toLowerCase();
   var results = [];
 
-  for (var i = 0; i < googleContacts.length; i++) {
-    var gc = googleContacts[i];
-    if ((gc.name || '').toLowerCase().indexOf(q) !== -1 ||
-        (gc.contact || '').toLowerCase().indexOf(q) !== -1 ||
-        (gc.phone || '').indexOf(q) !== -1 ||
-        (gc.city || '').toLowerCase().indexOf(q) !== -1) {
-      results.push(gc);
-      if (results.length >= 10) break;
+  if (contactsLoaded || contactsToken) {
+    for (var i = 0; i < googleContacts.length; i++) {
+      var gc = googleContacts[i];
+      if ((gc.name || '').toLowerCase().indexOf(q) !== -1 ||
+          (gc.contact || '').toLowerCase().indexOf(q) !== -1 ||
+          (gc.phone || '').indexOf(q) !== -1 ||
+          (gc.city || '').toLowerCase().indexOf(q) !== -1) {
+        results.push(gc);
+        if (results.length >= 10) break;
+      }
     }
   }
 
@@ -1842,7 +1871,14 @@ function searchClientXD(query) {
   }
 
   if (results.length === 0) {
-    el.style.display = 'none'; return;
+    var connectHtml = '';
+    if (!contactsLoaded && !contactsToken) {
+      connectHtml = '<div style="padding:8px 12px;border-top:1px solid var(--border);text-align:center"><button class="xd-add-btn" style="font-size:10px" onclick="initContactsToken(function(){searchClientXD(document.getElementById(\'xdClientSearch\').value)})">' + (LANG==='es'?'Conectar Google Contacts':'Connect Google Contacts') + '</button></div>';
+    }
+    if (!connectHtml) { el.style.display = 'none'; return; }
+    el.innerHTML = connectHtml;
+    el.style.display = 'block';
+    return;
   }
 
   var h = '';
@@ -1882,7 +1918,8 @@ function selectContactXD(idx) {
   h += '</div>';
   h += '<button onclick="clearSelectedClient()" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:4px">&#10005;</button>';
   h += '</div>';
-  h += '<div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end">';
+  h += '<div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end;flex-wrap:wrap">';
+  h += '<button class="xd-add-btn" style="background:transparent;border-color:var(--border2);color:var(--dim)" onclick="addExtraAddressForContact()">' + (LANG==='es'?'+ Otro punto de entrega':'+ Another delivery point') + '</button>';
   h += '<button class="xd-add-btn" onclick="addXDFromContact()">' + t('xdAddDest') + '</button>';
   h += '</div></div>';
 
@@ -1918,6 +1955,25 @@ function addXDFromContact() {
   saveWIP();
 }
 
+function addExtraAddressForContact() {
+  var c = selectedContactData;
+  if (!c) return;
+  document.getElementById('xdSelectedClient').style.display = 'none';
+  var form = document.getElementById('xdClientForm');
+  form.style.display = 'block';
+  document.getElementById('xdDestName').value = c.name || '';
+  document.getElementById('xdDestContact').value = c.contact || '';
+  document.getElementById('xdDestPhone').value = '';
+  document.getElementById('xdDestEmail').value = c.email || '';
+  document.getElementById('xdDestTaxId').value = c.taxId || '';
+  document.getElementById('xdDestAddr').value = '';
+  document.getElementById('xdDestAddr2').value = '';
+  document.getElementById('xdDestCity').value = '';
+  document.getElementById('xdDestState').value = '';
+  document.getElementById('xdDestZip').value = '';
+  document.getElementById('xdDestAddr').focus();
+}
+
 function clearSelectedClient() {
   selectedClientId = null;
   selectedContactData = null;
@@ -1947,7 +2003,7 @@ function cancelClientForm() {
 }
 
 function clearFormFields() {
-  ['xdDestName','xdDestContact','xdDestPhone','xdDestEmail','xdDestTaxId','xdDestAddr','xdDestCity','xdDestState','xdDestZip'].forEach(function(id) {
+  ['xdDestName','xdDestContact','xdDestPhone','xdDestEmail','xdDestTaxId','xdDestAddr','xdDestAddr2','xdDestCity','xdDestState','xdDestZip'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -1960,12 +2016,13 @@ function addXDDestination() {
     id: 'XD-' + Date.now(),
     name: name,
     contact: document.getElementById('xdDestContact').value.trim(),
-    phone: (document.getElementById('xdDestPhone') || {}).value || '',
+    phone: (document.getElementById('xdPhoneCountry').value==='US'?'+1 ':'+57 ')+(document.getElementById('xdDestPhone')||{}).value||'',
     email: (document.getElementById('xdDestEmail') || {}).value || '',
     taxId: (document.getElementById('xdDestTaxId') || {}).value || '',
     address: document.getElementById('xdDestAddr').value.trim(),
+    address2: (document.getElementById('xdDestAddr2') || {}).value || '',
     city: document.getElementById('xdDestCity').value.trim(),
-    state: document.getElementById('xdDestState').value.trim(),
+    state: document.getElementById('xdDestState').value,
     zip: document.getElementById('xdDestZip').value.trim(),
     items: {},
     order: xdDestinations.length
@@ -1976,7 +2033,7 @@ function addXDDestination() {
     DB.saveClient({
       name: dest.name, contact: dest.contact, phone: dest.phone,
       email: dest.email, taxId: dest.taxId, address: dest.address,
-      city: dest.city, state: dest.state, zip: dest.zip
+      address2: dest.address2, city: dest.city, state: dest.state, zip: dest.zip
     }).then(function(res) {
       dest.clientId = res.id;
       saveWIP();

@@ -275,6 +275,13 @@ input[type="file"]{display:none}
   </button>
 
   <div class="sec" id="detailHeader"></div>
+  <div class="sec" id="recvXdSection" style="display:none">
+    <div class="sec-head">
+      <div class="sec-title">Cross-Dock Destinations</div>
+      <span class="sec-tag tag-progress" id="recvXdCount">0</span>
+    </div>
+    <div class="sec-body" id="recvXdList"></div>
+  </div>
 
   <div class="sec">
     <div class="sec-head">
@@ -649,6 +656,7 @@ function openDetail(shipId){
   document.getElementById('viewRecv').style.display='none';
   document.getElementById('viewDetail').style.display='block';
   renderDetailHeader();
+  renderRecvXD();
   renderRecvItems();
   document.getElementById('locAssignSec').style.display='none';
 }
@@ -702,6 +710,30 @@ function renderDetailHeader(){
   h+='<div><span style="color:var(--dim)">'+date.toLocaleDateString()+'</span><br><strong>'+s.totalWeight+'</strong></div>';
   h+='</div>';
   document.getElementById('detailHeader').innerHTML=h;
+}
+
+function renderRecvXD(){
+  var sec=document.getElementById('recvXdSection');
+  var s=currentDetail;
+  if(!s||!s.crossDock||!s.xdDestinations||s.xdDestinations.length===0){sec.style.display='none';return;}
+  sec.style.display='block';
+  document.getElementById('recvXdCount').textContent=s.xdDestinations.length;
+  var h='';
+  for(var d=0;d<s.xdDestinations.length;d++){
+    var dest=s.xdDestinations[d];
+    var addr=[dest.address,dest.city,dest.state,dest.zip].filter(Boolean).join(', ');
+    var itemCount=0;for(var k in dest.items)itemCount+=parseInt(dest.items[k])||0;
+    h+='<div style="padding:8px 0;border-bottom:1px solid var(--border)">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    h+='<div><strong style="font-size:12px;color:var(--white)">'+(dest.name||'--')+'</strong>';
+    if(dest.phone)h+='<span style="font-size:10px;color:var(--dim);margin-left:8px">'+dest.phone+'</span>';
+    h+='</div>';
+    h+='<span style="font-size:11px;font-weight:700;color:var(--orange)">'+itemCount+' items</span>';
+    h+='</div>';
+    if(addr)h+='<div style="font-size:10px;color:var(--dim);margin-top:2px">'+addr+'</div>';
+    h+='</div>';
+  }
+  document.getElementById('recvXdList').innerHTML=h;
 }
 
 function renderRecvItems(){
