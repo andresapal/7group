@@ -341,7 +341,7 @@ input[type="file"]{display:none}
   </button>
 
   <input type="file" id="fileDoc" accept="image/*" capture="environment" onchange="handleFileDoc(event)">
-  <input type="file" id="filePDF" accept="application/pdf,image/*" onchange="handleFilePDF(event)">
+  <input type="file" id="filePDF" accept="application/pdf,image/*,.pdf" onchange="handleFilePDF(event)">
 
   <!-- AI STATUS -->
   <div class="ai-status processing" id="aiStatus" style="display:none">
@@ -870,12 +870,32 @@ function handleFileDoc(e) {
 function handleFilePDF(e) {
   var file = e.target.files[0];
   if (!file) return;
-  fileToDataURL(file, function(dataURL) {
-    docPhotos.push({ url: dataURL, name: file.name, type: 'doc', time: new Date().toISOString() });
-    renderPhotoGrid();
-    extractDocument(dataURL, file.name);
-    saveWIP();
-  });
+  var isPDF = file.name && file.name.toLowerCase().endsWith('.pdf');
+  if (isPDF) {
+    var readerBuf = new FileReader();
+    readerBuf.onload = function(ev) {
+      var arrBuf = ev.target.result;
+      var bytes = new Uint8Array(arrBuf);
+      var binary = '';
+      for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      var dataURL = 'data:application/pdf;base64,' + btoa(binary);
+      docPhotos.push({ url: dataURL, name: file.name, type: 'doc', time: new Date().toISOString() });
+      renderPhotoGrid();
+      extractDocumentFromBuffer(arrBuf, file.name);
+      saveWIP();
+    };
+    readerBuf.onerror = function() {
+      alert(LANG === 'es' ? 'Error al leer el archivo PDF' : 'Error reading PDF file');
+    };
+    readerBuf.readAsArrayBuffer(file);
+  } else {
+    fileToDataURL(file, function(dataURL) {
+      docPhotos.push({ url: dataURL, name: file.name, type: 'doc', time: new Date().toISOString() });
+      renderPhotoGrid();
+      extractDocument(dataURL, file.name);
+      saveWIP();
+    });
+  }
   e.target.value = '';
 }
 
@@ -936,6 +956,87 @@ function removePhoto(type, idx) {
 }
 
 /* =============== AI EXTRACTION =============== */
+function ensurePdfJs(cb) {
+  if (typeof pdfjsLib !== 'undefined') { cb(); return; }
+  var s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  s.onload = function() { cb(); };
+  s.onerror = function() { cb(new Error('pdf.js failed to load')); };
+  document.head.appendChild(s);
+}
+
+function processPdfData(data, status, text) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  pdfjsLib.getDocument({data: data}).promise.then(function(pdf) {
+    var pageTexts = new Array(pdf.numPages);
+    var pending = pdf.numPages;
+    for (var p = 1; p <= pdf.numPages; p++) {
+      (function(pageNum) {
+        pdf.getPage(pageNum).then(function(page) {
+          page.getTextContent().then(function(tc) {
+            var items = tc.items.filter(function(it){return it.str.trim().length>0;});
+            items.sort(function(a,b){
+              var ya=Math.round(a.transform[5]),yb=Math.round(b.transform[5]);
+              if(Math.abs(ya-yb)>3) return yb-ya;
+              return a.transform[4]-b.transform[4];
+            });
+            var pageLines=[],curLine='',lastY=null,lastRight=0;
+            for(var ti=0;ti<items.length;ti++){
+              var item=items[ti];
+              var y=Math.round(item.transform[5]);
+              var x=Math.round(item.transform[4]);
+              if(lastY!==null && Math.abs(y-lastY)>3){
+                if(curLine) pageLines.push(curLine);
+                curLine='';lastRight=0;
+              }
+              if(curLine.length>0 && x-lastRight>30){
+                curLine+='\t';
+              } else if(curLine.length>0){
+                curLine+=' ';
+              }
+              curLine+=item.str;
+              lastRight=x+(item.width||0);
+              lastY=y;
+            }
+            if(curLine) pageLines.push(curLine);
+            pageTexts[pageNum-1]=pageLines.join('\n');
+            pending--;
+            if(pending===0){
+              var allText=pageTexts.join('\n---PAGE---\n');
+              extractedData = parseDocumentText(allText);
+              finishExtraction(status, text);
+            }
+          });
+        });
+      })(p);
+    }
+  }).catch(function(err) {
+    console.error('PDF parse error:', err);
+    text.textContent = LANG === 'es' ? 'Error leyendo PDF' : 'Error reading PDF';
+    status.className = 'ai-status';
+    setTimeout(function() { status.style.display = 'none'; }, 3000);
+  });
+}
+
+function extractDocumentFromBuffer(arrayBuffer, fileName) {
+  var status = document.getElementById('aiStatus');
+  var text = document.getElementById('aiStatusText');
+  status.style.display = 'flex';
+  status.className = 'ai-status processing';
+  text.textContent = t('aiProcessing');
+  var data = new Uint8Array(arrayBuffer);
+  ensurePdfJs(function(err) {
+    if (err || typeof pdfjsLib === 'undefined') {
+      console.error('pdf.js not available:', err);
+      text.textContent = LANG === 'es' ? 'Error: no se pudo cargar el lector PDF' : 'Error: PDF reader failed to load';
+      status.className = 'ai-status';
+      setTimeout(function() { status.style.display = 'none'; }, 4000);
+      return;
+    }
+    processPdfData(data, status, text);
+  });
+}
+
 function extractDocument(dataURL, fileName) {
   var status = document.getElementById('aiStatus');
   var text = document.getElementById('aiStatusText');
@@ -944,59 +1045,19 @@ function extractDocument(dataURL, fileName) {
   text.textContent = t('aiProcessing');
 
   var isPDF = fileName && fileName.toLowerCase().endsWith('.pdf');
-  if (isPDF && typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    var raw = atob(dataURL.split(',')[1]);
-    var arr = new Uint8Array(raw.length);
-    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-    pdfjsLib.getDocument({data: arr}).promise.then(function(pdf) {
-      var pageTexts = new Array(pdf.numPages);
-      var pending = pdf.numPages;
-      for (var p = 1; p <= pdf.numPages; p++) {
-        (function(pageNum) {
-          pdf.getPage(pageNum).then(function(page) {
-            page.getTextContent().then(function(tc) {
-              var items = tc.items.filter(function(it){return it.str.trim().length>0;});
-              items.sort(function(a,b){
-                var ya=Math.round(a.transform[5]),yb=Math.round(b.transform[5]);
-                if(Math.abs(ya-yb)>3) return yb-ya;
-                return a.transform[4]-b.transform[4];
-              });
-              var pageLines=[],curLine='',lastY=null,lastRight=0;
-              for(var ti=0;ti<items.length;ti++){
-                var item=items[ti];
-                var y=Math.round(item.transform[5]);
-                var x=Math.round(item.transform[4]);
-                if(lastY!==null && Math.abs(y-lastY)>3){
-                  if(curLine) pageLines.push(curLine);
-                  curLine='';lastRight=0;
-                }
-                if(curLine.length>0 && x-lastRight>30){
-                  curLine+='\t';
-                } else if(curLine.length>0){
-                  curLine+=' ';
-                }
-                curLine+=item.str;
-                lastRight=x+(item.width||0);
-                lastY=y;
-              }
-              if(curLine) pageLines.push(curLine);
-              pageTexts[pageNum-1]=pageLines.join('\n');
-              pending--;
-              if(pending===0){
-                var allText=pageTexts.join('\n---PAGE---\n');
-                extractedData = parseDocumentText(allText);
-                finishExtraction(status, text);
-              }
-            });
-          });
-        })(p);
+  if (isPDF) {
+    ensurePdfJs(function(err) {
+      if (err || typeof pdfjsLib === 'undefined') {
+        console.error('pdf.js not available:', err);
+        text.textContent = LANG === 'es' ? 'Error: no se pudo cargar el lector PDF' : 'Error: PDF reader failed to load';
+        status.className = 'ai-status';
+        setTimeout(function() { status.style.display = 'none'; }, 4000);
+        return;
       }
-    }).catch(function(err) {
-      console.error('PDF parse error:', err);
-      text.textContent = 'Error reading PDF';
-      status.className = 'ai-status';
-      setTimeout(function() { status.style.display = 'none'; }, 3000);
+      var raw = atob(dataURL.split(',')[1]);
+      var arr = new Uint8Array(raw.length);
+      for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+      processPdfData(arr, status, text);
     });
   } else {
     text.textContent = LANG === 'es' ? 'Sube un PDF para extraccion automatica' : 'Upload a PDF for auto-extraction';
