@@ -1612,38 +1612,154 @@ function wazeLink(fullAddr) {
 }
 
 var selectedClientId = null;
+var selectedContactData = null;
+var googleContacts = [];
+var contactsToken = null;
+var contactsLoaded = false;
+
+function initContactsToken(callback) {
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+    setTimeout(function(){ initContactsToken(callback); }, 300);
+    return;
+  }
+  var tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/contacts.readonly',
+    callback: function(resp) {
+      if (resp.error) { console.warn('Contacts auth error:', resp.error); return; }
+      contactsToken = resp.access_token;
+      fetchGoogleContacts(callback);
+    }
+  });
+  tokenClient.requestAccessToken();
+}
+
+function fetchGoogleContacts(callback) {
+  if (!contactsToken) return;
+  var url = 'https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,addresses,emailAddresses,organizations&pageSize=1000&sortOrder=FIRST_NAME_ASCENDING';
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + contactsToken);
+  xhr.onload = function() {
+    if (xhr.status !== 200) {
+      console.warn('Contacts API error:', xhr.status);
+      if (callback) callback();
+      return;
+    }
+    var data = JSON.parse(xhr.responseText);
+    googleContacts = [];
+    var conns = data.connections || [];
+    for (var i = 0; i < conns.length; i++) {
+      var p = conns[i];
+      var name = '';
+      if (p.names && p.names.length > 0) name = p.names[0].displayName || '';
+      if (!name) continue;
+      var phone = '';
+      if (p.phoneNumbers && p.phoneNumbers.length > 0) phone = p.phoneNumbers[0].value || '';
+      var email = '';
+      if (p.emailAddresses && p.emailAddresses.length > 0) email = p.emailAddresses[0].value || '';
+      var org = '';
+      if (p.organizations && p.organizations.length > 0) org = p.organizations[0].name || '';
+      var address = '', city = '', state = '', zip = '';
+      if (p.addresses && p.addresses.length > 0) {
+        var a = p.addresses[0];
+        address = a.streetAddress || a.formattedValue || '';
+        city = a.city || '';
+        state = a.region || '';
+        zip = a.postalCode || '';
+      }
+      googleContacts.push({
+        id: 'gc-' + i,
+        name: name,
+        contact: org || name,
+        phone: phone,
+        email: email,
+        address: address,
+        city: city,
+        state: state,
+        zip: zip,
+        source: 'google'
+      });
+    }
+    contactsLoaded = true;
+    try { localStorage.setItem('7g-google-contacts', JSON.stringify(googleContacts)); } catch(e) {}
+    if (callback) callback();
+  };
+  xhr.onerror = function() { if (callback) callback(); };
+  xhr.send();
+}
+
+function loadCachedContacts() {
+  try {
+    var raw = localStorage.getItem('7g-google-contacts');
+    if (raw) { googleContacts = JSON.parse(raw); contactsLoaded = true; }
+  } catch(e) {}
+}
+loadCachedContacts();
 
 function searchClientXD(query) {
   var el = document.getElementById('xdClientResults');
-  if (!query || query.length < 2 || typeof DB === 'undefined' || !DB.searchClients) {
+  if (!query || query.length < 2) {
     el.style.display = 'none'; return;
   }
-  var results = DB.searchClients(query);
+
+  if (!contactsLoaded && !contactsToken) {
+    el.innerHTML = '<div style="padding:12px;text-align:center"><button class="xd-add-btn" onclick="initContactsToken(function(){searchClientXD(document.getElementById(\'xdClientSearch\').value)})">' + (LANG==='es'?'Conectar contactos Google':'Connect Google contacts') + '</button></div>';
+    el.style.display = 'block';
+    return;
+  }
+
+  var q = query.toLowerCase();
+  var results = [];
+
+  for (var i = 0; i < googleContacts.length; i++) {
+    var gc = googleContacts[i];
+    if ((gc.name || '').toLowerCase().indexOf(q) !== -1 ||
+        (gc.contact || '').toLowerCase().indexOf(q) !== -1 ||
+        (gc.phone || '').indexOf(q) !== -1 ||
+        (gc.city || '').toLowerCase().indexOf(q) !== -1) {
+      results.push(gc);
+      if (results.length >= 10) break;
+    }
+  }
+
+  if (typeof DB !== 'undefined' && DB.searchClients) {
+    var dbResults = DB.searchClients(query);
+    for (var j = 0; j < dbResults.length && results.length < 12; j++) {
+      dbResults[j].source = 'db';
+      results.push(dbResults[j]);
+    }
+  }
+
   if (results.length === 0) {
     el.style.display = 'none'; return;
   }
+
   var h = '';
-  for (var i = 0; i < results.length; i++) {
-    var c = results[i];
+  for (var k = 0; k < results.length; k++) {
+    var c = results[k];
     var sub = [c.city, c.state].filter(Boolean).join(', ');
-    h += '<div onclick="selectClientXD(\'' + c.id + '\')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:.15s" onmouseover="this.style.background=\'rgba(249,115,22,.1)\'" onmouseout="this.style.background=\'transparent\'">';
-    h += '<div style="font-size:12px;font-weight:700;color:var(--white)">' + (c.name || '') + '</div>';
-    if (c.contact) h += '<div style="font-size:10px;color:var(--dim)">' + c.contact + (c.phone ? ' -- ' + c.phone : '') + '</div>';
+    var srcTag = c.source === 'google' ? '<span style="font-size:8px;background:rgba(59,130,246,.15);color:var(--blue);padding:1px 4px;border-radius:3px;margin-left:4px;font-weight:700;letter-spacing:.3px">GOOGLE</span>' : '<span style="font-size:8px;background:rgba(34,197,94,.15);color:var(--green);padding:1px 4px;border-radius:3px;margin-left:4px;font-weight:700;letter-spacing:.3px">DB</span>';
+    h += '<div onclick="selectContactXD(' + k + ')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:.15s" onmouseover="this.style.background=\'rgba(249,115,22,.1)\'" onmouseout="this.style.background=\'transparent\'">';
+    h += '<div style="font-size:12px;font-weight:700;color:var(--white)">' + (c.name || '') + srcTag + '</div>';
+    h += '<div style="font-size:10px;color:var(--dim)">' + (c.phone || '') + (c.email ? ' -- ' + c.email : '') + '</div>';
     if (sub) h += '<div style="font-size:10px;color:var(--dim)">' + sub + '</div>';
     h += '</div>';
   }
   el.innerHTML = h;
   el.style.display = 'block';
+  el._results = results;
 }
 
-function selectClientXD(clientId) {
-  var clients = (typeof DB !== 'undefined') ? LocalCache.get('clients') : [];
-  var c = null;
-  for (var i = 0; i < clients.length; i++) { if (clients[i].id === clientId) { c = clients[i]; break; } }
+function selectContactXD(idx) {
+  var el = document.getElementById('xdClientResults');
+  var results = el._results || [];
+  var c = results[idx];
   if (!c) return;
 
-  selectedClientId = clientId;
-  document.getElementById('xdClientResults').style.display = 'none';
+  selectedContactData = c;
+  selectedClientId = c.source === 'db' ? c.id : null;
+  el.style.display = 'none';
   document.getElementById('xdClientSearch').value = '';
   document.getElementById('xdClientForm').style.display = 'none';
 
@@ -1651,23 +1767,21 @@ function selectClientXD(clientId) {
   var h = '<div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:8px;padding:10px 12px;margin-bottom:8px">';
   h += '<div style="display:flex;justify-content:space-between;align-items:center">';
   h += '<div><div style="font-size:13px;font-weight:700;color:var(--orange)">' + (c.name || '') + '</div>';
-  if (c.contact) h += '<div style="font-size:11px;color:var(--dim)">' + c.contact + (c.phone ? ' -- ' + c.phone : '') + '</div>';
+  if (c.phone) h += '<div style="font-size:11px;color:var(--dim)">' + c.phone + (c.email ? ' -- ' + c.email : '') + '</div>';
   if (addr) h += '<div style="font-size:10px;color:var(--dim);margin-top:2px">' + addr + '</div>';
   h += '</div>';
   h += '<button onclick="clearSelectedClient()" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:4px">&#10005;</button>';
   h += '</div>';
   h += '<div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end">';
-  h += '<button class="xd-add-btn" onclick="addXDFromClient()">' + t('xdAddDest') + '</button>';
+  h += '<button class="xd-add-btn" onclick="addXDFromContact()">' + t('xdAddDest') + '</button>';
   h += '</div></div>';
 
   document.getElementById('xdSelectedClient').innerHTML = h;
   document.getElementById('xdSelectedClient').style.display = 'block';
 }
 
-function addXDFromClient() {
-  var clients = (typeof DB !== 'undefined') ? LocalCache.get('clients') : [];
-  var c = null;
-  for (var i = 0; i < clients.length; i++) { if (clients[i].id === selectedClientId) { c = clients[i]; break; } }
+function addXDFromContact() {
+  var c = selectedContactData;
   if (!c) return;
 
   var dest = {
@@ -1696,6 +1810,7 @@ function addXDFromClient() {
 
 function clearSelectedClient() {
   selectedClientId = null;
+  selectedContactData = null;
   document.getElementById('xdSelectedClient').style.display = 'none';
   document.getElementById('xdSelectedClient').innerHTML = '';
 }
