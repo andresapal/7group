@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ultimate Bike Shop -- 7Group</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --cyan:#0e7490;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+/* AUTH */
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.auth-gate.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
+.auth-box{text-align:center;max-width:340px;padding:32px 24px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:11px;color:var(--dim);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:12px;color:var(--dim);margin-bottom:24px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:16px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:12px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+/* TOPBAR */
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:16px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:6px}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.tb-toggle{padding:4px 8px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+/* MODULE NAV */
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.mod-link{padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
+
+/* MAIN */
+.main{max-width:600px;margin:0 auto;padding:16px}
+
+/* TABS */
+.view-tabs{display:flex;gap:0;border:1px solid var(--border3);border-radius:6px;overflow:hidden;margin-bottom:12px}
+.vtab{flex:1;padding:8px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;background:var(--bg3);color:var(--dim);border:none;font-family:inherit;transition:.2s}
+.vtab:not(:last-child){border-right:1px solid var(--border3)}
+.vtab.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px}
+.kpi-val{font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+.kpi-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.yellow{color:var(--yellow)}.kpi-val.red{color:var(--red)}.kpi-val.blue{color:var(--blue)}.kpi-val.orange{color:var(--orange)}
+
+/* FILTER PILLS */
+.filter-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.fpill{padding:5px 12px;border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border3);background:var(--bg3);color:var(--dim);font-family:inherit;transition:.2s;white-space:nowrap}
+.fpill:hover{border-color:var(--cyan);color:var(--cyan)}
+.fpill.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+.pill-count{display:inline-block;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:8px;font-size:9px;font-weight:700;margin-left:4px;background:var(--bg4);color:var(--dim)}
+.fpill.active .pill-count{background:rgba(94,231,247,.2);color:var(--cyan)}
+
+/* CARDS */
+.pa-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s}
+.pa-card:hover{border-color:var(--cyan)}
+.pa-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pa-bl{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--cyan)}
+.pa-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.tag-pending{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.15)}
+.tag-progress{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.15)}
+.tag-done{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.tag-route{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.15)}
+.tag-preparing{background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.15)}
+.pa-info{font-size:11px;color:var(--dim);line-height:1.5}
+.pa-meta{display:flex;gap:10px;margin-top:6px;font-size:10px;color:var(--dim);flex-wrap:wrap}
+.pa-meta span{display:flex;align-items:center;gap:3px}
+.pa-actions{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+
+/* SECTION */
+.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.sec-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sec-title{font-size:12px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:6px}
+.sec-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.sec-body{padding:16px}
+
+/* SCANNER */
+.scan-row{display:flex;gap:8px;margin-bottom:12px}
+.scan-input{flex:1;background:var(--bg3);border:1px solid var(--border3);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--white);font-family:'JetBrains Mono',monospace;outline:none;transition:.2s}
+.scan-input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.scan-input::placeholder{color:var(--muted)}
+.scan-btn{padding:10px 16px;border:none;border-radius:8px;background:var(--cyan);color:#060a0e;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s;white-space:nowrap}
+.scan-btn:hover{background:#7bf0ff}
+
+/* PROGRESS */
+.prog-bar{height:4px;background:var(--bg4);border-radius:2px;margin:8px 0;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;background:var(--cyan);transition:width .4s}
+.prog-fill.complete{background:var(--green)}
+.prog-summary{display:flex;justify-content:space-between;font-size:11px;color:var(--dim)}
+
+/* RECV ITEMS */
+.rv-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;margin-bottom:6px;transition:.2s}
+.rv-item.done{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.04)}
+.rv-item.flagged{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.04)}
+.rv-icon{width:28px;height:28px;border-radius:50%;border:2px solid var(--border3);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:.2s;color:var(--dim)}
+.rv-item.done .rv-icon{background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green)}
+.rv-item.flagged .rv-icon{background:rgba(239,68,68,.15);border-color:var(--red);color:var(--red)}
+.rv-info{flex:1;min-width:0}
+.rv-name{font-size:12px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-sku{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.rv-qty{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;flex-shrink:0}
+.rv-qty.full{color:var(--green)}.rv-qty.zero{color:var(--dim)}
+.rv-acts{display:flex;gap:4px;flex-shrink:0}
+.rv-acts button{width:30px;height:30px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;transition:.2s}
+.rv-ok{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)!important}
+.rv-ok:hover,.rv-ok.active{background:rgba(34,197,94,.25);border-color:var(--green)!important}
+.rv-fl{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)!important}
+.rv-fl:hover,.rv-fl.active{background:rgba(239,68,68,.25);border-color:var(--red)!important}
+
+/* INVENTORY TABLE */
+.inv-table{width:100%;border-collapse:collapse;font-size:11px}
+.inv-table th{text-align:left;padding:8px 10px;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border2);white-space:nowrap}
+.inv-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--white);white-space:nowrap;font-size:11px}
+.inv-table tr:hover td{background:rgba(94,231,247,.02)}
+.inv-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.inv-cat-pills{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+
+/* STATUS BADGES */
+.st-badge{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;display:inline-block}
+.st-ok{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.st-low{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.15)}
+.st-out{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.15)}
+
+/* BUTTONS */
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-secondary{background:var(--bg3);color:var(--white);border:1px solid var(--border3)}
+.btn-sm{padding:6px 12px;font-size:11px}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:20px;margin-top:12px}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:1px;background:var(--border3)}
+.tl-item{position:relative;padding-bottom:16px;font-size:12px;color:var(--dim)}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-20px;top:2px;width:12px;height:12px;border-radius:50%;border:2px solid var(--border3);background:var(--bg2)}
+.tl-dot.active{border-color:var(--cyan);background:var(--cyan)}
+.tl-dot.done{border-color:var(--green);background:var(--green)}
+.tl-title{font-weight:600;color:var(--white);margin-bottom:2px}
+.tl-time{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted)}
+
+.empty-state{text-align:center;padding:32px 16px;color:var(--dim)}
+.empty-state p{font-size:13px;margin-bottom:4px}
+
+/* DETAIL ORDER LIST */
+.order-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;margin-bottom:6px}
+.order-item-info{flex:1}
+.order-item-name{font-size:12px;font-weight:600;color:var(--white)}
+.order-item-sku{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.order-item-qty{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--cyan)}
+.order-item-price{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim)}
+
+.foot{text-align:center;padding:16px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@media(max-width:480px){.main{padding:12px}.kpi-row{grid-template-columns:1fr 1fr}.tb-badge{display:none}}
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc" id="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-footer">Solo personal autorizado</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-wrap" id="appWrap">
+
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="shopName">Ultimate Bike Shop</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+  </div>
+</nav>
+
+<div class="mod-nav" id="modNav">
+  <a href="./" class="mod-link active" data-t="modRecibo">Recibo</a>
+  <a href="./" class="mod-link" data-t="modInventario">Inventario</a>
+  <a href="./" class="mod-link" data-t="modDespachos">Despachos</a>
+  <a href="./arme-su-bici/" class="mod-link" data-t="modArme">Arme su Bici</a>
+</div>
+
+<div class="main">
+
+<!-- MAIN TABS -->
+<div class="view-tabs">
+  <button class="vtab active" id="tabRecibo" onclick="showTab('recibo')" data-t="tabRecibo">Recibo</button>
+  <button class="vtab" id="tabInventario" onclick="showTab('inventario')" data-t="tabInventario">Inventario</button>
+  <button class="vtab" id="tabDespachos" onclick="showTab('despachos')" data-t="tabDespachos">Despachos</button>
+</div>
+
+<!-- ========== TAB: RECIBO ========== -->
+<div id="viewRecibo">
+  <div class="kpi-row" id="recKpis"></div>
+  <div class="filter-row" id="recFilterRow"></div>
+  <div id="recList"></div>
+</div>
+
+<!-- ========== RECIBO DETAIL ========== -->
+<div id="viewRecDetail" style="display:none">
+  <button class="btn btn-secondary btn-sm" onclick="closeRecDetail()" style="margin-bottom:12px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+    <span data-t="btnBack">Volver</span>
+  </button>
+  <div id="recDetailContent"></div>
+</div>
+
+<!-- ========== TAB: INVENTARIO ========== -->
+<div id="viewInventario" style="display:none">
+  <div class="kpi-row" id="invKpis"></div>
+  <div class="filter-row" id="invCatRow"></div>
+  <div style="margin-bottom:12px">
+    <input class="scan-input" id="invSearch" placeholder="Buscar SKU, producto..." oninput="renderInventory()" style="width:100%">
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secStock">Stock actual</div>
+      <span class="sec-tag" id="invCount" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">0</span>
+    </div>
+    <div class="sec-body" style="padding:0">
+      <div class="inv-wrap" id="invTableWrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TAB: DESPACHOS ========== -->
+<div id="viewDespachos" style="display:none">
+  <div class="kpi-row" id="despKpis"></div>
+  <div class="filter-row" id="despFilterRow"></div>
+  <div id="despList"></div>
+</div>
+
+<!-- ========== DESPACHO DETAIL ========== -->
+<div id="viewDespDetail" style="display:none">
+  <button class="btn btn-secondary btn-sm" onclick="closeDespDetail()" style="margin-bottom:12px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+    <span data-t="btnBack2">Volver</span>
+  </button>
+  <div id="despDetailContent"></div>
+</div>
+
+</div>
+
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div>
+
+<script>
+/* =============== AUTH =============== */
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){document.getElementById('authGate').classList.add('hidden');document.getElementById('appWrap').classList.add('visible');}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+(function(){var s=sessionStorage.getItem('7g-auth');if(s&&ALLOWED_EMAILS.indexOf(s)!==-1)unlockApp();else initGoogleAuth();})();
+
+/* =============== THEME =============== */
+function toggleTheme(){document.documentElement.classList.toggle('light');var il=document.documentElement.classList.contains('light');document.getElementById('themeToggle').innerHTML=il?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.9 8.8a6 6 0 0 1-6.7-6.7A6 6 0 1 0 13.9 8.8z" stroke="currentColor" stroke-width="1.5"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';localStorage.setItem('7g-theme',il?'light':'dark');}
+(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');setTimeout(function(){document.getElementById('themeToggle').innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.9 8.8a6 6 0 0 1-6.7-6.7A6 6 0 1 0 13.9 8.8z" stroke="currentColor" stroke-width="1.5"/></svg> DARK';},0);}})();
+
+/* =============== LANGUAGE =============== */
+var LANG='es';
+(function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
+
+var T={
+  shopName:{es:'Ultimate Bike Shop',en:'Ultimate Bike Shop'},
+  tabRecibo:{es:'Recibo',en:'Receiving'},
+  tabInventario:{es:'Inventario',en:'Inventory'},
+  tabDespachos:{es:'Despachos',en:'Dispatches'},
+  modRecibo:{es:'Recibo',en:'Receiving'},
+  modInventario:{es:'Inventario',en:'Inventory'},
+  modDespachos:{es:'Despachos',en:'Dispatches'},
+  modArme:{es:'Arme su Bici',en:'Build your Bike'},
+  btnBack:{es:'Volver',en:'Back'},
+  btnBack2:{es:'Volver',en:'Back'},
+  secStock:{es:'Stock actual',en:'Current stock'},
+  /* Recibo KPIs */
+  kpiPrePending:{es:'Pre-avisos pendientes',en:'Pending pre-alerts'},
+  kpiPreProgress:{es:'En proceso',en:'In progress'},
+  kpiPreDone:{es:'Completados',en:'Completed'},
+  kpiPreItems:{es:'Items hoy',en:'Items today'},
+  /* Recibo filters */
+  filterAll:{es:'Todos',en:'All'},
+  filterPending:{es:'Pendiente',en:'Pending'},
+  filterProgress:{es:'En proceso',en:'In progress'},
+  filterDone:{es:'Completado',en:'Completed'},
+  /* Inventario KPIs */
+  kpiTotalSku:{es:'Total SKUs',en:'Total SKUs'},
+  kpiValorTotal:{es:'Valor total inventario',en:'Total inventory value'},
+  kpiStockBajo:{es:'Stock bajo',en:'Low stock'},
+  kpiAgotados:{es:'Agotados',en:'Out of stock'},
+  /* Inventario filters */
+  catAll:{es:'Todos',en:'All'},
+  catBicicletas:{es:'Bicicletas',en:'Bicycles'},
+  catRepuestos:{es:'Repuestos',en:'Parts'},
+  catAccesorios:{es:'Accesorios',en:'Accessories'},
+  /* Inventario table */
+  thSku:{es:'SKU',en:'SKU'},
+  thProducto:{es:'Producto',en:'Product'},
+  thCategoria:{es:'Cat.',en:'Cat.'},
+  thStock:{es:'Stock',en:'Stock'},
+  thMin:{es:'Min',en:'Min'},
+  thPrecio:{es:'Precio',en:'Price'},
+  thEstado:{es:'Estado',en:'Status'},
+  stOk:{es:'OK',en:'OK'},
+  stBajo:{es:'Bajo',en:'Low'},
+  stAgotado:{es:'Agotado',en:'Out'},
+  /* Despachos KPIs */
+  kpiDespPending:{es:'Pendientes',en:'Pending'},
+  kpiDespPrep:{es:'En preparacion',en:'Preparing'},
+  kpiDespRoute:{es:'En ruta',en:'In transit'},
+  kpiDespDone:{es:'Entregados hoy',en:'Delivered today'},
+  /* Despacho filters */
+  dfAll:{es:'Todos',en:'All'},
+  dfPending:{es:'Pendiente',en:'Pending'},
+  dfPrep:{es:'Preparando',en:'Preparing'},
+  dfRoute:{es:'En ruta',en:'In transit'},
+  dfDone:{es:'Entregado',en:'Delivered'},
+  /* Detail */
+  secItems:{es:'Items del pedido',en:'Order items'},
+  secTimeline:{es:'Linea de tiempo',en:'Timeline'},
+  secVerify:{es:'Verificacion de items',en:'Item verification'},
+  btnScan:{es:'Escanear',en:'Scan'},
+  scanNotFound:{es:'No coincide con ningun item',en:'No match found'},
+  scanDone:{es:'Ya verificado',en:'Already verified'},
+  /* Despacho detail labels */
+  lblCustomer:{es:'Cliente',en:'Customer'},
+  lblDestination:{es:'Destino',en:'Destination'},
+  lblMethod:{es:'Metodo',en:'Method'},
+  lblTotal:{es:'Total',en:'Total'},
+  /* Misc */
+  searchPlaceholder:{es:'Buscar SKU, producto...',en:'Search SKU, product...'},
+  noResults:{es:'Sin resultados',en:'No results'}
+};
+
+function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.title=LANG==='es'?'Ultimate Bike Shop -- 7Group':'Ultimate Bike Shop -- 7Group';
+  var els=document.querySelectorAll('[data-t]');
+  for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
+  document.getElementById('langES').classList.toggle('active',LANG==='es');
+  document.getElementById('langEN').classList.toggle('active',LANG==='en');
+  document.getElementById('invSearch').placeholder=t('searchPlaceholder');
+  renderAll();
+}
+
+function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
+
+/* =============== SVG ICONS =============== */
+var ICONS={
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+  truck:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 4v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>',
+  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  mapPin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M6 2L3 7v13a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7l-3-5z"/><path d="M3 7h18"/><path d="M16 11a4 4 0 0 1-8 0"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  scan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>'
+};
+
+/* =============== DATA =============== */
+
+/* RECIBO (Receiving) data */
+var PREAVISOS=[
+  {
+    id:'PA-2026-0041',
+    ref:'BL-GW-7842',
+    supplier:'GW Bicycles',
+    itemCount:12,
+    eta:'2026-07-29',
+    status:'pending',
+    items:[
+      {sku:'BIC-HYE-275',name:'MTB GW Hyena 27.5',qty:3,verified:false},
+      {sku:'BIC-JAG-29',name:'MTB GW Jaguar 29er',qty:2,verified:false},
+      {sku:'BIC-WLF-URB',name:'Urbana GW Wolf',qty:3,verified:false},
+      {sku:'ACC-CAS-SPT',name:'Casco GW Sport',qty:4,verified:false}
+    ]
+  },
+  {
+    id:'PA-2026-0040',
+    ref:'BL-SHI-3391',
+    supplier:'Shimano Colombia',
+    itemCount:8,
+    eta:'2026-07-28',
+    status:'progress',
+    items:[
+      {sku:'REP-CAD-HG40',name:'Cadena Shimano HG40',qty:10,verified:true},
+      {sku:'REP-CAS-8V',name:'Cassette Shimano 8v',qty:6,verified:true},
+      {sku:'REP-CAM-ALT',name:'Cambio trasero Shimano Altus',qty:4,verified:false},
+      {sku:'REP-FRE-HID',name:'Frenos disco hidraulico',qty:3,verified:false}
+    ]
+  },
+  {
+    id:'PA-2026-0039',
+    ref:'BL-GW-7830',
+    supplier:'GW Bicycles',
+    itemCount:6,
+    eta:'2026-07-27',
+    status:'done',
+    items:[
+      {sku:'BIC-EAG-29',name:'MTB GW Eagle 29',qty:2,verified:true},
+      {sku:'BIC-K2-RUT',name:'Ruta GW K2',qty:2,verified:true},
+      {sku:'BIC-BMX-PRO',name:'BMX GW Pro',qty:2,verified:true}
+    ]
+  },
+  {
+    id:'PA-2026-0038',
+    ref:'BL-ACC-1104',
+    supplier:'Distribuidora Ciclo Honda',
+    itemCount:15,
+    eta:'2026-07-30',
+    status:'pending',
+    items:[
+      {sku:'ACC-LUC-LED',name:'Kit luces LED',qty:10,verified:false},
+      {sku:'ACC-CAN-ULK',name:'Candado U-Lock',qty:5,verified:false},
+      {sku:'ACC-CAR-PRT',name:'Caramañola + porta',qty:12,verified:false},
+      {sku:'ACC-HER-MTL',name:'Herramienta multitool',qty:6,verified:false},
+      {sku:'ACC-BOM-PIS',name:'Bomba de piso',qty:4,verified:false}
+    ]
+  },
+  {
+    id:'PA-2026-0037',
+    ref:'BL-GW-7825',
+    supplier:'GW Bicycles',
+    itemCount:4,
+    eta:'2026-07-28',
+    status:'progress',
+    items:[
+      {sku:'BIC-LYN-ELC',name:'Electrica GW Lynx E',qty:1,verified:true},
+      {sku:'BIC-TIG-20',name:'Infantil GW Tiger 20',qty:3,verified:false}
+    ]
+  }
+];
+
+/* INVENTORY data */
+var INVENTORY=[
+  {sku:'BIC-HYE-275',name:'MTB GW Hyena 27.5',cat:'Bicicletas',stock:4,min:3,price:1200000},
+  {sku:'BIC-JAG-29',name:'MTB GW Jaguar 29er',cat:'Bicicletas',stock:2,min:2,price:1850000},
+  {sku:'BIC-EAG-29',name:'MTB GW Eagle 29',cat:'Bicicletas',stock:1,min:1,price:2400000},
+  {sku:'BIC-K2-RUT',name:'Ruta GW K2',cat:'Bicicletas',stock:3,min:2,price:2100000},
+  {sku:'BIC-WLF-URB',name:'Urbana GW Wolf',cat:'Bicicletas',stock:5,min:3,price:850000},
+  {sku:'BIC-BMX-PRO',name:'BMX GW Pro',cat:'Bicicletas',stock:3,min:2,price:650000},
+  {sku:'BIC-LYN-ELC',name:'Electrica GW Lynx E',cat:'Bicicletas',stock:1,min:1,price:3500000},
+  {sku:'BIC-TIG-20',name:'Infantil GW Tiger 20',cat:'Bicicletas',stock:6,min:4,price:480000},
+
+  {sku:'REP-LLA-275',name:'Llantas MTB 27.5 par',cat:'Repuestos',stock:12,min:10,price:85000},
+  {sku:'REP-LLA-29',name:'Llantas MTB 29 par',cat:'Repuestos',stock:8,min:10,price:95000},
+  {sku:'REP-CAM-275',name:'Camaras 27.5/29',cat:'Repuestos',stock:25,min:20,price:15000},
+  {sku:'REP-CAD-HG40',name:'Cadena Shimano HG40',cat:'Repuestos',stock:6,min:8,price:45000},
+  {sku:'REP-CAS-8V',name:'Cassette Shimano 8v',cat:'Repuestos',stock:4,min:6,price:75000},
+  {sku:'REP-FRE-HID',name:'Frenos disco hidraulico',cat:'Repuestos',stock:3,min:4,price:180000},
+  {sku:'REP-PED-PLT',name:'Pedales plataforma',cat:'Repuestos',stock:10,min:5,price:35000},
+  {sku:'REP-SIL-CMF',name:'Sillin GW Comfort',cat:'Repuestos',stock:7,min:4,price:55000},
+  {sku:'REP-MAN-ALU',name:'Manubrio MTB aluminio',cat:'Repuestos',stock:5,min:4,price:65000},
+  {sku:'REP-CAM-ALT',name:'Cambio trasero Shimano Altus',cat:'Repuestos',stock:2,min:3,price:120000},
+
+  {sku:'ACC-CAS-SPT',name:'Casco GW Sport',cat:'Accesorios',stock:8,min:5,price:85000},
+  {sku:'ACC-LUC-LED',name:'Kit luces LED',cat:'Accesorios',stock:15,min:8,price:35000},
+  {sku:'ACC-CAN-ULK',name:'Candado U-Lock',cat:'Accesorios',stock:4,min:6,price:55000},
+  {sku:'ACC-PAR-TRA',name:'Parrilla trasera',cat:'Accesorios',stock:3,min:3,price:45000},
+  {sku:'ACC-GUA-CIC',name:'Guantes ciclismo',cat:'Accesorios',stock:12,min:10,price:40000},
+  {sku:'ACC-CAR-PRT',name:'Caramañola + porta',cat:'Accesorios',stock:18,min:10,price:25000},
+  {sku:'ACC-HER-MTL',name:'Herramienta multitool',cat:'Accesorios',stock:5,min:4,price:30000},
+  {sku:'ACC-BOM-PIS',name:'Bomba de piso',cat:'Accesorios',stock:3,min:3,price:45000}
+];
+
+/* DESPACHOS data */
+var DESPACHOS=[
+  {
+    id:'ORD-1087',
+    customer:'Carlos Mendoza',
+    status:'pending',
+    method:'Envio',
+    destination:'Mariquita, Tolima',
+    items:[
+      {sku:'BIC-HYE-275',name:'MTB GW Hyena 27.5',qty:1,price:1200000},
+      {sku:'ACC-CAS-SPT',name:'Casco GW Sport',qty:1,price:85000}
+    ],
+    timeline:[
+      {title:{es:'Pedido recibido',en:'Order received'},time:'2026-07-28 09:15',done:true},
+      {title:{es:'Confirmacion de pago',en:'Payment confirmed'},time:'2026-07-28 09:45',done:true},
+      {title:{es:'Preparacion',en:'Preparation'},time:'--',done:false},
+      {title:{es:'Despacho',en:'Dispatched'},time:'--',done:false},
+      {title:{es:'Entregado',en:'Delivered'},time:'--',done:false}
+    ]
+  },
+  {
+    id:'ORD-1086',
+    customer:'Maria Elena Torres',
+    status:'preparing',
+    method:'Domicilio',
+    destination:'Honda, Tolima',
+    items:[
+      {sku:'BIC-TIG-20',name:'Infantil GW Tiger 20',qty:1,price:480000},
+      {sku:'ACC-LUC-LED',name:'Kit luces LED',qty:1,price:35000},
+      {sku:'ACC-GUA-CIC',name:'Guantes ciclismo',qty:1,price:40000}
+    ],
+    timeline:[
+      {title:{es:'Pedido recibido',en:'Order received'},time:'2026-07-27 16:30',done:true},
+      {title:{es:'Confirmacion de pago',en:'Payment confirmed'},time:'2026-07-27 17:00',done:true},
+      {title:{es:'Preparacion',en:'Preparation'},time:'2026-07-28 08:00',active:true},
+      {title:{es:'Despacho',en:'Dispatched'},time:'--',done:false},
+      {title:{es:'Entregado',en:'Delivered'},time:'--',done:false}
+    ]
+  },
+  {
+    id:'ORD-1085',
+    customer:'Andres Felipe Rios',
+    status:'route',
+    method:'Envio',
+    destination:'La Dorada, Caldas',
+    items:[
+      {sku:'BIC-JAG-29',name:'MTB GW Jaguar 29er',qty:1,price:1850000},
+      {sku:'REP-PED-PLT',name:'Pedales plataforma',qty:1,price:35000},
+      {sku:'ACC-CAR-PRT',name:'Caramañola + porta',qty:1,price:25000}
+    ],
+    timeline:[
+      {title:{es:'Pedido recibido',en:'Order received'},time:'2026-07-26 11:00',done:true},
+      {title:{es:'Confirmacion de pago',en:'Payment confirmed'},time:'2026-07-26 11:30',done:true},
+      {title:{es:'Preparacion',en:'Preparation'},time:'2026-07-26 14:00',done:true},
+      {title:{es:'Despacho',en:'Dispatched'},time:'2026-07-27 08:30',active:true},
+      {title:{es:'Entregado',en:'Delivered'},time:'--',done:false}
+    ]
+  },
+  {
+    id:'ORD-1084',
+    customer:'Laura Patricia Gomez',
+    status:'done',
+    method:'Recoge en tienda',
+    destination:'Honda, Tolima',
+    items:[
+      {sku:'REP-CAD-HG40',name:'Cadena Shimano HG40',qty:2,price:45000},
+      {sku:'REP-CAS-8V',name:'Cassette Shimano 8v',qty:1,price:75000},
+      {sku:'ACC-HER-MTL',name:'Herramienta multitool',qty:1,price:30000}
+    ],
+    timeline:[
+      {title:{es:'Pedido recibido',en:'Order received'},time:'2026-07-25 10:00',done:true},
+      {title:{es:'Confirmacion de pago',en:'Payment confirmed'},time:'2026-07-25 10:15',done:true},
+      {title:{es:'Preparacion',en:'Preparation'},time:'2026-07-25 11:00',done:true},
+      {title:{es:'Listo para recoger',en:'Ready for pickup'},time:'2026-07-25 12:00',done:true},
+      {title:{es:'Entregado',en:'Delivered'},time:'2026-07-25 16:30',done:true}
+    ]
+  },
+  {
+    id:'ORD-1083',
+    customer:'Juan David Herrera',
+    status:'done',
+    method:'Envio',
+    destination:'Fresno, Tolima',
+    items:[
+      {sku:'BIC-WLF-URB',name:'Urbana GW Wolf',qty:1,price:850000},
+      {sku:'ACC-CAN-ULK',name:'Candado U-Lock',qty:1,price:55000}
+    ],
+    timeline:[
+      {title:{es:'Pedido recibido',en:'Order received'},time:'2026-07-24 09:00',done:true},
+      {title:{es:'Confirmacion de pago',en:'Payment confirmed'},time:'2026-07-24 09:20',done:true},
+      {title:{es:'Preparacion',en:'Preparation'},time:'2026-07-24 10:30',done:true},
+      {title:{es:'Despacho',en:'Dispatched'},time:'2026-07-24 15:00',done:true},
+      {title:{es:'Entregado',en:'Delivered'},time:'2026-07-25 11:00',done:true}
+    ]
+  },
+  {
+    id:'ORD-1082',
+    customer:'Sofia Moreno Diaz',
+    status:'pending',
+    method:'Envio',
+    destination:'Ibague, Tolima',
+    items:[
+      {sku:'BIC-LYN-ELC',name:'Electrica GW Lynx E',qty:1,price:3500000},
+      {sku:'ACC-CAS-SPT',name:'Casco GW Sport',qty:1,price:85000},
+      {sku:'ACC-GUA-CIC',name:'Guantes ciclismo',qty:1,price:40000}
+    ],
+    timeline:[
+      {title:{es:'Pedido recibido',en:'Order received'},time:'2026-07-28 10:30',done:true},
+      {title:{es:'Confirmacion de pago',en:'Payment confirmed'},time:'--',done:false},
+      {title:{es:'Preparacion',en:'Preparation'},time:'--',done:false},
+      {title:{es:'Despacho',en:'Dispatched'},time:'--',done:false},
+      {title:{es:'Entregado',en:'Delivered'},time:'--',done:false}
+    ]
+  }
+];
+
+/* =============== STATE =============== */
+var currentTab='recibo';
+var recFilter='all';
+var invCat='all';
+var despFilter='all';
+var currentRecDetail=null;
+var currentDespDetail=null;
+/* Clone preavisos for mutable state */
+var recState=JSON.parse(JSON.stringify(PREAVISOS));
+
+/* =============== TABS =============== */
+function showTab(tab){
+  currentTab=tab;
+  document.getElementById('viewRecibo').style.display=tab==='recibo'?'block':'none';
+  document.getElementById('viewRecDetail').style.display='none';
+  document.getElementById('viewInventario').style.display=tab==='inventario'?'block':'none';
+  document.getElementById('viewDespachos').style.display=tab==='despachos'?'block':'none';
+  document.getElementById('viewDespDetail').style.display='none';
+  document.getElementById('tabRecibo').classList.toggle('active',tab==='recibo');
+  document.getElementById('tabInventario').classList.toggle('active',tab==='inventario');
+  document.getElementById('tabDespachos').classList.toggle('active',tab==='despachos');
+  /* Update module nav active state */
+  var links=document.querySelectorAll('.mod-link');
+  for(var i=0;i<links.length;i++){
+    var dt=links[i].getAttribute('data-t');
+    links[i].classList.toggle('active',
+      (tab==='recibo'&&dt==='modRecibo')||
+      (tab==='inventario'&&dt==='modInventario')||
+      (tab==='despachos'&&dt==='modDespachos')
+    );
+  }
+  if(tab==='recibo')renderRecibo();
+  if(tab==='inventario')renderInventory();
+  if(tab==='despachos')renderDespachos();
+}
+
+/* =============== FORMAT =============== */
+function fmtCOP(n){return '$'+n.toLocaleString('es-CO');}
+function fmtCOPShort(n){if(n>=1000000)return '$'+Math.round(n/100000)/10+'M';if(n>=1000)return '$'+Math.round(n/1000)+'K';return '$'+n;}
+
+/* =============== RECIBO TAB =============== */
+function renderRecibo(){
+  /* KPIs */
+  var pending=0,prog=0,done=0,itemsToday=0;
+  for(var i=0;i<recState.length;i++){
+    var s=recState[i].status;
+    if(s==='pending')pending++;
+    else if(s==='progress')prog++;
+    else if(s==='done')done++;
+    if(recState[i].eta==='2026-07-28')itemsToday+=recState[i].itemCount;
+  }
+  document.getElementById('recKpis').innerHTML=
+    '<div class="kpi"><div class="kpi-val yellow">'+pending+'</div><div class="kpi-label">'+t('kpiPrePending')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val blue">'+prog+'</div><div class="kpi-label">'+t('kpiPreProgress')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val green">'+done+'</div><div class="kpi-label">'+t('kpiPreDone')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val cyan">'+itemsToday+'</div><div class="kpi-label">'+t('kpiPreItems')+'</div></div>';
+
+  /* Filters */
+  var counts={all:recState.length,pending:pending,progress:prog,done:done};
+  var filters=[
+    {key:'all',label:t('filterAll'),count:counts.all},
+    {key:'pending',label:t('filterPending'),count:counts.pending},
+    {key:'progress',label:t('filterProgress'),count:counts.progress},
+    {key:'done',label:t('filterDone'),count:counts.done}
+  ];
+  var fh='';
+  for(var i=0;i<filters.length;i++){
+    var f=filters[i];
+    fh+='<button class="fpill'+(recFilter===f.key?' active':'')+'" onclick="setRecFilter(\''+f.key+'\')">'+f.label+'<span class="pill-count">'+f.count+'</span></button>';
+  }
+  document.getElementById('recFilterRow').innerHTML=fh;
+
+  /* Cards */
+  var ch='';
+  for(var i=0;i<recState.length;i++){
+    var pa=recState[i];
+    if(recFilter!=='all'&&pa.status!==recFilter)continue;
+    var tagClass=pa.status==='pending'?'tag-pending':pa.status==='progress'?'tag-progress':'tag-done';
+    var tagLabel=pa.status==='pending'?t('filterPending'):pa.status==='progress'?t('filterProgress'):t('filterDone');
+    var verified=0;
+    for(var j=0;j<pa.items.length;j++){if(pa.items[j].verified)verified++;}
+    ch+='<div class="pa-card" onclick="openRecDetail('+i+')">'+
+      '<div class="pa-head">'+
+        '<span class="pa-bl">'+pa.ref+'</span>'+
+        '<span class="pa-tag '+tagClass+'">'+tagLabel+'</span>'+
+      '</div>'+
+      '<div class="pa-info">'+pa.supplier+'</div>'+
+      '<div class="pa-meta">'+
+        '<span>'+ICONS.box+' '+pa.itemCount+' items</span>'+
+        '<span>'+ICONS.clock+' ETA: <span class="mono" style="font-size:10px">'+pa.eta+'</span></span>'+
+        (pa.status!=='pending'?'<span>'+ICONS.check+' '+verified+'/'+pa.items.length+'</span>':'')+
+      '</div>'+
+    '</div>';
+  }
+  if(!ch)ch='<div class="empty-state"><p>'+t('noResults')+'</p></div>';
+  document.getElementById('recList').innerHTML=ch;
+}
+
+function setRecFilter(f){recFilter=f;renderRecibo();}
+
+/* =============== RECIBO DETAIL =============== */
+function openRecDetail(idx){
+  currentRecDetail=idx;
+  var pa=recState[idx];
+  document.getElementById('viewRecibo').style.display='none';
+  document.getElementById('viewRecDetail').style.display='block';
+  renderRecDetail();
+}
+
+function closeRecDetail(){
+  currentRecDetail=null;
+  document.getElementById('viewRecDetail').style.display='none';
+  document.getElementById('viewRecibo').style.display='block';
+  renderRecibo();
+}
+
+function renderRecDetail(){
+  var pa=recState[currentRecDetail];
+  var verified=0;
+  for(var j=0;j<pa.items.length;j++){if(pa.items[j].verified)verified++;}
+  var pct=pa.items.length?Math.round(verified/pa.items.length*100):0;
+  var tagClass=pa.status==='pending'?'tag-pending':pa.status==='progress'?'tag-progress':'tag-done';
+  var tagLabel=pa.status==='pending'?t('filterPending'):pa.status==='progress'?t('filterProgress'):t('filterDone');
+
+  var h='<div class="sec"><div class="sec-head">'+
+    '<div class="sec-title">'+ICONS.box+' '+pa.ref+'</div>'+
+    '<span class="pa-tag '+tagClass+'">'+tagLabel+'</span>'+
+    '</div><div class="sec-body">'+
+    '<div style="font-size:12px;color:var(--dim);margin-bottom:4px">'+pa.supplier+'</div>'+
+    '<div class="pa-meta"><span>'+ICONS.box+' '+pa.itemCount+' items</span><span>'+ICONS.clock+' ETA: <span class="mono" style="font-size:10px">'+pa.eta+'</span></span></div>'+
+    '</div></div>';
+
+  /* Verification section */
+  h+='<div class="sec"><div class="sec-head">'+
+    '<div class="sec-title">'+t('secVerify')+'</div>'+
+    '<span class="sec-tag" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">'+verified+'/'+pa.items.length+'</span>'+
+    '</div><div class="sec-body">';
+
+  /* Scanner */
+  h+='<div class="scan-row">'+
+    '<input class="scan-input" id="recScanInput" placeholder="SKU..." onkeydown="if(event.key===\'Enter\')recScan()">'+
+    '<button class="scan-btn" onclick="recScan()">'+ICONS.scan+' '+t('btnScan')+'</button>'+
+    '</div>';
+
+  /* Progress bar */
+  h+='<div class="prog-bar"><div class="prog-fill'+(pct===100?' complete':'')+'" style="width:'+pct+'%"></div></div>'+
+    '<div class="prog-summary"><span class="mono">'+verified+' / '+pa.items.length+'</span><span class="mono">'+pct+'%</span></div>';
+
+  /* Item list */
+  h+='<div style="margin-top:12px">';
+  for(var j=0;j<pa.items.length;j++){
+    var it=pa.items[j];
+    var cls=it.verified?'done':'';
+    h+='<div class="rv-item '+cls+'">'+
+      '<div class="rv-icon">'+(it.verified?ICONS.check:'')+'</div>'+
+      '<div class="rv-info"><div class="rv-name">'+it.name+'</div><div class="rv-sku">'+it.sku+'</div></div>'+
+      '<div class="rv-qty '+(it.verified?'full':'zero')+'">x'+it.qty+'</div>'+
+      '<div class="rv-acts">'+
+        '<button class="rv-ok'+(it.verified?' active':'')+'" onclick="verifyItem('+j+',true)">'+ICONS.check+'</button>'+
+      '</div>'+
+    '</div>';
+  }
+  h+='</div></div></div>';
+
+  document.getElementById('recDetailContent').innerHTML=h;
+}
+
+function verifyItem(idx,ok){
+  var pa=recState[currentRecDetail];
+  pa.items[idx].verified=ok;
+  /* Update status */
+  var verified=0;
+  for(var j=0;j<pa.items.length;j++){if(pa.items[j].verified)verified++;}
+  if(verified===pa.items.length)pa.status='done';
+  else if(verified>0)pa.status='progress';
+  else pa.status='pending';
+  renderRecDetail();
+}
+
+function recScan(){
+  var input=document.getElementById('recScanInput');
+  var val=input.value.trim().toUpperCase();
+  if(!val)return;
+  var pa=recState[currentRecDetail];
+  var found=false;
+  for(var j=0;j<pa.items.length;j++){
+    if(pa.items[j].sku.toUpperCase()===val){
+      if(pa.items[j].verified){
+        showScanMsg(t('scanDone'),'var(--yellow)');
+      }else{
+        pa.items[j].verified=true;
+        var verified=0;
+        for(var k=0;k<pa.items.length;k++){if(pa.items[k].verified)verified++;}
+        if(verified===pa.items.length)pa.status='done';
+        else pa.status='progress';
+        renderRecDetail();
+      }
+      found=true;
+      break;
+    }
+  }
+  if(!found)showScanMsg(t('scanNotFound'),'var(--red)');
+  input.value='';
+  input.focus();
+}
+
+function showScanMsg(msg,color){
+  var el=document.createElement('div');
+  el.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid '+color+';color:'+color+';padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;z-index:999;animation:pulse .6s';
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},2000);
+}
+
+/* =============== INVENTARIO TAB =============== */
+function renderInventory(){
+  /* KPIs */
+  var totalSku=INVENTORY.length,valorTotal=0,stockBajo=0,agotados=0;
+  for(var i=0;i<INVENTORY.length;i++){
+    valorTotal+=INVENTORY[i].stock*INVENTORY[i].price;
+    if(INVENTORY[i].stock===0)agotados++;
+    else if(INVENTORY[i].stock<INVENTORY[i].min)stockBajo++;
+  }
+  document.getElementById('invKpis').innerHTML=
+    '<div class="kpi"><div class="kpi-val cyan">'+totalSku+'</div><div class="kpi-label">'+t('kpiTotalSku')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val green">'+fmtCOPShort(valorTotal)+'</div><div class="kpi-label">'+t('kpiValorTotal')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val yellow">'+stockBajo+'</div><div class="kpi-label">'+t('kpiStockBajo')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val red">'+agotados+'</div><div class="kpi-label">'+t('kpiAgotados')+'</div></div>';
+
+  /* Category filters */
+  var catCounts={all:INVENTORY.length};
+  var cats=['Bicicletas','Repuestos','Accesorios'];
+  for(var i=0;i<INVENTORY.length;i++){
+    catCounts[INVENTORY[i].cat]=(catCounts[INVENTORY[i].cat]||0)+1;
+  }
+  var catKeys=[{key:'all',label:t('catAll')},{key:'Bicicletas',label:t('catBicicletas')},{key:'Repuestos',label:t('catRepuestos')},{key:'Accesorios',label:t('catAccesorios')}];
+  var cfh='';
+  for(var i=0;i<catKeys.length;i++){
+    var c=catKeys[i];
+    cfh+='<button class="fpill'+(invCat===c.key?' active':'')+'" onclick="setInvCat(\''+c.key+'\')">'+c.label+'<span class="pill-count">'+(catCounts[c.key]||0)+'</span></button>';
+  }
+  document.getElementById('invCatRow').innerHTML=cfh;
+
+  /* Filter + search */
+  var search=(document.getElementById('invSearch').value||'').toLowerCase();
+  var filtered=[];
+  for(var i=0;i<INVENTORY.length;i++){
+    var it=INVENTORY[i];
+    if(invCat!=='all'&&it.cat!==invCat)continue;
+    if(search){
+      var hay=(it.sku+' '+it.name+' '+it.cat).toLowerCase();
+      if(hay.indexOf(search)===-1)continue;
+    }
+    filtered.push(it);
+  }
+
+  document.getElementById('invCount').textContent=filtered.length;
+
+  /* Table */
+  var th='<table class="inv-table"><thead><tr>'+
+    '<th>'+t('thSku')+'</th>'+
+    '<th>'+t('thProducto')+'</th>'+
+    '<th>'+t('thCategoria')+'</th>'+
+    '<th>'+t('thStock')+'</th>'+
+    '<th>'+t('thMin')+'</th>'+
+    '<th>'+t('thPrecio')+'</th>'+
+    '<th>'+t('thEstado')+'</th>'+
+    '</tr></thead><tbody>';
+  for(var i=0;i<filtered.length;i++){
+    var it=filtered[i];
+    var statusClass,statusLabel;
+    if(it.stock===0){statusClass='st-out';statusLabel=t('stAgotado');}
+    else if(it.stock<it.min){statusClass='st-low';statusLabel=t('stBajo');}
+    else{statusClass='st-ok';statusLabel=t('stOk');}
+    th+='<tr>'+
+      '<td class="mono" style="font-size:10px;color:var(--cyan)">'+it.sku+'</td>'+
+      '<td>'+it.name+'</td>'+
+      '<td style="font-size:10px;color:var(--dim)">'+it.cat+'</td>'+
+      '<td class="mono" style="font-weight:600;'+(it.stock<it.min?'color:var(--yellow)':it.stock===0?'color:var(--red)':'')+'">'+it.stock+'</td>'+
+      '<td class="mono" style="color:var(--dim)">'+it.min+'</td>'+
+      '<td class="mono" style="font-size:10px">'+fmtCOP(it.price)+'</td>'+
+      '<td><span class="st-badge '+statusClass+'">'+statusLabel+'</span></td>'+
+    '</tr>';
+  }
+  th+='</tbody></table>';
+  if(!filtered.length)th='<div class="empty-state"><p>'+t('noResults')+'</p></div>';
+  document.getElementById('invTableWrap').innerHTML=th;
+}
+
+function setInvCat(c){invCat=c;renderInventory();}
+
+/* =============== DESPACHOS TAB =============== */
+function renderDespachos(){
+  /* KPIs */
+  var pending=0,prep=0,route=0,done=0;
+  for(var i=0;i<DESPACHOS.length;i++){
+    var s=DESPACHOS[i].status;
+    if(s==='pending')pending++;
+    else if(s==='preparing')prep++;
+    else if(s==='route')route++;
+    else if(s==='done')done++;
+  }
+  document.getElementById('despKpis').innerHTML=
+    '<div class="kpi"><div class="kpi-val yellow">'+pending+'</div><div class="kpi-label">'+t('kpiDespPending')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val orange">'+prep+'</div><div class="kpi-label">'+t('kpiDespPrep')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val blue">'+route+'</div><div class="kpi-label">'+t('kpiDespRoute')+'</div></div>'+
+    '<div class="kpi"><div class="kpi-val green">'+done+'</div><div class="kpi-label">'+t('kpiDespDone')+'</div></div>';
+
+  /* Filters */
+  var counts={all:DESPACHOS.length,pending:pending,preparing:prep,route:route,done:done};
+  var filters=[
+    {key:'all',label:t('dfAll'),count:counts.all},
+    {key:'pending',label:t('dfPending'),count:counts.pending},
+    {key:'preparing',label:t('dfPrep'),count:counts.preparing},
+    {key:'route',label:t('dfRoute'),count:counts.route},
+    {key:'done',label:t('dfDone'),count:counts.done}
+  ];
+  var fh='';
+  for(var i=0;i<filters.length;i++){
+    var f=filters[i];
+    fh+='<button class="fpill'+(despFilter===f.key?' active':'')+'" onclick="setDespFilter(\''+f.key+'\')">'+f.label+'<span class="pill-count">'+f.count+'</span></button>';
+  }
+  document.getElementById('despFilterRow').innerHTML=fh;
+
+  /* Cards */
+  var ch='';
+  for(var i=0;i<DESPACHOS.length;i++){
+    var d=DESPACHOS[i];
+    if(despFilter!=='all'&&d.status!==despFilter)continue;
+    var tagClass,tagLabel;
+    if(d.status==='pending'){tagClass='tag-pending';tagLabel=t('dfPending');}
+    else if(d.status==='preparing'){tagClass='tag-preparing';tagLabel=t('dfPrep');}
+    else if(d.status==='route'){tagClass='tag-route';tagLabel=t('dfRoute');}
+    else{tagClass='tag-done';tagLabel=t('dfDone');}
+
+    /* Item summary */
+    var summary='';
+    for(var j=0;j<d.items.length;j++){
+      if(j>0)summary+=' + ';
+      summary+=d.items[j].qty+'x '+d.items[j].name;
+    }
+    /* Total */
+    var total=0;
+    for(var j=0;j<d.items.length;j++){total+=d.items[j].qty*d.items[j].price;}
+
+    ch+='<div class="pa-card" onclick="openDespDetail('+i+')">'+
+      '<div class="pa-head">'+
+        '<span class="pa-bl">'+d.id+'</span>'+
+        '<span class="pa-tag '+tagClass+'">'+tagLabel+'</span>'+
+      '</div>'+
+      '<div class="pa-info" style="font-weight:600;color:var(--white);margin-bottom:2px">'+ICONS.user+' '+d.customer+'</div>'+
+      '<div class="pa-info" style="font-size:10px;color:var(--dim);line-height:1.4;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">'+summary+'</div>'+
+      '<div class="pa-meta">'+
+        '<span>'+ICONS.mapPin+' '+d.destination+'</span>'+
+        '<span>'+ICONS.store+' '+d.method+'</span>'+
+        '<span class="mono" style="font-size:10px;color:var(--cyan)">'+fmtCOP(total)+'</span>'+
+      '</div>'+
+    '</div>';
+  }
+  if(!ch)ch='<div class="empty-state"><p>'+t('noResults')+'</p></div>';
+  document.getElementById('despList').innerHTML=ch;
+}
+
+function setDespFilter(f){despFilter=f;renderDespachos();}
+
+/* =============== DESPACHO DETAIL =============== */
+function openDespDetail(idx){
+  currentDespDetail=idx;
+  document.getElementById('viewDespachos').style.display='none';
+  document.getElementById('viewDespDetail').style.display='block';
+  renderDespDetail();
+}
+
+function closeDespDetail(){
+  currentDespDetail=null;
+  document.getElementById('viewDespDetail').style.display='none';
+  document.getElementById('viewDespachos').style.display='block';
+  renderDespachos();
+}
+
+function renderDespDetail(){
+  var d=DESPACHOS[currentDespDetail];
+  var tagClass,tagLabel;
+  if(d.status==='pending'){tagClass='tag-pending';tagLabel=t('dfPending');}
+  else if(d.status==='preparing'){tagClass='tag-preparing';tagLabel=t('dfPrep');}
+  else if(d.status==='route'){tagClass='tag-route';tagLabel=t('dfRoute');}
+  else{tagClass='tag-done';tagLabel=t('dfDone');}
+
+  var total=0;
+  for(var j=0;j<d.items.length;j++){total+=d.items[j].qty*d.items[j].price;}
+
+  var h='<div class="sec"><div class="sec-head">'+
+    '<div class="sec-title">'+ICONS.truck+' '+d.id+'</div>'+
+    '<span class="pa-tag '+tagClass+'">'+tagLabel+'</span>'+
+    '</div><div class="sec-body">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:4px">'+
+      '<div><span style="color:var(--dim)">'+t('lblCustomer')+'</span><div style="font-weight:600">'+d.customer+'</div></div>'+
+      '<div><span style="color:var(--dim)">'+t('lblDestination')+'</span><div style="font-weight:600">'+d.destination+'</div></div>'+
+      '<div><span style="color:var(--dim)">'+t('lblMethod')+'</span><div style="font-weight:600">'+d.method+'</div></div>'+
+      '<div><span style="color:var(--dim)">'+t('lblTotal')+'</span><div style="font-weight:700;color:var(--cyan);font-family:\'JetBrains Mono\',monospace">'+fmtCOP(total)+'</div></div>'+
+    '</div>'+
+    '</div></div>';
+
+  /* Items */
+  h+='<div class="sec"><div class="sec-head">'+
+    '<div class="sec-title">'+t('secItems')+'</div>'+
+    '<span class="sec-tag" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">'+d.items.length+'</span>'+
+    '</div><div class="sec-body">';
+  for(var j=0;j<d.items.length;j++){
+    var it=d.items[j];
+    h+='<div class="order-item">'+
+      '<div class="order-item-info"><div class="order-item-name">'+it.name+'</div><div class="order-item-sku">'+it.sku+'</div></div>'+
+      '<div class="order-item-qty">x'+it.qty+'</div>'+
+      '<div class="order-item-price">'+fmtCOP(it.price*it.qty)+'</div>'+
+    '</div>';
+  }
+  h+='</div></div>';
+
+  /* Timeline */
+  h+='<div class="sec"><div class="sec-head">'+
+    '<div class="sec-title">'+t('secTimeline')+'</div>'+
+    '</div><div class="sec-body"><div class="timeline">';
+  for(var j=0;j<d.timeline.length;j++){
+    var tl=d.timeline[j];
+    var dotClass=tl.done?'done':tl.active?'active':'';
+    var titleText=typeof tl.title==='object'?(tl.title[LANG]||tl.title.en):tl.title;
+    h+='<div class="tl-item">'+
+      '<div class="tl-dot '+dotClass+'"></div>'+
+      '<div class="tl-title"'+(tl.done||tl.active?'':' style="color:var(--muted)"')+'>'+titleText+'</div>'+
+      '<div class="tl-time">'+tl.time+'</div>'+
+    '</div>';
+  }
+  h+='</div></div></div>';
+
+  document.getElementById('despDetailContent').innerHTML=h;
+}
+
+/* =============== MODULE NAV CLICK HANDLING =============== */
+(function(){
+  var modLinks=document.querySelectorAll('.mod-link');
+  for(var i=0;i<modLinks.length;i++){
+    var dt=modLinks[i].getAttribute('data-t');
+    if(dt==='modArme')continue; /* Let Arme su Bici navigate normally */
+    modLinks[i].addEventListener('click',function(e){
+      e.preventDefault();
+      var d=this.getAttribute('data-t');
+      if(d==='modRecibo')showTab('recibo');
+      else if(d==='modInventario')showTab('inventario');
+      else if(d==='modDespachos')showTab('despachos');
+    });
+  }
+})();
+
+/* =============== RENDER ALL =============== */
+function renderAll(){renderRecibo();renderInventory();renderDespachos();}
+
+/* =============== INIT =============== */
+applyLang();
+</script>
+</body>
+</html>

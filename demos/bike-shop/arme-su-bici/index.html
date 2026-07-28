@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Arme su Bici -- Ultimate Bike Shop</title>
+<meta name="description" content="Configure su bicicleta ideal paso a paso. Ultimate Bike Shop, Honda, Tolima.">
+<meta name="robots" content="index,follow">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='8' cy='22' r='6' fill='none' stroke='%235ee7f7' stroke-width='2'/%3E%3Ccircle cx='24' cy='22' r='6' fill='none' stroke='%235ee7f7' stroke-width='2'/%3E%3Cpath d='M8 22L14 10h6l2 4-4 8M14 10l4 4' stroke='%235ee7f7' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+  --wa-green:#25D366;
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --cyan:#0e7490;--green:#16a34a;--yellow:#ca8a04;--orange:#ea580c;--red:#dc2626;
+  --blue:#2563eb;--purple:#7c3aed;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+  --wa-green:#128C7E;
+}
+
+/* TOPBAR */
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:16px;background:var(--border3)}
+.tb-name{font-size:11px;font-weight:600;color:var(--dim);letter-spacing:.3px}
+.tb-right{display:flex;align-items:center;gap:6px}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.tb-toggle{padding:4px 8px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px;display:flex;align-items:center;gap:4px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle}
+
+/* TRIAL BANNER */
+.trial-bar{background:linear-gradient(90deg,rgba(94,231,247,.08),rgba(94,231,247,.03));border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:11px;color:var(--dim)}
+.trial-bar strong{color:var(--cyan);font-weight:700}
+.trial-link{color:var(--cyan);font-size:10px;font-weight:600;text-decoration:none;padding:3px 10px;border:1px solid rgba(94,231,247,.2);border-radius:4px;transition:.2s}
+.trial-link:hover{background:rgba(94,231,247,.1);border-color:var(--cyan)}
+
+/* MAIN */
+.main{max-width:640px;margin:0 auto;padding:20px 16px 100px}
+
+/* PROGRESS DOTS */
+.progress{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:28px;padding:16px 0}
+.pdot{width:10px;height:10px;border-radius:50%;background:var(--bg4);border:2px solid var(--border3);transition:.3s;cursor:pointer}
+.pdot.active{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(94,231,247,.4)}
+.pdot.done{background:var(--green);border-color:var(--green)}
+.pline{width:32px;height:2px;background:var(--border3);transition:.3s}
+.pline.done{background:var(--green)}
+
+/* STEP CONTAINER */
+.step{display:none;animation:fadeUp .4s ease}
+.step.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* STEP HEADER */
+.step-head{margin-bottom:20px}
+.step-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
+.step-title{font-size:22px;font-weight:800;color:var(--white);margin-bottom:4px}
+.step-sub{font-size:13px;color:var(--dim);line-height:1.5}
+
+/* BIKE TYPE CARDS */
+.type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.type-card{background:var(--bg2);border:2px solid var(--border2);border-radius:12px;padding:20px 14px;text-align:center;cursor:pointer;transition:.3s;position:relative;overflow:hidden}
+.type-card:hover{border-color:rgba(94,231,247,.4);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.type-card.selected{border-color:var(--cyan);background:rgba(94,231,247,.06);box-shadow:0 0 20px rgba(94,231,247,.12)}
+.type-card.selected::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cyan)}
+.type-icon{width:48px;height:48px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
+.type-icon svg{width:40px;height:40px;stroke:var(--dim);fill:none;stroke-width:1.5;transition:.3s}
+.type-card:hover .type-icon svg,.type-card.selected .type-icon svg{stroke:var(--cyan)}
+.type-name{font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px}
+.type-desc{font-size:10px;color:var(--dim);line-height:1.4}
+
+/* COMPONENT SELECTORS */
+.comp-group{margin-bottom:16px}
+.comp-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.comp-label svg{width:14px;height:14px;stroke:var(--dim);fill:none;stroke-width:2}
+.comp-select{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border3);border-radius:8px;color:var(--white);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:.2s;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.comp-select:focus{border-color:var(--cyan)}
+.comp-select option{background:var(--bg2);color:var(--white);padding:8px}
+
+/* HEIGHT INPUT */
+.height-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:16px}
+.height-input-wrap{flex:1}
+.height-input{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border3);border-radius:8px;color:var(--white);font-size:14px;font-family:'JetBrains Mono',monospace;outline:none;transition:.2s}
+.height-input:focus{border-color:var(--cyan)}
+.height-input::placeholder{color:var(--muted)}
+.frame-badge{padding:8px 16px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.2);border-radius:8px;font-size:13px;font-weight:700;color:var(--cyan);font-family:'JetBrains Mono',monospace;white-space:nowrap;min-width:60px;text-align:center}
+
+/* ACCESSORY GRID */
+.acc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.acc-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;cursor:pointer;transition:.3s;display:flex;flex-direction:column;gap:6px}
+.acc-card:hover{border-color:rgba(94,231,247,.3)}
+.acc-card.selected{border-color:var(--cyan);background:rgba(94,231,247,.06)}
+.acc-card.selected .acc-check{background:var(--cyan);border-color:var(--cyan)}
+.acc-card.selected .acc-check svg{opacity:1}
+.acc-top{display:flex;align-items:center;gap:8px}
+.acc-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border3);display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
+.acc-check svg{width:12px;height:12px;stroke:#060a0e;stroke-width:3;fill:none;opacity:0;transition:.2s}
+.acc-name{font-size:12px;font-weight:600;color:var(--white);line-height:1.3}
+.acc-price{font-size:12px;font-weight:600;color:var(--cyan);font-family:'JetBrains Mono',monospace}
+
+/* FORM INPUTS */
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);margin-bottom:6px;display:block}
+.form-label .req{color:var(--red);margin-left:2px}
+.form-input,.form-textarea{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border3);border-radius:8px;color:var(--white);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:.2s}
+.form-input:focus,.form-textarea:focus{border-color:var(--cyan)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--muted)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-check{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:var(--dim);line-height:1.5}
+.form-check input[type=checkbox]{width:16px;height:16px;accent-color:var(--cyan);margin-top:2px;flex-shrink:0;cursor:pointer}
+.form-check a{color:var(--cyan);text-decoration:none}
+.form-check a:hover{text-decoration:underline}
+.form-error{font-size:11px;color:var(--red);margin-top:4px;display:none}
+
+/* RUNNING TOTAL */
+.total-bar{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);backdrop-filter:blur(20px);border-top:1px solid var(--topbar-border);padding:12px 16px;z-index:90;transition:transform .3s}
+.total-inner{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.total-left{display:flex;flex-direction:column;gap:2px}
+.total-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
+.total-price{font-size:20px;font-weight:800;color:var(--cyan);font-family:'JetBrains Mono',monospace;letter-spacing:-.5px}
+.total-items{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.total-btns{display:flex;gap:8px}
+
+/* BUTTONS */
+.btn{padding:10px 20px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:.25s;border:none;display:inline-flex;align-items:center;gap:6px;letter-spacing:.3px}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.btn-cyan{background:var(--cyan);color:#060a0e}
+.btn-cyan:hover{box-shadow:0 4px 16px rgba(94,231,247,.3);transform:translateY(-1px)}
+.btn-cyan:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-outline{background:transparent;border:1px solid var(--border3);color:var(--dim)}
+.btn-outline:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn-wa{background:var(--wa-green);color:#fff}
+.btn-wa:hover{box-shadow:0 4px 16px rgba(37,211,102,.3);transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1px solid var(--border3);color:var(--dim);padding:8px 14px}
+.btn-ghost:hover{border-color:var(--white);color:var(--white)}
+
+/* RESULT SUMMARY */
+.summary-card{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.summary-head{padding:16px 18px;background:linear-gradient(135deg,rgba(94,231,247,.06),rgba(94,231,247,.02));border-bottom:1px solid var(--border)}
+.summary-head h3{font-size:16px;font-weight:800;color:var(--white)}
+.summary-section{padding:14px 18px;border-bottom:1px solid var(--border)}
+.summary-section:last-child{border-bottom:none}
+.summary-section-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px}
+.summary-row .sr-label{color:var(--white)}
+.summary-row .sr-value{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12px}
+.summary-subtotal{display:flex;justify-content:space-between;align-items:center;padding:8px 0 0;margin-top:6px;border-top:1px solid var(--border);font-size:12px;font-weight:700}
+.summary-subtotal .sr-label{color:var(--dim)}
+.summary-subtotal .sr-value{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:13px}
+
+.grand-total{background:linear-gradient(135deg,rgba(94,231,247,.1),rgba(94,231,247,.04));padding:20px 18px;border-radius:12px;border:1px solid rgba(94,231,247,.15);text-align:center;margin-bottom:16px}
+.grand-total-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.grand-total-price{font-size:32px;font-weight:800;color:var(--cyan);font-family:'JetBrains Mono',monospace;letter-spacing:-1px}
+.grand-total-note{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.5}
+
+.result-actions{display:flex;gap:10px;margin-bottom:16px}
+.result-actions .btn{flex:1;justify-content:center;padding:14px}
+
+/* FOOTER */
+.footer{text-align:center;padding:32px 16px 24px;font-size:11px;color:var(--muted)}
+.footer a{color:var(--dim);text-decoration:none;font-weight:600}
+.footer a:hover{color:var(--cyan)}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px 20px;font-size:12px;font-weight:600;color:var(--white);box-shadow:0 12px 40px rgba(0,0,0,.4);opacity:0;transition:.3s;z-index:200;display:flex;align-items:center;gap:8px;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast.success{border-color:rgba(34,197,94,.3);color:var(--green)}
+.toast.error{border-color:rgba(239,68,68,.3);color:var(--red)}
+.toast svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+
+/* SPINNER */
+.spinner{width:16px;height:16px;border:2px solid rgba(94,231,247,.2);border-top-color:var(--cyan);border-radius:50%;animation:spin .6s linear infinite;display:none}
+.spinner.active{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .type-grid{grid-template-columns:repeat(2,1fr)}
+  .acc-grid{grid-template-columns:1fr 1fr}
+  .result-actions{flex-direction:column}
+  .total-price{font-size:18px}
+  .grand-total-price{font-size:26px}
+  .step-title{font-size:19px}
+  .tb-name{display:none}
+}
+@media(min-width:481px) and (max-width:768px){
+  .type-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* PRINT */
+@media print{
+  .topbar,.trial-bar,.total-bar,.progress,.btn,.toast,.footer{display:none!important}
+  .step{display:block!important;animation:none!important}
+  .main{padding:0;max-width:100%}
+  body{background:#fff;color:#000}
+  .summary-card{border:1px solid #ccc}
+  .summary-row .sr-value,.grand-total-price,.acc-price{color:#0e7490}
+  *{color-adjust:exact;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-name" data-i18n="topbar_name">Ultimate Bike Shop</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+      <svg class="theme-icon" id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- TRIAL BANNER -->
+<div class="trial-bar">
+  <span><strong data-i18n="trial_mode">Modo prueba</strong> <span data-i18n="trial_days">-- 30 dias gratis</span></span>
+  <a href="https://7group.site/pagos/" class="trial-link" data-i18n="trial_plans">Ver planes</a>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- PROGRESS -->
+  <div class="progress" id="progressBar"></div>
+
+  <!-- STEP 1: BIKE TYPE -->
+  <div class="step active" id="step1">
+    <div class="step-head">
+      <div class="step-label" data-i18n="step1_label">Paso 1 de 4</div>
+      <h2 class="step-title" data-i18n="step1_title">Tipo de bicicleta</h2>
+      <p class="step-sub" data-i18n="step1_sub">Selecciona el estilo que mejor se adapta a tu forma de rodar.</p>
+    </div>
+    <div class="type-grid" id="typeGrid"></div>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end">
+      <button class="btn btn-cyan" id="btnStep1Next" disabled onclick="goStep(2)" data-i18n="btn_next">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: CONFIGURE -->
+  <div class="step" id="step2">
+    <div class="step-head">
+      <div class="step-label" data-i18n="step2_label">Paso 2 de 4</div>
+      <h2 class="step-title" data-i18n="step2_title">Configura tu bici</h2>
+      <p class="step-sub" data-i18n="step2_sub">Elige los componentes para tu bicicleta.</p>
+    </div>
+
+    <!-- Height / Frame -->
+    <div class="comp-group">
+      <div class="comp-label">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M8 6l4-4 4 4M8 18l4 4 4-4"/></svg>
+        <span data-i18n="comp_height">Tu estatura (cm)</span>
+      </div>
+      <div class="height-row">
+        <div class="height-input-wrap">
+          <input type="number" class="height-input" id="heightInput" placeholder="Ej: 170" min="100" max="220" oninput="updateFrameSize()">
+        </div>
+        <div class="frame-badge" id="frameBadge">--</div>
+      </div>
+    </div>
+
+    <!-- Frame -->
+    <div class="comp-group">
+      <div class="comp-label">
+        <svg viewBox="0 0 24 24"><path d="M4 16l4-12h4l4 12M4 16h16M12 4l8 12"/></svg>
+        <span data-i18n="comp_frame">Marco / Frame</span>
+      </div>
+      <select class="comp-select" id="selFrame" onchange="updateTotal()"></select>
+    </div>
+
+    <!-- Drivetrain -->
+    <div class="comp-group">
+      <div class="comp-label">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        <span data-i18n="comp_drivetrain">Grupo / Drivetrain</span>
+      </div>
+      <select class="comp-select" id="selDrivetrain" onchange="updateTotal()">
+        <option value="180000">Shimano Tourney -- $180,000</option>
+        <option value="320000">Shimano Altus -- $320,000</option>
+        <option value="450000" selected>Shimano Acera -- $450,000</option>
+        <option value="750000">Shimano Deore -- $750,000</option>
+      </select>
+    </div>
+
+    <!-- Brakes -->
+    <div class="comp-group">
+      <div class="comp-label">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span data-i18n="comp_brakes">Frenos / Brakes</span>
+      </div>
+      <select class="comp-select" id="selBrakes" onchange="updateTotal()">
+        <option value="45000">V-Brake -- $45,000</option>
+        <option value="120000" selected>Disco mecanico -- $120,000</option>
+        <option value="280000">Disco hidraulico -- $280,000</option>
+      </select>
+    </div>
+
+    <!-- Wheels -->
+    <div class="comp-group">
+      <div class="comp-label">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="22"/></svg>
+        <span data-i18n="comp_wheels">Ruedas / Wheels</span>
+      </div>
+      <select class="comp-select" id="selWheels" onchange="updateTotal()">
+        <option value="95000">Estandar -- $95,000</option>
+        <option value="180000" selected>Doble pared -- $180,000</option>
+        <option value="320000">Tubeless ready -- $320,000</option>
+      </select>
+    </div>
+
+    <!-- Fork -->
+    <div class="comp-group">
+      <div class="comp-label">
+        <svg viewBox="0 0 24 24"><path d="M7 2v20M17 2v20M7 8h10M7 14h10"/></svg>
+        <span data-i18n="comp_fork">Suspension / Fork</span>
+      </div>
+      <select class="comp-select" id="selFork" onchange="updateTotal()">
+        <option value="0">Rigida -- Incluida</option>
+        <option value="250000">Resorte 80mm -- $250,000</option>
+        <option value="650000">Aire 100mm -- $650,000</option>
+      </select>
+    </div>
+
+    <div style="margin-top:20px;display:flex;justify-content:space-between">
+      <button class="btn btn-outline" onclick="goStep(1)" data-i18n="btn_back">Atras</button>
+      <button class="btn btn-cyan" onclick="goStep(3)" data-i18n="btn_next">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: ACCESSORIES -->
+  <div class="step" id="step3">
+    <div class="step-head">
+      <div class="step-label" data-i18n="step3_label">Paso 3 de 4</div>
+      <h2 class="step-title" data-i18n="step3_title">Accesorios</h2>
+      <p class="step-sub" data-i18n="step3_sub">Agrega complementos para completar tu experiencia.</p>
+    </div>
+    <div class="acc-grid" id="accGrid"></div>
+    <div style="margin-top:20px;display:flex;justify-content:space-between">
+      <button class="btn btn-outline" onclick="goStep(2)" data-i18n="btn_back">Atras</button>
+      <button class="btn btn-cyan" onclick="goStep(4)" data-i18n="btn_next">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: YOUR INFO -->
+  <div class="step" id="step4">
+    <div class="step-head">
+      <div class="step-label" data-i18n="step4_label">Paso 4 de 4</div>
+      <h2 class="step-title" data-i18n="step4_title">Tus datos</h2>
+      <p class="step-sub" data-i18n="step4_sub">Dejanos tus datos para enviarte la cotizacion.</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" data-i18n="form_name">Nombre completo <span class="req">*</span></label>
+      <input type="text" class="form-input" id="fName" placeholder="Juan Perez" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="form_phone">WhatsApp / Celular <span class="req">*</span></label>
+      <input type="tel" class="form-input" id="fPhone" placeholder="300 123 4567" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="form_email">Email (opcional)</label>
+      <input type="email" class="form-input" id="fEmail" placeholder="correo@ejemplo.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="form_city">Ciudad</label>
+      <input type="text" class="form-input" id="fCity" value="Honda" placeholder="Honda, Tolima">
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="form_notes">Notas adicionales</label>
+      <textarea class="form-textarea" id="fNotes" placeholder="Color preferido, uso principal, etc."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-check">
+        <input type="checkbox" id="fTerms">
+        <span><span data-i18n="form_terms_pre">Acepto los </span><a href="https://7group.site/terminos/" target="_blank" rel="noopener" data-i18n="form_terms_link">terminos y condiciones</a></span>
+      </label>
+      <div class="form-error" id="termsError" data-i18n="form_terms_error">Debes aceptar los terminos para continuar.</div>
+    </div>
+
+    <div style="margin-top:20px;display:flex;justify-content:space-between">
+      <button class="btn btn-outline" onclick="goStep(3)" data-i18n="btn_back">Atras</button>
+      <button class="btn btn-cyan" id="btnSubmit" onclick="submitQuote()" data-i18n="btn_submit">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        Ver cotizacion
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 5: RESULT -->
+  <div class="step" id="step5">
+    <div class="step-head">
+      <div class="step-label" data-i18n="result_label">Cotizacion lista</div>
+      <h2 class="step-title" data-i18n="result_title">Tu bicicleta configurada</h2>
+    </div>
+
+    <div id="summaryContainer"></div>
+
+    <div class="grand-total" id="grandTotalBox">
+      <div class="grand-total-label" data-i18n="result_grand_total">Total estimado</div>
+      <div class="grand-total-price" id="grandTotalPrice">$0</div>
+      <div class="grand-total-note" data-i18n="result_note">Precios sujetos a disponibilidad. Cotizacion valida 48h. Sin compromiso.</div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn btn-wa" onclick="sendWhatsApp()">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+        <span data-i18n="btn_whatsapp">Enviar por WhatsApp</span>
+      </button>
+      <button class="btn btn-ghost" onclick="window.print()">
+        <svg viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+        <span data-i18n="btn_print">Imprimir / PDF</span>
+      </button>
+    </div>
+
+    <div style="text-align:center;margin-top:12px">
+      <button class="btn btn-outline" onclick="resetConfigurator()" data-i18n="btn_new">
+        <svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+        Nueva configuracion
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<!-- RUNNING TOTAL BAR -->
+<div class="total-bar" id="totalBar">
+  <div class="total-inner">
+    <div class="total-left">
+      <div class="total-label" data-i18n="total_label">Total estimado</div>
+      <div class="total-price" id="totalPrice">$0</div>
+    </div>
+    <div class="total-items mono" id="totalItems"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span data-i18n="footer_powered">Impulsado por</span> <a href="https://7group.site" target="_blank" rel="noopener">7group</a>
+</footer>
+
+<script>
+/* ========== DATA ========== */
+const BIKE_TYPES = [
+  {id:'mtb',     es:'Montana / MTB',     en:'Mountain / MTB',     descEs:'Para senderos y terreno irregular',        descEn:'For trails and rough terrain',
+   icon:'<svg viewBox="0 0 48 48"><path d="M6 38l12-18 6 8 6-14 12 24"/><path d="M4 38h40"/><circle cx="10" cy="34" r="4"/><circle cx="38" cy="34" r="4"/></svg>',
+   frames:[{es:'Acero basico',en:'Basic steel',price:350000},{es:'Aluminio 6061',en:'Aluminum 6061',price:680000},{es:'Carbono T700',en:'Carbon T700',price:1800000}]},
+  {id:'road',    es:'Ruta / Road',        en:'Road',                descEs:'Velocidad en carretera',                   descEn:'Highway speed',
+   icon:'<svg viewBox="0 0 48 48"><path d="M4 36h40M10 36c0-8 6-20 14-20s14 12 14 20"/><circle cx="10" cy="36" r="4"/><circle cx="38" cy="36" r="4"/><path d="M24 16v10"/></svg>',
+   frames:[{es:'Aluminio aero',en:'Aero aluminum',price:550000},{es:'Carbono endurance',en:'Endurance carbon',price:1200000},{es:'Carbono race',en:'Race carbon',price:2400000}]},
+  {id:'urban',   es:'Urbana / Hybrid',    en:'Urban / Hybrid',      descEs:'Desplazamiento diario',                    descEn:'Daily commute',
+   icon:'<svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="2" fill="none"/><path d="M14 36v4M34 36v4M20 20h8M16 26h16"/><path d="M2 18h6M40 18h6"/></svg>',
+   frames:[{es:'Acero Hi-Ten',en:'Hi-Ten steel',price:280000},{es:'Aluminio city',en:'City aluminum',price:480000},{es:'Cromoly urban',en:'Cromoly urban',price:750000}]},
+  {id:'bmx',     es:'BMX / Freestyle',    en:'BMX / Freestyle',     descEs:'Trucos y estilo',                          descEn:'Tricks and style',
+   icon:'<svg viewBox="0 0 48 48"><circle cx="12" cy="32" r="8"/><circle cx="36" cy="32" r="8"/><path d="M12 32l8-16h8l8 16M20 16l4 8"/></svg>',
+   frames:[{es:'Acero Cr-Mo 20"',en:'Cr-Mo steel 20"',price:320000},{es:'Aluminio race',en:'Race aluminum',price:550000},{es:'Cromoly pro',en:'Pro cromoly',price:900000}]},
+  {id:'ebike',   es:'Electrica / E-bike', en:'Electric / E-bike',   descEs:'Pedaleo asistido',                         descEn:'Pedal assist',
+   icon:'<svg viewBox="0 0 48 48"><circle cx="12" cy="32" r="8"/><circle cx="36" cy="32" r="8"/><path d="M12 32l8-16h8l8 16"/><path d="M22 18l-3 10h6l-3 10" stroke-width="2.5"/></svg>',
+   frames:[{es:'Aluminio c/motor 250W',en:'Aluminum w/250W motor',price:1800000},{es:'Aluminio c/motor 500W',en:'Aluminum w/500W motor',price:2800000},{es:'Carbono c/motor 500W',en:'Carbon w/500W motor',price:4500000}]},
+  {id:'kids',    es:'Infantil / Kids',    en:'Kids',                descEs:'Para los pequenos',                        descEn:'For the little ones',
+   icon:'<svg viewBox="0 0 48 48"><circle cx="14" cy="34" r="6"/><circle cx="34" cy="34" r="6"/><path d="M14 34l6-14h6l8 14"/><path d="M20 20l2 4"/><circle cx="22" cy="14" r="3"/></svg>',
+   frames:[{es:'Acero 16"',en:'Steel 16"',price:180000},{es:'Acero 20"',en:'Steel 20"',price:220000},{es:'Aluminio 24"',en:'Aluminum 24"',price:380000}]},
+  {id:'gravel',  es:'Gravel',             en:'Gravel',              descEs:'Mixto carretera y tierra',                 descEn:'Mixed road and dirt',
+   icon:'<svg viewBox="0 0 48 48"><circle cx="12" cy="32" r="8"/><circle cx="36" cy="32" r="8"/><path d="M12 32l8-16h8l8 16M20 16l4 8"/><path d="M4 42c4-2 8-1 12-3s8-1 12-3 8-1 12-3" stroke-dasharray="3 2"/></svg>',
+   frames:[{es:'Aluminio adventure',en:'Adventure aluminum',price:600000},{es:'Cromoly touring',en:'Touring cromoly',price:950000},{es:'Carbono gravel',en:'Gravel carbon',price:2100000}]},
+];
+
+const ACCESSORIES = [
+  {id:'helmet',    es:'Casco GW Sport',       en:'GW Sport helmet',      price:85000},
+  {id:'lights',    es:'Kit luces LED',         en:'LED light kit',        price:35000},
+  {id:'lock',      es:'Candado U-Lock',        en:'U-Lock',               price:55000},
+  {id:'gloves',    es:'Guantes ciclismo',      en:'Cycling gloves',       price:40000},
+  {id:'rack',      es:'Parrilla trasera',      en:'Rear rack',            price:45000},
+  {id:'bottle',    es:'Caramanola + porta',     en:'Bottle + cage',       price:25000},
+  {id:'pump',      es:'Bomba portatil',        en:'Portable pump',        price:30000},
+  {id:'tool',      es:'Herramienta multitool', en:'Multitool',            price:30000},
+  {id:'bell',      es:'Timbre',                en:'Bell',                 price:12000},
+  {id:'fenders',   es:'Guardabarros par',      en:'Fender pair',          price:28000},
+];
+
+/* ========== i18n ========== */
+const I18N = {
+  es:{
+    topbar_name:'Ultimate Bike Shop',
+    trial_mode:'Modo prueba',trial_days:'-- 30 dias gratis',trial_plans:'Ver planes',
+    step1_label:'Paso 1 de 4',step1_title:'Tipo de bicicleta',step1_sub:'Selecciona el estilo que mejor se adapta a tu forma de rodar.',
+    step2_label:'Paso 2 de 4',step2_title:'Configura tu bici',step2_sub:'Elige los componentes para tu bicicleta.',
+    step3_label:'Paso 3 de 4',step3_title:'Accesorios',step3_sub:'Agrega complementos para completar tu experiencia.',
+    step4_label:'Paso 4 de 4',step4_title:'Tus datos',step4_sub:'Dejanos tus datos para enviarte la cotizacion.',
+    result_label:'Cotizacion lista',result_title:'Tu bicicleta configurada',
+    comp_height:'Tu estatura (cm)',comp_frame:'Marco / Frame',comp_drivetrain:'Grupo / Drivetrain',
+    comp_brakes:'Frenos / Brakes',comp_wheels:'Ruedas / Wheels',comp_fork:'Suspension / Fork',
+    form_name:'Nombre completo <span class="req">*</span>',form_phone:'WhatsApp / Celular <span class="req">*</span>',
+    form_email:'Email (opcional)',form_city:'Ciudad',form_notes:'Notas adicionales',
+    form_terms_pre:'Acepto los ',form_terms_link:'terminos y condiciones',form_terms_error:'Debes aceptar los terminos para continuar.',
+    btn_next:'Siguiente',btn_back:'Atras',btn_submit:'Ver cotizacion',btn_whatsapp:'Enviar por WhatsApp',btn_print:'Imprimir / PDF',btn_new:'Nueva configuracion',
+    total_label:'Total estimado',result_grand_total:'Total estimado',
+    result_note:'Precios sujetos a disponibilidad. Cotizacion valida 48h. Sin compromiso.',
+    footer_powered:'Impulsado por',
+    summary_bike:'Bicicleta base',summary_components:'Componentes',summary_accessories:'Accesorios',summary_subtotal:'Subtotal',
+    summary_type:'Tipo',summary_frame_size:'Talla marco',summary_frame:'Marco',summary_drivetrain:'Grupo',summary_brakes:'Frenos',summary_wheels:'Ruedas',summary_fork:'Suspension',
+    included:'Incluida',
+    toast_sent:'Cotizacion enviada correctamente',toast_error:'Error al enviar. Intenta de nuevo.',
+    frame_s:'S (Pequeno)',frame_m:'M (Mediano)',frame_l:'L (Grande)',frame_xl:'XL (Extra grande)',
+    validate_name:'Ingresa tu nombre.',validate_phone:'Ingresa tu WhatsApp o celular.',validate_terms:'Acepta los terminos.',
+  },
+  en:{
+    topbar_name:'Ultimate Bike Shop',
+    trial_mode:'Trial mode',trial_days:'-- 30 days free',trial_plans:'See plans',
+    step1_label:'Step 1 of 4',step1_title:'Bike type',step1_sub:'Select the style that best fits your ride.',
+    step2_label:'Step 2 of 4',step2_title:'Configure your bike',step2_sub:'Choose the components for your bicycle.',
+    step3_label:'Step 3 of 4',step3_title:'Accessories',step3_sub:'Add extras to complete your experience.',
+    step4_label:'Step 4 of 4',step4_title:'Your info',step4_sub:'Leave your details so we can send the quote.',
+    result_label:'Quote ready',result_title:'Your configured bicycle',
+    comp_height:'Your height (cm)',comp_frame:'Frame',comp_drivetrain:'Drivetrain',
+    comp_brakes:'Brakes',comp_wheels:'Wheels',comp_fork:'Fork / Suspension',
+    form_name:'Full name <span class="req">*</span>',form_phone:'WhatsApp / Mobile <span class="req">*</span>',
+    form_email:'Email (optional)',form_city:'City',form_notes:'Additional notes',
+    form_terms_pre:'I accept the ',form_terms_link:'terms and conditions',form_terms_error:'You must accept the terms to continue.',
+    btn_next:'Next',btn_back:'Back',btn_submit:'View quote',btn_whatsapp:'Send via WhatsApp',btn_print:'Print / PDF',btn_new:'New configuration',
+    total_label:'Estimated total',result_grand_total:'Estimated total',
+    result_note:'Prices subject to availability. Quote valid 48h. No commitment.',
+    footer_powered:'Powered by',
+    summary_bike:'Base bicycle',summary_components:'Components',summary_accessories:'Accessories',summary_subtotal:'Subtotal',
+    summary_type:'Type',summary_frame_size:'Frame size',summary_frame:'Frame',summary_drivetrain:'Drivetrain',summary_brakes:'Brakes',summary_wheels:'Wheels',summary_fork:'Fork',
+    included:'Included',
+    toast_sent:'Quote sent successfully',toast_error:'Error sending. Try again.',
+    frame_s:'S (Small)',frame_m:'M (Medium)',frame_l:'L (Large)',frame_xl:'XL (Extra large)',
+    validate_name:'Enter your name.',validate_phone:'Enter your WhatsApp or phone.',validate_terms:'Accept the terms.',
+  }
+};
+
+/* ========== STATE ========== */
+let lang = 'es';
+let currentStep = 1;
+let selectedType = null;
+let selectedAccessories = new Set();
+
+/* ========== INIT ========== */
+document.addEventListener('DOMContentLoaded', () => {
+  renderProgress();
+  renderTypes();
+  renderAccessories();
+  updateTotal();
+  // Restore theme
+  if(localStorage.getItem('7g-theme')==='light') document.documentElement.classList.add('light');
+  updateThemeIcon();
+});
+
+/* ========== PROGRESS BAR ========== */
+function renderProgress(){
+  const bar = document.getElementById('progressBar');
+  let html = '';
+  for(let i=1;i<=4;i++){
+    const cls = i===currentStep?'active':i<currentStep?'done':'';
+    html += `<div class="pdot ${cls}" onclick="canGoStep(${i})&&goStep(${i})" title="Paso ${i}"></div>`;
+    if(i<4) html += `<div class="pline ${i<currentStep?'done':''}"></div>`;
+  }
+  bar.innerHTML = html;
+}
+
+function canGoStep(s){
+  if(s===1) return true;
+  if(s>=2 && !selectedType) return false;
+  return s <= currentStep;
+}
+
+/* ========== BIKE TYPE CARDS ========== */
+function renderTypes(){
+  const grid = document.getElementById('typeGrid');
+  grid.innerHTML = BIKE_TYPES.map(t => `
+    <div class="type-card" data-id="${t.id}" onclick="selectType('${t.id}')">
+      <div class="type-icon">${t.icon}</div>
+      <div class="type-name">${lang==='es'?t.es:t.en}</div>
+      <div class="type-desc">${lang==='es'?t.descEs:t.descEn}</div>
+    </div>
+  `).join('');
+  if(selectedType) highlightType();
+}
+
+function selectType(id){
+  selectedType = id;
+  highlightType();
+  document.getElementById('btnStep1Next').disabled = false;
+  populateFrames();
+  updateTotal();
+}
+
+function highlightType(){
+  document.querySelectorAll('.type-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.id === selectedType);
+  });
+}
+
+/* ========== FRAME SELECTOR ========== */
+function populateFrames(){
+  const type = BIKE_TYPES.find(t => t.id === selectedType);
+  if(!type) return;
+  const sel = document.getElementById('selFrame');
+  sel.innerHTML = type.frames.map(f =>
+    `<option value="${f.price}">${lang==='es'?f.es:f.en} -- ${formatCOP(f.price)}</option>`
+  ).join('');
+}
+
+/* ========== HEIGHT / FRAME SIZE ========== */
+function updateFrameSize(){
+  const h = parseInt(document.getElementById('heightInput').value);
+  const badge = document.getElementById('frameBadge');
+  const t = I18N[lang];
+  if(!h || h<100){badge.textContent='--';return;}
+  if(h<160) badge.textContent = t.frame_s;
+  else if(h<=175) badge.textContent = t.frame_m;
+  else if(h<=185) badge.textContent = t.frame_l;
+  else badge.textContent = t.frame_xl;
+}
+
+/* ========== ACCESSORIES ========== */
+function renderAccessories(){
+  const grid = document.getElementById('accGrid');
+  grid.innerHTML = ACCESSORIES.map(a => `
+    <div class="acc-card" data-id="${a.id}" onclick="toggleAcc('${a.id}')">
+      <div class="acc-top">
+        <div class="acc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="acc-name">${lang==='es'?a.es:a.en}</div>
+      </div>
+      <div class="acc-price">${formatCOP(a.price)}</div>
+    </div>
+  `).join('');
+  // Re-apply selections
+  selectedAccessories.forEach(id => {
+    const card = document.querySelector(`.acc-card[data-id="${id}"]`);
+    if(card) card.classList.add('selected');
+  });
+}
+
+function toggleAcc(id){
+  if(selectedAccessories.has(id)) selectedAccessories.delete(id);
+  else selectedAccessories.add(id);
+  const card = document.querySelector(`.acc-card[data-id="${id}"]`);
+  if(card) card.classList.toggle('selected');
+  updateTotal();
+}
+
+/* ========== PRICE CALCULATION ========== */
+function getFramePrice(){
+  const sel = document.getElementById('selFrame');
+  return sel.options.length ? parseInt(sel.value)||0 : 0;
+}
+function getDrivetrainPrice(){ return parseInt(document.getElementById('selDrivetrain').value)||0; }
+function getBrakesPrice(){ return parseInt(document.getElementById('selBrakes').value)||0; }
+function getWheelsPrice(){ return parseInt(document.getElementById('selWheels').value)||0; }
+function getForkPrice(){ return parseInt(document.getElementById('selFork').value)||0; }
+
+function getComponentsTotal(){
+  return getDrivetrainPrice() + getBrakesPrice() + getWheelsPrice() + getForkPrice();
+}
+
+function getAccessoriesTotal(){
+  let sum = 0;
+  selectedAccessories.forEach(id => {
+    const a = ACCESSORIES.find(x => x.id === id);
+    if(a) sum += a.price;
+  });
+  return sum;
+}
+
+function getGrandTotal(){
+  return getFramePrice() + getComponentsTotal() + getAccessoriesTotal();
+}
+
+function updateTotal(){
+  const total = getGrandTotal();
+  document.getElementById('totalPrice').textContent = formatCOP(total);
+  const items = [];
+  if(selectedType) items.push(BIKE_TYPES.find(t=>t.id===selectedType)[lang==='es'?'es':'en']);
+  if(selectedAccessories.size>0) items.push(`+${selectedAccessories.size} acc.`);
+  document.getElementById('totalItems').textContent = items.join(' | ');
+}
+
+/* ========== STEP NAVIGATION ========== */
+function goStep(n){
+  // hide all
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  currentStep = n;
+  document.getElementById('step'+n).classList.add('active');
+  renderProgress();
+  // Show/hide total bar on result
+  document.getElementById('totalBar').style.display = n===5?'none':'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+  // If going to step 2, populate frames
+  if(n===2) populateFrames();
+}
+
+/* ========== FORM VALIDATION & SUBMIT ========== */
+function submitQuote(){
+  const t = I18N[lang];
+  const name = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const terms = document.getElementById('fTerms').checked;
+
+  // Validate
+  if(!name){showToast(t.validate_name,'error');document.getElementById('fName').focus();return;}
+  if(!phone){showToast(t.validate_phone,'error');document.getElementById('fPhone').focus();return;}
+  if(!terms){
+    document.getElementById('termsError').style.display='block';
+    showToast(t.validate_terms,'error');
+    return;
+  }
+  document.getElementById('termsError').style.display='none';
+
+  // Build summary
+  buildSummary();
+  goStep(5);
+
+  // Send notifications
+  sendNotifications();
+}
+
+/* ========== BUILD SUMMARY ========== */
+function buildSummary(){
+  const t = I18N[lang];
+  const type = BIKE_TYPES.find(x=>x.id===selectedType);
+  const frameOpt = document.getElementById('selFrame');
+  const driveOpt = document.getElementById('selDrivetrain');
+  const brakeOpt = document.getElementById('selBrakes');
+  const wheelOpt = document.getElementById('selWheels');
+  const forkOpt = document.getElementById('selFork');
+
+  const frameLabel = frameOpt.options[frameOpt.selectedIndex].text.split(' -- ')[0];
+  const driveLabel = driveOpt.options[driveOpt.selectedIndex].text.split(' -- ')[0];
+  const brakeLabel = brakeOpt.options[brakeOpt.selectedIndex].text.split(' -- ')[0];
+  const wheelLabel = wheelOpt.options[wheelOpt.selectedIndex].text.split(' -- ')[0];
+  const forkLabel = forkOpt.options[forkOpt.selectedIndex].text.split(' -- ')[0];
+
+  const height = document.getElementById('heightInput').value;
+  const frameBadge = document.getElementById('frameBadge').textContent;
+
+  const bikeSubtotal = getFramePrice();
+  const compSubtotal = getComponentsTotal();
+  const accSubtotal = getAccessoriesTotal();
+
+  let html = `<div class="summary-card">`;
+  // Bike section
+  html += `<div class="summary-head"><h3>${t.summary_bike}</h3></div>`;
+  html += `<div class="summary-section">`;
+  html += row(t.summary_type, type[lang==='es'?'es':'en']);
+  if(height) html += row(t.summary_frame_size, `${height}cm → ${frameBadge}`);
+  html += row(t.summary_frame, frameLabel, formatCOP(getFramePrice()));
+  html += `<div class="summary-subtotal"><span class="sr-label">${t.summary_subtotal}</span><span class="sr-value">${formatCOP(bikeSubtotal)}</span></div>`;
+  html += `</div>`;
+
+  // Components section
+  html += `<div class="summary-section">`;
+  html += `<div class="summary-section-title">${t.summary_components}</div>`;
+  html += row(t.summary_drivetrain, driveLabel, formatCOP(getDrivetrainPrice()));
+  html += row(t.summary_brakes, brakeLabel, formatCOP(getBrakesPrice()));
+  html += row(t.summary_wheels, wheelLabel, formatCOP(getWheelsPrice()));
+  const forkP = getForkPrice();
+  html += row(t.summary_fork, forkLabel, forkP===0? t.included : formatCOP(forkP));
+  html += `<div class="summary-subtotal"><span class="sr-label">${t.summary_subtotal}</span><span class="sr-value">${formatCOP(compSubtotal)}</span></div>`;
+  html += `</div>`;
+
+  // Accessories section
+  if(selectedAccessories.size > 0){
+    html += `<div class="summary-section">`;
+    html += `<div class="summary-section-title">${t.summary_accessories}</div>`;
+    selectedAccessories.forEach(id => {
+      const a = ACCESSORIES.find(x=>x.id===id);
+      if(a) html += row(lang==='es'?a.es:a.en, '', formatCOP(a.price));
+    });
+    html += `<div class="summary-subtotal"><span class="sr-label">${t.summary_subtotal}</span><span class="sr-value">${formatCOP(accSubtotal)}</span></div>`;
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  document.getElementById('summaryContainer').innerHTML = html;
+  document.getElementById('grandTotalPrice').textContent = formatCOP(getGrandTotal());
+}
+
+function row(label, detail, price){
+  if(price){
+    return `<div class="summary-row"><span class="sr-label">${label}: ${detail}</span><span class="sr-value">${price}</span></div>`;
+  }
+  return `<div class="summary-row"><span class="sr-label">${label}</span><span class="sr-value">${detail}</span></div>`;
+}
+
+/* ========== WHATSAPP ========== */
+function sendWhatsApp(){
+  const phone = document.getElementById('fPhone').value.trim().replace(/\D/g,'');
+  const name = document.getElementById('fName').value.trim();
+  const type = BIKE_TYPES.find(x=>x.id===selectedType);
+
+  const frameOpt = document.getElementById('selFrame');
+  const driveOpt = document.getElementById('selDrivetrain');
+  const brakeOpt = document.getElementById('selBrakes');
+  const wheelOpt = document.getElementById('selWheels');
+  const forkOpt = document.getElementById('selFork');
+
+  let msg = `*COTIZACION -- Ultimate Bike Shop*\n`;
+  msg += `Honda, Tolima\n\n`;
+  msg += `*Cliente:* ${name}\n`;
+  msg += `*Tipo:* ${type[lang==='es'?'es':'en']}\n\n`;
+  msg += `*COMPONENTES*\n`;
+  msg += `Marco: ${frameOpt.options[frameOpt.selectedIndex].text.split(' -- ')[0]} - ${formatCOP(getFramePrice())}\n`;
+  msg += `Grupo: ${driveOpt.options[driveOpt.selectedIndex].text.split(' -- ')[0]} - ${formatCOP(getDrivetrainPrice())}\n`;
+  msg += `Frenos: ${brakeOpt.options[brakeOpt.selectedIndex].text.split(' -- ')[0]} - ${formatCOP(getBrakesPrice())}\n`;
+  msg += `Ruedas: ${wheelOpt.options[wheelOpt.selectedIndex].text.split(' -- ')[0]} - ${formatCOP(getWheelsPrice())}\n`;
+  msg += `Suspension: ${forkOpt.options[forkOpt.selectedIndex].text.split(' -- ')[0]} - ${getForkPrice()===0?'Incluida':formatCOP(getForkPrice())}\n`;
+
+  if(selectedAccessories.size>0){
+    msg += `\n*ACCESORIOS*\n`;
+    selectedAccessories.forEach(id => {
+      const a = ACCESSORIES.find(x=>x.id===id);
+      if(a) msg += `${lang==='es'?a.es:a.en} - ${formatCOP(a.price)}\n`;
+    });
+  }
+
+  msg += `\n*TOTAL: ${formatCOP(getGrandTotal())}*\n`;
+  msg += `\nPrecios sujetos a disponibilidad.\nCotizacion valida 48h.`;
+
+  // Phone: prepend Colombia code if needed
+  let waPhone = phone;
+  if(waPhone.length === 10 && waPhone.startsWith('3')) waPhone = '57' + waPhone;
+
+  window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* ========== NOTIFICATIONS ========== */
+async function sendNotifications(){
+  const name = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+  const city = document.getElementById('fCity').value.trim();
+  const notes = document.getElementById('fNotes').value.trim();
+  const type = BIKE_TYPES.find(x=>x.id===selectedType);
+
+  const frameOpt = document.getElementById('selFrame');
+  const driveOpt = document.getElementById('selDrivetrain');
+  const brakeOpt = document.getElementById('selBrakes');
+  const wheelOpt = document.getElementById('selWheels');
+  const forkOpt = document.getElementById('selFork');
+
+  // Build text summary
+  let text = `NUEVA COTIZACION BICI\n`;
+  text += `========================\n`;
+  text += `Cliente: ${name}\n`;
+  text += `WhatsApp: ${phone}\n`;
+  if(email) text += `Email: ${email}\n`;
+  text += `Ciudad: ${city}\n`;
+  text += `========================\n`;
+  text += `Tipo: ${type.es}\n`;
+  text += `Marco: ${frameOpt.options[frameOpt.selectedIndex].text.split(' -- ')[0]} (${formatCOP(getFramePrice())})\n`;
+  text += `Grupo: ${driveOpt.options[driveOpt.selectedIndex].text.split(' -- ')[0]} (${formatCOP(getDrivetrainPrice())})\n`;
+  text += `Frenos: ${brakeOpt.options[brakeOpt.selectedIndex].text.split(' -- ')[0]} (${formatCOP(getBrakesPrice())})\n`;
+  text += `Ruedas: ${wheelOpt.options[wheelOpt.selectedIndex].text.split(' -- ')[0]} (${formatCOP(getWheelsPrice())})\n`;
+  text += `Suspension: ${forkOpt.options[forkOpt.selectedIndex].text.split(' -- ')[0]} (${getForkPrice()===0?'Incluida':formatCOP(getForkPrice())})\n`;
+
+  if(selectedAccessories.size>0){
+    text += `\nAccesorios:\n`;
+    selectedAccessories.forEach(id => {
+      const a = ACCESSORIES.find(x=>x.id===id);
+      if(a) text += `  - ${a.es} (${formatCOP(a.price)})\n`;
+    });
+  }
+
+  text += `\nTOTAL: ${formatCOP(getGrandTotal())}\n`;
+  if(notes) text += `\nNotas: ${notes}\n`;
+
+  // Telegram
+  try{
+    const tgUrl = `https://api.telegram.org/bot8815751812:AAEGlCiQAZKSamRUfD5r0lmzjLTRAaFcdqw/sendMessage`;
+    await fetch(tgUrl, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:'1081707115', text, parse_mode:'HTML'})
+    });
+  }catch(e){console.warn('Telegram error:',e);}
+
+  // Web3Forms
+  try{
+    await fetch('https://api.web3forms.com/submit', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        access_key:'76bc323e-4cf1-4c6c-9221-88d0f6261f7d',
+        subject:`Cotizacion Bici -- ${name} -- ${type.es}`,
+        from_name: name,
+        phone: phone,
+        email: email || 'no-proporcionado@placeholder.com',
+        city: city,
+        message: text,
+      })
+    });
+  }catch(e){console.warn('Web3Forms error:',e);}
+
+  showToast(I18N[lang].toast_sent, 'success');
+}
+
+/* ========== RESET ========== */
+function resetConfigurator(){
+  selectedType = null;
+  selectedAccessories.clear();
+  document.getElementById('heightInput').value = '';
+  document.getElementById('frameBadge').textContent = '--';
+  document.getElementById('fName').value = '';
+  document.getElementById('fPhone').value = '';
+  document.getElementById('fEmail').value = '';
+  document.getElementById('fCity').value = 'Honda';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('fTerms').checked = false;
+  document.getElementById('btnStep1Next').disabled = true;
+  // Reset dropdowns
+  document.getElementById('selDrivetrain').selectedIndex = 2;
+  document.getElementById('selBrakes').selectedIndex = 1;
+  document.getElementById('selWheels').selectedIndex = 1;
+  document.getElementById('selFork').selectedIndex = 0;
+  goStep(1);
+  renderTypes();
+  renderAccessories();
+  updateTotal();
+}
+
+/* ========== LANGUAGE ========== */
+function setLang(l){
+  lang = l;
+  document.querySelectorAll('.lang-opt').forEach(b => b.classList.toggle('active', b.textContent.trim()===l.toUpperCase()));
+  document.documentElement.lang = l;
+
+  // Update i18n text nodes
+  const t = I18N[l];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if(t[key]) el.innerHTML = t[key];
+  });
+
+  // Re-render dynamic content
+  renderTypes();
+  renderAccessories();
+  populateFrames();
+  updateFrameSize();
+  updateTotal();
+  renderProgress();
+
+  // Update drivetrain/brakes/wheels/fork labels based on language
+  // (These are static, no language change needed for option text since they use brand names)
+}
+
+/* ========== THEME ========== */
+function toggleTheme(){
+  document.documentElement.classList.toggle('light');
+  const isLight = document.documentElement.classList.contains('light');
+  localStorage.setItem('7g-theme', isLight?'light':'dark');
+  updateThemeIcon();
+}
+
+function updateThemeIcon(){
+  const isLight = document.documentElement.classList.contains('light');
+  const icon = document.getElementById('themeIcon');
+  if(isLight){
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  } else {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>';
+  }
+}
+
+/* ========== UTILITIES ========== */
+function formatCOP(n){
+  return '$' + n.toLocaleString('es-CO') + ' COP';
+}
+
+function showToast(msg, type=''){
+  const toast = document.getElementById('toast');
+  const iconSvg = type==='success'
+    ? '<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+    : type==='error'
+    ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+    : '';
+  toast.className = 'toast ' + type;
+  toast.innerHTML = iconSvg + msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 3500);
+}
+</script>
+
+</body>
+</html>
