@@ -94,9 +94,9 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .extracted-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:14px;margin-bottom:8px}
-.extracted-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
-.extracted-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--dim)}
-.extracted-val{font-size:13px;font-weight:600;color:var(--white);font-family:'JetBrains Mono',monospace}
+.extracted-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;gap:12px}
+.extracted-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);white-space:nowrap;min-width:100px;flex-shrink:0}
+.extracted-val{font-size:13px;font-weight:600;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:right;word-break:break-word}
 .extracted-val.highlight{color:var(--cyan)}
 
 .item-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;margin-bottom:6px}
@@ -594,6 +594,11 @@ var T = {
   lblPort:     {es:'Puerto',                      en:'Port'},
   lblConsignee:{es:'Consignatario',               en:'Consignee'},
   lblVessel:   {es:'Buque / Vuelo',               en:'Vessel / Flight'},
+  lblOrigin:   {es:'Origen',                      en:'Origin'},
+  lblPieces:   {es:'Piezas / Bultos',             en:'Pieces / Bultos'},
+  lblVolume:   {es:'Volumen',                     en:'Volume'},
+  lblDeclVal:  {es:'Valor declarado',             en:'Declared value'},
+  lblHandling: {es:'Manejo especial',             en:'Special handling'},
   statusPending:  {es:'Pendiente',                en:'Pending'},
   statusTransit:  {es:'En transito',              en:'In transit'},
   statusArrived:  {es:'Llegada',                  en:'Arrived'},
@@ -1053,10 +1058,32 @@ function parseDocumentText(txt) {
   if (!port) port = grabAfterLabel(/destination|destino/i);
   if (!port) { m = full.match(/([A-Z]{3})\s*[\-–]\s*([A-Z][A-Za-z, ]+)/); if (m) port = m[1]+' - '+m[2].trim(); }
 
+  var origin = grabAfterLabel(/origin|origen/i);
+  if (!origin) { m = full.match(/([A-Z]{3})\s*[\-–]\s*([A-Z][A-Za-z, ]+?)(?=\s+(?:consignee|destination|destino|MIA|JFK|LAX|ORD|ATL|FLL|EWR))/i); if (m) origin = m[1]+' - '+m[2].trim(); }
+
   var totalWeight = '';
   m = full.match(/(?:gross\s*weight|peso\s*bruto|total\s*weight|chargeable\s*weight|actual\s*weight)[^\t\n]*?([\d,\.]+)\s*(kg|lbs?|tons?|kilos?)/i);
   if (m) totalWeight = m[1]+' '+m[2];
   if (!totalWeight) { m = full.match(/([\d,\.]+)\s*(kg|lbs)\b/i); if (m) totalWeight = m[1]+' '+m[2]; }
+
+  var pieces = '';
+  m = full.match(/(?:pieces|bultos|pkgs|packages|pcs)[^\t\n]*?(\d[\d,]*\s*(?:pallets?|cartons?|boxes?|ctns?|pcs|units?|pkgs?)?)/i);
+  if (m) pieces = m[1];
+  if (!pieces) { m = full.match(/(\d[\d,]*)\s*(?:pallets?|cartons?|boxes?|ctns?|packages?)/i); if (m) pieces = m[0]; }
+
+  var volume = '';
+  m = full.match(/(?:volume|volumen)[^\t\n]*?([\d,\.]+)\s*(CBM|m3|cu\.?\s*m|cu\.?\s*ft)/i);
+  if (m) volume = m[1]+' '+m[2];
+  if (!volume) { m = full.match(/([\d,\.]+)\s*CBM\b/i); if (m) volume = m[1]+' CBM'; }
+
+  var declaredValue = '';
+  m = full.match(/(?:declared\s*value|valor\s*declarado)[^\t\n]*?((?:USD|US\$|\$)\s*[\d,\.]+)/i);
+  if (m) declaredValue = m[1];
+  if (!declaredValue) { m = full.match(/(USD\s*\$?\s*[\d,\.]+)/i); if (m) declaredValue = m[1]; }
+
+  var specialHandling = '';
+  m = full.match(/(?:special\s*handling|handling\s*info|manejo\s*especial)[^\t\n]*?([A-Z][A-Z\s\-\/,]+[A-Z])/i);
+  if (m) specialHandling = m[1].trim();
 
   var items = [];
   var seenSkus = {};
@@ -1094,10 +1121,15 @@ function parseDocumentText(txt) {
     blNumber: blNumber || 'N/A',
     supplier: supplier || 'N/A',
     consignee: consignee || 'N/A',
+    origin: origin || '',
     vessel: vessel || 'N/A',
     port: port || 'N/A',
-    items: items,
-    totalWeight: totalWeight || 'N/A'
+    pieces: pieces || '',
+    totalWeight: totalWeight || 'N/A',
+    volume: volume || '',
+    declaredValue: declaredValue || '',
+    specialHandling: specialHandling || '',
+    items: items
   };
 }
 
@@ -1160,10 +1192,16 @@ function renderExtractedData() {
     { label: t('lblBL'), val: extractedData.blNumber, hl: true },
     { label: t('lblSupplier'), val: extractedData.supplier },
     { label: t('lblConsignee'), val: extractedData.consignee },
+    { label: t('lblOrigin'), val: extractedData.origin },
     { label: t('lblVessel'), val: extractedData.vessel },
     { label: t('lblPort'), val: extractedData.port },
-    { label: t('lblWeight'), val: extractedData.totalWeight }
+    { label: t('lblPieces'), val: extractedData.pieces },
+    { label: t('lblWeight'), val: extractedData.totalWeight },
+    { label: t('lblVolume'), val: extractedData.volume },
+    { label: t('lblDeclVal'), val: extractedData.declaredValue },
+    { label: t('lblHandling'), val: extractedData.specialHandling }
   ];
+  fields = fields.filter(function(f) { return f.val && f.val !== 'N/A' && f.val.trim() !== ''; });
 
   var html = '';
   for (var i = 0; i < fields.length; i++) {
@@ -2159,9 +2197,14 @@ function sendToWarehouse(skipConfirm) {
     docType: extractedData.docType,
     supplier: extractedData.supplier,
     consignee: extractedData.consignee,
+    origin: extractedData.origin || '',
     vessel: extractedData.vessel,
     port: extractedData.port,
+    pieces: extractedData.pieces || '',
     totalWeight: extractedData.totalWeight,
+    volume: extractedData.volume || '',
+    declaredValue: extractedData.declaredValue || '',
+    specialHandling: extractedData.specialHandling || '',
     items: extractedData.items,
     scannedItems: JSON.parse(JSON.stringify(scannedItems)),
     itemStatus: JSON.parse(JSON.stringify(itemStatus)),
@@ -2570,9 +2613,14 @@ function currentShipmentSnapshot() {
     docType: extractedData.docType,
     supplier: extractedData.supplier,
     consignee: extractedData.consignee,
+    origin: extractedData.origin || '',
     vessel: extractedData.vessel,
     port: extractedData.port,
+    pieces: extractedData.pieces || '',
     totalWeight: extractedData.totalWeight,
+    volume: extractedData.volume || '',
+    declaredValue: extractedData.declaredValue || '',
+    specialHandling: extractedData.specialHandling || '',
     items: extractedData.items,
     scannedItems: scannedItems,
     itemStatus: itemStatus,
