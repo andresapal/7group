@@ -209,6 +209,36 @@ code,.mono{font-family:'JetBrains Mono',monospace}
   .type-grid{grid-template-columns:repeat(3,1fr)}
 }
 
+/* ADMIN MODE */
+.admin-btn{padding:4px 8px;background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.2);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--yellow);letter-spacing:.5px;display:flex;align-items:center;gap:4px}
+.admin-btn:hover{background:rgba(234,179,8,.15);border-color:var(--yellow)}
+.admin-btn.active{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2);color:var(--green)}
+.admin-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.pin-overlay{position:fixed;inset:0;background:rgba(6,10,14,.85);backdrop-filter:blur(8px);z-index:999;display:flex;align-items:center;justify-content:center}
+.pin-overlay.hidden{display:none}
+.pin-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:32px 28px;text-align:center;max-width:320px;width:90%}
+.pin-box h3{font-size:18px;font-weight:800;color:var(--white);margin-bottom:6px}
+.pin-box p{font-size:12px;color:var(--dim);margin-bottom:20px}
+.pin-input{width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:8px;color:var(--white);font-size:18px;font-family:'JetBrains Mono',monospace;text-align:center;letter-spacing:6px;outline:none;transition:.2s}
+.pin-input:focus{border-color:var(--cyan)}
+.pin-error{font-size:11px;color:var(--red);margin-top:8px;display:none}
+.pin-actions{display:flex;gap:8px;margin-top:16px}
+.pin-actions .btn{flex:1;justify-content:center}
+.margin-tag{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:4px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);color:var(--green);font-family:'JetBrains Mono',monospace;margin-left:6px}
+.margin-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:11px;color:var(--dim);font-style:italic}
+.margin-row .mr-val{color:var(--green);font-family:'JetBrains Mono',monospace;font-weight:600}
+.admin-summary{background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.12);border-radius:10px;padding:14px 16px;margin-top:12px}
+.admin-summary h4{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+.admin-line{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}
+.admin-line .al-label{color:var(--dim)}
+.admin-line .al-val{font-family:'JetBrains Mono',monospace;font-weight:600}
+.admin-line .al-val.cost{color:var(--red)}
+.admin-line .al-val.margin{color:var(--green)}
+.admin-line.total{border-top:1px solid rgba(34,197,94,.15);padding-top:8px;margin-top:4px;font-weight:700}
+.greeting-box{background:linear-gradient(135deg,rgba(94,231,247,.08),rgba(94,231,247,.02));border:1px solid rgba(94,231,247,.12);border-radius:12px;padding:20px;margin-bottom:16px;text-align:center}
+.greeting-box h2{font-size:20px;font-weight:800;color:var(--white);margin-bottom:4px}
+.greeting-box p{font-size:13px;color:var(--dim);line-height:1.5}
+
 /* PRINT */
 @media print{
   .topbar,.trial-bar,.total-bar,.progress,.btn,.toast,.footer{display:none!important}
@@ -238,8 +268,26 @@ code,.mono{font-family:'JetBrains Mono',monospace}
     <button class="tb-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
       <svg class="theme-icon" id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
     </button>
+    <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      <span id="adminLabel">ADMIN</span>
+    </button>
   </div>
 </header>
+
+<!-- ADMIN PIN MODAL -->
+<div class="pin-overlay hidden" id="pinOverlay">
+  <div class="pin-box">
+    <h3>Acceso Admin</h3>
+    <p>Ingresa el PIN para ver margenes y costos.</p>
+    <input type="password" class="pin-input" id="pinInput" maxlength="4" placeholder="----" onkeydown="if(event.key==='Enter')checkPin()">
+    <div class="pin-error" id="pinError">PIN incorrecto</div>
+    <div class="pin-actions">
+      <button class="btn btn-outline" onclick="closePin()">Cancelar</button>
+      <button class="btn btn-cyan" onclick="checkPin()">Entrar</button>
+    </div>
+  </div>
+</div>
 
 <!-- TRIAL BANNER -->
 <div class="trial-bar">
@@ -417,10 +465,6 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 
   <!-- STEP 5: RESULT -->
   <div class="step" id="step5">
-    <div class="step-head">
-      <div class="step-label" data-i18n="result_label">Cotizacion lista</div>
-      <h2 class="step-title" data-i18n="result_title">Tu bicicleta configurada</h2>
-    </div>
 
     <div id="summaryContainer"></div>
 
@@ -475,89 +519,107 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 const BIKE_TYPES = [
   {id:'mtb',     es:'Montana / MTB',     en:'Mountain / MTB',     descEs:'Para senderos y terreno irregular',        descEn:'For trails and rough terrain',
    icon:'<svg viewBox="0 0 48 48"><path d="M6 38l12-18 6 8 6-14 12 24"/><path d="M4 38h40"/><circle cx="10" cy="34" r="4"/><circle cx="38" cy="34" r="4"/></svg>',
-   frames:[{es:'Acero basico',en:'Basic steel',price:350000},{es:'Aluminio 6061',en:'Aluminum 6061',price:680000},{es:'Carbono T700',en:'Carbon T700',price:1800000}]},
+   frames:[{es:'Acero basico',en:'Basic steel',price:350000,cost:210000},{es:'Aluminio 6061',en:'Aluminum 6061',price:680000,cost:408000},{es:'Carbono T700',en:'Carbon T700',price:1800000,cost:1080000}]},
   {id:'road',    es:'Ruta / Road',        en:'Road',                descEs:'Velocidad en carretera',                   descEn:'Highway speed',
    icon:'<svg viewBox="0 0 48 48"><path d="M4 36h40M10 36c0-8 6-20 14-20s14 12 14 20"/><circle cx="10" cy="36" r="4"/><circle cx="38" cy="36" r="4"/><path d="M24 16v10"/></svg>',
-   frames:[{es:'Aluminio aero',en:'Aero aluminum',price:550000},{es:'Carbono endurance',en:'Endurance carbon',price:1200000},{es:'Carbono race',en:'Race carbon',price:2400000}]},
+   frames:[{es:'Aluminio aero',en:'Aero aluminum',price:550000,cost:330000},{es:'Carbono endurance',en:'Endurance carbon',price:1200000,cost:720000},{es:'Carbono race',en:'Race carbon',price:2400000,cost:1440000}]},
   {id:'urban',   es:'Urbana / Hybrid',    en:'Urban / Hybrid',      descEs:'Desplazamiento diario',                    descEn:'Daily commute',
    icon:'<svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="2" fill="none"/><path d="M14 36v4M34 36v4M20 20h8M16 26h16"/><path d="M2 18h6M40 18h6"/></svg>',
-   frames:[{es:'Acero Hi-Ten',en:'Hi-Ten steel',price:280000},{es:'Aluminio city',en:'City aluminum',price:480000},{es:'Cromoly urban',en:'Cromoly urban',price:750000}]},
+   frames:[{es:'Acero Hi-Ten',en:'Hi-Ten steel',price:280000,cost:168000},{es:'Aluminio city',en:'City aluminum',price:480000,cost:288000},{es:'Cromoly urban',en:'Cromoly urban',price:750000,cost:450000}]},
   {id:'bmx',     es:'BMX / Freestyle',    en:'BMX / Freestyle',     descEs:'Trucos y estilo',                          descEn:'Tricks and style',
    icon:'<svg viewBox="0 0 48 48"><circle cx="12" cy="32" r="8"/><circle cx="36" cy="32" r="8"/><path d="M12 32l8-16h8l8 16M20 16l4 8"/></svg>',
-   frames:[{es:'Acero Cr-Mo 20"',en:'Cr-Mo steel 20"',price:320000},{es:'Aluminio race',en:'Race aluminum',price:550000},{es:'Cromoly pro',en:'Pro cromoly',price:900000}]},
+   frames:[{es:'Acero Cr-Mo 20"',en:'Cr-Mo steel 20"',price:320000,cost:192000},{es:'Aluminio race',en:'Race aluminum',price:550000,cost:330000},{es:'Cromoly pro',en:'Pro cromoly',price:900000,cost:540000}]},
   {id:'ebike',   es:'Electrica / E-bike', en:'Electric / E-bike',   descEs:'Pedaleo asistido',                         descEn:'Pedal assist',
    icon:'<svg viewBox="0 0 48 48"><circle cx="12" cy="32" r="8"/><circle cx="36" cy="32" r="8"/><path d="M12 32l8-16h8l8 16"/><path d="M22 18l-3 10h6l-3 10" stroke-width="2.5"/></svg>',
-   frames:[{es:'Aluminio c/motor 250W',en:'Aluminum w/250W motor',price:1800000},{es:'Aluminio c/motor 500W',en:'Aluminum w/500W motor',price:2800000},{es:'Carbono c/motor 500W',en:'Carbon w/500W motor',price:4500000}]},
+   frames:[{es:'Aluminio c/motor 250W',en:'Aluminum w/250W motor',price:1800000,cost:1170000},{es:'Aluminio c/motor 500W',en:'Aluminum w/500W motor',price:2800000,cost:1820000},{es:'Carbono c/motor 500W',en:'Carbon w/500W motor',price:4500000,cost:2925000}]},
   {id:'kids',    es:'Infantil / Kids',    en:'Kids',                descEs:'Para los pequenos',                        descEn:'For the little ones',
    icon:'<svg viewBox="0 0 48 48"><circle cx="14" cy="34" r="6"/><circle cx="34" cy="34" r="6"/><path d="M14 34l6-14h6l8 14"/><path d="M20 20l2 4"/><circle cx="22" cy="14" r="3"/></svg>',
-   frames:[{es:'Acero 16"',en:'Steel 16"',price:180000},{es:'Acero 20"',en:'Steel 20"',price:220000},{es:'Aluminio 24"',en:'Aluminum 24"',price:380000}]},
+   frames:[{es:'Acero 16"',en:'Steel 16"',price:180000,cost:108000},{es:'Acero 20"',en:'Steel 20"',price:220000,cost:132000},{es:'Aluminio 24"',en:'Aluminum 24"',price:380000,cost:228000}]},
   {id:'gravel',  es:'Gravel',             en:'Gravel',              descEs:'Mixto carretera y tierra',                 descEn:'Mixed road and dirt',
    icon:'<svg viewBox="0 0 48 48"><circle cx="12" cy="32" r="8"/><circle cx="36" cy="32" r="8"/><path d="M12 32l8-16h8l8 16M20 16l4 8"/><path d="M4 42c4-2 8-1 12-3s8-1 12-3 8-1 12-3" stroke-dasharray="3 2"/></svg>',
-   frames:[{es:'Aluminio adventure',en:'Adventure aluminum',price:600000},{es:'Cromoly touring',en:'Touring cromoly',price:950000},{es:'Carbono gravel',en:'Gravel carbon',price:2100000}]},
+   frames:[{es:'Aluminio adventure',en:'Adventure aluminum',price:600000,cost:360000},{es:'Cromoly touring',en:'Touring cromoly',price:950000,cost:570000},{es:'Carbono gravel',en:'Gravel carbon',price:2100000,cost:1260000}]},
 ];
 
 const ACCESSORIES = [
-  {id:'helmet',    es:'Casco GW Sport',       en:'GW Sport helmet',      price:85000},
-  {id:'lights',    es:'Kit luces LED',         en:'LED light kit',        price:35000},
-  {id:'lock',      es:'Candado U-Lock',        en:'U-Lock',               price:55000},
-  {id:'gloves',    es:'Guantes ciclismo',      en:'Cycling gloves',       price:40000},
-  {id:'rack',      es:'Parrilla trasera',      en:'Rear rack',            price:45000},
-  {id:'bottle',    es:'Caramanola + porta',     en:'Bottle + cage',       price:25000},
-  {id:'pump',      es:'Bomba portatil',        en:'Portable pump',        price:30000},
-  {id:'tool',      es:'Herramienta multitool', en:'Multitool',            price:30000},
-  {id:'bell',      es:'Timbre',                en:'Bell',                 price:12000},
-  {id:'fenders',   es:'Guardabarros par',      en:'Fender pair',          price:28000},
+  {id:'helmet',    es:'Casco GW Sport',       en:'GW Sport helmet',      price:85000, cost:51000},
+  {id:'lights',    es:'Kit luces LED',         en:'LED light kit',        price:35000, cost:18000},
+  {id:'lock',      es:'Candado U-Lock',        en:'U-Lock',               price:55000, cost:28000},
+  {id:'gloves',    es:'Guantes ciclismo',      en:'Cycling gloves',       price:40000, cost:20000},
+  {id:'rack',      es:'Parrilla trasera',      en:'Rear rack',            price:45000, cost:25000},
+  {id:'bottle',    es:'Caramanola + porta',     en:'Bottle + cage',       price:25000, cost:12000},
+  {id:'pump',      es:'Bomba portatil',        en:'Portable pump',        price:30000, cost:15000},
+  {id:'tool',      es:'Herramienta multitool', en:'Multitool',            price:30000, cost:16000},
+  {id:'bell',      es:'Timbre',                en:'Bell',                 price:12000, cost:5000},
+  {id:'fenders',   es:'Guardabarros par',      en:'Fender pair',          price:28000, cost:14000},
 ];
+
+const COMP_COSTS = {
+  drivetrain:{180000:117000, 320000:208000, 450000:292000, 750000:488000},
+  brakes:{45000:29000, 120000:78000, 280000:182000},
+  wheels:{95000:62000, 180000:117000, 320000:208000},
+  fork:{0:0, 250000:163000, 650000:423000}
+};
+
+const NOTIFY = {
+  TG_TOKEN:'CONFIGURAR_BOT_ULTIMATE_BIKE',
+  TG_CHAT:'CONFIGURAR_CHAT_ULTIMATE_BIKE',
+  W3F_KEY:'CONFIGURAR_WEB3FORMS_ULTIMATE_BIKE'
+};
+const ADMIN_PIN = '7777';
 
 /* ========== i18n ========== */
 const I18N = {
   es:{
     topbar_name:'Ultimate Bike Shop',
     trial_mode:'Modo prueba',trial_days:'-- 30 dias gratis',trial_plans:'Ver planes',
-    step1_label:'Paso 1 de 4',step1_title:'Tipo de bicicleta',step1_sub:'Selecciona el estilo que mejor se adapta a tu forma de rodar.',
-    step2_label:'Paso 2 de 4',step2_title:'Configura tu bici',step2_sub:'Elige los componentes para tu bicicleta.',
-    step3_label:'Paso 3 de 4',step3_title:'Accesorios',step3_sub:'Agrega complementos para completar tu experiencia.',
-    step4_label:'Paso 4 de 4',step4_title:'Tus datos',step4_sub:'Dejanos tus datos para enviarte la cotizacion.',
-    result_label:'Cotizacion lista',result_title:'Tu bicicleta configurada',
+    step1_label:'Paso 1 de 4',step1_title:'Bienvenido, elige tu estilo',step1_sub:'Cada ciclista es diferente. Cuentanos como te gusta rodar y te ayudamos a encontrar la bici perfecta para ti.',
+    step2_label:'Paso 2 de 4',step2_title:'Armemos tu bici ideal',step2_sub:'Aqui es donde la magia pasa. Escoge cada pieza y ve como tu bicicleta toma forma.',
+    step3_label:'Paso 3 de 4',step3_title:'Los detalles que importan',step3_sub:'Los accesorios correctos hacen toda la diferencia. Agrega lo que necesites para salir rodando con todo.',
+    step4_label:'Paso 4 de 4',step4_title:'Ya casi esta lista',step4_sub:'Dejanos tus datos y te enviamos tu cotizacion personalizada. Sin compromiso, sin presion.',
+    result_label:'Lista para ti',result_title:'Tu bicicleta esta lista',
+    result_greeting:'Hola {name}, aqui esta tu bicicleta personalizada. La armamos pieza por pieza segun lo que nos contaste.',
     comp_height:'Tu estatura (cm)',comp_frame:'Marco / Frame',comp_drivetrain:'Grupo / Drivetrain',
     comp_brakes:'Frenos / Brakes',comp_wheels:'Ruedas / Wheels',comp_fork:'Suspension / Fork',
-    form_name:'Nombre completo <span class="req">*</span>',form_phone:'WhatsApp / Celular <span class="req">*</span>',
-    form_email:'Email (opcional)',form_city:'Ciudad',form_notes:'Notas adicionales',
+    form_name:'Como te llamas? <span class="req">*</span>',form_phone:'Tu WhatsApp para enviarte la cotizacion <span class="req">*</span>',
+    form_email:'Email (si quieres recibirla tambien por correo)',form_city:'Desde donde nos escribes?',form_notes:'Algo mas que debamos saber?',
     form_terms_pre:'Acepto los ',form_terms_link:'terminos y condiciones',form_terms_error:'Debes aceptar los terminos para continuar.',
-    btn_next:'Siguiente',btn_back:'Atras',btn_submit:'Ver cotizacion',btn_whatsapp:'Enviar por WhatsApp',btn_print:'Imprimir / PDF',btn_new:'Nueva configuracion',
-    total_label:'Total estimado',result_grand_total:'Total estimado',
-    result_note:'Precios sujetos a disponibilidad. Cotizacion valida 48h. Sin compromiso.',
+    btn_next:'Siguiente',btn_back:'Atras',btn_submit:'Ver mi bicicleta',btn_whatsapp:'Recibir por WhatsApp',btn_print:'Guardar en PDF',btn_new:'Armar otra bici',
+    total_label:'Tu inversion',result_grand_total:'Tu inversion total',
+    result_note:'Precios sujetos a disponibilidad. Esta cotizacion es tuya por 48 horas. Sin compromiso.',
     footer_powered:'Impulsado por',
-    summary_bike:'Bicicleta base',summary_components:'Componentes',summary_accessories:'Accesorios',summary_subtotal:'Subtotal',
-    summary_type:'Tipo',summary_frame_size:'Talla marco',summary_frame:'Marco',summary_drivetrain:'Grupo',summary_brakes:'Frenos',summary_wheels:'Ruedas',summary_fork:'Suspension',
+    summary_bike:'Tu bicicleta',summary_components:'Componentes seleccionados',summary_accessories:'Accesorios elegidos',summary_subtotal:'Subtotal',
+    summary_type:'Estilo',summary_frame_size:'Tu talla',summary_frame:'Marco',summary_drivetrain:'Grupo',summary_brakes:'Frenos',summary_wheels:'Ruedas',summary_fork:'Suspension',
     included:'Incluida',
-    toast_sent:'Cotizacion enviada correctamente',toast_error:'Error al enviar. Intenta de nuevo.',
+    toast_sent:'Tu cotizacion fue enviada. Te contactaremos pronto!',toast_error:'Error al enviar. Intenta de nuevo.',
     frame_s:'S (Pequeno)',frame_m:'M (Mediano)',frame_l:'L (Grande)',frame_xl:'XL (Extra grande)',
     validate_name:'Ingresa tu nombre.',validate_phone:'Ingresa tu WhatsApp o celular.',validate_terms:'Acepta los terminos.',
+    admin_cost:'Costo',admin_margin:'Margen',admin_margin_pct:'Margen %',admin_total_cost:'Costo total',admin_total_margin:'Ganancia neta',admin_summary:'Resumen financiero',
   },
   en:{
     topbar_name:'Ultimate Bike Shop',
     trial_mode:'Trial mode',trial_days:'-- 30 days free',trial_plans:'See plans',
-    step1_label:'Step 1 of 4',step1_title:'Bike type',step1_sub:'Select the style that best fits your ride.',
-    step2_label:'Step 2 of 4',step2_title:'Configure your bike',step2_sub:'Choose the components for your bicycle.',
-    step3_label:'Step 3 of 4',step3_title:'Accessories',step3_sub:'Add extras to complete your experience.',
-    step4_label:'Step 4 of 4',step4_title:'Your info',step4_sub:'Leave your details so we can send the quote.',
-    result_label:'Quote ready',result_title:'Your configured bicycle',
+    step1_label:'Step 1 of 4',step1_title:'Welcome, pick your style',step1_sub:'Every rider is different. Tell us how you like to ride and we will help you find the perfect bike.',
+    step2_label:'Step 2 of 4',step2_title:'Let us build your dream bike',step2_sub:'This is where the magic happens. Choose each part and watch your bicycle come together.',
+    step3_label:'Step 3 of 4',step3_title:'The details that matter',step3_sub:'The right accessories make all the difference. Add what you need to hit the road fully equipped.',
+    step4_label:'Step 4 of 4',step4_title:'Almost ready',step4_sub:'Leave your details and we will send you a personalized quote. No commitment, no pressure.',
+    result_label:'Ready for you',result_title:'Your bike is ready',
+    result_greeting:'Hi {name}, here is the bicycle we put together for you. Built piece by piece based on what you told us.',
     comp_height:'Your height (cm)',comp_frame:'Frame',comp_drivetrain:'Drivetrain',
     comp_brakes:'Brakes',comp_wheels:'Wheels',comp_fork:'Fork / Suspension',
-    form_name:'Full name <span class="req">*</span>',form_phone:'WhatsApp / Mobile <span class="req">*</span>',
-    form_email:'Email (optional)',form_city:'City',form_notes:'Additional notes',
+    form_name:'What is your name? <span class="req">*</span>',form_phone:'Your WhatsApp so we can send the quote <span class="req">*</span>',
+    form_email:'Email (to also receive it by mail)',form_city:'Where are you writing from?',form_notes:'Anything else we should know?',
     form_terms_pre:'I accept the ',form_terms_link:'terms and conditions',form_terms_error:'You must accept the terms to continue.',
-    btn_next:'Next',btn_back:'Back',btn_submit:'View quote',btn_whatsapp:'Send via WhatsApp',btn_print:'Print / PDF',btn_new:'New configuration',
-    total_label:'Estimated total',result_grand_total:'Estimated total',
-    result_note:'Prices subject to availability. Quote valid 48h. No commitment.',
+    btn_next:'Next',btn_back:'Back',btn_submit:'See my bike',btn_whatsapp:'Get it on WhatsApp',btn_print:'Save as PDF',btn_new:'Build another bike',
+    total_label:'Your investment',result_grand_total:'Your total investment',
+    result_note:'Prices subject to availability. This quote is yours for 48 hours. No commitment.',
     footer_powered:'Powered by',
-    summary_bike:'Base bicycle',summary_components:'Components',summary_accessories:'Accessories',summary_subtotal:'Subtotal',
-    summary_type:'Type',summary_frame_size:'Frame size',summary_frame:'Frame',summary_drivetrain:'Drivetrain',summary_brakes:'Brakes',summary_wheels:'Wheels',summary_fork:'Fork',
+    summary_bike:'Your bicycle',summary_components:'Selected components',summary_accessories:'Chosen accessories',summary_subtotal:'Subtotal',
+    summary_type:'Style',summary_frame_size:'Your size',summary_frame:'Frame',summary_drivetrain:'Drivetrain',summary_brakes:'Brakes',summary_wheels:'Wheels',summary_fork:'Fork',
     included:'Included',
-    toast_sent:'Quote sent successfully',toast_error:'Error sending. Try again.',
+    toast_sent:'Your quote was sent. We will reach out soon!',toast_error:'Error sending. Try again.',
     frame_s:'S (Small)',frame_m:'M (Medium)',frame_l:'L (Large)',frame_xl:'XL (Extra large)',
     validate_name:'Enter your name.',validate_phone:'Enter your WhatsApp or phone.',validate_terms:'Accept the terms.',
+    admin_cost:'Cost',admin_margin:'Margin',admin_margin_pct:'Margin %',admin_total_cost:'Total cost',admin_total_margin:'Net profit',admin_summary:'Financial summary',
   }
 };
 
@@ -566,16 +628,14 @@ let lang = 'es';
 let currentStep = 1;
 let selectedType = null;
 let selectedAccessories = new Set();
+let adminMode = false;
 
 /* ========== INIT ========== */
 document.addEventListener('DOMContentLoaded', () => {
-  renderProgress();
-  renderTypes();
-  renderAccessories();
-  updateTotal();
-  // Restore theme
   if(localStorage.getItem('7g-theme')==='light') document.documentElement.classList.add('light');
   updateThemeIcon();
+  setLang(lang);
+  updateTotal();
 });
 
 /* ========== PROGRESS BAR ========== */
@@ -748,6 +808,16 @@ function submitQuote(){
 }
 
 /* ========== BUILD SUMMARY ========== */
+function getFrameCost(){
+  const type = BIKE_TYPES.find(x=>x.id===selectedType);
+  if(!type) return 0;
+  const sel = document.getElementById('selFrame');
+  const price = parseInt(sel.value)||0;
+  const frame = type.frames.find(f=>f.price===price);
+  return frame ? frame.cost : 0;
+}
+function getCompCost(comp,price){return COMP_COSTS[comp]?COMP_COSTS[comp][price]||0:0;}
+
 function buildSummary(){
   const t = I18N[lang];
   const type = BIKE_TYPES.find(x=>x.id===selectedType);
@@ -765,13 +835,17 @@ function buildSummary(){
 
   const height = document.getElementById('heightInput').value;
   const frameBadge = document.getElementById('frameBadge').textContent;
+  const name = document.getElementById('fName').value.trim();
 
   const bikeSubtotal = getFramePrice();
   const compSubtotal = getComponentsTotal();
   const accSubtotal = getAccessoriesTotal();
 
-  let html = `<div class="summary-card">`;
-  // Bike section
+  // Greeting
+  const greetText = t.result_greeting.replace('{name}', name.split(' ')[0]);
+  let html = `<div class="greeting-box"><h2>${t.result_title}</h2><p>${greetText}</p></div>`;
+
+  html += `<div class="summary-card">`;
   html += `<div class="summary-head"><h3>${t.summary_bike}</h3></div>`;
   html += `<div class="summary-section">`;
   html += row(t.summary_type, type[lang==='es'?'es':'en']);
@@ -780,7 +854,6 @@ function buildSummary(){
   html += `<div class="summary-subtotal"><span class="sr-label">${t.summary_subtotal}</span><span class="sr-value">${formatCOP(bikeSubtotal)}</span></div>`;
   html += `</div>`;
 
-  // Components section
   html += `<div class="summary-section">`;
   html += `<div class="summary-section-title">${t.summary_components}</div>`;
   html += row(t.summary_drivetrain, driveLabel, formatCOP(getDrivetrainPrice()));
@@ -791,7 +864,6 @@ function buildSummary(){
   html += `<div class="summary-subtotal"><span class="sr-label">${t.summary_subtotal}</span><span class="sr-value">${formatCOP(compSubtotal)}</span></div>`;
   html += `</div>`;
 
-  // Accessories section
   if(selectedAccessories.size > 0){
     html += `<div class="summary-section">`;
     html += `<div class="summary-section-title">${t.summary_accessories}</div>`;
@@ -803,6 +875,31 @@ function buildSummary(){
     html += `</div>`;
   }
   html += `</div>`;
+
+  // Admin margin panel
+  if(adminMode){
+    const frameCost = getFrameCost();
+    const driveCost = getCompCost('drivetrain',getDrivetrainPrice());
+    const brakeCost = getCompCost('brakes',getBrakesPrice());
+    const wheelCost = getCompCost('wheels',getWheelsPrice());
+    const forkCost = getCompCost('fork',getForkPrice());
+    let accCost = 0;
+    selectedAccessories.forEach(id=>{const a=ACCESSORIES.find(x=>x.id===id);if(a)accCost+=a.cost;});
+
+    const totalCost = frameCost + driveCost + brakeCost + wheelCost + forkCost + accCost;
+    const totalSell = getGrandTotal();
+    const totalMargin = totalSell - totalCost;
+    const marginPct = totalSell>0 ? Math.round((totalMargin/totalSell)*100) : 0;
+
+    html += `<div class="admin-summary">`;
+    html += `<h4>${t.admin_summary}</h4>`;
+    html += `<div class="admin-line"><span class="al-label">${t.summary_frame} - ${t.admin_cost}</span><span class="al-val cost">${formatCOP(frameCost)}</span></div>`;
+    html += `<div class="admin-line"><span class="al-label">${t.summary_components} - ${t.admin_cost}</span><span class="al-val cost">${formatCOP(driveCost+brakeCost+wheelCost+forkCost)}</span></div>`;
+    if(accCost>0) html += `<div class="admin-line"><span class="al-label">${t.summary_accessories} - ${t.admin_cost}</span><span class="al-val cost">${formatCOP(accCost)}</span></div>`;
+    html += `<div class="admin-line total"><span class="al-label">${t.admin_total_cost}</span><span class="al-val cost">${formatCOP(totalCost)}</span></div>`;
+    html += `<div class="admin-line total"><span class="al-label">${t.admin_total_margin} (${marginPct}%)</span><span class="al-val margin">${formatCOP(totalMargin)}</span></div>`;
+    html += `</div>`;
+  }
 
   document.getElementById('summaryContainer').innerHTML = html;
   document.getElementById('grandTotalPrice').textContent = formatCOP(getGrandTotal());
@@ -819,6 +916,7 @@ function row(label, detail, price){
 function sendWhatsApp(){
   const phone = document.getElementById('fPhone').value.trim().replace(/\D/g,'');
   const name = document.getElementById('fName').value.trim();
+  const firstName = name.split(' ')[0];
   const type = BIKE_TYPES.find(x=>x.id===selectedType);
 
   const frameOpt = document.getElementById('selFrame');
@@ -827,11 +925,11 @@ function sendWhatsApp(){
   const wheelOpt = document.getElementById('selWheels');
   const forkOpt = document.getElementById('selFork');
 
-  let msg = `*COTIZACION -- Ultimate Bike Shop*\n`;
-  msg += `Honda, Tolima\n\n`;
-  msg += `*Cliente:* ${name}\n`;
-  msg += `*Tipo:* ${type[lang==='es'?'es':'en']}\n\n`;
-  msg += `*COMPONENTES*\n`;
+  let msg = lang==='es'
+    ? `Hola ${firstName}! Gracias por armar tu bici con nosotros en *Ultimate Bike Shop* (Honda, Tolima).\n\nAqui esta el resumen de tu bicicleta personalizada:\n\n`
+    : `Hi ${firstName}! Thanks for building your bike with us at *Ultimate Bike Shop* (Honda, Tolima).\n\nHere is your custom bike summary:\n\n`;
+
+  msg += `*${type[lang==='es'?'es':'en']}*\n`;
   msg += `Marco: ${frameOpt.options[frameOpt.selectedIndex].text.split(' -- ')[0]} - ${formatCOP(getFramePrice())}\n`;
   msg += `Grupo: ${driveOpt.options[driveOpt.selectedIndex].text.split(' -- ')[0]} - ${formatCOP(getDrivetrainPrice())}\n`;
   msg += `Frenos: ${brakeOpt.options[brakeOpt.selectedIndex].text.split(' -- ')[0]} - ${formatCOP(getBrakesPrice())}\n`;
@@ -839,17 +937,18 @@ function sendWhatsApp(){
   msg += `Suspension: ${forkOpt.options[forkOpt.selectedIndex].text.split(' -- ')[0]} - ${getForkPrice()===0?'Incluida':formatCOP(getForkPrice())}\n`;
 
   if(selectedAccessories.size>0){
-    msg += `\n*ACCESORIOS*\n`;
+    msg += `\n*Accesorios*\n`;
     selectedAccessories.forEach(id => {
       const a = ACCESSORIES.find(x=>x.id===id);
       if(a) msg += `${lang==='es'?a.es:a.en} - ${formatCOP(a.price)}\n`;
     });
   }
 
-  msg += `\n*TOTAL: ${formatCOP(getGrandTotal())}*\n`;
-  msg += `\nPrecios sujetos a disponibilidad.\nCotizacion valida 48h.`;
+  msg += `\n*Total: ${formatCOP(getGrandTotal())}*\n`;
+  msg += lang==='es'
+    ? `\nEsta cotizacion es tuya por 48h. Escribenos si tienes preguntas, estamos para ayudarte!`
+    : `\nThis quote is yours for 48h. Write us if you have questions, we are here to help!`;
 
-  // Phone: prepend Colombia code if needed
   let waPhone = phone;
   if(waPhone.length === 10 && waPhone.startsWith('3')) waPhone = '57' + waPhone;
 
@@ -898,31 +997,34 @@ async function sendNotifications(){
   if(notes) text += `\nNotas: ${notes}\n`;
 
   // Telegram
-  try{
-    const tgUrl = `https://api.telegram.org/bot8815751812:AAEGlCiQAZKSamRUfD5r0lmzjLTRAaFcdqw/sendMessage`;
-    await fetch(tgUrl, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chat_id:'1081707115', text, parse_mode:'HTML'})
-    });
-  }catch(e){console.warn('Telegram error:',e);}
+  if(NOTIFY.TG_TOKEN && !NOTIFY.TG_TOKEN.startsWith('CONFIGURAR')){
+    try{
+      await fetch(`https://api.telegram.org/bot${NOTIFY.TG_TOKEN}/sendMessage`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({chat_id:NOTIFY.TG_CHAT, text, parse_mode:'HTML'})
+      });
+    }catch(e){console.warn('Telegram error:',e);}
+  }
 
   // Web3Forms
-  try{
-    await fetch('https://api.web3forms.com/submit', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        access_key:'76bc323e-4cf1-4c6c-9221-88d0f6261f7d',
-        subject:`Cotizacion Bici -- ${name} -- ${type.es}`,
-        from_name: name,
-        phone: phone,
-        email: email || 'no-proporcionado@placeholder.com',
-        city: city,
-        message: text,
-      })
-    });
-  }catch(e){console.warn('Web3Forms error:',e);}
+  if(NOTIFY.W3F_KEY && !NOTIFY.W3F_KEY.startsWith('CONFIGURAR')){
+    try{
+      await fetch('https://api.web3forms.com/submit', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          access_key:NOTIFY.W3F_KEY,
+          subject:`Cotizacion Bici -- ${name} -- ${type.es}`,
+          from_name: name,
+          phone: phone,
+          email: email || 'no-proporcionado@placeholder.com',
+          city: city,
+          message: text,
+        })
+      });
+    }catch(e){console.warn('Web3Forms error:',e);}
+  }
 
   showToast(I18N[lang].toast_sent, 'success');
 }
@@ -997,6 +1099,44 @@ function updateThemeIcon(){
 /* ========== UTILITIES ========== */
 function formatCOP(n){
   return '$' + n.toLocaleString('es-CO') + ' COP';
+}
+
+/* ========== ADMIN MODE ========== */
+function toggleAdmin(){
+  if(adminMode){
+    adminMode = false;
+    updateAdminUI();
+    return;
+  }
+  document.getElementById('pinOverlay').classList.remove('hidden');
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinError').style.display = 'none';
+  setTimeout(()=>document.getElementById('pinInput').focus(),100);
+}
+
+function checkPin(){
+  const val = document.getElementById('pinInput').value;
+  if(val === ADMIN_PIN){
+    adminMode = true;
+    document.getElementById('pinOverlay').classList.add('hidden');
+    updateAdminUI();
+    if(currentStep===5) buildSummary();
+  } else {
+    document.getElementById('pinError').style.display = 'block';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').focus();
+  }
+}
+
+function closePin(){
+  document.getElementById('pinOverlay').classList.add('hidden');
+}
+
+function updateAdminUI(){
+  const btn = document.getElementById('adminBtn');
+  const label = document.getElementById('adminLabel');
+  btn.classList.toggle('active', adminMode);
+  label.textContent = adminMode ? 'ADMIN ON' : 'ADMIN';
 }
 
 function showToast(msg, type=''){
