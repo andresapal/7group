@@ -716,6 +716,8 @@ function applyLang() {
   document.getElementById('navSol').parentElement.querySelector('a').href = (lang === 'en' ? '/' : '/es/') + '#solutions';
   document.getElementById('navPlan').href = '/pagos/' + suffix;
   document.getElementById('navCalc').href = '/calculadora/' + suffix;
+  document.querySelector('footer a[href*="7group"]').href = 'https://7group.site/' + suffix;
+  document.getElementById('footerCopy').textContent = lang === 'en' ? '© 2026 7Group. All rights reserved.' : '© 2026 7Group. Todos los derechos reservados.';
 
   renderWeek();
 }

@@ -221,7 +221,9 @@
       .agents-section { padding: 0 0 60px; }
       .agents-grid { grid-template-columns: 1fr; }
       .agent-card:first-child { grid-column: 1; }
-      .agent-card { padding: 32px 24px; }
+      .agent-card { padding: 32px 24px; overflow: hidden; }
+      .mini-user, .mini-response { white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word; font-size: 0.75rem; }
+      .card-body { min-height: 0; overflow: hidden; }
     }
 
     /* ── HOW IT WORKS ── */
@@ -525,15 +527,22 @@
       // CTA
       document.querySelector('.cta-text h2').innerHTML = "Your operation doesn't need more people.<br>It needs <em>better agents.</em>";
       document.querySelector('.cta-text p').textContent = "Tell us how your company works today. In 48 hours you'll have a diagnosis and a proposal.";
-      document.querySelector('.cta-buttons .btn-primary').textContent = 'Talk on WhatsApp';
+      document.querySelector('.cta-buttons .btn-primary').textContent = 'Schedule a meeting';
+      document.querySelector('.cta-buttons .btn-primary').href = '/agendar/?lang=en';
       document.querySelector('.cta-buttons .btn-secondary').textContent = 'Contact us';
       document.querySelector('.cta-buttons .btn-secondary').href = '/contacto/?lang=en';
 
+      // Nav
+      document.querySelector('.nav-back').href = 'https://7group.site/?lang=en';
+      document.querySelector('.nav-back').textContent = '← 7group';
+      document.querySelector('.nav-cta').textContent = 'Talk to an expert';
+      document.querySelector('.nav-cta').href = '/contacto/?lang=en';
+
       // Footer
-      document.querySelector('footer .footer-logo').href = 'https://7group.site';
+      document.querySelector('footer .footer-logo').href = 'https://7group.site/?lang=en';
       const footerLinks = document.querySelectorAll('.footer-links a');
-      if (footerLinks[0]) { footerLinks[0].textContent = 'Home';    footerLinks[0].href = 'https://7group.site'; }
-      if (footerLinks[1]) { footerLinks[1].textContent = 'USA';     footerLinks[1].href = 'https://7group.site/florida/'; }
+      if (footerLinks[0]) { footerLinks[0].textContent = 'Home';    footerLinks[0].href = 'https://7group.site/?lang=en'; }
+      if (footerLinks[1]) { footerLinks[1].textContent = 'USA';     footerLinks[1].href = 'https://7group.site/florida/?lang=en'; }
       if (footerLinks[2]) { footerLinks[2].textContent = 'Contact'; footerLinks[2].href = '/contacto/?lang=en'; }
     }
 

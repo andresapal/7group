@@ -521,6 +521,8 @@
       const qsa = sel => document.querySelectorAll(sel);
 
       qs('.top-back').textContent = t.backHome;
+      qs('.top-back').href = 'https://7group.site/?lang=en';
+      qs('.top-logo').href = 'https://7group.site/?lang=en';
       // Step metas
       ['1','2','3','4'].forEach((n,i) => { qs(`#step-${n} .step-meta`).textContent = [t.step1meta,t.step2meta,t.step3meta,t.step4meta][i]; });
       // Questions
