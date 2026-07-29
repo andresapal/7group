@@ -442,8 +442,8 @@ input[type="file"]{display:none}
               <input id="xdDestContact" placeholder="Contacto...">
             </div>
             <div class="xd-add-row">
-              <select id="xdPhoneCountry" style="flex:0 0 90px" onchange="updatePhoneMask()"><option value="US">US +1</option><option value="CO">CO +57</option></select>
-              <input id="xdDestPhone" placeholder="(000) 000-0000" maxlength="14" oninput="formatPhoneXD(this)">
+              <select id="xdPhoneCountry" style="flex:0 0 72px;font-size:11px;padding:8px 4px" onchange="updatePhoneMask()"><option value="US">+1</option><option value="CO">+57</option></select>
+              <input id="xdDestPhone" placeholder="(000) 000-0000" maxlength="14" oninput="formatPhoneXD(this)" style="flex:1">
               <input id="xdDestEmail" placeholder="Email..." style="flex:2">
             </div>
             <div class="xd-add-row">
@@ -1677,8 +1677,10 @@ function applyNovedad(sku, type, qty) {
 function refocusPortInput() {
   if (!portScannerActive) return;
   setTimeout(function() {
+    var active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
     var inp = document.getElementById('portSkuInput');
-    if (inp && !document.activeElement.classList.contains('check-obs')) inp.focus();
+    if (inp) inp.focus();
   }, 200);
 }
 
@@ -1873,7 +1875,7 @@ function searchClientXD(query) {
   if (results.length === 0) {
     var connectHtml = '';
     if (!contactsLoaded && !contactsToken) {
-      connectHtml = '<div style="padding:8px 12px;border-top:1px solid var(--border);text-align:center"><button class="xd-add-btn" style="font-size:10px" onclick="initContactsToken(function(){searchClientXD(document.getElementById(\'xdClientSearch\').value)})">' + (LANG==='es'?'Conectar Google Contacts':'Connect Google Contacts') + '</button></div>';
+      connectHtml = '<div style="padding:10px 12px;text-align:center"><button class="xd-add-btn" style="font-size:10px;width:100%;padding:10px" onclick="initContactsToken(function(){searchClientXD(document.getElementById(\'xdClientSearch\').value)})">' + (LANG==='es'?'Conectar Google Contacts':'Connect Google Contacts') + '</button></div>';
     }
     if (!connectHtml) { el.style.display = 'none'; return; }
     el.innerHTML = connectHtml;
@@ -2785,6 +2787,7 @@ function saveWIP() {
     crossDockEnabled: crossDockEnabled,
     xdMode: xdMode,
     xdDestinations: xdDestinations,
+    portScanDone: portScannerActive === false && Object.keys(scannedItems).length > 0,
     savedAt: new Date().toISOString()
   };
   try { localStorage.setItem('7g-shipment-wip', JSON.stringify(wip)); } catch(e) {}
@@ -2814,6 +2817,10 @@ function loadWIP() {
       document.getElementById('scanSection').style.display = 'block';
       document.getElementById('crossDockSection').style.display = 'block';
       renderScanChecklist();
+      if (wip.portScanDone) {
+        document.getElementById('scanToggleBtn').style.display = 'none';
+        document.getElementById('skipScanLink').style.display = 'none';
+      }
       if (crossDockEnabled) {
         document.getElementById('xdEnabled').checked = true;
         document.getElementById('xdPanel').style.display = 'block';
