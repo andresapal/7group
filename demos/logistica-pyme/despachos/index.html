@@ -175,7 +175,20 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 
 input[type="file"]{display:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@media(max-width:480px){.main{padding:12px}.kpi-row{grid-template-columns:1fr 1fr}}
+
+.ev-section{margin-top:12px}
+.ev-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.ev-card{background:var(--bg3);border:2px dashed var(--border3);border-radius:8px;text-align:center;cursor:pointer;transition:.2s;overflow:hidden;position:relative;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px}
+.ev-card:hover{border-color:var(--cyan)}
+.ev-card.has-photo{border-style:solid;border-color:var(--green);padding:0}
+.ev-card img{width:100%;height:110px;object-fit:cover}
+.ev-card .ev-icon{color:var(--dim);margin-bottom:2px}
+.ev-card .ev-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim)}
+.ev-card.has-photo .ev-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);color:#fff;padding:4px 0;font-size:8px}
+.ev-card .ev-remove{position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(239,68,68,.85);color:#fff;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;font-weight:700;line-height:1}
+.ev-card.has-photo .ev-remove{display:flex}
+
+@media(max-width:480px){.main{padding:12px}.kpi-row{grid-template-columns:1fr 1fr}.ev-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -321,6 +334,7 @@ input[type="file"]{display:none}
   </div>
 </div>
 
+<input type="file" id="evFileInput" accept="image/*" capture="environment">
 <script src="../firebase-config.js?v=2"></script>
 <script>
 /* =============== AUTH =============== */
@@ -384,6 +398,12 @@ var T={
   authError:{es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
   authFooter:{es:'Solo personal autorizado',en:'Authorized personnel only'},
   btnDemo:{es:'Cargar datos demo',en:'Load demo data'},
+  evTitle:{es:'Evidencia de entrega',en:'Delivery evidence'},
+  evZone:{es:'Zona',en:'Zone'},
+  evAddress:{es:'Direccion',en:'Address'},
+  evDelivery:{es:'Entrega',en:'Delivery'},
+  evTap:{es:'Tomar foto',en:'Take photo'},
+  btnEvidencePDF:{es:'PDF Evidencia',en:'Evidence PDF'},
   modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modClients:{es:'Clientes',en:'Clients'},modDash:{es:'Dashboard',en:'Dashboard'}
 };
 function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
@@ -518,6 +538,7 @@ function renderOrders(){
     h+='<span>'+d.items.length+' '+t('items')+'</span>';
     h+='<span>'+totalQty+' '+t('units')+'</span>';
     if(totalVal>0)h+='<span>$'+formatNum(totalVal)+'</span>';
+    if(d.evidenceCount>0)h+='<span style="color:var(--cyan)">'+d.evidenceCount+'/3 fotos</span>';
     if(d.signatureData)h+='<span style="color:var(--green)">Firmado</span>';
     h+='<span>'+dateStr+'</span>';
     h+='</div>';
@@ -615,6 +636,8 @@ function createDispatch(){
     receiverName:null,
     invoiceNumber:null,
     invoiceTotal:null,
+    evidencePhotos:{},
+    evidenceCount:0,
     createdBy:sessionStorage.getItem('7g-auth')||'unknown'
   };
 
@@ -722,6 +745,10 @@ function renderDetail(){
     if(d.receiverName)h+='<div class="sig-preview-name">'+d.receiverName+'</div>';
     h+='<div style="font-size:10px;color:var(--dim);margin-top:4px">'+new Date(d.deliveredAt).toLocaleString()+'</div>';
     h+='</div></div></div>';
+  }
+
+  if(d.status!=='cancelled'&&d.status!=='preparing'){
+    h+=renderEvidenceHTML(d);
   }
 
   h+='<div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">';
@@ -1070,6 +1097,153 @@ function loadDemoData(){
   localStorage.setItem('7g-invoice-counter','1');
   saveDispatches();
   renderAll();
+}
+
+/* =============== EVIDENCE PHOTOS =============== */
+var evPendingType=null;
+var EV_TYPES=['zone','address','delivery'];
+var EV_LABELS={zone:'evZone',address:'evAddress',delivery:'evDelivery'};
+
+function captureEvidence(type){
+  evPendingType=type;
+  var inp=document.getElementById('evFileInput');
+  inp.value='';
+  inp.click();
+}
+
+document.getElementById('evFileInput').addEventListener('change',function(e){
+  if(!e.target.files||!e.target.files[0]||!evPendingType||!currentOrder)return;
+  var file=e.target.files[0];
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var maxW=800;
+      var w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(h*(maxW/w));w=maxW;}
+      var c=document.createElement('canvas');
+      c.width=w;c.height=h;
+      var ctx=c.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      var dataUrl=c.toDataURL('image/jpeg',0.7);
+      if(!currentOrder.evidencePhotos)currentOrder.evidencePhotos={};
+      currentOrder.evidencePhotos[evPendingType]=dataUrl;
+      currentOrder.evidenceCount=Object.keys(currentOrder.evidencePhotos).filter(function(k){return currentOrder.evidencePhotos[k];}).length;
+      saveDispatches();
+      evPendingType=null;
+      renderDetail();
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function removeEvidence(type){
+  if(!currentOrder||!currentOrder.evidencePhotos)return;
+  delete currentOrder.evidencePhotos[type];
+  currentOrder.evidenceCount=Object.keys(currentOrder.evidencePhotos).filter(function(k){return currentOrder.evidencePhotos[k];}).length;
+  saveDispatches();
+  renderDetail();
+}
+
+function renderEvidenceHTML(d){
+  var canEdit=(d.status==='en_ruta'||d.status==='delivered');
+  var photos=d.evidencePhotos||{};
+  var count=0;
+  for(var i=0;i<EV_TYPES.length;i++){if(photos[EV_TYPES[i]])count++;}
+
+  var h='<div class="sec"><div class="sec-head"><div class="sec-title">'+t('evTitle')+'</div>';
+  h+='<span class="sec-tag '+(count===3?'tag-delivered':'tag-prep')+'">'+count+'/3</span></div>';
+  h+='<div class="sec-body"><div class="ev-grid">';
+
+  for(var j=0;j<EV_TYPES.length;j++){
+    var tp=EV_TYPES[j];
+    var photo=photos[tp];
+    var label=t(EV_LABELS[tp]);
+    if(photo){
+      h+='<div class="ev-card has-photo"'+(canEdit?' onclick="captureEvidence(\''+tp+'\')"':'')+'>';
+      h+='<img src="'+photo+'" alt="'+label+'">';
+      h+='<div class="ev-label">'+label+'</div>';
+      if(canEdit)h+='<button class="ev-remove" onclick="event.stopPropagation();removeEvidence(\''+tp+'\')">X</button>';
+      h+='</div>';
+    }else if(canEdit){
+      h+='<div class="ev-card" onclick="captureEvidence(\''+tp+'\')">';
+      h+='<div class="ev-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>';
+      h+='<div class="ev-label">'+label+'</div>';
+      h+='<div style="font-size:9px;color:var(--muted)">'+t('evTap')+'</div>';
+      h+='</div>';
+    }else{
+      h+='<div class="ev-card" style="cursor:default;opacity:.5">';
+      h+='<div class="ev-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>';
+      h+='<div class="ev-label">'+label+'</div>';
+      h+='</div>';
+    }
+  }
+  h+='</div>';
+  if(count>0){
+    h+='<div style="margin-top:10px"><button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="generateEvidencePDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> '+t('btnEvidencePDF')+'</button></div>';
+  }
+  h+='</div></div>';
+  return h;
+}
+
+function generateEvidencePDF(){
+  if(!currentOrder)return;
+  var d=currentOrder;
+  var photos=d.evidencePhotos||{};
+  var date=new Date(d.deliveredAt||d.enRouteAt||d.createdAt);
+  var dateStr=date.toLocaleDateString()+' '+date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var labels={zone:t('evZone'),address:t('evAddress'),delivery:t('evDelivery')};
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+(LANG==='es'?'Evidencia':'Evidence')+' -- '+(d.remisionNumber||d.id)+'</title>';
+  html+='<style>body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:13px}';
+  html+='.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #060a0e;padding-bottom:16px;margin-bottom:20px}';
+  html+='.logo{font-size:22px;font-weight:900;letter-spacing:-1px}.logo-sub{font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase}';
+  html+='.doc-title{text-align:right}.doc-title h1{font-size:16px;margin:0 0 4px}.doc-title .id{font-family:monospace;font-size:14px;color:#22c55e}';
+  html+='.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px}';
+  html+='.info-item{display:flex;flex-direction:column;gap:2px}.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600}.info-val{font-size:13px;font-weight:600}';
+  html+='.photo-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}';
+  html+='.photo-card{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}';
+  html+='.photo-card .photo-label{padding:8px 12px;background:#f1f5f9;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569}';
+  html+='.photo-card img{width:100%;display:block;max-height:400px;object-fit:contain;background:#fafafa}';
+  html+='.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
+  html+='@media print{body{padding:12px}@page{margin:15mm}.photo-card{break-inside:avoid}}</style></head><body>';
+
+  html+='<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
+  html+='<div class="doc-title"><h1>'+(LANG==='es'?'EVIDENCIA DE ENTREGA':'DELIVERY EVIDENCE')+'</h1><div class="id">'+(d.remisionNumber||d.id)+'</div><div style="font-size:11px;color:#64748b;margin-top:4px">'+dateStr+'</div></div></div>';
+
+  html+='<div class="info-grid">';
+  html+='<div class="info-item"><span class="info-label">'+t('lblClient')+'</span><span class="info-val">'+d.client+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+t('lblDest')+'</span><span class="info-val">'+(d.destination||'--')+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+t('lblCarrier')+'</span><span class="info-val">'+(d.carrier||'--')+'</span></div>';
+  html+='<div class="info-item"><span class="info-label">'+t('lblTracking')+'</span><span class="info-val" style="font-family:monospace">'+(d.tracking||'--')+'</span></div>';
+  if(d.receiverName)html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Recibido por':'Received by')+'</span><span class="info-val">'+d.receiverName+'</span></div>';
+  html+='</div>';
+
+  html+='<div class="photo-grid">';
+  for(var i=0;i<EV_TYPES.length;i++){
+    var tp=EV_TYPES[i];
+    if(photos[tp]){
+      html+='<div class="photo-card"><div class="photo-label">'+labels[tp]+'</div><img src="'+photos[tp]+'"></div>';
+    }
+  }
+  html+='</div>';
+
+  if(d.signatureData){
+    html+='<div style="margin-top:24px;padding:12px;border:1px solid #e2e8f0;border-radius:8px;display:inline-block">';
+    html+='<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#64748b;font-weight:600;margin-bottom:6px">'+(LANG==='es'?'Firma':'Signature')+'</div>';
+    html+='<img src="'+d.signatureData+'" style="max-width:200px;border:1px solid #e2e8f0;border-radius:4px">';
+    if(d.receiverName)html+='<div style="font-size:11px;font-weight:600;margin-top:4px">'+d.receiverName+'</div>';
+    html+='</div>';
+  }
+
+  html+='<div class="footer">'+(LANG==='es'?'Generado por':'Generated by')+' 7Group Logistics Intelligence -- '+dateStr+'</div>';
+  html+='</body></html>';
+
+  var w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){w.print();},600);
 }
 
 /* =============== INIT =============== */
