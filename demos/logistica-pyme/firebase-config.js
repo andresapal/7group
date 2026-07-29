@@ -4,7 +4,7 @@
 // Sheet: 7Group Logistics DB
 // ============================================================
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby4wFmmtjyThMZmug3GlU9G71LIWMP7GWMWDJ6KLXIo0--XsYAzFcD6qUDmcUhM1Sl_/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKS0QEslZYYAeYkbYzFzDT0wC_63Kdrvtdo6V4bIprzWv0WCjOoR9Re4S1cR3oKpzx/exec';
 
 const SHEET_NAMES = {
   shipments: 'Embarques',
