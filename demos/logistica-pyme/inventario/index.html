@@ -103,7 +103,9 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 /* TABLE */
 .tbl-wrap{overflow-x:auto}
 table.tbl{width:100%;border-collapse:collapse;font-size:12px}
-.tbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border2);white-space:nowrap;position:sticky;top:0}
+.tbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border2);white-space:nowrap;position:sticky;top:0;user-select:none}
+.tbl th[onclick]:hover{color:var(--cyan)}
+.sort-arrow{font-size:9px;opacity:.5;margin-left:2px}.sort-arrow.asc::after{content:'\25B2'}.sort-arrow.desc::after{content:'\25BC'}.sort-arrow.active{opacity:1;color:var(--cyan)}
 .tbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--white);white-space:nowrap}
 .tbl tr:hover td{background:rgba(94,231,247,.02)}
 .tbl .mono{font-family:'JetBrains Mono',monospace;font-size:11px}
@@ -250,13 +252,13 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
       <div class="tbl-wrap">
         <table class="tbl" id="productsTable">
           <thead><tr>
-            <th>SKU</th>
-            <th data-t="thDesc">Descripcion</th>
-            <th data-t="thAvail">Disponible</th>
-            <th data-t="thCommit">Comprometido</th>
-            <th data-t="thTransit">En Transito</th>
-            <th data-t="thTotal">Total</th>
-            <th data-t="thValue">Valor</th>
+            <th onclick="sortTable('sku')" style="cursor:pointer">SKU <span class="sort-arrow" id="sort-sku"></span></th>
+            <th data-t="thDesc" onclick="sortTable('desc')" style="cursor:pointer"><span data-t="thDesc">Descripcion</span> <span class="sort-arrow" id="sort-desc"></span></th>
+            <th data-t="thAvail" onclick="sortTable('avail')" style="cursor:pointer"><span data-t="thAvail">Disponible</span> <span class="sort-arrow" id="sort-avail"></span></th>
+            <th data-t="thCommit" onclick="sortTable('commit')" style="cursor:pointer"><span data-t="thCommit">Comprometido</span> <span class="sort-arrow" id="sort-commit"></span></th>
+            <th data-t="thTransit" onclick="sortTable('transit')" style="cursor:pointer"><span data-t="thTransit">En Transito</span> <span class="sort-arrow" id="sort-transit"></span></th>
+            <th onclick="sortTable('total')" style="cursor:pointer"><span data-t="thTotal">Total</span> <span class="sort-arrow" id="sort-total"></span></th>
+            <th onclick="sortTable('value')" style="cursor:pointer"><span data-t="thValue">Valor</span> <span class="sort-arrow" id="sort-value"></span></th>
             <th data-t="thMinMax">Min / Max</th>
             <th data-t="thStatus">Estado</th>
             <th data-t="thStock">Stock</th>
@@ -621,6 +623,27 @@ function renderKPIs(){
     '<div class="kpi"><div class="kpi-val green">'+totalUnits.toLocaleString()+'</div><div class="kpi-label">'+t('kpiUnits')+'</div></div>'+
     '<div class="kpi"><div class="kpi-val">$'+(totalVal/1000).toFixed(1)+'K</div><div class="kpi-label">'+t('kpiValue')+'</div></div>'+
     '<div class="kpi"><div class="kpi-val '+(alertCount>3?'red':'yellow')+'">'+alertCount+'</div><div class="kpi-label">'+t('kpiAlerts')+'</div></div>';
+}
+
+var currentSort={col:null,dir:null};
+function sortTable(col){
+  if(currentSort.col===col)currentSort.dir=currentSort.dir==='asc'?'desc':'asc';
+  else{currentSort.col=col;currentSort.dir='desc';}
+  var arrows=document.querySelectorAll('.sort-arrow');
+  for(var i=0;i<arrows.length;i++){arrows[i].className='sort-arrow';}
+  var active=document.getElementById('sort-'+col);
+  if(active)active.className='sort-arrow active '+currentSort.dir;
+  PRODUCTS.sort(function(a,b){
+    var va,vb;
+    if(col==='total'){va=a.avail+a.commit+a.transit;vb=b.avail+b.commit+b.transit;}
+    else if(col==='value'){va=(a.avail+a.commit)*a.cost;vb=(b.avail+b.commit)*b.cost;}
+    else{va=a[col];vb=b[col];}
+    if(typeof va==='string'){va=va.toLowerCase();vb=vb.toLowerCase();}
+    if(va<vb)return currentSort.dir==='asc'?-1:1;
+    if(va>vb)return currentSort.dir==='asc'?1:-1;
+    return 0;
+  });
+  renderProducts();
 }
 
 function renderProducts(){
