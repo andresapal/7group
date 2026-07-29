@@ -50,9 +50,14 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .lang-opt:hover{color:var(--cyan)}
 .lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
 
-.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
-.mod-link{padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
-.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
+.fab-toggle{position:fixed;bottom:24px;right:24px;z-index:200;width:52px;height:52px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:transform .2s,background .2s;color:var(--bg)}
+.fab-toggle:hover{transform:scale(1.08)}
+.fab-toggle.open{background:var(--bg3);color:var(--white);transform:rotate(45deg)}
+.fab-panel{position:fixed;bottom:86px;right:24px;z-index:199;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:8px 0;min-width:180px;box-shadow:0 12px 40px rgba(0,0,0,.5);display:none;flex-direction:column}
+.fab-panel.open{display:flex}
+.fab-item{padding:10px 20px;font-size:12px;font-weight:600;color:var(--dim);text-decoration:none;transition:.15s;letter-spacing:.3px}
+.fab-item:hover{color:var(--white);background:rgba(94,231,247,.06)}
+.fab-item.active{color:var(--cyan)}
 
 .main{max-width:480px;margin:0 auto;padding:16px}
 
@@ -309,20 +314,25 @@ input[type="file"]{display:none}
   </div>
 </nav>
 
-<div class="mod-nav">
-  <a href="/demos/logistica-pyme/shipment/" class="mod-link active" data-t="modShip">Shipment</a>
-  <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
-  <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
-  <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
-  <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
-  <a href="/demos/logistica-pyme/clientes/" class="mod-link" data-t="modClients">Clientes</a>
-  <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
+<!-- FAB Menu -->
+<button class="fab-toggle" id="fabToggle" onclick="toggleFab()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+</button>
+<div class="fab-panel" id="fabPanel">
+  <a href="/demos/logistica-pyme/shipment/" class="fab-item active" data-t="modShip">Shipment</a>
+  <a href="/demos/logistica-pyme/" class="fab-item" data-t="modRecv">Recibo</a>
+  <a href="/demos/logistica-pyme/inventario/" class="fab-item" data-t="modInv">Inventario</a>
+  <a href="/demos/logistica-pyme/bodega/" class="fab-item" data-t="modWh">Bodega</a>
+  <a href="/demos/logistica-pyme/despachos/" class="fab-item" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/clientes/" class="fab-item" data-t="modClients">Clientes</a>
+  <a href="/demos/logistica-pyme/dashboard/" class="fab-item" data-t="modDash">Dashboard</a>
+  <a href="javascript:void(0)" class="fab-item" onclick="showView('list');toggleFab()" data-t="viewList" style="border-top:1px solid var(--border2);margin-top:4px;padding-top:10px">Envios</a>
 </div>
 
 <div class="main">
 
-<!-- VIEW TOGGLE -->
-<div class="view-toggle">
+<!-- VIEW TOGGLE (hidden, accessible via fab menu) -->
+<div class="view-toggle" id="viewToggle" style="display:none">
   <button class="view-opt active" id="viewCapture" onclick="showView('capture')" data-t="viewCapture">Capturar</button>
   <button class="view-opt" id="viewShipments" onclick="showView('list')" data-t="viewList">Envios</button>
 </div>
@@ -330,17 +340,12 @@ input[type="file"]{display:none}
 <!-- ========== CAPTURE VIEW ========== -->
 <div id="captureView">
 
-  <button class="capture-btn capture-primary" onclick="captureDoc()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-    <span data-t="btnSnapDoc">Foto al documento</span>
+  <button class="capture-btn capture-primary" onclick="uploadPDF()" style="padding:18px 20px;font-size:14px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+    <span data-t="btnStartReceipt">Iniciar proceso de recibo</span>
   </button>
 
-  <button class="capture-btn capture-secondary" onclick="uploadPDF()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
-    <span data-t="btnUploadPDF">Subir PDF</span>
-  </button>
-
-  <input type="file" id="fileDoc" accept="image/*" capture="environment" onchange="handleFileDoc(event)">
+  <input type="file" id="fileDoc" accept="image/*" capture="environment" onchange="handleFileDoc(event)" style="display:none">
   <input type="file" id="filePDF" accept="application/pdf,image/*,.pdf" onchange="handleFilePDF(event)">
 
   <!-- AI STATUS -->
@@ -614,6 +619,7 @@ var T = {
   viewList:    {es:'Envios',                      en:'Shipments'},
   btnSnapDoc:  {es:'Foto al documento',           en:'Snap document'},
   btnUploadPDF:{es:'Subir PDF',                   en:'Upload PDF'},
+  btnStartReceipt:{es:'Iniciar proceso de recibo',en:'Start receiving process'},
   aiProcessing:{es:'AI procesando documento...',  en:'AI processing document...'},
   aiDone:      {es:'AI completo',                 en:'AI complete'},
   aiFail:      {es:'AI fallo - intenta otra foto',en:'AI failed - try another photo'},
@@ -727,13 +733,13 @@ function applyLang() {
   document.getElementById('langEN').classList.toggle('active', LANG === 'en');
 
   var lp = LANG === 'en' ? '?lang=en' : '';
-  document.querySelector('.mod-link[data-t="modShip"]').href='/demos/logistica-pyme/shipment/'+lp;
-  document.querySelector('.mod-link[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
-  document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
-  document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
-  document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
-  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/logistica-pyme/clientes/'+lp;
-  document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
+  document.querySelector('.fab-item[data-t="modShip"]').href='/demos/logistica-pyme/shipment/'+lp;
+  document.querySelector('.fab-item[data-t="modRecv"]').href='/demos/logistica-pyme/'+lp;
+  document.querySelector('.fab-item[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
+  document.querySelector('.fab-item[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
+  document.querySelector('.fab-item[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
+  document.querySelector('.fab-item[data-t="modClients"]').href='/demos/logistica-pyme/clientes/'+lp;
+  document.querySelector('.fab-item[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
 
   renderShipmentsList();
 }
@@ -748,6 +754,21 @@ function setLang(lang) {
 }
 
 /* =============== THEME =============== */
+function toggleFab() {
+  var btn = document.getElementById('fabToggle');
+  var panel = document.getElementById('fabPanel');
+  btn.classList.toggle('open');
+  panel.classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  var btn = document.getElementById('fabToggle');
+  var panel = document.getElementById('fabPanel');
+  if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+    btn.classList.remove('open');
+    panel.classList.remove('open');
+  }
+});
+
 function toggleTheme() {
   document.documentElement.classList.toggle('light');
   var isLight = document.documentElement.classList.contains('light');
