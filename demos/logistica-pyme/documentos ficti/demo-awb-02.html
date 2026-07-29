@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWB 235-91774820 | KyoTech Components</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Courier New',monospace;font-size:11px;background:#fff;color:#000;padding:10px}
+.awb-header{border:3px solid #000;padding:12px;margin-bottom:10px}
+.awb-header h1{font-size:22px;text-align:center;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:8px}
+.awb-row{display:flex;gap:10px;margin-bottom:6px}
+.awb-row .col{flex:1}
+.awb-row .col label{font-size:9px;color:#666;text-transform:uppercase;display:block}
+.awb-row .col span{font-weight:bold;font-size:12px}
+.lot-header{background:#000;color:#fff;padding:6px 10px;font-size:13px;font-weight:bold;margin-top:14px;margin-bottom:2px}
+.item-row{display:flex;align-items:center;border-bottom:1px solid #ccc;padding:4px 0}
+.item-row:nth-child(even){background:#f5f5f5}
+.item-bc{width:160px;min-width:160px;text-align:center}
+.item-bc svg{height:32px;width:140px}
+.item-bc .sku-text{font-size:9px;font-weight:bold;letter-spacing:1px}
+.item-desc{flex:1;padding:0 8px;font-size:10px}
+.item-desc .name{font-weight:bold;font-size:11px}
+.item-qty{width:60px;text-align:center;font-weight:bold;font-size:13px}
+.totals-bar{display:flex;justify-content:space-between;border:2px solid #000;padding:8px;margin-top:12px;font-weight:bold;font-size:12px}
+.controls{background:#f0f0f0;padding:10px;margin-bottom:10px;text-align:center;border:1px solid #ccc}
+.controls button{padding:8px 20px;font-size:14px;cursor:pointer;margin:0 5px;border:2px solid #000;background:#fff;font-family:inherit}
+.controls button:hover{background:#000;color:#fff}
+@media print{body{padding:5mm;font-size:10px}.no-print{display:none}}
+</style>
+</head>
+<body>
+
+<div class="controls no-print">
+  <button onclick="window.print()">IMPRIMIR AWB</button>
+</div>
+
+<div class="awb-header">
+  <h1>AIR WAYBILL / GUIA AEREA</h1>
+  <div class="awb-row">
+    <div class="col"><label>AWB Number</label><span>235-91774820</span></div>
+    <div class="col"><label>Flight / Vuelo</label><span>JL 006 / AA 8467</span></div>
+    <div class="col"><label>Date / Fecha</label><span>2026-07-25</span></div>
+    <div class="col"><label>Pieces / Bultos</label><span>22 pallets</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Shipper / Expedidor</label><span>KyoTech Components Ltd.</span></div>
+    <div class="col"><label>Origin / Origen</label><span>NRT - Tokyo Narita, Japan</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Consignee / Consignatario</label><span>7Group Logistics Corp.</span></div>
+    <div class="col"><label>Destination / Destino</label><span>FLL - Fort Lauderdale, FL, USA</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Warehouse / Bodega</label><span>7Group Warehouse - 8350 NW 52nd Terrace, Suite 101, Doral, FL 33166</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Gross Weight / Peso Bruto</label><span>6,840 kg</span></div>
+    <div class="col"><label>Volume / Volumen</label><span>31.2 CBM</span></div>
+    <div class="col"><label>Declared Value</label><span>USD $892,500.00</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Special Handling</label><span>ESD SENSITIVE - ANTI-STATIC PACKAGING - HANDLE WITH CARE</span></div>
+  </div>
+</div>
+
+<div id="content"></div>
+<div class="totals-bar" id="totalsBar"></div>
+
+<script>
+var LOTS = [
+  { name: 'LOT 1 - STORAGE DRIVES', items: [
+    {sku:'SD-SS-870E5',desc:'Samsung 870 EVO 500GB SATA SSD',qty:300},
+    {sku:'SD-SS-990P1',desc:'Samsung 990 PRO 1TB NVMe M.2',qty:200},
+    {sku:'SD-SS-990P2',desc:'Samsung 990 PRO 2TB NVMe M.2',qty:150},
+    {sku:'SD-WD-BK1T',desc:'WD Black SN850X 1TB Gen4',qty:180},
+    {sku:'SD-WD-BK2T',desc:'WD Black SN850X 2TB Gen4',qty:100},
+    {sku:'SD-CR-MP61T',desc:'Crucial P3 Plus 1TB NVMe',qty:250},
+    {sku:'SD-KN-NV2T',desc:'Kingston NV2 2TB NVMe PCIe',qty:160}
+  ]},
+  { name: 'LOT 2 - MEMORY MODULES', items: [
+    {sku:'MM-KN-F8D5',desc:'Kingston Fury Beast 8GB DDR5-5600',qty:400},
+    {sku:'MM-KN-F16D5',desc:'Kingston Fury Beast 16GB DDR5-5600',qty:300},
+    {sku:'MM-KN-F32D5',desc:'Kingston Fury Beast 32GB DDR5-5600',qty:150},
+    {sku:'MM-CR-V8D5',desc:'Corsair Vengeance 8GB DDR5-5200',qty:350},
+    {sku:'MM-CR-V16D5',desc:'Corsair Vengeance 16GB DDR5-5200',qty:250},
+    {sku:'MM-CR-V32D5',desc:'Corsair Vengeance 32GB DDR5-5200',qty:100},
+    {sku:'MM-GS-TZ16',desc:'G.Skill Trident Z5 16GB DDR5-6000',qty:200}
+  ]},
+  { name: 'LOT 3 - POWER SUPPLIES & COOLING', items: [
+    {sku:'PS-CR-RM750',desc:'Corsair RM750e 80+ Gold ATX',qty:120},
+    {sku:'PS-CR-RM850',desc:'Corsair RM850x 80+ Gold ATX',qty:90},
+    {sku:'PS-SE-FCS7',desc:'Seasonic Focus GX-750 80+ Gold',qty:100},
+    {sku:'PS-EV-G21K',desc:'EVGA SuperNOVA 1000 G2 80+ Gold',qty:60},
+    {sku:'CL-NT-D15',desc:'Noctua NH-D15 Chromax Tower',qty:80},
+    {sku:'CL-NT-U12S',desc:'Noctua NH-U12S Redux Cooler',qty:150},
+    {sku:'CL-CR-H150',desc:'Corsair iCUE H150i Elite AIO 360mm',qty:70},
+    {sku:'CL-AK-240',desc:'Arctic Liquid Freezer II 240mm',qty:110}
+  ]},
+  { name: 'LOT 4 - GRAPHICS CARDS', items: [
+    {sku:'GP-NV-4060',desc:'NVIDIA GeForce RTX 4060 8GB',qty:80},
+    {sku:'GP-NV-4070',desc:'NVIDIA GeForce RTX 4070 12GB',qty:50},
+    {sku:'GP-NV-4070S',desc:'NVIDIA GeForce RTX 4070 Super',qty:35},
+    {sku:'GP-NV-4080S',desc:'NVIDIA GeForce RTX 4080 Super',qty:20},
+    {sku:'GP-AM-7800',desc:'AMD Radeon RX 7800 XT 16GB',qty:45},
+    {sku:'GP-AM-7700',desc:'AMD Radeon RX 7700 XT 12GB',qty:60}
+  ]}
+];
+
+var C39={'*':[1,2,1,1,2,1,2,1,1],'0':[1,1,1,2,2,1,2,1,1],'1':[2,1,1,2,1,1,1,1,2],'2':[1,1,2,2,1,1,1,1,2],'3':[2,1,2,2,1,1,1,1,1],'4':[1,1,1,2,2,1,1,1,2],'5':[2,1,1,2,2,1,1,1,1],'6':[1,1,2,2,2,1,1,1,1],'7':[1,1,1,2,1,1,2,1,2],'8':[2,1,1,2,1,1,2,1,1],'9':[1,1,2,2,1,1,2,1,1],'A':[2,1,1,1,1,2,1,1,2],'B':[1,1,2,1,1,2,1,1,2],'C':[2,1,2,1,1,2,1,1,1],'D':[1,1,1,1,2,2,1,1,2],'E':[2,1,1,1,2,2,1,1,1],'F':[1,1,2,1,2,2,1,1,1],'G':[1,1,1,1,1,2,2,1,2],'H':[2,1,1,1,1,2,2,1,1],'I':[1,1,2,1,1,2,2,1,1],'J':[1,1,1,1,2,2,2,1,1],'K':[2,1,1,1,1,1,1,2,2],'L':[1,1,2,1,1,1,1,2,2],'M':[2,1,2,1,1,1,1,2,1],'N':[1,1,1,1,2,1,1,2,2],'O':[2,1,1,1,2,1,1,2,1],'P':[1,1,2,1,2,1,1,2,1],'Q':[1,1,1,1,1,1,2,2,2],'R':[2,1,1,1,1,1,2,2,1],'S':[1,1,2,1,1,1,2,2,1],'T':[1,1,1,1,2,1,2,2,1],'U':[2,2,1,1,1,1,1,1,2],'V':[1,2,2,1,1,1,1,1,2],'W':[2,2,2,1,1,1,1,1,1],'X':[1,2,1,1,2,1,1,1,2],'Y':[2,2,1,1,2,1,1,1,1],'Z':[1,2,2,1,2,1,1,1,1],'-':[1,2,1,1,1,1,2,1,2],' ':[1,2,2,1,1,1,2,1,1]};
+
+function makeBarcode(text){
+  text=text.toUpperCase();var chars='*'+text+'*';var modules=[];
+  for(var ci=0;ci<chars.length;ci++){var ch=chars[ci];var pat=C39[ch];if(!pat)continue;for(var pi=0;pi<pat.length;pi++){modules.push({bar:pi%2===0,w:pat[pi]});}if(ci<chars.length-1)modules.push({bar:false,w:1});}
+  var totalW=0;for(var m=0;m<modules.length;m++)totalW+=modules[m].w;var svgW=totalW;
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+svgW+' 30" preserveAspectRatio="none">';var x=0;
+  for(var i=0;i<modules.length;i++){var mod=modules[i];var w=mod.w;if(mod.bar)svg+='<rect x="'+x+'" y="0" width="'+w+'" height="30" fill="#000"/>';x+=w;}
+  svg+='</svg>';return svg;
+}
+
+function render(){
+  var html='',totalRefs=0,totalUnits=0;
+  for(var li=0;li<LOTS.length;li++){
+    var lot=LOTS[li];
+    html+='<div class="lot-header">'+lot.name+' ('+lot.items.length+' refs)</div>';
+    for(var ii=0;ii<lot.items.length;ii++){
+      var it=lot.items[ii];totalRefs++;totalUnits+=it.qty;
+      html+='<div class="item-row">';
+      html+='<div class="item-bc">'+makeBarcode(it.sku)+'<div class="sku-text">'+it.sku+'</div></div>';
+      html+='<div class="item-desc"><div class="name">'+it.desc+'</div></div>';
+      html+='<div class="item-qty">'+it.qty+'</div>';
+      html+='</div>';
+    }
+  }
+  document.getElementById('content').innerHTML=html;
+  document.getElementById('totalsBar').innerHTML='<span>TOTAL: '+totalRefs+' refs / '+totalUnits.toLocaleString()+' units</span><span>22 pallets - Air Freight</span>';
+}
+render();
+</script>
+</body>
+</html>

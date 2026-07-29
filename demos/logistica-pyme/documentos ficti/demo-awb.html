@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWB 180-72583691 | ShenTech Electronics</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Courier New',monospace;font-size:11px;background:#fff;color:#000;padding:10px}
+.awb-header{border:3px solid #000;padding:12px;margin-bottom:10px}
+.awb-header h1{font-size:22px;text-align:center;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:8px}
+.awb-row{display:flex;gap:10px;margin-bottom:6px}
+.awb-row .col{flex:1}
+.awb-row .col label{font-size:9px;color:#666;text-transform:uppercase;display:block}
+.awb-row .col span{font-weight:bold;font-size:12px}
+.lot-header{background:#000;color:#fff;padding:6px 10px;font-size:13px;font-weight:bold;margin-top:14px;margin-bottom:2px;page-break-inside:avoid}
+.item-row{display:flex;align-items:center;border-bottom:1px solid #ccc;padding:4px 0;page-break-inside:avoid}
+.item-row:nth-child(even){background:#f5f5f5}
+.item-bc{width:160px;min-width:160px;text-align:center}
+.item-bc svg{height:32px;width:140px}
+.item-bc .sku-text{font-size:9px;font-weight:bold;letter-spacing:1px}
+.item-desc{flex:1;padding:0 8px;font-size:10px}
+.item-desc .name{font-weight:bold;font-size:11px}
+.item-qty{width:60px;text-align:center;font-weight:bold;font-size:13px}
+.item-dest{width:90px;text-align:center;font-size:9px;font-weight:bold;padding:2px 4px;border-radius:3px}
+.dest-ORL{background:#dbeafe;color:#1e40af}
+.dest-TPA{background:#dcfce7;color:#166534}
+.dest-SEB{background:#fef9c3;color:#854d0e}
+.dest-HWD{background:#fce7f3;color:#9d174d}
+.dest-WH{background:#f3e8ff;color:#6b21a8}
+.summary-box{border:2px solid #000;padding:10px;margin-top:16px;page-break-inside:avoid}
+.summary-box h3{font-size:14px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:8px}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.summary-card{border:1px solid #999;padding:8px;text-align:center}
+.summary-card .city{font-weight:bold;font-size:12px}
+.summary-card .addr{font-size:8px;color:#555;margin:2px 0}
+.summary-card .count{font-size:18px;font-weight:bold;margin-top:4px}
+.summary-card .units{font-size:9px;color:#666}
+.totals-bar{display:flex;justify-content:space-between;border:2px solid #000;padding:8px;margin-top:8px;font-weight:bold;font-size:12px}
+.page-break{page-break-before:always}
+@media print{
+  body{padding:5mm;font-size:10px}
+  .no-print{display:none}
+  .lot-header{page-break-after:avoid}
+}
+.controls{background:#f0f0f0;padding:10px;margin-bottom:10px;text-align:center;border:1px solid #ccc}
+.controls button{padding:8px 20px;font-size:14px;cursor:pointer;margin:0 5px;border:2px solid #000;background:#fff;font-family:inherit}
+.controls button:hover{background:#000;color:#fff}
+.filter-bar{display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.filter-btn{padding:4px 12px;font-size:10px;cursor:pointer;border:1px solid #999;background:#fff;font-family:inherit;border-radius:3px}
+.filter-btn.active{background:#000;color:#fff}
+</style>
+</head>
+<body>
+
+<div class="controls no-print">
+  <button onclick="window.print()">IMPRIMIR AWB</button>
+  <button onclick="toggleSize()">Tamano Barcode</button>
+  <div class="filter-bar">
+    <button class="filter-btn active" data-f="ALL" onclick="filterDest('ALL',this)">Todos (66)</button>
+    <button class="filter-btn" data-f="ORL" onclick="filterDest('ORL',this)">Orlando</button>
+    <button class="filter-btn" data-f="TPA" onclick="filterDest('TPA',this)">Tampa</button>
+    <button class="filter-btn" data-f="SEB" onclick="filterDest('SEB',this)">Sebring</button>
+    <button class="filter-btn" data-f="HWD" onclick="filterDest('HWD',this)">Hollywood</button>
+    <button class="filter-btn" data-f="WH" onclick="filterDest('WH',this)">Bodega Miami</button>
+  </div>
+</div>
+
+<div class="awb-header">
+  <h1>AIR WAYBILL / GUIA AEREA</h1>
+  <div class="awb-row">
+    <div class="col"><label>AWB Number</label><span>180-72583691</span></div>
+    <div class="col"><label>Flight / Vuelo</label><span>CX 882 / AA 1547</span></div>
+    <div class="col"><label>Date / Fecha</label><span>2026-07-22</span></div>
+    <div class="col"><label>Pieces / Bultos</label><span>48 pallets</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Shipper / Expedidor</label><span>ShenTech Electronics Co., Ltd.</span></div>
+    <div class="col"><label>Origin / Origen</label><span>SZX - Shenzhen, China</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Consignee / Consignatario</label><span>7Group Logistics Corp.</span></div>
+    <div class="col"><label>Destination / Destino</label><span>MIA - Miami, FL, USA</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Warehouse / Bodega</label><span>7Group Warehouse - 8350 NW 52nd Terrace, Suite 101, Doral, FL 33166</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Gross Weight / Peso Bruto</label><span>12,480 kg</span></div>
+    <div class="col"><label>Volume / Volumen</label><span>68.5 CBM</span></div>
+    <div class="col"><label>Declared Value</label><span>USD $1,247,600.00</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Special Handling</label><span>FRAGILE - ELECTRONICS - KEEP DRY - THIS SIDE UP</span></div>
+  </div>
+</div>
+
+<div id="content"></div>
+
+<div class="summary-box" id="summaryBox"></div>
+
+<script>
+var LOTS = [
+  { name: 'LOT 1 - SMARTPHONES', code: 'SM', items: [
+    {sku:'SM-A15-064',desc:'Samsung Galaxy A15 64GB Black',qty:200,dest:'ORL'},
+    {sku:'SM-A25-128',desc:'Samsung Galaxy A25 128GB Blue',qty:150,dest:'TPA'},
+    {sku:'SM-S24-256',desc:'Samsung Galaxy S24 256GB Cream',qty:120,dest:'HWD'},
+    {sku:'SM-A06-064',desc:'Samsung Galaxy A06 64GB Silver',qty:350,dest:'SEB'},
+    {sku:'XM-RN13-128',desc:'Xiaomi Redmi Note 13 128GB',qty:300,dest:'ORL'},
+    {sku:'XM-RN13-256',desc:'Xiaomi Redmi Note 13 256GB',qty:180,dest:'TPA'},
+    {sku:'MT-G45-128',desc:'Motorola Moto G45 128GB Navy',qty:250,dest:'SEB'},
+    {sku:'XM-14T-256',desc:'Xiaomi 14T 256GB Gray',qty:130,dest:'HWD'},
+    {sku:'OP-N4-128',desc:'OnePlus Nord 4 128GB Black',qty:200,dest:'WH'},
+    {sku:'SM-S24U-512',desc:'Samsung Galaxy S24 Ultra 512GB',qty:100,dest:'WH'}
+  ]},
+  { name: 'LOT 2 - LAPTOPS & TABLETS', code: 'LP', items: [
+    {sku:'LP-DL15-I5',desc:'Dell Inspiron 15 i5 8GB Silver',qty:120,dest:'ORL'},
+    {sku:'LP-DL15-I7',desc:'Dell Inspiron 15 i7 16GB Black',qty:100,dest:'TPA'},
+    {sku:'LP-HP14-R5',desc:'HP 14 Ryzen 5 8GB Natural',qty:150,dest:'HWD'},
+    {sku:'LP-LN-I3',desc:'Lenovo IdeaPad Slim 3 i3 8GB',qty:200,dest:'SEB'},
+    {sku:'TB-SMA9-64',desc:'Samsung Galaxy Tab A9 64GB',qty:180,dest:'ORL'},
+    {sku:'TB-SMS9-128',desc:'Samsung Galaxy Tab S9 128GB',qty:130,dest:'WH'},
+    {sku:'TB-LNM11-128',desc:'Lenovo Tab M11 128GB Gray',qty:160,dest:'TPA'},
+    {sku:'LP-AC-CB315',desc:'Acer Chromebook 315 15.6"',qty:140,dest:'WH'}
+  ]},
+  { name: 'LOT 3 - AUDIO EQUIPMENT', code: 'AU', items: [
+    {sku:'AU-JBL-FL6',desc:'JBL Flip 6 Bluetooth Speaker',qty:250,dest:'HWD'},
+    {sku:'AU-SN-XM5',desc:'Sony WH-1000XM5 Headphones',qty:120,dest:'ORL'},
+    {sku:'AU-JBL-T520',desc:'JBL Tune 520BT On-Ear',qty:300,dest:'SEB'},
+    {sku:'AU-SN-C510',desc:'Sony WF-C510 True Wireless',qty:200,dest:'TPA'},
+    {sku:'AU-BS-QC45',desc:'Bose QuietComfort 45 Silver',qty:110,dest:'HWD'},
+    {sku:'AU-HK-SSTK',desc:'Harman Kardon SoundSticks IV',qty:150,dest:'WH'},
+    {sku:'AU-JBL-GO4',desc:'JBL Go 4 Mini Speaker',qty:400,dest:'ORL'},
+    {sku:'AU-SN-XB13',desc:'Sony SRS-XB13 Portable',qty:280,dest:'SEB'}
+  ]},
+  { name: 'LOT 4 - CABLES & ADAPTERS', code: 'CA', items: [
+    {sku:'CA-UC-1M',desc:'USB-C to USB-C Cable 1m',qty:500,dest:'TPA'},
+    {sku:'CA-UC-2M',desc:'USB-C to USB-C Cable 2m',qty:400,dest:'ORL'},
+    {sku:'CA-LT-1M',desc:'Lightning to USB-C Cable 1m',qty:450,dest:'SEB'},
+    {sku:'CA-HD-2M',desc:'HDMI 2.1 Cable 2m 8K',qty:300,dest:'HWD'},
+    {sku:'CA-DP-15M',desc:'DisplayPort 1.4 Cable 1.5m',qty:200,dest:'WH'},
+    {sku:'AD-UC-HD',desc:'USB-C to HDMI Adapter 4K',qty:350,dest:'TPA'},
+    {sku:'AD-UC-VGA',desc:'USB-C to VGA Adapter',qty:180,dest:'WH'},
+    {sku:'AD-UC-HB7',desc:'USB-C Hub 7-in-1 Dock',qty:250,dest:'ORL'}
+  ]},
+  { name: 'LOT 5 - SMART HOME', code: 'SH', items: [
+    {sku:'SH-AZ-ED5',desc:'Amazon Echo Dot 5th Gen',qty:200,dest:'ORL'},
+    {sku:'SH-GG-NM2',desc:'Google Nest Mini 2nd Gen',qty:180,dest:'TPA'},
+    {sku:'SH-TP-P110',desc:'TP-Link Tapo P110 Smart Plug',qty:400,dest:'SEB'},
+    {sku:'SH-RG-DC4',desc:'Ring Video Doorbell 4',qty:150,dest:'HWD'},
+    {sku:'SH-WZ-BLB4',desc:'Wiz Smart LED Bulb 4-Pack',qty:300,dest:'WH'},
+    {sku:'SH-AZ-SP3',desc:'Amazon Smart Plug 3rd Gen',qty:350,dest:'TPA'},
+    {sku:'SH-GG-NC2',desc:'Google Nest Cam Indoor 2nd',qty:120,dest:'WH'},
+    {sku:'SH-TP-C210',desc:'TP-Link Tapo C210 Pan/Tilt',qty:180,dest:'HWD'}
+  ]},
+  { name: 'LOT 6 - GAMING PERIPHERALS', code: 'GM', items: [
+    {sku:'GM-LG-G502',desc:'Logitech G502 X Gaming Mouse',qty:200,dest:'ORL'},
+    {sku:'GM-RZ-BW3',desc:'Razer BlackWidow V3 Mech KB',qty:150,dest:'TPA'},
+    {sku:'GM-LG-G733',desc:'Logitech G733 Wireless Headset',qty:120,dest:'SEB'},
+    {sku:'GM-RZ-KRV3',desc:'Razer Kraken V3 X Headset',qty:130,dest:'HWD'},
+    {sku:'GM-SS-QCK',desc:'SteelSeries QcK Heavy XXL Pad',qty:350,dest:'SEB'},
+    {sku:'GM-XB-CTRB',desc:'Xbox Wireless Controller Black',qty:180,dest:'WH'},
+    {sku:'GM-PS-CTRW',desc:'PS5 DualSense Controller White',qty:160,dest:'ORL'},
+    {sku:'GM-NS-PRO',desc:'Nintendo Switch Pro Controller',qty:140,dest:'TPA'},
+    {sku:'GM-RZ-V3M',desc:'Razer Viper V3 HyperSpeed',qty:110,dest:'WH'}
+  ]},
+  { name: 'LOT 7 - NETWORKING', code: 'NW', items: [
+    {sku:'NW-TP-AX21',desc:'TP-Link Archer AX21 WiFi 6',qty:150,dest:'ORL'},
+    {sku:'NW-NX-R67',desc:'Netgear R6700 Nighthawk AC1750',qty:120,dest:'HWD'},
+    {sku:'NW-TP-RE5X',desc:'TP-Link RE505X WiFi 6 Extender',qty:200,dest:'SEB'},
+    {sku:'NW-UB-U6L',desc:'Ubiquiti UniFi U6 Lite AP',qty:100,dest:'TPA'},
+    {sku:'NW-TP-SG108',desc:'TP-Link 8-Port Gigabit Switch',qty:180,dest:'ORL'},
+    {sku:'NW-NX-GS305',desc:'Netgear GS305 5-Port Switch',qty:160,dest:'SEB'},
+    {sku:'NW-TP-M5',desc:'TP-Link Deco M5 Mesh 3-Pack',qty:130,dest:'WH'},
+    {sku:'NW-UB-DRM',desc:'Ubiquiti Dream Machine Pro',qty:100,dest:'HWD'}
+  ]},
+  { name: 'LOT 8 - COMPUTER COMPONENTS', code: 'CP', items: [
+    {sku:'CP-KN-F8D5',desc:'Kingston Fury Beast 8GB DDR5',qty:250,dest:'TPA'},
+    {sku:'CP-KN-F16D5',desc:'Kingston Fury Beast 16GB DDR5',qty:200,dest:'ORL'},
+    {sku:'CP-SS-870E1',desc:'Samsung 870 EVO 1TB SATA SSD',qty:180,dest:'SEB'},
+    {sku:'CP-SS-990P2',desc:'Samsung 990 PRO 2TB NVMe SSD',qty:120,dest:'HWD'},
+    {sku:'CP-CR-RM750',desc:'Corsair RM750 80+ Gold PSU',qty:140,dest:'WH'},
+    {sku:'CP-NT-T120',desc:'Noctua NH-U12S Redux Cooler',qty:110,dest:'WH'},
+    {sku:'CP-CR-4KD',desc:'Corsair 4000D Airflow Mid Case',qty:100,dest:'TPA'}
+  ]}
+];
+
+var DESTINATIONS = {
+  'ORL': {city:'Orlando, FL',name:'TechZone Distribution',addr:'4521 W Colonial Dr',full:'Orlando, FL 32808',zip:'32808',tel:'(407) 555-1247'},
+  'TPA': {city:'Tampa, FL',name:'Digital Plus Wholesale',addr:'1890 N Dale Mabry Hwy',full:'Tampa, FL 33607',zip:'33607',tel:'(813) 555-3892'},
+  'SEB': {city:'Sebring, FL',name:'SunTech Electronics',addr:'320 US Highway 27 North',full:'Sebring, FL 33870',zip:'33870',tel:'(863) 555-7164'},
+  'HWD': {city:'Hollywood, FL',name:'MegaByte Distributors',addr:'2745 Stirling Rd',full:'Hollywood, FL 33020',zip:'33020',tel:'(954) 555-4538'},
+  'WH': {city:'Doral, FL (Warehouse)',name:'7Group Warehouse',addr:'8350 NW 52nd Terrace, Ste 101',full:'Doral, FL 33166',zip:'33166',tel:'(305) 555-9021'}
+};
+
+/* ---- Code 39 Barcode Generator ---- */
+var C39={
+'*':[1,2,1,1,2,1,2,1,1],
+'0':[1,1,1,2,2,1,2,1,1],
+'1':[2,1,1,2,1,1,1,1,2],
+'2':[1,1,2,2,1,1,1,1,2],
+'3':[2,1,2,2,1,1,1,1,1],
+'4':[1,1,1,2,2,1,1,1,2],
+'5':[2,1,1,2,2,1,1,1,1],
+'6':[1,1,2,2,2,1,1,1,1],
+'7':[1,1,1,2,1,1,2,1,2],
+'8':[2,1,1,2,1,1,2,1,1],
+'9':[1,1,2,2,1,1,2,1,1],
+'A':[2,1,1,1,1,2,1,1,2],
+'B':[1,1,2,1,1,2,1,1,2],
+'C':[2,1,2,1,1,2,1,1,1],
+'D':[1,1,1,1,2,2,1,1,2],
+'E':[2,1,1,1,2,2,1,1,1],
+'F':[1,1,2,1,2,2,1,1,1],
+'G':[1,1,1,1,1,2,2,1,2],
+'H':[2,1,1,1,1,2,2,1,1],
+'I':[1,1,2,1,1,2,2,1,1],
+'J':[1,1,1,1,2,2,2,1,1],
+'K':[2,1,1,1,1,1,1,2,2],
+'L':[1,1,2,1,1,1,1,2,2],
+'M':[2,1,2,1,1,1,1,2,1],
+'N':[1,1,1,1,2,1,1,2,2],
+'O':[2,1,1,1,2,1,1,2,1],
+'P':[1,1,2,1,2,1,1,2,1],
+'Q':[1,1,1,1,1,1,2,2,2],
+'R':[2,1,1,1,1,1,2,2,1],
+'S':[1,1,2,1,1,1,2,2,1],
+'T':[1,1,1,1,2,1,2,2,1],
+'U':[2,2,1,1,1,1,1,1,2],
+'V':[1,2,2,1,1,1,1,1,2],
+'W':[2,2,2,1,1,1,1,1,1],
+'X':[1,2,1,1,2,1,1,1,2],
+'Y':[2,2,1,1,2,1,1,1,1],
+'Z':[1,2,2,1,2,1,1,1,1],
+'-':[1,2,1,1,1,1,2,1,2],
+' ':[1,2,2,1,1,1,2,1,1]
+};
+
+var barUnit=1;
+function makeBarcode(text){
+  text=text.toUpperCase();
+  var chars='*'+text+'*';
+  var modules=[];
+  for(var ci=0;ci<chars.length;ci++){
+    var ch=chars[ci];
+    var pat=C39[ch];
+    if(!pat) continue;
+    for(var pi=0;pi<pat.length;pi++){
+      modules.push({bar:pi%2===0, w:pat[pi]});
+    }
+    if(ci<chars.length-1) modules.push({bar:false,w:1});
+  }
+  var totalW=0;
+  for(var m=0;m<modules.length;m++) totalW+=modules[m].w;
+  var svgW=totalW*barUnit;
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+svgW+' 30" preserveAspectRatio="none">';
+  var x=0;
+  for(var i=0;i<modules.length;i++){
+    var mod=modules[i];
+    var w=mod.w*barUnit;
+    if(mod.bar) svg+='<rect x="'+x+'" y="0" width="'+w+'" height="30" fill="#000"/>';
+    x+=w;
+  }
+  svg+='</svg>';
+  return svg;
+}
+
+function render(){
+  var html='';
+  var lotNum=0;
+  for(var li=0;li<LOTS.length;li++){
+    var lot=LOTS[li];
+    lotNum++;
+    if(lotNum===5) html+='<div class="page-break"></div>';
+    html+='<div class="lot-header">'+lot.name+' ('+lot.items.length+' refs)</div>';
+    for(var ii=0;ii<lot.items.length;ii++){
+      var it=lot.items[ii];
+      var d=DESTINATIONS[it.dest];
+      html+='<div class="item-row" data-dest="'+it.dest+'">';
+      html+='<div class="item-bc">'+makeBarcode(it.sku)+'<div class="sku-text">'+it.sku+'</div></div>';
+      html+='<div class="item-desc"><div class="name">'+it.desc+'</div></div>';
+      html+='<div class="item-qty">'+it.qty+'</div>';
+      html+='<div class="item-dest dest-'+it.dest+'">'+d.city.split(',')[0]+'</div>';
+      html+='</div>';
+    }
+  }
+  document.getElementById('content').innerHTML=html;
+  renderSummary();
+}
+
+function renderSummary(){
+  var stats={};
+  var totalRefs=0, totalUnits=0;
+  for(var k in DESTINATIONS) stats[k]={refs:0,units:0};
+  for(var li=0;li<LOTS.length;li++){
+    for(var ii=0;ii<LOTS[li].items.length;ii++){
+      var it=LOTS[li].items[ii];
+      stats[it.dest].refs++;
+      stats[it.dest].units+=it.qty;
+      totalRefs++;
+      totalUnits+=it.qty;
+    }
+  }
+  var xdRefs=0, xdUnits=0, whRefs=0, whUnits=0;
+  var h='<h3>DISTRIBUTION SUMMARY / RESUMEN DE DISTRIBUCION</h3>';
+  h+='<div class="summary-grid">';
+  var keys=['ORL','TPA','SEB','HWD','WH'];
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i];
+    var d=DESTINATIONS[k];
+    var s=stats[k];
+    if(k!=='WH'){xdRefs+=s.refs;xdUnits+=s.units;}
+    else{whRefs=s.refs;whUnits=s.units;}
+    h+='<div class="summary-card">';
+    h+='<div class="city">'+(k==='WH'?'WAREHOUSE':'XD: '+d.city)+'</div>';
+    h+='<div class="addr">'+d.name+'<br>'+d.addr+'<br>'+d.full+'<br>Tel: '+d.tel+'</div>';
+    h+='<div class="count">'+s.refs+' refs</div>';
+    h+='<div class="units">'+s.units.toLocaleString()+' units</div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  h+='<div class="totals-bar">';
+  h+='<span>TOTAL: '+totalRefs+' refs / '+totalUnits.toLocaleString()+' units</span>';
+  h+='<span>CROSS-DOCK: '+xdRefs+' refs ('+xdUnits.toLocaleString()+' units) = '+Math.round(xdRefs/totalRefs*100)+'%</span>';
+  h+='<span>WAREHOUSE: '+whRefs+' refs ('+whUnits.toLocaleString()+' units) = '+Math.round(whRefs/totalRefs*100)+'%</span>';
+  h+='</div>';
+  document.getElementById('summaryBox').innerHTML=h;
+}
+
+function toggleSize(){
+  barUnit = barUnit===1 ? 1.5 : 1;
+  render();
+}
+
+function filterDest(dest,btn){
+  var btns=document.querySelectorAll('.filter-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  var rows=document.querySelectorAll('.item-row');
+  for(var i=0;i<rows.length;i++){
+    if(dest==='ALL') rows[i].style.display='';
+    else rows[i].style.display=rows[i].getAttribute('data-dest')===dest?'':'none';
+  }
+}
+
+render();
+</script>
+</body>
+</html>

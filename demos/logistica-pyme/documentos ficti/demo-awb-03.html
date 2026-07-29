@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWB 176-40259813 | EuroTech GmbH</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Courier New',monospace;font-size:11px;background:#fff;color:#000;padding:10px}
+.awb-header{border:3px solid #000;padding:12px;margin-bottom:10px}
+.awb-header h1{font-size:22px;text-align:center;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:8px}
+.awb-row{display:flex;gap:10px;margin-bottom:6px}
+.awb-row .col{flex:1}
+.awb-row .col label{font-size:9px;color:#666;text-transform:uppercase;display:block}
+.awb-row .col span{font-weight:bold;font-size:12px}
+.lot-header{background:#000;color:#fff;padding:6px 10px;font-size:13px;font-weight:bold;margin-top:14px;margin-bottom:2px}
+.item-row{display:flex;align-items:center;border-bottom:1px solid #ccc;padding:4px 0}
+.item-row:nth-child(even){background:#f5f5f5}
+.item-bc{width:160px;min-width:160px;text-align:center}
+.item-bc svg{height:32px;width:140px}
+.item-bc .sku-text{font-size:9px;font-weight:bold;letter-spacing:1px}
+.item-desc{flex:1;padding:0 8px;font-size:10px}
+.item-desc .name{font-weight:bold;font-size:11px}
+.item-qty{width:60px;text-align:center;font-weight:bold;font-size:13px}
+.totals-bar{display:flex;justify-content:space-between;border:2px solid #000;padding:8px;margin-top:12px;font-weight:bold;font-size:12px}
+.controls{background:#f0f0f0;padding:10px;margin-bottom:10px;text-align:center;border:1px solid #ccc}
+.controls button{padding:8px 20px;font-size:14px;cursor:pointer;margin:0 5px;border:2px solid #000;background:#fff;font-family:inherit}
+.controls button:hover{background:#000;color:#fff}
+@media print{body{padding:5mm;font-size:10px}.no-print{display:none}}
+</style>
+</head>
+<body>
+
+<div class="controls no-print">
+  <button onclick="window.print()">IMPRIMIR AWB</button>
+</div>
+
+<div class="awb-header">
+  <h1>AIR WAYBILL / GUIA AEREA</h1>
+  <div class="awb-row">
+    <div class="col"><label>AWB Number</label><span>176-40259813</span></div>
+    <div class="col"><label>Flight / Vuelo</label><span>LH 462 / UA 9135</span></div>
+    <div class="col"><label>Date / Fecha</label><span>2026-07-27</span></div>
+    <div class="col"><label>Pieces / Bultos</label><span>14 pallets</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Shipper / Expedidor</label><span>EuroTech GmbH</span></div>
+    <div class="col"><label>Origin / Origen</label><span>FRA - Frankfurt, Germany</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Consignee / Consignatario</label><span>7Group Logistics Corp.</span></div>
+    <div class="col"><label>Destination / Destino</label><span>MIA - Miami, FL, USA</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Warehouse / Bodega</label><span>7Group Warehouse - 8350 NW 52nd Terrace, Suite 101, Doral, FL 33166</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Gross Weight / Peso Bruto</label><span>4,220 kg</span></div>
+    <div class="col"><label>Volume / Volumen</label><span>18.7 CBM</span></div>
+    <div class="col"><label>Declared Value</label><span>USD $1,435,000.00</span></div>
+  </div>
+  <div class="awb-row">
+    <div class="col"><label>Special Handling</label><span>HIGH VALUE - FRAGILE OPTICS - CLIMATE CONTROLLED 18-22C</span></div>
+  </div>
+</div>
+
+<div id="content"></div>
+<div class="totals-bar" id="totalsBar"></div>
+
+<script>
+var LOTS = [
+  { name: 'LOT 1 - CAMERAS & LENSES', items: [
+    {sku:'CM-SN-A7M4',desc:'Sony Alpha A7 IV Body 33MP FF',qty:40},
+    {sku:'CM-SN-A6700',desc:'Sony Alpha A6700 APS-C Body',qty:60},
+    {sku:'CM-CN-R6M2',desc:'Canon EOS R6 Mark II Body',qty:35},
+    {sku:'CM-CN-R50',desc:'Canon EOS R50 Mirrorless Kit',qty:80},
+    {sku:'CM-NK-Z30',desc:'Nikon Z30 Vlogger Kit 16-50mm',qty:50},
+    {sku:'LN-SN-2470',desc:'Sony FE 24-70mm f/2.8 GM II',qty:30},
+    {sku:'LN-SN-7020',desc:'Sony FE 70-200mm f/2.8 GM II',qty:25},
+    {sku:'LN-CN-2470',desc:'Canon RF 24-70mm f/2.8L IS',qty:20},
+    {sku:'LN-TM-1770',desc:'Tamron 17-70mm f/2.8 Sony E',qty:45}
+  ]},
+  { name: 'LOT 2 - DRONES & ACTION CAMERAS', items: [
+    {sku:'DR-DJ-MN4P',desc:'DJI Mini 4 Pro Fly More Combo',qty:70},
+    {sku:'DR-DJ-AV3',desc:'DJI Avata 2 Fly More Combo',qty:35},
+    {sku:'DR-DJ-A3C',desc:'DJI Air 3 Dual Camera',qty:45},
+    {sku:'DR-DJ-MAV3',desc:'DJI Mavic 3 Classic RC',qty:25},
+    {sku:'AC-GP-HR12',desc:'GoPro HERO 12 Black Creator',qty:90},
+    {sku:'AC-GP-HR11',desc:'GoPro HERO 11 Black Mini',qty:60},
+    {sku:'AC-DJ-ACT4',desc:'DJI Osmo Action 4 Standard',qty:55},
+    {sku:'AC-IS-ONE',desc:'Insta360 ONE RS 1-Inch 360',qty:40}
+  ]},
+  { name: 'LOT 3 - PRO AUDIO', items: [
+    {sku:'PA-SN-MK600',desc:'Sennheiser MKE 600 Shotgun',qty:30},
+    {sku:'PA-RD-WGO2',desc:'Rode Wireless GO II Dual',qty:80},
+    {sku:'PA-RD-NTUSB',desc:'Rode NT-USB+ Condenser Mic',qty:60},
+    {sku:'PA-SH-SM7B',desc:'Shure SM7B Dynamic Broadcast',qty:40},
+    {sku:'PA-SH-MV7',desc:'Shure MV7+ Podcast USB/XLR',qty:55},
+    {sku:'PA-ZM-H6ES',desc:'Zoom H6essential 6-Track',qty:35},
+    {sku:'PA-FC-SC18',desc:'Focusrite Scarlett 18i8 4thGen',qty:45}
+  ]},
+  { name: 'LOT 4 - LIGHTING & GRIP', items: [
+    {sku:'LT-GD-SL60',desc:'Godox SL60W LED Video Light',qty:70},
+    {sku:'LT-GD-M200',desc:'Godox ML200Bi Bi-Color LED',qty:40},
+    {sku:'LT-AP-AL600',desc:'Aputure LS 600d Pro LED',qty:20},
+    {sku:'LT-AP-MC',desc:'Aputure MC Pro RGBWW Pocket',qty:100},
+    {sku:'LT-NL-FS300',desc:'Nanlite FS-300B Bi-Color',qty:30},
+    {sku:'GR-MF-MT55',desc:'Manfrotto MT055CXPRO4 Carbon',qty:50},
+    {sku:'GR-MF-MVH5',desc:'Manfrotto MVH502AH Fluid Head',qty:45},
+    {sku:'GR-ZH-CR3',desc:'Zhiyun Crane 3S Gimbal Pro',qty:35}
+  ]}
+];
+
+var C39={'*':[1,2,1,1,2,1,2,1,1],'0':[1,1,1,2,2,1,2,1,1],'1':[2,1,1,2,1,1,1,1,2],'2':[1,1,2,2,1,1,1,1,2],'3':[2,1,2,2,1,1,1,1,1],'4':[1,1,1,2,2,1,1,1,2],'5':[2,1,1,2,2,1,1,1,1],'6':[1,1,2,2,2,1,1,1,1],'7':[1,1,1,2,1,1,2,1,2],'8':[2,1,1,2,1,1,2,1,1],'9':[1,1,2,2,1,1,2,1,1],'A':[2,1,1,1,1,2,1,1,2],'B':[1,1,2,1,1,2,1,1,2],'C':[2,1,2,1,1,2,1,1,1],'D':[1,1,1,1,2,2,1,1,2],'E':[2,1,1,1,2,2,1,1,1],'F':[1,1,2,1,2,2,1,1,1],'G':[1,1,1,1,1,2,2,1,2],'H':[2,1,1,1,1,2,2,1,1],'I':[1,1,2,1,1,2,2,1,1],'J':[1,1,1,1,2,2,2,1,1],'K':[2,1,1,1,1,1,1,2,2],'L':[1,1,2,1,1,1,1,2,2],'M':[2,1,2,1,1,1,1,2,1],'N':[1,1,1,1,2,1,1,2,2],'O':[2,1,1,1,2,1,1,2,1],'P':[1,1,2,1,2,1,1,2,1],'Q':[1,1,1,1,1,1,2,2,2],'R':[2,1,1,1,1,1,2,2,1],'S':[1,1,2,1,1,1,2,2,1],'T':[1,1,1,1,2,1,2,2,1],'U':[2,2,1,1,1,1,1,1,2],'V':[1,2,2,1,1,1,1,1,2],'W':[2,2,2,1,1,1,1,1,1],'X':[1,2,1,1,2,1,1,1,2],'Y':[2,2,1,1,2,1,1,1,1],'Z':[1,2,2,1,2,1,1,1,1],'-':[1,2,1,1,1,1,2,1,2],' ':[1,2,2,1,1,1,2,1,1]};
+
+function makeBarcode(text){
+  text=text.toUpperCase();var chars='*'+text+'*';var modules=[];
+  for(var ci=0;ci<chars.length;ci++){var ch=chars[ci];var pat=C39[ch];if(!pat)continue;for(var pi=0;pi<pat.length;pi++){modules.push({bar:pi%2===0,w:pat[pi]});}if(ci<chars.length-1)modules.push({bar:false,w:1});}
+  var totalW=0;for(var m=0;m<modules.length;m++)totalW+=modules[m].w;var svgW=totalW;
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+svgW+' 30" preserveAspectRatio="none">';var x=0;
+  for(var i=0;i<modules.length;i++){var mod=modules[i];var w=mod.w;if(mod.bar)svg+='<rect x="'+x+'" y="0" width="'+w+'" height="30" fill="#000"/>';x+=w;}
+  svg+='</svg>';return svg;
+}
+
+function render(){
+  var html='',totalRefs=0,totalUnits=0;
+  for(var li=0;li<LOTS.length;li++){
+    var lot=LOTS[li];
+    html+='<div class="lot-header">'+lot.name+' ('+lot.items.length+' refs)</div>';
+    for(var ii=0;ii<lot.items.length;ii++){
+      var it=lot.items[ii];totalRefs++;totalUnits+=it.qty;
+      html+='<div class="item-row">';
+      html+='<div class="item-bc">'+makeBarcode(it.sku)+'<div class="sku-text">'+it.sku+'</div></div>';
+      html+='<div class="item-desc"><div class="name">'+it.desc+'</div></div>';
+      html+='<div class="item-qty">'+it.qty+'</div>';
+      html+='</div>';
+    }
+  }
+  document.getElementById('content').innerHTML=html;
+  document.getElementById('totalsBar').innerHTML='<span>TOTAL: '+totalRefs+' refs / '+totalUnits.toLocaleString()+' units</span><span>14 pallets - Air Freight</span>';
+}
+render();
+</script>
+</body>
+</html>
