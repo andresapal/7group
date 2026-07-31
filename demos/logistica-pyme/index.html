@@ -295,7 +295,10 @@ input[type="file"]{display:none}
       </div>
       <div class="prog-bar"><div class="prog-fill" id="recvBar" style="width:0%"></div></div>
       <div class="prog-summary"><span id="recvSummaryText">0 / 0</span><span id="recvSummaryPct">0%</span></div>
-      <div id="recvItemsList" style="margin-top:10px"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px;margin-bottom:4px">
+        <button class="btn btn-sm btn-secondary" style="padding:3px 10px;font-size:9px;letter-spacing:.3px" onclick="toggleItemDisplay()" id="itemDisplayBtn">SKU / NAME</button>
+      </div>
+      <div id="recvItemsList" style="margin-top:4px"></div>
     </div>
   </div>
 
@@ -342,8 +345,9 @@ input[type="file"]{display:none}
       <span class="sec-tag" id="invCount" style="background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.15)">0</span>
     </div>
     <div class="sec-body" style="padding:0">
-      <div style="padding:12px 16px">
+      <div style="padding:12px 16px;display:flex;gap:8px;align-items:center">
         <input class="scan-input" id="invSearch" placeholder="Buscar SKU, nombre, ubicacion..." oninput="renderInventory()" style="width:100%">
+        <button class="btn btn-sm btn-secondary" style="padding:3px 10px;font-size:9px;letter-spacing:.3px;white-space:nowrap" onclick="toggleItemDisplay()" id="itemDisplayBtn2">SKU / NAME</button>
       </div>
       <div class="inv-wrap" id="invTableWrap"></div>
     </div>
@@ -412,6 +416,15 @@ function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setT
 /* =============== LANGUAGE =============== */
 var LANG='es';
 (function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
+var itemDisplayMode=localStorage.getItem('7g-item-display')||'sku';
+function toggleItemDisplay(){
+  itemDisplayMode=itemDisplayMode==='sku'?'name':'sku';
+  localStorage.setItem('7g-item-display',itemDisplayMode);
+  var lbl=itemDisplayMode==='sku'?'SKU / NAME':'NAME / SKU';
+  var b1=document.getElementById('itemDisplayBtn');if(b1)b1.textContent=lbl;
+  var b2=document.getElementById('itemDisplayBtn2');if(b2)b2.textContent=lbl;
+  renderRecvItems();renderInventory();
+}
 
 var T={
   badge:{es:'Recibo',en:'Receiving'},
@@ -472,6 +485,9 @@ function applyLang(){
   document.querySelector('.mod-link[data-t="modClients"]').href='/demos/logistica-pyme/clientes/'+lp;
   document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
   renderFilters();renderPreavisos();renderInventory();renderZones();
+  var dLbl=itemDisplayMode==='sku'?'SKU / NAME':'NAME / SKU';
+  var db1=document.getElementById('itemDisplayBtn');if(db1)db1.textContent=dLbl;
+  var db2=document.getElementById('itemDisplayBtn2');if(db2)db2.textContent=dLbl;
 }
 
 function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
@@ -756,7 +772,9 @@ function renderRecvItems(){
     h+='<div class="rv-wrap">';
     h+='<div class="rv-item '+cls+'">';
     h+='<div class="rv-icon">'+icon+'</div>';
-    h+='<div class="rv-info"><div class="rv-name">'+it.name+'</div><div class="rv-sku">'+it.sku+' -- '+it.weight+'</div></div>';
+    var primary=itemDisplayMode==='name'?it.name:it.sku;
+    var secondary=itemDisplayMode==='name'?(it.sku+' -- '+it.weight):(it.name+' -- '+it.weight);
+    h+='<div class="rv-info"><div class="rv-name">'+primary+'</div><div class="rv-sku">'+secondary+'</div></div>';
     h+='<div class="rv-qty '+(v>=it.qty?'full':'zero')+'">'+v+'/'+it.qty+'</div>';
     if(!isCompleted){
       h+='<div class="rv-acts">';
@@ -956,6 +974,7 @@ function completeReception(){
 
     if(existing){
       existing.qty=(parseInt(existing.qty)||0)+toInventory;
+      existing.unitCost=it.unitCost||existing.unitCost||0;
       existing.location=locStr;
       existing.lot=loc.lot||existing.lot;
       existing.expiry=loc.expiry||existing.expiry;
@@ -964,7 +983,7 @@ function completeReception(){
       if(obs)existing.observation=obs;
     }else{
       inventory.push({
-        sku:it.sku,name:it.name,qty:toInventory,weight:it.weight||'',
+        sku:it.sku,name:it.name,qty:toInventory,unitCost:it.unitCost||0,weight:it.weight||'',
         location:locStr,lot:loc.lot||'',expiry:loc.expiry||'',
         minStock:Math.max(1,Math.round(toInventory*0.2)),
         status:st,observation:obs,
@@ -1091,7 +1110,10 @@ function renderInventory(){
   }
   var thSource=LANG==='es'?'Origen':'Source';
   var thActions=LANG==='es'?'Acc.':'Act.';
-  var th='<table class="inv-table"><thead><tr><th>'+t('thSKU')+'</th><th>'+t('thName')+'</th><th>'+t('thQty')+'</th><th>'+t('thLoc')+'</th><th>'+t('thLot')+'</th><th>'+t('thMin')+'</th><th>'+t('thStatus')+'</th><th>'+thSource+'</th><th>'+thActions+'</th></tr></thead><tbody>';
+  var col1Label=itemDisplayMode==='name'?t('thName'):t('thSKU');
+  var col2Label=itemDisplayMode==='name'?t('thSKU'):t('thName');
+  var thCost=LANG==='es'?'Costo':'Cost';
+  var th='<table class="inv-table"><thead><tr><th>'+col1Label+'</th><th>'+col2Label+'</th><th>'+t('thQty')+'</th><th>'+thCost+'</th><th>'+t('thLoc')+'</th><th>'+t('thLot')+'</th><th>'+t('thMin')+'</th><th>'+t('thStatus')+'</th><th>'+thSource+'</th><th>'+thActions+'</th></tr></thead><tbody>';
   for(var b=0;b<filtered.length;b++){
     var r=filtered[b];
     var q=parseInt(r.qty)||0;
@@ -1099,9 +1121,13 @@ function renderInventory(){
     var stColor=q<=0?'var(--red)':q<=mn?'var(--yellow)':'var(--green)';
     var stText=q<=0?t('statusOut'):q<=mn?t('statusLow'):t('statusOk');
     th+='<tr>';
-    th+='<td class="mono" style="color:var(--cyan);font-weight:600">'+r.sku+'</td>';
-    th+='<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">'+r.name+'</td>';
+    var c1=itemDisplayMode==='name'?r.name:r.sku;
+    var c2=itemDisplayMode==='name'?r.sku:r.name;
+    th+='<td class="mono" style="color:var(--cyan);font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis">'+c1+'</td>';
+    th+='<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">'+c2+'</td>';
     th+='<td class="mono" style="font-weight:700">'+q+'</td>';
+    var uc=parseFloat(r.unitCost)||0;
+    th+='<td class="mono" style="font-size:10px;color:var(--green)">'+(uc>0?'$'+uc.toFixed(2):'--')+'</td>';
     th+='<td class="mono" style="font-size:10px">'+(r.location||'--')+'</td>';
     th+='<td class="mono" style="font-size:10px">'+(r.lot||'--')+'</td>';
     th+='<td class="mono">'+mn+'</td>';

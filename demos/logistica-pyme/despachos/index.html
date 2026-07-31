@@ -93,6 +93,8 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .form-row input,.form-row select,.form-row textarea{flex:1;min-width:100px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--white);font-family:inherit;outline:none;transition:.2s}
 .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.form-input{background:var(--bg3);border:1px solid var(--border3);border-radius:6px;color:var(--white);font-family:inherit;outline:none;transition:.2s;box-sizing:border-box}
+.form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
 .form-row select{-webkit-appearance:none;appearance:none}
 .form-row textarea{resize:none}
 
@@ -246,6 +248,31 @@ input[type="file"]{display:none}
   <div class="kpi-row" id="dspKpis"></div>
   <div class="filter-row" id="filterRow"></div>
   <div id="ordersList"></div>
+
+  <div class="sec" style="margin-top:16px">
+    <div class="sec-head" style="cursor:pointer" onclick="var b=document.getElementById('invSettingsBody');b.style.display=b.style.display==='none'?'block':'none'">
+      <div class="sec-title" style="font-size:12px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Invoice Settings
+      </div>
+    </div>
+    <div class="sec-body" id="invSettingsBody" style="display:none;font-size:11px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div><label style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Company Name</label><input id="setCoName" class="form-input" style="width:100%;margin-top:2px;padding:6px 8px;font-size:11px" placeholder="Your Company LLC"></div>
+        <div><label style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">EIN / Tax ID</label><input id="setCoEIN" class="form-input" style="width:100%;margin-top:2px;padding:6px 8px;font-size:11px" placeholder="XX-XXXXXXX"></div>
+      </div>
+      <div style="margin-bottom:8px"><label style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Address</label><textarea id="setCoAddr" rows="2" class="form-input" style="width:100%;margin-top:2px;padding:6px 8px;font-size:11px;resize:none" placeholder="123 Main St&#10;City, State ZIP"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div><label style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Phone</label><input id="setCoPhone" class="form-input" style="width:100%;margin-top:2px;padding:6px 8px;font-size:11px" placeholder="+1 555-000-0000"></div>
+        <div><label style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Email</label><input id="setCoEmail" class="form-input" style="width:100%;margin-top:2px;padding:6px 8px;font-size:11px" placeholder="billing@company.com"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div><label style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Sales Tax Rate (%)</label><input id="setTaxRate" type="number" min="0" max="20" step="0.1" class="form-input" style="width:100%;margin-top:2px;padding:6px 8px;font-size:11px" placeholder="0"></div>
+        <div><label style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Payment Terms</label><select id="setTerms" class="form-input" style="width:100%;margin-top:2px;padding:6px 8px;font-size:11px"><option value="Due on Receipt">Due on Receipt</option><option value="Net 15">Net 15</option><option value="Net 30" selected>Net 30</option><option value="Net 45">Net 45</option><option value="Net 60">Net 60</option><option value="Net 90">Net 90</option></select></div>
+      </div>
+      <button class="btn btn-sm btn-success" style="width:100%;justify-content:center;padding:8px" onclick="saveInvSettings()">Save Settings</button>
+    </div>
+  </div>
 </div>
 
 <!-- ========== TAB: NUEVO DESPACHO ========== -->
@@ -572,10 +599,11 @@ function renderPicker(){
   for(var i=0;i<avail.length;i++){
     var it=avail[i];
     h+='<div class="inv-pick" id="pick-'+it.sku+'">';
-    h+='<div class="inv-pick-info"><div class="inv-pick-name">'+it.name+'</div><div class="inv-pick-sku">'+it.sku+(it.location?' -- '+it.location:'')+'</div></div>';
+    var uc=parseFloat(it.unitCost)||0;
+    h+='<div class="inv-pick-info"><div class="inv-pick-name">'+it.name+'</div><div class="inv-pick-sku">'+it.sku+(it.location?' -- '+it.location:'')+(uc>0?' | Cost: $'+uc.toFixed(2):'')+'</div></div>';
     h+='<div class="inv-pick-stock">'+(parseInt(it.qty)||0)+'</div>';
     h+='<input type="number" class="inv-pick-qty" id="qty-'+it.sku+'" min="0" max="'+(parseInt(it.qty)||0)+'" value="0" onchange="updatePickState()" oninput="updatePickState()">';
-    h+='<input type="number" class="inv-pick-price" id="price-'+it.sku+'" min="0" step="0.01" value="0" placeholder="$" oninput="updatePickState()">';
+    h+='<input type="number" class="inv-pick-price" id="price-'+it.sku+'" min="0" step="0.01" value="0" placeholder="$ Sale" oninput="updatePickState()" data-cost="'+uc+'">';
     h+='</div>';
   }
   el.innerHTML=h;
@@ -611,7 +639,7 @@ function createDispatch(){
     for(var j=0;j<inventory.length;j++){if(inventory[j].sku===sku){invItem=inventory[j];break;}}
     if(!invItem)continue;
     if(qty>parseInt(invItem.qty))qty=parseInt(invItem.qty);
-    items.push({sku:invItem.sku,name:invItem.name,qty:qty,weight:invItem.weight||'',location:invItem.location||'',unitPrice:unitPrice});
+    items.push({sku:invItem.sku,name:invItem.name,qty:qty,weight:invItem.weight||'',location:invItem.location||'',unitCost:parseFloat(invItem.unitCost)||0,unitPrice:unitPrice});
   }
   if(items.length===0){showFeedback(t('noItems'),'red');return;}
   if(!confirm(t('confirmCreate')))return;
@@ -730,12 +758,18 @@ function renderDetail(){
     h+='<div class="inv-pick-info"><div class="inv-pick-name">'+it.name+'</div><div class="inv-pick-sku">'+it.sku+(it.location?' -- '+it.location:'')+'</div></div>';
     h+='<div style="text-align:right;flex-shrink:0">';
     h+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:14px;font-weight:700;color:var(--cyan)">'+it.qty+'</div>';
-    if(it.unitPrice>0)h+='<div style="font-size:10px;color:var(--dim)">$'+it.unitPrice.toFixed(2)+' = $'+lineTotal.toFixed(2)+'</div>';
+    if(it.unitPrice>0){
+      h+='<div style="font-size:10px;color:var(--dim)">$'+it.unitPrice.toFixed(2)+' = $'+lineTotal.toFixed(2)+'</div>';
+      var ic=parseFloat(it.unitCost)||0;
+      if(ic>0){var margin=((it.unitPrice-ic)/it.unitPrice*100).toFixed(1);var mColor=parseFloat(margin)>0?'var(--green)':'var(--red)';h+='<div style="font-size:9px;color:'+mColor+'">Margin: '+margin+'%</div>';}
+    }
     h+='</div>';
     h+='</div>';
   }
   if(totalVal>0){
+    var totalCost=0;for(var tc=0;tc<d.items.length;tc++){totalCost+=(d.items[tc].qty||0)*(parseFloat(d.items[tc].unitCost)||0);}
     h+='<div style="text-align:right;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:13px;font-weight:700;color:var(--white)">Total: $'+formatNum(totalVal)+'</div>';
+    if(totalCost>0){var grossMargin=((totalVal-totalCost)/totalVal*100).toFixed(1);h+='<div style="text-align:right;font-size:10px;color:var(--dim);margin-top:2px">Cost: $'+formatNum(totalCost)+' | Gross margin: <span style="color:'+(parseFloat(grossMargin)>0?'var(--green)':'var(--red)')+'">'+grossMargin+'%</span></div>';}
   }
   h+='</div></div>';
 
@@ -894,13 +928,16 @@ function generateInvoice(){
   if(!currentOrder||currentOrder.status!=='delivered')return;
   var invNum=nextInvoice();
   var subtotal=calcOrderTotal(currentOrder);
-  var tax=Math.round(subtotal*0.19);
+  var taxRate=parseFloat(localStorage.getItem('7g-tax-rate')||'0')||0;
+  var tax=Math.round(subtotal*taxRate*100)/100;
   var total=subtotal+tax;
 
   currentOrder.status='invoiced';
   currentOrder.invoicedAt=new Date().toISOString();
   currentOrder.invoiceNumber=invNum;
   currentOrder.invoiceTotal=total;
+  currentOrder.taxRate=taxRate;
+  currentOrder.terms=localStorage.getItem('7g-payment-terms')||'Net 30';
   saveDispatches();
   showFeedback(t('invGenerated')+' -- '+invNum,'green');
   renderDetail();
@@ -993,68 +1030,104 @@ function generateInvoicePDF(){
   var d=currentOrder;
   if(!d.invoiceNumber){showFeedback('No invoice generated yet','red');return;}
 
-  var date=new Date(d.invoicedAt||d.createdAt);
-  var dateStr=date.toLocaleDateString();
+  var invDate=new Date(d.invoicedAt||d.createdAt);
+  var dateStr=invDate.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  var taxRate=d.taxRate||parseFloat(localStorage.getItem('7g-tax-rate')||'0')||0;
+  var terms=d.terms||localStorage.getItem('7g-payment-terms')||'Net 30';
   var subtotal=calcOrderTotal(d);
-  var tax=Math.round(subtotal*0.19);
+  var tax=Math.round(subtotal*taxRate*100)/100;
   var total=subtotal+tax;
 
+  var dueDays=parseInt(terms.replace(/\D/g,''))||30;
+  var dueDate=new Date(invDate.getTime()+dueDays*86400000);
+  var dueDateStr=dueDate.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+  var totalCost=0;
   var rows='';
   for(var i=0;i<d.items.length;i++){
     var it=d.items[i];
     var lineTotal=(it.qty||0)*(it.unitPrice||0);
+    var ic=parseFloat(it.unitCost)||0;
+    totalCost+=(it.qty||0)*ic;
     rows+='<tr><td style="text-align:center">'+(i+1)+'</td><td style="font-family:monospace;font-size:11px">'+it.sku+'</td><td>'+it.name+'</td><td style="text-align:center;font-weight:700">'+it.qty+'</td><td style="text-align:right">$'+(it.unitPrice||0).toFixed(2)+'</td><td style="text-align:right;font-weight:600">$'+lineTotal.toFixed(2)+'</td></tr>';
   }
 
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+t('invNumber')+' '+d.invoiceNumber+'</title>';
-  html+='<style>body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:13px}';
-  html+='.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #060a0e;padding-bottom:16px;margin-bottom:20px}';
-  html+='.logo{font-size:22px;font-weight:900;letter-spacing:-1px}.logo-sub{font-size:10px;color:#64748b;letter-spacing:2px;text-transform:uppercase}';
-  html+='.doc-title{text-align:right}.doc-title h1{font-size:16px;margin:0 0 4px;color:#a78bfa}.doc-title .id{font-family:monospace;font-size:18px;font-weight:900;color:#a78bfa}';
-  html+='table{width:100%;border-collapse:collapse;margin:12px 0}';
-  html+='th{background:#f1f5f9;text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#475569;border:1px solid #e2e8f0}';
-  html+='td{padding:7px 10px;border:1px solid #e2e8f0;font-size:12px}';
-  html+='.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px}';
-  html+='.info-item{display:flex;flex-direction:column;gap:2px}.info-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;font-weight:600}.info-val{font-size:13px;font-weight:600}';
-  html+='.totals{margin-left:auto;width:280px;margin-top:16px}';
-  html+='.totals-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #e2e8f0}';
-  html+='.totals-row.grand{font-size:16px;font-weight:900;border-top:2px solid #1e293b;border-bottom:2px solid #1e293b;margin-top:4px;padding:10px 0;color:#a78bfa}';
-  html+='.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;letter-spacing:1px}';
-  html+='@media print{body{padding:12px}@page{margin:15mm}}</style></head><body>';
+  var companyName=localStorage.getItem('7g-company-name')||'[COMPANY NAME]';
+  var companyAddr=localStorage.getItem('7g-company-addr')||'[Address Line 1]\n[City, State ZIP]';
+  var companyEIN=localStorage.getItem('7g-company-ein')||'[EIN: XX-XXXXXXX]';
+  var companyPhone=localStorage.getItem('7g-company-phone')||'[Phone]';
+  var companyEmail=localStorage.getItem('7g-company-email')||'[email]';
 
-  html+='<div class="header"><div><div class="logo">7group</div><div class="logo-sub">Logistics Intelligence</div></div>';
-  html+='<div class="doc-title"><h1>'+t('invNumber').toUpperCase()+'</h1><div class="id">'+d.invoiceNumber+'</div><div style="font-size:11px;color:#64748b;margin-top:4px">'+dateStr+'</div></div></div>';
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>INVOICE '+d.invoiceNumber+'</title>';
+  html+='<style>body{font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#1e293b;font-size:12px}';
+  html+='.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1e293b;padding-bottom:16px;margin-bottom:20px}';
+  html+='.co-name{font-size:20px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}';
+  html+='.co-detail{font-size:10px;color:#64748b;line-height:1.6;white-space:pre-line}';
+  html+='.inv-title{text-align:right}.inv-title h1{font-size:28px;font-weight:900;margin:0;color:#1e293b;letter-spacing:-1px}.inv-title .inv-num{font-family:monospace;font-size:16px;font-weight:700;color:#6366f1;margin-top:2px}';
+  html+='.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}';
+  html+='.meta-box{padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px}';
+  html+='.meta-title{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;font-weight:700;margin-bottom:6px}';
+  html+='.meta-val{font-size:12px;font-weight:600;line-height:1.5}';
+  html+='.terms-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}';
+  html+='.terms-item{text-align:center;padding:8px;border:1px solid #e2e8f0;border-radius:4px}';
+  html+='.terms-label{font-size:8px;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;font-weight:600}.terms-val{font-size:12px;font-weight:700;margin-top:2px}';
+  html+='table{width:100%;border-collapse:collapse;margin:0 0 16px}';
+  html+='th{background:#1e293b;color:#fff;text-align:left;padding:8px 10px;font-size:9px;text-transform:uppercase;letter-spacing:.8px}';
+  html+='td{padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px}';
+  html+='tr:nth-child(even) td{background:#fafafa}';
+  html+='.totals{margin-left:auto;width:280px;margin-top:8px}';
+  html+='.totals-row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid #e2e8f0}';
+  html+='.totals-row.grand{font-size:18px;font-weight:900;border-top:3px solid #1e293b;border-bottom:none;margin-top:4px;padding:12px 0;color:#1e293b}';
+  html+='.notes{margin:20px 0;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:10px;color:#64748b;line-height:1.6}';
+  html+='.footer{text-align:center;margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:8px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase}';
+  html+='@media print{body{padding:12px}@page{margin:12mm}}</style></head><body>';
 
-  html+='<div class="info-grid">';
-  html+='<div class="info-item"><span class="info-label">'+t('lblClient')+'</span><span class="info-val">'+d.client+'</span></div>';
-  html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Remision':'Delivery note')+'</span><span class="info-val" style="font-family:monospace">'+(d.remisionNumber||d.id)+'</span></div>';
-  html+='<div class="info-item"><span class="info-label">'+t('lblDest')+'</span><span class="info-val">'+(d.destination||'--')+'</span></div>';
-  html+='<div class="info-item"><span class="info-label">'+t('lblContact')+'</span><span class="info-val">'+(d.contact||'--')+'</span></div>';
-  if(d.deliveredAt)html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Fecha entrega':'Delivery date')+'</span><span class="info-val">'+new Date(d.deliveredAt).toLocaleDateString()+'</span></div>';
-  if(d.receiverName)html+='<div class="info-item"><span class="info-label">'+(LANG==='es'?'Recibido por':'Received by')+'</span><span class="info-val">'+d.receiverName+'</span></div>';
+  html+='<div class="header"><div>';
+  html+='<div class="co-name">'+companyName+'</div>';
+  html+='<div class="co-detail">'+companyAddr+'\n'+companyEIN+'\n'+companyPhone+' | '+companyEmail+'</div>';
+  html+='</div>';
+  html+='<div class="inv-title"><h1>INVOICE</h1><div class="inv-num">'+d.invoiceNumber+'</div></div></div>';
+
+  html+='<div class="meta-grid">';
+  html+='<div class="meta-box"><div class="meta-title">Bill To</div><div class="meta-val">'+d.client+'<br>'+(d.destination||'')+'<br>'+(d.contact||'')+'</div></div>';
+  html+='<div class="meta-box"><div class="meta-title">Ship To</div><div class="meta-val">'+(d.destination||'--')+'<br>'+(d.contact||'')+'</div></div>';
   html+='</div>';
 
-  html+='<table><thead><tr><th style="text-align:center;width:30px">#</th><th>SKU</th><th>'+(LANG==='es'?'Descripcion':'Description')+'</th><th style="text-align:center">'+(LANG==='es'?'Cant.':'Qty')+'</th><th style="text-align:right">'+(LANG==='es'?'P. Unitario':'Unit Price')+'</th><th style="text-align:right">Total</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  html+='<div class="terms-grid">';
+  html+='<div class="terms-item"><div class="terms-label">Invoice Date</div><div class="terms-val">'+dateStr+'</div></div>';
+  html+='<div class="terms-item"><div class="terms-label">Due Date</div><div class="terms-val">'+dueDateStr+'</div></div>';
+  html+='<div class="terms-item"><div class="terms-label">Terms</div><div class="terms-val">'+terms+'</div></div>';
+  html+='<div class="terms-item"><div class="terms-label">Delivery Note</div><div class="terms-val" style="font-family:monospace">'+(d.remisionNumber||d.id)+'</div></div>';
+  html+='</div>';
+
+  html+='<table><thead><tr><th style="text-align:center;width:30px">#</th><th>SKU</th><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Unit Price</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+rows+'</tbody></table>';
 
   html+='<div class="totals">';
-  html+='<div class="totals-row"><span>'+t('invSubtotal')+'</span><span>$'+subtotal.toFixed(2)+'</span></div>';
-  html+='<div class="totals-row"><span>'+t('invTax')+'</span><span>$'+tax.toFixed(2)+'</span></div>';
-  html+='<div class="totals-row grand"><span>'+t('invTotal')+'</span><span>$'+total.toFixed(2)+'</span></div>';
+  html+='<div class="totals-row"><span>Subtotal</span><span>$'+subtotal.toFixed(2)+'</span></div>';
+  if(taxRate>0){
+    html+='<div class="totals-row"><span>Sales Tax ('+(taxRate*100).toFixed(1)+'%)</span><span>$'+tax.toFixed(2)+'</span></div>';
+  }else{
+    html+='<div class="totals-row"><span>Sales Tax</span><span>$0.00</span></div>';
+  }
+  html+='<div class="totals-row"><span>Shipping</span><span>--</span></div>';
+  html+='<div class="totals-row grand"><span>Total Due</span><span>$'+total.toFixed(2)+'</span></div>';
   html+='</div>';
 
   if(d.signatureData){
     html+='<div style="margin:24px 0;padding:12px;border:1px solid #e2e8f0;border-radius:8px;display:inline-block">';
-    html+='<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#64748b;font-weight:600;margin-bottom:6px">'+(LANG==='es'?'Prueba de entrega':'Proof of delivery')+'</div>';
+    html+='<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#64748b;font-weight:600;margin-bottom:6px">Proof of Delivery</div>';
     html+='<img src="'+d.signatureData+'" style="max-width:200px;border:1px solid #e2e8f0;border-radius:4px">';
     if(d.receiverName)html+='<div style="font-size:11px;font-weight:600;margin-top:4px">'+d.receiverName+'</div>';
+    if(d.deliveredAt)html+='<div style="font-size:10px;color:#64748b;margin-top:2px">'+new Date(d.deliveredAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})+'</div>';
     html+='</div>';
   }
 
-  html+='<div style="margin:20px 0;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#64748b">';
-  html+=(LANG==='es'?'Condiciones de pago: Te enviamos los datos por WhatsApp al cerrar el trato':'Payment terms: We will send payment details via WhatsApp upon closing the deal');
+  html+='<div class="notes">';
+  html+='<strong>Payment Terms:</strong> Te enviamos los datos por WhatsApp al cerrar el trato<br>';
+  html+='<strong>Notes:</strong> '+(d.notes||'Thank you for your business.');
   html+='</div>';
 
-  html+='<div class="footer">'+(LANG==='es'?'Generado por':'Generated by')+' 7Group Logistics Intelligence -- '+d.invoiceNumber+' -- '+dateStr+'</div>';
+  html+='<div class="footer">'+companyName+' -- '+d.invoiceNumber+' -- '+dateStr+'</div>';
   html+='</body></html>';
 
   var w=window.open('','_blank');
@@ -1085,10 +1158,10 @@ function showFeedback(msg,color){
 function loadDemoData(){
   var now=Date.now();
   var demoDispatches=[
-    {id:'DSP-'+String(now-86400000*5),remisionNumber:'REM-0001',client:'BuildRight Construction LLC',destination:'4520 Industrial Blvd, Houston TX 77033',contact:'John Davis / +1 713-555-0142',carrier:'FedEx Freight',tracking:'FXF-884521790',notes:'',items:[{sku:'MAT-001',name:'Porcelain tile 24x24 white',qty:120,weight:'3.9lb',location:'A1-01',unitPrice:12.50},{sku:'MAT-002',name:'Thinset mortar 50lb bag',qty:30,weight:'50lb',location:'A1-02',unitPrice:18.00}],status:'invoiced',createdAt:new Date(now-86400000*5).toISOString(),enRouteAt:new Date(now-86400000*4).toISOString(),deliveredAt:new Date(now-86400000*3).toISOString(),invoicedAt:new Date(now-86400000*2).toISOString(),signatureData:null,receiverName:'John Davis',invoiceNumber:'FAC-0001',invoiceTotal:2380,createdBy:'andresapalt@gmail.com'},
-    {id:'DSP-'+String(now-86400000*3),remisionNumber:'REM-0002',client:'Premier Finishes Inc',destination:'1280 Commerce Dr, Miami FL 33166',contact:'Maria Lopez / +1 305-555-0198',carrier:'XPO Logistics',tracking:'XPO-773201',notes:'',items:[{sku:'MAT-003',name:'Marble slab 80x80 Carrara',qty:80,weight:'4.8lb',location:'B2-01',unitPrice:45.00},{sku:'MAT-004',name:'Aluminum baseboard 8ft',qty:50,weight:'1.7lb',location:'C1-03',unitPrice:8.50},{sku:'MAT-005',name:'Clear silicone sealant 10oz',qty:24,weight:'0.7lb',location:'C2-01',unitPrice:6.75}],status:'en_ruta',createdAt:new Date(now-86400000*3).toISOString(),enRouteAt:new Date(now-86400000*2).toISOString(),deliveredAt:null,invoicedAt:null,signatureData:null,receiverName:null,invoiceNumber:null,invoiceTotal:null,createdBy:'andresapalt@gmail.com'},
-    {id:'DSP-'+String(now-86400000*1),remisionNumber:'REM-0003',client:'Apex Builders Group',destination:'9100 Westheimer Rd, Houston TX 77063',contact:'Project Mgr Davis / +1 832-555-0167',carrier:'Old Dominion',tracking:'',notes:'Deliver to job site',items:[{sku:'MAT-006',name:'Portland cement 94lb bag',qty:200,weight:'94lb',location:'A2-01',unitPrice:14.00},{sku:'MAT-007',name:'Rebar #4 20ft',qty:150,weight:'10lb',location:'A3-01',unitPrice:22.00}],status:'preparing',createdAt:new Date(now-86400000*1).toISOString(),enRouteAt:null,deliveredAt:null,invoicedAt:null,signatureData:null,receiverName:null,invoiceNumber:null,invoiceTotal:null,createdBy:'andresapalt@gmail.com'},
-    {id:'DSP-'+String(now-3600000*6),remisionNumber:'REM-0004',client:'Home Depot Pro - Orlando',destination:'3800 Vineland Rd, Orlando FL 32811',contact:'Warehouse Receiving / +1 407-555-0223',carrier:'UPS Freight',tracking:'UPS-551098224',notes:'',items:[{sku:'MAT-008',name:'Interior latex paint white 5gal',qty:40,weight:'44lb',location:'B1-02',unitPrice:89.00},{sku:'MAT-009',name:'Professional roller 9in',qty:60,weight:'0.4lb',location:'C1-01',unitPrice:4.50}],status:'preparing',createdAt:new Date(now-3600000*6).toISOString(),enRouteAt:null,deliveredAt:null,invoicedAt:null,signatureData:null,receiverName:null,invoiceNumber:null,invoiceTotal:null,createdBy:'7groupcorp@zohomail.com'}
+    {id:'DSP-'+String(now-86400000*5),remisionNumber:'REM-0001',client:'BuildRight Construction LLC',destination:'4520 Industrial Blvd, Houston TX 77033',contact:'John Davis / +1 713-555-0142',carrier:'FedEx Freight',tracking:'FXF-884521790',notes:'',items:[{sku:'MAT-001',name:'Porcelain tile 24x24 white',qty:120,weight:'3.9lb',location:'A1-01',unitCost:7.80,unitPrice:12.50},{sku:'MAT-002',name:'Thinset mortar 50lb bag',qty:30,weight:'50lb',location:'A1-02',unitCost:11.20,unitPrice:18.00}],status:'invoiced',createdAt:new Date(now-86400000*5).toISOString(),enRouteAt:new Date(now-86400000*4).toISOString(),deliveredAt:new Date(now-86400000*3).toISOString(),invoicedAt:new Date(now-86400000*2).toISOString(),signatureData:null,receiverName:'John Davis',invoiceNumber:'FAC-0001',invoiceTotal:2380,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-86400000*3),remisionNumber:'REM-0002',client:'Premier Finishes Inc',destination:'1280 Commerce Dr, Miami FL 33166',contact:'Maria Lopez / +1 305-555-0198',carrier:'XPO Logistics',tracking:'XPO-773201',notes:'',items:[{sku:'MAT-003',name:'Marble slab 80x80 Carrara',qty:80,weight:'4.8lb',location:'B2-01',unitCost:28.50,unitPrice:45.00},{sku:'MAT-004',name:'Aluminum baseboard 8ft',qty:50,weight:'1.7lb',location:'C1-03',unitCost:5.10,unitPrice:8.50},{sku:'MAT-005',name:'Clear silicone sealant 10oz',qty:24,weight:'0.7lb',location:'C2-01',unitCost:3.90,unitPrice:6.75}],status:'en_ruta',createdAt:new Date(now-86400000*3).toISOString(),enRouteAt:new Date(now-86400000*2).toISOString(),deliveredAt:null,invoicedAt:null,signatureData:null,receiverName:null,invoiceNumber:null,invoiceTotal:null,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-86400000*1),remisionNumber:'REM-0003',client:'Apex Builders Group',destination:'9100 Westheimer Rd, Houston TX 77063',contact:'Project Mgr Davis / +1 832-555-0167',carrier:'Old Dominion',tracking:'',notes:'Deliver to job site',items:[{sku:'MAT-006',name:'Portland cement 94lb bag',qty:200,weight:'94lb',location:'A2-01',unitCost:8.60,unitPrice:14.00},{sku:'MAT-007',name:'Rebar #4 20ft',qty:150,weight:'10lb',location:'A3-01',unitCost:14.50,unitPrice:22.00}],status:'preparing',createdAt:new Date(now-86400000*1).toISOString(),enRouteAt:null,deliveredAt:null,invoicedAt:null,signatureData:null,receiverName:null,invoiceNumber:null,invoiceTotal:null,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-3600000*6),remisionNumber:'REM-0004',client:'Home Depot Pro - Orlando',destination:'3800 Vineland Rd, Orlando FL 32811',contact:'Warehouse Receiving / +1 407-555-0223',carrier:'UPS Freight',tracking:'UPS-551098224',notes:'',items:[{sku:'MAT-008',name:'Interior latex paint white 5gal',qty:40,weight:'44lb',location:'B1-02',unitCost:52.00,unitPrice:89.00},{sku:'MAT-009',name:'Professional roller 9in',qty:60,weight:'0.4lb',location:'C1-01',unitCost:2.20,unitPrice:4.50}],status:'preparing',createdAt:new Date(now-3600000*6).toISOString(),enRouteAt:null,deliveredAt:null,invoicedAt:null,signatureData:null,receiverName:null,invoiceNumber:null,invoiceTotal:null,createdBy:'7groupcorp@zohomail.com'}
   ];
   dispatches=demoDispatches;
   remisionCounter=4;
@@ -1246,9 +1319,34 @@ function generateEvidencePDF(){
   setTimeout(function(){w.print();},600);
 }
 
+/* =============== INVOICE SETTINGS =============== */
+function saveInvSettings(){
+  localStorage.setItem('7g-company-name',document.getElementById('setCoName').value);
+  localStorage.setItem('7g-company-addr',document.getElementById('setCoAddr').value);
+  localStorage.setItem('7g-company-ein',document.getElementById('setCoEIN').value);
+  localStorage.setItem('7g-company-phone',document.getElementById('setCoPhone').value);
+  localStorage.setItem('7g-company-email',document.getElementById('setCoEmail').value);
+  var rate=parseFloat(document.getElementById('setTaxRate').value)||0;
+  localStorage.setItem('7g-tax-rate',String(rate/100));
+  localStorage.setItem('7g-payment-terms',document.getElementById('setTerms').value);
+  showFeedback('Invoice settings saved','green');
+}
+function loadInvSettings(){
+  document.getElementById('setCoName').value=localStorage.getItem('7g-company-name')||'';
+  document.getElementById('setCoAddr').value=localStorage.getItem('7g-company-addr')||'';
+  document.getElementById('setCoEIN').value=localStorage.getItem('7g-company-ein')||'';
+  document.getElementById('setCoPhone').value=localStorage.getItem('7g-company-phone')||'';
+  document.getElementById('setCoEmail').value=localStorage.getItem('7g-company-email')||'';
+  var rate=parseFloat(localStorage.getItem('7g-tax-rate')||'0')*100;
+  document.getElementById('setTaxRate').value=rate||'';
+  var terms=localStorage.getItem('7g-payment-terms')||'Net 30';
+  document.getElementById('setTerms').value=terms;
+}
+
 /* =============== INIT =============== */
 loadData();
 applyLang();
+loadInvSettings();
 document.getElementById('dspClient').addEventListener('input',updatePickState);
 </script>
 </body>

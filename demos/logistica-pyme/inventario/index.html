@@ -238,8 +238,9 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 
 <!-- TAB 0: PRODUCTOS -->
 <div class="panel active" id="panel0">
-  <div class="search-bar">
-    <input class="search-input" id="searchSku" placeholder="Buscar por SKU, descripcion..." oninput="filterProducts()" data-t-placeholder="searchPlaceholder">
+  <div class="search-bar" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <input class="search-input" id="searchSku" placeholder="Buscar por SKU, descripcion..." oninput="filterProducts()" data-t-placeholder="searchPlaceholder" style="flex:1">
+    <button class="btn btn-secondary" style="padding:4px 10px;font-size:9px;letter-spacing:.3px;white-space:nowrap;background:var(--bg3);color:var(--dim);border:1px solid var(--border2);border-radius:6px;cursor:pointer" onclick="toggleItemDisplay()" id="invDisplayBtn">SKU / NAME</button>
     <select class="filter-select" id="filterStatus" onchange="filterProducts()">
       <option value="all" data-t-opt="filterAll">Todos</option>
       <option value="ok" data-t-opt="filterOk">Stock OK</option>
@@ -592,6 +593,19 @@ function goTab(n){
   }
 }
 
+var itemDisplayMode=localStorage.getItem('7g-item-display')||'sku';
+function toggleItemDisplay(){
+  itemDisplayMode=itemDisplayMode==='sku'?'name':'sku';
+  localStorage.setItem('7g-item-display',itemDisplayMode);
+  var lbl=itemDisplayMode==='sku'?'SKU / NAME':'NAME / SKU';
+  var btn=document.getElementById('invDisplayBtn');if(btn)btn.textContent=lbl;
+  renderProducts();
+}
+(function(){
+  var lbl=itemDisplayMode==='sku'?'SKU / NAME':'NAME / SKU';
+  var btn=document.getElementById('invDisplayBtn');if(btn)btn.textContent=lbl;
+})();
+
 /* =============== RENDER =============== */
 function renderAll(){
   renderKPIs();
@@ -647,6 +661,10 @@ function sortTable(col){
 }
 
 function renderProducts(){
+  var skuTh=document.getElementById('sort-sku');
+  var descTh=document.getElementById('sort-desc');
+  if(skuTh&&skuTh.parentNode){skuTh.parentNode.childNodes[0].textContent=itemDisplayMode==='name'?(LANG==='es'?'Nombre':'Name'):'SKU ';}
+  if(descTh&&descTh.parentNode){var sp=descTh.parentNode.querySelector('[data-t="thDesc"]');if(sp)sp.textContent=itemDisplayMode==='name'?'SKU':(LANG==='es'?'Descripcion':'Description');}
   var q=(document.getElementById('searchSku').value||'').toLowerCase();
   var f=document.getElementById('filterStatus').value;
   var h='';
@@ -659,8 +677,10 @@ function renderProducts(){
     var val=(p.avail+p.commit)*p.cost;
     var barW=Math.max(total,1);
     h+='<tr>';
-    h+='<td class="mono cyan">'+p.sku+'</td>';
-    h+='<td>'+p.desc+'</td>';
+    var c1=itemDisplayMode==='name'?p.desc:p.sku;
+    var c2=itemDisplayMode==='name'?p.sku:p.desc;
+    h+='<td class="mono cyan">'+c1+'</td>';
+    h+='<td>'+c2+'</td>';
     h+='<td class="mono green">'+p.avail.toLocaleString()+'</td>';
     h+='<td class="mono yellow">'+p.commit.toLocaleString()+'</td>';
     h+='<td class="mono" style="color:var(--blue)">'+p.transit.toLocaleString()+'</td>';

@@ -559,7 +559,8 @@ function handleCredentialResponse(response) {
 function unlockApp() {
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('appWrap').classList.add('visible');
-  if (typeof DB !== 'undefined' && DB.getClients) DB.getClients().catch(function(){});
+  var clientsSynced = false;
+  if (typeof DB !== 'undefined' && DB.getClients) DB.getClients().then(function(){ clientsSynced = true; }).catch(function(){});
 }
 document.addEventListener('click', function(e) {
   var res = document.getElementById('xdClientResults');
@@ -1216,7 +1217,7 @@ function parseDocumentText(txt) {
     if (seenSkus[sku] || skipPrefixes.test(sku)) continue;
     seenSkus[sku] = true;
     var info = extractItemInfo(sku, lines);
-    items.push({ sku: sku, name: info.desc || sku, qty: info.qty || 1, weight: info.wt || '' });
+    items.push({ sku: sku, name: info.desc || sku, qty: info.qty || 1, weight: info.wt || '', unitCost: info.cost || 0 });
   }
 
   if (items.length === 0) {
@@ -1226,7 +1227,7 @@ function parseDocumentText(txt) {
       if (seenSkus[sku2] || skipPrefixes.test(sku2)) continue;
       seenSkus[sku2] = true;
       var info2 = extractItemInfo(sku2, lines);
-      items.push({ sku: sku2, name: info2.desc || sku2, qty: info2.qty || 1, weight: info2.wt || '' });
+      items.push({ sku: sku2, name: info2.desc || sku2, qty: info2.qty || 1, weight: info2.wt || '', unitCost: info2.cost || 0 });
     }
   }
 
@@ -1254,7 +1255,7 @@ function parseDocumentText(txt) {
 }
 
 function extractItemInfo(sku, lines) {
-  var desc='',qty=0,wt='';
+  var desc='',qty=0,wt='',cost=0;
   for (var i=0;i<lines.length;i++) {
     if (lines[i].indexOf(sku)<0) continue;
     var cols = lines[i].split('\t');
@@ -1263,12 +1264,14 @@ function extractItemInfo(sku, lines) {
       for (var c=0;c<cols.length;c++){if(cols[c].indexOf(sku)>=0){skuCol=c;break;}}
       for (var c2=skuCol+1;c2<cols.length;c2++){
         var cv=cols[c2].trim();
-        if (!desc && cv.length>3 && /[a-zA-Z]/.test(cv) && !/^\d+$/.test(cv)) desc=cv.substring(0,60);
+        if (!desc && cv.length>3 && /[a-zA-Z]/.test(cv) && !/^\d+$/.test(cv) && !/^\$/.test(cv)) desc=cv.substring(0,60);
         else if (!qty && /^\d{1,6}$/.test(cv)) qty=parseInt(cv);
         var wm=cv.match(/([\d,.]+)\s*(kg|lbs?)\b/i);
         if (wm && !wt) wt=wm[1]+' '+wm[2];
+        var cm=cv.match(/\$?\s*([\d,]+\.?\d*)/);
+        if (cm && !cost && parseFloat(cm[1].replace(/,/g,''))>0 && parseFloat(cm[1].replace(/,/g,''))<100000) cost=parseFloat(cm[1].replace(/,/g,''));
       }
-      if (desc||qty) return {desc:desc,qty:qty,wt:wt};
+      if (desc||qty) return {desc:desc,qty:qty,wt:wt,cost:cost};
     }
     var idx=lines[i].indexOf(sku);
     var after=lines[i].substring(idx+sku.length).trim();
@@ -1291,7 +1294,7 @@ function extractItemInfo(sku, lines) {
     if (wm2) wt=wm2[1]+' '+wm2[2];
     break;
   }
-  return {desc:desc,qty:qty,wt:wt};
+  return {desc:desc,qty:qty,wt:wt,cost:cost};
 }
 
 function finishExtraction(status, text) {
@@ -1893,6 +1896,16 @@ function searchClientXD(query) {
     }
   }
 
+  if (results.length === 0 && !clientsSynced && typeof DB !== 'undefined' && DB.getClients) {
+    el.innerHTML = '<div style="padding:12px;text-align:center;color:var(--dim);font-size:11px">' + (LANG==='es'?'Sincronizando contactos...':'Syncing contacts...') + '</div>';
+    el.style.display = 'block';
+    DB.getClients().then(function() {
+      clientsSynced = true;
+      searchClientXD(query);
+    }).catch(function(){});
+    return;
+  }
+
   if (results.length === 0) {
     var connectHtml = '';
     if (!contactsLoaded && !contactsToken) {
@@ -2116,7 +2129,7 @@ function renderItemBalances() {
     var it = items[j];
     var xdQty = hasXD ? getXDAllocated(it.sku) : 0;
     var toWarehouse = it.qty - xdQty;
-    ihtml += '<div class="item-row">';
+    ihtml += '<div class="item-row" style="flex-wrap:wrap">';
     ihtml += '<span class="item-sku">' + it.sku + '</span>';
     ihtml += '<div class="item-info"><div class="item-name">' + it.name + '</div><div class="item-detail">' + it.weight + '</div></div>';
     ihtml += '<div style="text-align:right;flex-shrink:0">';
@@ -2129,9 +2142,20 @@ function renderItemBalances() {
       ihtml += '</div>';
     }
     ihtml += '</div>';
+    ihtml += '<div style="width:100%;display:flex;align-items:center;gap:6px;margin-top:4px;padding-top:4px;border-top:1px solid var(--border)">';
+    ihtml += '<span style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Unit Cost</span>';
+    ihtml += '<input type="number" min="0" step="0.01" value="' + (it.unitCost || 0) + '" style="width:80px;background:var(--bg2);border:1px solid var(--border3);border-radius:4px;padding:4px 6px;font-size:12px;color:var(--green);font-family:\'JetBrains Mono\',monospace;text-align:right;outline:none" onchange="updateItemCost(' + j + ',this.value)" placeholder="$0.00">';
+    ihtml += '<span style="font-size:10px;color:var(--dim);margin-left:auto">= $' + ((it.qty * (it.unitCost || 0)).toFixed(2)) + '</span>';
+    ihtml += '</div>';
     ihtml += '</div>';
   }
   el.innerHTML = ihtml;
+}
+
+function updateItemCost(idx, val) {
+  if (!extractedData || !extractedData.items[idx]) return;
+  extractedData.items[idx].unitCost = parseFloat(val) || 0;
+  renderItemBalances();
 }
 
 function getXDAllocated(sku) {
@@ -2394,7 +2418,7 @@ function sendToWarehouse(skipConfirm) {
       for (var sk in dest.items) {
         if (dest.items[sk] > 0) {
           var info = skuIndex[sk] || {};
-          destItems.push({ sku: sk, name: info.name || sk, qty: dest.items[sk], weight: info.weight || '', location: '', unitPrice: 0 });
+          destItems.push({ sku: sk, name: info.name || sk, qty: dest.items[sk], weight: info.weight || '', location: '', unitCost: info.unitCost || 0, unitPrice: 0 });
           destUnits += dest.items[sk];
         }
       }
@@ -2467,7 +2491,8 @@ function sendToWarehouse(skipConfirm) {
   renderShipmentsList();
   setTimeout(function() {
     statusEl.style.display = 'none';
-    showView('list');
+    var lp = LANG === 'en' ? '?lang=en' : '';
+    window.location.href = '/demos/logistica-pyme/' + lp;
   }, 3000);
 }
 
