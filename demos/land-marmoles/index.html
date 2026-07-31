@@ -6,7 +6,6 @@
 <title>Land Marmoles ERP -- 7Group</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -44,19 +43,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
   --topbar-bg:rgba(6,10,18,.92);--topbar-border:rgba(148,163,184,.08);
 }
 
-/* AUTH */
-.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
-.auth-gate.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
-.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px;box-shadow:var(--shadow-lg)}
-.auth-logo{font-size:28px;font-weight:800;letter-spacing:-.04em;color:var(--text);margin-bottom:4px}
-.auth-logo span{color:var(--dim);font-weight:600}
-.auth-sub{font-size:11px;color:var(--brand);margin-bottom:6px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
-.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.6}
-.auth-divider{height:1px;background:var(--border2);margin:20px 0}
-.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
-.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
-#g_id_signin{display:flex;justify-content:center}
-.app-wrap{display:none}.app-wrap.visible{display:block}
+.app-wrap{display:block}
 
 /* TOPBAR */
 .topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
@@ -272,21 +259,8 @@ tbody tr:hover{background:var(--brand-light)}
 </head>
 <body>
 
-<!-- AUTH GATE -->
-<div class="auth-gate" id="authGate">
-  <div class="auth-box">
-    <div class="auth-logo">LAND <span>MARMOLES</span></div>
-    <div class="auth-sub">Enterprise Resource Planning</div>
-    <div class="auth-desc">Panel administrativo para gestion de cotizaciones, leads, campanas y operaciones.</div>
-    <div id="g_id_signin"></div>
-    <div class="auth-divider"></div>
-    <div id="authError" class="auth-error"></div>
-    <div class="auth-footer">Powered by 7Group</div>
-  </div>
-</div>
-
 <!-- APP -->
-<div class="app-wrap" id="appWrap">
+<div class="app-wrap visible" id="appWrap">
   <div class="gold-line"></div>
   <div class="topbar">
     <div class="tb-left">
@@ -661,40 +635,7 @@ tbody tr:hover{background:var(--brand-light)}
 (function(){
 'use strict';
 
-/* ══════════════════════════════════════
-   AUTH (7Group Google SSO)
-   ══════════════════════════════════════ */
-var ALLOWED=['andresapal@gmail.com','andresapalt@gmail.com'];
-var CLIENT_ID='798935422938-1kfgghprriqjhv96ims6p18ao8m9a4qn.apps.googleusercontent.com';
-
-window.handleCredential=function(r){
-  try{
-    var p=JSON.parse(atob(r.credential.split('.')[1]));
-    if(ALLOWED.indexOf(p.email)===-1){
-      document.getElementById('authError').style.display='block';
-      document.getElementById('authError').textContent='Acceso no autorizado: '+p.email;
-      return;
-    }
-    document.getElementById('authGate').classList.add('hidden');
-    document.getElementById('appWrap').classList.add('visible');
-    initApp();
-  }catch(e){
-    document.getElementById('authError').style.display='block';
-    document.getElementById('authError').textContent='Error de autenticacion';
-  }
-};
-
-window.onload=function(){
-  if(typeof google!=='undefined'&&google.accounts){
-    google.accounts.id.initialize({client_id:CLIENT_ID,callback:handleCredential,auto_select:true});
-    google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',width:280});
-  }
-  if(location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:'){
-    document.getElementById('authGate').classList.add('hidden');
-    document.getElementById('appWrap').classList.add('visible');
-    initApp();
-  }
-};
+window.onload=function(){ initApp(); };
 
 /* ══════════════════════════════════════
    DEMO DATA
