@@ -19,7 +19,7 @@
 <link rel="manifest" href="/site.webmanifest">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agentes de IA para Operaciones — 7group</title>
-  <meta name="description" content="Cinco agentes de inteligencia artificial especializados: cotizaciones en segundos, facturas automáticas, atención 24/7, despacho inteligente y coordinación sin fricción." />
+  <meta name="description" content="Agentes de IA para operaciones: cotizaciones en 2 seg, facturación automática, atención al cliente 24/7, despacho inteligente. Piloto gratis 15 días. Logística, mudanzas, distribución." />
   <link rel="canonical" href="https://7group.site/agentes/" />
   <link rel="alternate" hreflang="es" href="https://7group.site/agentes/" />
   <link rel="alternate" hreflang="es-CO" href="https://7group.site/agentes/" />
@@ -42,6 +42,20 @@
       { "@type": "ListItem", "position": 3, "item": { "@type": "Service", "name": "Agente Financiero", "description": "Facturación electrónica automática y gestión de cartera.", "provider": { "@type": "Organization", "name": "7group", "url": "https://7group.site" } } },
       { "@type": "ListItem", "position": 4, "item": { "@type": "Service", "name": "Agente de Atención", "description": "Respuesta 24/7 y gestión de PQR.", "provider": { "@type": "Organization", "name": "7group", "url": "https://7group.site" } } },
       { "@type": "ListItem", "position": 5, "item": { "@type": "Service", "name": "Agente Logístico", "description": "Asignación de despachos y notificaciones al cliente.", "provider": { "@type": "Organization", "name": "7group", "url": "https://7group.site" } } }
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "¿Qué es un agente de IA para operaciones?", "acceptedAnswer": { "@type": "Answer", "text": "Un agente de IA para operaciones es un sistema autónomo que ejecuta tareas repetitivas de tu negocio — cotizar, facturar, despachar, responder clientes — sin intervención humana. Se conecta a tus sistemas existentes (WhatsApp, ERP, CRM) y opera 24/7." } },
+      { "@type": "Question", "name": "¿Cuánto cuesta implementar agentes de IA?", "acceptedAnswer": { "@type": "Answer", "text": "7group ofrece un piloto gratuito de 15 días con el primer agente activo en tu operación real. Después del piloto, los planes se ajustan al volumen de tu operación. No hay costos de migración ni de infraestructura." } },
+      { "@type": "Question", "name": "¿Necesito cambiar mi ERP o sistemas actuales?", "acceptedAnswer": { "@type": "Answer", "text": "No. Los agentes se integran con tus sistemas existentes — WhatsApp Business, correo electrónico, ERP, CRM, hojas de cálculo — sin reemplazarlos. La implementación no requiere migración de datos." } },
+      { "@type": "Question", "name": "¿Para qué industrias funcionan los agentes de IA?", "acceptedAnswer": { "@type": "Answer", "text": "Los agentes de 7group están diseñados para empresas con operaciones logísticas: mudanzas, distribución, transporte de carga, manufactura, retail con despacho propio, y cualquier negocio que cotice, despache y facture." } },
+      { "@type": "Question", "name": "¿Cuánto tiempo toma la implementación?", "acceptedAnswer": { "@type": "Answer", "text": "El primer agente está activo en menos de 30 días. El proceso incluye diagnóstico (semana 1), piloto gratuito (semanas 2-3) e implementación completa (semana 4). La suite completa de 5 agentes se despliega progresivamente." } }
     ]
   }
   </script>
@@ -255,6 +269,32 @@
     .btn-secondary:hover { border-color: var(--black); }
     @media (max-width: 768px) { .cta-section { flex-direction: column; align-items: flex-start; padding: 60px 20px; } }
 
+    /* ── INDUSTRIES ── */
+    .ind-section { max-width: 1200px; margin: 0 auto; padding: 80px 48px; }
+    .ind-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--light); border: 1px solid var(--light); margin-top: 48px; }
+    .ind-card { background: var(--white); padding: 32px 28px; }
+    .ind-icon { width: 36px; height: 36px; background: var(--black); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+    .ind-icon svg { width: 18px; height: 18px; }
+    .ind-title { font-size: 0.95rem; font-weight: 700; color: var(--black); margin-bottom: 8px; }
+    .ind-desc { font-size: 0.82rem; color: var(--gray); line-height: 1.6; }
+    @media (max-width: 900px) { .ind-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) { .ind-section { padding: 60px 20px; } .ind-grid { grid-template-columns: 1fr; } }
+
+    /* ── FAQ ── */
+    .faq-section { padding: 80px 48px; background: var(--black); color: var(--white); }
+    .faq-inner { max-width: 1200px; margin: 0 auto; }
+    .faq-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; }
+    .faq-list { display: flex; flex-direction: column; gap: 2px; background: #1a1a1a; border: 1px solid #1a1a1a; }
+    .faq-item { background: var(--black); }
+    .faq-q { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--white); transition: color 0.2s; }
+    .faq-q:hover { color: var(--cyan); }
+    .faq-q svg { flex-shrink: 0; transition: transform 0.25s; }
+    .faq-item.open .faq-q svg { transform: rotate(45deg); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .faq-a-inner { padding: 0 24px 20px; font-size: 0.83rem; color: #999; line-height: 1.65; }
+    .faq-item.open .faq-a { max-height: 200px; }
+    @media (max-width: 768px) { .faq-section { padding: 60px 20px; } .faq-grid { grid-template-columns: 1fr; gap: 40px; } }
+
     /* ── FOOTER ── */
     footer { padding: 32px 48px; border-top: 1px solid var(--light); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
     .footer-logo { font-size: 14px; font-weight: 700; letter-spacing: -0.5px; color: var(--black); text-decoration: none; }
@@ -411,6 +451,78 @@
     </div>
   </section>
 
+  <!-- INDUSTRIES -->
+  <section class="ind-section">
+    <p class="hero-label">Industrias</p>
+    <h2 class="section-title" style="color: var(--black);">Agentes diseñados para operaciones que mueven cosas.</h2>
+    <div class="ind-grid">
+      <div class="ind-card">
+        <div class="ind-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div class="ind-title">Mudanzas y transporte</div>
+        <p class="ind-desc">Cotizaciones por tipo de inmueble, coordinación de cuadrillas y notificaciones automáticas al cliente en cada etapa.</p>
+      </div>
+      <div class="ind-card">
+        <div class="ind-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10"/></svg></div>
+        <div class="ind-title">Distribucion y logistica</div>
+        <p class="ind-desc">Asignacion de rutas, despacho por zonas, tracking en tiempo real y conciliacion automatica de entregas.</p>
+      </div>
+      <div class="ind-card">
+        <div class="ind-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+        <div class="ind-title">Manufactura y retail</div>
+        <p class="ind-desc">Control de pedidos desde la orden hasta la entrega final. Facturacion electronica y gestion de cartera integradas.</p>
+      </div>
+      <div class="ind-card">
+        <div class="ind-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="ind-title">Servicios domiciliarios</div>
+        <p class="ind-desc">Agendamiento, despacho de tecnicos por zona y seguimiento de cada servicio con cierre automatico.</p>
+      </div>
+      <div class="ind-card">
+        <div class="ind-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <div class="ind-title">Comercio exterior</div>
+        <p class="ind-desc">Coordinacion de documentos, tracking de embarques internacionales y comunicacion multicanal con clientes y agentes.</p>
+      </div>
+      <div class="ind-card">
+        <div class="ind-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <div class="ind-title">Tu industria</div>
+        <p class="ind-desc">Si tu negocio cotiza, despacha y factura, los agentes se adaptan. Diagnostico gratuito para evaluar tu caso.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq-section">
+    <div class="faq-inner">
+      <div class="faq-grid">
+        <div>
+          <p class="section-label">Preguntas frecuentes</p>
+          <h2 class="section-title">Todo lo que necesitas saber antes de empezar.</h2>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-q">¿Que es un agente de IA para operaciones?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="faq-a"><div class="faq-a-inner">Un agente de IA para operaciones es un sistema autonomo que ejecuta tareas repetitivas de tu negocio — cotizar, facturar, despachar, responder clientes — sin intervencion humana. Se conecta a tus sistemas existentes (WhatsApp, ERP, CRM) y opera 24/7.</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">¿Cuanto cuesta implementar agentes de IA?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="faq-a"><div class="faq-a-inner">7group ofrece un piloto gratuito de 15 dias con el primer agente activo en tu operacion real. Despues del piloto, los planes se ajustan al volumen de tu operacion. No hay costos de migracion ni de infraestructura.</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">¿Necesito cambiar mi ERP o sistemas actuales?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="faq-a"><div class="faq-a-inner">No. Los agentes se integran con tus sistemas existentes — WhatsApp Business, correo electronico, ERP, CRM, hojas de calculo — sin reemplazarlos. La implementacion no requiere migracion de datos.</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">¿Para que industrias funcionan los agentes?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="faq-a"><div class="faq-a-inner">Los agentes de 7group estan disenados para empresas con operaciones logisticas: mudanzas, distribucion, transporte de carga, manufactura, retail con despacho propio, y cualquier negocio que cotice, despache y facture.</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">¿Cuanto tiempo toma la implementacion?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="faq-a"><div class="faq-a-inner">El primer agente esta activo en menos de 30 dias. El proceso incluye diagnostico (semana 1), piloto gratuito (semanas 2-3) e implementacion completa (semana 4). La suite completa de 5 agentes se despliega progresivamente.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="cta-section">
     <div class="cta-text">
@@ -538,6 +650,41 @@
       document.querySelector('.nav-cta').textContent = 'Talk to an expert';
       document.querySelector('.nav-cta').href = '/contacto/?lang=en';
 
+      // Industries
+      document.querySelector('.ind-section .hero-label').textContent = 'Industries';
+      document.querySelector('.ind-section .section-title').textContent = 'Agents built for operations that move things.';
+      const indCards = document.querySelectorAll('.ind-card');
+      const indData = [
+        { title: 'Moving & transport', desc: 'Quotes by property type, crew coordination and automatic client notifications at every stage.' },
+        { title: 'Distribution & logistics', desc: 'Route assignment, zone-based dispatch, real-time tracking and automatic delivery reconciliation.' },
+        { title: 'Manufacturing & retail', desc: 'Order control from placement to final delivery. Electronic invoicing and accounts receivable built in.' },
+        { title: 'Home services', desc: 'Scheduling, zone-based technician dispatch and service tracking with automatic closure.' },
+        { title: 'International trade', desc: 'Document coordination, international shipment tracking and multi-channel communication with clients and agents.' },
+        { title: 'Your industry', desc: 'If your business quotes, dispatches and invoices, the agents adapt. Free diagnosis to evaluate your case.' },
+      ];
+      indCards.forEach((card, i) => {
+        if (!indData[i]) return;
+        card.querySelector('.ind-title').textContent = indData[i].title;
+        card.querySelector('.ind-desc').textContent = indData[i].desc;
+      });
+
+      // FAQ
+      document.querySelector('.faq-section .section-label').textContent = 'FAQ';
+      document.querySelector('.faq-section .section-title').textContent = 'Everything you need to know before getting started.';
+      const faqItems = document.querySelectorAll('.faq-item');
+      const faqData = [
+        { q: 'What is an AI agent for operations?', a: 'An AI agent for operations is an autonomous system that handles repetitive business tasks — quoting, invoicing, dispatching, answering clients — without human intervention. It connects to your existing systems (WhatsApp, ERP, CRM) and operates 24/7.' },
+        { q: 'How much does it cost to implement AI agents?', a: '7group offers a free 15-day pilot with the first agent active in your real operation. After the pilot, plans adjust to your operation\'s volume. No migration or infrastructure costs.' },
+        { q: 'Do I need to change my ERP or current systems?', a: 'No. The agents integrate with your existing systems — WhatsApp Business, email, ERP, CRM, spreadsheets — without replacing them. Implementation requires no data migration.' },
+        { q: 'Which industries do the agents work for?', a: '7group\'s agents are designed for companies with logistics operations: moving, distribution, freight, manufacturing, retail with in-house delivery, and any business that quotes, dispatches and invoices.' },
+        { q: 'How long does implementation take?', a: 'The first agent is active in under 30 days. The process includes diagnosis (week 1), free pilot (weeks 2-3) and full implementation (week 4). The complete 5-agent suite is deployed progressively.' },
+      ];
+      faqItems.forEach((item, i) => {
+        if (!faqData[i]) return;
+        item.querySelector('.faq-q').firstChild.textContent = faqData[i].q;
+        item.querySelector('.faq-a-inner').textContent = faqData[i].a;
+      });
+
       // Footer
       document.querySelector('footer .footer-logo').href = 'https://7group.site/?lang=en';
       const footerLinks = document.querySelectorAll('.footer-links a');
@@ -545,6 +692,16 @@
       if (footerLinks[1]) { footerLinks[1].textContent = 'USA';     footerLinks[1].href = 'https://7group.site/florida/?lang=en'; }
       if (footerLinks[2]) { footerLinks[2].textContent = 'Contact'; footerLinks[2].href = '/contacto/?lang=en'; }
     }
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-q').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.parentElement;
+        const wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+        if (!wasOpen) item.classList.add('open');
+      });
+    });
 
     const gen = {};
     const sleep = ms => new Promise(r => setTimeout(r, ms));

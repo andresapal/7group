@@ -1777,85 +1777,59 @@ function wazeLink(fullAddr) {
 var selectedClientId = null;
 var selectedContactData = null;
 var googleContacts = [];
-var contactsToken = null;
 var contactsLoaded = false;
+var CONTACTS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz4gG8fs_mAq9z9dcIhhqB9GUOFehc4_jW0Wd77RxPMIEmmshcXHlAVb39cML6hdGKM/exec';
 
-function initContactsToken(callback) {
-  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-    setTimeout(function(){ initContactsToken(callback); }, 300);
-    return;
-  }
-  var tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: 'https://www.googleapis.com/auth/contacts.readonly',
-    callback: function(resp) {
-      if (resp.error) {
-        alert('Error al conectar contactos: ' + resp.error + (resp.error_description ? ' - ' + resp.error_description : '') + '\n\nVerifica en Google Cloud Console:\n1. People API habilitada\n2. Scope contacts.readonly en Acceso a datos\n3. Tu email en Usuarios de prueba');
-        return;
-      }
-      contactsToken = resp.access_token;
-      fetchGoogleContacts(callback);
-    },
-    error_callback: function(err) {
-      alert('Error OAuth: ' + (err.type || err.message || JSON.stringify(err)));
-    }
-  });
-  tokenClient.requestAccessToken({prompt:'consent'});
-}
-
-function fetchGoogleContacts(callback) {
-  if (!contactsToken) return;
-  var url = 'https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,addresses,emailAddresses,organizations&pageSize=1000&sortOrder=FIRST_NAME_ASCENDING';
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url);
-  xhr.setRequestHeader('Authorization', 'Bearer ' + contactsToken);
-  xhr.onload = function() {
-    if (xhr.status !== 200) {
-      console.warn('Contacts API error:', xhr.status);
-      if (callback) callback();
-      return;
-    }
-    var data = JSON.parse(xhr.responseText);
-    googleContacts = [];
-    var conns = data.connections || [];
-    for (var i = 0; i < conns.length; i++) {
-      var p = conns[i];
-      var name = '';
-      if (p.names && p.names.length > 0) name = p.names[0].displayName || '';
-      if (!name) continue;
-      var phone = '';
-      if (p.phoneNumbers && p.phoneNumbers.length > 0) phone = p.phoneNumbers[0].value || '';
-      var email = '';
-      if (p.emailAddresses && p.emailAddresses.length > 0) email = p.emailAddresses[0].value || '';
-      var org = '';
-      if (p.organizations && p.organizations.length > 0) org = p.organizations[0].name || '';
-      var address = '', city = '', state = '', zip = '';
-      if (p.addresses && p.addresses.length > 0) {
-        var a = p.addresses[0];
-        address = a.streetAddress || a.formattedValue || '';
-        city = a.city || '';
-        state = a.region || '';
-        zip = a.postalCode || '';
-      }
-      googleContacts.push({
-        id: 'gc-' + i,
-        name: name,
-        contact: org || name,
-        phone: phone,
-        email: email,
-        address: address,
-        city: city,
-        state: state,
-        zip: zip,
-        source: 'google'
+function loadGoogleContacts(callback) {
+  fetch(CONTACTS_SCRIPT_URL, {redirect:'follow'}).then(function(r){return r.json();}).then(function(d){
+    if (d.ok && d.contacts) {
+      googleContacts = d.contacts.map(function(c, i){
+        return {id:'gc-'+i, name:c.n, contact:c.n, phone:(c.p||'').replace(/[^\d+]/g,''), email:c.e||'', address:c.a||'', city:c.c||'', state:c.s||'', zip:c.z||'', source:'google'};
       });
     }
+  }).catch(function(){}).finally(function(){
+    if (googleContacts.length === 0) parseCSVContacts();
     contactsLoaded = true;
-    try { localStorage.setItem('7g-google-contacts', JSON.stringify(googleContacts)); } catch(e) {}
+    try { localStorage.setItem('7g-google-contacts', JSON.stringify(googleContacts)); } catch(e){}
     if (callback) callback();
+  });
+}
+
+function parseCSVContacts() {
+  var raw = localStorage.getItem('7g-contacts-csv');
+  if (!raw) return;
+  var lines = raw.split('\n');
+  if (lines.length < 2) return;
+  var hdr = lines[0].split(',');
+  var fi = function(n){ for(var i=0;i<hdr.length;i++) if(hdr[i].trim()===n) return i; return -1; };
+  var iFN=fi('First Name'),iLN=fi('Last Name'),iOrg=fi('Organization Name'),iPhone=fi('Phone 1 - Value'),iEmail=fi('E-mail 1 - Value'),iAddr=fi('Address 1 - Street'),iCity=fi('Address 1 - City'),iState=fi('Address 1 - Region'),iZip=fi('Address 1 - Postal Code');
+  googleContacts = [];
+  for (var r=1;r<lines.length;r++){
+    var cols=lines[r].split(',');
+    var fn=(cols[iFN]||'').trim(),ln=(cols[iLN]||'').trim(),org=(iOrg>=0?cols[iOrg]||'':'').trim();
+    var name=[fn,ln].filter(Boolean).join(' ')||org;
+    if(!name) continue;
+    var phone=(iPhone>=0?cols[iPhone]||'':'').replace(/[^\d+]/g,'');
+    googleContacts.push({id:'gc-'+r,name:name,contact:org||name,phone:phone,email:iEmail>=0?(cols[iEmail]||'').trim():'',address:iAddr>=0?(cols[iAddr]||'').trim():'',city:iCity>=0?(cols[iCity]||'').trim():'',state:iState>=0?(cols[iState]||'').trim():'',zip:iZip>=0?(cols[iZip]||'').trim():'',source:'google'});
+  }
+}
+
+function importContactsCSV() {
+  var inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.csv';
+  inp.onchange = function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try { localStorage.setItem('7g-contacts-csv', ev.target.result); } catch(ex){}
+      parseCSVContacts();
+      contactsLoaded = true;
+      try { localStorage.setItem('7g-google-contacts', JSON.stringify(googleContacts)); } catch(ex){}
+      alert((LANG==='es'?'Contactos importados: ':'Contacts imported: ') + googleContacts.length);
+    };
+    reader.readAsText(file);
   };
-  xhr.onerror = function() { if (callback) callback(); };
-  xhr.send();
+  inp.click();
 }
 
 function loadCachedContacts() {
@@ -1865,6 +1839,7 @@ function loadCachedContacts() {
   } catch(e) {}
 }
 loadCachedContacts();
+if (!contactsLoaded) loadGoogleContacts();
 
 function searchClientXD(query) {
   var el = document.getElementById('xdClientResults');
@@ -1875,7 +1850,7 @@ function searchClientXD(query) {
   var q = query.toLowerCase();
   var results = [];
 
-  if (contactsLoaded || contactsToken) {
+  if (contactsLoaded) {
     for (var i = 0; i < googleContacts.length; i++) {
       var gc = googleContacts[i];
       if ((gc.name || '').toLowerCase().indexOf(q) !== -1 ||
@@ -1908,8 +1883,10 @@ function searchClientXD(query) {
 
   if (results.length === 0) {
     var connectHtml = '';
-    if (!contactsLoaded && !contactsToken) {
-      connectHtml = '<div style="padding:10px 12px;text-align:center"><button class="xd-add-btn" style="font-size:10px;width:100%;padding:10px" onclick="initContactsToken(function(){searchClientXD(document.getElementById(\'xdClientSearch\').value)})">' + (LANG==='es'?'Conectar Google Contacts':'Connect Google Contacts') + '</button></div>';
+    if (!contactsLoaded) {
+      connectHtml = '<div style="padding:10px 12px;text-align:center;display:flex;flex-direction:column;gap:6px">' +
+        '<button class="xd-add-btn" style="font-size:10px;width:100%;padding:10px" onclick="loadGoogleContacts(function(){searchClientXD(document.getElementById(\'xdClientSearch\').value)})">' + (LANG==='es'?'Sincronizar Contactos':'Sync Contacts') + '</button>' +
+        '<button class="xd-add-btn" style="font-size:10px;width:100%;padding:10px;background:transparent;border-color:var(--border2);color:var(--dim)" onclick="importContactsCSV()">' + (LANG==='es'?'Importar CSV de Google Contacts':'Import Google Contacts CSV') + '</button></div>';
     }
     if (!connectHtml) { el.style.display = 'none'; return; }
     el.innerHTML = connectHtml;
