@@ -3,13 +3,13 @@
 
 <head>
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XJP1YPZL9D"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H9127FSW7K"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-XJP1YPZL9D');
+  gtag('config', 'G-H9127FSW7K');
 </script>
   <meta charset="UTF-8" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -803,7 +803,7 @@
     @media (max-width: 768px) {
       nav { padding: 20px 24px; }
       nav ul { display: none; }
-      .language-switch { display: flex; }
+      .language-switch { display: none; }
       .menu-toggle { display: flex; }
       .hero-content { padding: 100px 24px 60px; }
       section { padding: 72px 24px; }
@@ -819,8 +819,8 @@
       footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
       .plans-section { padding: 72px 24px; }
       .plans-grid { grid-template-columns: 1fr; }
-      #heroTitle { min-height: 4.8em; }
-      #heroSub { min-height: 9em; }
+      #heroTitle { min-height: auto; }
+      #heroSub { min-height: auto; }
     }
 
     /* PLANS */
@@ -1784,11 +1784,12 @@
         ht.style.minHeight = maxTH + 'px';
         hs.style.minHeight = maxSH + 'px';
       }
-      setHeroMinHeights();
-      var _hrt;
-      window.addEventListener('resize', function() { clearTimeout(_hrt); _hrt = setTimeout(setHeroMinHeights, 200); });
+      if (window.innerWidth > 760) {
+        setHeroMinHeights();
+        var _hrt;
+        window.addEventListener('resize', function() { clearTimeout(_hrt); _hrt = setTimeout(setHeroMinHeights, 200); });
+      }
 
-      // Only rotate on desktop — mobile rotation causes scroll-position jumps
       if (window.innerWidth > 760) {
         setInterval(() => {
           if (paused) return;

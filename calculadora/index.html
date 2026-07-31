@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H9127FSW7K"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-H9127FSW7K');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Calculadora de ROI — ¿Cuánto te cuesta no automatizar? · 7Group</title>
@@ -35,9 +43,14 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
 .nav{background:var(--black);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .nav-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:17px;color:var(--white);text-decoration:none;letter-spacing:-.03em}
 .nav-logo span{color:var(--cyan)}
+.nav-right{display:flex;align-items:center;gap:20px}
 .nav-back{font-size:13px;color:#888;text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s}
 .nav-back:hover{color:var(--white)}
 .nav-back svg{width:14px;height:14px}
+.lang-switch{display:flex;gap:8px}
+.lang-switch a{font-size:12px;color:#555;text-decoration:none;letter-spacing:1px;transition:color .2s}
+.lang-switch a:hover{color:var(--white)}
+.lang-switch a.active{color:var(--white);font-weight:600}
 
 /* HERO STRIP */
 .hero{background:var(--black);color:var(--white);padding:48px 24px 40px;text-align:center}
@@ -161,17 +174,23 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 
 <nav class="nav">
   <a href="/" class="nav-logo">7group<span>.</span></a>
-  <a href="/es/" class="nav-back">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 12L6 8l4-4"/></svg>
-    Inicio
-  </a>
+  <div class="nav-right">
+    <a id="navBack" href="/es/" class="nav-back">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 12L6 8l4-4"/></svg>
+      <span id="navBackText">Inicio</span>
+    </a>
+    <div class="lang-switch">
+      <a href="/calculadora/?lang=en" id="langEN">EN</a>
+      <a href="/calculadora/" id="langES" class="active">ES</a>
+    </div>
+  </div>
 </nav>
 
 <section class="hero">
   <div class="hero-inner">
-    <p class="hero-label">Calculadora de impacto</p>
-    <h1>¿Cuánto te cuesta operar<br>en <em>Excel y WhatsApp?</em></h1>
-    <p>Ajusta los valores de tu operación y ve en tiempo real cuánto dinero y tiempo está dejando sobre la mesa.</p>
+    <p class="hero-label" id="tHeroLabel">Calculadora de impacto</p>
+    <h1 id="tHeroTitle">¿Cuánto te cuesta operar<br>en <em>Excel y WhatsApp?</em></h1>
+    <p id="tHeroSub">Ajusta los valores de tu operación y ve en tiempo real cuánto dinero y tiempo está dejando sobre la mesa.</p>
     <div class="currency-toggle">
       <button class="currency-btn active" onclick="setCurrency('COP')" id="btnCOP">COP</button>
       <button class="currency-btn" onclick="setCurrency('USD')" id="btnUSD">USD</button>
@@ -185,70 +204,67 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
     <!-- INPUTS -->
     <div class="inputs-col">
 
-      <!-- Cotizaciones -->
       <div class="card" style="margin-bottom:16px">
         <div class="card-head">
-          <h3>Cotizaciones</h3>
-          <p>Cuántas cotizaciones genera tu equipo y cuánto tarda cada una</p>
+          <h3 id="tQuotesTitle">Cotizaciones</h3>
+          <p id="tQuotesDesc">Cuántas cotizaciones genera tu equipo y cuánto tarda cada una</p>
         </div>
         <div class="card-body">
           <div class="slider-block">
             <div class="slider-top">
-              <span class="slider-label">Cotizaciones por día</span>
+              <span class="slider-label" id="tQuotesDay">Cotizaciones por día</span>
               <span class="slider-val" id="valQuotes">15</span>
             </div>
             <input type="range" id="sQuotes" min="1" max="100" value="15" oninput="update()">
-            <p class="slider-hint">Promedio diario, todos los días hábiles</p>
+            <p class="slider-hint" id="tQuotesHint">Promedio diario, todos los días hábiles</p>
           </div>
           <hr class="divider">
           <div class="slider-block" style="margin-bottom:0">
             <div class="slider-top">
-              <span class="slider-label">Minutos por cotización</span>
+              <span class="slider-label" id="tMinsLabel">Minutos por cotización</span>
               <span class="slider-val" id="valMins">25</span>
             </div>
             <input type="range" id="sMins" min="5" max="120" value="25" oninput="update()">
-            <p class="slider-hint">Desde que entra la solicitud hasta que sale la cotización</p>
+            <p class="slider-hint" id="tMinsHint">Desde que entra la solicitud hasta que sale la cotización</p>
           </div>
         </div>
       </div>
 
-      <!-- Errores -->
       <div class="card" style="margin-bottom:16px">
         <div class="card-head">
-          <h3>Errores y retrabajos</h3>
-          <p>Cotizaciones incorrectas, pedidos mal registrados, correcciones</p>
+          <h3 id="tErrorsTitle">Errores y retrabajos</h3>
+          <p id="tErrorsDesc">Cotizaciones incorrectas, pedidos mal registrados, correcciones</p>
         </div>
         <div class="card-body">
           <div class="slider-block" style="margin-bottom:0">
             <div class="slider-top">
-              <span class="slider-label">Errores por semana</span>
+              <span class="slider-label" id="tErrorsLabel">Errores por semana</span>
               <span class="slider-val" id="valErrors">5</span>
             </div>
             <input type="range" id="sErrors" min="0" max="60" value="5" oninput="update()">
-            <p class="slider-hint">Correcciones, clientes molestos, pedidos rehachos</p>
+            <p class="slider-hint" id="tErrorsHint">Correcciones, clientes molestos, pedidos rehachos</p>
           </div>
         </div>
       </div>
 
-      <!-- Equipo -->
       <div class="card">
         <div class="card-head">
-          <h3>Tu equipo</h3>
-          <p>Las personas que atienden estos procesos manualmente</p>
+          <h3 id="tTeamTitle">Tu equipo</h3>
+          <p id="tTeamDesc">Las personas que atienden estos procesos manualmente</p>
         </div>
         <div class="card-body">
           <div class="slider-block">
             <div class="slider-top">
-              <span class="slider-label">Personas en el proceso</span>
+              <span class="slider-label" id="tTeamLabel">Personas en el proceso</span>
               <span class="slider-val" id="valTeam">3</span>
             </div>
             <input type="range" id="sTeam" min="1" max="20" value="3" oninput="update()">
-            <p class="slider-hint">Comercial, operaciones, atención al cliente</p>
+            <p class="slider-hint" id="tTeamHint">Comercial, operaciones, atención al cliente</p>
           </div>
           <hr class="divider">
           <div class="slider-block" style="margin-bottom:0">
             <div class="slider-top">
-              <span class="slider-label">Salario mensual promedio</span>
+              <span class="slider-label" id="tSalaryLabel">Salario mensual promedio</span>
               <span class="slider-val prefix" id="valSalary" data-prefix="">3.000.000</span>
             </div>
             <input type="range" id="sSalary" min="1" max="100" value="20" oninput="update()">
@@ -257,22 +273,21 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
         </div>
       </div>
 
-      <!-- How it works -->
       <div class="how-it-works">
         <div class="how-card">
           <p class="how-num">01</p>
-          <h4>Ajusta los valores</h4>
-          <p>Usa los sliders con los números reales de tu operación</p>
+          <h4 id="tHow1Title">Ajusta los valores</h4>
+          <p id="tHow1Desc">Usa los sliders con los números reales de tu operación</p>
         </div>
         <div class="how-card">
           <p class="how-num">02</p>
-          <h4>Ve tu impacto</h4>
-          <p>Los resultados se actualizan en tiempo real mientras mueves los sliders</p>
+          <h4 id="tHow2Title">Ve tu impacto</h4>
+          <p id="tHow2Desc">Los resultados se actualizan en tiempo real mientras mueves los sliders</p>
         </div>
         <div class="how-card">
           <p class="how-num">03</p>
-          <h4>Habla con nosotros</h4>
-          <p>30 minutos para mostrarte cómo recuperar ese dinero</p>
+          <h4 id="tHow3Title">Habla con nosotros</h4>
+          <p id="tHow3Desc">30 minutos para mostrarte cómo recuperar ese dinero</p>
         </div>
       </div>
     </div>
@@ -282,38 +297,38 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
       <div class="results-card card">
 
         <div class="loss-block">
-          <p class="loss-label">Estás perdiendo cada mes</p>
+          <p class="loss-label" id="tLossLabel">Estás perdiendo cada mes</p>
           <div class="loss-amount" id="totalLoss">$ 0</div>
-          <p class="loss-period">en tiempo, errores y oportunidades</p>
+          <p class="loss-period" id="tLossPeriod">en tiempo, errores y oportunidades</p>
         </div>
 
         <div class="metrics">
           <div class="metric">
-            <span class="metric-name">Horas perdidas al mes</span>
+            <span class="metric-name" id="tMetricHours">Horas perdidas al mes</span>
             <span class="metric-val" id="mHoras">0 h</span>
           </div>
           <div class="metric">
-            <span class="metric-name">Costo procesos manuales</span>
+            <span class="metric-name" id="tMetricManual">Costo procesos manuales</span>
             <span class="metric-val" id="mCostoManual">$ 0</span>
           </div>
           <div class="metric">
-            <span class="metric-name">Costo de errores</span>
+            <span class="metric-name" id="tMetricErrors">Costo de errores</span>
             <span class="metric-val" id="mCostoErrores">$ 0</span>
           </div>
           <div class="metric">
-            <span class="metric-name">ROI estimado a 12 meses</span>
+            <span class="metric-name" id="tMetricRoi">ROI estimado a 12 meses</span>
             <span class="metric-val highlight" id="mRoi12">$ 0</span>
           </div>
         </div>
 
         <div class="savings-block">
-          <p class="savings-label">Ahorro potencial con 7Group</p>
+          <p class="savings-label" id="tSavingsLabel">Ahorro potencial con 7Group</p>
           <div class="savings-amount" id="mAhorro">$ 0</div>
-          <p class="savings-sub" id="mAhorroSub">por mes · recuperas la inversión en &lt; 2 meses</p>
+          <p class="savings-sub" id="mAhorroSub">por mes</p>
         </div>
 
         <div class="breakeven">
-          <p class="be-label">Cobertura del plan vs. ahorro</p>
+          <p class="be-label" id="tBeLabel">Cobertura del plan vs. ahorro</p>
           <div class="be-bar-bg">
             <div class="be-bar-fill" id="beBar" style="width:0%"></div>
           </div>
@@ -321,8 +336,8 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
         </div>
 
         <div class="cta-block">
-          <button class="btn-cta" onclick="openModal()">Quiero recuperar ese dinero</button>
-          <p class="cta-note">Análisis gratuito · Sin compromiso · Respuesta en &lt; 2 horas</p>
+          <button class="btn-cta" onclick="openModal()" id="tCtaBtn">Quiero recuperar ese dinero</button>
+          <p class="cta-note" id="tCtaNote">Análisis gratuito · Sin compromiso · Respuesta en &lt; 2 horas</p>
         </div>
 
       </div>
@@ -333,59 +348,208 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 <!-- MODAL -->
 <div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
   <div class="modal-card">
-    <button class="modal-close" onclick="closeModal()">✕</button>
+    <button class="modal-close" onclick="closeModal()">&#x2715;</button>
 
     <div id="formState">
-      <h2>Tu análisis personalizado</h2>
-      <p>Basado en tu operación, agenda 30 minutos con nuestro equipo. Sin costo, sin compromiso.</p>
+      <h2 id="tModalTitle">Tu análisis personalizado</h2>
+      <p id="tModalDesc">Basado en tu operación, agenda 30 minutos con nuestro equipo. Sin costo, sin compromiso.</p>
 
-      <div class="summary-box" id="modalSummary">
-        <!-- filled by JS -->
-      </div>
+      <div class="summary-box" id="modalSummary"></div>
 
       <form onsubmit="submitLead(event)">
         <div class="field">
-          <label>Tu nombre</label>
+          <label id="tFieldName">Tu nombre</label>
           <input type="text" id="fNombre" placeholder="Andres Palacio" required>
         </div>
         <div class="field">
-          <label>Empresa</label>
+          <label id="tFieldCompany">Empresa</label>
           <input type="text" id="fEmpresa" placeholder="Empresa SAS" required>
         </div>
         <div class="field">
           <label>WhatsApp</label>
           <input type="tel" id="fWA" placeholder="+57 314 000 0000" required>
         </div>
-        <button type="submit" class="btn-wa">
+        <button type="submit" class="btn-wa" id="tWaSubmit">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Agendar por WhatsApp
+          <span>Agendar por WhatsApp</span>
         </button>
-        <p class="modal-legal">Al continuar aceptas que 7Group te contacte para presentarte una propuesta personalizada.</p>
+        <p class="modal-legal" id="tModalLegal">Al continuar aceptas que 7Group te contacte para presentarte una propuesta personalizada.</p>
       </form>
     </div>
 
     <div class="success-state" id="successState">
-      <div class="success-icon">✓</div>
-      <h3>¡Listo! Te contactamos hoy</h3>
-      <p>Se abrirá WhatsApp con tu análisis completo. Nuestro equipo te responde en menos de 2 horas en horario hábil.</p>
+      <div class="success-icon">&#x2713;</div>
+      <h3 id="tSuccessTitle">Listo! Te contactamos hoy</h3>
+      <p id="tSuccessDesc">Se abrirá WhatsApp con tu análisis completo. Nuestro equipo te responde en menos de 2 horas en horario hábil.</p>
       <button class="btn-wa" id="waFallback">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Abrir WhatsApp
+        <span id="tWaFallback">Abrir WhatsApp</span>
       </button>
     </div>
   </div>
 </div>
 
 <script>
+/* ---- i18n ---- */
+const LANG = new URLSearchParams(window.location.search).get('lang') === 'en' ? 'en' : 'es';
+
+const T = {
+  es: {
+    htmlLang: 'es',
+    pageTitle: 'Calculadora de ROI — ¿Cuánto te cuesta no automatizar? · 7Group',
+    navBack: 'Inicio', navBackHref: '/es/',
+    heroLabel: 'Calculadora de impacto',
+    heroTitle: '¿Cuánto te cuesta operar<br>en <em>Excel y WhatsApp?</em>',
+    heroSub: 'Ajusta los valores de tu operación y ve en tiempo real cuánto dinero y tiempo está dejando sobre la mesa.',
+    quotesTitle: 'Cotizaciones', quotesDesc: 'Cuántas cotizaciones genera tu equipo y cuánto tarda cada una',
+    quotesDay: 'Cotizaciones por día', quotesHint: 'Promedio diario, todos los días hábiles',
+    minsLabel: 'Minutos por cotización', minsHint: 'Desde que entra la solicitud hasta que sale la cotización',
+    errorsTitle: 'Errores y retrabajos', errorsDesc: 'Cotizaciones incorrectas, pedidos mal registrados, correcciones',
+    errorsLabel: 'Errores por semana', errorsHint: 'Correcciones, clientes molestos, pedidos rehechos',
+    teamTitle: 'Tu equipo', teamDesc: 'Las personas que atienden estos procesos manualmente',
+    teamLabel: 'Personas en el proceso', teamHint: 'Comercial, operaciones, atención al cliente',
+    salaryLabel: 'Salario mensual promedio',
+    salaryHintCOP: 'COP por empleado / mes', salaryHintUSD: 'USD por empleado / mes',
+    how1Title: 'Ajusta los valores', how1Desc: 'Usa los sliders con los números reales de tu operación',
+    how2Title: 'Ve tu impacto', how2Desc: 'Los resultados se actualizan en tiempo real mientras mueves los sliders',
+    how3Title: 'Habla con nosotros', how3Desc: '30 minutos para mostrarte cómo recuperar ese dinero',
+    lossLabel: 'Estás perdiendo cada mes', lossPeriod: 'en tiempo, errores y oportunidades',
+    metricHours: 'Horas perdidas al mes', metricManual: 'Costo procesos manuales',
+    metricErrors: 'Costo de errores', metricRoi: 'ROI estimado a 12 meses',
+    savingsLabel: 'Ahorro potencial con 7Group',
+    beLabel: 'Cobertura del plan vs. ahorro', beDefault: 'Mueve los sliders para ver tu análisis',
+    beCover: (m) => `El ahorro cubre <strong>${m}x el costo del plan</strong>`,
+    beMonths: (n) => n < 1 ? 'menos de 1 mes' : Math.ceil(n) + (Math.ceil(n) === 1 ? ' mes' : ' meses'),
+    savingsSub: (m) => `por mes · recuperas la inversión en ${m}`,
+    ctaBtn: 'Quiero recuperar ese dinero', ctaNote: 'Análisis gratuito · Sin compromiso · Respuesta en < 2 horas',
+    modalTitle: 'Tu análisis personalizado', modalDesc: 'Basado en tu operación, agenda 30 minutos con nuestro equipo. Sin costo, sin compromiso.',
+    fieldName: 'Tu nombre', fieldCompany: 'Empresa',
+    phName: 'Andres Palacio', phCompany: 'Empresa SAS', phWA: '+57 314 000 0000',
+    waSubmit: 'Agendar por WhatsApp', modalLegal: 'Al continuar aceptas que 7Group te contacte para presentarte una propuesta personalizada.',
+    successTitle: 'Listo! Te contactamos hoy', successDesc: 'Se abrirá WhatsApp con tu análisis completo. Nuestro equipo te responde en menos de 2 horas en horario hábil.',
+    waFallback: 'Abrir WhatsApp',
+    sumHours: 'Horas perdidas/mes', sumCost: 'Costo mensual estimado', sumSaving: 'Ahorro potencial con 7Group', sumRoi: 'ROI estimado a 12 meses',
+    waMsg: (r, nombre, empresa, wa) =>
+`Hola 7Group! Hice el análisis de ROI en su calculadora y quiero saber más.
+
+*Mis números:*
+• Cotizaciones/día: ${r.quotes} · ${r.mins} min c/u
+• Errores/semana: ${r.errors}
+• Equipo: ${r.team} personas
+• Costo mensual estimado: ${fmtFull(r.totalLoss)} ${currency}
+• Ahorro potencial: ${fmtFull(r.ahorro)} ${currency}/mes
+
+*Mis datos:*
+• Nombre: ${nombre}
+• Empresa: ${empresa}
+• WhatsApp: ${wa}
+
+Quiero agendar los 30 minutos de análisis gratuito.`
+  },
+  en: {
+    htmlLang: 'en',
+    pageTitle: 'ROI Calculator — How much is manual operation costing you? · 7Group',
+    navBack: 'Home', navBackHref: '/',
+    heroLabel: 'Impact Calculator',
+    heroTitle: 'How much is operating in<br><em>Excel & WhatsApp</em> costing you?',
+    heroSub: 'Adjust your operation values and see in real time how much money and time you are leaving on the table.',
+    quotesTitle: 'Quotes', quotesDesc: 'How many quotes your team generates and how long each one takes',
+    quotesDay: 'Quotes per day', quotesHint: 'Daily average, all business days',
+    minsLabel: 'Minutes per quote', minsHint: 'From request received to quote sent',
+    errorsTitle: 'Errors & rework', errorsDesc: 'Wrong quotes, mislogged orders, corrections',
+    errorsLabel: 'Errors per week', errorsHint: 'Corrections, upset clients, remade orders',
+    teamTitle: 'Your team', teamDesc: 'People handling these processes manually',
+    teamLabel: 'People in the process', teamHint: 'Sales, operations, customer service',
+    salaryLabel: 'Average monthly salary',
+    salaryHintCOP: 'COP per employee / month', salaryHintUSD: 'USD per employee / month',
+    how1Title: 'Set your values', how1Desc: 'Use the sliders with the real numbers from your operation',
+    how2Title: 'See your impact', how2Desc: 'Results update in real time as you move the sliders',
+    how3Title: 'Talk to us', how3Desc: '30 minutes to show you how to recover that money',
+    lossLabel: 'You are losing every month', lossPeriod: 'in time, errors, and missed opportunities',
+    metricHours: 'Hours lost per month', metricManual: 'Manual process cost',
+    metricErrors: 'Error cost', metricRoi: 'Estimated 12-month ROI',
+    savingsLabel: 'Potential savings with 7Group',
+    beLabel: 'Plan coverage vs. savings', beDefault: 'Move the sliders to see your analysis',
+    beCover: (m) => `Savings cover <strong>${m}x the plan cost</strong>`,
+    beMonths: (n) => n < 1 ? 'less than 1 month' : Math.ceil(n) + (Math.ceil(n) === 1 ? ' month' : ' months'),
+    savingsSub: (m) => `per month · you recover the investment in ${m}`,
+    ctaBtn: 'I want to recover that money', ctaNote: 'Free analysis · No commitment · Response in < 2 hours',
+    modalTitle: 'Your personalized analysis', modalDesc: 'Based on your operation, schedule 30 minutes with our team. Free, no strings attached.',
+    fieldName: 'Your name', fieldCompany: 'Company',
+    phName: 'John Smith', phCompany: 'Acme Corp', phWA: '+1 305 000 0000',
+    waSubmit: 'Schedule via WhatsApp', modalLegal: 'By continuing you agree that 7Group may contact you to present a personalized proposal.',
+    successTitle: 'Done! We will contact you today', successDesc: 'WhatsApp will open with your full analysis. Our team responds in under 2 hours during business hours.',
+    waFallback: 'Open WhatsApp',
+    sumHours: 'Hours lost/month', sumCost: 'Estimated monthly cost', sumSaving: 'Potential savings with 7Group', sumRoi: 'Estimated 12-month ROI',
+    waMsg: (r, nombre, empresa, wa) =>
+`Hi 7Group! I ran the ROI analysis on your calculator and want to learn more.
+
+*My numbers:*
+• Quotes/day: ${r.quotes} · ${r.mins} min each
+• Errors/week: ${r.errors}
+• Team: ${r.team} people
+• Estimated monthly cost: ${fmtFull(r.totalLoss)} ${currency}
+• Potential savings: ${fmtFull(r.ahorro)} ${currency}/mo
+
+*My info:*
+• Name: ${nombre}
+• Company: ${empresa}
+• WhatsApp: ${wa}
+
+I'd like to schedule the free 30-minute analysis.`
+  }
+};
+
+const t = T[LANG];
+
+function applyLang() {
+  document.documentElement.lang = t.htmlLang;
+  document.title = t.pageTitle;
+  document.getElementById('navBackText').textContent = t.navBack;
+  document.getElementById('navBack').href = t.navBackHref;
+  if (LANG === 'en') {
+    document.getElementById('langEN').classList.add('active');
+    document.getElementById('langES').classList.remove('active');
+  }
+  const map = {
+    tHeroLabel: 'heroLabel', tHeroSub: 'heroSub',
+    tQuotesTitle: 'quotesTitle', tQuotesDesc: 'quotesDesc', tQuotesDay: 'quotesDay', tQuotesHint: 'quotesHint',
+    tMinsLabel: 'minsLabel', tMinsHint: 'minsHint',
+    tErrorsTitle: 'errorsTitle', tErrorsDesc: 'errorsDesc', tErrorsLabel: 'errorsLabel', tErrorsHint: 'errorsHint',
+    tTeamTitle: 'teamTitle', tTeamDesc: 'teamDesc', tTeamLabel: 'teamLabel', tTeamHint: 'teamHint',
+    tSalaryLabel: 'salaryLabel',
+    tHow1Title: 'how1Title', tHow1Desc: 'how1Desc',
+    tHow2Title: 'how2Title', tHow2Desc: 'how2Desc',
+    tHow3Title: 'how3Title', tHow3Desc: 'how3Desc',
+    tLossLabel: 'lossLabel', tLossPeriod: 'lossPeriod',
+    tMetricHours: 'metricHours', tMetricManual: 'metricManual', tMetricErrors: 'metricErrors', tMetricRoi: 'metricRoi',
+    tSavingsLabel: 'savingsLabel', tBeLabel: 'beLabel',
+    tCtaBtn: 'ctaBtn', tCtaNote: 'ctaNote',
+    tModalTitle: 'modalTitle', tModalDesc: 'modalDesc',
+    tFieldName: 'fieldName', tFieldCompany: 'fieldCompany',
+    tModalLegal: 'modalLegal',
+    tSuccessTitle: 'successTitle', tSuccessDesc: 'successDesc', tWaFallback: 'waFallback'
+  };
+  for (const [elId, key] of Object.entries(map)) {
+    const el = document.getElementById(elId);
+    if (el) el.textContent = t[key];
+  }
+  document.getElementById('tHeroTitle').innerHTML = t.heroTitle;
+  document.getElementById('tWaSubmit').querySelector('span').textContent = t.waSubmit;
+  document.getElementById('fNombre').placeholder = t.phName;
+  document.getElementById('fEmpresa').placeholder = t.phCompany;
+  document.getElementById('fWA').placeholder = t.phWA;
+}
+
 /* ---- CONFIG ---- */
 const WA_NUMBER = '573143095194';
 
-const PLAN_COP = 3000000;   // Plan Profesional COP
-const PLAN_USD = 700;       // Plan Profesional USD
+const PLAN_COP = 3000000;
+const PLAN_USD = 700;
 const WORK_DAYS = 22;
 const WORK_HOURS = 8;
-const ERROR_FIX_HRS = 1.5; // hours to fix one error
-const AUTOMATION_RECOVERY = 0.78; // % of waste recovered
+const ERROR_FIX_HRS = 1.5;
+const AUTOMATION_RECOVERY = 0.78;
 
 let currency = 'COP';
 let currentResults = {};
@@ -422,9 +586,10 @@ function setCurrency(c) {
   currency = c;
   document.getElementById('btnCOP').classList.toggle('active', c === 'COP');
   document.getElementById('btnUSD').classList.toggle('active', c === 'USD');
-  document.getElementById('salaryHint').textContent = c === 'COP'
-    ? 'COP por empleado / mes'
-    : 'USD por empleado / mes';
+  document.getElementById('salaryHint').textContent = c === 'COP' ? t.salaryHintCOP : t.salaryHintUSD;
+  if (LANG === 'en' && c === 'USD') {
+    document.getElementById('sSalary').value = 30;
+  }
   update();
 }
 
@@ -454,15 +619,12 @@ function calculate() {
   const planCost = currency === 'COP' ? PLAN_COP : PLAN_USD;
   const hourlyRate = salary / (WORK_DAYS * WORK_HOURS);
 
-  // Hours lost in manual quoting per month
   const horasQuotes = (quotes * mins / 60) * WORK_DAYS;
 
-  // Cost of quoting time (proportional to team)
   const totalTeamHours = team * WORK_DAYS * WORK_HOURS;
   const quoteFraction = Math.min(horasQuotes / totalTeamHours, 1);
   const costoManual = quoteFraction * team * salary;
 
-  // Cost of errors
   const errorsPerMonth = errors * 4.3;
   const costoErrores = errorsPerMonth * ERROR_FIX_HRS * hourlyRate;
 
@@ -470,7 +632,7 @@ function calculate() {
   const ahorro     = totalLoss * AUTOMATION_RECOVERY;
   const netRoi     = ahorro - planCost;
   const roi12      = netRoi * 12;
-  const breakeven  = planCost > 0 ? (planCost / ahorro) : 0; // months
+  const breakeven  = planCost > 0 ? (planCost / ahorro) : 0;
 
   return { quotes, mins, errors, team, salary, planCost,
            horasQuotes, costoManual, costoErrores,
@@ -482,7 +644,6 @@ function update() {
   const r = calculate();
   currentResults = r;
 
-  // Slider display values
   document.getElementById('valQuotes').textContent = r.quotes;
   document.getElementById('valMins').textContent = r.mins;
   document.getElementById('valErrors').textContent = r.errors;
@@ -500,33 +661,26 @@ function update() {
     salEl.setAttribute('data-prefix','$ ');
   }
 
-  // Main loss number
   const lossEl = document.getElementById('totalLoss');
   lossEl.textContent = fmt(r.totalLoss);
   lossEl.classList.toggle('negative', r.totalLoss > 0);
 
-  // Metrics
   document.getElementById('mHoras').textContent = Math.round(r.horasQuotes) + ' h';
   document.getElementById('mCostoManual').textContent = fmt(r.costoManual);
   document.getElementById('mCostoErrores').textContent = fmt(r.costoErrores);
   document.getElementById('mRoi12').textContent = r.roi12 > 0 ? fmt(r.roi12) : '—';
 
-  // Savings
   document.getElementById('mAhorro').textContent = fmt(r.ahorro);
-  const be = r.breakeven;
-  const beMonths = be < 1 ? 'menos de 1 mes' : Math.ceil(be) + (Math.ceil(be) === 1 ? ' mes' : ' meses');
-  document.getElementById('mAhorroSub').textContent =
-    `por mes · recuperas la inversión en ${beMonths}`;
+  const beMonthsText = t.beMonths(r.breakeven);
+  document.getElementById('mAhorroSub').textContent = t.savingsSub(beMonthsText);
 
-  // Breakeven bar (capped at 100%, ideally shows how much plan cost vs savings)
   const coveragePct = r.ahorro > 0 ? Math.min((r.ahorro / r.planCost) * 10, 100) : 0;
   document.getElementById('beBar').style.width = coveragePct + '%';
   if (r.ahorro > r.planCost) {
     const mult = (r.ahorro / r.planCost).toFixed(1);
-    document.getElementById('beText').innerHTML =
-      `El ahorro cubre <strong>${mult}x el costo del plan</strong>`;
+    document.getElementById('beText').innerHTML = t.beCover(mult);
   } else {
-    document.getElementById('beText').innerHTML = 'Ajusta los valores para ver el análisis';
+    document.getElementById('beText').innerHTML = t.beDefault;
   }
 }
 
@@ -534,10 +688,10 @@ function update() {
 function openModal() {
   const r = currentResults;
   document.getElementById('modalSummary').innerHTML = `
-    <div class="summary-row"><span>Horas perdidas/mes</span><span>${Math.round(r.horasQuotes)} horas</span></div>
-    <div class="summary-row total"><span>Costo mensual estimado</span><span>${fmtFull(r.totalLoss)}</span></div>
-    <div class="summary-row saving"><span>Ahorro potencial con 7Group</span><span>${fmtFull(r.ahorro)}/mes</span></div>
-    <div class="summary-row saving"><span>ROI estimado a 12 meses</span><span>${r.roi12 > 0 ? fmtFull(r.roi12) : '—'}</span></div>
+    <div class="summary-row"><span>${t.sumHours}</span><span>${Math.round(r.horasQuotes)} h</span></div>
+    <div class="summary-row total"><span>${t.sumCost}</span><span>${fmtFull(r.totalLoss)}</span></div>
+    <div class="summary-row saving"><span>${t.sumSaving}</span><span>${fmtFull(r.ahorro)}/${LANG === 'es' ? 'mes' : 'mo'}</span></div>
+    <div class="summary-row saving"><span>${t.sumRoi}</span><span>${r.roi12 > 0 ? fmtFull(r.roi12) : '—'}</span></div>
   `;
   document.getElementById('modal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -559,24 +713,7 @@ function submitLead(e) {
   const wa      = document.getElementById('fWA').value.trim();
   const r       = currentResults;
 
-  const msg = encodeURIComponent(
-`Hola 7Group! Hice el análisis de ROI en su calculadora y quiero saber más.
-
-*Mis números:*
-• Cotizaciones/día: ${r.quotes} · ${r.mins} min c/u
-• Errores/semana: ${r.errors}
-• Equipo: ${r.team} personas
-• Costo mensual estimado: ${fmtFull(r.totalLoss)} ${currency}
-• Ahorro potencial: ${fmtFull(r.ahorro)} ${currency}/mes
-
-*Mis datos:*
-• Nombre: ${nombre}
-• Empresa: ${empresa}
-• WhatsApp: ${wa}
-
-Quiero agendar los 30 minutos de análisis gratuito.`
-  );
-
+  const msg = encodeURIComponent(t.waMsg(r, nombre, empresa, wa));
   const waURL = `https://wa.me/${WA_NUMBER}?text=${msg}`;
   document.getElementById('waFallback').onclick = () => window.open(waURL, '_blank');
   document.getElementById('formState').style.display = 'none';
@@ -585,7 +722,12 @@ Quiero agendar los 30 minutos de análisis gratuito.`
 }
 
 /* ---- INIT ---- */
-update();
+applyLang();
+if (LANG === 'en') {
+  setCurrency('USD');
+} else {
+  update();
+}
 </script>
 </body>
 </html>
