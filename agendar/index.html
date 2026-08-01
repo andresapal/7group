@@ -282,6 +282,8 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
 }
 .slot-btn:disabled{opacity:.25;cursor:default;border-color:var(--border);color:#555}
 .slot-btn:disabled:hover{background:transparent;border-color:var(--border);color:#555}
+.slot-btn.slot-taken{opacity:.4;text-decoration:line-through;border-color:#ff4444;color:#ff4444}
+.slot-btn.slot-taken:hover{background:transparent;border-color:#ff4444;color:#ff4444}
 
 /* SUMMARY */
 .summary-card{
@@ -551,10 +553,31 @@ footer a:hover{color:var(--white)}
 var TG_BOT   = "8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I";
 var TG_CHAT  = "1081707115";
 var W3F_KEY  = "1746964c-fa0e-418e-8d93-93b6dfb02f37";
-var MAIL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycj_WqP97yFmfnVGupei22PfwNui3N_ipoceLmeNLI6lsapRVcpr7JInzH27NRSL3d/exec";
+var MAIL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeR6JyIS-LMYkOSuF0l5ldYK9PtZdatwFLlDgL-_cCztbqZS6RJ1OKkBzg67HU38Ay/exec";
 
 var SLOTS = [9, 9.5, 10, 10.5, 11, 11.5, 13, 13.5, 14, 14.5, 15, 15.5];
 var TRIAL_DAYS = 30;
+var bookedSlots = [];
+
+function loadBookedSlots(cb) {
+  if (!MAIL_SCRIPT_URL) { if (cb) cb(); return; }
+  fetch(MAIL_SCRIPT_URL + '?action=slots', {redirect:'follow'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.ok && d.slots) bookedSlots = d.slots;
+    })
+    .catch(function(){})
+    .finally(function(){ if (cb) cb(); });
+}
+
+function isSlotBooked(dateISO, hour) {
+  var dateStr = dateISO.split('T')[0];
+  for (var i = 0; i < bookedSlots.length; i++) {
+    var bd = String(bookedSlots[i].d).split('T')[0];
+    if (bd === dateStr && String(bookedSlots[i].h) === String(hour)) return true;
+  }
+  return false;
+}
 
 // ─── TRANSLATIONS ─────────────────────────────
 var T = {
@@ -801,7 +824,7 @@ function renderWeek() {
       for (var c = 0; c < SLOTS.length; c++) {
         var ct = new Date(dayDate);
         ct.setHours(Math.floor(SLOTS[c]), (SLOTS[c] % 1) ? 30 : 0, 0, 0);
-        if (!isToday || ct > now) availCount++;
+        if ((!isToday || ct > now) && !isSlotBooked(dayDate.toISOString(), SLOTS[c])) availCount++;
       }
     }
 
@@ -858,8 +881,10 @@ function renderWeek() {
       var slotTime = new Date(dayDate);
       slotTime.setHours(Math.floor(SLOTS[s]), (SLOTS[s] % 1) ? 30 : 0, 0, 0);
 
-      if (isPast || (isToday && slotTime <= now)) {
+      var booked = isSlotBooked(dayDate.toISOString(), SLOTS[s]);
+      if (isPast || (isToday && slotTime <= now) || booked) {
         btn.disabled = true;
+        if (booked) { btn.classList.add('slot-taken'); btn.title = lang === 'es' ? 'Ocupado' : 'Taken'; }
       } else {
         btn.dataset.date = dayDate.toISOString();
         btn.dataset.hour = SLOTS[s];
@@ -1087,6 +1112,9 @@ function sendNotifications(name, email, phone, company, industry, dayName, dateS
   }
 
   if (email && MAIL_SCRIPT_URL) {
+    var slotDate = selectedSlot ? selectedSlot.date.split('T')[0] : '';
+    var slotHour = selectedSlot ? String(selectedSlot.hour) : '';
+
     var confirmSubject = lang === 'en'
       ? 'Your appointment with 7Group is confirmed'
       : 'Tu cita con 7Group esta confirmada';
@@ -1111,7 +1139,14 @@ function sendNotifications(name, email, phone, company, industry, dayName, dateS
     fetch(MAIL_SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify({
-        action: 'send',
+        action: 'book',
+        date: slotDate,
+        hour: slotHour,
+        name: name,
+        email: email,
+        phone: phone || '',
+        company: company || '',
+        industry: industry,
         to: email,
         subject: confirmSubject,
         html: confirmHtml,
@@ -1120,13 +1155,13 @@ function sendNotifications(name, email, phone, company, industry, dayName, dateS
       redirect: 'follow',
       mode: 'no-cors'
     }).then(function(){
-      console.log('Mail script request sent');
-    }).catch(function(e){ console.warn('Mail script fetch error:', e); });
+      console.log('Booking request sent');
+    }).catch(function(e){ console.warn('Booking fetch error:', e); });
   }
 }
 
 // ─── INIT ─────────────────────────────
-applyLang();
+loadBookedSlots(function(){ applyLang(); });
 updateSteps(1);
 
 var nav = document.getElementById('nav');
