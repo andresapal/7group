@@ -519,6 +519,13 @@ function renderKPIs(){
     '<div class="kpi"><div class="kpi-val green">'+counts.ready+'</div><div class="kpi-label">'+t('kpiReady')+'</div></div>';
 }
 
+var expandedOrder=null;
+function toggleOrderDetail(id){expandedOrder=expandedOrder===id?null:id;renderOrders();}
+function revertOrder(id,toStatus){
+  for(var i=0;i<ORDERS.length;i++){if(ORDERS[i].id===id){ORDERS[i].status=toStatus;break;}}
+  pickedItems={};expandedOrder=null;renderAll();
+}
+
 function renderOrders(){
   var el=document.getElementById('ordersList');
   var h='';
@@ -526,13 +533,38 @@ function renderOrders(){
     var o=ORDERS[i];
     var stCls='st-'+o.status;
     var totalQty=0;for(var j=0;j<o.items.length;j++)totalQty+=o.items[j].qty;
-    h+='<div class="order-card">';
+    var isOpen=expandedOrder===o.id;
+    h+='<div class="order-card" style="cursor:pointer" onclick="toggleOrderDetail(\''+o.id+'\')">';
     h+='<div class="order-head"><div><span class="order-id">'+o.id+'</span> <span class="order-client">'+o.client+'</span></div><div style="display:flex;gap:8px;align-items:center"><span class="order-date">'+o.date+'</span><span class="order-status '+stCls+'">'+t(o.status)+'</span></div></div>';
     h+='<div class="order-items">';
     for(var k=0;k<o.items.length;k++){h+='<span class="order-item">'+o.items[k].sku+' x'+o.items[k].qty+'</span>';}
     h+='</div>';
+    if(isOpen){
+      h+='<div style="margin-top:10px;border-top:1px solid var(--border2);padding-top:10px">';
+      h+='<table style="width:100%;border-collapse:collapse;font-size:11px">';
+      h+='<tr style="color:var(--dim);text-align:left"><th style="padding:4px 6px">SKU</th><th style="padding:4px 6px">'+(LANG==='es'?'Descripcion':'Description')+'</th><th style="padding:4px 6px">'+(LANG==='es'?'Ubicacion':'Location')+'</th><th style="padding:4px 6px;text-align:right">Qty</th></tr>';
+      for(var m=0;m<o.items.length;m++){
+        var it=o.items[m];
+        h+='<tr style="border-top:1px solid var(--border)"><td style="padding:4px 6px;font-family:\'JetBrains Mono\',monospace;color:var(--cyan);font-size:10px">'+it.sku+'</td><td style="padding:4px 6px;color:var(--white)">'+it.desc+'</td><td style="padding:4px 6px;color:var(--dim);font-family:\'JetBrains Mono\',monospace;font-size:10px">'+it.loc+'</td><td style="padding:4px 6px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-weight:700">'+it.qty+'</td></tr>';
+      }
+      h+='<tr style="border-top:1px solid var(--border2)"><td colspan="3" style="padding:6px;font-weight:700;color:var(--white)">Total</td><td style="padding:6px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-weight:700;color:var(--cyan)">'+totalQty+'</td></tr>';
+      h+='</table></div>';
+    }
     h+='<div class="order-footer"><div class="order-meta"><span>'+o.items.length+' SKUs</span><span>'+totalQty+' '+t('items')+'</span></div>';
-    if(o.status==='pending'){h+='<div class="order-actions"><button class="btn btn-sm btn-primary" onclick="startPicking(\''+o.id+'\')">'+t('btnStartPick')+'</button></div>';}
+    h+='<div class="order-actions" style="display:flex;gap:6px;flex-wrap:wrap" onclick="event.stopPropagation()">';
+    if(o.status==='pending'){h+='<button class="btn btn-sm btn-primary" onclick="startPicking(\''+o.id+'\')">'+t('btnStartPick')+'</button>';}
+    if(o.status==='picking'){
+      h+='<button class="btn btn-sm btn-primary" onclick="goTab(1)">'+(LANG==='es'?'Ver Picking':'View Picking')+'</button>';
+      h+='<button class="btn btn-sm btn-secondary" onclick="revertOrder(\''+o.id+'\',\'pending\')" style="color:var(--yellow);border-color:rgba(234,179,8,.3)">'+(LANG==='es'?'Reversar':'Revert')+'</button>';
+    }
+    if(o.status==='packing'){
+      h+='<button class="btn btn-sm btn-primary" onclick="goTab(2)">'+(LANG==='es'?'Ver Packing':'View Packing')+'</button>';
+      h+='<button class="btn btn-sm btn-secondary" onclick="revertOrder(\''+o.id+'\',\'picking\')" style="color:var(--yellow);border-color:rgba(234,179,8,.3)">'+(LANG==='es'?'Reversar a Picking':'Revert to Picking')+'</button>';
+    }
+    if(o.status==='ready'){
+      h+='<button class="btn btn-sm btn-secondary" onclick="revertOrder(\''+o.id+'\',\'packing\')" style="color:var(--yellow);border-color:rgba(234,179,8,.3)">'+(LANG==='es'?'Reversar a Packing':'Revert to Packing')+'</button>';
+    }
+    h+='</div>';
     h+='</div></div>';
   }
   el.innerHTML=h;
@@ -809,6 +841,25 @@ completePacking = function() {
 };
 
 loadRealOrders();
+</script>
+<script>
+(function(){
+  var style=document.createElement('style');
+  style.textContent='@keyframes xdPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}.xd-dot{width:7px;height:7px;background:var(--orange,#f97316);border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle;animation:xdPulse 1.2s ease-in-out infinite}';
+  document.head.appendChild(style);
+  function checkXD(){
+    try{
+      var d=JSON.parse(localStorage.getItem('7g-dispatches')||'[]');
+      var pending=d.filter(function(x){return x.status!=='delivered'&&x.status!=='completed';});
+      var link=document.querySelector('.mod-link[data-t="modDisp"]');
+      if(!link)return;
+      var dot=link.querySelector('.xd-dot');
+      if(pending.length>0){if(!dot){dot=document.createElement('span');dot.className='xd-dot';dot.title=pending.length+' pending';link.appendChild(dot);}dot.title=pending.length+' pending';}
+      else if(dot){dot.remove();}
+    }catch(e){}
+  }
+  checkXD();setInterval(checkXD,5000);
+})();
 </script>
 </body>
 </html>
