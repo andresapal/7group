@@ -1110,7 +1110,6 @@ function sendNotifications(name, email, phone, company, industry, dayName, dateS
 
     fetch(MAIL_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'send',
         to: email,
@@ -1118,9 +1117,10 @@ function sendNotifications(name, email, phone, company, industry, dayName, dateS
         html: confirmHtml,
         cc: '7groupcorp@zohomail.com'
       }),
-      redirect: 'follow'
-    }).then(function(r){ return r.json(); }).then(function(d){
-      if (!d.ok) console.warn('Mail script error:', d.error);
+      redirect: 'follow',
+      mode: 'no-cors'
+    }).then(function(){
+      console.log('Mail script request sent');
     }).catch(function(e){ console.warn('Mail script fetch error:', e); });
   }
 }
