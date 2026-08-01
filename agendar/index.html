@@ -550,7 +550,8 @@ footer a:hover{color:var(--white)}
 // =============================================
 var TG_BOT   = "8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I";
 var TG_CHAT  = "1081707115";
-var W3F_KEY  = "76bc323e-4cf1-4c6c-9221-88d0f6261f7d";
+var W3F_KEY  = "1746964c-fa0e-418e-8d93-93b6dfb02f37";
+var MAIL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlZzW_lT8WhPRRea9M6mRAOhRyL3GP1LjUJrkeeq4F1PxIzp3Au-YGzzkfJ5UHJx-Y/exec";
 
 var SLOTS = [9, 9.5, 10, 10.5, 11, 11.5, 13, 13.5, 14, 14.5, 15, 15.5];
 var TRIAL_DAYS = 30;
@@ -1056,28 +1057,71 @@ function sendNotifications(name, email, phone, company, industry, dayName, dateS
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: TG_CHAT, text: tg, parse_mode: 'Markdown' })
-    }).catch(function(){});
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (!d.ok) console.warn('Telegram send error:', d.description);
+    }).catch(function(e){ console.warn('Telegram fetch error:', e); });
   }
 
   if (W3F_KEY) {
+    var adminBody = {
+      access_key: W3F_KEY,
+      subject: 'Nueva cita 7Group - ' + name + ' (' + langLabel + ')',
+      from_name: '7Group Calendar',
+      replyto: email,
+      name: name,
+      email: email,
+      phone: phone || '-',
+      company: company || '-',
+      industry: industry,
+      schedule: scheduleStr,
+      trial_expires: trialStr,
+      language: langLabel
+    };
     fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(adminBody)
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (!d.success) console.warn('W3F admin error:', d.message);
+    }).catch(function(e){ console.warn('W3F admin fetch error:', e); });
+  }
+
+  if (email && MAIL_SCRIPT_URL) {
+    var confirmSubject = lang === 'en'
+      ? 'Your appointment with 7Group is confirmed'
+      : 'Tu cita con 7Group esta confirmada';
+    var confirmHtml = lang === 'en'
+      ? '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px">'
+        + '<div style="text-align:center;padding:16px 0;border-bottom:2px solid #00e5ff"><h1 style="margin:0;color:#0d1b2a;font-size:22px">7Group</h1></div>'
+        + '<p style="margin:20px 0 8px">Hi <strong>' + name + '</strong>,</p>'
+        + '<p>Your appointment has been confirmed:</p>'
+        + '<div style="background:#f4f7fa;border-left:4px solid #00e5ff;padding:14px 18px;margin:16px 0;border-radius:4px">'
+        + '<strong>' + scheduleStr + '</strong></div>'
+        + '<p>We will contact you shortly to discuss how 7Group can help your business.</p>'
+        + '<p style="margin-top:24px">Thank you!<br><strong>7Group Team</strong></p></div>'
+      : '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px">'
+        + '<div style="text-align:center;padding:16px 0;border-bottom:2px solid #00e5ff"><h1 style="margin:0;color:#0d1b2a;font-size:22px">7Group</h1></div>'
+        + '<p style="margin:20px 0 8px">Hola <strong>' + name + '</strong>,</p>'
+        + '<p>Tu cita ha sido confirmada:</p>'
+        + '<div style="background:#f4f7fa;border-left:4px solid #00e5ff;padding:14px 18px;margin:16px 0;border-radius:4px">'
+        + '<strong>' + scheduleStr + '</strong></div>'
+        + '<p>Nos comunicaremos contigo pronto para hablar sobre como 7Group puede ayudar a tu negocio.</p>'
+        + '<p style="margin-top:24px">Gracias!<br><strong>Equipo 7Group</strong></p></div>';
+
+    fetch(MAIL_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        access_key: W3F_KEY,
-        subject: 'Nueva cita 7Group - ' + name + ' (' + langLabel + ')',
-        from_name: '7Group Calendar',
-        replyto: '7groupcorp@zohomail.com',
-        name: name,
-        email: email,
-        phone: phone || '-',
-        company: company || '-',
-        industry: industry,
-        schedule: scheduleStr,
-        trial_expires: trialStr,
-        language: langLabel
-      })
-    }).catch(function(){});
+        action: 'send',
+        to: email,
+        subject: confirmSubject,
+        html: confirmHtml,
+        cc: '7groupcorp@zohomail.com'
+      }),
+      redirect: 'follow'
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (!d.ok) console.warn('Mail script error:', d.error);
+    }).catch(function(e){ console.warn('Mail script fetch error:', e); });
   }
 }
 
