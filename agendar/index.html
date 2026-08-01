@@ -438,8 +438,8 @@ footer a:hover{color:var(--white)}
         <input type="text" id="inputName" placeholder="Tu nombre" autocomplete="name" required>
       </div>
       <div class="form-group">
-        <label id="lCompany">Empresa</label>
-        <input type="text" id="inputCompany" placeholder="Nombre de tu empresa" autocomplete="organization">
+        <label id="lCompany">Empresa *</label>
+        <input type="text" id="inputCompany" placeholder="Nombre de tu empresa" autocomplete="organization" required>
       </div>
     </div>
     <div class="form-row">
@@ -448,12 +448,12 @@ footer a:hover{color:var(--white)}
         <input type="email" id="inputEmail" placeholder="tu@correo.com" autocomplete="email" required>
       </div>
       <div class="form-group">
-        <label id="lPhone">Telefono / WhatsApp</label>
-        <input type="tel" id="inputPhone" placeholder="+57 300 000 0000" autocomplete="tel">
+        <label id="lPhone">Telefono / WhatsApp *</label>
+        <input type="tel" id="inputPhone" placeholder="+57 300 000 0000" autocomplete="tel" required>
       </div>
     </div>
     <div class="form-group">
-      <label id="lIndustry">Tipo de negocio</label>
+      <label id="lIndustry">Tipo de negocio *</label>
       <select id="inputIndustry">
         <option value="" id="optIndDefault">-- Selecciona --</option>
         <option value="logistica">Logistica / Distribucion / Supply Chain</option>
@@ -595,8 +595,8 @@ var T = {
     stepL1:'Datos', stepL2:'Horario', stepL3:'Listo',
     p1Title:'Cuentanos sobre ti',
     p1Sub:'Para preparar tu reunion y personalizar la demostracion.',
-    lName:'Nombre *', lCompany:'Empresa', lEmail:'Correo electronico *',
-    lPhone:'Telefono / WhatsApp', lIndustry:'Tipo de negocio',
+    lName:'Nombre *', lCompany:'Empresa *', lEmail:'Correo electronico *',
+    lPhone:'Telefono / WhatsApp *', lIndustry:'Tipo de negocio *',
     phName:'Tu nombre', phCompany:'Nombre de tu empresa',
     phEmail:'tu@correo.com', phPhone:'+57 300 000 0000',
     optIndDefault:'-- Selecciona --',
@@ -645,8 +645,8 @@ var T = {
     stepL1:'Info', stepL2:'Schedule', stepL3:'Done',
     p1Title:'Tell us about you',
     p1Sub:'So we can prepare your meeting and personalize the demo.',
-    lName:'Name *', lCompany:'Company', lEmail:'Email *',
-    lPhone:'Phone / WhatsApp', lIndustry:'Business type',
+    lName:'Name *', lCompany:'Company *', lEmail:'Email *',
+    lPhone:'Phone / WhatsApp *', lIndustry:'Business type *',
     phName:'Your name', phCompany:'Company name',
     phEmail:'you@email.com', phPhone:'+1 555 000 0000',
     optIndDefault:'-- Select --',
@@ -964,8 +964,11 @@ function goStep1() {
 function goStep2() {
   var name = document.getElementById('inputName').value.trim();
   var email = document.getElementById('inputEmail').value.trim();
+  var phone = document.getElementById('inputPhone').value.trim();
+  var company = document.getElementById('inputCompany').value.trim();
+  var industry = document.getElementById('inputIndustry');
 
-  if (!name || !email) {
+  if (!name || !email || !phone || !company || industry.selectedIndex === 0) {
     alert(t.errRequired);
     return;
   }
