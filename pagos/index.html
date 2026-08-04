@@ -477,6 +477,97 @@
     .faq-item.open .faq-toggle { transform: rotate(45deg); }
     @media (max-width: 600px) { .faq-section { padding: 60px 20px; } }
 
+    /* -- ACTIVATION MODAL -- */
+    .act-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .act-overlay.open { display: flex; }
+    .act-modal {
+      background: var(--white); width: 100%; max-width: 480px;
+      max-height: 90vh; overflow-y: auto;
+      position: relative;
+    }
+    .act-close {
+      position: absolute; top: 16px; right: 18px;
+      background: none; border: none; font-size: 22px;
+      cursor: pointer; color: var(--gray); line-height: 1;
+    }
+    .act-close:hover { color: var(--black); }
+    .act-header {
+      padding: 36px 32px 0;
+    }
+    .act-badge {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 12px;
+    }
+    .act-header h3 {
+      font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .act-header p {
+      font-size: 0.85rem; color: var(--gray); line-height: 1.6;
+    }
+    .act-form { padding: 24px 32px 32px; }
+    .act-field { margin-bottom: 16px; }
+    .act-field label {
+      display: block; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.5px; text-transform: uppercase;
+      color: var(--gray); margin-bottom: 6px;
+    }
+    .act-field input, .act-field select {
+      width: 100%; padding: 12px 14px; font-size: 14px;
+      font-family: inherit; border: 1px solid var(--light);
+      background: var(--white); color: var(--black);
+      outline: none; transition: border-color .2s;
+    }
+    .act-field input:focus, .act-field select:focus {
+      border-color: var(--cyan);
+    }
+    .act-field input.act-err, .act-field select.act-err {
+      border-color: var(--red);
+    }
+    .act-plan-tag {
+      display: inline-block; padding: 6px 14px;
+      font-size: 13px; font-weight: 600;
+      background: var(--black); color: var(--white);
+      letter-spacing: 0.3px;
+    }
+    .act-submit {
+      width: 100%; padding: 15px; font-size: 14px;
+      font-weight: 700; font-family: inherit;
+      background: var(--cyan); color: var(--black);
+      border: none; cursor: pointer; transition: .2s;
+      letter-spacing: 0.2px; margin-top: 8px;
+    }
+    .act-submit:hover { background: #7bf0ff; }
+    .act-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .act-note {
+      font-size: 12px; color: var(--gray); text-align: center;
+      margin-top: 12px; line-height: 1.5;
+    }
+    .act-success {
+      text-align: center; padding: 48px 32px;
+    }
+    .act-success-icon {
+      width: 48px; height: 48px; margin: 0 auto 20px;
+      border: 2px solid var(--cyan); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .act-success-icon svg { width: 24px; height: 24px; stroke: var(--cyan); fill: none; stroke-width: 2.5; }
+    .act-success h3 {
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 12px;
+    }
+    .act-success p {
+      font-size: 0.9rem; color: var(--gray); line-height: 1.6;
+      max-width: 340px; margin: 0 auto;
+    }
+    @media (max-width: 600px) {
+      .act-header, .act-form { padding-left: 20px; padding-right: 20px; }
+    }
+
     /* -- FOOTER -- */
     footer { padding: 32px 48px; border-top: 1px solid var(--light); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
     .footer-logo { font-size: 14px; font-weight: 700; letter-spacing: -0.5px; color: var(--black); text-decoration: none; }
@@ -548,7 +639,7 @@
             <li>Onboarding del equipo (2 sesiones)</li>
             <li>90 dias de soporte dedicado post-lanzamiento</li>
           </ul>
-          <a href="https://7group.site/agendar/" class="plan-cta plan-cta-secondary" id="tPlan2Cta">Solicitar propuesta</a>
+          <a href="javascript:void(0)" onclick="openAct(2)" class="plan-cta plan-cta-secondary" id="tPlan2Cta">Solicitar propuesta</a>
         </div>
 
         <!-- SUSCRIPCION -->
@@ -567,7 +658,7 @@
             <li>Soporte prioritario por WhatsApp</li>
             <li>Dashboard de resultados en tiempo real</li>
           </ul>
-          <a href="https://7group.site/agendar/" class="plan-cta plan-cta-outline" id="tPlan3Cta">Ver opciones</a>
+          <a href="javascript:void(0)" onclick="openAct(3)" class="plan-cta plan-cta-outline" id="tPlan3Cta">Ver opciones</a>
         </div>
 
       </div>
@@ -781,6 +872,51 @@
 
   </main>
 
+  <!-- ACTIVATION MODAL -->
+  <div class="act-overlay" id="actOverlay" onclick="if(event.target===this)closeAct()">
+    <div class="act-modal">
+      <button class="act-close" onclick="closeAct()">&times;</button>
+      <div id="actFormView">
+        <div class="act-header">
+          <p class="act-badge" id="actBadge">Activar plan</p>
+          <h3 id="actTitle">Solicitar activacion</h3>
+          <p id="actDesc">Completa tus datos y un especialista te contactara por WhatsApp para coordinar el pago y la activacion.</p>
+        </div>
+        <div class="act-form">
+          <div class="act-field">
+            <label id="actLblPlan">Plan seleccionado</label>
+            <div class="act-plan-tag" id="actPlanTag">—</div>
+          </div>
+          <div class="act-field">
+            <label id="actLblName">Nombre completo *</label>
+            <input type="text" id="actName" autocomplete="name">
+          </div>
+          <div class="act-field">
+            <label id="actLblEmail">Correo corporativo *</label>
+            <input type="email" id="actEmail" autocomplete="email">
+          </div>
+          <div class="act-field">
+            <label id="actLblPhone">Telefono / WhatsApp *</label>
+            <input type="tel" id="actPhone" autocomplete="tel">
+          </div>
+          <div class="act-field">
+            <label id="actLblCompany">Empresa *</label>
+            <input type="text" id="actCompany" autocomplete="organization">
+          </div>
+          <button class="act-submit" id="actSubmit" onclick="submitAct()">Enviar solicitud</button>
+          <p class="act-note" id="actNote">Sin compromiso. Te contactamos en menos de 2 horas.</p>
+        </div>
+      </div>
+      <div id="actSuccessView" style="display:none">
+        <div class="act-success">
+          <div class="act-success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h3 id="actSuccessTitle">Solicitud recibida</h3>
+          <p id="actSuccessMsg">Un especialista te contactara por WhatsApp para coordinar los detalles del pago y la activacion de tu plan.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <a href="https://7group.site" class="footer-logo">7group</a>
     <div class="footer-links">
@@ -860,7 +996,16 @@ var T = {
       {q:'Puedo cancelar la suscripcion mensual?',a:'Si, en cualquier momento con 15 dias de aviso. No hay penalidades por cancelacion anticipada.'},
       {q:'Tienen precios para el mercado de Estados Unidos?',a:'Si. Para clientes en Florida, Georgia y Texas cotizamos en USD. Escribenos y preparamos una propuesta adaptada a tu mercado.'}
     ],
-    fLink1:'Inicio', fLink2:'Agentes', fLink3:'Contacto'
+    fLink1:'Inicio', fLink2:'Agentes', fLink3:'Contacto',
+    actBadge:'Activar plan', actTitle:'Solicitar activacion',
+    actDesc:'Completa tus datos y un especialista te contactara por WhatsApp para coordinar el pago y la activacion.',
+    actLblPlan:'Plan seleccionado', actLblName:'Nombre completo *', actLblEmail:'Correo corporativo *',
+    actLblPhone:'Telefono / WhatsApp *', actLblCompany:'Empresa *',
+    actSubmit:'Enviar solicitud', actNote:'Sin compromiso. Te contactamos en menos de 2 horas.',
+    actSuccessTitle:'Solicitud recibida',
+    actSuccessMsg:'Un especialista te contactara por WhatsApp para coordinar los detalles del pago y la activacion de tu plan.',
+    actPlan2:'Implementacion Completa — desde $10M COP',
+    actPlan3:'Operacion Continua — desde $1.1M COP/mes'
   },
   en: {
     heroLabel:'Plans & Pricing',
@@ -925,7 +1070,16 @@ var T = {
       {q:'Can I cancel the monthly subscription?',a:'Yes, at any time with 15 days notice. No cancellation penalties.'},
       {q:'Do you have pricing for the US market?',a:'Yes. For clients in Florida, Georgia and Texas we quote in USD. Contact us and we\'ll prepare a proposal adapted to your market.'}
     ],
-    fLink1:'Home', fLink2:'Agents', fLink3:'Contact'
+    fLink1:'Home', fLink2:'Agents', fLink3:'Contact',
+    actBadge:'Activate plan', actTitle:'Request activation',
+    actDesc:'Fill in your details and a specialist will contact you via WhatsApp to coordinate payment and activation.',
+    actLblPlan:'Selected plan', actLblName:'Full name *', actLblEmail:'Corporate email *',
+    actLblPhone:'Phone / WhatsApp *', actLblCompany:'Company *',
+    actSubmit:'Send request', actNote:'No commitment. We contact you in less than 2 hours.',
+    actSuccessTitle:'Request received',
+    actSuccessMsg:'A specialist will contact you via WhatsApp to coordinate payment details and activate your plan.',
+    actPlan2:'Full Implementation — from $10M COP',
+    actPlan3:'Ongoing Operations — from $1.1M COP/month'
   }
 };
 
@@ -1059,6 +1213,102 @@ function detectLang(){
 
 lang=detectLang();
 applyLang();
+
+/* ── Activation Modal ── */
+var TG_BOT='8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I';
+var TG_CHAT='1081707115';
+var W3F_KEY='1746964c-fa0e-418e-8d93-93b6dfb02f37';
+var actPlan=0;
+
+window.openAct=function(plan){
+  actPlan=plan;
+  var t=T[lang];
+  document.getElementById('actBadge').textContent=t.actBadge;
+  document.getElementById('actTitle').textContent=t.actTitle;
+  document.getElementById('actDesc').textContent=t.actDesc;
+  document.getElementById('actLblPlan').textContent=t.actLblPlan;
+  document.getElementById('actLblName').textContent=t.actLblName;
+  document.getElementById('actLblEmail').textContent=t.actLblEmail;
+  document.getElementById('actLblPhone').textContent=t.actLblPhone;
+  document.getElementById('actLblCompany').textContent=t.actLblCompany;
+  document.getElementById('actSubmit').textContent=t.actSubmit;
+  document.getElementById('actNote').textContent=t.actNote;
+  document.getElementById('actPlanTag').textContent=plan===2?t.actPlan2:t.actPlan3;
+  document.getElementById('actFormView').style.display='';
+  document.getElementById('actSuccessView').style.display='none';
+  document.getElementById('actName').value='';
+  document.getElementById('actEmail').value='';
+  document.getElementById('actPhone').value='';
+  document.getElementById('actCompany').value='';
+  document.querySelectorAll('.act-err').forEach(function(e){e.classList.remove('act-err');});
+  document.getElementById('actSubmit').disabled=false;
+  document.getElementById('actOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+};
+
+window.closeAct=function(){
+  document.getElementById('actOverlay').classList.remove('open');
+  document.body.style.overflow='';
+};
+
+window.submitAct=function(){
+  var name=document.getElementById('actName').value.trim();
+  var email=document.getElementById('actEmail').value.trim();
+  var phone=document.getElementById('actPhone').value.trim();
+  var company=document.getElementById('actCompany').value.trim();
+  var ok=true;
+  [['actName',name],['actEmail',email],['actPhone',phone],['actCompany',company]].forEach(function(pair){
+    var el=document.getElementById(pair[0]);
+    if(!pair[1]){el.classList.add('act-err');ok=false;}else{el.classList.remove('act-err');}
+  });
+  if(!ok)return;
+
+  var btn=document.getElementById('actSubmit');
+  btn.disabled=true;
+  btn.textContent=lang==='es'?'Enviando...':'Sending...';
+
+  var t=T[lang];
+  var planLabel=actPlan===2?t.actPlan2:t.actPlan3;
+
+  var tgMsg='NUEVA SOLICITUD DE PLAN\n\n'
+    +'Plan: '+planLabel+'\n'
+    +'Nombre: '+name+'\n'
+    +'Email: '+email+'\n'
+    +'Telefono: '+phone+'\n'
+    +'Empresa: '+company+'\n'
+    +'Idioma: '+lang.toUpperCase()+'\n'
+    +'Fuente: pagos/';
+  fetch('https://api.telegram.org/bot'+TG_BOT+'/sendMessage',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:TG_CHAT,text:tgMsg,parse_mode:'HTML'})
+  }).catch(function(){});
+
+  var w3f=new FormData();
+  w3f.append('access_key',W3F_KEY);
+  w3f.append('subject','Solicitud de plan: '+planLabel);
+  w3f.append('from_name','7group Pagos');
+  w3f.append('Plan',planLabel);
+  w3f.append('Nombre',name);
+  w3f.append('Email',email);
+  w3f.append('Telefono',phone);
+  w3f.append('Empresa',company);
+  w3f.append('Idioma',lang.toUpperCase());
+  w3f.append('replyto',email);
+  fetch('https://api.web3forms.com/submit',{method:'POST',body:w3f}).catch(function(){});
+
+  setTimeout(function(){
+    document.getElementById('actFormView').style.display='none';
+    var sv=document.getElementById('actSuccessView');
+    sv.style.display='';
+    document.getElementById('actSuccessTitle').textContent=t.actSuccessTitle;
+    document.getElementById('actSuccessMsg').textContent=t.actSuccessMsg;
+  },800);
+};
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape')closeAct();
+});
+
 })();
 </script>
 
