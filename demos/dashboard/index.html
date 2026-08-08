@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CEO Dashboard -- 7Group Logistica</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --cyan:#0e7490;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.auth-gate.hidden{opacity:0;pointer-events:none}
+.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:20px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:rgba(94,231,247,.15)}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;gap:0}
+.mod-link{padding:12px 20px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
+
+.main{max-width:1200px;margin:0 auto;padding:24px}
+
+.hero-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.hero-kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.hero-kpi-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.hero-kpi-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:8px}
+.hero-kpi-val{font-size:32px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;line-height:1}
+.hero-kpi-change{font-size:11px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:4px}
+.hero-kpi-change.up{color:var(--green)}.hero-kpi-change.down{color:var(--red)}
+.hero-kpi-sub{font-size:10px;color:var(--dim);margin-top:4px}
+
+.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.sec-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.sec-title{font-size:13px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:8px}
+.sec-body{padding:20px}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:140px;padding:10px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bar{border-radius:4px 4px 0 0;transition:height .6s;min-width:16px;width:100%}
+.bar-val{font-size:9px;font-weight:700;color:var(--white);font-family:'JetBrains Mono',monospace;text-align:center}
+.bar-label{font-size:8px;color:var(--dim);font-weight:600;white-space:nowrap;text-align:center}
+
+.mini-kpi{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:14px 16px}
+.mini-kpi-val{font-size:20px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+.mini-kpi-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.mini-kpi-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:8px}
+.mini-kpi-fill{height:100%;border-radius:2px;transition:width .6s}
+
+.tbl-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border2);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--white);white-space:nowrap}
+.tbl tr:hover td{background:rgba(94,231,247,.02)}
+
+.donut-wrap{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.donut-svg{width:120px;height:120px;flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:8px}
+.donut-leg-item{display:flex;align-items:center;gap:8px;font-size:11px}
+.donut-leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.donut-leg-val{font-family:'JetBrains Mono',monospace;font-weight:600;margin-left:auto;min-width:40px;text-align:right}
+
+.alert-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.alert-row:last-child{border:none}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.alert-text{font-size:12px;color:var(--white);flex:1}
+.alert-time{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+
+.foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+@media(max-width:640px){
+  .main{padding:12px}
+  .hero-kpis{grid-template-columns:1fr 1fr;gap:8px}
+  .hero-kpi{padding:12px 14px}
+  .hero-kpi-val{font-size:22px}
+  .hero-kpi-label{font-size:9px}
+  .hero-kpi-change{font-size:10px}
+  .hero-kpi-sub{font-size:9px}
+  .topbar{padding:0 12px;height:48px}
+  .tb-right{gap:4px}
+  .tb-badge{font-size:8px;letter-spacing:1.5px}
+  .mod-nav{padding:0 8px}
+  .mod-link{padding:10px 12px;font-size:10px}
+  .sec-head{padding:12px 14px}
+  .sec-title{font-size:11px}
+  .sec-body{padding:12px 14px}
+  .mini-kpi{padding:10px 12px}
+  .mini-kpi-val{font-size:16px}
+  .mini-kpi-label{font-size:9px}
+  .tbl th,.tbl td{padding:6px 8px;font-size:10px}
+  .donut-svg{width:90px;height:90px}
+  .donut-leg-item{font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc" data-t="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-divider"></div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:8px">O ingrese con PIN de operador:</div>
+    <div style="display:flex;gap:6px;justify-content:center">
+      <input type="password" id="pinInput" maxlength="4" placeholder="PIN" style="width:80px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:14px;text-align:center;letter-spacing:4px" onkeydown="if(event.key==='Enter')checkPin()">
+      <button onclick="checkPin()" style="padding:8px 14px;background:rgba(94,231,247,.1);border:1px solid rgba(94,231,247,.2);border-radius:6px;color:var(--cyan);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">OK</button>
+    </div>
+    <div class="auth-error" id="authError" data-t="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-error" id="pinError" style="display:none">PIN incorrecto.</div>
+    <div class="auth-footer" data-t="authFooter">Solo personal autorizado</div>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
+
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="badge">CEO Dashboard</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+  </div>
+</nav>
+
+<div class="mod-nav">
+  <a href="/demos/" class="mod-link" data-t="modPortal">Portal</a>
+  <a href="/demos/clientes/" class="mod-link" data-t="modClients">Clientes</a>
+  <a href="/demos/dashboard/" class="mod-link active" data-t="modDash">Dashboard</a>
+</div>
+
+<div class="main">
+
+<div class="hero-kpis" id="heroKpis"></div>
+
+<div class="grid-2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secUnits">Unidades Despachadas / Semana</div>
+    </div>
+    <div class="sec-body">
+      <div class="bar-chart" id="unitsChart"></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secOrders">Ordenes por Semana</div>
+    </div>
+    <div class="sec-body">
+      <div class="bar-chart" id="ordersChart"></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secOpsScore">Puntaje Operativo</div>
+    </div>
+    <div class="sec-body" id="opsScorePanel"></div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secInvHealth">Salud del Inventario</div>
+    </div>
+    <div class="sec-body" id="invHealthPanel"></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secCarrierMix">Distribucion por Transportista</div>
+    </div>
+    <div class="sec-body" id="carrierDonut"></div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secWhUtil">Utilizacion de Bodega</div>
+    </div>
+    <div class="sec-body" id="whUtilPanel"></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secActivity">Actividad Reciente</div>
+    </div>
+    <div class="sec-body">
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th data-t="thEvent">Evento</th>
+            <th data-t="thModule">Modulo</th>
+            <th data-t="thTime">Hora</th>
+            <th data-t="thStatus">Estado</th>
+          </tr></thead>
+          <tbody id="activityBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" data-t="secAlerts">Alertas Activas</div>
+      <span style="font-size:11px;font-weight:700;color:var(--red);font-family:'JetBrains Mono',monospace" id="alertCount">0</span>
+    </div>
+    <div class="sec-body" id="alertsPanel"></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sec-head">
+    <div class="sec-title" data-t="secTopClients">Top Clientes</div>
+  </div>
+  <div class="sec-body">
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>#</th>
+          <th data-t="thClient">Cliente</th>
+          <th data-t="thOrders2">Ordenes</th>
+          <th data-t="thUnits">Unidades</th>
+          <th data-t="thOnTime">A Tiempo</th>
+          <th data-t="thShare">Participacion</th>
+        </tr></thead>
+        <tbody id="clientsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div>
+
+<script src="../firebase-config.js?v=2"></script>
+<script>
+/* =============== AUTH =============== */
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){document.getElementById('authGate').classList.add('hidden');document.getElementById('appWrap').classList.add('visible');}
+function checkPin(){var p=document.getElementById('pinInput').value;if(p==='2405'){sessionStorage.setItem('7g-auth','pin');unlockApp();}else{document.getElementById('pinError').style.display='block';document.getElementById('pinInput').value='';}}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+(function(){var s=sessionStorage.getItem('7g-auth');if(s&&(ALLOWED_EMAILS.indexOf(s)!==-1||s==='pin'))unlockApp();else initGoogleAuth();})();
+
+/* =============== THEME =============== */
+function toggleTheme(){var l=document.documentElement.classList.toggle('light');localStorage.setItem('7g-theme',l?'light':'dark');updateThemeButton(l);}
+function updateThemeButton(l){document.getElementById('themeToggle').innerHTML=l?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8.5a5.5 5.5 0 01-6-6 5.5 5.5 0 106 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
+(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();
+
+/* =============== LANG =============== */
+var LANG='es';
+(function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
+
+var T={
+  badge:{es:'CEO Dashboard',en:'CEO Dashboard'},
+  schedule:{es:'Agendar llamada',en:'Schedule a call'},
+  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modClients:{es:'Clientes',en:'Clients'},modDash:{es:'Dashboard',en:'Dashboard'},
+  secUnits:{es:'Unidades Despachadas / Semana',en:'Units Dispatched / Week'},
+  secOrders:{es:'Ordenes por Semana',en:'Orders per Week'},
+  secOpsScore:{es:'Puntaje Operativo',en:'Operations Score'},
+  secInvHealth:{es:'Salud del Inventario',en:'Inventory Health'},
+  secCarrierMix:{es:'Distribucion por Transportista',en:'Carrier Distribution'},
+  secWhUtil:{es:'Utilizacion de Bodega',en:'Warehouse Utilization'},
+  secActivity:{es:'Actividad Reciente',en:'Recent Activity'},
+  secAlerts:{es:'Alertas Activas',en:'Active Alerts'},
+  secTopClients:{es:'Top Clientes',en:'Top Clients'},
+  thEvent:{es:'Evento',en:'Event'},thModule:{es:'Modulo',en:'Module'},thTime:{es:'Hora',en:'Time'},thStatus:{es:'Estado',en:'Status'},
+  thClient:{es:'Cliente',en:'Client'},thOrders2:{es:'Ordenes',en:'Orders'},thUnits:{es:'Unidades',en:'Units'},thOnTime:{es:'A Tiempo',en:'On Time'},thShare:{es:'Participacion',en:'Share'},
+  kpiSKUs:{es:'SKUs en Inventario',en:'Inventory SKUs'},
+  kpiOrders:{es:'Ordenes de Despacho',en:'Dispatch Orders'},
+  kpiDeliveryRate:{es:'Tasa de Entrega',en:'Delivery Rate'},
+  kpiRecvDone:{es:'Recibos Completados',en:'Receipts Completed'},
+  lblAccuracy:{es:'Precision de Recibo',en:'Receiving Accuracy'},lblPickRate:{es:'Recibos Completos',en:'Completed Receipts'},lblOnTime:{es:'Entregas a Tiempo',en:'On-Time Delivery'},lblDamageRate:{es:'Tasa de Dano',en:'Damage Rate'},
+  lblInStock:{es:'En Stock',en:'In Stock'},lblLowStock:{es:'Stock Bajo',en:'Low Stock'},lblOutOfStock:{es:'Agotado',en:'Out of Stock'},lblOverstock:{es:'Sobre-stock',en:'Overstock'},
+  lblOccupied:{es:'Ocupadas',en:'Occupied'},lblAvailable:{es:'Disponibles',en:'Available'},lblCapacity:{es:'Capacidad',en:'Capacity'},lblTurnover:{es:'Rotacion',en:'Turnover'},
+  authDesc:{es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
+  authError:{es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
+  authFooter:{es:'Solo personal autorizado',en:'Authorized personnel only'}
+};
+function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.title=LANG==='es'?'CEO Dashboard -- 7Group Logistica':'CEO Dashboard -- 7Group Logistics';
+  var els=document.querySelectorAll('[data-t]');
+  for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
+  document.getElementById('langES').classList.toggle('active',LANG==='es');
+  document.getElementById('langEN').classList.toggle('active',LANG==='en');
+  document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
+  var lp=LANG==='en'?'?lang=en':'';
+  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/clientes/'+lp;
+  document.querySelector('.mod-link[data-t="modDash"]').href='/demos/dashboard/'+lp;
+  renderAll();
+}
+function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
+
+/* =============== DATA FROM LOCALSTORAGE =============== */
+var inventory=[],dispatches=[],receptions=[],shipments=[],activityLog=[],whZones=[];
+
+function loadAllData(){
+  try{inventory=JSON.parse(localStorage.getItem('7g-inventory')||'[]');}catch(e){inventory=[];}
+  try{dispatches=JSON.parse(localStorage.getItem('7g-dispatches')||'[]');}catch(e){dispatches=[];}
+  try{receptions=JSON.parse(localStorage.getItem('7g-receptions')||'[]');}catch(e){receptions=[];}
+  try{shipments=JSON.parse(localStorage.getItem('7g-shipments')||'[]');}catch(e){shipments=[];}
+  try{activityLog=JSON.parse(localStorage.getItem('7g-activity')||'[]');}catch(e){activityLog=[];}
+  try{whZones=JSON.parse(localStorage.getItem('7g-wh-zones')||'[]');}catch(e){whZones=[];}
+}
+
+function hasData(){return inventory.length>0||dispatches.length>0||receptions.length>0||shipments.length>0;}
+
+function getWeekNumber(d){var onejan=new Date(d.getFullYear(),0,1);return Math.ceil(((d-onejan)/86400000+onejan.getDay()+1)/7);}
+
+function computeInvHealth(){
+  var inStock=0,lowStock=0,outOfStock=0,overstock=0;
+  for(var i=0;i<inventory.length;i++){
+    var it=inventory[i];var qty=parseInt(it.qty)||0;var min=parseInt(it.minStock)||0;
+    if(qty<=0)outOfStock++;
+    else if(min>0&&qty<=min)lowStock++;
+    else if(min>0&&qty>min*3)overstock++;
+    else inStock++;
+  }
+  var total=inStock+lowStock+outOfStock+overstock;
+  if(total===0)return[{key:'lblInStock',val:0,pct:0,color:'var(--green)'},{key:'lblLowStock',val:0,pct:0,color:'var(--yellow)'},{key:'lblOutOfStock',val:0,pct:0,color:'var(--red)'},{key:'lblOverstock',val:0,pct:0,color:'var(--orange)'}];
+  return[
+    {key:'lblInStock',val:inStock,pct:Math.round(inStock/total*100),color:'var(--green)'},
+    {key:'lblLowStock',val:lowStock,pct:Math.round(lowStock/total*100),color:'var(--yellow)'},
+    {key:'lblOutOfStock',val:outOfStock,pct:Math.round(outOfStock/total*100),color:'var(--red)'},
+    {key:'lblOverstock',val:overstock,pct:Math.round(overstock/total*100),color:'var(--orange)'}
+  ];
+}
+
+function computeCarrierMix(){
+  var map={},total=0;
+  var colors=['var(--cyan)','var(--green)','var(--orange)','var(--yellow)','var(--purple)','var(--blue)'];
+  for(var i=0;i<dispatches.length;i++){var c=dispatches[i].carrier||'Unknown';if(!map[c])map[c]=0;map[c]++;total++;}
+  if(total===0)return[{name:'--',pct:100,color:'var(--muted)'}];
+  var arr=[];for(var k in map)arr.push({name:k,count:map[k]});
+  arr.sort(function(a,b){return b.count-a.count;});
+  var result=[];for(var j=0;j<arr.length&&j<6;j++)result.push({name:arr[j].name,pct:Math.round(arr[j].count/total*100),color:colors[j%colors.length]});
+  return result;
+}
+
+function computeWeeklyData(mode){
+  var weeks={};
+  for(var i=0;i<dispatches.length;i++){
+    var d=dispatches[i];var wk='W'+getWeekNumber(new Date(d.createdAt));
+    if(mode==='units'){var u=0;for(var j=0;j<d.items.length;j++)u+=d.items[j].qty;if(!weeks[wk])weeks[wk]=0;weeks[wk]+=u;}
+    else{if(!weeks[wk])weeks[wk]=0;weeks[wk]++;}
+  }
+  var keys=Object.keys(weeks).sort();
+  if(keys.length===0)return[{label:'--',val:0}];
+  var last7=keys.slice(-7);var arr=[];
+  for(var m=0;m<last7.length;m++)arr.push({label:last7[m],val:weeks[last7[m]]});
+  return arr;
+}
+
+function computeTopClients(){
+  var map={};
+  for(var i=0;i<dispatches.length;i++){
+    var d=dispatches[i];var c=d.client||'Unknown';
+    if(!map[c])map[c]={orders:0,units:0,delivered:0};
+    map[c].orders++;
+    var u=0;for(var j=0;j<d.items.length;j++)u+=d.items[j].qty;
+    map[c].units+=u;
+    if(d.status==='delivered')map[c].delivered++;
+  }
+  var arr=[],totalUnits=0;
+  for(var k in map){totalUnits+=map[k].units;arr.push({name:k,orders:map[k].orders,units:map[k].units,onTime:map[k].delivered>0?Math.round(map[k].delivered/map[k].orders*100):0});}
+  arr.sort(function(a,b){return b.units-a.units;});
+  for(var m=0;m<arr.length;m++)arr[m].share=totalUnits>0?Math.round(arr[m].units/totalUnits*100):0;
+  return arr;
+}
+
+function computeAlerts(){
+  var alerts=[];
+  for(var i=0;i<inventory.length;i++){
+    var it=inventory[i];var qty=parseInt(it.qty)||0;var min=parseInt(it.minStock)||0;
+    if(qty<=0)alerts.push({level:'red',text:it.sku+' '+it.name+' -- '+(LANG==='es'?'agotado':'out of stock')});
+    else if(min>0&&qty<=min)alerts.push({level:'yellow',text:it.sku+' -- '+qty+' '+(LANG==='es'?'disponibles (min: '+min+')':'available (min: '+min+')')});
+  }
+  for(var j=0;j<dispatches.length;j++){
+    var d=dispatches[j];
+    if(d.status==='shipped'&&d.shippedAt){
+      var age=Math.round((Date.now()-new Date(d.shippedAt).getTime())/86400000);
+      if(age>5)alerts.push({level:'yellow',text:d.id+' '+(LANG==='es'?'en transito '+age+' dias':'in transit '+age+' days')+' -> '+d.client});
+    }
+  }
+  if(whZones.length>0){
+    var usedZones=0;
+    for(var z=0;z<whZones.length;z++){var inUse=inventory.filter(function(it){return(it.location||'').indexOf(whZones[z].name)===0;}).length;if(inUse>0)usedZones++;}
+    var pct=Math.round(usedZones/whZones.length*100);
+    if(pct>=80)alerts.push({level:'cyan',text:(LANG==='es'?'Bodega al '+pct+'% de capacidad':'Warehouse at '+pct+'% capacity')});
+  }
+  return alerts;
+}
+
+/* =============== RENDER =============== */
+function renderAll(){renderHeroKPIs();renderUnitsChart();renderOrdersChart();renderOpsScore();renderInvHealth();renderCarrierDonut();renderWhUtil();renderActivity();renderAlerts();renderClients();}
+
+function renderHeroKPIs(){
+  var totalSKUs=inventory.length;
+  var totalUnits=0;for(var i=0;i<inventory.length;i++)totalUnits+=parseInt(inventory[i].qty)||0;
+  var dspTotal=dispatches.length;
+  var dspDelivered=dispatches.filter(function(d){return d.status==='delivered';}).length;
+  var dspActive=dispatches.filter(function(d){return d.status==='preparing'||d.status==='shipped';}).length;
+  var deliveryRate=dspTotal>0?Math.round(dspDelivered/dspTotal*100):0;
+  var recvDone=receptions.filter(function(r){return r.status==='completed';}).length;
+
+  var kpis=[
+    {label:t('kpiSKUs'),val:totalSKUs,change:totalUnits+' '+(LANG==='es'?'unidades en stock':'units in stock'),dir:'up',color:'var(--cyan)',sub:LANG==='es'?'SKUs unicos en inventario':'Unique SKUs in inventory'},
+    {label:t('kpiOrders'),val:dspTotal,change:dspActive+' '+(LANG==='es'?'activos':'active'),dir:'up',color:'var(--cyan)',sub:dspDelivered+' '+(LANG==='es'?'entregados':'delivered')},
+    {label:t('kpiDeliveryRate'),val:deliveryRate+'%',change:dspDelivered+'/'+dspTotal,dir:deliveryRate>=90?'up':'down',color:deliveryRate>=90?'var(--green)':'var(--yellow)',sub:LANG==='es'?'Tasa de entrega':'Delivery rate'},
+    {label:t('kpiRecvDone'),val:recvDone,change:shipments.length+' shipments',dir:'up',color:'var(--green)',sub:LANG==='es'?'Recibos completados':'Receipts completed'}
+  ];
+  var colors=['var(--cyan)','var(--cyan)','var(--green)','var(--green)'];
+  var h='';
+  for(var i=0;i<kpis.length;i++){
+    var k=kpis[i];
+    h+='<div class="hero-kpi"><div class="hero-kpi-accent" style="background:'+colors[i]+'"></div>'+
+      '<div class="hero-kpi-label">'+k.label+'</div>'+
+      '<div class="hero-kpi-val" style="color:'+k.color+'">'+k.val+'</div>'+
+      '<div class="hero-kpi-change '+k.dir+'">'+
+        (k.dir==='up'?'&#9650;':'&#9660;')+' '+k.change+
+      '</div>'+
+      '<div class="hero-kpi-sub">'+k.sub+'</div>'+
+    '</div>';
+  }
+  if(!hasData()){
+    h+='<div style="grid-column:1/-1;text-align:center;padding:12px"><button onclick="loadDemoData()" style="padding:8px 16px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">'+(LANG==='es'?'Cargar datos demo':'Load demo data')+'</button></div>';
+  }
+  document.getElementById('heroKpis').innerHTML=h;
+}
+
+function renderBarChart(id,data,color){
+  var max=0;for(var i=0;i<data.length;i++)if(data[i].val>max)max=data[i].val;
+  if(max===0)max=1;
+  var h='';
+  for(var i=0;i<data.length;i++){
+    var d=data[i];var pct=Math.round(d.val/max*100);
+    h+='<div class="bar-col"><div class="bar-val">'+d.val+'</div><div class="bar" style="height:'+pct+'%;background:'+color+'"></div><div class="bar-label">'+d.label+'</div></div>';
+  }
+  document.getElementById(id).innerHTML=h;
+}
+
+function renderUnitsChart(){renderBarChart('unitsChart',computeWeeklyData('units'),'var(--green)');}
+function renderOrdersChart(){renderBarChart('ordersChart',computeWeeklyData('orders'),'var(--cyan)');}
+
+function renderOpsScore(){
+  var recvTotal=receptions.length;var recvDone=receptions.filter(function(r){return r.status==='completed';}).length;
+  var accuracy=recvTotal>0?Math.round(recvDone/recvTotal*100):0;
+  var dspTotal=dispatches.length;var dspDel=dispatches.filter(function(d){return d.status==='delivered';}).length;
+  var onTimeRate=dspTotal>0?Math.round(dspDel/dspTotal*100):0;
+  var damageShips=shipments.filter(function(s){return s.hasDamage||s.damagePhotos>0||(s.damageNotes&&s.damageNotes.length>0);}).length;
+  var damageRate=shipments.length>0?Math.round(damageShips/shipments.length*100*10)/10:0;
+
+  var scores=[
+    {key:'lblAccuracy',val:accuracy,color:accuracy>=90?'var(--green)':accuracy>=70?'var(--yellow)':'var(--red)',unit:'%'},
+    {key:'lblPickRate',val:recvDone,color:'var(--cyan)',unit:''},
+    {key:'lblOnTime',val:onTimeRate,color:onTimeRate>=90?'var(--green)':onTimeRate>=70?'var(--yellow)':'var(--red)',unit:'%'},
+    {key:'lblDamageRate',val:damageRate,color:damageRate<=2?'var(--green)':damageRate<=5?'var(--yellow)':'var(--red)',unit:'%',invert:true}
+  ];
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  for(var i=0;i<scores.length;i++){
+    var s=scores[i];var pct=s.invert?Math.max(100-s.val*10,0):(s.unit?s.val:Math.min(s.val*10,100));
+    h+='<div class="mini-kpi"><div class="mini-kpi-val" style="color:'+s.color+'">'+s.val+s.unit+'</div><div class="mini-kpi-label">'+t(s.key)+'</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+pct+'%;background:'+s.color+'"></div></div></div>';
+  }
+  h+='</div>';
+  document.getElementById('opsScorePanel').innerHTML=h;
+}
+
+function renderInvHealth(){
+  var data=computeInvHealth();
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  for(var i=0;i<data.length;i++){
+    var item=data[i];
+    h+='<div class="mini-kpi"><div class="mini-kpi-val" style="color:'+item.color+'">'+item.val+'</div><div class="mini-kpi-label">'+t(item.key)+' ('+item.pct+'%)</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+item.pct+'%;background:'+item.color+'"></div></div></div>';
+  }
+  h+='</div>';
+  document.getElementById('invHealthPanel').innerHTML=h;
+}
+
+function renderCarrierDonut(){
+  var mix=computeCarrierMix();
+  var size=120,cx=60,cy=60,r=48,sw=18;var circ=2*Math.PI*r;
+  var svg='<svg class="donut-svg" viewBox="0 0 '+size+' '+size+'">';
+  var offset=0;
+  for(var i=0;i<mix.length;i++){
+    var c=mix[i];var len=circ*c.pct/100;var gap=circ-len;
+    svg+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+c.color+'" stroke-width="'+sw+'" stroke-dasharray="'+len+' '+gap+'" stroke-dashoffset="'+(-offset)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+    offset+=len;
+  }
+  svg+='<text x="'+cx+'" y="'+cy+'" text-anchor="middle" dominant-baseline="central" style="font-size:14px;font-weight:800;fill:var(--white);font-family:Plus Jakarta Sans">'+dispatches.length+'</text></svg>';
+  var legend='<div class="donut-legend">';
+  for(var i=0;i<mix.length;i++){var c=mix[i];legend+='<div class="donut-leg-item"><div class="donut-leg-dot" style="background:'+c.color+'"></div><span>'+c.name+'</span><span class="donut-leg-val">'+c.pct+'%</span></div>';}
+  legend+='</div>';
+  document.getElementById('carrierDonut').innerHTML='<div class="donut-wrap">'+svg+legend+'</div>';
+}
+
+function renderWhUtil(){
+  var totalZones=whZones.length||1;var occupied=0;
+  for(var i=0;i<whZones.length;i++){var inUse=inventory.filter(function(it){return(it.location||'').indexOf(whZones[i].name)===0;}).length;if(inUse>0)occupied++;}
+  var pct=whZones.length>0?Math.round(occupied/totalZones*100):0;
+  var turnover=dispatches.length>0&&inventory.length>0?Math.round(dispatches.filter(function(d){return d.status==='delivered';}).length/inventory.length*10)/10:0;
+  var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+    '<div class="mini-kpi"><div class="mini-kpi-val" style="color:var(--cyan)">'+occupied+'/'+totalZones+'</div><div class="mini-kpi-label">'+t('lblOccupied')+'</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+pct+'%;background:var(--cyan)"></div></div></div>'+
+    '<div class="mini-kpi"><div class="mini-kpi-val" style="color:var(--green)">'+(totalZones-occupied)+'</div><div class="mini-kpi-label">'+t('lblAvailable')+'</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+(100-pct)+'%;background:var(--green)"></div></div></div>'+
+    '<div class="mini-kpi"><div class="mini-kpi-val" style="color:var(--yellow)">'+pct+'%</div><div class="mini-kpi-label">'+t('lblCapacity')+'</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+pct+'%;background:'+(pct>80?'var(--orange)':'var(--yellow)')+'"></div></div></div>'+
+    '<div class="mini-kpi"><div class="mini-kpi-val" style="color:var(--purple)">'+turnover+'x</div><div class="mini-kpi-label">'+t('lblTurnover')+'</div><div class="mini-kpi-bar"><div class="mini-kpi-fill" style="width:'+(Math.min(turnover/6*100,100))+'%;background:var(--purple)"></div></div></div>'+
+  '</div>';
+  document.getElementById('whUtilPanel').innerHTML=h;
+}
+
+function renderActivity(){
+  var acts=activityLog.slice(0,12);
+  var h='';
+  if(acts.length===0){h='<tr><td colspan="4" style="text-align:center;color:var(--dim);font-size:12px;padding:20px">'+(LANG==='es'?'Sin actividad registrada':'No activity recorded')+'</td></tr>';}
+  for(var i=0;i<acts.length;i++){
+    var a=acts[i];var ts=new Date(a.time);
+    var timeStr=ts.getHours().toString().padStart(2,'0')+':'+ts.getMinutes().toString().padStart(2,'0');
+    var stColor=a.action==='dispatch'||a.action==='ship'?'var(--cyan)':a.action==='deliver'?'var(--green)':a.action==='cancel-return'?'var(--red)':'var(--dim)';
+    var mod=a.action==='dispatch'||a.action==='ship'||a.action==='deliver'?'Dispatches':a.action==='cancel-return'?'Inventory':'Operations';
+    h+='<tr><td style="max-width:220px;white-space:normal;font-size:11px">'+(a.sku||'')+' '+(a.detail||a.action)+'</td><td style="font-size:11px;color:var(--dim)">'+mod+'</td><td style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--cyan)">'+timeStr+'</td><td style="font-size:10px;font-weight:600;color:'+stColor+'">'+a.action+'</td></tr>';
+  }
+  document.getElementById('activityBody').innerHTML=h;
+}
+
+function renderAlerts(){
+  var alerts=computeAlerts();
+  document.getElementById('alertCount').textContent=alerts.length;
+  if(alerts.length===0){document.getElementById('alertsPanel').innerHTML='<div style="text-align:center;color:var(--dim);font-size:12px;padding:20px">'+(LANG==='es'?'Sin alertas activas':'No active alerts')+'</div>';return;}
+  var h='';
+  for(var i=0;i<alerts.length;i++){
+    var a=alerts[i];var dotColor=a.level==='red'?'var(--red)':a.level==='yellow'?'var(--yellow)':'var(--cyan)';
+    h+='<div class="alert-row"><div class="alert-dot" style="background:'+dotColor+'"></div><div class="alert-text">'+a.text+'</div></div>';
+  }
+  document.getElementById('alertsPanel').innerHTML=h;
+}
+
+function renderClients(){
+  var clients=computeTopClients();
+  if(clients.length===0){document.getElementById('clientsBody').innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--dim);font-size:12px;padding:20px">'+(LANG==='es'?'Sin datos de clientes':'No client data')+'</td></tr>';return;}
+  var h='';
+  for(var i=0;i<clients.length&&i<10;i++){
+    var c=clients[i];var otColor=c.onTime>=95?'var(--green)':c.onTime>=90?'var(--yellow)':'var(--red)';
+    h+='<tr><td style="font-weight:700;color:var(--cyan);font-family:JetBrains Mono,monospace">'+(i+1)+'</td><td style="font-weight:600">'+c.name+'</td><td style="font-family:JetBrains Mono,monospace">'+c.orders+'</td><td style="font-family:JetBrains Mono,monospace">'+c.units+'</td><td style="font-weight:600;color:'+otColor+'">'+c.onTime+'%</td><td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+c.share+'%;background:var(--cyan);border-radius:2px"></div></div><span style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--dim);min-width:28px;text-align:right">'+c.share+'%</span></div></td></tr>';
+  }
+  document.getElementById('clientsBody').innerHTML=h;
+}
+
+/* =============== DEMO DATA =============== */
+function loadDemoData(){
+  var now=Date.now();
+  var demoInv=[
+    {sku:'MAT-001',name:'Porcelain tile 24x24 white',qty:120,minStock:20,weight:'3.9lb',location:'A1-01',lot:'L2026-41',blNumber:'BL-8890'},
+    {sku:'MAT-002',name:'Thinset mortar 50lb bag',qty:45,minStock:30,weight:'50lb',location:'A1-02',lot:'L2026-41',blNumber:'BL-8890'},
+    {sku:'MAT-003',name:'Marble slab 80x80 Carrara',qty:8,minStock:10,weight:'4.8lb',location:'B2-01',lot:'L2026-38',blNumber:'BL-8845'},
+    {sku:'MAT-004',name:'Aluminum baseboard 8ft',qty:200,minStock:40,weight:'1.7lb',location:'C1-03',lot:'L2026-40',blNumber:'BL-8870'},
+    {sku:'MAT-005',name:'Clear silicone sealant 10oz',qty:0,minStock:12,weight:'0.7lb',location:'C2-01',lot:'L2026-39',blNumber:'BL-8860'},
+    {sku:'MAT-006',name:'Portland cement 94lb bag',qty:300,minStock:50,weight:'94lb',location:'A2-01',lot:'L2026-42',blNumber:'BL-8901'},
+    {sku:'MAT-007',name:'Rebar #4 20ft',qty:150,minStock:30,weight:'10lb',location:'A3-01',lot:'L2026-42',blNumber:'BL-8901'},
+    {sku:'MAT-008',name:'Interior latex paint white 5gal',qty:22,minStock:15,weight:'44lb',location:'B1-02',lot:'L2026-40',blNumber:'BL-8870'},
+    {sku:'MAT-009',name:'Professional roller 9in',qty:85,minStock:20,weight:'0.4lb',location:'C1-01',lot:'L2026-38',blNumber:'BL-8845'},
+    {sku:'MAT-010',name:'PVC pipe 4in x10ft',qty:60,minStock:25,weight:'7.5lb',location:'A3-02',lot:'L2026-39',blNumber:'BL-8860'}
+  ];
+  var demoDisp=[
+    {id:'DSP-'+String(now-86400000*5),client:'BuildRight Construction LLC',destination:'4520 Industrial Blvd, Houston TX',carrier:'FedEx Freight',tracking:'FXF-884521',notes:'',items:[{sku:'MAT-001',name:'Porcelain tile 24x24 white',qty:60,weight:'3.9lb',location:'A1-01'},{sku:'MAT-002',name:'Thinset mortar 50lb bag',qty:15,weight:'50lb',location:'A1-02'}],status:'delivered',createdAt:new Date(now-86400000*5).toISOString(),shippedAt:new Date(now-86400000*4).toISOString(),deliveredAt:new Date(now-86400000*2).toISOString(),createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-86400000*3),client:'Premier Finishes Inc',destination:'1280 Commerce Dr, Miami FL',carrier:'XPO Logistics',tracking:'XPO-773201',notes:'',items:[{sku:'MAT-003',name:'Marble slab 80x80 Carrara',qty:40,weight:'4.8lb',location:'B2-01'},{sku:'MAT-004',name:'Aluminum baseboard 8ft',qty:25,weight:'1.7lb',location:'C1-03'}],status:'shipped',createdAt:new Date(now-86400000*3).toISOString(),shippedAt:new Date(now-86400000*2).toISOString(),deliveredAt:null,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-86400000*1),client:'Apex Builders Group',destination:'9100 Westheimer Rd, Houston TX',carrier:'Old Dominion',tracking:'',notes:'Deliver to job site',items:[{sku:'MAT-006',name:'Portland cement 94lb bag',qty:100,weight:'94lb',location:'A2-01'},{sku:'MAT-007',name:'Rebar #4 20ft',qty:50,weight:'10lb',location:'A3-01'}],status:'preparing',createdAt:new Date(now-86400000*1).toISOString(),shippedAt:null,deliveredAt:null,createdBy:'andresapalt@gmail.com'},
+    {id:'DSP-'+String(now-3600000*6),client:'Home Depot Pro - Orlando',destination:'3800 Vineland Rd, Orlando FL',carrier:'UPS Freight',tracking:'UPS-551098',notes:'',items:[{sku:'MAT-008',name:'Interior latex paint white 5gal',qty:10,weight:'44lb',location:'B1-02'}],status:'preparing',createdAt:new Date(now-3600000*6).toISOString(),shippedAt:null,deliveredAt:null,createdBy:'7groupcorp@zohomail.com'},
+    {id:'DSP-'+String(now-86400000*8),client:'Southern Supply Co',destination:'720 Canal St, New Orleans LA',carrier:'FedEx Freight',tracking:'FXF-662310',notes:'',items:[{sku:'MAT-010',name:'PVC pipe 4in x10ft',qty:30,weight:'7.5lb',location:'A3-02'}],status:'delivered',createdAt:new Date(now-86400000*8).toISOString(),shippedAt:new Date(now-86400000*7).toISOString(),deliveredAt:new Date(now-86400000*5).toISOString(),createdBy:'andresapal@gmail.com'}
+  ];
+  var demoZones=[{name:'A1',type:'rack'},{name:'A2',type:'rack'},{name:'A3',type:'rack'},{name:'B1',type:'shelf'},{name:'B2',type:'shelf'},{name:'C1',type:'bin'},{name:'C2',type:'bin'}];
+  var demoRecv=[{id:'RCV-1',status:'completed',createdAt:new Date(now-86400000*10).toISOString()},{id:'RCV-2',status:'completed',createdAt:new Date(now-86400000*6).toISOString()},{id:'RCV-3',status:'in_progress',createdAt:new Date(now-86400000*1).toISOString()}];
+  var demoShip=[{blNumber:'BL-8890',status:'in_progress',createdAt:new Date(now-86400000*12).toISOString()},{blNumber:'BL-8845',status:'sent',createdAt:new Date(now-86400000*8).toISOString()},{blNumber:'BL-8901',status:'pending',hasDamage:false,createdAt:new Date(now-86400000*3).toISOString()}];
+  var demoAct=[
+    {action:'dispatch',sku:'MAT-006',detail:'100 units -> Apex Builders Group',time:new Date(now-86400000*1).toISOString(),user:'andresapalt@gmail.com'},
+    {action:'deliver',sku:'MAT-001',detail:'60 units delivered to BuildRight Construction LLC',time:new Date(now-86400000*2).toISOString(),user:'andresapalt@gmail.com'},
+    {action:'ship',sku:'MAT-003',detail:'40 units -> Premier Finishes Inc',time:new Date(now-86400000*2).toISOString(),user:'andresapalt@gmail.com'},
+    {action:'dispatch',sku:'MAT-008',detail:'10 units -> Home Depot Pro - Orlando',time:new Date(now-3600000*6).toISOString(),user:'7groupcorp@zohomail.com'},
+    {action:'deliver',sku:'MAT-010',detail:'30 units delivered to Southern Supply Co',time:new Date(now-86400000*5).toISOString(),user:'andresapal@gmail.com'},
+    {action:'dispatch',sku:'MAT-003',detail:'40 units -> Premier Finishes Inc',time:new Date(now-86400000*3).toISOString(),user:'andresapalt@gmail.com'}
+  ];
+
+  localStorage.setItem('7g-inventory',JSON.stringify(demoInv));
+  localStorage.setItem('7g-dispatches',JSON.stringify(demoDisp));
+  localStorage.setItem('7g-wh-zones',JSON.stringify(demoZones));
+  localStorage.setItem('7g-receptions',JSON.stringify(demoRecv));
+  localStorage.setItem('7g-shipments',JSON.stringify(demoShip));
+  localStorage.setItem('7g-activity',JSON.stringify(demoAct));
+
+  loadAllData();
+  renderAll();
+}
+
+/* =============== INIT =============== */
+loadAllData();
+applyLang();
+</script>
+<script>
+(function(){
+  var style=document.createElement('style');
+  style.textContent='@keyframes xdPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}.xd-dot{width:7px;height:7px;background:var(--orange,#f97316);border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle;animation:xdPulse 1.2s ease-in-out infinite}';
+  document.head.appendChild(style);
+  function checkXD(){
+    try{
+      var d=JSON.parse(localStorage.getItem('7g-dispatches')||'[]');
+      var pending=d.filter(function(x){return x.status!=='delivered'&&x.status!=='completed';});
+      var link=document.querySelector('.mod-link[data-t="modDisp"]');
+      if(!link)return;
+      var dot=link.querySelector('.xd-dot');
+      if(pending.length>0){if(!dot){dot=document.createElement('span');dot.className='xd-dot';dot.title=pending.length+' pending';link.appendChild(dot);}dot.title=pending.length+' pending';}
+      else if(dot){dot.remove();}
+    }catch(e){}
+  }
+  checkXD();setInterval(checkXD,5000);
+})();
+</script>
+</body>
+</html>

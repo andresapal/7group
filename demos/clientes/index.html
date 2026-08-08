@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Clientes -- 7Group Logistics</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --cyan:#0e7490;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:16px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:6px}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.tb-toggle{padding:4px 8px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.mod-link{padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
+
+.main{max-width:600px;margin:0 auto;padding:16px}
+
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px}
+.kpi-val{font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+.kpi-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.orange{color:var(--orange)}
+
+.search-bar{display:flex;gap:8px;margin-bottom:12px}
+.search-bar input{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--white);font-family:inherit;outline:none;transition:.2s}
+.search-bar input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.search-bar input::placeholder{color:var(--dim)}
+
+.client-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s}
+.client-card:hover{border-color:var(--cyan)}
+.client-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.client-name{font-size:14px;font-weight:700;color:var(--white)}
+.client-info{font-size:11px;color:var(--dim);line-height:1.6}
+.client-meta{display:flex;gap:10px;margin-top:6px;font-size:10px;color:var(--dim);flex-wrap:wrap}
+.client-meta span{display:flex;align-items:center;gap:3px}
+
+.form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.form-row input,.form-row select,.form-row textarea{flex:1;min-width:100px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--white);font-family:inherit;outline:none;transition:.2s}
+.form-row input:focus,.form-row textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.form-row textarea{resize:none}
+.form-label{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+
+.sec{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.sec-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sec-title{font-size:12px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:6px}
+.sec-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.sec-body{padding:16px}
+
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--cyan);color:#060a0e;width:100%;justify-content:center;padding:14px}
+.btn-primary:hover{background:#7bf0ff}.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{opacity:.4;cursor:default;transform:none}
+.btn-secondary{background:var(--bg3);color:var(--white);border:1px solid var(--border3)}
+.btn-sm{padding:6px 12px;font-size:11px}
+.btn-danger{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.15)}
+
+.empty-state{text-align:center;padding:32px 16px;color:var(--dim)}
+.empty-state p{font-size:13px;margin-bottom:4px}
+.empty-state small{font-size:11px;color:var(--muted)}
+
+.foot{text-align:center;padding:16px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.auth-gate.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
+.auth-box{text-align:center;max-width:340px;padding:32px 24px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:11px;color:var(--dim);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:12px;color:var(--dim);margin-bottom:24px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:16px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:12px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+.detail-overlay{position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;display:none}
+.detail-overlay.visible{display:block}
+.detail-header{position:sticky;top:0;z-index:10;background:var(--topbar-bg);backdrop-filter:blur(20px);padding:12px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.detail-back{background:none;border:none;color:var(--cyan);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px}
+.detail-content{max-width:600px;margin:0 auto;padding:16px}
+
+@media(max-width:480px){.main{padding:12px}.kpi-row{grid-template-columns:1fr 1fr}}
+
+/* ── Agent management inside client detail ── */
+.ag-section{margin-top:20px;border-top:1px solid var(--border2);padding-top:16px}
+.ag-section-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px}
+.ag-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:8px;transition:.2s}
+.ag-card.active{border-color:rgba(34,197,94,.2)}
+.ag-card-head{display:flex;align-items:center;justify-content:space-between}
+.ag-card-info{display:flex;align-items:center;gap:10px}
+.ag-card-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0}
+.ag-card-name{font-size:13px;font-weight:700;color:var(--white)}
+.ag-card-id{font-size:9px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.ag-card-desc{font-size:11px;color:var(--dim);margin:6px 0 0 38px;line-height:1.4}
+.ag-toggle{position:relative;width:40px;height:22px;cursor:pointer;flex-shrink:0}
+.ag-toggle input{display:none}
+.ag-toggle-track{position:absolute;inset:0;background:var(--bg4);border:1px solid var(--border3);border-radius:12px;transition:.2s}
+.ag-toggle input:checked+.ag-toggle-track{background:var(--green);border-color:var(--green)}
+.ag-toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s}
+.ag-toggle input:checked~.ag-toggle-thumb{left:21px}
+.ag-status{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin:6px 0 0 38px}
+.ag-status-dot{width:5px;height:5px;border-radius:50%}
+
+/* Cost panel */
+.cost-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;margin-top:12px;overflow:hidden}
+.cost-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.cost-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--white)}
+.cur-toggle{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.cur-btn{background:transparent;color:var(--muted);border:none;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;transition:all .15s}
+.cur-btn.active-cur{background:var(--cyan);color:#060a0e}
+.cur-btn:hover:not(.active-cur){background:rgba(255,255,255,.04)}
+.cost-plan-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:4px}
+.cost-plan-free{background:rgba(94,231,247,.08);color:var(--cyan);border:1px solid rgba(94,231,247,.15)}
+.cost-plan-paid{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.cost-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border);font-size:12px}
+.cost-row:last-child{border-bottom:none}
+.cost-row-name{display:flex;align-items:center;gap:6px;color:var(--dim)}
+.cost-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cost-row-price{font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px}
+.cost-total{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-top:1px solid var(--border2);background:var(--bg3)}
+.cost-total-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.cost-total-amount{font-size:22px;font-weight:800;color:var(--cyan);font-family:'Plus Jakarta Sans',sans-serif}
+.cost-total-period{font-size:11px;color:var(--dim)}
+.cost-note{font-size:10px;color:var(--dim);padding:8px 14px;line-height:1.4}
+.cost-actions{display:flex;gap:8px;padding:10px 14px}
+.cost-btn{flex:1;padding:10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;font-family:inherit;border:none;transition:.15s}
+.cost-btn-send{background:var(--cyan);color:#060a0e}.cost-btn-send:hover{background:#7bf0ff}
+.cost-btn-send:disabled{opacity:.4;cursor:default}
+.cost-btn-link{background:var(--bg3);color:var(--white);border:1px solid var(--border3)}
+
+/* Confirm modal */
+.ag-confirm-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
+.ag-confirm-overlay.visible{opacity:1;pointer-events:auto}
+.ag-confirm-box{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;max-width:340px;width:90%;text-align:center}
+.ag-confirm-title{font-size:16px;font-weight:800;color:var(--white);margin-bottom:8px;font-family:'Plus Jakarta Sans',sans-serif}
+.ag-confirm-msg{font-size:12px;color:var(--dim);line-height:1.5;margin-bottom:20px}
+.ag-confirm-btns{display:flex;gap:8px}
+.ag-confirm-btns button{flex:1;padding:10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:none;transition:.15s}
+.ag-confirm-cancel{background:var(--bg3);color:var(--white);border:1px solid var(--border3)!important}
+.ag-confirm-ok{background:rgba(239,68,68,.12);color:var(--red)}
+</style>
+</head>
+<body>
+
+<script src="../firebase-config.js"></script>
+
+<script>
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){
+  document.getElementById('authGate').classList.add('hidden');
+  document.getElementById('appWrap').classList.add('visible');
+  loadClients();
+}
+function checkPin(){var p=document.getElementById('pinInput').value;if(p==='2405'){sessionStorage.setItem('7g-auth','pin');unlockApp();}else{document.getElementById('pinError').style.display='block';document.getElementById('pinInput').value='';}}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+(function(){var s=sessionStorage.getItem('7g-auth');if(s&&(ALLOWED_EMAILS.indexOf(s)!==-1||s==='pin'))unlockApp();else initGoogleAuth();})();
+</script>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc" data-t="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-divider"></div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:8px">O ingrese con PIN de operador:</div>
+    <div style="display:flex;gap:6px;justify-content:center">
+      <input type="password" id="pinInput" maxlength="4" placeholder="PIN" style="width:80px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:14px;text-align:center;letter-spacing:4px" onkeydown="if(event.key==='Enter')checkPin()">
+      <button onclick="checkPin()" style="padding:8px 14px;background:rgba(94,231,247,.1);border:1px solid rgba(94,231,247,.2);border-radius:6px;color:var(--cyan);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">OK</button>
+    </div>
+    <div class="auth-error" id="authError" data-t="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-error" id="pinError" style="display:none">PIN incorrecto.</div>
+    <div class="auth-footer" data-t="authFooter">Solo personal autorizado</div>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="badge">Clientes</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+  </div>
+</nav>
+
+<div class="mod-nav">
+  <a href="/demos/" class="mod-link" data-t="modPortal">Portal</a>
+  <a href="/demos/clientes/" class="mod-link active" data-t="modClients">Clientes</a>
+  <a href="/demos/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
+</div>
+
+<div class="main" id="mainView">
+
+<div class="kpi-row" id="kpiRow">
+  <div class="kpi"><div class="kpi-val cyan" id="kpiTotal">0</div><div class="kpi-label" data-t="kpiTotal">Total clientes</div></div>
+  <div class="kpi"><div class="kpi-val green" id="kpiRecent">0</div><div class="kpi-label" data-t="kpiRecent">Recientes (30d)</div></div>
+  <div class="kpi"><div class="kpi-val orange" id="kpiCities">0</div><div class="kpi-label" data-t="kpiCities">Ciudades</div></div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Buscar por nombre, ciudad, telefono..." oninput="filterClients(this.value)" data-t-ph="searchPH">
+</div>
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+  <button class="btn btn-sm btn-secondary" onclick="showNewClientForm()" data-t="btnNew">+ Nuevo cliente</button>
+</div>
+
+<div id="clientList"></div>
+
+</div>
+
+<!-- NEW / EDIT CLIENT FORM -->
+<div class="detail-overlay" id="clientFormOverlay">
+  <div class="detail-header">
+    <button class="detail-back" onclick="closeForm()">&#8592; <span data-t="back">Volver</span></button>
+    <span style="font-size:12px;font-weight:700;color:var(--white)" id="formTitle" data-t="formTitleNew">Nuevo cliente</span>
+    <div style="width:60px"></div>
+  </div>
+  <div class="detail-content">
+    <input type="hidden" id="editClientId" value="">
+
+    <div class="form-label" data-t="lblCompany">Empresa</div>
+    <div class="form-row">
+      <input id="fName" placeholder="Nombre de empresa...">
+    </div>
+
+    <div class="form-label" data-t="lblContact">Contacto</div>
+    <div class="form-row">
+      <input id="fContact" placeholder="Nombre contacto...">
+      <input id="fPhone" placeholder="Tel / WhatsApp...">
+    </div>
+    <div class="form-row">
+      <input id="fEmail" placeholder="Email...">
+    </div>
+
+    <div class="form-label" data-t="lblTax">Fiscal</div>
+    <div class="form-row">
+      <input id="fTaxId" placeholder="Tax ID / NIT / EIN...">
+    </div>
+
+    <div class="form-label" data-t="lblAddress">Direccion</div>
+    <div class="form-row">
+      <input id="fAddress" placeholder="Direccion..." style="flex:3">
+      <input id="fCity" placeholder="Ciudad..." style="flex:2">
+    </div>
+    <div class="form-row">
+      <input id="fState" placeholder="Estado..." style="flex:2">
+      <input id="fZip" placeholder="ZIP code..." style="flex:1">
+      <input id="fCountry" placeholder="Pais..." value="US" style="flex:1">
+    </div>
+
+    <div class="form-label" data-t="lblNotes">Notas</div>
+    <div class="form-row">
+      <textarea id="fNotes" rows="3" placeholder="Notas internas..."></textarea>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn btn-primary" onclick="saveClientForm()" data-t="btnSave">Guardar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT DETAIL -->
+<div class="detail-overlay" id="clientDetailOverlay">
+  <div class="detail-header">
+    <button class="detail-back" onclick="closeDetail()">&#8592; <span data-t="back">Volver</span></button>
+    <span style="font-size:12px;font-weight:700;color:var(--white)" data-t="detailTitle">Detalle cliente</span>
+    <div style="width:60px"></div>
+  </div>
+  <div class="detail-content" id="detailContent"></div>
+</div>
+
+<!-- Agent confirm modal -->
+<div class="ag-confirm-overlay" id="agConfirmOverlay">
+  <div class="ag-confirm-box">
+    <div class="ag-confirm-title" id="agConfirmTitle"></div>
+    <div class="ag-confirm-msg" id="agConfirmMsg"></div>
+    <div class="ag-confirm-btns">
+      <button class="ag-confirm-cancel" onclick="closeAgConfirm()" data-t="agCancel">Cancelar</button>
+      <button class="ag-confirm-ok" id="agConfirmOk" data-t="agConfirm">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div>
+
+<script>
+/* =============== LANGUAGE =============== */
+var LANG='es';
+(function(){var p=new URLSearchParams(window.location.search);if(p.get('lang')==='en')LANG='en';})();
+
+var T={
+  badge:       {es:'Clientes',                    en:'Clients'},
+  modShip:     {es:'Shipment',                    en:'Shipment'},
+  modRecv:     {es:'Recibo',                      en:'Receiving'},
+  modInv:      {es:'Inventario',                  en:'Inventory'},
+  modWh:       {es:'Bodega',                      en:'Warehouse'},
+  modDisp:     {es:'Despachos',                   en:'Dispatches'},
+  modClients:  {es:'Clientes',                    en:'Clients'},
+  modDash:     {es:'Dashboard',                   en:'Dashboard'},
+  kpiTotal:    {es:'Total clientes',              en:'Total clients'},
+  kpiRecent:   {es:'Con agentes',                 en:'With agents'},
+  kpiCities:   {es:'Agentes activos',             en:'Active agents'},
+  searchPH:    {es:'Buscar por nombre, ciudad, telefono...', en:'Search by name, city, phone...'},
+  btnNew:      {es:'+ Nuevo cliente',             en:'+ New client'},
+  formTitleNew:{es:'Nuevo cliente',               en:'New client'},
+  formTitleEdit:{es:'Editar cliente',             en:'Edit client'},
+  lblCompany:  {es:'Empresa',                     en:'Company'},
+  lblContact:  {es:'Contacto',                    en:'Contact'},
+  lblTax:      {es:'Fiscal',                      en:'Tax'},
+  lblAddress:  {es:'Direccion',                   en:'Address'},
+  lblNotes:    {es:'Notas',                       en:'Notes'},
+  btnSave:     {es:'Guardar cliente',             en:'Save client'},
+  btnEdit:     {es:'Editar',                      en:'Edit'},
+  btnDelete:   {es:'Eliminar',                    en:'Delete'},
+  back:        {es:'Volver',                      en:'Back'},
+  detailTitle: {es:'Detalle cliente',             en:'Client detail'},
+  emptyTitle:  {es:'No hay clientes',             en:'No clients'},
+  emptySub:    {es:'Agrega tu primer cliente',    en:'Add your first client'},
+  noResults:   {es:'Sin resultados',              en:'No results'},
+  confirmDel:  {es:'Eliminar este cliente?',      en:'Delete this client?'},
+  saved:       {es:'Cliente guardado',             en:'Client saved'},
+  deleted:     {es:'Cliente eliminado',            en:'Client deleted'},
+  authDesc:    {es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.', en:'Restricted access. Sign in with your authorized Google account.'},
+  authError:   {es:'Este correo no tiene acceso autorizado.', en:'This email is not authorized.'},
+  authFooter:  {es:'Solo personal autorizado',    en:'Authorized personnel only'},
+  agSection:   {es:'Agentes AI',                  en:'AI Agents'},
+  agCancel:    {es:'Cancelar',                    en:'Cancel'},
+  agConfirm:   {es:'Confirmar',                   en:'Confirm'},
+  agOnTitle:   {es:'Activar agente',              en:'Activate agent'},
+  agOffTitle:  {es:'Desactivar agente',           en:'Deactivate agent'},
+  agActive:    {es:'Activo',                      en:'Active'},
+  agInactive:  {es:'Inactivo',                    en:'Inactive'},
+  costTitle:   {es:'Plan asignado',               en:'Assigned plan'},
+  costTotal:   {es:'Total mensual',               en:'Monthly total'},
+  costPeriod:  {es:' / mes',                      en:' / month'},
+  costNote:    {es:'Precios en 7group.site/pagos. Piloto gratuito: 1 agente por 30 dias.', en:'Pricing at 7group.site/pagos. Free pilot: 1 agent for 30 days.'},
+  costSend:    {es:'Enviar propuesta',            en:'Send proposal'},
+  costPay:     {es:'Ver pagos',                   en:'View payments'},
+  costSent:    {es:'Propuesta enviada',           en:'Proposal sent'},
+  costSending: {es:'Enviando...',                 en:'Sending...'},
+  tierNone:    {es:'Sin agentes activos',         en:'No active agents'},
+  tierAfter:   {es:'Despues del piloto, pasa a plan Starter.', en:'After the pilot, moves to Starter plan.'}
+};
+
+function t(k){return T[k]?T[k][LANG]||T[k].es||k:k;}
+function setLang(l){
+  LANG=l;
+  document.getElementById('langES').classList.toggle('active',l==='es');
+  document.getElementById('langEN').classList.toggle('active',l==='en');
+  document.querySelectorAll('[data-t]').forEach(function(el){var k=el.getAttribute('data-t');if(T[k])el.textContent=t(k);});
+  document.querySelectorAll('[data-t-ph]').forEach(function(el){var k=el.getAttribute('data-t-ph');if(T[k])el.placeholder=t(k);});
+  renderClients();
+}
+
+/* =============== THEME =============== */
+(function(){var s=localStorage.getItem('7g-theme');if(s==='light')document.documentElement.classList.add('light');})();
+function toggleTheme(){
+  var isLight=document.documentElement.classList.toggle('light');
+  localStorage.setItem('7g-theme',isLight?'light':'dark');
+  var btn=document.getElementById('themeToggle');
+  if(isLight){btn.innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.9 8.8a6 6 0 0 1-6.7-6.7A6 6 0 1 0 13.9 8.8z" stroke="currentColor" stroke-width="1.5"/></svg> DARK';}
+  else{btn.innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
+}
+
+/* =============== DATA =============== */
+var clients=[];
+var searchQuery='';
+
+function makeAgents(allOn){
+  var ag={};
+  var ids=['agent.commercial','agent.operations','agent.finance','agent.support','agent.logistics'];
+  for(var i=0;i<ids.length;i++){
+    ag[ids[i]]={active:!!allOn,since:allOn?'01/07/26 08:00':''};
+  }
+  return ag;
+}
+
+var SEED_CLIENTS=[
+  {id:'c-erp-logistics',name:'ERP Logistics',contact:'7group Admin',phone:'',email:'7groupcorp@zohomail.com',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'Plataforma logistica interna. Demo activo.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z'},
+  {id:'c-land-marmoles',name:'Land Marmoles',contact:'Ricardo Lancheros',phone:'3102696050',email:'',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'Marmol, granito, cuarzo. Landing page activa.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z'},
+  {id:'c-ultimate-bike',name:'Ultimate Bike Shop',contact:'7group Admin',phone:'',email:'7groupcorp@zohomail.com',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'Configurador de bicicletas. Demo activo.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z'},
+  {id:'c-accounting',name:'Accounting',contact:'',phone:'',email:'',city:'',state:'',country:'CO',taxId:'',notes:'Modulo contable. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'},
+  {id:'c-operational',name:'Operational',contact:'',phone:'',email:'',city:'',state:'',country:'CO',taxId:'',notes:'Modulo operacional. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'},
+  {id:'c-saas',name:'SaaS Platform',contact:'',phone:'',email:'',city:'',state:'',country:'US',taxId:'',notes:'Plataforma SaaS. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'}
+];
+
+function loadClients(){
+  clients=LocalCache.get('clients');
+  // Seed if empty or if old data without agents
+  if(!clients||clients.length===0||!clients[0].agents){
+    clients=SEED_CLIENTS;
+    LocalCache.set('clients',clients);
+  }
+  // Ensure every client has agents field
+  var needsSave=false;
+  for(var i=0;i<clients.length;i++){
+    if(!clients[i].agents){clients[i].agents=makeAgents(false);needsSave=true;}
+  }
+  if(needsSave)LocalCache.set('clients',clients);
+  renderKPIs();
+  renderClients();
+}
+
+function renderKPIs(){
+  document.getElementById('kpiTotal').textContent=clients.length;
+  var totalAgents=0;
+  var activeClients=0;
+  for(var i=0;i<clients.length;i++){
+    var c=clients[i];
+    var hasActive=false;
+    if(c.agents){for(var id in c.agents){if(c.agents[id].active){totalAgents++;hasActive=true;}}}
+    if(hasActive)activeClients++;
+  }
+  document.getElementById('kpiRecent').textContent=activeClients;
+  document.getElementById('kpiCities').textContent=totalAgents;
+}
+
+function filterClients(q){
+  searchQuery=(q||'').toLowerCase();
+  renderClients();
+}
+
+function renderClients(){
+  var el=document.getElementById('clientList');
+  var filtered=clients;
+  if(searchQuery.length>=2){
+    filtered=clients.filter(function(c){
+      return (c.name||'').toLowerCase().indexOf(searchQuery)>=0
+        ||(c.contact||'').toLowerCase().indexOf(searchQuery)>=0
+        ||(c.city||'').toLowerCase().indexOf(searchQuery)>=0
+        ||(c.phone||'').indexOf(searchQuery)>=0
+        ||(c.email||'').toLowerCase().indexOf(searchQuery)>=0;
+    });
+  }
+
+  if(filtered.length===0){
+    var msg=searchQuery.length>=2?t('noResults'):t('emptyTitle');
+    var sub=searchQuery.length>=2?'':t('emptySub');
+    el.innerHTML='<div class="empty-state"><p>'+msg+'</p><small>'+sub+'</small></div>';
+    return;
+  }
+
+  var h='';
+  for(var i=0;i<filtered.length;i++){
+    var c=filtered[i];
+    var addr=[c.city,c.state].filter(Boolean).join(', ');
+    h+='<div class="client-card" onclick="showDetail(\''+c.id+'\')">';
+    h+='<div class="client-head"><span class="client-name">'+esc(c.name||'')+'</span>';
+    if(c.taxId)h+='<span style="font-size:10px;color:var(--dim);font-family:\'JetBrains Mono\',monospace">'+esc(c.taxId)+'</span>';
+    h+='</div>';
+    h+='<div class="client-info">';
+    if(c.contact)h+=esc(c.contact);
+    if(c.contact&&c.phone)h+=' -- ';
+    if(c.phone)h+=esc(c.phone);
+    h+='</div>';
+    var agCount=0;if(c.agents){for(var aid in c.agents){if(c.agents[aid].active)agCount++;}}
+    h+='<div class="client-meta">';
+    if(addr)h+='<span>'+esc(addr)+'</span>';
+    h+='<span style="color:'+(agCount>0?'var(--green)':'var(--muted)')+'">'+agCount+'/5 agentes</span>';
+    h+='</div>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+/* =============== FORM =============== */
+function showNewClientForm(){
+  document.getElementById('editClientId').value='';
+  document.getElementById('formTitle').textContent=t('formTitleNew');
+  ['fName','fContact','fPhone','fEmail','fTaxId','fAddress','fCity','fState','fZip','fNotes'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('fCountry').value='US';
+  document.getElementById('clientFormOverlay').classList.add('visible');
+}
+
+function editClient(id){
+  var c=null;
+  for(var i=0;i<clients.length;i++){if(clients[i].id===id){c=clients[i];break;}}
+  if(!c)return;
+  document.getElementById('editClientId').value=id;
+  document.getElementById('formTitle').textContent=t('formTitleEdit');
+  document.getElementById('fName').value=c.name||'';
+  document.getElementById('fContact').value=c.contact||'';
+  document.getElementById('fPhone').value=c.phone||'';
+  document.getElementById('fEmail').value=c.email||'';
+  document.getElementById('fTaxId').value=c.taxId||'';
+  document.getElementById('fAddress').value=c.address||'';
+  document.getElementById('fCity').value=c.city||'';
+  document.getElementById('fState').value=c.state||'';
+  document.getElementById('fZip').value=c.zip||'';
+  document.getElementById('fCountry').value=c.country||'US';
+  document.getElementById('fNotes').value=c.notes||'';
+  document.getElementById('clientFormOverlay').classList.add('visible');
+  closeDetail();
+}
+
+function closeForm(){
+  document.getElementById('clientFormOverlay').classList.remove('visible');
+}
+
+function saveClientForm(){
+  var name=document.getElementById('fName').value.trim();
+  if(!name){document.getElementById('fName').focus();return;}
+  var id=document.getElementById('editClientId').value||'';
+  var data={
+    name:name,
+    contact:document.getElementById('fContact').value.trim(),
+    phone:document.getElementById('fPhone').value.trim(),
+    email:document.getElementById('fEmail').value.trim(),
+    taxId:document.getElementById('fTaxId').value.trim(),
+    address:document.getElementById('fAddress').value.trim(),
+    city:document.getElementById('fCity').value.trim(),
+    state:document.getElementById('fState').value.trim(),
+    zip:document.getElementById('fZip').value.trim(),
+    country:document.getElementById('fCountry').value.trim()||'US',
+    notes:document.getElementById('fNotes').value.trim()
+  };
+  if(id){
+    data.id=id;
+    // Preserve existing agents
+    var existing=getClient(id);
+    if(existing&&existing.agents)data.agents=existing.agents;
+  } else {
+    data.agents=makeAgents(false);
+  }
+
+  if(typeof DB!=='undefined'&&DB.saveClient){
+    DB.saveClient(data).then(function(){
+      loadClients();
+      closeForm();
+      showFeedback(t('saved'),'green');
+    });
+  } else {
+    if(id){
+      for(var i=0;i<clients.length;i++){
+        if(clients[i].id===id){clients[i]=Object.assign(clients[i],data,{updatedAt:new Date().toISOString()});break;}
+      }
+    } else {
+      data.id='CLI-'+Date.now();
+      data.createdAt=new Date().toISOString();
+      clients.unshift(data);
+    }
+    LocalCache.set('clients',clients);
+    renderKPIs();renderClients();
+    closeForm();
+    showFeedback(t('saved'),'green');
+  }
+}
+
+/* =============== DETAIL =============== */
+function showDetail(id){
+  var c=null;
+  for(var i=0;i<clients.length;i++){if(clients[i].id===id){c=clients[i];break;}}
+  if(!c)return;
+
+  var addr=[c.address,c.city,c.state,c.zip,c.country].filter(Boolean).join(', ');
+  var h='';
+
+  h+='<div style="margin-bottom:16px">';
+  h+='<div style="font-size:20px;font-weight:800;color:var(--white);font-family:\'Plus Jakarta Sans\',sans-serif;letter-spacing:-.03em">'+esc(c.name||'')+'</div>';
+  if(c.taxId)h+='<div style="font-size:11px;color:var(--dim);font-family:\'JetBrains Mono\',monospace;margin-top:4px">'+esc(c.taxId)+'</div>';
+  h+='</div>';
+
+  h+='<div class="sec"><div class="sec-head"><span class="sec-title">'+t('lblContact')+'</span></div><div class="sec-body">';
+  if(c.contact)h+='<div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px">'+esc(c.contact)+'</div>';
+  if(c.phone)h+='<div style="font-size:12px;color:var(--dim);margin-bottom:2px"><a href="tel:'+esc(c.phone)+'" style="color:var(--cyan);text-decoration:none">'+esc(c.phone)+'</a></div>';
+  if(c.email)h+='<div style="font-size:12px;color:var(--dim)"><a href="mailto:'+esc(c.email)+'" style="color:var(--cyan);text-decoration:none">'+esc(c.email)+'</a></div>';
+  if(!c.contact&&!c.phone&&!c.email)h+='<div style="font-size:11px;color:var(--muted)">--</div>';
+  h+='</div></div>';
+
+  h+='<div class="sec"><div class="sec-head"><span class="sec-title">'+t('lblAddress')+'</span></div><div class="sec-body">';
+  if(addr){
+    h+='<div style="font-size:12px;color:var(--white);line-height:1.5;margin-bottom:8px">'+esc(addr)+'</div>';
+    h+='<a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(addr)+'" target="_blank" style="font-size:11px;color:var(--cyan);text-decoration:none;font-weight:600">Ver en Google Maps &#8599;</a>';
+  } else {
+    h+='<div style="font-size:11px;color:var(--muted)">--</div>';
+  }
+  h+='</div></div>';
+
+  if(c.notes){
+    h+='<div class="sec"><div class="sec-head"><span class="sec-title">'+t('lblNotes')+'</span></div><div class="sec-body">';
+    h+='<div style="font-size:12px;color:var(--dim);line-height:1.5;white-space:pre-wrap">'+esc(c.notes)+'</div>';
+    h+='</div></div>';
+  }
+
+  h+='<div style="font-size:10px;color:var(--muted);margin-bottom:16px">';
+  if(c.createdAt)h+='Creado: '+new Date(c.createdAt).toLocaleDateString();
+  if(c.updatedAt)h+=' | Actualizado: '+new Date(c.updatedAt).toLocaleDateString();
+  h+='</div>';
+
+  h+='<div style="display:flex;gap:8px">';
+  h+='<button class="btn btn-secondary btn-sm" onclick="editClient(\''+c.id+'\')" style="flex:1;justify-content:center">'+t('btnEdit')+'</button>';
+  h+='<button class="btn btn-danger btn-sm" onclick="deleteClient(\''+c.id+'\')" style="justify-content:center">'+t('btnDelete')+'</button>';
+  h+='</div>';
+
+  h+=renderAgentSection(c.id);
+
+  document.getElementById('detailContent').innerHTML=h;
+  document.getElementById('clientDetailOverlay').classList.add('visible');
+}
+
+function closeDetail(){
+  document.getElementById('clientDetailOverlay').classList.remove('visible');
+}
+
+function deleteClient(id){
+  if(!confirm(t('confirmDel')))return;
+  if(typeof DB!=='undefined'&&DB.deleteClient){
+    DB.deleteClient(id).then(function(){
+      loadClients();
+      closeDetail();
+      showFeedback(t('deleted'),'red');
+    });
+  } else {
+    for(var i=0;i<clients.length;i++){
+      if(clients[i].id===id){clients.splice(i,1);break;}
+    }
+    LocalCache.set('clients',clients);
+    renderKPIs();renderClients();
+    closeDetail();
+    showFeedback(t('deleted'),'red');
+  }
+}
+
+/* =============== FEEDBACK =============== */
+function showFeedback(msg,color){
+  var el=document.createElement('div');
+  el.textContent=msg;
+  el.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;color:#fff;background:'+(color==='green'?'var(--green)':'var(--red)');
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},2500);
+}
+
+/* =============== INIT LANG =============== */
+(function(){
+  if(LANG==='en'){
+    document.getElementById('langES').classList.remove('active');
+    document.getElementById('langEN').classList.add('active');
+  }
+  setTimeout(function(){
+    document.querySelectorAll('[data-t]').forEach(function(el){var k=el.getAttribute('data-t');if(T[k])el.textContent=t(k);});
+    document.querySelectorAll('[data-t-ph]').forEach(function(el){var k=el.getAttribute('data-t-ph');if(T[k])el.placeholder=t(k);});
+  },0);
+  if(document.documentElement.classList.contains('light')){
+    setTimeout(function(){document.getElementById('themeToggle').innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.9 8.8a6 6 0 0 1-6.7-6.7A6 6 0 1 0 13.9 8.8z" stroke="currentColor" stroke-width="1.5"/></svg> DARK';},0);
+  }
+})();
+</script>
+<script>
+/* =============== AGENT MANAGEMENT =============== */
+var CRM_URL='https://script.google.com/macros/s/AKfycbz7pIV8GjeXZTDf7bkTC3t5ObQLNWlgOG6kqzcnKpzYCAn_N0HPkazo3Ftbel4k_x0g/exec';
+var AGENTS=[
+  {id:'agent.commercial',color:'#3b82f6',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-9"/></svg>'},
+  {id:'agent.operations',color:'#f97316',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'},
+  {id:'agent.finance',color:'#22c55e',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>'},
+  {id:'agent.support',color:'#a78bfa',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'},
+  {id:'agent.logistics',color:'#5ee7f7',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'}
+];
+var AG_NAMES={es:['Comercial','Operaciones','Financiero','Atencion','Logistico'],en:['Sales','Operations','Finance','Support','Logistics']};
+var AG_DESCS={
+  es:['Cotizaciones automaticas, seguimiento de oportunidades.','Coordinacion de flujos operativos, monitoreo de KPIs.','Facturacion electronica, gestion de cartera.','Respuesta 24/7, gestion de PQR.','Asignacion de despachos, rutas optimizadas.'],
+  en:['Automatic quoting, opportunity tracking.','Operational flow coordination, KPI monitoring.','Electronic invoicing, receivables management.','24/7 response, PQR management.','Dispatch assignment, optimized routes.']
+};
+
+var agCurrency='COP';
+var PLAN_TIERS={
+  free:    {max:1,cop:0,      usd:0,  impl_cop:0,       impl_usd:0},
+  starter: {max:1,cop:350000, usd:79, impl_cop:2000000, impl_usd:500},
+  essential:{max:3,cop:1100000,usd:249,impl_cop:10000000,impl_usd:2500},
+  pro:     {max:5,cop:1800000,usd:399,impl_cop:10000000,impl_usd:2500}
+};
+var TIER_NAMES={
+  free:{es:'Piloto gratuito',en:'Free Pilot'},
+  starter:{es:'Starter',en:'Starter'},
+  essential:{es:'Esencial',en:'Essential'},
+  pro:{es:'Profesional',en:'Professional'}
+};
+
+function getClient(clientId){
+  for(var i=0;i<clients.length;i++){if(clients[i].id===clientId)return clients[i];}
+  return null;
+}
+function getClientAgents(clientId){
+  var c=getClient(clientId);
+  return c&&c.agents?c.agents:{};
+}
+function setClientAgents(clientId,data){
+  var c=getClient(clientId);
+  if(c){c.agents=data;LocalCache.set('clients',clients);}
+}
+function isClientPilot(clientId){
+  var agents=getClientAgents(clientId);
+  var earliest=null;
+  for(var id in agents){
+    if(agents[id].since){
+      var parts=agents[id].since.split(/[\/\s:]/);
+      var d;
+      if(parts.length>=5)d=new Date('20'+parts[2],parseInt(parts[1])-1,parseInt(parts[0]),parts[3],parts[4]).getTime();
+      else d=new Date(agents[id].since).getTime();
+      if(!isNaN(d)&&(!earliest||d<earliest))earliest=d;
+    }
+  }
+  if(!earliest)return true;
+  return (Date.now()-earliest)/(1000*60*60*24)<=30;
+}
+function fmtAgPrice(n){
+  if(agCurrency==='USD')return n>=1000?'$'+(n/1000).toFixed(1).replace('.0','')+'K USD':'$'+n+' USD';
+  if(n>=1000000)return '$'+((n/1000000).toFixed(1).replace('.0',''))+'M';
+  if(n>=1000)return '$'+Math.round(n/1000)+'K';
+  return '$'+n;
+}
+function getAgMonthly(td){return agCurrency==='USD'?td.usd:td.cop;}
+function getAgImpl(td){return agCurrency==='USD'?td.impl_usd:td.impl_cop;}
+function getAgTier(count,pilot){
+  if(count<=0)return null;
+  if(count===1&&pilot)return 'free';
+  if(count===1)return 'starter';
+  if(count<=3)return 'essential';
+  return 'pro';
+}
+
+var _agDetailClientId=null;
+var _agPendingToggle=null;
+
+function renderAgentSection(clientId){
+  _agDetailClientId=clientId;
+  var states=getClientAgents(clientId);
+  var names=AG_NAMES[LANG];
+  var descs=AG_DESCS[LANG];
+  var h='<div class="ag-section">';
+  h+='<div class="ag-section-title">'+t('agSection')+'</div>';
+
+  for(var i=0;i<AGENTS.length;i++){
+    var ag=AGENTS[i];
+    var st=states[ag.id];
+    var isOn=st&&st.active;
+    h+='<div class="ag-card'+(isOn?' active':'')+'">';
+    h+='<div class="ag-card-head">';
+    h+='<div class="ag-card-info">';
+    h+='<div class="ag-card-icon" style="background:'+ag.color+'22;color:'+ag.color+'">'+ag.icon+'</div>';
+    h+='<div><div class="ag-card-name">'+esc(names[i])+'</div><div class="ag-card-id">'+ag.id+'</div></div>';
+    h+='</div>';
+    h+='<label class="ag-toggle"><input type="checkbox" '+(isOn?'checked':'')+' onchange="confirmAgToggle(\''+ag.id+'\','+i+',this.checked)"><span class="ag-toggle-track"></span><span class="ag-toggle-thumb"></span></label>';
+    h+='</div>';
+    h+='<div class="ag-card-desc">'+esc(descs[i])+'</div>';
+    var dotC=isOn?'var(--green)':'var(--muted)';
+    var stTxt=isOn?t('agActive'):t('agInactive');
+    var stC=isOn?'color:var(--green)':'color:var(--muted)';
+    h+='<div class="ag-status"><span class="ag-status-dot" style="background:'+dotC+'"></span><span style="'+stC+'">'+stTxt+'</span>';
+    if(isOn&&st.since)h+='<span style="color:var(--dim);margin-left:8px;font-size:8px">'+st.since+'</span>';
+    h+='</div></div>';
+  }
+
+  // Cost panel
+  var activeCount=0;var activeNames=[];
+  for(var i=0;i<AGENTS.length;i++){var st2=states[AGENTS[i].id];if(st2&&st2.active){activeCount++;activeNames.push(names[i]);}}
+  var pilot=isClientPilot(clientId);
+  var tier=getAgTier(activeCount,pilot);
+  var tierData=tier?PLAN_TIERS[tier]:null;
+  var monthly=tierData?getAgMonthly(tierData):0;
+
+  h+='<div class="cost-panel">';
+  h+='<div class="cost-head">';
+  h+='<span class="cost-title">'+t('costTitle')+'</span>';
+  h+='<div style="display:flex;align-items:center;gap:6px">';
+  h+='<div class="cur-toggle">';
+  h+='<button class="cur-btn'+(agCurrency==='COP'?' active-cur':'')+'" onclick="agCurrency=\'COP\';showDetail(\''+clientId+'\')">COP</button>';
+  h+='<button class="cur-btn'+(agCurrency==='USD'?' active-cur':'')+'" onclick="agCurrency=\'USD\';showDetail(\''+clientId+'\')">USD</button>';
+  h+='</div>';
+  if(!tier){h+='<span class="cost-plan-tag">'+t('tierNone')+'</span>';}
+  else{
+    var isFree=tier==='free';
+    var lbl=TIER_NAMES[tier][LANG]+' — '+fmtAgPrice(monthly)+(LANG==='es'?'/mes':'/mo');
+    if(isFree&&pilot)lbl+=' (30d)';
+    h+='<span class="cost-plan-tag '+(isFree?'cost-plan-free':'cost-plan-paid')+'">'+lbl+'</span>';
+  }
+  h+='</div></div>';
+
+  // Agent rows
+  for(var i=0;i<AGENTS.length;i++){
+    var st3=states[AGENTS[i].id];
+    var on3=st3&&st3.active;
+    var dc=on3?AGENTS[i].color:'var(--muted)';
+    var stxt=on3?t('agActive'):t('agInactive');
+    var sc=on3?'color:var(--green)':'color:var(--muted)';
+    h+='<div class="cost-row"><span class="cost-row-name"><span class="cost-dot" style="background:'+dc+'"></span>'+esc(names[i])+'</span><span class="cost-row-price" style="'+sc+'">'+stxt+'</span></div>';
+  }
+
+  h+='<div class="cost-total"><span class="cost-total-label">'+t('costTotal')+'</span>';
+  h+='<span><span class="cost-total-amount">'+(monthly>0?fmtAgPrice(monthly):(tier==='free'?'$0':'--'))+'</span><span class="cost-total-period">'+(monthly>0?t('costPeriod'):'')+'</span></span></div>';
+
+  h+='<div class="cost-actions">';
+  h+='<button class="cost-btn cost-btn-send" onclick="sendAgProposal(\''+clientId+'\')"'+(activeCount===0?' disabled':'')+'>'+t('costSend')+'</button>';
+  h+='<button class="cost-btn cost-btn-link" onclick="window.open(\'/pagos/\',\'_blank\')">'+t('costPay')+'</button>';
+  h+='</div>';
+
+  h+='<div class="cost-note">'+(tier==='free'?t('tierAfter'):t('costNote'))+'</div>';
+  h+='</div></div>';
+  return h;
+}
+
+window.confirmAgToggle=function(agentId,idx,checked){
+  // Revert checkbox until confirmed
+  var checkboxes=document.querySelectorAll('.ag-toggle input');
+  if(checkboxes[idx])checkboxes[idx].checked=!checked;
+
+  var c=null;
+  for(var i=0;i<clients.length;i++){if(clients[i].id===_agDetailClientId){c=clients[i];break;}}
+  if(!c)return;
+  var names=AG_NAMES[LANG];
+  _agPendingToggle={clientId:_agDetailClientId,agentId:agentId,activate:checked};
+
+  document.getElementById('agConfirmTitle').textContent=checked?t('agOnTitle'):t('agOffTitle');
+  document.getElementById('agConfirmMsg').innerHTML=(checked?'Activar':'Desactivar')+' <strong>'+names[idx]+'</strong> para <strong>'+esc(c.name)+'</strong>.';
+  document.getElementById('agConfirmOk').onclick=function(){executeAgToggle();};
+  document.getElementById('agConfirmOverlay').classList.add('visible');
+};
+
+window.closeAgConfirm=function(){
+  document.getElementById('agConfirmOverlay').classList.remove('visible');
+  _agPendingToggle=null;
+};
+
+function executeAgToggle(){
+  if(!_agPendingToggle)return;
+  var p=_agPendingToggle;
+  closeAgConfirm();
+  var states=getClientAgents(p.clientId);
+  if(!states[p.agentId])states[p.agentId]={};
+  states[p.agentId].active=p.activate;
+  if(p.activate)states[p.agentId].since=new Date().toLocaleString('es-CO',{year:'2-digit',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+
+  setClientAgents(p.clientId,states);
+
+  // Telegram notify
+  var c=null;
+  for(var i=0;i<clients.length;i++){if(clients[i].id===p.clientId){c=clients[i];break;}}
+  var agIdx=0;for(var j=0;j<AGENTS.length;j++){if(AGENTS[j].id===p.agentId){agIdx=j;break;}}
+  var agName=AG_NAMES[LANG][agIdx];
+  var TG_BOT='8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I';
+  var TG_CHAT='1081707115';
+  var tgMsg=(p.activate?'AGENTE ACTIVADO':'AGENTE DESACTIVADO')+'\n\n'+agName+'\nCliente: '+(c?c.name:p.clientId)+'\nFecha: '+new Date().toLocaleString('es-CO');
+  fetch('https://api.telegram.org/bot'+TG_BOT+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:TG_CHAT,text:tgMsg})}).catch(function(){});
+
+  showDetail(p.clientId);
+  showFeedback(agName+' '+(p.activate?t('agActive'):t('agInactive')).toLowerCase(),p.activate?'green':'red');
+}
+
+window.sendAgProposal=function(clientId){
+  var states=getClientAgents(clientId);
+  var names=AG_NAMES[LANG];
+  var c=null;
+  for(var j=0;j<clients.length;j++){if(clients[j].id===clientId){c=clients[j];break;}}
+  if(!c)return;
+
+  var activeList=[];var activeCount=0;
+  for(var i=0;i<AGENTS.length;i++){var st=states[AGENTS[i].id];if(st&&st.active){activeList.push(names[i]);activeCount++;}}
+  if(activeCount===0)return;
+
+  var pilot=isClientPilot(clientId);
+  var tier=getAgTier(activeCount,pilot);
+  var tierData=PLAN_TIERS[tier];
+  var planLabel=TIER_NAMES[tier][LANG];
+  var monthly=getAgMonthly(tierData);
+  var impl=getAgImpl(tierData);
+  var cur=agCurrency;
+
+  var TG_BOT='8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I';
+  var TG_CHAT='1081707115';
+  var tgMsg='PROPUESTA DE PLAN\n\nCliente: '+c.name+'\nEmail: '+(c.email||'')+'\n'+(c.phone?'Tel: '+c.phone+'\n':'')+'Plan: '+planLabel+'\nMoneda: '+cur+'\nAgentes ('+activeCount+'/5): '+activeList.join(', ')+'\n\n'+(impl>0?'Implementacion: '+fmtAgPrice(impl)+' (unico)\n':'')+'Mensualidad: '+fmtAgPrice(monthly)+' / mes\nFecha: '+new Date().toLocaleString('es-CO');
+  fetch('https://api.telegram.org/bot'+TG_BOT+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:TG_CHAT,text:tgMsg})}).catch(function(){});
+
+  var W3F_KEY='1746964c-fa0e-418e-8d93-93b6dfb02f37';
+  var w3f=new FormData();
+  w3f.append('access_key',W3F_KEY);
+  w3f.append('subject','Propuesta: '+c.name+' - '+planLabel);
+  w3f.append('from_name','7group Agentes');
+  w3f.append('Cliente',c.name);
+  w3f.append('Email',c.email||'');
+  w3f.append('Telefono',c.phone||'');
+  w3f.append('Plan',planLabel+' ('+cur+')');
+  w3f.append('Agentes ('+activeCount+'/5)',activeList.join(', '));
+  if(impl>0)w3f.append('Implementacion',fmtAgPrice(impl));
+  w3f.append('Mensualidad',fmtAgPrice(monthly)+' / mes');
+  w3f.append('replyto',c.email||'');
+  fetch('https://api.web3forms.com/submit',{method:'POST',body:w3f}).catch(function(){});
+
+  // CRM Sheet
+  if(typeof CRM_URL!=='undefined'&&CRM_URL){
+    fetch(CRM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({fuente:'propuesta-agentes',plan:planLabel+' ('+cur+')',nombre:c.name,email:c.email||'',telefono:c.phone||'',empresa:c.name,agentes:activeList.join(', '),moneda:cur,mensualidad:fmtAgPrice(monthly)+'/mes'})
+    }).catch(function(){});
+  }
+
+  showFeedback(t('costSent'),'green');
+};
+</script>
+<script>
+(function(){
+  var style=document.createElement('style');
+  style.textContent='@keyframes xdPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}.xd-dot{width:7px;height:7px;background:var(--orange,#f97316);border-radius:50%;display:inline-block;margin-left:4px;vertical-align:middle;animation:xdPulse 1.2s ease-in-out infinite}';
+  document.head.appendChild(style);
+  function checkXD(){
+    try{
+      var d=JSON.parse(localStorage.getItem('7g-dispatches')||'[]');
+      var pending=d.filter(function(x){return x.status!=='delivered'&&x.status!=='completed';});
+      var link=document.querySelector('.mod-link[data-t="modDisp"]');
+      if(!link)return;
+      var dot=link.querySelector('.xd-dot');
+      if(pending.length>0){if(!dot){dot=document.createElement('span');dot.className='xd-dot';dot.title=pending.length+' pending';link.appendChild(dot);}dot.title=pending.length+' pending';}
+      else if(dot){dot.remove();}
+    }catch(e){}
+  }
+  checkXD();setInterval(checkXD,5000);
+})();
+</script>
+</body>
+</html>
