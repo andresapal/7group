@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Agentes -- 7Group Logistics</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --cyan:#0e7490;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:16px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:6px}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.tb-toggle{padding:4px 8px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.mod-link{padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.mod-link:hover{color:var(--white)}.mod-link.active{color:var(--cyan);border-color:var(--cyan)}
+
+.main{max-width:640px;margin:0 auto;padding:16px}
+
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px}
+.kpi-val{font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+.kpi-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.kpi-val.cyan{color:var(--cyan)}.kpi-val.green{color:var(--green)}.kpi-val.orange{color:var(--orange)}.kpi-val.red{color:var(--red)}
+
+/* Client selector */
+.client-select-wrap{margin-bottom:16px}
+.client-select{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--white);font-family:inherit;outline:none;cursor:pointer;transition:.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.client-select:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
+.client-select option{background:var(--bg2);color:var(--white)}
+
+/* Agent cards */
+.agent-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.agent-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px;transition:.2s}
+.agent-card:hover{border-color:var(--border3)}
+.agent-card.active{border-color:rgba(34,197,94,.25)}
+.agent-card.inactive{opacity:.65}
+.agent-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.agent-left{display:flex;align-items:center;gap:12px}
+.agent-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.agent-icon svg{width:18px;height:18px}
+.agent-name{font-size:14px;font-weight:700;color:var(--white)}
+.agent-id{font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.agent-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:12px}
+.agent-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:var(--dim)}
+.agent-meta span{display:flex;align-items:center;gap:4px}
+
+/* Toggle switch */
+.toggle{position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;border-radius:12px;background:var(--bg4);border:1px solid var(--border3);transition:.3s}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--dim);transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.toggle input:checked+.toggle-track{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3)}
+.toggle input:checked+.toggle-track+.toggle-thumb{left:23px;background:var(--green)}
+
+/* Status badges */
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.status-active{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.status-inactive{background:rgba(100,116,139,.08);color:var(--dim);border:1px solid rgba(100,116,139,.15)}
+.status-dot{width:6px;height:6px;border-radius:50%}
+.status-active .status-dot{background:var(--green)}
+.status-inactive .status-dot{background:var(--dim)}
+
+/* History log */
+.log-section{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.log-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.log-title{font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:1px}
+.log-body{max-height:200px;overflow-y:auto}
+.log-item{padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;display:flex;justify-content:space-between;align-items:center}
+.log-item:last-child{border-bottom:none}
+.log-action{color:var(--white)}
+.log-time{color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px}
+.log-on{color:var(--green)}.log-off{color:var(--red)}
+
+/* Cost summary panel */
+.cost-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.cost-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cost-title{font-size:11px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:1px}
+.cur-toggle{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.cur-btn{background:transparent;color:var(--muted);border:none;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;transition:all .15s}
+.cur-btn.active{background:var(--accent);color:#fff}
+.cur-btn:hover:not(.active){background:rgba(255,255,255,.04)}
+.cost-plan-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:4px}
+.cost-plan-free{background:rgba(94,231,247,.08);color:var(--cyan);border:1px solid rgba(94,231,247,.15)}
+.cost-plan-paid{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.15)}
+.cost-body{padding:0}
+.cost-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:12px}
+.cost-row:last-child{border-bottom:none}
+.cost-row-name{color:var(--dim);display:flex;align-items:center;gap:6px}
+.cost-row-name .cost-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.cost-row-price{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--white);font-weight:600}
+.cost-row-price.off{color:var(--muted);text-decoration:line-through}
+.cost-total{padding:14px 16px;border-top:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;background:var(--bg3)}
+.cost-total-label{font-size:12px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:.5px}
+.cost-total-amount{font-size:20px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;color:var(--cyan);letter-spacing:-.03em}
+.cost-total-period{font-size:10px;color:var(--dim);margin-left:4px;font-weight:400;letter-spacing:0}
+.cost-actions{padding:12px 16px;display:flex;gap:8px}
+.cost-btn{flex:1;padding:12px;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:.2s;text-align:center}
+.cost-btn-send{background:var(--cyan);color:#060a0e}
+.cost-btn-send:hover{background:#7bf0ff}
+.cost-btn-send:disabled{opacity:.4;cursor:not-allowed}
+.cost-btn-link{background:var(--bg3);color:var(--white);border:1px solid var(--border3)}
+.cost-btn-link:hover{border-color:var(--cyan);color:var(--cyan)}
+.cost-note{padding:0 16px 12px;font-size:10px;color:var(--muted);line-height:1.5}
+.cost-sent{padding:12px 16px;text-align:center;font-size:12px;color:var(--green);display:none}
+
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--cyan);color:#060a0e;width:100%;justify-content:center;padding:14px}
+.btn-primary:hover{background:#7bf0ff}.btn-primary:active{transform:scale(.97)}
+
+.empty-state{text-align:center;padding:40px 16px;color:var(--dim)}
+.empty-state p{font-size:13px;margin-bottom:4px}
+.empty-state small{font-size:11px;color:var(--muted)}
+
+.foot{text-align:center;padding:16px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.auth-gate.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
+.auth-box{text-align:center;max-width:340px;padding:32px 24px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:11px;color:var(--dim);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:12px;color:var(--dim);margin-bottom:24px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:16px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:12px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+/* Confirm modal */
+.confirm-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+.confirm-overlay.open{display:flex}
+.confirm-box{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;max-width:380px;width:100%;text-align:center}
+.confirm-box h4{font-size:15px;margin-bottom:8px}
+.confirm-box p{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:20px}
+.confirm-actions{display:flex;gap:8px}
+.confirm-actions button{flex:1;padding:12px;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:.2s}
+.btn-cancel{background:var(--bg3);color:var(--white);border:1px solid var(--border3)!important}
+.btn-confirm-on{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.2)!important}
+.btn-confirm-off{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.15)!important}
+
+@media(max-width:480px){.main{padding:12px}.kpi-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<script src="../firebase-config.js"></script>
+
+<script>
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){
+  document.getElementById('authGate').classList.add('hidden');
+  document.getElementById('appWrap').classList.add('visible');
+  init();
+}
+function checkPin(){var p=document.getElementById('pinInput').value;if(p==='7741'){sessionStorage.setItem('7g-auth','pin');unlockApp();}else{document.getElementById('pinError').style.display='block';document.getElementById('pinInput').value='';}}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+(function(){var s=sessionStorage.getItem('7g-auth');if(s&&(ALLOWED_EMAILS.indexOf(s)!==-1||s==='pin'))unlockApp();else initGoogleAuth();})();
+</script>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc" id="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-divider"></div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:8px">O ingrese con PIN de operador:</div>
+    <div style="display:flex;gap:6px;justify-content:center">
+      <input type="password" id="pinInput" maxlength="4" placeholder="PIN" style="width:80px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:14px;text-align:center;letter-spacing:4px" onkeydown="if(event.key==='Enter')checkPin()">
+      <button onclick="checkPin()" style="padding:8px 14px;background:rgba(94,231,247,.1);border:1px solid rgba(94,231,247,.2);border-radius:6px;color:var(--cyan);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">OK</button>
+    </div>
+    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-error" id="pinError" style="display:none">PIN incorrecto.</div>
+    <div class="auth-footer">Solo personal autorizado</div>
+  </div>
+</div>
+
+<div class="app-wrap" id="appWrap">
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" id="tbBadge">Agentes</span>
+  </div>
+  <div class="tb-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
+    </button>
+  </div>
+</nav>
+
+<div class="mod-nav" id="modNav">
+  <a href="/demos/logistica-pyme/shipment/" class="mod-link" data-t="modShip">Shipment</a>
+  <a href="/demos/logistica-pyme/" class="mod-link" data-t="modRecv">Recibo</a>
+  <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
+  <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
+  <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
+  <a href="/demos/logistica-pyme/clientes/" class="mod-link" data-t="modClients">Clientes</a>
+  <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
+  <a href="/demos/logistica-pyme/agentes/" class="mod-link active" data-t="modAgents">Agentes</a>
+</div>
+
+<div class="main">
+
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi-val cyan" id="kpiTotal">0</div><div class="kpi-label" id="kpiLblTotal">Total agentes</div></div>
+  <div class="kpi"><div class="kpi-val green" id="kpiActive">0</div><div class="kpi-label" id="kpiLblActive">Activos</div></div>
+  <div class="kpi"><div class="kpi-val red" id="kpiInactive">0</div><div class="kpi-label" id="kpiLblInactive">Inactivos</div></div>
+  <div class="kpi"><div class="kpi-val orange" id="kpiClients">0</div><div class="kpi-label" id="kpiLblClients">Clientes</div></div>
+</div>
+
+<!-- Client selector -->
+<div class="client-select-wrap">
+  <select class="client-select" id="clientSelect" onchange="selectClient(this.value)">
+    <option value="" id="optDefault">-- Seleccionar cliente --</option>
+  </select>
+</div>
+
+<!-- Agent cards container -->
+<div id="agentArea">
+  <div class="empty-state">
+    <p id="emptyTitle">Selecciona un cliente</p>
+    <small id="emptySub">Elige un cliente del listado para gestionar sus agentes</small>
+  </div>
+</div>
+
+<!-- Cost summary -->
+<div class="cost-panel" id="costPanel" style="display:none">
+  <div class="cost-head">
+    <span class="cost-title" id="costTitle">Resumen de costos</span>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div class="cur-toggle">
+        <button class="cur-btn active" id="curCOP" onclick="setCurrency('COP')">COP</button>
+        <button class="cur-btn" id="curUSD" onclick="setCurrency('USD')">USD</button>
+      </div>
+      <span class="cost-plan-tag" id="costPlanTag">--</span>
+    </div>
+  </div>
+  <div class="cost-body" id="costBody"></div>
+  <div class="cost-total">
+    <span class="cost-total-label" id="costTotalLabel">Total mensual</span>
+    <span><span class="cost-total-amount" id="costTotalAmount">$0</span><span class="cost-total-period" id="costTotalPeriod"> / mes</span></span>
+  </div>
+  <div class="cost-actions" id="costActions">
+    <button class="cost-btn cost-btn-send" id="costBtnSend" onclick="sendProposal()">Enviar propuesta</button>
+    <button class="cost-btn cost-btn-link" id="costBtnPay" onclick="window.open('/pagos/','_blank')">Ver pagos</button>
+  </div>
+  <div class="cost-sent" id="costSent">Propuesta enviada</div>
+  <div class="cost-note" id="costNote">Los precios se ajustan segun alcance y volumen. El piloto gratuito incluye 1 agente por 30 dias.</div>
+</div>
+
+<!-- History log -->
+<div class="log-section" id="logSection" style="display:none">
+  <div class="log-head">
+    <span class="log-title" id="logTitle">Historial de cambios</span>
+  </div>
+  <div class="log-body" id="logBody"></div>
+</div>
+
+</div>
+
+<div class="foot">7group -- logistics intelligence</div>
+</div>
+
+<!-- Confirm modal -->
+<div class="confirm-overlay" id="confirmOverlay" onclick="if(event.target===this)closeConfirm()">
+  <div class="confirm-box">
+    <h4 id="confirmTitle">Confirmar</h4>
+    <p id="confirmMsg">...</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="closeConfirm()" id="confirmCancel">Cancelar</button>
+      <button id="confirmOk" onclick="execConfirm()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ── Theme ── */
+(function(){var s=localStorage.getItem('7g-theme');if(s==='light')document.documentElement.classList.add('light');})();
+window.toggleTheme=function(){
+  var isLight=document.documentElement.classList.toggle('light');
+  localStorage.setItem('7g-theme',isLight?'light':'dark');
+  var btn=document.getElementById('themeToggle');
+  if(isLight){btn.innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.2 8.8a5.5 5.5 0 0 1-6-6C4.4 3.6 2.5 6 2.5 8.8a5.2 5.2 0 0 0 5.2 5.2c2.8 0 5.2-1.9 5.5-5.2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK';}
+  else{btn.innerHTML='<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
+};
+
+/* ── i18n ── */
+var lang='es';
+var T={
+  es:{
+    badge:'Agentes',
+    kpiTotal:'Total agentes',kpiActive:'Activos',kpiInactive:'Inactivos',kpiClients:'Clientes',
+    optDefault:'-- Seleccionar cliente --',
+    emptyTitle:'Selecciona un cliente',emptySub:'Elige un cliente del listado para gestionar sus agentes',
+    noClients:'Sin clientes registrados',noClientsSub:'Agrega clientes en el modulo de Clientes primero',
+    logTitle:'Historial de cambios',
+    confirmCancel:'Cancelar',confirmOk:'Confirmar',
+    confirmOnTitle:'Activar agente',confirmOffTitle:'Desactivar agente',
+    confirmOnMsg:function(a,c){return 'Activar <strong>'+a+'</strong> para <strong>'+c+'</strong>. El agente comenzara a operar inmediatamente.';},
+    confirmOffMsg:function(a,c){return 'Desactivar <strong>'+a+'</strong> para <strong>'+c+'</strong>. El agente dejara de operar.';},
+    activated:'Activado',deactivated:'Desactivado',
+    logOn:function(a){return a+' activado';},
+    logOff:function(a){return a+' desactivado';},
+    agentNames:['Comercial','Operaciones','Financiero','Atencion','Logistico'],
+    agentDescs:[
+      'Cotizaciones automaticas, seguimiento de oportunidades, generacion de propuestas comerciales.',
+      'Coordinacion de flujos operativos, monitoreo de KPIs, alertas en tiempo real.',
+      'Facturacion electronica automatica, gestion de cartera, reportes financieros.',
+      'Respuesta 24/7, gestion de PQR, enrutamiento inteligente de solicitudes.',
+      'Asignacion de despachos, rutas optimizadas, notificaciones de entrega al cliente.'
+    ],
+    costTitle:'Plan asignado',costTotalLabel:'Total mensual',costPeriod:' / mes',costImpl:'Implementacion',
+    costNote:'Precios publicados en 7group.site/pagos. El piloto gratuito incluye 1 agente por 30 dias.',
+    costBtnSend:'Enviar propuesta',costBtnPay:'Ver pagos',costSent:'Propuesta enviada al cliente',
+    costSending:'Enviando...',
+    tierNone:'Sin agentes activos',
+    tierAfterPilot:'Despues del piloto, el agente pasa a plan Starter.',
+    modShip:'Shipment',modRecv:'Recibo',modInv:'Inventario',modWh:'Bodega',modDisp:'Despachos',modClients:'Clientes',modDash:'Dashboard',modAgents:'Agentes'
+  },
+  en:{
+    badge:'Agents',
+    kpiTotal:'Total agents',kpiActive:'Active',kpiInactive:'Inactive',kpiClients:'Clients',
+    optDefault:'-- Select client --',
+    emptyTitle:'Select a client',emptySub:'Choose a client from the list to manage their agents',
+    noClients:'No registered clients',noClientsSub:'Add clients in the Clients module first',
+    logTitle:'Change history',
+    confirmCancel:'Cancel',confirmOk:'Confirm',
+    confirmOnTitle:'Activate agent',confirmOffTitle:'Deactivate agent',
+    confirmOnMsg:function(a,c){return 'Activate <strong>'+a+'</strong> for <strong>'+c+'</strong>. The agent will start operating immediately.';},
+    confirmOffMsg:function(a,c){return 'Deactivate <strong>'+a+'</strong> for <strong>'+c+'</strong>. The agent will stop operating.';},
+    activated:'Activated',deactivated:'Deactivated',
+    logOn:function(a){return a+' activated';},
+    logOff:function(a){return a+' deactivated';},
+    agentNames:['Sales','Operations','Finance','Support','Logistics'],
+    agentDescs:[
+      'Automatic quoting, opportunity tracking, commercial proposal generation.',
+      'Operational flow coordination, KPI monitoring, real-time alerts.',
+      'Automatic electronic invoicing, accounts receivable management, financial reports.',
+      '24/7 response, PQR management, intelligent request routing.',
+      'Dispatch assignment, optimized routes, delivery notifications to client.'
+    ],
+    costTitle:'Assigned plan',costTotalLabel:'Monthly total',costPeriod:' / month',costImpl:'Implementation',
+    costNote:'Pricing published at 7group.site/pagos. Free pilot includes 1 agent for 30 days.',
+    costBtnSend:'Send proposal',costBtnPay:'View payments',costSent:'Proposal sent to client',
+    costSending:'Sending...',
+    tierNone:'No active agents',
+    tierAfterPilot:'After the pilot, the agent moves to the Starter plan.',
+    modShip:'Shipment',modRecv:'Receiving',modInv:'Inventory',modWh:'Warehouse',modDisp:'Dispatch',modClients:'Clients',modDash:'Dashboard',modAgents:'Agents'
+  }
+};
+function t(k){return T[lang][k]||k;}
+
+window.setLang=function(l){
+  lang=l;
+  document.getElementById('langES').classList.toggle('active',l==='es');
+  document.getElementById('langEN').classList.toggle('active',l==='en');
+  applyLang();
+};
+
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.getElementById('tbBadge').textContent=t('badge');
+  document.getElementById('kpiLblTotal').textContent=t('kpiTotal');
+  document.getElementById('kpiLblActive').textContent=t('kpiActive');
+  document.getElementById('kpiLblInactive').textContent=t('kpiInactive');
+  document.getElementById('kpiLblClients').textContent=t('kpiClients');
+  document.getElementById('optDefault').textContent=t('optDefault');
+  var emptyEl=document.getElementById('emptyTitle');if(emptyEl)emptyEl.textContent=t('emptyTitle');
+  var emptySub=document.getElementById('emptySub');if(emptySub)emptySub.textContent=t('emptySub');
+  document.getElementById('logTitle').textContent=t('logTitle');
+  document.getElementById('confirmCancel').textContent=t('confirmCancel');
+  // nav links
+  var navKeys=['modShip','modRecv','modInv','modWh','modDisp','modClients','modDash','modAgents'];
+  var navEls=document.querySelectorAll('.mod-link');
+  for(var i=0;i<navEls.length;i++){
+    var k=navEls[i].getAttribute('data-t');
+    if(k&&T[lang][k])navEls[i].textContent=T[lang][k];
+  }
+  // re-render if client selected
+  if(selectedClient)renderAgents();
+  renderLog();
+  // update nav hrefs with lang param
+  var lp=lang==='en'?'?lang=en':'';
+  var links=document.querySelectorAll('.mod-link');
+  for(var j=0;j<links.length;j++){
+    var href=links[j].getAttribute('href').split('?')[0];
+    links[j].href=href+lp;
+  }
+}
+
+/* ── Agent definitions ── */
+// Plan pricing tiers — must match /pagos/ public page
+// COP for Colombia, USD for US market
+var currency='COP';
+var PLAN_TIERS={
+  free:    {max:1, cop:0,       usd:0,   impl_cop:0,        impl_usd:0,    label_es:'Piloto gratuito',        label_en:'Free Pilot'},
+  starter: {max:1, cop:350000,  usd:79,  impl_cop:2000000,  impl_usd:500,  label_es:'Starter — $350K/mes',    label_en:'Starter — $79/mo'},
+  essential:{max:3,cop:1100000, usd:249, impl_cop:10000000, impl_usd:2500, label_es:'Esencial — $1.1M/mes',   label_en:'Essential — $249/mo'},
+  pro:     {max:5, cop:1800000, usd:399, impl_cop:10000000, impl_usd:2500, label_es:'Profesional — $1.8M/mes',label_en:'Professional — $399/mo'}
+};
+
+var AGENTS=[
+  {id:'commercial',icon:'sales',   color:'var(--cyan)'},
+  {id:'operations',icon:'ops',     color:'var(--orange)'},
+  {id:'finance',   icon:'finance', color:'var(--green)'},
+  {id:'support',   icon:'support', color:'var(--blue)'},
+  {id:'logistics', icon:'logistics',color:'var(--purple)'}
+];
+
+var AGENT_ICONS={
+  sales:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>',
+  ops:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  finance:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+  support:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  logistics:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
+};
+
+/* ── Data ── */
+var clients=[];
+var selectedClient=null;
+var agentStates={}; // { clientId: { commercial: {active:bool, since:ISO}, ... } }
+var changeLog=[];   // [{ts:ISO, clientId, clientName, agentId, action:'on'|'off'}]
+
+var STORAGE_KEY='7g_agent_states';
+var LOG_KEY='7g_agent_log';
+
+function loadData(){
+  try{agentStates=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');}catch(e){agentStates={};}
+  try{changeLog=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');}catch(e){changeLog=[];}
+  // Load clients from shared storage
+  clients=LocalCache.get('clients');
+}
+
+function saveStates(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(agentStates));
+}
+function saveLog(){
+  localStorage.setItem(LOG_KEY,JSON.stringify(changeLog));
+}
+
+function getClientAgents(clientId){
+  if(!agentStates[clientId]){
+    agentStates[clientId]={};
+    for(var i=0;i<AGENTS.length;i++){
+      agentStates[clientId][AGENTS[i].id]={active:false,since:null};
+    }
+  }
+  return agentStates[clientId];
+}
+
+/* ── Render ── */
+function renderClientSelect(){
+  var sel=document.getElementById('clientSelect');
+  // Keep first option
+  while(sel.options.length>1)sel.remove(1);
+  if(clients.length===0){
+    document.getElementById('emptyTitle').textContent=t('noClients');
+    document.getElementById('emptySub').textContent=t('noClientsSub');
+    return;
+  }
+  for(var i=0;i<clients.length;i++){
+    var opt=document.createElement('option');
+    opt.value=clients[i].id;
+    opt.textContent=clients[i].name+(clients[i].city?' -- '+clients[i].city:'');
+    sel.appendChild(opt);
+  }
+}
+
+function renderKPIs(){
+  var totalAgents=AGENTS.length;
+  var activeCount=0,inactiveCount=0,clientCount=0;
+  var clientsWithAgents={};
+  for(var cid in agentStates){
+    var cs=agentStates[cid];
+    var hasActive=false;
+    for(var aid in cs){
+      if(cs[aid].active){activeCount++;hasActive=true;}
+      else{inactiveCount++;}
+    }
+    if(hasActive)clientsWithAgents[cid]=true;
+  }
+  clientCount=Object.keys(clientsWithAgents).length;
+  document.getElementById('kpiTotal').textContent=activeCount+inactiveCount||totalAgents;
+  document.getElementById('kpiActive').textContent=activeCount;
+  document.getElementById('kpiInactive').textContent=inactiveCount||totalAgents;
+  document.getElementById('kpiClients').textContent=clientCount;
+}
+
+window.selectClient=function(clientId){
+  if(!clientId){selectedClient=null;showEmpty();return;}
+  selectedClient=clientId;
+  renderAgents();
+};
+
+function showEmpty(){
+  document.getElementById('agentArea').innerHTML='<div class="empty-state"><p id="emptyTitle">'+t('emptyTitle')+'</p><small id="emptySub">'+t('emptySub')+'</small></div>';
+  document.getElementById('logSection').style.display='none';
+  document.getElementById('costPanel').style.display='none';
+}
+
+function renderAgents(){
+  if(!selectedClient){showEmpty();return;}
+  var states=getClientAgents(selectedClient);
+  var names=T[lang].agentNames;
+  var descs=T[lang].agentDescs;
+  var h='<div class="agent-grid">';
+  for(var i=0;i<AGENTS.length;i++){
+    var ag=AGENTS[i];
+    var st=states[ag.id];
+    var isActive=st&&st.active;
+    var cls=isActive?'active':'inactive';
+    var statusCls=isActive?'status-active':'status-inactive';
+    var statusTxt=isActive?t('activated'):t('deactivated');
+    var since=st&&st.since?formatDate(st.since):'--';
+
+    h+='<div class="agent-card '+cls+'">';
+    h+='<div class="agent-top">';
+    h+='<div class="agent-left">';
+    h+='<div class="agent-icon" style="background:'+ag.color.replace(')',',0.1)').replace('var(','rgba(')+'80,0.1);color:'+ag.color+'">'+AGENT_ICONS[ag.icon]+'</div>';
+    h+='<div><div class="agent-name">'+esc(names[i])+'</div>';
+    h+='<div class="agent-id">agent.'+ag.id+'</div></div>';
+    h+='</div>';
+    h+='<label class="toggle" onclick="event.stopPropagation()">';
+    h+='<input type="checkbox" '+(isActive?'checked':'')+' onchange="toggleAgent(\''+ag.id+'\',this.checked)">';
+    h+='<span class="toggle-track"></span><span class="toggle-thumb"></span>';
+    h+='</label>';
+    h+='</div>';
+    h+='<div class="agent-desc">'+esc(descs[i])+'</div>';
+    h+='<div class="agent-meta">';
+    h+='<span class="status-badge '+statusCls+'"><span class="status-dot"></span>'+statusTxt+'</span>';
+    if(isActive)h+='<span>Desde: '+since+'</span>';
+    h+='</div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  document.getElementById('agentArea').innerHTML=h;
+  document.getElementById('logSection').style.display='';
+  renderLog();
+  renderKPIs();
+  renderCostPanel();
+}
+
+/* ── Cost Panel (tier-based, COP/USD, matches /pagos/) ── */
+function fmtPrice(n){
+  if(currency==='USD'){
+    return n>=1000?'$'+(n/1000).toFixed(1).replace('.0','')+'K USD':'$'+n+' USD';
+  }
+  if(n>=1000000)return '$'+((n/1000000).toFixed(1).replace('.0',''))+'M';
+  if(n>=1000)return '$'+Math.round(n/1000)+'K';
+  return '$'+n;
+}
+
+function getMonthly(tierData){return currency==='USD'?tierData.usd:tierData.cop;}
+function getImpl(tierData){return currency==='USD'?tierData.impl_usd:tierData.impl_cop;}
+
+function getTier(activeCount,isPilot){
+  if(activeCount<=0)return null;
+  if(activeCount===1&&isPilot)return 'free';
+  if(activeCount===1)return 'starter';
+  if(activeCount<=PLAN_TIERS.essential.max)return 'essential';
+  return 'pro';
+}
+
+// Check if client is still in pilot (within 30 days of first activation)
+function isClientPilot(clientId){
+  var states=getClientAgents(clientId);
+  var earliest=null;
+  for(var id in states){
+    if(states[id].since){
+      var d=new Date(states[id].since).getTime();
+      if(!earliest||d<earliest)earliest=d;
+    }
+  }
+  if(!earliest)return true;
+  var daysSince=(Date.now()-earliest)/(1000*60*60*24);
+  return daysSince<=30;
+}
+
+window.setCurrency=function(c){
+  currency=c;
+  document.getElementById('curCOP').classList.toggle('active',c==='COP');
+  document.getElementById('curUSD').classList.toggle('active',c==='USD');
+  renderCostPanel();
+};
+
+function renderCostPanel(){
+  if(!selectedClient){document.getElementById('costPanel').style.display='none';return;}
+  var states=getClientAgents(selectedClient);
+  var names=T[lang].agentNames;
+  var activeCount=0;
+  var activeNames=[];
+
+  var bodyH='';
+  for(var i=0;i<AGENTS.length;i++){
+    var ag=AGENTS[i];
+    var st=states[ag.id];
+    var isOn=st&&st.active;
+    if(isOn){activeCount++;activeNames.push(names[i]);}
+    var dotColor=isOn?ag.color:'var(--muted)';
+    var statusTxt=isOn?(lang==='es'?'Activo':'Active'):(lang==='es'?'Inactivo':'Inactive');
+    var statusStyle=isOn?'color:var(--green)':'color:var(--muted)';
+
+    bodyH+='<div class="cost-row">';
+    bodyH+='<span class="cost-row-name"><span class="cost-dot" style="background:'+dotColor+'"></span>'+esc(names[i])+'</span>';
+    bodyH+='<span class="cost-row-price" style="'+statusStyle+'">'+statusTxt+'</span>';
+    bodyH+='</div>';
+  }
+  document.getElementById('costBody').innerHTML=bodyH;
+
+  var isPilot=isClientPilot(selectedClient);
+  var tier=getTier(activeCount,isPilot);
+  var tierData=tier?PLAN_TIERS[tier]:null;
+  var monthly=tierData?getMonthly(tierData):0;
+  var impl=tierData?getImpl(tierData):0;
+
+  document.getElementById('costTotalAmount').textContent=monthly>0?fmtPrice(monthly):(tier==='free'?'$0':'--');
+  document.getElementById('costTotalPeriod').textContent=monthly>0?t('costPeriod'):'';
+  document.getElementById('costTotalLabel').textContent=t('costTotalLabel');
+  document.getElementById('costTitle').textContent=t('costTitle');
+  document.getElementById('costNote').textContent=t('costNote');
+  document.getElementById('costBtnSend').textContent=t('costBtnSend');
+  document.getElementById('costBtnSend').disabled=activeCount===0;
+  document.getElementById('costBtnPay').textContent=t('costBtnPay');
+  document.getElementById('costSent').textContent=t('costSent');
+  document.getElementById('costSent').style.display='none';
+  document.getElementById('costActions').style.display='';
+
+  // Plan tag
+  var tag=document.getElementById('costPlanTag');
+  if(!tier){
+    tag.textContent=t('tierNone');tag.className='cost-plan-tag';
+  }else{
+    var isFree=tier==='free';
+    var tierName={free:{es:'Piloto gratuito',en:'Free Pilot'},starter:{es:'Starter',en:'Starter'},essential:{es:'Esencial',en:'Essential'},pro:{es:'Profesional',en:'Professional'}};
+    var lbl=tierName[tier][lang]+' — '+fmtPrice(getMonthly(tierData))+(lang==='es'?'/mes':'/mo');
+    tag.textContent=lbl+(isPilot&&activeCount===1?' (30d)':'');
+    tag.className='cost-plan-tag '+(isFree?'cost-plan-free':'cost-plan-paid');
+  }
+
+  // Show pilot note if applicable
+  if(tier==='free'){
+    document.getElementById('costNote').textContent=t('tierAfterPilot');
+  }
+
+  document.getElementById('costPanel').style.display='';
+}
+
+window.sendProposal=function(){
+  if(!selectedClient)return;
+  var states=getClientAgents(selectedClient);
+  var names=T[lang].agentNames;
+  var clientName='',clientEmail='',clientPhone='';
+  for(var j=0;j<clients.length;j++){
+    if(clients[j].id===selectedClient){clientName=clients[j].name;clientEmail=clients[j].email||'';clientPhone=clients[j].phone||'';break;}
+  }
+
+  var activeList=[];
+  var activeCount=0;
+  for(var i=0;i<AGENTS.length;i++){
+    var st=states[AGENTS[i].id];
+    if(st&&st.active){activeList.push(names[i]);activeCount++;}
+  }
+  if(activeCount===0)return;
+
+  var btn=document.getElementById('costBtnSend');
+  btn.disabled=true;
+  btn.textContent=t('costSending');
+
+  var isPilot=isClientPilot(selectedClient);
+  var tier=getTier(activeCount,isPilot);
+  var tierData=PLAN_TIERS[tier];
+  var planLabel=tierData['label_'+lang];
+  var monthly=getMonthly(tierData);
+  var implCost=getImpl(tierData);
+  var cur=currency;
+
+  var tgMsg='PROPUESTA DE PLAN\n\n'
+    +'Cliente: '+clientName+'\n'
+    +'Email: '+clientEmail+'\n'
+    +(clientPhone?'Tel: '+clientPhone+'\n':'')
+    +'Plan: '+planLabel+'\n'
+    +'Moneda: '+cur+'\n'
+    +'Agentes ('+activeCount+'/5): '+activeList.join(', ')+'\n\n'
+    +(implCost>0?'Implementacion: '+fmtPrice(implCost)+' (unico)\n':'')
+    +'Mensualidad: '+fmtPrice(monthly)+' / mes\n'
+    +(isPilot&&activeCount===1?'Estado: En periodo de prueba (30 dias)\n':'')
+    +'Fecha: '+new Date().toLocaleString('es-CO');
+
+  var TG_BOT='8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I';
+  var TG_CHAT='1081707115';
+  fetch('https://api.telegram.org/bot'+TG_BOT+'/sendMessage',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:TG_CHAT,text:tgMsg})
+  }).catch(function(){});
+
+  var W3F_KEY='1746964c-fa0e-418e-8d93-93b6dfb02f37';
+  var w3f=new FormData();
+  w3f.append('access_key',W3F_KEY);
+  w3f.append('subject','Propuesta: '+clientName+' - '+planLabel);
+  w3f.append('from_name','7group Agentes');
+  w3f.append('Cliente',clientName);
+  w3f.append('Email',clientEmail);
+  w3f.append('Telefono',clientPhone);
+  w3f.append('Plan',planLabel+' ('+cur+')');
+  w3f.append('Agentes ('+activeCount+'/5)',activeList.join(', '));
+  if(implCost>0)w3f.append('Implementacion',fmtPrice(implCost));
+  w3f.append('Mensualidad',fmtPrice(monthly)+' / mes');
+  w3f.append('replyto',clientEmail);
+  fetch('https://api.web3forms.com/submit',{method:'POST',body:w3f}).catch(function(){});
+
+  setTimeout(function(){
+    document.getElementById('costActions').style.display='none';
+    document.getElementById('costSent').style.display='';
+  },600);
+};
+
+/* ── Toggle with confirmation ── */
+var pendingToggle=null;
+
+window.toggleAgent=function(agentId,newState){
+  // Revert checkbox immediately, wait for confirmation
+  var checkboxes=document.querySelectorAll('.agent-card input[type=checkbox]');
+  for(var i=0;i<AGENTS.length;i++){
+    if(AGENTS[i].id===agentId){
+      checkboxes[i].checked=!newState;
+      break;
+    }
+  }
+
+  var clientName='';
+  for(var j=0;j<clients.length;j++){
+    if(clients[j].id===selectedClient){clientName=clients[j].name;break;}
+  }
+  var agentIdx=0;
+  for(var k=0;k<AGENTS.length;k++){if(AGENTS[k].id===agentId){agentIdx=k;break;}}
+  var agentName=T[lang].agentNames[agentIdx];
+
+  pendingToggle={agentId:agentId,state:newState};
+
+  var overlay=document.getElementById('confirmOverlay');
+  document.getElementById('confirmTitle').textContent=newState?t('confirmOnTitle'):t('confirmOffTitle');
+  document.getElementById('confirmMsg').innerHTML=newState?t('confirmOnMsg')(agentName,clientName):t('confirmOffMsg')(agentName,clientName);
+  var okBtn=document.getElementById('confirmOk');
+  okBtn.textContent=t('confirmOk');
+  okBtn.className=newState?'btn-confirm-on':'btn-confirm-off';
+  overlay.classList.add('open');
+};
+
+window.closeConfirm=function(){
+  document.getElementById('confirmOverlay').classList.remove('open');
+  pendingToggle=null;
+};
+
+window.execConfirm=function(){
+  if(!pendingToggle)return;
+  var agentId=pendingToggle.agentId;
+  var newState=pendingToggle.state;
+  closeConfirm();
+
+  var states=getClientAgents(selectedClient);
+  states[agentId].active=newState;
+  states[agentId].since=newState?new Date().toISOString():null;
+  saveStates();
+
+  var clientName='';
+  for(var j=0;j<clients.length;j++){
+    if(clients[j].id===selectedClient){clientName=clients[j].name;break;}
+  }
+  var agentIdx=0;
+  for(var k=0;k<AGENTS.length;k++){if(AGENTS[k].id===agentId){agentIdx=k;break;}}
+  var agentName=T[lang].agentNames[agentIdx];
+
+  changeLog.unshift({
+    ts:new Date().toISOString(),
+    clientId:selectedClient,
+    clientName:clientName,
+    agentId:agentId,
+    agentName:agentName,
+    action:newState?'on':'off'
+  });
+  if(changeLog.length>100)changeLog=changeLog.slice(0,100);
+  saveLog();
+
+  // Notify admin via Telegram
+  var TG_BOT='8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I';
+  var TG_CHAT='1081707115';
+  var emoji=newState?'ON':'OFF';
+  var tgMsg='AGENTE '+emoji+'\n\n'
+    +'Agente: '+agentName+' ('+agentId+')\n'
+    +'Cliente: '+clientName+'\n'
+    +'Accion: '+(newState?'Activado':'Desactivado')+'\n'
+    +'Fecha: '+new Date().toLocaleString('es-CO');
+  fetch('https://api.telegram.org/bot'+TG_BOT+'/sendMessage',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:TG_CHAT,text:tgMsg})
+  }).catch(function(){});
+
+  renderAgents();
+};
+
+/* ── Log ── */
+function renderLog(){
+  var el=document.getElementById('logBody');
+  // Filter to selected client
+  var filtered=changeLog.filter(function(l){return l.clientId===selectedClient;});
+  if(filtered.length===0){
+    el.innerHTML='<div style="padding:16px;text-align:center;font-size:11px;color:var(--dim)">--</div>';
+    return;
+  }
+  var h='';
+  var max=Math.min(filtered.length,20);
+  for(var i=0;i<max;i++){
+    var l=filtered[i];
+    var cls=l.action==='on'?'log-on':'log-off';
+    var txt=l.action==='on'?t('logOn')(l.agentName):t('logOff')(l.agentName);
+    h+='<div class="log-item"><span class="log-action '+cls+'">'+esc(txt)+'</span><span class="log-time">'+formatDate(l.ts)+'</span></div>';
+  }
+  el.innerHTML=h;
+}
+
+/* ── Helpers ── */
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+function formatDate(iso){
+  if(!iso)return '--';
+  var d=new Date(iso);
+  var dd=String(d.getDate()).padStart(2,'0');
+  var mm=String(d.getMonth()+1).padStart(2,'0');
+  var yy=String(d.getFullYear()).slice(-2);
+  var hh=String(d.getHours()).padStart(2,'0');
+  var mi=String(d.getMinutes()).padStart(2,'0');
+  return dd+'/'+mm+'/'+yy+' '+hh+':'+mi;
+}
+
+/* ── Init ── */
+window.init=function(){
+  loadData();
+  renderClientSelect();
+  renderKPIs();
+  applyLang();
+}
+
+})();
+</script>
+</body>
+</html>
