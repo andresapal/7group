@@ -77,7 +77,7 @@
     .plans-section { max-width: 1200px; margin: 0 auto; padding: 0 48px 80px; }
     .plans-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 2px;
       background: var(--light);
       border: 1px solid var(--light);
@@ -623,9 +623,27 @@
           <a href="https://7group.site/agendar/" class="plan-cta plan-cta-outline" id="tPlan1Cta">Iniciar piloto gratuito</a>
         </div>
 
+        <!-- STARTER -->
+        <div class="plan-card">
+          <div class="plan-badge">02</div>
+          <div class="plan-name" id="tPlanSName">Starter</div>
+          <p class="plan-desc" id="tPlanSDesc">Despues del piloto, mantiene tu agente activo. Ideal para emprendedores y negocios pequenos que quieren crecer paso a paso.</p>
+          <div class="plan-price-block">
+            <div class="plan-price" id="tPlanSPrice">$350K</div>
+            <div class="plan-price-note" id="tPlanSNote">COP / mes · 1 agente activo<br>Implementacion desde $2M</div>
+          </div>
+          <ul class="plan-features" id="tPlanSFeatures">
+            <li>1 agente activo (el que mejor te funciono en el piloto)</li>
+            <li>Conexion a WhatsApp y correo</li>
+            <li>Soporte por WhatsApp</li>
+            <li>Escala a Esencial cuando quieras</li>
+          </ul>
+          <a href="javascript:void(0)" onclick="openAct('starter')" class="plan-cta plan-cta-outline" id="tPlanSCta">Activar Starter</a>
+        </div>
+
         <!-- IMPLEMENTACION -->
         <div class="plan-card plan-card-featured">
-          <div class="plan-badge">02</div>
+          <div class="plan-badge">03</div>
           <div class="plan-name" id="tPlan2Name">Implementacion Completa</div>
           <p class="plan-desc" id="tPlan2Desc">Despliegue completo de los 5 agentes de IA bajo tu marca. Configuracion, integraciones y puesta en marcha real. Pago unico.</p>
           <div class="plan-price-block">
@@ -644,7 +662,7 @@
 
         <!-- SUSCRIPCION -->
         <div class="plan-card">
-          <div class="plan-badge">03</div>
+          <div class="plan-badge">04</div>
           <div class="plan-name" id="tPlan3Name">Operacion Continua</div>
           <p class="plan-desc" id="tPlan3Desc">Acceso mensual a la plataforma, los agentes activos, mejoras iterativas y soporte prioritario.</p>
           <div class="plan-price-block">
@@ -942,12 +960,17 @@ var T = {
     plan1Note:'30 dias · Sin tarjeta de credito<br>Sin compromiso de permanencia',
     plan1Features:['1 agente activo (a definir en diagnostico)','Conexion a tus canales actuales (WA, correo)','Soporte directo durante el piloto','Informe de resultados al finalizar'],
     plan1Cta:'Iniciar piloto gratuito',
+    planSName:'Starter', planSDesc:'Despues del piloto, mantiene tu agente activo. Ideal para emprendedores y negocios pequenos que quieren crecer paso a paso.',
+    planSNote:'COP / mes · 1 agente activo<br>Implementacion desde $2M',
+    planSPrice:'$350K',
+    planSFeatures:['1 agente activo (el que mejor te funciono en el piloto)','Conexion a WhatsApp y correo','Soporte por WhatsApp','Escala a Esencial cuando quieras'],
+    planSCta:'Activar Starter',
     plan2Name:'Implementacion Completa', plan2Desc:'Despliegue completo de los 5 agentes de IA bajo tu marca. Configuracion, integraciones y puesta en marcha real. Pago unico.',
     plan2Note:'COP · Pago unico · Precio final segun alcance',
     plan2Features:['5 agentes: Comercial, Operaciones, Financiero, Atencion, Logistica','Motor de cotizaciones y gestion de pedidos','Dashboard de KPIs + integracion WhatsApp','Onboarding del equipo (2 sesiones)','90 dias de soporte dedicado post-lanzamiento'],
     plan2Cta:'Solicitar propuesta',
     plan3Name:'Operacion Continua', plan3Desc:'Acceso mensual a la plataforma, los agentes activos, mejoras iterativas y soporte prioritario.',
-    plan3Note:'COP / mes · Segun numero de agentes<br>$1.1M esencial · $1.8M profesional · Custom',
+    plan3Note:'COP / mes · Segun numero de agentes<br>$350K starter · $1.1M esencial · $1.8M profesional',
     plan3Features:['Acceso completo a la plataforma','Todos los agentes activos','Mejoras y ajustes mensuales','Soporte prioritario por WhatsApp','Dashboard de resultados en tiempo real'],
     plan3Cta:'Ver opciones',
     roiLabel:'Calculadora de impacto',
@@ -1004,6 +1027,7 @@ var T = {
     actSubmit:'Enviar solicitud', actNote:'Sin compromiso. Te contactamos en menos de 2 horas.',
     actSuccessTitle:'Solicitud recibida',
     actSuccessMsg:'Un especialista te contactara por WhatsApp para coordinar los detalles del pago y la activacion de tu plan.',
+    actPlanS:'Starter — $350K COP/mes',
     actPlan2:'Implementacion Completa — desde $10M COP',
     actPlan3:'Operacion Continua — desde $1.1M COP/mes'
   },
@@ -1016,12 +1040,17 @@ var T = {
     plan1Note:'30 days · No credit card required<br>No commitment',
     plan1Features:['1 active agent (defined in diagnostic)','Connection to your current channels (WA, email)','Direct support during the pilot','Results report at the end'],
     plan1Cta:'Start free pilot',
+    planSName:'Starter', planSDesc:'After the pilot, keeps your agent active. Ideal for entrepreneurs and small businesses that want to grow step by step.',
+    planSNote:'USD / month · 1 active agent<br>Implementation from $500',
+    planSPrice:'$79',
+    planSFeatures:['1 active agent (the one that worked best in your pilot)','WhatsApp and email connection','WhatsApp support','Scale to Essential anytime'],
+    planSCta:'Activate Starter',
     plan2Name:'Full Implementation', plan2Desc:'Complete deployment of all 5 AI agents under your brand. Configuration, integrations and real launch. One-time payment.',
     plan2Note:'COP · One-time payment · Final price based on scope',
     plan2Features:['5 agents: Sales, Operations, Finance, Support, Logistics','Quoting engine and order management','KPI Dashboard + WhatsApp integration','Team onboarding (2 sessions)','90 days of dedicated post-launch support'],
     plan2Cta:'Request proposal',
     plan3Name:'Ongoing Operations', plan3Desc:'Monthly access to the platform, active agents, iterative improvements and priority support.',
-    plan3Note:'COP / month · Based on number of agents<br>$1.1M essential · $1.8M professional · Custom',
+    plan3Note:'USD / month · Based on number of agents<br>$79 starter · $249 essential · $399 professional',
     plan3Features:['Full platform access','All active agents','Monthly improvements and adjustments','Priority WhatsApp support','Real-time results dashboard'],
     plan3Cta:'See options',
     roiLabel:'Impact Calculator',
@@ -1078,6 +1107,7 @@ var T = {
     actSubmit:'Send request', actNote:'No commitment. We contact you in less than 2 hours.',
     actSuccessTitle:'Request received',
     actSuccessMsg:'A specialist will contact you via WhatsApp to coordinate payment details and activate your plan.',
+    actPlanS:'Starter — $79 USD/month',
     actPlan2:'Full Implementation — from $10M COP',
     actPlan3:'Ongoing Operations — from $1.1M COP/month'
   }
@@ -1181,6 +1211,12 @@ function applyLang(){
   document.getElementById('tHeroTitle').innerHTML=t.heroTitle;
   document.getElementById('tRoiTitle').innerHTML=t.roiTitle;
   document.getElementById('tPlan1Note').innerHTML=t.plan1Note;
+  document.getElementById('tPlanSNote').innerHTML=t.planSNote;
+  document.getElementById('tPlanSName').textContent=t.planSName;
+  document.getElementById('tPlanSDesc').textContent=t.planSDesc;
+  document.getElementById('tPlanSPrice').textContent=t.planSPrice;
+  document.getElementById('tPlanSCta').textContent=t.planSCta;
+  renderFeatures('tPlanSFeatures',t.planSFeatures);
   document.getElementById('tPlan2Note').innerHTML=t.plan2Note;
   document.getElementById('tPlan3Note').innerHTML=t.plan3Note;
   document.getElementById('tPayTitle').innerHTML=t.payTitle;
@@ -1218,6 +1254,7 @@ applyLang();
 var TG_BOT='8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I';
 var TG_CHAT='1081707115';
 var W3F_KEY='1746964c-fa0e-418e-8d93-93b6dfb02f37';
+var CRM_URL=''; // Set after deploying Apps Script
 var actPlan=0;
 
 window.openAct=function(plan){
@@ -1233,7 +1270,7 @@ window.openAct=function(plan){
   document.getElementById('actLblCompany').textContent=t.actLblCompany;
   document.getElementById('actSubmit').textContent=t.actSubmit;
   document.getElementById('actNote').textContent=t.actNote;
-  document.getElementById('actPlanTag').textContent=plan===2?t.actPlan2:t.actPlan3;
+  document.getElementById('actPlanTag').textContent=plan==='starter'?t.actPlanS:plan===2?t.actPlan2:t.actPlan3;
   document.getElementById('actFormView').style.display='';
   document.getElementById('actSuccessView').style.display='none';
   document.getElementById('actName').value='';
@@ -1268,7 +1305,7 @@ window.submitAct=function(){
   btn.textContent=lang==='es'?'Enviando...':'Sending...';
 
   var t=T[lang];
-  var planLabel=actPlan===2?t.actPlan2:t.actPlan3;
+  var planLabel=actPlan==='starter'?t.actPlanS:actPlan===2?t.actPlan2:t.actPlan3;
 
   var tgMsg='NUEVA SOLICITUD DE PLAN\n\n'
     +'Plan: '+planLabel+'\n'
@@ -1295,6 +1332,13 @@ window.submitAct=function(){
   w3f.append('Idioma',lang.toUpperCase());
   w3f.append('replyto',email);
   fetch('https://api.web3forms.com/submit',{method:'POST',body:w3f}).catch(function(){});
+
+  // CRM Sheet
+  if(typeof CRM_URL!=='undefined'&&CRM_URL){
+    fetch(CRM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({fuente:'pagos',plan:planLabel,nombre:name,email:email,telefono:phone,empresa:company,notas:'Idioma: '+lang.toUpperCase()})
+    }).catch(function(){});
+  }
 
   setTimeout(function(){
     document.getElementById('actFormView').style.display='none';
