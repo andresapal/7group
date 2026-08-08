@@ -189,7 +189,7 @@ function unlockApp(){
   document.getElementById('appWrap').classList.add('visible');
   init();
 }
-function checkPin(){var p=document.getElementById('pinInput').value;if(p==='7741'){sessionStorage.setItem('7g-auth','pin');unlockApp();}else{document.getElementById('pinError').style.display='block';document.getElementById('pinInput').value='';}}
+function checkPin(){var p=document.getElementById('pinInput').value;if(p==='2405'){sessionStorage.setItem('7g-auth','pin');unlockApp();}else{document.getElementById('pinError').style.display='block';document.getElementById('pinInput').value='';}}
 function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
 (function(){var s=sessionStorage.getItem('7g-auth');if(s&&(ALLOWED_EMAILS.indexOf(s)!==-1||s==='pin'))unlockApp();else initGoogleAuth();})();
 </script>
