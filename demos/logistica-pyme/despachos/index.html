@@ -232,8 +232,8 @@ input[type="file"]{display:none}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link active" data-t="modDisp">Despachos</a>
-  <a href="/demos/logistica-pyme/clientes/" class="mod-link" data-t="modClients">Clientes</a>
-  <a href="/demos/logistica-pyme/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
+  <a href="/demos/clientes/" class="mod-link" data-t="modClients">Clientes</a>
+  <a href="/demos/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
 <div class="main">
@@ -448,8 +448,8 @@ function applyLang(){
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
-  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/logistica-pyme/clientes/'+lp;
-  document.querySelector('.mod-link[data-t="modDash"]').href='/demos/logistica-pyme/dashboard/'+lp;
+  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/clientes/'+lp;
+  document.querySelector('.mod-link[data-t="modDash"]').href='/demos/dashboard/'+lp;
   renderAll();
 }
 function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
