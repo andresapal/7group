@@ -499,7 +499,7 @@ function applyLang(){
   for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
   document.getElementById('langES').classList.toggle('active',LANG==='es');
   document.getElementById('langEN').classList.toggle('active',LANG==='en');
-  document.getElementById('scheduleLink').href='/agendar/'+(LANG==='en'?'?lang=en':'');
+  var sl=document.getElementById('scheduleLink');if(sl)sl.href='/agendar/'+(LANG==='en'?'?lang=en':'');
   document.getElementById('searchBox').placeholder=t('searchPlaceholder');
   var opts=document.querySelectorAll('[data-t-opt]');
   for(var i=0;i<opts.length;i++){var k=opts[i].getAttribute('data-t-opt');if(T[k])opts[i].textContent=T[k][LANG];}
