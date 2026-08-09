@@ -6,7 +6,6 @@
 <title>CEO Dashboard -- 7Group Logistica</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -32,8 +31,6 @@ code,.mono{font-family:'JetBrains Mono',monospace}
   --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
 }
 
-.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
-.auth-gate.hidden{opacity:0;pointer-events:none}
 .auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
 .auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
 .auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
@@ -144,26 +141,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 </head>
 <body>
 
-<div class="auth-gate" id="authGate">
-  <div class="auth-box">
-    <div class="auth-logo">7group</div>
-    <div class="auth-sub">Logistics Intelligence</div>
-    <div class="auth-divider"></div>
-    <div class="auth-desc" data-t="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
-    <div id="g_id_signin"></div>
-    <div class="auth-divider"></div>
-    <div style="font-size:11px;color:var(--dim);margin-bottom:8px">O ingrese con PIN de operador:</div>
-    <div style="display:flex;gap:6px;justify-content:center">
-      <input type="password" id="pinInput" maxlength="4" placeholder="PIN" style="width:80px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:14px;text-align:center;letter-spacing:4px" onkeydown="if(event.key==='Enter')checkPin()">
-      <button onclick="checkPin()" style="padding:8px 14px;background:rgba(94,231,247,.1);border:1px solid rgba(94,231,247,.2);border-radius:6px;color:var(--cyan);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">OK</button>
-    </div>
-    <div class="auth-error" id="authError" data-t="authError">Este correo no tiene acceso autorizado.</div>
-    <div class="auth-error" id="pinError" style="display:none">PIN incorrecto.</div>
-    <div class="auth-footer" data-t="authFooter">Solo personal autorizado</div>
-  </div>
-</div>
-
-<div class="app-wrap" id="appWrap">
+<div class="app-wrap visible">
 
 <nav class="topbar">
   <div class="tb-left">
@@ -295,16 +273,9 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
 <div class="foot">7group -- Logistics Intelligence Platform</div>
 </div>
 
-<script src="../firebase-config.js?v=2"></script>
+<script src="/demos/logistica-pyme/firebase-config.js?v=2"></script>
 <script>
-/* =============== AUTH =============== */
-var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
-var ALLOWED_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
-function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);unlockApp();}else{document.getElementById('authError').style.display='block';}}
-function unlockApp(){document.getElementById('authGate').classList.add('hidden');document.getElementById('appWrap').classList.add('visible');}
-function checkPin(){var p=document.getElementById('pinInput').value;if(p==='2405'){sessionStorage.setItem('7g-auth','pin');unlockApp();}else{document.getElementById('pinError').style.display='block';document.getElementById('pinInput').value='';}}
-function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
-(function(){var s=sessionStorage.getItem('7g-auth');if(s&&(ALLOWED_EMAILS.indexOf(s)!==-1||s==='pin'))unlockApp();else initGoogleAuth();})();
+/* No auth gate — accessed from portal */
 
 /* =============== THEME =============== */
 function toggleTheme(){var l=document.documentElement.classList.toggle('light');localStorage.setItem('7g-theme',l?'light':'dark');updateThemeButton(l);}
