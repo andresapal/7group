@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="/favicon.svg">
+<title>Campa&#241;as · CRM Mudanzas</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:hidden}
+body{font-family:'Source Sans 3',sans-serif;background:#f4f5f9;color:#111827;font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+:root{--brand:#5ee7f7;--brand2:#f97316;--brand-light:rgba(94,231,247,.08);--surface:#fff;--border:#e2e5ed;--muted:#6b7280;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.08)}
+
+.topbar{background:rgba(6,10,14,.95);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(148,163,184,.12)}
+.tb-logo{font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:rgba(148,163,184,.18);margin:0 12px}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5ee7f7}
+.tb-left{display:flex;align-items:center}
+.crm-nav{display:flex;background:#0c1117;border-bottom:1px solid rgba(148,163,184,.08);padding:0 16px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.crm-link{padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:#64748b;text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.crm-link:hover{color:#e2e8f0}.crm-link.active{color:#5ee7f7;border-color:#5ee7f7}
+
+/* TABS */
+.main-tabs{display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:59px;z-index:99;padding:0 20px}
+.main-tabs button{flex:1;max-width:200px;padding:12px 16px;border:none;background:none;font-family:inherit;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:.2s}
+.main-tabs button:hover{color:var(--brand)}
+.main-tabs button.active{color:var(--brand);border-bottom-color:var(--brand)}
+
+/* LAYOUT */
+.layout{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 400px;gap:16px;padding:16px 20px 100px;width:100%}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;padding:12px 8px 120px;max-width:100vw}
+  .layout>*{max-width:100%;overflow-x:hidden;box-sizing:border-box}
+  input,select,textarea{font-size:16px!important}
+  .stats{gap:8px}
+  .stat{min-width:0;flex:1 1 30%;padding:8px 10px}
+  .stat .num{font-size:18px}
+  .cl-phone{font-size:11px}
+  .cl-city{display:none}
+  .campaign{max-width:100%;box-sizing:border-box}
+  .camp-head{padding:12px 10px}
+  .camp-body{padding:12px 10px;max-height:none;overflow-x:hidden}
+  .camp-actions{padding:10px}
+  .tpl-grid{gap:6px;max-width:100%;box-sizing:border-box}
+  .tpl-card{padding:8px 4px;min-width:0}
+  .tpl-name{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tpl-desc{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .field input,.field textarea{max-width:100%}
+  .btn-wa{font-size:13px;padding:10px 12px}
+  .hist-card{max-width:100%;overflow:hidden}
+  .bib-grid{grid-template-columns:1fr 1fr!important}
+  .bib-card{min-height:auto!important}
+  .bib-card__title{font-size:12px!important}
+  .bib-card__date{font-size:10px!important}
+  .res-kpis{grid-template-columns:1fr 1fr!important}
+  .funnel-wrap{overflow-x:auto}
+  .main-tabs{padding:0 8px}
+  .main-tabs button{font-size:12px;padding:10px 8px}
+  .cal-grid{grid-template-columns:repeat(7,1fr)!important;gap:2px!important}
+  .cal-cell{min-height:36px!important;font-size:10px!important;padding:2px!important}
+  .cal-cell__label{font-size:9px!important}
+  .cal-nav{flex-wrap:wrap;gap:6px}
+  .cal-nav h3{font-size:13px!important}
+  .alert-banner{flex-direction:column;gap:6px}
+  .alert-banner .btn{width:100%}
+}
+
+.stats{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;flex:1;min-width:120px;box-shadow:var(--shadow)}
+.stat .num{font-size:22px;font-weight:700;color:var(--brand);font-family:'JetBrains Mono',monospace}
+.stat .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+
+.controls{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px;background:var(--surface)}
+.search-box:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,61,165,.1)}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.btn-primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn-primary:hover{background:#002d7a}
+.btn-wa{background:#16a34a;color:#fff;border-color:#16a34a}
+.btn-wa:hover{background:#15803d}
+.btn-sm{padding:5px 10px;font-size:12px}
+.badge{display:inline-block;background:var(--brand-light);color:var(--brand);font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+
+.client-list{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.list-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:#fafbfc}
+.list-header label{font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer}
+.list-header input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand)}
+.list-scroll{max-height:55vh;overflow-y:auto}
+.cl-row{display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid #f3f4f6;gap:10px;transition:background .1s;cursor:pointer}
+.cl-row:hover{background:#f8f9fc}
+.cl-row.selected{background:var(--brand-light)}
+.cl-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--brand);flex-shrink:0;cursor:pointer}
+.cl-name{flex:1;font-size:13px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-phone{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.cl-city{font-size:11px;color:var(--brand);background:var(--brand-light);padding:1px 6px;border-radius:4px;flex-shrink:0}
+.list-footer{padding:8px 14px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);text-align:center}
+
+.campaign{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);position:sticky;top:115px;overflow:hidden}
+.camp-head{padding:14px 16px;border-bottom:1px solid var(--border);background:#fafbfc}
+.camp-head h2{font-size:15px;font-weight:700}
+.camp-head p{font-size:12px;color:var(--muted);margin-top:2px}
+.camp-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;max-height:65vh;overflow-y:auto}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.field select,.field input,.field textarea{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-family:inherit;font-size:13px;background:var(--surface);transition:.15s}
+.field select:focus,.field input:focus,.field textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(0,61,165,.1)}
+.field textarea{resize:vertical;min-height:100px;line-height:1.5}
+
+.cat-pills{display:flex;gap:6px;flex-wrap:wrap}
+.cat-pill{padding:5px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:var(--surface);transition:.15s}
+.cat-pill:hover{border-color:var(--brand);color:var(--brand)}
+.cat-pill.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.channel-checks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 10px}
+.channel-checks label{font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap}
+.channel-checks input{accent-color:var(--brand)}
+.social-links{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.social-links a{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;color:#fff;transition:opacity .2s}
+.social-links a:active{opacity:.7}
+.social-links .sl-ig{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+.social-links .sl-fb{background:#1877F2}
+.social-links .sl-x{background:#000}
+.social-links .sl-li{background:#0A66C2}
+
+.estado-pills{display:flex;gap:6px;flex-wrap:wrap}
+.estado-pill{padding:4px 10px;border:1px solid var(--border);border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;background:var(--surface);transition:.15s}
+.estado-pill.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;box-sizing:border-box}
+.tpl-card{border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;transition:.15s;text-align:center;min-width:0;overflow:hidden;word-wrap:break-word;overflow-wrap:break-word;box-sizing:border-box}
+.tpl-card:hover{border-color:var(--brand);background:#fafbfc}
+.tpl-card.active{border-color:var(--brand);background:var(--brand-light)}
+.tpl-icon{font-size:20px;margin-bottom:4px;display:flex;align-items:center;justify-content:center}
+.tpl-icon svg{width:24px;height:24px}
+.tpl-name{font-size:12px;font-weight:600}
+.tpl-desc{font-size:10px;color:var(--muted);margin-top:2px}
+
+.preview-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;line-height:1.6;max-height:200px;overflow-y:auto}
+.preview-box .var{background:#fef3c7;padding:0 3px;border-radius:3px;font-weight:600}
+.camp-actions{padding:12px 16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+
+/* BIBLIOTECA */
+.bib-container{max-width:1200px;margin:0 auto;padding:16px 20px 100px}
+.bib-section{margin-bottom:32px}
+.bib-section__title{font-size:14px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--brand-light)}
+.bib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.bib-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s;cursor:pointer;min-height:200px;display:flex;flex-direction:column}
+.bib-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,61,165,.12)}
+.bib-card__visual{height:120px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.bib-card__visual svg{width:60px;height:60px}
+.bib-card__visual img{width:100%;height:100%;object-fit:cover}
+.bib-card__body{padding:10px 12px;flex:1;display:flex;flex-direction:column}
+.bib-card__title{font-size:13px;font-weight:700;margin-bottom:2px}
+.bib-card__date{font-size:11px;color:var(--muted)}
+.bib-card__desc{font-size:11px;color:var(--muted);margin-top:4px;flex:1}
+.bib-card__actions{display:flex;gap:6px;margin-top:8px}
+.bib-card__actions .btn{font-size:11px;padding:4px 8px;flex:1;text-align:center}
+
+/* RESULTADOS */
+.res-container{max-width:1200px;margin:0 auto;padding:16px 20px 100px}
+.res-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.res-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);text-align:center}
+.res-kpi .num{font-size:28px;font-weight:700;color:var(--brand);font-family:'JetBrains Mono',monospace}
+.res-kpi .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:4px}
+
+.funnel-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:24px;box-shadow:var(--shadow)}
+.funnel-section h3{font-size:14px;font-weight:700;margin-bottom:16px}
+.funnel-wrap{display:flex;gap:0;align-items:flex-start}
+.funnel-step{flex:1;text-align:center;position:relative}
+.funnel-step__bar{height:40px;background:var(--brand);margin:0 2px;border-radius:4px;display:flex;align-items:center;justify-content:center;position:relative}
+.funnel-step:first-child .funnel-step__bar{border-radius:8px 4px 4px 8px}
+.funnel-step:last-child .funnel-step__bar{border-radius:4px 8px 8px 4px}
+.funnel-step__bar input{width:50px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:4px;color:#fff;font-size:14px;font-weight:700;text-align:center;padding:4px;font-family:'JetBrains Mono',monospace}
+.funnel-step__bar input::placeholder{color:rgba(255,255,255,.5)}
+.funnel-step__label{font-size:10px;font-weight:600;color:var(--muted);margin-top:6px;text-transform:uppercase}
+.funnel-step__arrow{position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:var(--brand);font-size:16px;z-index:2}
+
+.hist-section{margin-top:16px;padding:0 2px}
+.hist-section h3{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.hist-card{max-width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:8px}
+.hist-top{display:flex;justify-content:space-between;align-items:center}
+.hist-name{font-weight:700;font-size:13px}
+.hist-date{font-size:11px;color:var(--muted)}
+.hist-stats{font-size:12px;color:var(--muted);margin-top:4px}
+.hist-actions{margin-top:6px;display:flex;gap:6px}
+
+.res-hist-table{width:100%;border-collapse:collapse;font-size:12px}
+.res-hist-table th{text-align:left;padding:8px 10px;background:#fafbfc;border-bottom:2px solid var(--border);font-size:11px;text-transform:uppercase;color:var(--muted)}
+.res-hist-table td{padding:8px 10px;border-bottom:1px solid #f3f4f6}
+.res-hist-table tr:hover{background:#f8f9fc}
+
+/* MODAL */
+.piece-modal{display:none;position:fixed;inset:0;z-index:9998;align-items:center;justify-content:center;padding:20px}
+.piece-modal.open{display:flex}
+.piece-modal__bg{position:absolute;inset:0;background:rgba(5,14,45,.7);backdrop-filter:blur(8px)}
+.piece-modal__box{position:relative;background:#fff;border-radius:16px;padding:20px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.piece-modal__box svg{width:100%;height:auto;border-radius:12px}
+.piece-modal__box img{width:100%;height:auto;border-radius:12px}
+.piece-modal__close{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.1);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.piece-modal__actions{display:flex;gap:8px;margin-top:12px}
+.piece-modal__actions .btn{flex:1;text-align:center}
+
+/* CALENDARIO */
+.cal-container{max-width:1200px;margin:0 auto;padding:16px 20px 100px}
+.alert-banner{display:flex;align-items:center;gap:12px;background:#fef3c7;border:1px solid #fbbf24;border-radius:var(--radius);padding:12px 16px;margin-bottom:16px}
+.alert-banner--urgent{background:#fee2e2;border-color:#f87171}
+.alert-banner__icon{flex-shrink:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
+.alert-banner__icon--warn{background:#fbbf24;color:#78350f}
+.alert-banner__icon--urgent{background:#f87171;color:#7f1d1d}
+.alert-banner__text{flex:1;font-size:13px;line-height:1.4}
+.alert-banner__text strong{display:block;font-size:14px}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-nav h3{font-size:16px;font-weight:700}
+.cal-nav .btn{min-width:36px}
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.cal-head span{text-align:center;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;padding:6px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{min-height:56px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:12px;position:relative;cursor:default;transition:.15s}
+.cal-cell--empty{background:transparent;border-color:transparent}
+.cal-cell--today{border-color:var(--brand);box-shadow:0 0 0 2px rgba(0,61,165,.15)}
+.cal-cell--event{background:var(--brand-light);border-color:rgba(0,61,165,.3);cursor:pointer}
+.cal-cell--event:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,61,165,.15)}
+.cal-cell--alert{background:#fef3c7;border-color:#fbbf24}
+.cal-cell--urgent{background:#fee2e2;border-color:#f87171}
+.cal-cell__day{font-weight:700;font-size:11px;color:var(--muted)}
+.cal-cell--today .cal-cell__day{color:var(--brand)}
+.cal-cell__label{font-size:10px;font-weight:600;color:var(--brand);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;line-height:1.3}
+.cal-cell--alert .cal-cell__label{color:#92400e}
+.cal-cell--urgent .cal-cell__label{color:#991b1b}
+.cal-legend{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap}
+.cal-legend span{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.cal-legend span::before{content:'';width:12px;height:12px;border-radius:3px;display:inline-block}
+.cal-legend .leg-event::before{background:var(--brand-light);border:1px solid rgba(0,61,165,.3)}
+.cal-legend .leg-alert::before{background:#fef3c7;border:1px solid #fbbf24}
+.cal-legend .leg-urgent::before{background:#fee2e2;border:1px solid #f87171}
+.cal-legend .leg-today::before{background:var(--surface);border:2px solid var(--brand)}
+.cal-upcoming{margin-top:24px}
+.cal-upcoming h3{font-size:14px;font-weight:700;margin-bottom:12px}
+.cal-upcoming__list{display:flex;flex-direction:column;gap:8px}
+.cal-upcoming__item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow)}
+.cal-upcoming__item--alert{border-left:4px solid #fbbf24}
+.cal-upcoming__item--urgent{border-left:4px solid #f87171}
+.cal-upcoming__item--past{opacity:.5}
+.cal-upcoming__icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cal-upcoming__icon svg{width:20px;height:20px}
+.cal-upcoming__info{flex:1;min-width:0}
+.cal-upcoming__info strong{display:block;font-size:13px}
+.cal-upcoming__info span{font-size:11px;color:var(--muted)}
+.cal-upcoming__actions{display:flex;gap:6px;flex-shrink:0}
+
+/* DARK MODE */
+body.ty-dark{color:#e8eaed}
+body.ty-dark .header{background:rgba(22,24,34,.92);border-bottom-color:rgba(255,255,255,.06)}
+body.ty-dark .main-tabs{background:rgba(22,24,34,.92);border-bottom-color:rgba(255,255,255,.06)}
+body.ty-dark .stat,body.ty-dark .client-list,body.ty-dark .campaign,body.ty-dark .hist-card,body.ty-dark .bib-card,body.ty-dark .res-kpi,body.ty-dark .funnel-section{background:rgba(30,32,44,.95);border-color:rgba(255,255,255,.08)}
+body.ty-dark .list-header,body.ty-dark .camp-head{background:rgba(20,22,32,.9)}
+body.ty-dark .cl-row{border-bottom-color:rgba(255,255,255,.04)}
+body.ty-dark .cl-row:hover,body.ty-dark .bib-card:hover{background:rgba(255,255,255,.04)}
+body.ty-dark .cl-row.selected{background:rgba(0,61,165,.2)}
+body.ty-dark .search-box,body.ty-dark .field select,body.ty-dark .field input,body.ty-dark .field textarea{background:rgba(20,22,32,.8);border-color:rgba(255,255,255,.1);color:#e8eaed}
+body.ty-dark .btn{background:rgba(30,32,44,.95);border-color:rgba(255,255,255,.1);color:#e8eaed}
+body.ty-dark .tpl-card{border-color:rgba(255,255,255,.08);background:rgba(20,22,32,.8)}
+body.ty-dark .tpl-card.active{background:rgba(0,61,165,.2);border-color:rgba(0,61,165,.5)}
+body.ty-dark .preview-box{background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.2);color:#e8eaed}
+body.ty-dark .cat-pill,body.ty-dark .estado-pill{background:rgba(30,32,44,.95);border-color:rgba(255,255,255,.1);color:#e8eaed}
+body.ty-dark .bib-section__title{color:#93b4f5;border-bottom-color:rgba(147,180,245,.2)}
+body.ty-dark .res-hist-table th{background:rgba(20,22,32,.9)}
+body.ty-dark .res-hist-table td{border-bottom-color:rgba(255,255,255,.04)}
+body.ty-dark .piece-modal__box{background:rgba(30,32,44,.98)}
+body.ty-dark .cal-cell{background:rgba(30,32,44,.95);border-color:rgba(255,255,255,.08)}
+body.ty-dark .cal-cell--event{background:rgba(0,61,165,.15);border-color:rgba(0,61,165,.3)}
+body.ty-dark .cal-cell--alert{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3)}
+body.ty-dark .cal-cell--urgent{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3)}
+body.ty-dark .alert-banner{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:#e8eaed}
+body.ty-dark .alert-banner--urgent{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3)}
+body.ty-dark .cal-upcoming__item{background:rgba(30,32,44,.95);border-color:rgba(255,255,255,.08)}
+
+@media print{.header,.controls,.camp-actions,.main-tabs,.swipe-nav-dots,.ty-op-toolbar,.ty-op-trigger,.ty-gate-modal,.ty-lock-btn{display:none!important}}
+</style>
+</head>
+<body data-gate="admin-only">
+
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge">CRM Mudanzas</span>
+  </div>
+</nav>
+<div class="crm-nav">
+  <a href="/demos/crm-mudanzas/" class="crm-link">Cotizador</a>
+  <a href="/demos/crm-mudanzas/orden/" class="crm-link">Orden</a>
+  <a href="/demos/crm-mudanzas/kpis/" class="crm-link">KPIs</a>
+  <a href="/demos/crm-mudanzas/campanas/" class="crm-link active">Campanas</a>
+  <a href="/demos/crm-mudanzas/finanzas/" class="crm-link">Finanzas</a>
+</div>
+
+<div class="main-tabs" id="main-tabs">
+  <button class="active" onclick="switchTab('enviar')">Enviar</button>
+  <button onclick="switchTab('biblioteca')">Biblioteca</button>
+  <button onclick="switchTab('resultados')">Resultados</button>
+  <button onclick="switchTab('calendario')">Calendario</button>
+</div>
+
+<!-- ============ TAB 1: ENVIAR ============ -->
+<div id="view-enviar">
+<div class="layout">
+  <div>
+    <div class="stats" id="stats-bar"></div>
+    <div class="controls">
+      <input type="text" class="search-box" id="search" placeholder="Buscar por nombre o telefono..." oninput="filterClients()">
+      <button class="btn btn-sm" onclick="refreshContacts(this)" title="Actualizar lista de contactos" style="display:inline-flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg> Actualizar</button>
+      <button class="btn btn-sm" onclick="selectAll()">Todos</button>
+      <button class="btn btn-sm" onclick="selectNone()">Ninguno</button>
+      <span class="badge" id="sel-count">0 seleccionados</span>
+    </div>
+    <div class="client-list">
+      <div class="list-header">
+        <label><input type="checkbox" id="check-all" onchange="toggleAll(this.checked)"> Seleccionar pagina</label>
+        <span style="font-size:12px;color:var(--muted)" id="showing-count"></span>
+      </div>
+      <div class="list-scroll" id="client-scroll"></div>
+      <div class="list-footer" id="list-footer"></div>
+    </div>
+    <div class="hist-section" id="hist-section" style="display:none"></div>
+    <div id="wa-status-panel" style="display:none">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center">
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">WhatsApp Status</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Sube tu imagen y comparte directo a WhatsApp</div>
+        <div id="wa-status-piece" style="max-width:300px;margin:0 auto 16px;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12);min-height:120px;display:flex;align-items:center;justify-content:center;background:rgba(37,211,102,.04);border:2px dashed rgba(37,211,102,.25);cursor:pointer" onclick="document.getElementById('status-file-input').click()">
+          <div id="wa-status-placeholder" style="padding:30px;color:var(--muted);font-size:13px">Toca para subir tu imagen</div>
+        </div>
+        <input type="file" id="status-file-input" accept="image/*" style="display:none" onchange="uploadStatusPiece(event)">
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px">
+          <button class="btn btn-wa" id="btn-share-status" onclick="shareStatus()" disabled style="flex:1;max-width:260px">Compartir en WhatsApp</button>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+          <label class="btn btn-sm" style="cursor:pointer;text-align:center">Cambiar imagen<input type="file" accept="image/*" style="display:none" onchange="uploadStatusPiece(event)"></label>
+          <button class="btn btn-sm" id="btn-download-status" onclick="downloadStatusPiece()" disabled>Descargar</button>
+        </div>
+        <div style="text-align:left;background:rgba(37,211,102,.06);border:1px solid rgba(37,211,102,.2);border-radius:12px;padding:12px;font-size:11px;color:var(--muted);line-height:1.5">
+          <div style="font-weight:600;color:#128C7E;margin-bottom:4px">Tips:</div>
+          <div>Publica entre 8am-10am o 6pm-8pm - Repite 2-3 veces/semana</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="campaign">
+      <div class="camp-head">
+        <h2>Crear campana</h2>
+        <p>Selecciona contactos y elige un modelo</p>
+      </div>
+      <div class="camp-body">
+        <div class="field">
+          <label>Categoria</label>
+          <div class="cat-pills" id="cat-pills"></div>
+        </div>
+        <div class="field">
+          <label>Nombre de la campana</label>
+          <input type="text" id="camp-name" placeholder="Ej: Referidos Julio 2026" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Modelo de campana</label>
+          <div class="tpl-grid" id="tpl-grid"></div>
+        </div>
+        <div class="field">
+          <label>Mensaje WhatsApp</label>
+          <textarea id="camp-msg" placeholder="Escribe tu mensaje... Usa {nombre} para personalizar" oninput="updatePreview()"></textarea>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">Variables: {nombre} = nombre del cliente</div>
+        </div>
+        <div class="field">
+          <label>Objetivo</label>
+          <input type="text" id="camp-objetivo" placeholder="Ej: Aumentar referidos en un 20%">
+        </div>
+        <div class="field">
+          <label>Fechas</label>
+          <div style="display:flex;gap:8px">
+            <input type="date" id="camp-fecha-ini" style="flex:1">
+            <input type="date" id="camp-fecha-fin" style="flex:1">
+          </div>
+        </div>
+        <div class="field">
+          <label>Canales</label>
+          <div class="channel-checks">
+            <label><input type="checkbox" value="whatsapp" checked> WhatsApp</label>
+            <label><input type="checkbox" value="meta"> Meta</label>
+            <label><input type="checkbox" value="google"> Google</label>
+            <label><input type="checkbox" value="email"> Email</label>
+            <label><input type="checkbox" value="seo"> SEO</label>
+            <label><input type="checkbox" value="organico"> Organico</label>
+          </div>
+          <div class="social-links">
+            <a class="sl-ig" href="https://www.instagram.com/" target="_blank" rel="noopener" title="Publicar en Instagram"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1.1.4 2.2.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1.1.4-2.2.4-1.3.1-1.6.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1.1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1.1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2M12 0C8.7 0 8.3 0 7 .1 5.7.1 4.8.3 4 .6c-.9.3-1.6.7-2.3 1.4C1 2.7.6 3.4.3 4.3.1 5 0 5.9 0 7.2 0 8.4 0 8.8 0 12s0 3.6.1 4.9c0 1.3.2 2.2.5 2.9.3.9.7 1.6 1.4 2.3.7.7 1.4 1.1 2.3 1.4.8.3 1.6.4 2.9.5 1.3 0 1.7.1 4.9.1s3.6 0 4.9-.1c1.3-.1 2.2-.2 2.9-.5.9-.3 1.6-.7 2.3-1.4.7-.7 1.1-1.4 1.4-2.3.3-.8.4-1.6.5-2.9 0-1.3.1-1.7.1-4.9s0-3.6-.1-4.9c-.1-1.3-.2-2.2-.5-2.9-.3-.9-.7-1.6-1.4-2.3C21.3 1 20.6.6 19.7.3 18.9.1 18.1 0 16.8 0 15.6 0 15.2 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zm0 10.2a4 4 0 110-8 4 4 0 010 8zm6.4-10.5a1.4 1.4 0 11-2.8 0 1.4 1.4 0 012.8 0z"/></svg> Instagram</a>
+            <a class="sl-fb" href="https://www.facebook.com/" target="_blank" rel="noopener" title="Publicar en Facebook"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12c0-6.6-5.4-12-12-12S0 5.4 0 12c0 6 4.4 11 10.1 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.6 4.5-4.6 1.3 0 2.7.2 2.7.2v2.9h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4C19.6 23 24 18 24 12z"/></svg> Facebook</a>
+            <a class="sl-x" href="https://x.com/compose/post" target="_blank" rel="noopener" title="Publicar en X"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 2.25h3.5l-7.6 8.7 9 11.8h-7l-5.5-7.2-6.3 7.2H.8l8.2-9.3L.5 2.25h7.2l5 6.6 5.5-6.6zm-1.2 18.4h1.9L7.1 4.2H5.1l11.9 16.45z"/></svg> X</a>
+            <a class="sl-li" href="https://www.linkedin.com/feed/" target="_blank" rel="noopener" title="Publicar en LinkedIn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6h.1c.5-.9 1.6-1.8 3.4-1.8 3.6 0 4.3 2.4 4.3 5.5v6.2zM5.3 7.4a2.1 2.1 0 110-4.2 2.1 2.1 0 010 4.2zM7.1 20.5H3.5V9h3.6v11.5zM22.2 0H1.8C.8 0 0 .8 0 1.8v20.4c0 1 .8 1.8 1.8 1.8h20.4c1 0 1.8-.8 1.8-1.8V1.8c0-1-.8-1.8-1.8-1.8z"/></svg> LinkedIn</a>
+          </div>
+        </div>
+        <div class="field">
+          <label>Estado</label>
+          <div class="estado-pills" id="estado-pills"></div>
+        </div>
+        <div class="field">
+          <label>Vista previa</label>
+          <div class="preview-box" id="preview"></div>
+        </div>
+        <div class="field" style="margin-top:8px">
+          <div onclick="toggleHistorial()" style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none">
+            <svg id="hist-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+            <label style="cursor:pointer;font-weight:600;font-size:13px;color:var(--muted)">Historial de campanas</label>
+          </div>
+          <div id="hist-list" style="display:none;margin-top:8px"></div>
+        </div>
+      </div>
+      <div class="camp-actions">
+        <button class="btn btn-wa" id="btn-send" onclick="ejecutarCampana()" disabled>
+          <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle;margin-right:4px" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          Enviar campana (<span id="btn-count">0</span> contactos)
+        </button>
+        <button class="btn" onclick="copiarLista()">Copiar lista de numeros</button>
+        <button class="btn" onclick="exportarCampana()">Descargar CSV de campana</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============ TAB 2: BIBLIOTECA ============ -->
+<div id="view-biblioteca" style="display:none">
+  <div class="bib-container" id="bib-content"></div>
+</div>
+
+<!-- ============ TAB 3: RESULTADOS ============ -->
+<div id="view-resultados" style="display:none">
+  <div class="res-container" id="res-content"></div>
+</div>
+
+<!-- ============ TAB 4: CALENDARIO ============ -->
+<div id="view-calendario" style="display:none">
+  <div class="cal-container" id="cal-content"></div>
+</div>
+
+<!-- MODAL PIEZA -->
+<div class="piece-modal" id="piece-modal">
+  <div class="piece-modal__bg" onclick="closePieceModal()"></div>
+  <div class="piece-modal__box" id="piece-modal-box">
+    <button class="piece-modal__close" onclick="closePieceModal()">X</button>
+    <div id="piece-modal-content"></div>
+    <div class="piece-modal__actions">
+      <button class="btn btn-primary" onclick="downloadPiece()">Descargar imagen</button>
+      <label class="btn" style="text-align:center;cursor:pointer">Subir pieza<input type="file" accept="image/*" style="display:none" onchange="uploadPiece(event)"></label>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+var CONTACTS_URL='https://script.google.com/macros/s/AKfycbz4gG8fs_mAq9z9dcIhhqB9GUOFehc4_jW0Wd77RxPMIEmmshcXHlAVb39cML6hdGKM/exec';
+var CLIENTS=[];
+var selected=new Set();
+var filtered=[];
+var activeTpl='referidos';
+var activeCategory='todas';
+var activeEstado='planeacion';
+var currentPieceKey='';
+
+var CATEGORIES=[
+  {key:'todas',label:'Todas'},
+  {key:'estacional',label:'Estacionales'},
+  {key:'permanente',label:'Permanentes'},
+  {key:'negocio',label:'Linea de negocio'},
+  {key:'redes',label:'Redes Sociales'}
+];
+var ESTADOS=['planeacion','activa','pausada','finalizada'];
+
+function svgIcon(paths,color){return '<svg viewBox="0 0 24 24" fill="none" stroke="'+(color||'currentColor')+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+paths+'</svg>';}
+
+var ICONS={
+  school:svgIcon('<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1 2 3 6 3s6-2 6-3v-5"/>'),
+  flower:svgIcon('<circle cx="12" cy="12" r="3"/><path d="M12 2a4 4 0 0 0 0 8 4 4 0 0 0 0-8z"/><path d="M19 9a4 4 0 0 1-5 5"/><path d="M5 9a4 4 0 0 0 5 5"/><path d="M12 22v-8"/>'),
+  cross:svgIcon('<path d="M18 6L6 18M6 6l12 12"/>'),
+  heart:svgIcon('<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>'),
+  sun:svgIcon('<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>'),
+  gift:svgIcon('<polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>'),
+  dollar:svgIcon('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'),
+  users:svgIcon('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'),
+  star:svgIcon('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'),
+  tag:svgIcon('<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>'),
+  truck:svgIcon('<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>'),
+  target:svgIcon('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'),
+  globe:svgIcon('<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'),
+  phone:svgIcon('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/>'),
+  search:svgIcon('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'),
+  share:svgIcon('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>'),
+  mail:svgIcon('<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>'),
+  zap:svgIcon('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'),
+  briefcase:svgIcon('<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>'),
+  coffee:svgIcon('<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>'),
+  moon:svgIcon('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'),
+  tree:svgIcon('<path d="M12 2L7 10h10L12 2z"/><path d="M12 8L5 18h14L12 8z"/><rect x="10" y="18" width="4" height="4"/>'),
+  sparkle:svgIcon('<path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/>')
+};
+
+var TEMPLATES={
+  regreso_clases:{icon:ICONS.school,name:'Regreso a clases',desc:'Mudanzas universitarias y escolares',category:'estacional',season:'Enero',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nSe acerca el regreso a clases y sabemos que muchas familias necesitan mudarse cerca de universidades y colegios.\n\nTenemos *tarifas especiales* para mudanzas estudiantiles y traslados de apartaestudios.\n\nCotiza gratis: crm-mudanzas.site\n\nQuedo atento.',
+    bg1:'#5ee7f7',bg2:'#2563eb',pieceTitle:'Regreso a Clases',pieceSub:'Mudanzas estudiantiles con tarifa especial'},
+  dia_mujer:{icon:ICONS.flower,name:'Dia de la Mujer',desc:'Homenaje 8 de marzo',category:'estacional',season:'8 Marzo',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nEn este Dia Internacional de la Mujer, queremos reconocer la fuerza y valentia de cada mujer que ha confiado en nosotros.\n\nComo homenaje, ofrecemos *15% de descuento* en todos nuestros servicios durante marzo para ti o alguien especial.\n\ncrm-mudanzas.site\n\nFeliz dia.',
+    bg1:'#9333ea',bg2:'#ec4899',pieceTitle:'Feliz Dia de la Mujer',pieceSub:'15% de descuento en marzo'},
+  semana_santa:{icon:ICONS.sun,name:'Semana Santa',desc:'Temporada de descanso y mudanzas',category:'estacional',season:'Marzo/Abril',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nSemana Santa es una de las temporadas donde mas personas aprovechan para mudarse.\n\nSi tu o alguien que conozcas planea cambiar de hogar, agenda con anticipacion y asegura *disponibilidad y mejor precio*.\n\nCotiza gratis: crm-mudanzas.site',
+    bg1:'#d97706',bg2:'#f59e0b',pieceTitle:'Semana Santa',pieceSub:'Reserva tu mudanza con anticipacion'},
+  dia_madre:{icon:ICONS.heart,name:'Dia de la Madre',desc:'Homenaje especial mayo',category:'estacional',season:'Mayo',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nEn este mes de las madres, queremos agradecerles a todas las mamas que han confiado en nosotros para sus mudanzas.\n\nSi conoces una mama que necesite mudarse, *le regalamos el empaque basico* con su servicio.\n\ncrm-mudanzas.site\n\nFeliz Dia de las Madres.',
+    bg1:'#f97316',bg2:'#f43f5e',pieceTitle:'Feliz Dia de la Madre',pieceSub:'Empaque basico de regalo'},
+  dia_padre:{icon:ICONS.gift,name:'Dia del Padre',desc:'Homenaje junio',category:'estacional',season:'Junio',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nFeliz Dia del Padre. A todos los papas que han confiado en nosotros, gracias por su preferencia.\n\nEste mes tienen *10% de descuento* en cualquier servicio. Solo menciona esta promocion al cotizar.\n\ncrm-mudanzas.site',
+    bg1:'#5ee7f7',bg2:'#3b82f6',pieceTitle:'Feliz Dia del Padre',pieceSub:'10% de descuento este mes'},
+  vacaciones:{icon:ICONS.sun,name:'Vacaciones mitad de año',desc:'Temporada alta de mudanzas',category:'estacional',season:'Jun - Jul',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nLlego la temporada de vacaciones, el mejor momento para mudarse con tranquilidad.\n\nReserva tu fecha con anticipacion y obtén *tarifa preferencial*. Agenda llena = precios mas altos.\n\nCotiza ahora: crm-mudanzas.site',
+    bg1:'#0891b2',bg2:'#06b6d4',pieceTitle:'Vacaciones de Mitad de Año',pieceSub:'Reserva ahora, mejor precio'},
+  prima_junio:{icon:ICONS.dollar,name:'Prima de junio',desc:'Aprovecha la prima para mudarte',category:'estacional',season:'Junio',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nYa llego la prima. Si estas pensando en mudarte, este es el mejor momento para invertir en tu nuevo hogar.\n\nTenemos *planes de pago* y opciones para que tu prima rinda mas.\n\nCotiza gratis: crm-mudanzas.site',
+    bg1:'#15803d',bg2:'#22c55e',pieceTitle:'Aprovecha tu Prima',pieceSub:'Planes de pago disponibles'},
+  amor_amistad:{icon:ICONS.heart,name:'Amor y Amistad',desc:'Septiembre - recordacion de marca',category:'estacional',season:'Septiembre',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nEn este mes del Amor y la Amistad, queremos agradecerte por ser parte de nuestra familia.\n\nRefiere a un amigo y ambos reciben *$25.000 de descuento* en su proximo servicio.\n\ncrm-mudanzas.site\n\nFeliz mes.',
+    bg1:'#f97316',bg2:'#f97316',pieceTitle:'Amor y Amistad',pieceSub:'Refiere y ganan los dos'},
+  halloween:{icon:ICONS.moon,name:'Halloween',desc:'Octubre - promocion tematica',category:'estacional',season:'31 Octubre',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nEste Halloween no dejes que tu mudanza sea de terror.\n\nContrata con nosotros y recibe *empaque de proteccion reforzado sin costo*. Tus cosas llegan perfectas, garantizado.\n\nCotiza: crm-mudanzas.site',
+    bg1:'#1a1a2e',bg2:'#7c3aed',pieceTitle:'Halloween',pieceSub:'Empaque reforzado sin costo'},
+  black_friday:{icon:ICONS.tag,name:'Black Friday',desc:'Noviembre - descuentos agresivos',category:'estacional',season:'Noviembre',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\n*BLACK FRIDAY en mudanzas*. Solo este fin de semana:\n\n- *20% OFF* en trasteo urbano\n- *15% OFF* en trasteo nacional\n- *Empaque gratis* en servicios Full\n\nCotiza ahora: crm-mudanzas.site\n\nCupos limitados.',
+    bg1:'#111827',bg2:'#1f2937',pieceTitle:'Black Friday',pieceSub:'Hasta 20% de descuento'},
+  prima_diciembre:{icon:ICONS.dollar,name:'Prima de diciembre',desc:'Invierte tu prima en tu nuevo hogar',category:'estacional',season:'Diciembre',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nLlego la prima de diciembre. Si has estado pensando en mudarte, *este es tu momento*.\n\nReserva en diciembre y te congelamos el precio hasta enero.\n\nCotiza: crm-mudanzas.site',
+    bg1:'#15803d',bg2:'#059669',pieceTitle:'Prima de Diciembre',pieceSub:'Congela tu precio hasta enero'},
+  navidad:{icon:ICONS.tree,name:'Navidad',desc:'Felicitacion y recordacion de marca',category:'estacional',season:'Diciembre',
+    msg:'Hola {nombre}, de parte de todo el equipo de *CRM Mudanzas* te deseamos una *Feliz Navidad*.\n\nGracias por confiar en nosotros este año. Que esta epoca traiga alegria y nuevos comienzos para ti y tu familia.\n\nSi necesitas mudarte para empezar el año nuevo en tu nuevo hogar, estamos listos.\n\ncrm-mudanzas.site',
+    bg1:'#f97316',bg2:'#15803d',pieceTitle:'Feliz Navidad',pieceSub:'De parte de CRM Mudanzas'},
+  ano_nuevo:{icon:ICONS.sparkle,name:'Año Nuevo',desc:'Bienvenida al nuevo año',category:'estacional',season:'Dic - Ene',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\n*Feliz Año Nuevo*. Que este sea un año lleno de exitos y nuevos comienzos.\n\nSi entre tus planes esta mudarte, empezar un negocio o reorganizar tu espacio, cuenta con nosotros.\n\n*Promocion enero*: 10% OFF en todos los servicios.\n\ncrm-mudanzas.site',
+    bg1:'#5ee7f7',bg2:'#7c3aed',pieceTitle:'Feliz Año Nuevo',pieceSub:'10% OFF en enero'},
+  referidos:{icon:ICONS.share,name:'Referidos',desc:'Programa de referidos con incentivo',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nGracias por haber confiado en nosotros para tu mudanza. Esperamos que todo haya quedado perfecto.\n\nQueremos invitarte a nuestro *programa de referidos*:\n\nPor cada persona que nos recomiendes y contrate con nosotros, recibes una *comision de $20.000* a partir de servicio cerrado y/o vendido.\n\nSolo dile que te mencione al cotizar.\n\ncrm-mudanzas.site\n\nGracias por ser parte de la familia CRM Mudanzas.'},
+  reactivacion:{icon:ICONS.users,name:'Reactivacion',desc:'Recuperar clientes inactivos',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nHace un tiempo tuvimos el gusto de ayudarte con tu mudanza y queriamos saber como te fue en tu nuevo hogar.\n\nSi conoces a alguien que necesite mudarse, recuerda que estamos para servirle con la misma calidad de siempre.\n\nAdemas, por ser cliente nuestro tienes un *10% de descuento* en tu proximo servicio.\n\ncrm-mudanzas.site\n\nUn abrazo del equipo CRM Mudanzas.'},
+  agradecimiento:{icon:ICONS.heart,name:'Agradecimiento',desc:'Fortalecer relacion post-servicio',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nQuiero agradecerte personalmente por haber confiado en nosotros. Tu satisfaccion es lo mas importante para nuestro equipo.\n\nSi en algun momento necesitas mudarte de nuevo, empacar, instalar o almacenar, aqui estamos para ti.\n\ncrm-mudanzas.site\n\nUn gran saludo.'},
+  resenas:{icon:ICONS.star,name:'Resenas',desc:'Solicitar resenas en Google',category:'permanente',
+    msg:'Hola! {nombre}\n\nGracias por confiar en CRM Mudanzas. Esperamos que hayas quedado satisfecho/a con nuestro servicio.\n\nNos regalarias un minuto para compartir tu experiencia? Tu opinion nos ayuda a seguir mejorando y permite que mas personas conozcan nuestro trabajo.\n\nDejanos tu resena aqui:\nhttps://g.page/r/CY8SnfZIjp_VEAE/review\n\nMuchas gracias por tu apoyo y por elegir a CRM Mudanzas!\n\ncrm-mudanzas.site'},
+  corporativo:{icon:ICONS.briefcase,name:'Corporativo',desc:'Oficinas y empresas',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nManejamos mudanzas corporativas, traslado de oficinas, bodegas y archivos con personal capacitado y vehiculos adecuados.\n\nSi tu empresa o alguna que conozcas necesita este servicio, con gusto le hacemos una cotizacion sin compromiso.\n\ncrm-mudanzas.site\n\nQuedo atento.'},
+  fidelizacion:{icon:ICONS.gift,name:'Fidelizacion',desc:'Clientes VIP y recurrentes',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nComo cliente especial nuestro, queremos ofrecerte beneficios exclusivos:\n\n- *Prioridad* en agenda para tu proxima mudanza\n- *Descuento VIP* del 15%\n- Empaque basico *sin costo adicional*\n\nEstos beneficios son intransferibles y validos por los proximos 60 dias.\n\ncrm-mudanzas.site\n\nGracias por tu preferencia.'},
+  leads:{icon:ICONS.target,name:'Generacion de leads',desc:'Captar nuevos prospectos',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nVi que cotizaste con nosotros recientemente. Queria saber si aun necesitas el servicio de mudanza.\n\nTenemos *disponibilidad inmediata* y podemos ajustar la cotizacion a tu presupuesto.\n\ncrm-mudanzas.site\n\nQuedo atento.'},
+  posicionamiento:{icon:ICONS.globe,name:'Posicionamiento',desc:'Recordacion de marca',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nQuiero compartirte que seguimos creciendo y mejorando para ofrecerte el mejor servicio de mudanzas en Colombia.\n\nRecuerda que puedes cotizar gratis en cualquier momento:\n\ncrm-mudanzas.site\n\nGracias por tu confianza.'},
+  redes:{icon:ICONS.share,name:'Redes sociales',desc:'Campanas organicas en redes',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nTe invitamos a seguirnos en nuestras redes sociales para estar al tanto de promociones, tips de mudanza y contenido util.\n\nTu apoyo compartiendo nuestro contenido nos ayuda a llegar a mas personas.\n\ncrm-mudanzas.site\n\nGracias.'},
+  whatsapp_mkt:{icon:ICONS.phone,name:'WhatsApp Marketing',desc:'Campanas directas por WhatsApp',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nTe escribo para informarte sobre nuestras *promociones exclusivas* de este mes.\n\nResponde este mensaje y te envio los detalles sin compromiso.\n\ncrm-mudanzas.site'},
+  seo:{icon:ICONS.search,name:'SEO y trafico web',desc:'Posicionamiento en buscadores',category:'permanente',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nRecuerda que puedes cotizar tu mudanza en linea las 24 horas:\n\ncrm-mudanzas.site\n\nRapido, facil y sin compromiso. Tu cotizacion llega al instante.\n\nQuedo atento ante cualquier pregunta.'},
+  wa_status:{icon:ICONS.phone,name:'WhatsApp Status',desc:'Piezas verticales para publicar como Estado de WhatsApp',category:'permanente',
+    bg1:'#25D366',bg2:'#128C7E',pieceTitle:'CRM Mudanzas',pieceSub:'Cotiza gratis en crm-mudanzas.site',
+    msg:'[PIEZA PARA ESTADO]\n\nPublica esta imagen como Estado de WhatsApp.\n\nTips:\n- Publica entre 8am-10am o 6pm-8pm (mayor visibilidad)\n- Agrega texto corto con el link: crm-mudanzas.site\n- Repite 2-3 veces por semana\n- Sube tu propia pieza desde la Biblioteca'},
+  crm-mudanzas:{icon:ICONS.truck,name:'CRM Mudanzas',desc:'Campanas de la marca principal',category:'negocio',
+    msg:'Hola {nombre}, soy Andres de *CRM Mudanzas*.\n\nSomos tu aliado en mudanzas, empaque profesional, instalaciones y bodegaje.\n\nCon mas de 3,400 clientes satisfechos, somos la empresa de mudanzas de confianza en Colombia.\n\nCotiza gratis: crm-mudanzas.site'},
+  bubus:{icon:ICONS.coffee,name:'Bubus Burgers',desc:'Campanas de Bubus Burgers',category:'negocio',
+    msg:'Hola {nombre}, soy Andres.\n\nTe invito a conocer *Bubus Burgers*, donde preparamos las mejores hamburguesas artesanales.\n\nPide a domicilio o visitanos. Pregunta por nuestras promociones del dia.\n\nTe esperamos.'},
+  sevengroup:{icon:ICONS.zap,name:'7Group AI',desc:'Campanas de 7Group AI',category:'negocio',
+    msg:'Hola {nombre}, soy Andres de *7Group AI*.\n\nAyudamos a empresas a integrar inteligencia artificial en sus operaciones para aumentar productividad y reducir costos.\n\nSi te interesa saber como la IA puede transformar tu negocio, agenda una sesion sin costo.\n\nQuedo atento.'},
+  consultoria:{icon:ICONS.briefcase,name:'Consultoria',desc:'Consultoria y educacion',category:'negocio',
+    msg:'Hola {nombre}, soy Andres.\n\nOfrezco *consultoria empresarial* y capacitacion en logistica, emprendimiento y transformacion digital.\n\nSi tu empresa necesita optimizar procesos o capacitar a su equipo, con gusto agendamos una reunion.\n\nQuedo atento.'},
+  logistica:{icon:ICONS.truck,name:'Servicios logisticos',desc:'Logistica y transporte',category:'negocio',
+    msg:'Hola {nombre}, soy Andres.\n\nOfrecemos *servicios logisticos integrales*: transporte, bodegaje, distribucion y entregas en todo Colombia.\n\nSi tu empresa necesita un aliado logistico confiable, cotiza sin compromiso.\n\nQuedo atento.'},
+
+  // ======= REDES SOCIALES — Posts listos para publicar =======
+
+  // --- TIPS DE MUDANZA ---
+  rs_checklist:{icon:ICONS.star,name:'Checklist de mudanza',desc:'Lista de verificacion para el dia D',category:'redes',
+    msg:'CHECKLIST PARA EL DIA DE TU MUDANZA\n\nAntes:\n- Confirma hora y direccion con la empresa\n- Empaca una maleta con lo esencial del primer dia\n- Desconecta electrodomesticos desde la noche anterior\n- Marca cada caja con la habitacion de destino\n\nDurante:\n- Revisa que nada quede en closets y cajones\n- Supervisa la carga del camion\n- Toma fotos del estado de muebles grandes\n\nDespues:\n- Verifica que todo llego completo\n- Conecta nevera y lavadora primero\n- Desarma cajas por habitacion\n\nGuarda este post para cuando lo necesites.\n\nCotiza gratis: crm-mudanzas.site\n\n#Mudanza #Tips #CRMMudanzas #Bogota #Colombia'},
+  rs_fragiles:{icon:ICONS.gift,name:'Embalar fragiles',desc:'Como proteger objetos delicados',category:'redes',
+    msg:'COMO EMBALAR OBJETOS FRAGILES SIN QUE SE ROMPAN\n\n1. Usa papel craft o periodico para envolver cada pieza por separado\n2. Coloca una capa de burbuja en el fondo de la caja\n3. Rellena los espacios vacios con papel arrugado\n4. Marca la caja como FRAGIL en todos los lados\n5. No apiles mas de 3 cajas de fragiles\n\nConsejo pro: los platos van de pie (vertical), nunca acostados.\n\nEn CRM Mudanzas empacamos tus cosas con materiales profesionales. Cotiza gratis en crm-mudanzas.site\n\n#EmpaqueSeguro #Mudanza #Tips #CRMMudanzas'},
+  rs_errores:{icon:ICONS.cross,name:'5 errores al mudarse',desc:'Lo que NO debes hacer',category:'redes',
+    msg:'5 ERRORES QUE COMETES AL MUDARTE\n(y como evitarlos)\n\n1. No empacar con tiempo: empieza minimo 1 semana antes\n2. No marcar las cajas: despues no encuentras nada\n3. Cargar todo tu solo: contrata profesionales y evita lesiones\n4. No medir muebles grandes: asegurate de que pasan por puertas y escaleras\n5. No contratar seguro: un accidente puede salir muy caro\n\nMudarse no tiene que ser estresante. Con planificacion y el equipo correcto, es facil.\n\nCotiza tu mudanza profesional: crm-mudanzas.site\n\n#Mudanza #Errores #Consejos #CRMMudanzas #Bogota'},
+  rs_organizar:{icon:ICONS.search,name:'Organizar cajas',desc:'Sistema por colores y habitacion',category:'redes',
+    msg:'SISTEMA PARA ORGANIZAR TUS CAJAS COMO UN PROFESIONAL\n\nAsigna un color por habitacion:\n- Rojo: Cocina\n- Azul: Habitacion principal\n- Verde: Habitacion hijos\n- Amarillo: Bano\n- Naranja: Sala/Comedor\n\nEn cada caja escribe:\n- Habitacion\n- Contenido general\n- Si es fragil\n- Numero de caja (1 de 5, 2 de 5...)\n\nCuando llegues al nuevo hogar, cada caja va directo a su lugar. Cero confusion.\n\nNosotros te ayudamos con todo el proceso. Cotiza gratis: crm-mudanzas.site\n\n#Organizacion #Mudanza #Tips #CRMMudanzas'},
+  rs_primer_dia:{icon:ICONS.sun,name:'Primer dia en casa nueva',desc:'Que hacer al llegar',category:'redes',
+    msg:'LLEGASTE A TU NUEVO HOGAR. Y AHORA QUE?\n\nPrimer dia:\n- Revisa que agua, luz y gas funcionan\n- Limpia antes de desempacar\n- Arma las camas primero (vas a necesitar dormir)\n- Conecta nevera y lavadora\n\nPrimera semana:\n- Desempaca por habitacion, no todo al tiempo\n- Conoce a tus vecinos\n- Ubica la drogueria, supermercado y hospital mas cercanos\n- Cambia tu direccion en bancos y servicios\n\nMudarse es un nuevo comienzo. Disfruta el proceso.\n\ncrm-mudanzas.site\n\n#CasaNueva #Mudanza #NuevoComienzo #CRMMudanzas'},
+
+  // --- DETRAS DE CAMARAS ---
+  rs_equipo:{icon:ICONS.users,name:'Nuestro equipo',desc:'Conoce al equipo CRM Mudanzas',category:'redes',
+    msg:'DETRAS DE CADA MUDANZA HAY UN EQUIPO QUE DA TODO\n\nNuestros operarios cargan, protegen y transportan tus cosas como si fueran propias.\n\nCapacitados en:\n- Empaque profesional\n- Manejo de muebles pesados\n- Desarme y armado de closets, camas y escritorios\n- Proteccion de electrodomesticos\n\nNo es solo cargar cajas. Es experiencia, cuidado y compromiso.\n\nGracias a nuestro equipo por hacer posible cada mudanza.\n\ncrm-mudanzas.site\n\n#Equipo #CRMMudanzas #Mudanzas #Bogota #Colombia'},
+  rs_preparacion:{icon:ICONS.truck,name:'Asi preparamos tu mudanza',desc:'El proceso profesional paso a paso',category:'redes',
+    msg:'ASI PREPARAMOS TU MUDANZA PASO A PASO\n\n1. Cotizas gratis en crm-mudanzas.site\n2. Confirmamos fecha, vehiculo y operarios\n3. Llegamos puntual con materiales de empaque\n4. Protegemos muebles, electrodomesticos y fragiles\n5. Cargamos con tecnica profesional\n6. Transportamos por la ruta mas segura\n7. Descargamos y ubicamos todo en tu nuevo hogar\n8. Recoges los materiales sobrantes\n\nAsí de simple. Sin estres.\n\ncrm-mudanzas.site\n\n#Mudanza #Proceso #Profesional #CRMMudanzas'},
+  rs_dia_trabajo:{icon:ICONS.coffee,name:'Un dia en CRM Mudanzas',desc:'Contenido behind the scenes',category:'redes',
+    msg:'UN DIA EN CRM MUDANZAS\n\n6:00 AM — El equipo se alista y revisa la ruta del dia\n7:00 AM — Cargamos materiales de empaque al camion\n8:00 AM — Llegamos al punto de recogida\n9:00 AM — Empaque y proteccion de todo\n11:00 AM — Camion cargado, en ruta\n12:30 PM — Llegamos al destino\n1:00 PM — Descargamos y ubicamos\n2:30 PM — Cliente satisfecho. Mision cumplida.\n\nCada dia es diferente, pero el compromiso siempre es el mismo: cuidar tus cosas como propias.\n\ncrm-mudanzas.site\n\n#BehindTheScenes #Mudanza #CRMMudanzas #Bogota'},
+
+  // --- TESTIMONIOS Y NUMEROS ---
+  rs_numeros:{icon:ICONS.target,name:'Nuestros numeros',desc:'Estadisticas de la empresa',category:'redes',
+    msg:'CRM MUDANZAS EN NUMEROS\n\n+3,400 clientes satisfechos\n+5 años de experiencia\nPresencia en toda Colombia\nFlota propia de vehiculos\nEmpaque profesional incluido\nCotizacion inmediata en linea\n\nDetras de cada numero hay una familia que confio en nosotros para uno de los momentos mas importantes: cambiar de hogar.\n\nGracias por elegirnos.\n\nCotiza gratis: crm-mudanzas.site\n\n#CRMMudanzas #Mudanzas #Colombia #Confianza'},
+  rs_testimonio:{icon:ICONS.heart,name:'Lo que dicen los clientes',desc:'Post de testimonio / resena',category:'redes',
+    msg:'LO QUE DICEN NUESTROS CLIENTES\n\n"Excelente servicio, llegaron puntual, cuidaron cada mueble y fueron muy amables. 100% recomendados."\n\nHistorias como esta nos motivan a mejorar cada dia.\n\nSi ya usaste nuestro servicio, dejanos tu resena en Google. Tu opinion nos ayuda a crecer.\n\nY si aun no nos conoces, cotiza gratis: crm-mudanzas.site\n\n#Resenas #ClientesFelices #CRMMudanzas #Mudanza #Bogota'},
+  rs_dato_mes:{icon:ICONS.sparkle,name:'Dato del mes',desc:'Estadistica mensual destacada',category:'redes',
+    msg:'DATO DEL MES\n\nEste mes completamos [XX] mudanzas exitosas en Bogota y otras ciudades de Colombia.\n\nCada mudanza es unica y la tratamos con el mismo profesionalismo, sea un apartaestudio o una casa de 4 pisos.\n\nGracias a todos los que confiaron en CRM Mudanzas este mes.\n\nEl proximo podrias ser tu. Cotiza gratis: crm-mudanzas.site\n\n#DatoDelMes #Mudanzas #CRMMudanzas #Bogota'},
+
+  // --- DATO CURIOSO / BARRIOS ---
+  rs_zonas:{icon:ICONS.globe,name:'Zonas top en Bogota',desc:'Donde mas se mudan los bogotanos',category:'redes',
+    msg:'LAS ZONAS CON MAS MUDANZAS EN BOGOTA\n\nSegun nuestra data:\n\n1. Suba\n2. Usaquen\n3. Chapinero\n4. Kennedy\n5. Engativa\n\nLas familias buscan mejor ubicacion, mas espacio o estar mas cerca del trabajo.\n\nSin importar tu zona, CRM Mudanzas llega a toda Bogota y todo Colombia.\n\nCotiza gratis: crm-mudanzas.site\n\n#Bogota #Mudanza #Zonas #CRMMudanzas #Colombia'},
+  rs_sabias_que:{icon:ICONS.search,name:'Sabias que...',desc:'Dato curioso sobre mudanzas',category:'redes',
+    msg:'SABIAS QUE...\n\n- Una persona promedio se muda entre 5 y 11 veces en su vida\n- El 60% de las mudanzas en Bogota son dentro de la misma ciudad\n- Enero, junio y diciembre son los meses con mas mudanzas\n- El objeto que mas se dana en mudanzas son las pantallas de TV\n- Empacar una casa de 3 habitaciones toma en promedio 4 horas con equipo profesional\n\nPor eso es mejor dejar tu mudanza en manos de expertos.\n\ncrm-mudanzas.site\n\n#SabiasQue #Mudanza #Datos #CRMMudanzas #Colombia'},
+  rs_ruta:{icon:ICONS.truck,name:'Rutas mas solicitadas',desc:'Corredores de mudanza populares',category:'redes',
+    msg:'RUTAS DE MUDANZA MAS SOLICITADAS\n\nUrbano Bogota:\n- Suba a Usaquen\n- Chapinero a Suba\n- Kennedy a Soacha\n\nNacional:\n- Bogota a Medellin\n- Bogota a Cali\n- Bogota a Bucaramanga\n- Bogota a Costa Atlantica\n\nCubrimos toda Colombia con flota propia y equipo profesional.\n\nSin importar tu ruta, cotiza gratis: crm-mudanzas.site\n\n#Mudanza #Colombia #Rutas #CRMMudanzas #MudanzaNacional'},
+
+  // --- VENTAS / LLAMADO A ACCION ---
+  rs_cotiza:{icon:ICONS.dollar,name:'Cotiza gratis hoy',desc:'Post de venta directa',category:'redes',
+    msg:'TU MUDANZA COTIZADA EN 2 MINUTOS\n\nEntra a crm-mudanzas.site y recibe tu cotizacion inmediata:\n\n- Gratis y sin compromiso\n- Desde tu celular, 24/7\n- Precio justo y transparente\n- Incluye empaque, transporte y operarios\n\nDeja de buscar. Ya encontraste tu empresa de mudanzas.\n\ncrm-mudanzas.site\n\n#CotizaGratis #Mudanza #CRMMudanzas #Bogota #Colombia'},
+  rs_promo:{icon:ICONS.tag,name:'Promocion del mes',desc:'Oferta mensual con urgencia',category:'redes',
+    msg:'PROMOCION DEL MES\n\nEste mes en CRM Mudanzas:\n\n- Empaque basico GRATIS en mudanzas urbanas\n- 10% OFF en mudanzas nacionales\n- Bodegaje: primera semana sin costo\n\nCondiciones:\n- Valido para servicios agendados este mes\n- Sujeto a disponibilidad\n- No acumulable con otras promociones\n\nNo dejes pasar esta oportunidad. Cotiza ahora: crm-mudanzas.site\n\n#Promocion #Descuento #Mudanza #CRMMudanzas #Oferta'},
+  rs_referido:{icon:ICONS.share,name:'Gana por referir',desc:'Programa de referidos para redes',category:'redes',
+    msg:'GANA DINERO POR RECOMENDAR A CRM MUDANZAS\n\nAsi funciona:\n\n1. Recomiendanos a alguien que necesite mudarse\n2. Esa persona cotiza y contrata con nosotros\n3. Tu recibes $20,000 por cada referido exitoso\n\nSin limite de referidos. Entre mas recomiendes, mas ganas.\n\nSolo dile que te mencione al cotizar.\n\ncrm-mudanzas.site\n\n#Referidos #GanaDinero #CRMMudanzas #Mudanza #Bogota'},
+  rs_completo:{icon:ICONS.gift,name:'Servicio completo',desc:'Todo incluido: empaque + mudanza',category:'redes',
+    msg:'MUDANZA COMPLETA. TU NO MUEVES UN DEDO.\n\nNuestro servicio Full incluye:\n\n- Empaque profesional de todo (cocina, ropa, fragiles)\n- Materiales: cajas, burbuja, vinipel, craft\n- Desarme de muebles\n- Carga y transporte en camion cerrado\n- Descarga en destino\n- Armado de muebles\n- Instalacion de TV, cortinas y accesorios\n\nDe puerta a puerta. Sin estres.\n\nCotiza gratis: crm-mudanzas.site\n\n#MudanzaCompleta #ServicioFull #CRMMudanzas #Bogota #Colombia'},
+  rs_urgente:{icon:ICONS.zap,name:'Mudanza express',desc:'Servicio rapido mismo dia',category:'redes',
+    msg:'NECESITAS MUDARTE HOY?\n\nEn CRM Mudanzas tenemos servicio EXPRESS:\n\n- Disponibilidad inmediata\n- Mismo dia o dia siguiente\n- Camion + operarios en menos de 2 horas\n- Empaque rapido incluido\n\nPorque sabemos que a veces los planes cambian y necesitas moverte ya.\n\nEscribenos o cotiza en: crm-mudanzas.site\n\n#MudanzaExpress #SameDayMoving #CRMMudanzas #Bogota #Urgente'},
+  rs_nacional:{icon:ICONS.globe,name:'Mudanza nacional',desc:'Servicio a todo Colombia',category:'redes',
+    msg:'MUDANZAS A TODO COLOMBIA\n\nBogota - Medellin\nBogota - Cali\nBogota - Barranquilla\nBogota - Cartagena\nBogota - Bucaramanga\nBogota - Santa Marta\nBogota - Pereira\n...y cualquier ciudad del pais.\n\nFlota propia\nSeguro de carga\nEmpaque profesional\nEntrega puerta a puerta\nSeguimiento en tiempo real\n\nCotiza tu mudanza nacional: crm-mudanzas.site\n\n#MudanzaNacional #Colombia #CRMMudanzas #Transporte #Logistica'},
+  rs_empresas:{icon:ICONS.briefcase,name:'Mudanza empresarial',desc:'Servicio corporativo para redes',category:'redes',
+    msg:'MUDANZAS CORPORATIVAS Y DE OFICINAS\n\nTu empresa necesita cambiar de sede?\n\nEn CRM Mudanzas manejamos:\n\n- Traslado de oficinas completas\n- Empaque de equipos y documentos\n- Mudanza de bodegas e inventario\n- Servicio en horario nocturno o fines de semana\n- Minimo impacto en la operacion\n\nEmpresas de todos los tamanos confian en nosotros.\n\nSolicita cotizacion corporativa: crm-mudanzas.site\n\n#MudanzaCorporativa #Oficinas #Empresas #CRMMudanzas #Bogota'}
+};
+
+// ============ CALENDARIO: fechas fijas por año ============
+var CAMP_DATES={
+  regreso_clases:{m:0,d:15,label:'Regreso a clases'},
+  dia_mujer:{m:2,d:8,label:'Dia de la Mujer'},
+  semana_santa:{m:2,d:28,label:'Semana Santa'},
+  dia_madre:{m:4,d:11,label:'Dia de la Madre'},
+  dia_padre:{m:5,d:15,label:'Dia del Padre'},
+  vacaciones:{m:5,d:20,label:'Vacaciones mitad año'},
+  prima_junio:{m:5,d:1,label:'Prima de junio'},
+  amor_amistad:{m:8,d:20,label:'Amor y Amistad'},
+  halloween:{m:9,d:31,label:'Halloween'},
+  black_friday:{m:10,d:28,label:'Black Friday'},
+  prima_diciembre:{m:11,d:1,label:'Prima de diciembre'},
+  navidad:{m:11,d:25,label:'Navidad'},
+  ano_nuevo:{m:11,d:31,label:'Año Nuevo'}
+};
+var calMonth=new Date().getMonth();
+var calYear=new Date().getFullYear();
+
+// ============ TABS ============
+function switchTab(tab){
+  document.getElementById('view-enviar').style.display=tab==='enviar'?'':'none';
+  document.getElementById('view-biblioteca').style.display=tab==='biblioteca'?'':'none';
+  document.getElementById('view-resultados').style.display=tab==='resultados'?'':'none';
+  document.getElementById('view-calendario').style.display=tab==='calendario'?'':'none';
+  var btns=document.querySelectorAll('.main-tabs button');
+  btns.forEach(function(b,i){b.className=(['enviar','biblioteca','resultados','calendario'][i]===tab)?'active':'';});
+  if(tab==='biblioteca')renderBiblioteca();
+  if(tab==='resultados')renderResultados();
+  if(tab==='calendario')renderCalendario();
+}
+
+// ============ CATEGORY & ESTADO PILLS ============
+function renderCatPills(){
+  var html='';
+  CATEGORIES.forEach(function(c){
+    html+='<span class="cat-pill'+(activeCategory===c.key?' active':'')+'" onclick="setCategory(\''+c.key+'\')">'+c.label+'</span>';
+  });
+  document.getElementById('cat-pills').innerHTML=html;
+}
+function setCategory(k){activeCategory=k;renderCatPills();renderTemplates();}
+
+function renderEstadoPills(){
+  var html='';
+  ESTADOS.forEach(function(e){
+    var label=e.charAt(0).toUpperCase()+e.slice(1);
+    html+='<span class="estado-pill'+(activeEstado===e?' active':'')+'" onclick="setEstado(\''+e+'\')">'+label+'</span>';
+  });
+  document.getElementById('estado-pills').innerHTML=html;
+}
+function setEstado(e){activeEstado=e;renderEstadoPills();}
+
+// ============ LOAD CLIENTS ============
+function getLocalContacts(){
+  var contacts=[];var seen={};
+  try{
+    var idx=JSON.parse(localStorage.getItem('crm_os_index')||'[]');
+    idx.forEach(function(entry){try{
+      var k=typeof entry==='string'?entry:entry.key;
+      var os=JSON.parse(localStorage.getItem(k)||'{}');
+      var name=os.cliente||os.nombreCliente||'';
+      var phone=(os.telefono||os.celularCliente||'').replace(/\D/g,'');
+      var city=(os.recogidas&&os.recogidas[0]?os.recogidas[0].ciudad:'')||os.ciudadOrigen||'';
+      if(name&&phone&&!seen[phone]){seen[phone]=true;contacts.push({n:name,p:phone,c:city,src:'os'});}
+    }catch(_){}});
+  }catch(_){}
+  try{
+    var cache=JSON.parse(localStorage.getItem('crm_cot_cache')||'[]');
+    cache.forEach(function(c){
+      var name=c.nombre||c.cliente||'';var phone=(c.telefono||c.celular||'').replace(/\D/g,'');var city=c.ciudadOrigen||'';
+      if(name&&phone&&!seen[phone]){seen[phone]=true;contacts.push({n:name,p:phone,c:city,src:'cot'});}
+    });
+  }catch(_){}
+  return contacts;
+}
+function mergeAllContacts(sources){
+  var seen={},merged=[];
+  sources.forEach(function(list){list.forEach(function(c){var key=c.p.slice(-10);if(!seen[key]){seen[key]=true;merged.push(c);}});});
+  merged.sort(function(a,b){return a.n.localeCompare(b.n);});
+  return merged;
+}
+function initClients(fileClients,allContacts,googleContacts){
+  CLIENTS=mergeAllContacts([googleContacts||[],allContacts||[],fileClients||[],getLocalContacts()]);
+  filtered=CLIENTS.slice();
+  renderStats();renderClients();renderTemplates();updatePreview();renderHistory();renderCatPills();renderEstadoPills();
+}
+function loadClients(){
+  var fileClients=null,allContacts=null,googleContacts=null,done=0,need=CONTACTS_URL?3:2;
+  function check(){done++;if(done>=need)initClients(fileClients,allContacts,googleContacts);}
+  try{var xhr=new XMLHttpRequest();xhr.open('GET','/output/clientes.json',true);xhr.onload=function(){if(xhr.status===200)try{fileClients=JSON.parse(xhr.responseText);}catch(_){}check();};xhr.onerror=function(){check();};xhr.send();}catch(e){check();}
+  try{var xhr2=new XMLHttpRequest();xhr2.open('GET','/output/contactos.json',true);xhr2.onload=function(){if(xhr2.status===200)try{allContacts=JSON.parse(xhr2.responseText);}catch(_){}check();};xhr2.onerror=function(){check();};xhr2.send();}catch(e){check();}
+  if(CONTACTS_URL){
+    fetch(CONTACTS_URL,{redirect:'follow'}).then(function(r){return r.json();}).then(function(d){
+      if(d.ok&&d.contacts)googleContacts=d.contacts.map(function(c){return{n:c.n,p:c.p.replace(/[^\d]/g,''),c:'',src:'google'};});
+    }).catch(function(){}).finally(function(){check();});
+  }
+}
+
+// ============ RENDER ============
+function renderStats(){
+  var total=CLIENTS.length,withCity=CLIENTS.filter(function(c){return c.c;}).length;
+  document.getElementById('stats-bar').innerHTML=
+    '<div class="stat"><div class="num">'+total+'</div><div class="lbl">Total contactos</div></div>'+
+    '<div class="stat"><div class="num">'+selected.size+'</div><div class="lbl">Seleccionados</div></div>'+
+    '<div class="stat"><div class="num">'+withCity+'</div><div class="lbl">Con ciudad</div></div>'+
+    '<div class="stat"><div class="num">'+getCampaignCount()+'</div><div class="lbl">Campanas enviadas</div></div>';
+}
+function renderClients(){
+  var html='';
+  filtered.forEach(function(c){
+    var idx=CLIENTS.indexOf(c),sel=selected.has(idx);
+    var cityHtml=c.c?'<span class="cl-city">'+c.c+'</span>':'';
+    html+='<div class="cl-row'+(sel?' selected':'')+'" onclick="toggleClient('+idx+',this)">'+
+      '<input type="checkbox" '+(sel?'checked':'')+' onclick="event.stopPropagation();toggleClient('+idx+',this.parentElement)">'+
+      '<span class="cl-name">'+escH(c.n)+'</span><span class="cl-phone">'+formatPhone(c.p)+'</span>'+cityHtml+'</div>';
+  });
+  document.getElementById('client-scroll').innerHTML=html||'<div style="padding:20px;text-align:center;color:var(--muted)">No se encontraron contactos</div>';
+  document.getElementById('showing-count').textContent=filtered.length+' de '+CLIENTS.length;
+  document.getElementById('list-footer').textContent=filtered.length+' contactos mostrados';
+  updateSelCount();
+}
+function renderTemplates(){
+  var html='',keys=Object.keys(TEMPLATES);
+  keys.forEach(function(k){
+    var t=TEMPLATES[k];
+    if(activeCategory!=='todas'&&t.category!==activeCategory)return;
+    html+='<div class="tpl-card'+(activeTpl===k?' active':'')+'" onclick="selectTemplate(\''+k+'\')">'+
+      '<div class="tpl-icon">'+t.icon+'</div><div class="tpl-name">'+t.name+'</div><div class="tpl-desc">'+t.desc+'</div></div>';
+  });
+  document.getElementById('tpl-grid').innerHTML=html||'<div style="padding:12px;color:var(--muted);grid-column:1/-1;text-align:center">Sin templates en esta categoria</div>';
+}
+function updatePreview(){
+  var msg=document.getElementById('camp-msg').value;
+  var sample=msg.replace(/\{nombre\}/g,'<span class="var">Maria Lopez</span>');
+  document.getElementById('preview').innerHTML=sample||'<span style="color:var(--muted)">Escribe un mensaje para ver la vista previa</span>';
+  var count=selected.size;
+  document.getElementById('btn-count').textContent=count;
+  document.getElementById('btn-send').disabled=count===0||!msg.trim();
+}
+function updateSelCount(){
+  document.getElementById('sel-count').textContent=selected.size+' seleccionados';
+  renderStats();updatePreview();
+}
+
+// ============ INTERACTIONS ============
+function toggleClient(idx,row){
+  if(selected.has(idx)){selected.delete(idx);row.classList.remove('selected');row.querySelector('input').checked=false;}
+  else{selected.add(idx);row.classList.add('selected');row.querySelector('input').checked=true;}
+  updateSelCount();
+}
+function toggleAll(checked){filtered.forEach(function(c){var idx=CLIENTS.indexOf(c);if(checked)selected.add(idx);else selected.delete(idx);});renderClients();}
+function refreshContacts(btn){
+  btn.disabled=true;btn.style.opacity='.5';
+  var oldCount=CLIENTS.length;
+  selected.clear();
+  loadClients();
+  setTimeout(function(){
+    btn.disabled=false;btn.style.opacity='1';
+    var diff=CLIENTS.length-oldCount;
+    var msg=diff>0?diff+' contacto'+(diff>1?'s':'')+' nuevo'+(diff>1?'s':''):'Lista actualizada ('+CLIENTS.length+' contactos)';
+    var toast=document.createElement('div');
+    toast.textContent=msg;
+    toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2)';
+    document.body.appendChild(toast);
+    setTimeout(function(){toast.remove();},2500);
+  },800);
+}
+function selectAll(){filtered.forEach(function(c){selected.add(CLIENTS.indexOf(c));});document.getElementById('check-all').checked=true;renderClients();}
+function selectNone(){selected.clear();document.getElementById('check-all').checked=false;renderClients();}
+function filterClients(){
+  var q=(document.getElementById('search').value||'').toLowerCase().trim();
+  filtered=q?CLIENTS.filter(function(c){return c.n.toLowerCase().indexOf(q)>=0||c.p.indexOf(q)>=0||(c.c||'').toLowerCase().indexOf(q)>=0;}):CLIENTS.slice();
+  renderClients();
+}
+function selectTemplate(k){
+  activeTpl=k;var t=TEMPLATES[k];
+  document.getElementById('camp-msg').value=t.msg;
+  if(!document.getElementById('camp-name').value.trim())document.getElementById('camp-name').value=t.name+' '+new Date().toLocaleDateString('es-CO',{month:'long',year:'numeric'});
+  if(t.category){activeCategory=t.category;renderCatPills();}
+  renderTemplates();updatePreview();toggleStatusPanel();
+}
+var _statusFile=null;
+function toggleHistorial(){
+  var list=document.getElementById('hist-list');
+  var arrow=document.getElementById('hist-arrow');
+  var open=list.style.display==='none';
+  list.style.display=open?'':'none';
+  arrow.style.transform=open?'rotate(180deg)':'';
+}
+function toggleStatusPanel(){
+  var isStatus=activeTpl==='wa_status';
+  var sp=document.getElementById('wa-status-panel');
+  var contacts=document.querySelector('.controls');
+  var clientList=document.querySelector('.client-list');
+  var hist=document.getElementById('hist-section');
+  var campActions=document.querySelector('.camp-actions');
+  var campBody=document.querySelector('.camp-body');
+  if(sp)sp.style.display=isStatus?'':'none';
+  if(contacts)contacts.style.display=isStatus?'none':'';
+  if(clientList)clientList.style.display=isStatus?'none':'';
+  if(hist)hist.style.display=isStatus?'none':'';
+  if(campActions)campActions.style.display=isStatus?'none':'';
+  if(campBody)campBody.style.display=isStatus?'none':'';
+  if(isStatus)renderStatusPiece();
+}
+function renderStatusPiece(){
+  var el=document.getElementById('wa-status-piece');if(!el)return;
+  var ph=document.getElementById('wa-status-placeholder');
+  var customImg=getCustomPiece('wa_status');
+  if(customImg){
+    if(ph)ph.style.display='none';
+    el.style.border='none';el.style.background='none';el.style.minHeight='0';
+    el.innerHTML='<img src="'+customImg+'" style="width:100%;display:block;border-radius:12px" alt="Status">';
+    document.getElementById('btn-share-status').disabled=false;
+    document.getElementById('btn-download-status').disabled=false;
+    if(!_statusFile)dataUrlToFile(customImg);
+  } else {
+    el.innerHTML='<div id="wa-status-placeholder" style="padding:30px;color:var(--muted);font-size:13px">Toca para subir tu imagen</div>';
+    el.style.border='2px dashed rgba(37,211,102,.25)';el.style.background='rgba(37,211,102,.04)';el.style.minHeight='120px';
+    document.getElementById('btn-share-status').disabled=true;
+    document.getElementById('btn-download-status').disabled=true;
+  }
+}
+function dataUrlToFile(dataUrl){
+  try{
+    var arr=dataUrl.split(','),mime=arr[0].match(/:(.*?);/)[1];
+    var bstr=atob(arr[1]),n=bstr.length,u8=new Uint8Array(n);
+    while(n--)u8[n]=bstr.charCodeAt(n);
+    _statusFile=new File([u8],'status-crm-mudanzas.jpg',{type:mime});
+  }catch(_){_statusFile=null;}
+}
+function uploadStatusPiece(e){
+  var file=e.target.files[0];if(!file)return;
+  if(file.size>5*1024*1024){alert('Imagen muy grande (max 5MB)');return;}
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');
+      var maxW=1080;var w=img.width,h=img.height;
+      if(w>maxW){h=h*(maxW/w);w=maxW;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      var dataUrl=canvas.toDataURL('image/jpeg',0.9);
+      saveCustomPiece('wa_status',dataUrl);
+      dataUrlToFile(dataUrl);
+      renderStatusPiece();
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+function shareStatus(){
+  if(!_statusFile){alert('Sube una imagen primero');return;}
+  if(navigator.canShare&&navigator.canShare({files:[_statusFile]})){
+    navigator.share({files:[_statusFile],title:'CRM Mudanzas',text:'crm-mudanzas.site'}).catch(function(){});
+  } else {
+    downloadStatusPiece();
+    alert('Tu navegador no soporta compartir directo. La imagen se descargo, publicala manualmente como Estado en WhatsApp.');
+  }
+}
+function downloadStatusPiece(){
+  var customImg=getCustomPiece('wa_status');
+  if(!customImg)return;
+  var a=document.createElement('a');a.href=customImg;a.download='status-crm-mudanzas.jpg';a.click();
+}
+
+// ============ CAMPAIGN ACTIONS ============
+function ejecutarCampana(){
+  if(selected.size===0){alert('Selecciona al menos un contacto');return;}
+  var msg=document.getElementById('camp-msg').value.trim();
+  if(!msg){alert('Escribe un mensaje');return;}
+  var campName=document.getElementById('camp-name').value.trim()||'Sin nombre';
+  var objetivo=document.getElementById('camp-objetivo').value.trim();
+  var channels=[];document.querySelectorAll('.channel-checks input:checked').forEach(function(cb){channels.push(cb.value);});
+  var clients=[];selected.forEach(function(idx){clients.push(CLIENTS[idx]);});
+  var t=TEMPLATES[activeTpl]||{};
+  saveCampaign({name:campName,type:activeTpl,category:t.category||'permanente',count:clients.length,msg:msg,channels:channels,estado:activeEstado,objetivo:objetivo});
+  var i=0;
+  function next(){
+    if(i>=clients.length)return;
+    var c=clients[i];var personal=msg.replace(/\{nombre\}/g,c.n.split(' ')[0]);
+    window.open('https://wa.me/'+c.p+'?text='+encodeURIComponent(personal),'_blank');
+    i++;
+    if(i<clients.length&&i<10)setTimeout(next,800);
+    else if(i>=10&&i<clients.length&&confirm('Se abrieron '+i+' chats. Continuar con los siguientes '+(clients.length-i)+'?'))setTimeout(next,800);
+  }
+  if(confirm('Se abriran '+clients.length+' chats de WhatsApp.\n\nContinuar?'))next();
+}
+function copiarLista(){
+  var lines=[];selected.forEach(function(idx){var c=CLIENTS[idx];lines.push(c.n+'\t'+c.p);});
+  if(!lines.length){alert('Selecciona al menos un cliente');return;}
+  var text=lines.join('\n');
+  if(navigator.clipboard)navigator.clipboard.writeText(text).then(function(){alert('Lista copiada ('+lines.length+' contactos)');});
+  else{var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert('Lista copiada');}
+}
+function exportarCampana(){
+  var lines=['Nombre,Telefono,Ciudad'],targets=[];
+  if(selected.size>0)selected.forEach(function(idx){targets.push(CLIENTS[idx]);});else targets=CLIENTS;
+  targets.forEach(function(c){lines.push('"'+c.n+'","'+c.p+'","'+(c.c||'')+'"');});
+  var blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='campana_'+(document.getElementById('camp-name').value||'export').replace(/[^a-zA-Z0-9]/g,'_')+'.csv';
+  a.click();URL.revokeObjectURL(a.href);
+}
+
+// ============ CAMPAIGN HISTORY ============
+var HIST_KEY='crm_camp_history';
+function getCampaigns(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(_){return[];}}
+function getCampaignCount(){return getCampaigns().length;}
+function saveCampaign(data){
+  var h=getCampaigns();
+  data.date=new Date().toISOString();
+  h.unshift(data);if(h.length>50)h.length=50;
+  localStorage.setItem(HIST_KEY,JSON.stringify(h));
+  renderHistory();renderStats();
+}
+function renderHistory(){
+  var h=getCampaigns();
+  if(!h.length){document.getElementById('hist-list').innerHTML='<div style="color:var(--muted);font-size:13px">Aun no has enviado campanas</div>';return;}
+  var html='';
+  h.slice(0,10).forEach(function(c,i){
+    var d=new Date(c.date);var fecha=d.toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'});
+    var tpl=TEMPLATES[c.type]||{name:c.type};
+    html+='<div class="hist-card"><div class="hist-top"><span class="hist-name">'+escH(c.name)+'</span><span class="hist-date">'+fecha+'</span></div>'+
+      '<div class="hist-stats">'+tpl.name+' · '+c.count+' clientes'+(c.estado?' · '+c.estado:'')+'</div>'+
+      '<div class="hist-actions"><button class="btn btn-sm" onclick="repetirCampana('+i+')">Repetir</button></div></div>';
+  });
+  document.getElementById('hist-list').innerHTML=html;
+}
+function repetirCampana(idx){
+  var h=getCampaigns();if(!h[idx])return;
+  var c=h[idx];
+  if(c.type&&TEMPLATES[c.type])selectTemplate(c.type);
+  if(c.msg)document.getElementById('camp-msg').value=c.msg;
+  if(c.name)document.getElementById('camp-name').value=c.name+' (copia)';
+  if(c.objetivo)document.getElementById('camp-objetivo').value=c.objetivo;
+  updatePreview();switchTab('enviar');
+}
+
+// ============ BIBLIOTECA ============
+function makePieceSVG(cfg){
+  var id=cfg.id||'p';
+  return '<svg viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">'+
+    '<defs><linearGradient id="bg'+id+'" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="'+(cfg.bg1||'#5ee7f7')+'"/><stop offset="100%" stop-color="'+(cfg.bg2||'#5ee7f7')+'"/></linearGradient></defs>'+
+    '<rect width="400" height="560" rx="24" fill="url(#bg'+id+')"/>'+
+    '<rect x="20" y="20" width="360" height="520" rx="16" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1"/>'+
+    '<g transform="translate(200,200)" stroke="#fff" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'+
+    '<g transform="scale(3)">'+cfg.iconPaths+'</g></g>'+
+    '<text x="200" y="340" text-anchor="middle" fill="#fff" font-size="28" font-weight="700" font-family="Segoe UI,system-ui,sans-serif">'+(cfg.title||'')+'</text>'+
+    '<text x="200" y="375" text-anchor="middle" fill="rgba(255,255,255,.8)" font-size="14" font-family="Segoe UI,system-ui,sans-serif">'+(cfg.sub||'')+'</text>'+
+    '<line x1="140" y1="400" x2="260" y2="400" stroke="rgba(255,255,255,.3)" stroke-width="1"/>'+
+    '<text x="200" y="440" text-anchor="middle" fill="rgba(255,255,255,.9)" font-size="13" font-weight="600" font-family="Segoe UI,system-ui,sans-serif">CRM MUDANZAS</text>'+
+    '<text x="200" y="465" text-anchor="middle" fill="rgba(255,255,255,.6)" font-size="12" font-family="Segoe UI,system-ui,sans-serif">crm-mudanzas.site</text>'+
+    '</svg>';
+}
+
+function renderBiblioteca(){
+  var cats=[
+    {key:'estacional',title:'Campanas Estacionales',desc:'Asociadas al calendario colombiano'},
+    {key:'permanente',title:'Campanas Permanentes',desc:'Se ejecutan durante todo el año'},
+    {key:'negocio',title:'Lineas de Negocio',desc:'Por empresa o proyecto'}
+  ];
+  var html='';
+  cats.forEach(function(cat){
+    html+='<div class="bib-section"><div class="bib-section__title">'+cat.title+' <span style="font-weight:400;font-size:12px;color:var(--muted)">'+cat.desc+'</span></div><div class="bib-grid">';
+    Object.keys(TEMPLATES).forEach(function(k){
+      var t=TEMPLATES[k];
+      if(t.category!==cat.key)return;
+      var customImg=getCustomPiece(k);
+      var visualHTML='';
+      if(customImg){
+        visualHTML='<img src="'+customImg+'" alt="'+t.name+'">';
+      } else if(t.bg1){
+        var iconPaths='';
+        var m=t.icon.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
+        if(m)iconPaths=m[1];
+        visualHTML=makePieceSVG({id:k,bg1:t.bg1,bg2:t.bg2,title:t.pieceTitle||t.name,sub:t.pieceSub||'',iconPaths:iconPaths});
+      } else {
+        visualHTML='<div style="width:100%;height:100%;background:linear-gradient(135deg,#5ee7f7,#5ee7f7);display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:700">'+t.name.charAt(0)+'</div>';
+      }
+      html+='<div class="bib-card">'+
+        '<div class="bib-card__visual">'+visualHTML+'</div>'+
+        '<div class="bib-card__body"><div class="bib-card__title">'+t.name+'</div>'+
+        (t.season?'<div class="bib-card__date">'+t.season+'</div>':'')+
+        '<div class="bib-card__desc">'+t.desc+'</div>'+
+        '<div class="bib-card__actions">'+
+        '<button class="btn btn-sm btn-primary" onclick="usarTemplate(\''+k+'\')">Usar</button>'+
+        (t.bg1?'<button class="btn btn-sm" onclick="verPieza(\''+k+'\')">Ver pieza</button>':'')+
+        '</div></div></div>';
+    });
+    html+='</div></div>';
+  });
+  document.getElementById('bib-content').innerHTML=html;
+}
+
+function usarTemplate(k){selectTemplate(k);switchTab('enviar');}
+
+// ============ PIEZA MODAL ============
+function verPieza(k){
+  currentPieceKey=k;
+  var t=TEMPLATES[k];if(!t)return;
+  var customImg=getCustomPiece(k);
+  var content='';
+  if(customImg){
+    content='<img src="'+customImg+'" alt="'+t.name+'" style="width:100%;border-radius:12px">';
+  } else {
+    var iconPaths='';var m=t.icon.match(/<svg[^>]*>([\s\S]*)<\/svg>/);if(m)iconPaths=m[1];
+    content=makePieceSVG({id:k+'m',bg1:t.bg1,bg2:t.bg2,title:t.pieceTitle||t.name,sub:t.pieceSub||'',iconPaths:iconPaths});
+  }
+  document.getElementById('piece-modal-content').innerHTML=content;
+  document.getElementById('piece-modal').classList.add('open');
+}
+function closePieceModal(){document.getElementById('piece-modal').classList.remove('open');}
+
+function downloadPiece(){
+  var el=document.querySelector('#piece-modal-content svg')||document.querySelector('#piece-modal-content img');
+  if(!el)return;
+  if(el.tagName==='svg'){
+    var svg=el.outerHTML;
+    var blob=new Blob([svg],{type:'image/svg+xml'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(currentPieceKey||'pieza')+'.svg';a.click();URL.revokeObjectURL(a.href);
+  } else {
+    var a=document.createElement('a');a.href=el.src;a.download=(currentPieceKey||'pieza')+'.png';a.click();
+  }
+}
+
+function uploadPiece(e){
+  var file=e.target.files[0];if(!file||!currentPieceKey)return;
+  if(file.size>2*1024*1024){alert('Imagen muy grande (max 2MB)');return;}
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');
+      var maxW=800;var w=img.width,h=img.height;
+      if(w>maxW){h=h*(maxW/w);w=maxW;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      var dataUrl=canvas.toDataURL('image/jpeg',0.85);
+      saveCustomPiece(currentPieceKey,dataUrl);
+      verPieza(currentPieceKey);
+      renderBiblioteca();
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+
+var PIECES_KEY='crm_camp_pieces';
+function getCustomPiece(k){try{var p=JSON.parse(localStorage.getItem(PIECES_KEY)||'{}');return p[k]||null;}catch(_){return null;}}
+function saveCustomPiece(k,dataUrl){try{var p=JSON.parse(localStorage.getItem(PIECES_KEY)||'{}');p[k]=dataUrl;localStorage.setItem(PIECES_KEY,JSON.stringify(p));}catch(_){}}
+
+// ============ RESULTADOS ============
+function renderResultados(){
+  var h=getCampaigns();
+  var totalCamps=h.length;
+  var totalContacts=h.reduce(function(s,c){return s+(c.count||0);},0);
+  var now=new Date();var thisMonth=h.filter(function(c){var d=new Date(c.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).length;
+  var avg=totalCamps?Math.round(totalContacts/totalCamps):0;
+
+  var funnelData=getFunnelData();
+
+  var html='<div class="res-kpis">'+
+    '<div class="res-kpi"><div class="num">'+totalCamps+'</div><div class="lbl">Campanas enviadas</div></div>'+
+    '<div class="res-kpi"><div class="num">'+totalContacts+'</div><div class="lbl">Contactos alcanzados</div></div>'+
+    '<div class="res-kpi"><div class="num">'+thisMonth+'</div><div class="lbl">Este mes</div></div>'+
+    '<div class="res-kpi"><div class="num">'+avg+'</div><div class="lbl">Promedio / campana</div></div>'+
+    '</div>';
+
+  var steps=['Campana','Lead','Contacto','Cotizacion','Negociacion','Venta','Postventa'];
+  var fKeys=['campana','lead','contacto','cotizacion','negociacion','venta','postventa'];
+  html+='<div class="funnel-section"><h3>Embudo de conversion</h3><div class="funnel-wrap">';
+  steps.forEach(function(s,i){
+    var val=funnelData[fKeys[i]]||0;
+    var opacity=1-i*0.08;
+    html+='<div class="funnel-step">'+
+      '<div class="funnel-step__bar" style="opacity:'+opacity+'"><input type="number" value="'+val+'" min="0" placeholder="0" onchange="updateFunnel(\''+fKeys[i]+'\',this.value)">'+
+      (i<steps.length-1?'<span class="funnel-step__arrow" style="color:#fff">&#9654;</span>':'')+
+      '</div><div class="funnel-step__label">'+s+'</div></div>';
+  });
+  html+='</div></div>';
+
+  if(h.length){
+    html+='<div class="funnel-section"><h3>Historial completo</h3><div style="overflow-x:auto"><table class="res-hist-table"><thead><tr>'+
+      '<th>Nombre</th><th>Tipo</th><th>Contactos</th><th>Fecha</th><th>Estado</th><th></th></tr></thead><tbody>';
+    h.forEach(function(c,i){
+      var d=new Date(c.date);var fecha=d.toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'});
+      var tpl=TEMPLATES[c.type]||{name:c.type||'-'};
+      html+='<tr><td style="font-weight:600">'+escH(c.name)+'</td><td>'+tpl.name+'</td><td style="text-align:center">'+c.count+'</td>'+
+        '<td>'+fecha+'</td><td><span class="badge">'+(c.estado||'-')+'</span></td>'+
+        '<td><button class="btn btn-sm" onclick="repetirCampana('+i+')">Repetir</button></td></tr>';
+    });
+    html+='</tbody></table></div></div>';
+  }
+  document.getElementById('res-content').innerHTML=html;
+}
+
+var FUNNEL_KEY='crm_camp_funnels';
+function getFunnelData(){try{return JSON.parse(localStorage.getItem(FUNNEL_KEY)||'{}');}catch(_){return {};}}
+function updateFunnel(key,val){var f=getFunnelData();f[key]=parseInt(val)||0;localStorage.setItem(FUNNEL_KEY,JSON.stringify(f));}
+
+// ============ CALENDARIO ============
+function getEventsForMonth(y,m){
+  var events=[];
+  Object.keys(CAMP_DATES).forEach(function(k){
+    var cd=CAMP_DATES[k];
+    if(cd.m===m){events.push({key:k,day:cd.d,label:cd.label,tpl:TEMPLATES[k]});}
+  });
+  var custom=getCustomEvents();
+  custom.forEach(function(ev){
+    var d=new Date(ev.date);
+    if(d.getMonth()===m&&d.getFullYear()===y){events.push({key:'custom_'+ev.id,day:d.getDate(),label:ev.label,custom:true,customData:ev});}
+  });
+  return events;
+}
+function getAlertClass(eventDay,eventMonth,eventYear){
+  var today=new Date();today.setHours(0,0,0,0);
+  var evDate=new Date(eventYear,eventMonth,eventDay);evDate.setHours(0,0,0,0);
+  var diff=(evDate-today)/(1000*60*60*24);
+  if(diff<0)return '';
+  if(diff<=2)return 'cal-cell--urgent';
+  if(diff<=5)return 'cal-cell--alert';
+  return 'cal-cell--event';
+}
+function renderCalendario(){
+  var y=calYear,m=calMonth;
+  var months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var days=['Lun','Mar','Mie','Jue','Vie','Sab','Dom'];
+  var firstDay=new Date(y,m,1).getDay();
+  var offset=(firstDay===0)?6:firstDay-1;
+  var daysInMonth=new Date(y,m+1,0).getDate();
+  var today=new Date();
+  var todayD=(today.getFullYear()===y&&today.getMonth()===m)?today.getDate():-1;
+  var events=getEventsForMonth(y,m);
+  var eventMap={};
+  events.forEach(function(ev){if(!eventMap[ev.day])eventMap[ev.day]=[];eventMap[ev.day].push(ev);});
+
+  var alerts=getUpcomingAlerts();
+  var html='';
+  if(alerts.length){
+    alerts.forEach(function(a){
+      var cls=a.daysUntil<=2?'alert-banner--urgent':'';
+      var iconCls=a.daysUntil<=2?'alert-banner__icon--urgent':'alert-banner__icon--warn';
+      var iconChar=a.daysUntil<=2?'!!':'!';
+      var timeText=a.daysUntil===0?'HOY':a.daysUntil===1?'MANANA':'En '+a.daysUntil+' dias';
+      html+='<div class="alert-banner '+cls+'">'+
+        '<div class="alert-banner__icon '+iconCls+'">'+iconChar+'</div>'+
+        '<div class="alert-banner__text"><strong>'+timeText+': '+a.label+'</strong>Prepara la campana "'+a.label+'" para enviar a tus contactos.</div>'+
+        '<button class="btn btn-sm btn-primary" onclick="prepararCampana(\''+a.key+'\')">Preparar</button>'+
+        '</div>';
+    });
+  }
+
+  html+='<div class="cal-nav">'+
+    '<button class="btn btn-sm" onclick="calPrev()">&lt;</button>'+
+    '<h3>'+months[m]+' '+y+'</h3>'+
+    '<button class="btn btn-sm" onclick="calNext()">&gt;</button>'+
+    '<button class="btn btn-sm" onclick="calToday()">Hoy</button>'+
+    '<button class="btn btn-sm" onclick="addCustomEvent()">+ Evento</button>'+
+    '</div>';
+
+  html+='<div class="cal-head">';
+  days.forEach(function(d){html+='<span>'+d+'</span>';});
+  html+='</div>';
+
+  html+='<div class="cal-grid">';
+  for(var i=0;i<offset;i++)html+='<div class="cal-cell cal-cell--empty"></div>';
+  for(var d=1;d<=daysInMonth;d++){
+    var evs=eventMap[d];
+    var isToday=d===todayD;
+    var cellClass='cal-cell';
+    if(isToday)cellClass+=' cal-cell--today';
+    if(evs&&evs.length){
+      var alertCls=getAlertClass(d,m,y);
+      if(alertCls)cellClass+=' '+alertCls;
+      else cellClass+=' cal-cell--event';
+    }
+    var onclick=evs?'onclick="calCellClick('+d+','+m+','+y+')"':'';
+    html+='<div class="'+cellClass+'" '+onclick+'>'+
+      '<div class="cal-cell__day">'+d+'</div>';
+    if(evs){evs.forEach(function(ev){html+='<div class="cal-cell__label" title="'+ev.label+'">'+ev.label+'</div>';});}
+    html+='</div>';
+  }
+  html+='</div>';
+
+  html+='<div class="cal-legend">'+
+    '<span class="leg-today">Hoy</span>'+
+    '<span class="leg-event">Campana programada</span>'+
+    '<span class="leg-alert">Faltan 3-5 dias</span>'+
+    '<span class="leg-urgent">Faltan 0-2 dias</span>'+
+    '</div>';
+
+  html+=renderUpcoming(y);
+
+  document.getElementById('cal-content').innerHTML=html;
+}
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendario();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendario();}
+function calToday(){var n=new Date();calMonth=n.getMonth();calYear=n.getFullYear();renderCalendario();}
+
+function calCellClick(d,m,y){
+  var events=getEventsForMonth(y,m).filter(function(ev){return ev.day===d;});
+  if(!events.length)return;
+  var ev=events[0];
+  if(ev.custom){
+    if(confirm('Evento: '+ev.label+'\n\nEliminar este evento?')){
+      removeCustomEvent(ev.customData.id);
+      renderCalendario();
+    }
+    return;
+  }
+  if(confirm(ev.label+'\n\nPreparar esta campana para enviar?'))prepararCampana(ev.key);
+}
+
+function prepararCampana(key){
+  if(TEMPLATES[key]){selectTemplate(key);switchTab('enviar');}
+}
+
+function getUpcomingAlerts(){
+  var today=new Date();today.setHours(0,0,0,0);
+  var y=today.getFullYear();
+  var alerts=[];
+  Object.keys(CAMP_DATES).forEach(function(k){
+    var cd=CAMP_DATES[k];
+    var evDate=new Date(y,cd.m,cd.d);evDate.setHours(0,0,0,0);
+    if(evDate<today){evDate=new Date(y+1,cd.m,cd.d);evDate.setHours(0,0,0,0);}
+    var diff=Math.round((evDate-today)/(1000*60*60*24));
+    if(diff<=5)alerts.push({key:k,label:cd.label,daysUntil:diff,date:evDate});
+  });
+  var custom=getCustomEvents();
+  custom.forEach(function(ev){
+    var evDate=new Date(ev.date);evDate.setHours(0,0,0,0);
+    var diff=Math.round((evDate-today)/(1000*60*60*24));
+    if(diff>=0&&diff<=5)alerts.push({key:'custom',label:ev.label,daysUntil:diff,date:evDate,custom:true});
+  });
+  alerts.sort(function(a,b){return a.daysUntil-b.daysUntil;});
+  return alerts;
+}
+
+function renderUpcoming(year){
+  var today=new Date();today.setHours(0,0,0,0);
+  var y=year||today.getFullYear();
+  var list=[];
+  Object.keys(CAMP_DATES).forEach(function(k){
+    var cd=CAMP_DATES[k];
+    var evDate=new Date(y,cd.m,cd.d);
+    var diff=Math.round((evDate-today)/(1000*60*60*24));
+    list.push({key:k,label:cd.label,date:evDate,diff:diff,icon:TEMPLATES[k]?TEMPLATES[k].icon:'',bg1:TEMPLATES[k]?TEMPLATES[k].bg1:'#5ee7f7'});
+  });
+  var custom=getCustomEvents();
+  custom.forEach(function(ev){
+    var evDate=new Date(ev.date);
+    var diff=Math.round((evDate-today)/(1000*60*60*24));
+    if(evDate.getFullYear()===y)list.push({key:'custom',label:ev.label,date:evDate,diff:diff,icon:'',bg1:'#6b7280',custom:true});
+  });
+  list.sort(function(a,b){return a.date-b.date;});
+
+  var html='<div class="cal-upcoming"><h3>Todas las campanas del '+y+'</h3><div class="cal-upcoming__list">';
+  list.forEach(function(item){
+    var fecha=item.date.toLocaleDateString('es-CO',{day:'numeric',month:'long'});
+    var cls='cal-upcoming__item';
+    if(item.diff<0)cls+=' cal-upcoming__item--past';
+    else if(item.diff<=2)cls+=' cal-upcoming__item--urgent';
+    else if(item.diff<=5)cls+=' cal-upcoming__item--alert';
+    var statusText=item.diff<0?'Pasada':item.diff===0?'HOY':item.diff===1?'Manana':'En '+item.diff+' dias';
+    html+='<div class="'+cls+'">'+
+      '<div class="cal-upcoming__icon" style="background:'+(item.bg1||'#6b7280')+'">'+
+      (item.icon?item.icon.replace(/currentColor/g,'#fff'):'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>')+
+      '</div>'+
+      '<div class="cal-upcoming__info"><strong>'+item.label+'</strong><span>'+fecha+' · '+statusText+'</span></div>'+
+      '<div class="cal-upcoming__actions">'+
+      (item.diff>=0&&!item.custom?'<button class="btn btn-sm btn-primary" onclick="prepararCampana(\''+item.key+'\')">Preparar</button>':'')+
+      '</div></div>';
+  });
+  html+='</div></div>';
+  return html;
+}
+
+// ============ CUSTOM EVENTS ============
+var CUSTOM_EVENTS_KEY='crm_camp_custom_events';
+function getCustomEvents(){try{return JSON.parse(localStorage.getItem(CUSTOM_EVENTS_KEY)||'[]');}catch(_){return [];}}
+function saveCustomEvents(evts){localStorage.setItem(CUSTOM_EVENTS_KEY,JSON.stringify(evts));}
+function addCustomEvent(){
+  var label=prompt('Nombre del evento:');
+  if(!label)return;
+  var dateStr=prompt('Fecha (AAAA-MM-DD):',new Date().toISOString().slice(0,10));
+  if(!dateStr||!/^\d{4}-\d{2}-\d{2}$/.test(dateStr))return;
+  var evts=getCustomEvents();
+  evts.push({id:Date.now(),label:label,date:dateStr});
+  saveCustomEvents(evts);
+  var d=new Date(dateStr);calMonth=d.getMonth();calYear=d.getFullYear();
+  renderCalendario();
+}
+function removeCustomEvent(id){
+  var evts=getCustomEvents().filter(function(e){return e.id!==id;});
+  saveCustomEvents(evts);
+}
+
+// ============ ALERTAS AL CARGAR ============
+function checkAlertsOnLoad(){
+  var alerts=getUpcomingAlerts();
+  var dismissed=getDismissedAlerts();
+  var today=new Date().toISOString().slice(0,10);
+  alerts.forEach(function(a){
+    var key=a.key+'_'+a.date.toISOString().slice(0,10);
+    if(dismissed[key]===today)return;
+    if(a.daysUntil<=2){
+      var timeText=a.daysUntil===0?'HOY':a.daysUntil===1?'MANANA':'En '+a.daysUntil+' dias';
+      if(confirm('ALERTA: '+timeText+' es "'+a.label+'".\n\nPreparar la campana ahora?')){
+        prepararCampana(a.key);
+      }
+      dismissAlert(key);
+    }
+  });
+}
+var DISMISSED_KEY='crm_camp_alerts_dismissed';
+function getDismissedAlerts(){try{return JSON.parse(localStorage.getItem(DISMISSED_KEY)||'{}');}catch(_){return {};}}
+function dismissAlert(key){var d=getDismissedAlerts();d[key]=new Date().toISOString().slice(0,10);localStorage.setItem(DISMISSED_KEY,JSON.stringify(d));}
+
+// ============ UTILS ============
+function escH(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function formatPhone(p){if(p.length===12&&p.startsWith('57'))return'+57 '+p.substring(2,5)+' '+p.substring(5,8)+' '+p.substring(8);return p;}
+
+// ============ INIT ============
+selectTemplate('referidos');
+loadClients();
+setTimeout(checkAlertsOnLoad,1500);
+</script>
+<script src="js/swipe-nav.js"></script>
+<link rel="stylesheet" href="css/access-gate.css?v=18"/>
+<script src="js/access-gate.js?v=18"></script>
+</body>
+</html>

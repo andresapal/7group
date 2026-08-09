@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>Finanzas · CRM Mudanzas</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="alternate icon" type="image/png" href="/favicon.svg"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ty-blue:#5ee7f7;--ty-red:#f97316;--ty-dark:#1a1a2e;
+  --ty-bg:#f0f2f5;--ty-card:rgba(255,255,255,.92);--ty-border:rgba(226,229,234,.6);
+  --ty-muted:#6b7280;--ty-green:#15803d;--ty-orange:#d97706;--ty-teal:#0d9488;
+  --radius:16px;--glass:rgba(255,255,255,.55);
+  --shine:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%)
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;font-size:13px;background:linear-gradient(135deg,#eef1f8 0%,#e8edf5 40%,#f0f2f5 100%);color:var(--ty-dark);min-height:100vh}
+
+/* Dark mode */
+body.ty-dark{--ty-bg:#0f0f1a;--ty-card:rgba(30,30,50,.92);--ty-border:rgba(80,80,120,.3);--ty-dark:#e8e8f0;--ty-muted:#9ca3af;background:linear-gradient(135deg,#0f0f1a 0%,#1a1a2e 100%)}
+
+/* Header */
+/* Topbar */
+.topbar{background:rgba(6,10,14,.95);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(148,163,184,.12)}
+body.ty-dark .topbar{background:rgba(6,10,14,.98)}
+.tb-logo{font-size:14px;font-weight:800;color:#e2e8f0;letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:rgba(148,163,184,.18);margin:0 12px}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5ee7f7}
+.tb-left{display:flex;align-items:center}
+.crm-nav{display:flex;background:#0c1117;border-bottom:1px solid rgba(148,163,184,.08);padding:0 16px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+body.ty-dark .crm-nav{background:rgba(15,15,26,.95)}
+.crm-link{padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:#64748b;text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
+.crm-link:hover{color:#e2e8f0}.crm-link.active{color:#5ee7f7;border-color:#5ee7f7}
+.header-nav a:hover{background:var(--ty-blue);color:#fff;box-shadow:0 2px 8px rgba(94,231,247,.25)}
+body.ty-dark .header-nav a{color:#7b9cf5;border-color:rgba(123,156,245,.2);background:rgba(123,156,245,.06)}
+body.ty-dark .header-nav a:hover{background:#7b9cf5;color:#0f0f1a}
+
+.container{max-width:900px;margin:0 auto;padding:20px 16px 100px}
+
+/* Module tabs */
+.fin-tabs{display:flex;background:rgba(94,231,247,.06);border-radius:12px;padding:3px;margin-bottom:20px;gap:2px}
+.fin-tab{flex:1;padding:10px 6px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--ty-muted);transition:all .25s;font-family:inherit;text-align:center}
+.fin-tab:hover{color:var(--ty-blue)}
+.fin-tab.active{background:#fff;color:var(--ty-blue);box-shadow:0 2px 8px rgba(94,231,247,.12)}
+body.ty-dark .fin-tabs{background:rgba(123,156,245,.08)}
+body.ty-dark .fin-tab.active{background:rgba(40,40,70,.9);color:#7b9cf5}
+
+.fin-view{display:none}
+.fin-view.active{display:block}
+
+/* CDC styles */
+.cdc-section{margin-top:0}
+.cdc-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cdc-form .full{grid-column:1/-1}
+.cdc-form label{font-size:11px;font-weight:600;color:var(--ty-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;display:block}
+.cdc-form input,.cdc-form textarea,.cdc-form select{width:100%;padding:10px 12px;border:1.5px solid var(--ty-border);border-radius:10px;font-size:14px;font-family:inherit;background:var(--ty-card);color:var(--ty-dark);transition:border-color .2s}
+.cdc-form input:focus,.cdc-form textarea:focus{outline:none;border-color:var(--ty-blue);box-shadow:0 0 0 3px rgba(94,231,247,.08)}
+.cdc-form textarea{resize:vertical;min-height:50px}
+body.ty-dark .cdc-form input,body.ty-dark .cdc-form textarea{background:rgba(40,40,70,.6);border-color:rgba(80,80,120,.4);color:#e8e8f0}
+body.ty-dark .cdc-form input:focus,body.ty-dark .cdc-form textarea:focus{border-color:#7b9cf5;box-shadow:0 0 0 3px rgba(123,156,245,.15)}
+
+.cdc-items{margin:14px 0}
+.cdc-items-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cdc-items-header label{font-size:11px;font-weight:600;color:var(--ty-muted);text-transform:uppercase;letter-spacing:.05em}
+.cdc-item-row{display:grid;grid-template-columns:1fr 140px 36px;gap:8px;margin-bottom:8px;align-items:end}
+.cdc-item-row input{padding:9px 10px;border:1.5px solid var(--ty-border);border-radius:10px;font-size:14px;font-family:inherit;background:var(--ty-card);color:var(--ty-dark)}
+.cdc-item-row input:focus{outline:none;border-color:var(--ty-blue)}
+body.ty-dark .cdc-item-row input{background:rgba(40,40,70,.6);border-color:rgba(80,80,120,.4);color:#e8e8f0}
+.cdc-item-del{width:34px;height:34px;border:none;border-radius:8px;background:rgba(249,115,22,.08);color:#f97316;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.cdc-item-del:hover{background:rgba(249,115,22,.2)}
+.cdc-add-item{font-size:12px;color:var(--ty-blue);cursor:pointer;font-weight:600;background:none;border:none;padding:4px 0;font-family:inherit}
+.cdc-add-item:hover{text-decoration:underline}
+
+.cdc-total-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:2px solid var(--ty-border);margin-top:10px;font-weight:800;font-size:20px;color:var(--ty-dark)}
+body.ty-dark .cdc-total-row{border-color:rgba(80,80,120,.4)}
+
+.cdc-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.cdc-btn{padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.cdc-btn-primary{background:linear-gradient(135deg,#5ee7f7,#0A1845);color:#fff;box-shadow:0 2px 8px rgba(94,231,247,.2)}
+.cdc-btn-primary:hover{box-shadow:0 4px 16px rgba(94,231,247,.35);transform:translateY(-1px)}
+.cdc-btn-secondary{background:rgba(94,231,247,.08);color:var(--ty-blue);border:1.5px solid rgba(94,231,247,.2)}
+.cdc-btn-secondary:hover{background:rgba(94,231,247,.15)}
+body.ty-dark .cdc-btn-secondary{background:rgba(123,156,245,.08);color:#7b9cf5;border-color:rgba(123,156,245,.2)}
+
+/* History */
+.cdc-history{margin-top:24px;border-top:1.5px solid var(--ty-border);padding-top:16px}
+body.ty-dark .cdc-history{border-color:rgba(80,80,120,.4)}
+.cdc-hist-title{font-size:14px;font-weight:700;color:var(--ty-dark);margin-bottom:10px}
+.cdc-hist-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--ty-border);border-radius:10px;margin-bottom:6px;font-size:13px;transition:all .15s;background:var(--ty-card)}
+.cdc-hist-row:hover{border-color:var(--ty-blue);background:rgba(94,231,247,.02);box-shadow:0 2px 8px rgba(94,231,247,.06)}
+body.ty-dark .cdc-hist-row{background:rgba(40,40,70,.4);border-color:rgba(80,80,120,.3)}
+body.ty-dark .cdc-hist-row:hover{border-color:#7b9cf5;background:rgba(123,156,245,.05)}
+.cdc-hist-num{font-weight:700;color:var(--ty-blue);min-width:70px}
+body.ty-dark .cdc-hist-num{color:#7b9cf5}
+.cdc-hist-cli{flex:1;color:var(--ty-dark);margin:0 8px}
+.cdc-hist-val{font-weight:600;color:var(--ty-dark);min-width:100px;text-align:right}
+.cdc-hist-date{color:var(--ty-muted);min-width:80px;text-align:right}
+.cdc-hist-actions{display:flex;gap:4px;margin-left:8px}
+.cdc-hist-btn{width:30px;height:30px;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;background:rgba(94,231,247,.06);color:var(--ty-blue);transition:background .15s}
+.cdc-hist-btn:hover{background:rgba(94,231,247,.15)}
+body.ty-dark .cdc-hist-btn{background:rgba(123,156,245,.08);color:#7b9cf5}
+
+/* Cotización management */
+.cot-section{margin-top:0;margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid var(--ty-border)}
+body.ty-dark .cot-section{border-color:rgba(80,80,120,.4)}
+.cot-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cot-header h3{font-size:14px;font-weight:700;color:var(--ty-dark)}
+.cot-header .cot-count{font-size:11px;font-weight:500;color:var(--ty-muted)}
+.cot-list{display:flex;flex-direction:column;gap:6px}
+.cot-row{display:flex;align-items:center;gap:10px;background:var(--ty-card);border:1px solid var(--ty-border);border-radius:12px;padding:10px 14px;transition:box-shadow .2s;cursor:pointer}
+.cot-row:hover{box-shadow:0 2px 12px rgba(94,231,247,.1)}
+body.ty-dark .cot-row{background:rgba(40,40,70,.4);border-color:rgba(80,80,120,.3)}
+body.ty-dark .cot-row:hover{border-color:#7b9cf5;box-shadow:0 2px 12px rgba(123,156,245,.15)}
+.cot-info{flex:1;min-width:0}
+.cot-name{font-size:13px;font-weight:700;color:var(--ty-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cot-meta{font-size:11px;color:var(--ty-muted);margin-top:2px}
+.cot-total{font-size:14px;font-weight:800;color:var(--ty-dark);text-align:right;min-width:90px}
+.cot-badge{font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;border:none;cursor:pointer;min-width:80px;text-align:center;transition:all .2s}
+.cot-badge.cotizado{background:rgba(217,119,6,.12);color:#d97706}
+.cot-badge.cotizado:hover{background:rgba(217,119,6,.25)}
+.cot-badge.vendido{background:rgba(21,128,61,.12);color:#15803d}
+.cot-badge.vendido:hover{background:rgba(21,128,61,.25)}
+.cot-badge:disabled{opacity:.5;cursor:wait}
+.cot-loading{text-align:center;padding:30px;color:var(--ty-muted);font-size:13px}
+
+/* Cotización search */
+.cot-search{width:100%;padding:8px 12px;border:1.5px solid var(--ty-border);border-radius:10px;font-size:13px;background:var(--ty-card);color:var(--ty-dark);margin-bottom:10px;outline:none}
+.cot-search:focus{border-color:var(--ty-blue);box-shadow:0 0 0 3px rgba(94,231,247,.1)}
+body.ty-dark .cot-search{background:rgba(40,40,70,.6);border-color:rgba(80,80,120,.4);color:#e8e8f0}
+body.ty-dark .cot-search:focus{border-color:#7b9cf5}
+
+.cot-row-wrap{margin-bottom:6px}
+
+/* Expandable detail */
+.cot-detail{display:none;background:var(--ty-card);border:1px solid var(--ty-border);border-top:none;border-radius:0 0 12px 12px;padding:12px 14px;font-size:12px;margin-top:-7px}
+.cot-detail.open{display:block}
+body.ty-dark .cot-detail{background:rgba(40,40,70,.5);border-color:rgba(80,80,120,.3)}
+.cot-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
+@media(max-width:480px){.cot-detail-grid{grid-template-columns:1fr}}
+.cot-detail-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.04)}
+body.ty-dark .cot-detail-item{border-bottom-color:rgba(255,255,255,.06)}
+.cot-detail-label{color:var(--ty-muted)}
+.cot-detail-val{font-weight:700;color:var(--ty-dark)}
+.cot-detail-section{font-weight:700;color:var(--ty-blue);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-top:8px;margin-bottom:4px;grid-column:1/-1}
+body.ty-dark .cot-detail-section{color:#7b9cf5}
+.cot-detail-ruta{font-size:12px;color:var(--ty-blue);font-weight:600;margin-bottom:6px}
+body.ty-dark .cot-detail-ruta{color:#7b9cf5}
+.cot-detail-profit{display:flex;justify-content:space-between;padding:6px 0;margin-top:6px;border-top:1.5px solid var(--ty-border);font-weight:700;font-size:13px}
+.cot-detail-profit .profit-pos{color:var(--ty-green)}
+.cot-detail-profit .profit-neg{color:var(--ty-red)}
+.cot-toggle{font-size:10px;color:var(--ty-muted);margin-left:4px;transition:transform .2s;display:inline-block}
+.cot-toggle.open{transform:rotate(180deg)}
+
+/* Show more button */
+.cot-show-more{display:block;width:100%;padding:10px;border:1.5px dashed var(--ty-border);border-radius:10px;background:none;color:var(--ty-blue);font-size:12px;font-weight:600;cursor:pointer;margin-top:8px;transition:all .15s}
+.cot-show-more:hover{background:rgba(94,231,247,.04);border-color:var(--ty-blue)}
+body.ty-dark .cot-show-more{color:#7b9cf5;border-color:rgba(80,80,120,.4)}
+
+/* Empty state */
+.fin-empty{text-align:center;padding:60px 20px;color:var(--ty-muted)}
+.fin-empty svg{width:64px;height:64px;margin-bottom:16px;opacity:.4}
+.fin-empty h3{font-size:16px;margin-bottom:6px;color:var(--ty-dark)}
+.fin-empty p{font-size:13px}
+
+/* Responsive */
+@media(max-width:640px){
+  .header{padding:8px 12px}
+  .header h1{font-size:14px}
+  .header img{height:34px}
+  .container{padding:12px 10px 100px}
+  .cdc-form{grid-template-columns:1fr}
+  .cdc-item-row{grid-template-columns:1fr 100px 32px}
+  .cdc-hist-row{flex-wrap:wrap;gap:4px}
+  .cdc-hist-val,.cdc-hist-date{min-width:auto}
+  .cdc-actions{flex-direction:column}
+  .cdc-btn{width:100%;text-align:center}
+  .cot-row{flex-wrap:wrap;gap:6px}
+  .cot-total{min-width:auto}
+}
+
+/* Print */
+@media print{
+  .header,.fin-tabs,.swipe-nav-dots,.ty-lock-btn,.ty-op-toolbar,.ty-gate-modal,.ty-op-trigger{display:none!important}
+  body{background:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  .container{padding:0;max-width:100%}
+}
+</style>
+<link rel="stylesheet" href="css/access-gate.css?v=19"/>
+</head>
+<body data-gate="admin-only">
+
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/demos/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge">CRM Mudanzas</span>
+  </div>
+</nav>
+<div class="crm-nav">
+  <a href="/demos/crm-mudanzas/" class="crm-link">Cotizador</a>
+  <a href="/demos/crm-mudanzas/orden/" class="crm-link">Orden</a>
+  <a href="/demos/crm-mudanzas/kpis/" class="crm-link">KPIs</a>
+  <a href="/demos/crm-mudanzas/campanas/" class="crm-link">Campanas</a>
+  <a href="/demos/crm-mudanzas/finanzas/" class="crm-link active">Finanzas</a>
+</div>
+
+<div class="container">
+  <!-- Module tabs -->
+  <div class="fin-tabs">
+    <button class="fin-tab active" data-mod="cobros">Cuentas de Cobro</button>
+    <button class="fin-tab" data-mod="resumen">Resumen</button>
+  </div>
+
+  <!-- Cotizaciones + Cuentas de Cobro -->
+  <div class="fin-view active" id="view-cobros">
+    <div id="cot-mgmt-content"></div>
+    <div id="cdc-content"></div>
+  </div>
+
+  <!-- Resumen (placeholder) -->
+  <div class="fin-view" id="view-resumen">
+    <div class="fin-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 7h6m-6 4h6m-6 4h4M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>
+      <h3>Resumen financiero</h3>
+      <p>Proximamente: flujo de caja, gastos, e indicadores financieros</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Tab switching */
+document.querySelectorAll('.fin-tab').forEach(function(tab){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.fin-tab').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.fin-view').forEach(function(v){v.classList.remove('active');});
+    tab.classList.add('active');
+    document.getElementById('view-'+tab.dataset.mod).classList.add('active');
+  });
+});
+
+/* ============================================
+   CUENTAS DE COBRO
+   ============================================ */
+var CDC_KEY='crm_cdc_list';
+function cdcLoad(){try{return JSON.parse(localStorage.getItem(CDC_KEY)||'[]');}catch(_){return[];}}
+function cdcSave(list){try{localStorage.setItem(CDC_KEY,JSON.stringify(list));}catch(_){}}
+function cdcNextNum(){
+  var list=cdcLoad();
+  if(list.length===0) return 956;
+  var max=0;list.forEach(function(c){var n=parseInt(String(c.numero).replace(/\D/g,''));if(n>max)max=n;});
+  return max+1;
+}
+function cdcFmtMoney(v){return '$'+String(Math.round(v)||0).replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function cdcNumToWords(n){
+  var UNIDADES=['','UN','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE'];
+  var DECENAS=['','DIEZ','VEINTE','TREINTA','CUARENTA','CINCUENTA','SESENTA','SETENTA','OCHENTA','NOVENTA'];
+  var CENTENAS=['','CIENTO','DOSCIENTOS','TRESCIENTOS','CUATROCIENTOS','QUINIENTOS','SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
+  var ESPECIALES={11:'ONCE',12:'DOCE',13:'TRECE',14:'CATORCE',15:'QUINCE',16:'DIECISEIS',17:'DIECISIETE',18:'DIECIOCHO',19:'DIECINUEVE',21:'VEINTIUN',22:'VEINTIDOS',23:'VEINTITRES',24:'VEINTICUATRO',25:'VEINTICINCO',26:'VEINTISEIS',27:'VEINTISIETE',28:'VEINTIOCHO',29:'VEINTINUEVE'};
+  if(n===0) return 'CERO PESOS';
+  if(n===100) return 'CIEN';
+  function bloque(x){
+    if(x===0)return '';
+    if(x===100)return 'CIEN';
+    if(x<10)return UNIDADES[x];
+    if(ESPECIALES[x])return ESPECIALES[x];
+    if(x<100){var d=Math.floor(x/10),u=x%10;return DECENAS[d]+(u?' Y '+UNIDADES[u]:'');}
+    var c=Math.floor(x/100),r=x%100;
+    return CENTENAS[c]+(r?' '+bloque(r):'');
+  }
+  var parts=[];
+  var millones=Math.floor(n/1000000);
+  var miles=Math.floor((n%1000000)/1000);
+  var resto=n%1000;
+  if(millones===1) parts.push('UN MILLON');
+  else if(millones>1) parts.push(bloque(millones)+' MILLONES');
+  if(miles===1) parts.push('MIL');
+  else if(miles>1) parts.push(bloque(miles)+' MIL');
+  if(resto>0) parts.push(bloque(resto));
+  return parts.join(' ')+' PESOS';
+}
+
+var _cdcItems=[{desc:'',valor:0}];
+
+function renderCobros(){
+  var list=cdcLoad();
+  var h='<div class="cdc-section">';
+  h+='<div class="cdc-form" id="cdc-form">'
+    +'<div><label>No. Cuenta</label><input id="cdc-num" value="CTY'+cdcNextNum()+'" style="font-weight:700;color:var(--ty-blue)"/></div>'
+    +'<div><label>Fecha</label><input type="date" id="cdc-fecha" value="'+new Date().toISOString().slice(0,10)+'"/></div>'
+    +'<div><label>Cliente / Empresa</label><input id="cdc-cliente" placeholder="NOMBRE O RAZON SOCIAL" style="text-transform:uppercase" autocapitalize="words" onblur="this.value=this.value.toUpperCase()"/></div>'
+    +'<div><label>NIT / C.C.</label><input id="cdc-nit" placeholder="900.000.000-0"/></div>'
+    +'<div class="full"><label>Concepto</label><input id="cdc-concepto" value="SERVICIO DE TRANSPORTE SEGUN RELACION ANEXA" style="text-transform:uppercase" onblur="this.value=this.value.toUpperCase()"/></div>'
+    +'</div>';
+  h+='<div class="cdc-items">'
+    +'<div class="cdc-items-header"><label>Detalle</label>'
+    +'<button class="cdc-add-item" onclick="cdcAddItem()">+ Agregar linea</button></div>'
+    +'<div id="cdc-item-list"></div>'
+    +'</div>';
+  h+='<div class="cdc-total-row"><span>TOTAL</span><span id="cdc-total">$0</span></div>';
+  h+='<div class="cdc-actions">'
+    +'<button class="cdc-btn cdc-btn-primary" onclick="cdcGenerarPDF()">Generar PDF</button>'
+    +'<button class="cdc-btn cdc-btn-secondary" onclick="cdcGuardar()">Guardar</button>'
+    +'<button class="cdc-btn cdc-btn-secondary" onclick="cdcLimpiar()">Nueva</button>'
+    +'</div>';
+  if(list.length>0){
+    h+='<div class="cdc-history"><div class="cdc-hist-title">Historial ('+list.length+')</div>';
+    list.forEach(function(c,i){
+      h+='<div class="cdc-hist-row">'
+        +'<span class="cdc-hist-num">'+c.numero+'</span>'
+        +'<span class="cdc-hist-cli">'+c.cliente+'</span>'
+        +'<span class="cdc-hist-val">'+cdcFmtMoney(c.total)+'</span>'
+        +'<span class="cdc-hist-date">'+c.fecha+'</span>'
+        +'<span class="cdc-hist-actions">'
+        +'<button class="cdc-hist-btn" onclick="cdcCargar('+i+')" title="Cargar">&#9998;</button>'
+        +'<button class="cdc-hist-btn" onclick="cdcRegenPDF('+i+')" title="PDF">&#8681;</button>'
+        +'</span></div>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+  document.getElementById('cdc-content').innerHTML=h;
+  cdcRenderItems();cdcRecalcTotal();
+}
+
+function cdcRenderItems(){
+  var el=document.getElementById('cdc-item-list');if(!el)return;
+  var h='';
+  _cdcItems.forEach(function(it,i){
+    h+='<div class="cdc-item-row">'
+      +'<input placeholder="Descripcion" value="'+(it.desc||'').replace(/"/g,'&quot;')+'" oninput="_cdcItems['+i+'].desc=this.value" style="text-transform:uppercase" onblur="this.value=this.value.toUpperCase()"/>'
+      +'<input type="number" placeholder="Valor" value="'+(it.valor||'')+'" oninput="_cdcItems['+i+'].valor=parseInt(this.value)||0;cdcRecalcTotal()"/>'
+      +(i>0?'<button class="cdc-item-del" onclick="_cdcItems.splice('+i+',1);cdcRenderItems();cdcRecalcTotal()">x</button>':'<div></div>')
+      +'</div>';
+  });
+  el.innerHTML=h;
+}
+function cdcAddItem(){_cdcItems.push({desc:'',valor:0});cdcRenderItems();}
+function cdcRecalcTotal(){
+  var sum=0;_cdcItems.forEach(function(it){sum+=it.valor||0;});
+  var el=document.getElementById('cdc-total');if(el)el.textContent=cdcFmtMoney(sum);
+}
+function cdcGuardar(){
+  var num=(document.getElementById('cdc-num').value||'').trim();
+  var cliente=(document.getElementById('cdc-cliente').value||'').trim().toUpperCase();
+  var nit=(document.getElementById('cdc-nit').value||'').trim();
+  var concepto=(document.getElementById('cdc-concepto').value||'').trim().toUpperCase();
+  var fecha=(document.getElementById('cdc-fecha').value||'');
+  if(!cliente){alert('Falta el nombre del cliente');return;}
+  var total=0;_cdcItems.forEach(function(it){total+=it.valor||0;});
+  var entry={numero:num,cliente:cliente,nit:nit,concepto:concepto,fecha:fecha,items:JSON.parse(JSON.stringify(_cdcItems)),total:total,saved:new Date().toISOString()};
+  var list=cdcLoad();
+  var existing=list.findIndex(function(c){return c.numero===num;});
+  if(existing>=0) list[existing]=entry; else list.unshift(entry);
+  cdcSave(list);
+  alert('Cuenta '+num+' guardada');
+  renderCobros();
+}
+function cdcLimpiar(){
+  _cdcItems=[{desc:'',valor:0}];
+  document.getElementById('cdc-num').value='CTY'+cdcNextNum();
+  document.getElementById('cdc-cliente').value='';
+  document.getElementById('cdc-nit').value='';
+  document.getElementById('cdc-concepto').value='SERVICIO DE TRANSPORTE SEGUN RELACION ANEXA';
+  document.getElementById('cdc-fecha').value=new Date().toISOString().slice(0,10);
+  cdcRenderItems();cdcRecalcTotal();
+}
+function cdcCargar(idx){
+  var list=cdcLoad();var c=list[idx];if(!c)return;
+  document.getElementById('cdc-num').value=c.numero;
+  document.getElementById('cdc-cliente').value=c.cliente;
+  document.getElementById('cdc-nit').value=c.nit||'';
+  document.getElementById('cdc-concepto').value=c.concepto||'';
+  document.getElementById('cdc-fecha').value=c.fecha||'';
+  _cdcItems=c.items&&c.items.length?JSON.parse(JSON.stringify(c.items)):[{desc:'',valor:0}];
+  cdcRenderItems();cdcRecalcTotal();
+  document.getElementById('cdc-num').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function cdcRegenPDF(idx){
+  var list=cdcLoad();var c=list[idx];if(!c)return;
+  cdcCargar(idx);
+  setTimeout(cdcGenerarPDF,300);
+}
+function cdcGenerarPDF(){
+  if(typeof window.jspdf==='undefined'){
+    alert('Cargando libreria PDF, intenta de nuevo en 2 segundos');
+    return;
+  }
+  var num=(document.getElementById('cdc-num').value||'').trim();
+  var cliente=(document.getElementById('cdc-cliente').value||'').trim().toUpperCase();
+  var nit=(document.getElementById('cdc-nit').value||'').trim();
+  var concepto=(document.getElementById('cdc-concepto').value||'').trim().toUpperCase();
+  var fecha=(document.getElementById('cdc-fecha').value||'');
+  if(!cliente){alert('Falta el nombre del cliente');return;}
+  var total=0;_cdcItems.forEach(function(it){total+=it.valor||0;});
+
+  var {jsPDF}=window.jspdf;
+  var doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+  var W=doc.internal.pageSize.getWidth();
+  var y=30;
+
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(27,62,140);
+  doc.text('DOCUMENTO EQUIVALENTE A FACTURA '+num,W/2,y,{align:'center'});
+  y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100);
+  doc.text('Decreto Reglamentario No. 522 de marzo 07 de 2003',W/2,y,{align:'center'});
+  y+=14;
+
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(40);
+  doc.text(cliente,W/2,y,{align:'center'});y+=6;
+  doc.setFont('helvetica','normal');doc.setFontSize(10);
+  doc.text('NIT '+nit,W/2,y,{align:'center'});y+=10;
+
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(27,62,140);
+  doc.text('DEBE A',W/2,y,{align:'center'});y+=8;
+
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(40);
+  doc.text('EMPRESA CRM MUDANZAS',W/2,y,{align:'center'});y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(10);
+  doc.text('NIT. 000.000.000-0',W/2,y,{align:'center'});y+=12;
+
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(27,62,140);
+  doc.text('POR CONCEPTO DE',W/2,y,{align:'center'});y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(40);
+  var cLines=doc.splitTextToSize(concepto,160);
+  doc.text(cLines,W/2,y,{align:'center'});y+=cLines.length*5+8;
+
+  _cdcItems.forEach(function(it){
+    if(!it.desc&&!it.valor)return;
+    doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(40);
+    doc.text((it.desc||'').toUpperCase(),25,y);
+    doc.text(cdcFmtMoney(it.valor),W-25,y,{align:'right'});
+    y+=6;
+  });
+
+  y+=4;doc.setLineWidth(0.5);doc.setDrawColor(27,62,140);
+  doc.line(25,y,W-25,y);y+=8;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(27,62,140);
+  doc.text('TOTAL',25,y);
+  doc.text(cdcFmtMoney(total),W-25,y,{align:'right'});
+  y+=10;
+
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(40);
+  doc.text('SON: '+cdcNumToWords(total)+' ('+cdcFmtMoney(total)+')',W/2,y,{align:'center'});
+  y+=14;
+
+  doc.setFontSize(9);doc.setTextColor(80);
+  doc.text('FAVOR HACER TRANSFERENCIA A LA CUENTA BANCARIA DE LA EMPRESA',W/2,y,{align:'center'});y+=5;
+  doc.text('DATOS ENVIADOS POR WHATSAPP AL CERRAR EL TRATO',W/2,y,{align:'center'});y+=5;
+  doc.text('CRM MUDANZAS · crm-mudanzas.site',W/2,y,{align:'center'});y+=10;
+
+  doc.setFontSize(8);doc.setTextColor(120);
+  doc.text('NO ESTA SUJETA A RETENCION EN LA FUENTE',W/2,y,{align:'center'});y+=4;
+  var fechaLarga=fecha?new Date(fecha+'T12:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'}):'';
+  doc.text('BOGOTA D.C. '+fechaLarga.toUpperCase(),W/2,y,{align:'center'});y+=16;
+
+  doc.setLineWidth(0.4);doc.setDrawColor(40);doc.line(W/2-40,y,W/2+40,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(40);
+  doc.text('CRM MUDANZAS S.A.S.',W/2,y,{align:'center'});y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text('NIT. 000.000.000-0',W/2,y,{align:'center'});
+
+  doc.setFontSize(7);doc.setTextColor(180);
+  doc.text('CRM Mudanzas - crm-mudanzas.site',W/2,270,{align:'center'});
+
+  var fn=num.replace(/\s/g,'_')+' '+cliente.replace(/[^A-Z0-9 ]/g,'')+'.pdf';
+  doc.save(fn);
+
+  cdcGuardar();
+}
+
+/* ============================================
+   GESTION DE COTIZACIONES
+   ============================================ */
+var COT_SHEET_URL='https://script.google.com/macros/s/AKfycbzk3szEtCvnMKaXqZw6gfAIMZFJEX-uI1Sm40OSV03xg47BvShY3ezttQIRmDuols_C/exec';
+var BACKUP_APIKEY='CRMMudanzas-2026-Demo';
+var driveCots=[];
+
+function getCotCache(){
+  try{return JSON.parse(localStorage.getItem('crm_cot_cache')||'[]');}catch(_){return[];}
+}
+
+async function fetchDriveCots(){
+  try{var url=COT_SHEET_URL+'?action=cotizaciones&apikey='+BACKUP_APIKEY;
+    var r=await fetch(url,{redirect:'follow'});var data=await r.json();
+    if((data.success||data.ok)&&data.cotizaciones){
+      var delKeys=[];
+      try{delKeys=JSON.parse(localStorage.getItem('crm_cot_deleted')||'[]');}catch(_){}
+      driveCots=data.cotizaciones.filter(function(c){
+        var k=String(c['CLIENTE']||'').trim().toUpperCase()+'|'+String(c['FECHA']||'').substring(0,10);
+        return delKeys.indexOf(k)<0;
+      }).map(function(c){
+        var total=+c['INGRESO TOTAL']||+c['INGRESO']||0;
+        var ingEmp=+c['ING EMPAQUE']||+c['ING EMP']||((+c['ING VINIPEL']||0)+(+c['ING BURBUJA']||0)+(+c['ING CAJAS']||0)+(+c['ING CRAFT']||0)+(+c['ING CARTON CORRUGADO']||0));
+        var ingInst=+c['ING INSTALACIONES TOTAL']||+c['ING INST']||+c['ING INSTALACIONES']||0;
+        var ingTrans=+c['ING TRANSPORTE']||+c['ING TRANS']||0;
+        var ingOtros=(+c['ING BODEGAJE']||0)+(+c['ING CAMINADOS']||0)+(+c['ING ESCALERAS']||0)+(+c['ING PARADAS ADICIONAL']||0)+(+c['INGRESO FACHADA']||0)+ingTrans;
+        var costoTot=+c['COSTO TOTAL']||0;
+        var costoEmp=+c['COSTO TOTAL EMPAQUE-']||+c['COSTO TOTAL EMPAQUE']||+c['COSTO EMP']||((+c['COSTO VINIPEL']||0)+(+c['COSTO BURBUJA']||0)+(+c['COSTO CAJAS']||0)+(+c['COSTO CRAFT']||0)+(+c['COSTO CARTON CORRUGADO']||0)+(+c['COSTO CINTAS']||0)+(+c['COSTO TRANSPORTE ENVIO EMPAQUE']||0)+(+c['COSTO OPERARIOS EMPAQUE']||0));
+        var costoInst=+c['COSTO TOTAL INSTALACIONES']||+c['COSTO INST']||+c['COSTO INSTALACIONES']||((+c['COSTO INST NEVECON']||0)+(+c['COSTO INST SECADORA']||0)+(+c['COSTO INST TV']||0)+(+c['COSTO INSTALACION REPISAS']||0)+(+c['COSTO INSTALACION CUADROS']||0)+(+c['COSTO INSTALACION MUEBLES/OTROS']||0));
+        var costoTras=+c['COSTO TRASTEO']||+c['COSTO TRANS']||0;
+        var costoOtros=costoTras+(+c['COSTO BODEGAJE']||0)+(+c['COSTO CAMINADO']||0)+(+c['COSTO ESCALERAS']||0)+(+c['COSTO PARADA ADICIONAL']||0)+(+c['COSTO FACHADA O VACIO']||0)+(+c['COSTO DESEMPAQUE']||0);
+        if(!costoTot)costoTot=costoEmp+costoInst+costoOtros;
+        var fechaRaw=c['FECHA']||c['TIMESTAMP']||'';
+        var fecha=(typeof fechaRaw==='string'&&fechaRaw.length>=10)?fechaRaw.substring(0,10):
+          (fechaRaw&&fechaRaw.toISOString?fechaRaw.toISOString().substring(0,10):'');
+        var origen=c['ORIGEN']||'';
+        var destino=c['DESTINO']||'';
+        var tipo=c['TIPO']||c['VIVIENDA']||'';
+        var ingBod=+c['ING BODEGAJE']||0;
+        var ingCam=+c['ING CAMINADOS']||0;
+        var ingEsc=+c['ING ESCALERAS']||0;
+        var ingPar=+c['ING PARADAS ADICIONAL']||0;
+        var ingFach=+c['INGRESO FACHADA']||0;
+        return{cliente:c['CLIENTE']||'',telefono:String(c['TELEFONO']||''),fecha:fecha,
+          timestamp:c['TIMESTAMP']||'',hora:c['HORA']||'',fuente:c['FUENTE']||'',
+          origen:origen,destino:destino,tipo:tipo,
+          total:total,costo:costoTot,estado:String(c['ESTADO']||'').toUpperCase(),
+          ingEmp:ingEmp,ingInst:ingInst,ingOtros:ingOtros,
+          ingTrans:ingTrans,ingBod:ingBod,ingCam:ingCam,ingEsc:ingEsc,ingPar:ingPar,ingFach:ingFach,
+          costoEmp:costoEmp,costoInst:costoInst,costoOtros:costoOtros};
+      });
+    }
+  }catch(e){console.warn('Finanzas: no Drive cots',e);}
+  return driveCots;
+}
+
+function getAllCots(){
+  var local=getCotCache();
+  var merged=[];var seen={};
+  driveCots.forEach(function(c){var k=(c.cliente||'')+'|'+(c.fecha||'');if(!seen[k]){seen[k]=1;merged.push(c);}});
+  local.forEach(function(c){var k=(c.cliente||'')+'|'+(c.fecha||'');if(!seen[k]){seen[k]=1;merged.push(c);}});
+  return merged;
+}
+
+function _isVendido(c){
+  var e=String(c.estado||'').toUpperCase().trim();
+  return e.indexOf('VEND')>=0||e==='V'||e==='SOLD'||e==='OK'||e.indexOf('CERR')>=0||e.indexOf('GANADO')>=0||e.indexOf('GANADA')>=0||e.indexOf('FACTUR')>=0||e.indexOf('EJECUT')>=0||e.indexOf('CONFIRM')>=0;
+}
+
+async function toggleEstado(btn,cliente,fecha,nuevoEstado){
+  btn.disabled=true;
+  var oldEstado=btn.textContent;
+  btn.textContent=nuevoEstado;
+  btn.className='cot-badge '+(nuevoEstado==='VENDIDO'?'vendido':'cotizado');
+  var success=true;
+  try{
+    var r=await fetch(COT_SHEET_URL,{method:'POST',body:JSON.stringify({
+      type:'update_estado',apikey:BACKUP_APIKEY,
+      meta:{cliente:cliente,fecha:fecha,estado:nuevoEstado,year:new Date().getFullYear().toString()}
+    }),redirect:'follow'});
+    var t=await r.text();
+    try{var j=JSON.parse(t);if(!j.ok){success=false;btn.textContent=oldEstado;btn.className='cot-badge '+(oldEstado==='VENDIDO'?'vendido':'cotizado');}}catch(_){}
+  }catch(e){success=false;btn.textContent=oldEstado;btn.className='cot-badge '+(oldEstado==='VENDIDO'?'vendido':'cotizado');}
+  btn.disabled=false;
+  var nextE=nuevoEstado==='VENDIDO'?'COTIZADO':'VENDIDO';
+  btn.setAttribute('onclick',"toggleEstado(this,'"+cliente.replace(/'/g,"\\'")+"','"+fecha.replace(/'/g,"\\'")+"','"+nextE+"')");
+
+  if(success&&nuevoEstado==='VENDIDO'){
+    var cotAll=getAllCots();
+    var cot=null;
+    for(var i=0;i<cotAll.length;i++){
+      var cliN=(cotAll[i].cliente||'').trim().toUpperCase();
+      var cliB=cliente.trim().toUpperCase();
+      if(cliN===cliB&&(cotAll[i].fecha||'').substring(0,10)===fecha.substring(0,10)){cot=cotAll[i];break;}
+    }
+    var total=cot?(cot.total||0):0;
+    var num='CTY'+cdcNextNum();
+    var entry={
+      numero:num,
+      cliente:cliente.trim().toUpperCase(),
+      nit:'',
+      concepto:'SERVICIO DE TRANSPORTE SEGUN RELACION ANEXA',
+      fecha:new Date().toISOString().slice(0,10),
+      items:[{desc:'SERVICIO DE MUDANZA - COT '+fecha,valor:total}],
+      total:total,
+      saved:new Date().toISOString()
+    };
+    var list=cdcLoad();
+    list.unshift(entry);
+    cdcSave(list);
+    renderCobros();
+    alert('Cuenta de Cobro '+num+' generada para '+cliente);
+  }
+
+  fetchDriveCots().then(function(){renderCotizaciones();}).catch(function(){});
+}
+
+var _allCotsRendered=[];
+var _cotShowAll=false;
+var _COT_INITIAL=15;
+
+function renderCotizaciones(filtro){
+  var cotCacheAll=getAllCots();
+  cotCacheAll.sort(function(a,b){return(b.fecha||'').localeCompare(a.fecha||'');});
+
+  var el=document.getElementById('cot-mgmt-content');
+  if(!el)return;
+
+  // Apply search filter
+  var q=(filtro||'').trim().toUpperCase();
+  var filtered=q?cotCacheAll.filter(function(c){
+    return(c.cliente||'').toUpperCase().indexOf(q)>=0||(c.telefono||'').indexOf(q)>=0||(c.origen||'').toUpperCase().indexOf(q)>=0||(c.destino||'').toUpperCase().indexOf(q)>=0;
+  }):cotCacheAll;
+
+  _allCotsRendered=filtered;
+
+  if(filtered.length===0){
+    el.innerHTML='<div class="cot-section"><div class="cot-header"><h3>Gestion de Cotizaciones</h3></div>'
+      +'<input class="cot-search" id="cotSearch" type="text" placeholder="Buscar por nombre, telefono, origen o destino..." value="'+(filtro||'')+'" oninput="renderCotizaciones(this.value)">'
+      +'<div style="text-align:center;padding:30px;color:var(--ty-muted)"><p>'+(q?'Sin resultados para "'+q+'"':'Sin cotizaciones registradas')+'</p></div></div>';
+    return;
+  }
+
+  var showCount=_cotShowAll?filtered.length:Math.min(_COT_INITIAL,filtered.length);
+  var h='<div class="cot-section">';
+  h+='<div class="cot-header"><h3>Gestion de Cotizaciones</h3><span class="cot-count">'+filtered.length+' cotizaciones'+(q?' encontradas':'')+'</span></div>';
+  h+='<input class="cot-search" id="cotSearch" type="text" placeholder="Buscar por nombre, telefono, origen o destino..." value="'+(filtro||'').replace(/"/g,'&quot;')+'" oninput="renderCotizaciones(this.value)">';
+  h+='<div class="cot-list">';
+  for(var ci=0;ci<showCount;ci++){
+    var cc=filtered[ci];
+    var isV=_isVendido(cc);
+    var badgeCls=isV?'vendido':'cotizado';
+    var badgeTxt=isV?'VENDIDO':'COTIZADO';
+    var nextEstado=isV?'COTIZADO':'VENDIDO';
+    var cli=(cc.cliente||'').replace(/'/g,"\\'");
+    var fch=(cc.fecha||'').replace(/'/g,"\\'");
+    h+='<div class="cot-row-wrap">';
+    h+='<div class="cot-row" onclick="toggleCotDetail('+ci+')">'
+      +'<div class="cot-info"><div class="cot-name">'+(cc.cliente||'Sin nombre')+' <span class="cot-toggle" id="cot-tog-'+ci+'">&#9660;</span></div>'
+      +'<div class="cot-meta">'+(cc.telefono||'')+(cc.fecha?' · '+cc.fecha:'')+(cc.hora?' '+cc.hora:'')+(cc.fuente?' · '+cc.fuente:'')+'</div></div>'
+      +'<div class="cot-total">'+cdcFmtMoney(cc.total)+'</div>'
+      +'<button class="cot-badge '+badgeCls+'" onclick="event.stopPropagation();toggleEstado(this,\''+cli+'\',\''+fch+'\',\''+nextEstado+'\')">'+badgeTxt+'</button>'
+      +'</div>';
+    // Detail panel
+    h+='<div class="cot-detail" id="cot-det-'+ci+'">';
+    if(cc.origen||cc.destino)h+='<div class="cot-detail-ruta">'+(cc.origen||'?')+' &rarr; '+(cc.destino||'?')+'</div>';
+    if(cc.tipo)h+='<div style="font-size:11px;color:var(--ty-muted);margin-bottom:6px">'+cc.tipo+'</div>';
+    h+='<div class="cot-detail-grid">';
+    // Ingresos
+    h+='<div class="cot-detail-section">Ingresos</div>';
+    if(cc.ingTrans)h+='<div class="cot-detail-item"><span class="cot-detail-label">Transporte</span><span class="cot-detail-val">'+cdcFmtMoney(cc.ingTrans)+'</span></div>';
+    if(cc.ingEmp)h+='<div class="cot-detail-item"><span class="cot-detail-label">Empaque</span><span class="cot-detail-val">'+cdcFmtMoney(cc.ingEmp)+'</span></div>';
+    if(cc.ingInst)h+='<div class="cot-detail-item"><span class="cot-detail-label">Instalaciones</span><span class="cot-detail-val">'+cdcFmtMoney(cc.ingInst)+'</span></div>';
+    if(cc.ingBod)h+='<div class="cot-detail-item"><span class="cot-detail-label">Bodegaje</span><span class="cot-detail-val">'+cdcFmtMoney(cc.ingBod)+'</span></div>';
+    if(cc.ingCam)h+='<div class="cot-detail-item"><span class="cot-detail-label">Caminados</span><span class="cot-detail-val">'+cdcFmtMoney(cc.ingCam)+'</span></div>';
+    if(cc.ingEsc)h+='<div class="cot-detail-item"><span class="cot-detail-label">Escaleras</span><span class="cot-detail-val">'+cdcFmtMoney(cc.ingEsc)+'</span></div>';
+    if(cc.ingPar)h+='<div class="cot-detail-item"><span class="cot-detail-label">Paradas adic.</span><span class="cot-detail-val">'+cdcFmtMoney(cc.ingPar)+'</span></div>';
+    if(cc.ingFach)h+='<div class="cot-detail-item"><span class="cot-detail-label">Fachada</span><span class="cot-detail-val">'+cdcFmtMoney(cc.ingFach)+'</span></div>';
+    var ingSum=(cc.ingTrans||0)+(cc.ingEmp||0)+(cc.ingInst||0)+(cc.ingBod||0)+(cc.ingCam||0)+(cc.ingEsc||0)+(cc.ingPar||0)+(cc.ingFach||0);
+    if(!ingSum&&cc.total)h+='<div class="cot-detail-item"><span class="cot-detail-label">Total cotizado</span><span class="cot-detail-val">'+cdcFmtMoney(cc.total)+'</span></div>';
+    // Costos
+    if(cc.costo){
+      h+='<div class="cot-detail-section">Costos</div>';
+      if(cc.costoEmp)h+='<div class="cot-detail-item"><span class="cot-detail-label">Empaque</span><span class="cot-detail-val">'+cdcFmtMoney(cc.costoEmp)+'</span></div>';
+      if(cc.costoInst)h+='<div class="cot-detail-item"><span class="cot-detail-label">Instalaciones</span><span class="cot-detail-val">'+cdcFmtMoney(cc.costoInst)+'</span></div>';
+      if(cc.costoOtros)h+='<div class="cot-detail-item"><span class="cot-detail-label">Trasteo y otros</span><span class="cot-detail-val">'+cdcFmtMoney(cc.costoOtros)+'</span></div>';
+    }
+    h+='</div>';
+    // Utilidad
+    if(cc.total&&cc.costo){
+      var util=cc.total-cc.costo;
+      var pct=cc.total?Math.round(util/cc.total*100):0;
+      h+='<div class="cot-detail-profit"><span>Utilidad</span><span class="'+(util>=0?'profit-pos':'profit-neg')+'">'+cdcFmtMoney(util)+' ('+pct+'%)</span></div>';
+    }
+    // WhatsApp link
+    if(cc.telefono){
+      var tel=cc.telefono.replace(/[^0-9]/g,'');
+      if(tel&&tel.length>=10){
+        if(tel.length===10&&tel.charAt(0)==='3')tel='57'+tel;
+        h+='<a href="https://wa.me/'+tel+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-block;margin-top:8px;padding:6px 14px;background:rgba(37,211,102,.12);color:#15803d;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none">WhatsApp '+cc.telefono+'</a>';
+      }
+    }
+    h+='</div></div>';
+  }
+  h+='</div>';
+  if(!_cotShowAll&&filtered.length>_COT_INITIAL){
+    h+='<button class="cot-show-more" onclick="_cotShowAll=true;renderCotizaciones(document.getElementById(\'cotSearch\').value)">Ver todas ('+filtered.length+' cotizaciones)</button>';
+  }else if(_cotShowAll&&filtered.length>_COT_INITIAL){
+    h+='<button class="cot-show-more" onclick="_cotShowAll=false;renderCotizaciones(document.getElementById(\'cotSearch\').value)">Ver menos</button>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+function toggleCotDetail(i){
+  var det=document.getElementById('cot-det-'+i);
+  var tog=document.getElementById('cot-tog-'+i);
+  if(!det)return;
+  var open=det.classList.toggle('open');
+  if(tog)tog.classList.toggle('open',open);
+}
+
+/* ============================================
+   INIT
+   ============================================ */
+renderCobros();
+document.getElementById('cot-mgmt-content').innerHTML='<div class="cot-loading">Cargando cotizaciones...</div>';
+fetchDriveCots().then(function(){renderCotizaciones();}).catch(function(){
+  document.getElementById('cot-mgmt-content').innerHTML='<div class="cot-section"><div class="cot-header"><h3>Gestion de Cotizaciones</h3></div>'
+    +'<div style="text-align:center;padding:30px;color:var(--ty-muted)"><p>No se pudieron cargar las cotizaciones</p></div></div>';
+});
+</script>
+<script src="js/swipe-nav.js"></script>
+<script src="js/access-gate.js?v=19"></script>
+</body>
+</html>
