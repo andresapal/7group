@@ -79,6 +79,7 @@
       background: var(--white);
       color: var(--black);
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
     /* NAV */
@@ -911,6 +912,16 @@
       .case-grid { grid-template-columns: 1fr; margin: 0 24px; }
       .case-card { padding: 36px 28px; }
     }
+    @media (max-width: 768px) {
+      .plans-grid {
+        grid-template-columns: repeat(3, 280px) !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        gap: 2px;
+      }
+      .plan-card { scroll-snap-align: start; }
+    }
 
     /* FAQ */
     .faq-grid {
@@ -1271,6 +1282,34 @@
           <li>Activo en Florida, Texas y Georgia</li>
         </ul>
         <span class="client-tag">En produccion · Potenciado por IA</span>
+      </div>
+      <div class="case-card">
+        <a href="https://andresapal.github.io/quickfix-app/land-marmoles.html" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+          <div class="case-logo" style="height:40px;display:flex;align-items:center;margin-bottom:24px;filter:none">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#1a1a1a" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+          </div>
+          <h4>Land Marmoles</h4>
+        </a>
+        <p class="case-type">Marmol y piedra natural · Bogota, Colombia</p>
+        <ul class="case-results">
+          <li>Landing page con flujo de contacto por WhatsApp</li>
+          <li>Alertas de leads en tiempo real via Telegram</li>
+          <li>Notificaciones por email con Web3Forms</li>
+          <li>Modal de captura de nombre para calificacion de leads</li>
+        </ul>
+        <span class="client-tag">En produccion · Generacion de leads</span>
+      </div>
+      <div class="case-card">
+        <img src="../ultimate-bike-shop.webp" alt="Ultimate Bike Shop" class="case-logo" style="filter:none;height:80px;border-radius:8px;object-fit:cover;width:140px" />
+        <h4>Ultimate Bike Shop</h4>
+        <p class="case-type">Retail y taller de bicicletas · Honda, Tolima, Colombia</p>
+        <ul class="case-results">
+          <li>Gestion de inventario con escaneo de codigos</li>
+          <li>Tracking de recibo y despacho</li>
+          <li>Mapa de ubicaciones en bodega con visual 3D</li>
+          <li>Armador de bicicletas personalizado para clientes</li>
+        </ul>
+        <span class="client-tag">En produccion · ERP completo</span>
       </div>
     </div>
   </div>

@@ -79,6 +79,7 @@
       background: var(--white);
       color: var(--black);
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
     /* NAV */
@@ -1119,6 +1120,16 @@
       .case-grid { grid-template-columns: 1fr; margin: 0 24px; }
       .case-card { padding: 36px 28px; }
     }
+    @media (max-width: 768px) {
+      .plans-grid {
+        grid-template-columns: repeat(3, 280px) !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        gap: 2px;
+      }
+      .plan-card { scroll-snap-align: start; }
+    }
 
     /* FAQ */
     .faq-grid {
@@ -1538,6 +1549,34 @@
           <li>Active in Florida, Texas, and Georgia</li>
         </ul>
         <span class="client-tag">In production · AI-powered</span>
+      </div>
+      <div class="case-card">
+        <a href="https://andresapal.github.io/quickfix-app/land-marmoles.html" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+          <div class="case-logo" style="height:40px;display:flex;align-items:center;margin-bottom:24px;filter:none">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#1a1a1a" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+          </div>
+          <h4>Land Marmoles</h4>
+        </a>
+        <p class="case-type">Marble & stone supplier · Bogota, Colombia</p>
+        <ul class="case-results">
+          <li>Landing page with WhatsApp-first contact flow</li>
+          <li>Real-time lead alerts via Telegram bot</li>
+          <li>Email notifications through Web3Forms</li>
+          <li>Name capture modal for lead qualification</li>
+        </ul>
+        <span class="client-tag">In production · Lead generation</span>
+      </div>
+      <div class="case-card">
+        <img src="ultimate-bike-shop.webp" alt="Ultimate Bike Shop" class="case-logo" style="filter:none;height:80px;border-radius:8px;object-fit:cover;width:140px" />
+        <h4>Ultimate Bike Shop</h4>
+        <p class="case-type">Bicycle retail & workshop · Honda, Tolima, Colombia</p>
+        <ul class="case-results">
+          <li>Inventory management with barcode scanning</li>
+          <li>Receiving and dispatch tracking</li>
+          <li>Warehouse location mapping with 3D visual</li>
+          <li>Custom bike builder for customers</li>
+        </ul>
+        <span class="client-tag">In production · Full ERP</span>
       </div>
     </div>
   </div>
