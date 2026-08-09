@@ -324,8 +324,6 @@ input[type="file"]{display:none}
   <a href="/demos/logistica-pyme/inventario/" class="fab-item" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="fab-item" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="fab-item" data-t="modDisp">Despachos</a>
-  <a href="/demos/clientes/" class="fab-item" data-t="modClients">Clientes</a>
-  <a href="/demos/dashboard/" class="fab-item" data-t="modDash">Dashboard</a>
   <a href="/demos/logistica-pyme/agentes/" class="fab-item" data-t="modAgents">Agentes</a>
   <a href="javascript:void(0)" class="fab-item" onclick="showView('list');toggleFab()" data-t="viewList" style="border-top:1px solid var(--border2);margin-top:4px;padding-top:10px">Envios</a>
 </div>
@@ -718,7 +716,7 @@ var T = {
   authDesc:    {es:'Acceso restringido. Inicie sesion con su cuenta Google autorizada.',en:'Restricted access. Sign in with your authorized Google account.'},
   authError:   {es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
   authFooter:  {es:'Solo personal autorizado',    en:'Authorized personnel only'},
-  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modClients:{es:'Clientes',en:'Clients'},modDash:{es:'Dashboard',en:'Dashboard'}
+  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'}
 };
 
 function t(k) { return T[k] ? (T[k][LANG] || T[k].en) : k; }
@@ -740,8 +738,6 @@ function applyLang() {
   document.querySelector('.fab-item[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.fab-item[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.fab-item[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
-  document.querySelector('.fab-item[data-t="modClients"]').href='/demos/clientes/'+lp;
-  document.querySelector('.fab-item[data-t="modDash"]').href='/demos/dashboard/'+lp;
 
   renderShipmentsList();
 }

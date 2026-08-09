@@ -224,8 +224,6 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12px}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link active" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
-  <a href="/demos/clientes/" class="mod-link" data-t="modClients">Clientes</a>
-  <a href="/demos/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
 <div class="tabs">
@@ -415,7 +413,6 @@ var LANG='es';
 var T={
   badge:{es:'Operaciones de Bodega',en:'Warehouse Operations'},
   schedule:{es:'Agendar llamada',en:'Schedule a call'},
-  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modClients:{es:'Clientes',en:'Clients'},modDash:{es:'Dashboard',en:'Dashboard'},
   tabOrders:{es:'Ordenes',en:'Orders'},tabPicking:{es:'Picking',en:'Picking'},tabPacking:{es:'Packing',en:'Packing'},tabDispatch:{es:'Despacho',en:'Dispatch'},tabHistory:{es:'Historial',en:'History'},
   kpiPending:{es:'Pendientes',en:'Pending'},kpiPicking:{es:'En Picking',en:'Picking'},kpiPacking:{es:'En Packing',en:'Packing'},kpiReady:{es:'Listos',en:'Ready'},
   secPickActive:{es:'Orden Activa de Picking',en:'Active Picking Order'},
@@ -455,8 +452,6 @@ function applyLang(){
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
-  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/clientes/'+lp;
-  document.querySelector('.mod-link[data-t="modDash"]').href='/demos/dashboard/'+lp;
   renderAll();
 }
 function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}

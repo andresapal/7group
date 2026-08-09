@@ -238,8 +238,6 @@ function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setT
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
-  <a href="/demos/clientes/" class="mod-link" data-t="modClients">Clientes</a>
-  <a href="/demos/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
   <a href="/demos/logistica-pyme/agentes/" class="mod-link active" data-t="modAgents">Agentes</a>
 </div>
 
@@ -362,7 +360,6 @@ var T={
     costSending:'Enviando...',
     tierNone:'Sin agentes activos',
     tierAfterPilot:'Despues del piloto, el agente pasa a plan Starter.',
-    modShip:'Shipment',modRecv:'Recibo',modInv:'Inventario',modWh:'Bodega',modDisp:'Despachos',modClients:'Clientes',modDash:'Dashboard',modAgents:'Agentes'
   },
   en:{
     badge:'Agents',
@@ -392,7 +389,6 @@ var T={
     costSending:'Sending...',
     tierNone:'No active agents',
     tierAfterPilot:'After the pilot, the agent moves to the Starter plan.',
-    modShip:'Shipment',modRecv:'Receiving',modInv:'Inventory',modWh:'Warehouse',modDisp:'Dispatch',modClients:'Clients',modDash:'Dashboard',modAgents:'Agents'
   }
 };
 function t(k){return T[lang][k]||k;}
@@ -417,7 +413,6 @@ function applyLang(){
   document.getElementById('logTitle').textContent=t('logTitle');
   document.getElementById('confirmCancel').textContent=t('confirmCancel');
   // nav links
-  var navKeys=['modShip','modRecv','modInv','modWh','modDisp','modClients','modDash','modAgents'];
   var navEls=document.querySelectorAll('.mod-link');
   for(var i=0;i<navEls.length;i++){
     var k=navEls[i].getAttribute('data-t');

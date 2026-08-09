@@ -247,8 +247,6 @@ input[type="file"]{display:none}
   <a href="/demos/logistica-pyme/inventario/" class="mod-link" data-t="modInv">Inventario</a>
   <a href="/demos/logistica-pyme/bodega/" class="mod-link" data-t="modWh">Bodega</a>
   <a href="/demos/logistica-pyme/despachos/" class="mod-link" data-t="modDisp">Despachos</a>
-  <a href="/demos/clientes/" class="mod-link" data-t="modClients">Clientes</a>
-  <a href="/demos/dashboard/" class="mod-link" data-t="modDash">Dashboard</a>
 </div>
 
 <div class="main">
@@ -464,7 +462,6 @@ var T={
   authError:{es:'Este correo no tiene acceso autorizado.',en:'This email does not have authorized access.'},
   authFooter:{es:'Solo personal autorizado',en:'Authorized personnel only'},
   btnRecvPDF:{es:'PDF Recibo',en:'Receipt PDF'},
-  modShip:{es:'Shipment',en:'Shipment'},modRecv:{es:'Recibo',en:'Receiving'},modInv:{es:'Inventario',en:'Inventory'},modWh:{es:'Bodega',en:'Warehouse'},modDisp:{es:'Despachos',en:'Dispatches'},modClients:{es:'Clientes',en:'Clients'},modDash:{es:'Dashboard',en:'Dashboard'}
 };
 
 function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
@@ -482,8 +479,6 @@ function applyLang(){
   document.querySelector('.mod-link[data-t="modInv"]').href='/demos/logistica-pyme/inventario/'+lp;
   document.querySelector('.mod-link[data-t="modWh"]').href='/demos/logistica-pyme/bodega/'+lp;
   document.querySelector('.mod-link[data-t="modDisp"]').href='/demos/logistica-pyme/despachos/'+lp;
-  document.querySelector('.mod-link[data-t="modClients"]').href='/demos/clientes/'+lp;
-  document.querySelector('.mod-link[data-t="modDash"]').href='/demos/dashboard/'+lp;
   renderFilters();renderPreavisos();renderInventory();renderZones();
   var dLbl=itemDisplayMode==='sku'?'SKU / NAME':'NAME / SKU';
   var db1=document.getElementById('itemDisplayBtn');if(db1)db1.textContent=dLbl;
