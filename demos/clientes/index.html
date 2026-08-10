@@ -860,8 +860,36 @@ function executeAgToggle(){
   var tgMsg=(p.activate?'AGENTE ACTIVADO':'AGENTE DESACTIVADO')+'\n\n'+agName+'\nCliente: '+(c?c.name:p.clientId)+'\nFecha: '+new Date().toLocaleString('es-CO');
   fetch('https://api.telegram.org/bot'+TG_BOT+'/sendMessage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:TG_CHAT,text:tgMsg})}).catch(function(){});
 
+  // Sync modules to Sheet (connects agents to ERP modules)
+  syncAgentsToSheet(p.clientId, states);
+
   showDetail(p.clientId);
   showFeedback(agName+' '+(p.activate?t('agActive'):t('agInactive')).toLowerCase(),p.activate?'green':'red');
+}
+
+/* ── Sync agent toggles → Sheet modules for ERP ── */
+var AGENT_TO_MODULE = {
+  'agent.commercial': ['cotizaciones'],
+  'agent.operations': ['dashboard'],
+  'agent.finance':    ['finanzas'],
+  'agent.support':    ['crm'],
+  'agent.logistics':  ['campanas','portfolio']
+};
+var SHEET_SYNC_URLS = {
+  'c-land-marmoles': 'https://script.google.com/macros/s/AKfycbzjE8iXVQuzTFJg5_miMxExDYcTVcYuIwBdWqKe_QZUn_dH6Jr0W8M0mZk4PEXSuM21aw/exec'
+};
+
+function syncAgentsToSheet(clientId, agentStates){
+  var url = SHEET_SYNC_URLS[clientId];
+  if(!url) return; // Only sync clients with a Sheet URL configured
+  var modules = {client_id: clientId, cotizaciones:'off', dashboard:'off', finanzas:'off', campanas:'off', portfolio:'off', crm:'off'};
+  for(var agId in agentStates){
+    if(agentStates[agId] && agentStates[agId].active && AGENT_TO_MODULE[agId]){
+      var mods = AGENT_TO_MODULE[agId];
+      for(var i=0;i<mods.length;i++) modules[mods[i]] = 'on';
+    }
+  }
+  fetch(url, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'saveModules', modules:modules})}).catch(function(){});
 }
 
 window.sendAgProposal=function(clientId){
