@@ -1031,6 +1031,7 @@ var MODULE_DEFS = [
 var MOD_STORAGE_KEY = 'lm_erp_modules';
 
 function loadModuleState(){
+  /* 1. Cargar desde localStorage como fallback inmediato */
   try {
     var saved = JSON.parse(localStorage.getItem(MOD_STORAGE_KEY));
     if(saved){
@@ -1039,12 +1040,41 @@ function loadModuleState(){
       });
     }
   } catch(e){}
+  /* 2. Leer del Sheet (fuente de verdad, viene del dashboard 7group) */
+  if(NOTIFY.SHEETS_URL){
+    fetch(NOTIFY.SHEETS_URL+'?action=modules').then(function(r){return r.json();}).then(function(data){
+      if(data.ok && data.modules && data.modules.length > 0){
+        var row = data.modules[0]; // primer cliente (lan_marmoles)
+        var changed = false;
+        MODULE_DEFS.forEach(function(m){
+          if(row.hasOwnProperty(m.id)){
+            var sheetVal = (row[m.id] === 'on' || row[m.id] === true);
+            if(m.on !== sheetVal){ m.on = sheetVal; changed = true; }
+          }
+        });
+        if(changed){
+          saveModuleLocal();
+          applyModuleState();
+        }
+      }
+    }).catch(function(){});
+  }
 }
 
-function saveModuleState(){
+function saveModuleLocal(){
   var state = {};
   MODULE_DEFS.forEach(function(m){ state[m.id] = m.on; });
   try { localStorage.setItem(MOD_STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function saveModuleState(){
+  saveModuleLocal();
+  /* Sync al Sheet si es admin */
+  if(IS_ADMIN && NOTIFY.SHEETS_URL){
+    var modules = {client_id:'c-land-marmoles'};
+    MODULE_DEFS.forEach(function(m){ modules[m.id] = m.on ? 'on' : 'off'; });
+    fetch(NOTIFY.SHEETS_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'saveModules', modules:modules})}).catch(function(){});
+  }
 }
 
 function applyModuleState(){
