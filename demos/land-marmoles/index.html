@@ -477,14 +477,41 @@ tbody tr:hover{background:var(--brand-light)}
       <div class="sec-header">
         <div>
           <div class="sec-title">Finanzas</div>
-          <div class="sec-desc">Cuentas de cobro enlazadas a cotizaciones</div>
+          <div class="sec-desc">Cuentas de cobro y comisiones 7group</div>
         </div>
         <div class="tbl-actions">
           <input class="tbl-search" placeholder="Buscar..." id="searchInvoices" oninput="filterInvoices()">
           <button class="btn btn-primary" onclick="openModal('newInvoice')">+ Cuenta de Cobro</button>
+          <button class="btn" onclick="syncComisiones()" style="margin-left:4px">Sincronizar Sheet</button>
         </div>
       </div>
 
+      <!-- COMISIONES 7GROUP -->
+      <div class="tbl-wrap" style="margin-bottom:20px">
+        <div class="tbl-head">
+          <div class="tbl-title" style="color:var(--brand);font-size:14px;font-weight:700">Comisiones 7group</div>
+          <span class="badge badge-pending" id="comisionSync" style="font-size:10px">Datos del Sheet</span>
+        </div>
+        <div class="fin-stats" id="comisionStats"></div>
+        <div class="tbl-overflow" style="margin-top:12px">
+          <table>
+            <thead>
+              <tr>
+                <th>Ref</th>
+                <th>Cliente</th>
+                <th>Venta</th>
+                <th>Tier</th>
+                <th>Comision 7group</th>
+                <th>Fecha venta</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="comisionesTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CUENTAS DE COBRO (existente) -->
       <div class="fin-stats" id="finStats"></div>
 
       <div class="tbl-wrap">
@@ -917,7 +944,7 @@ var INVOICES=[
 var NOTIFY={
   TG_TOKEN:'8815751812:AAEGlCiQAZKSamRUfD5r0lmzjLTRAaFcdqw',
   TG_CHAT:'1081707115',
-  SHEETS_URL:'https://script.google.com/macros/s/AKfycbxikHtYfrCzzeAxVduFNzJWzp5KV6eT3Xv_-4m4mTtbBdRxYB4tfNBGrwl7UnkimnpzVw/exec'
+  SHEETS_URL:'https://script.google.com/macros/s/AKfycbzjE8iXVQuzTFJg5_miMxExDYcTVcYuIwBdWqKe_QZUn_dH6Jr0W8M0mZk4PEXSuM21aw/exec'
 };
 
 var RICARDO={
@@ -949,6 +976,7 @@ function initApp(){
   renderQuotes();
   renderDashboard();
   renderFinanzas();
+  syncComisiones();
   renderCampaigns();
   renderPortfolio();
   renderCRM();
@@ -1461,6 +1489,84 @@ window.markPaid=function(id){
   showToast('Cuenta '+id+' marcada como pagada','success');
   notifyTelegram('PAGO RECIBIDO\nCuenta: '+id+'\nCliente: '+INVOICES.find(function(i){return i.id===id}).client+'\nValor: '+fmt(INVOICES.find(function(i){return i.id===id}).total));
 };
+
+/* ══════════════════════════════════════
+   COMISIONES 7GROUP — datos del Sheet
+   ══════════════════════════════════════ */
+var COMISION_TIERS=[
+  {max:300000,rate:0.10,label:'10%'},
+  {max:700000,rate:0.05,label:'5%'},
+  {max:1500000,rate:0.045,label:'4.5%'},
+  {max:Infinity,rate:0.025,label:'2.5%'}
+];
+
+function getTierLabel(total){
+  for(var i=0;i<COMISION_TIERS.length;i++){
+    if(total<=COMISION_TIERS[i].max) return COMISION_TIERS[i].label;
+  }
+  return '2.5%';
+}
+
+var comisionesData=[];
+
+window.syncComisiones=function(){
+  if(!NOTIFY.SHEETS_URL) return;
+  var syncBtn=document.getElementById('comisionSync');
+  if(syncBtn) syncBtn.textContent='Sincronizando...';
+
+  fetch(NOTIFY.SHEETS_URL+'?action=quotes')
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(!data.ok||!data.quotes){
+        if(syncBtn) syncBtn.textContent='Error de sync';
+        return;
+      }
+      comisionesData=data.quotes;
+      renderComisiones();
+      if(syncBtn){syncBtn.textContent='Actualizado';setTimeout(function(){syncBtn.textContent='Datos del Sheet'},2000);}
+    })
+    .catch(function(){
+      if(syncBtn) syncBtn.textContent='Sin conexion';
+    });
+};
+
+function renderComisiones(){
+  var vendidas=comisionesData.filter(function(q){return q.estado==='vendido'});
+  var cotizadas=comisionesData.filter(function(q){return q.estado!=='vendido'});
+
+  var totalVentas=vendidas.reduce(function(s,q){return s+parseFloat(q.total||0)},0);
+  var totalComision=vendidas.reduce(function(s,q){return s+parseFloat(q.comision_7group||0)},0);
+  var totalPipeline=cotizadas.reduce(function(s,q){return s+parseFloat(q.total||0)},0);
+
+  document.getElementById('comisionStats').innerHTML=[
+    {l:'Ventas cerradas',v:fmt(totalVentas),s:vendidas.length+' cotizaciones vendidas',c:'var(--green)'},
+    {l:'Comision 7group',v:fmt(totalComision),s:'Acumulado por cobrar',c:'var(--brand)'},
+    {l:'Pipeline activo',v:fmt(totalPipeline),s:cotizadas.length+' cotizaciones pendientes',c:'var(--orange)'},
+    {l:'Tasa promedio',v:totalVentas?((totalComision/totalVentas)*100).toFixed(1)+'%':'--',s:'Sobre ventas cerradas',c:'var(--dim)'}
+  ].map(function(k){
+    return '<div class="fin-stat" style="border-left:3px solid '+k.c+'"><div class="fin-stat-label">'+k.l+'</div><div class="fin-stat-val">'+k.v+'</div><div class="fin-stat-sub">'+k.s+'</div></div>';
+  }).join('');
+
+  /* Tabla: vendidas primero, luego cotizadas */
+  var all=vendidas.concat(cotizadas);
+  document.getElementById('comisionesTable').innerHTML=all.map(function(q){
+    var total=parseFloat(q.total||0);
+    var comision=parseFloat(q.comision_7group||0);
+    var isVendido=q.estado==='vendido';
+    var tier=getTierLabel(total);
+    var fVenta=q.fecha_venta?new Date(q.fecha_venta).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}):'--';
+
+    return '<tr>'+
+      '<td class="mono" style="font-size:11px;font-weight:600;color:var(--brand)">'+(q.ref||q.id)+'</td>'+
+      '<td>'+(q.cliente_nombre||'--')+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(total)+'</td>'+
+      '<td style="text-align:center">'+tier+'</td>'+
+      '<td class="mono" style="font-weight:700;color:'+(isVendido?'var(--green)':'var(--dim)')+'">'+fmt(comision)+'</td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+fVenta+'</td>'+
+      '<td><span class="badge '+(isVendido?'badge-paid">Vendido':'badge-pending">Cotizado')+'</span></td>'+
+    '</tr>';
+  }).join('');
+}
 
 /* Invoice modal helpers */
 var invItemCount=0;
