@@ -270,6 +270,28 @@ tbody tr:hover{background:var(--brand-light)}
 /* GOLD ACCENT LINE */
 .gold-line{height:3px;background:linear-gradient(90deg,var(--brand),var(--gold));border-radius:0 0 2px 2px}
 
+/* MODULE CONFIG PANEL */
+.mod-cfg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.mod-cfg-overlay.open{display:flex}
+.mod-cfg{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mod-cfg-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.mod-cfg-title{font-size:16px;font-weight:800}
+.mod-cfg-body{padding:16px 24px}
+.mod-cfg-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.mod-cfg-item:last-child{border-bottom:none}
+.mod-cfg-info{flex:1}
+.mod-cfg-name{font-size:14px;font-weight:700}
+.mod-cfg-desc{font-size:11px;color:var(--dim);margin-top:2px}
+.mod-cfg-essential{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--brand);margin-top:4px}
+/* Toggle switch */
+.toggle-sw{position:relative;width:44px;height:24px;flex-shrink:0;margin-left:12px}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-sw .slider{position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.3s}
+.toggle-sw .slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle-sw input:checked+.slider{background:var(--brand)}
+.toggle-sw input:checked+.slider::before{transform:translateX(20px)}
+.toggle-sw input:disabled+.slider{opacity:.5;cursor:not-allowed}
+
 /* FINANZAS */
 .fin-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
 .fin-stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
@@ -336,6 +358,7 @@ tbody tr:hover{background:var(--brand-light)}
       <span class="tb-badge">ERP</span>
     </div>
     <div class="tb-right">
+      <button class="tb-toggle" onclick="openModConfig()" id="modConfigBtn" style="display:none">Modulos</button>
       <button class="tb-toggle" onclick="toggleTheme()" id="themeBtn">Oscuro</button>
       <a class="tb-btn" href="/demos/" style="background:var(--gold-light);border-color:var(--gold-mid);color:var(--gold)">7Group</a>
     </div>
@@ -562,6 +585,17 @@ tbody tr:hover{background:var(--brand-light)}
       </div>
     </section>
 
+  </div>
+</div>
+
+<!-- MODULE CONFIG -->
+<div class="mod-cfg-overlay" id="modCfgOverlay" onclick="if(event.target===this)closeModConfig()">
+  <div class="mod-cfg">
+    <div class="mod-cfg-head">
+      <div class="mod-cfg-title">Configurar Modulos</div>
+      <button class="modal-close" onclick="closeModConfig()">&times;</button>
+    </div>
+    <div class="mod-cfg-body" id="modCfgBody"></div>
   </div>
 </div>
 
@@ -852,9 +886,20 @@ tbody tr:hover{background:var(--brand-light)}
    EMAIL GATE
    ══════════════════════════════════════ */
 var ALLOWED_EMAILS=['ricardolancheros@hotmail.com','andresapal@gmail.com','andresapalt@gmail.com'];
+var ADMIN_EMAILS=['andresapal@gmail.com','andresapalt@gmail.com'];
 var GATE_KEY='lm_erp_user';
+var IS_ADMIN=false;
+
+function setAdminMode(email){
+  IS_ADMIN = ADMIN_EMAILS.indexOf(email) !== -1;
+  var modBtn = document.getElementById('modConfigBtn');
+  if(modBtn) modBtn.style.display = IS_ADMIN ? '' : 'none';
+}
 
 function enterApp(){
+  var stored='';
+  try{stored=localStorage.getItem(GATE_KEY)||'';}catch(e){}
+  setAdminMode(stored);
   document.getElementById('emailGate').classList.add('hidden');
   document.getElementById('appWrap').classList.add('visible');
   initApp();
@@ -864,6 +909,7 @@ window.checkEmail=function(){
   var email=(document.getElementById('gateEmail').value||'').trim().toLowerCase();
   if(ALLOWED_EMAILS.indexOf(email)!==-1){
     try{localStorage.setItem(GATE_KEY,email);}catch(e){}
+    setAdminMode(email);
     enterApp();
   } else {
     document.getElementById('gateError').style.display='block';
@@ -872,7 +918,6 @@ window.checkEmail=function(){
 };
 
 window.onload=function(){
-  /* Auto-bypass: from 7group portal or already authenticated */
   var ref=document.referrer||'';
   var stored='';
   try{stored=localStorage.getItem(GATE_KEY)||'';}catch(e){}
@@ -972,7 +1017,104 @@ var FEED=[
 /* ══════════════════════════════════════
    INIT
    ══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   MODULE TOGGLE SYSTEM
+   ══════════════════════════════════════ */
+var MODULE_DEFS = [
+  {id:'cotizaciones', label:'Cotizaciones',     desc:'Historial, estados, busqueda, PDF',              essential:true,  on:true},
+  {id:'dashboard',    label:'Dashboard',         desc:'KPIs en tiempo real: ventas, areas, ticket',     essential:true,  on:true},
+  {id:'finanzas',     label:'Finanzas',           desc:'Cuentas de cobro, comisiones 7group',            essential:true,  on:true},
+  {id:'campanas',     label:'Campanas',           desc:'Marketing y seguimiento automatizado',           essential:false, on:false},
+  {id:'portfolio',    label:'Portfolio',           desc:'Galeria de proyectos con resenas',               essential:false, on:false},
+  {id:'crm',          label:'Leads / CRM',        desc:'Pipeline de prospectos, kanban, seguimientos',   essential:false, on:false}
+];
+var MOD_STORAGE_KEY = 'lm_erp_modules';
+
+function loadModuleState(){
+  try {
+    var saved = JSON.parse(localStorage.getItem(MOD_STORAGE_KEY));
+    if(saved){
+      MODULE_DEFS.forEach(function(m){
+        if(saved.hasOwnProperty(m.id)) m.on = saved[m.id];
+      });
+    }
+  } catch(e){}
+}
+
+function saveModuleState(){
+  var state = {};
+  MODULE_DEFS.forEach(function(m){ state[m.id] = m.on; });
+  try { localStorage.setItem(MOD_STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function applyModuleState(){
+  MODULE_DEFS.forEach(function(m){
+    var navLink = document.querySelector('.mod-link[data-mod="'+m.id+'"]');
+    var section = document.getElementById('mod-'+m.id);
+    if(navLink) navLink.style.display = m.on ? '' : 'none';
+    if(section && !m.on) section.classList.remove('active');
+  });
+  /* Make sure at least one visible module is active */
+  var anyActive = document.querySelector('.mod-section.active');
+  if(!anyActive){
+    var firstOn = MODULE_DEFS.find(function(m){ return m.on; });
+    if(firstOn){
+      var link = document.querySelector('.mod-link[data-mod="'+firstOn.id+'"]');
+      var sec  = document.getElementById('mod-'+firstOn.id);
+      if(link) link.classList.add('active');
+      if(sec) sec.classList.add('active');
+    }
+  }
+  /* Also sync nav active states */
+  var activeNav = document.querySelector('.mod-link.active');
+  if(activeNav && activeNav.style.display === 'none'){
+    activeNav.classList.remove('active');
+    var firstVisible = document.querySelector('.mod-link[style=""],.mod-link:not([style])');
+    if(firstVisible){
+      firstVisible.classList.add('active');
+      var secId = 'mod-' + firstVisible.dataset.mod;
+      var sec2 = document.getElementById(secId);
+      if(sec2) sec2.classList.add('active');
+    }
+  }
+}
+
+window.openModConfig=function(){
+  if(!IS_ADMIN) return;
+  var body = document.getElementById('modCfgBody');
+  body.innerHTML = MODULE_DEFS.map(function(m){
+    return '<div class="mod-cfg-item">'
+      + '<div class="mod-cfg-info">'
+      + '  <div class="mod-cfg-name">'+m.label+'</div>'
+      + '  <div class="mod-cfg-desc">'+m.desc+'</div>'
+      + (m.essential ? '<div class="mod-cfg-essential">Incluido en plan base</div>' : '')
+      + '</div>'
+      + '<label class="toggle-sw">'
+      + '  <input type="checkbox" '+(m.on?'checked':'')+' onchange="toggleModule(\''+m.id+'\',this.checked)">'
+      + '  <span class="slider"></span>'
+      + '</label>'
+      + '</div>';
+  }).join('');
+  document.getElementById('modCfgOverlay').classList.add('open');
+};
+
+window.closeModConfig=function(){
+  document.getElementById('modCfgOverlay').classList.remove('open');
+};
+
+window.toggleModule=function(id, checked){
+  if(!IS_ADMIN) return;
+  var mod = MODULE_DEFS.find(function(m){ return m.id === id; });
+  if(mod){
+    mod.on = checked;
+    saveModuleState();
+    applyModuleState();
+  }
+};
+
 function initApp(){
+  loadModuleState();
+  applyModuleState();
   renderQuotes();
   renderDashboard();
   renderFinanzas();
