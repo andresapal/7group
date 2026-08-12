@@ -356,7 +356,8 @@ var T={
   costSent:    {es:'Propuesta enviada',           en:'Proposal sent'},
   costSending: {es:'Enviando...',                 en:'Sending...'},
   tierNone:    {es:'Sin agentes activos',         en:'No active agents'},
-  tierAfter:   {es:'Despues del piloto, pasa a plan Starter.', en:'After the pilot, moves to Starter plan.'}
+  tierAfter:   {es:'Despues del piloto, pasa a plan Starter.', en:'After the pilot, moves to Starter plan.'},
+  openErp:     {es:'Abrir ERP',                   en:'Open ERP'}
 };
 
 function t(k){return T[k]?T[k][LANG]||T[k].es||k:k;}
@@ -398,7 +399,8 @@ var SEED_CLIENTS=[
   {id:'c-ultimate-bike',name:'Ultimate Bike Shop',contact:'7group Admin',phone:'',email:'7groupcorp@zohomail.com',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'Configurador de bicicletas. Demo activo.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z'},
   {id:'c-accounting',name:'Accounting',contact:'',phone:'',email:'',city:'',state:'',country:'CO',taxId:'',notes:'Modulo contable. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'},
   {id:'c-operational',name:'Operational',contact:'',phone:'',email:'',city:'',state:'',country:'CO',taxId:'',notes:'Modulo operacional. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'},
-  {id:'c-saas',name:'SaaS Platform',contact:'',phone:'',email:'',city:'',state:'',country:'US',taxId:'',notes:'Plataforma SaaS. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'}
+  {id:'c-saas',name:'SaaS Platform',contact:'',phone:'',email:'',city:'',state:'',country:'US',taxId:'',notes:'Plataforma SaaS. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'},
+  {id:'c-aseguralo',name:'Aseguralo',contact:'',phone:'',email:'',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'Corredor de seguros. ERP con cotizador multi-aseguradora, facturacion, renovaciones, siniestros.',agents:makeAgents(true),createdAt:'2026-08-12T08:00:00Z'}
 ];
 
 function loadClients(){
@@ -408,8 +410,14 @@ function loadClients(){
     clients=SEED_CLIENTS;
     LocalCache.set('clients',clients);
   }
-  // Ensure every client has agents field
+  // Merge any new seed clients not yet in the list
   var needsSave=false;
+  var existingIds={};
+  for(var i=0;i<clients.length;i++){existingIds[clients[i].id]=true;}
+  for(var j=0;j<SEED_CLIENTS.length;j++){
+    if(!existingIds[SEED_CLIENTS[j].id]){clients.push(SEED_CLIENTS[j]);needsSave=true;}
+  }
+  // Ensure every client has agents field
   for(var i=0;i<clients.length;i++){
     if(!clients[i].agents){clients[i].agents=makeAgents(false);needsSave=true;}
   }
@@ -605,6 +613,16 @@ function showDetail(id){
   if(c.createdAt)h+='Creado: '+new Date(c.createdAt).toLocaleDateString();
   if(c.updatedAt)h+=' | Actualizado: '+new Date(c.updatedAt).toLocaleDateString();
   h+='</div>';
+
+  var DEMO_URLS={
+    'c-land-marmoles':'/demos/land-marmoles/',
+    'c-aseguralo':'/demos/aseguralo/',
+    'c-ultimate-bike':'/demos/ultimate-bike/',
+    'c-erp-logistics':'/demos/erp-logistics/'
+  };
+  if(DEMO_URLS[c.id]){
+    h+='<a href="'+DEMO_URLS[c.id]+'" target="_blank" style="display:block;padding:10px 16px;background:var(--cyan);color:#000;border-radius:6px;text-align:center;font-size:12px;font-weight:700;text-decoration:none;margin-bottom:12px;letter-spacing:.5px">'+t('openErp')+' &#8599;</a>';
+  }
 
   h+='<div style="display:flex;gap:8px">';
   h+='<button class="btn btn-secondary btn-sm" onclick="editClient(\''+c.id+'\')" style="flex:1;justify-content:center">'+t('btnEdit')+'</button>';
@@ -876,7 +894,7 @@ var AGENT_TO_MODULE = {
   'agent.logistics':  ['campanas','portfolio']
 };
 var SHEET_SYNC_URLS = {
-  'c-land-marmoles': 'https://script.google.com/macros/s/AKfycbzjE8iXVQuzTFJg5_miMxExDYcTVcYuIwBdWqKe_QZUn_dH6Jr0W8M0mZk4PEXSuM21aw/exec'
+  'c-land-marmoles': 'https://script.google.com/macros/s/AKfycbzwKY0FiouXVfom5pBMk-1wHdkz7_fwlTa_vMMitntSUqPNX_lMtBFaS5y-9sV6Q9BQSg/exec'
 };
 
 function syncAgentsToSheet(clientId, agentStates){
