@@ -250,6 +250,7 @@ var T={
   accounting:{es:'Contabilidad',en:'Accounting'},
   consulting:{es:'Consultoria',en:'Consulting'},
   technology:{es:'Tecnologia',en:'Technology'},
+  insurance:{es:'Seguros',en:'Insurance'},
   lblOnboarding:{es:'Onboarding',en:'Onboarding'},
   lblDiagnostic:{es:'Diagnostico',en:'Diagnostic'},
   lblActive:{es:'Activo',en:'Active'},
@@ -270,7 +271,8 @@ var BIZ_TYPES={
   retail:{color:'var(--green)',bg:'rgba(34,197,94,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 7v13a1 1 0 001 1h16a1 1 0 001-1V7l-3-5z"/><path d="M3 7h18"/><path d="M16 11a4 4 0 01-8 0"/></svg>'},
   accounting:{color:'var(--yellow)',bg:'rgba(234,179,8,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M8 3v18"/><path d="M12 13h4M12 17h4"/></svg>'},
   consulting:{color:'var(--purple)',bg:'rgba(167,139,250,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
-  technology:{color:'var(--blue)',bg:'rgba(59,130,246,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>'}
+  technology:{color:'var(--blue)',bg:'rgba(59,130,246,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>'},
+  insurance:{color:'#10B981',bg:'rgba(16,185,129,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'}
 };
 
 /* =============== PROJECTS DATA =============== */
@@ -379,6 +381,21 @@ var PROJECTS=[
     tags:['Infrastructure','CI/CD','MVP'],
     link:null,
     region:'Texas, US'
+  },
+  {
+    id:'aseguralo',
+    title:{es:'Aseguralo',en:'Aseguralo'},
+    client:'Corredor de Seguros',
+    type:'insurance',
+    status:'active',
+    phase:'onboarding',
+    revenue:0,
+    created:'2026-08-12',
+    lastActivity:'2026-08-12',
+    docs:8,
+    tags:['Cotizador','Polizas','Comisiones','Facturacion','Renovaciones'],
+    link:'/demos/aseguralo/',
+    region:'Bogota, Colombia'
   }
 ];
 
@@ -419,7 +436,7 @@ function renderFilters(){
     var tp=PROJECTS[i].type;
     counts[tp]=(counts[tp]||0)+1;
   }
-  var types=['all','logistics','construction','retail','accounting','consulting','technology'];
+  var types=['all','logistics','construction','retail','accounting','consulting','technology','insurance'];
   var h='';
   for(var i=0;i<types.length;i++){
     var tp=types[i];

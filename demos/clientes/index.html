@@ -452,7 +452,7 @@ function loadClients(){
       var fields=['industry','icon','iconBg','iconColor','status','stage','docs','tags','revenue','lastActivity','demoUrl'];
       for(var f=0;f<fields.length;f++){
         var key=fields[f];
-        if(seed[key]!==undefined&&!clients[idx][key]){clients[idx][key]=seed[key];needsSave=true;}
+        if(seed[key]!==undefined&&(clients[idx][key]===undefined||clients[idx][key]===null||clients[idx][key]==='')){clients[idx][key]=seed[key];needsSave=true;}
       }
     } else {
       clients.push(seed);needsSave=true;
