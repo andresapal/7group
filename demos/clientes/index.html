@@ -62,10 +62,31 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .search-bar input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(94,231,247,.1)}
 .search-bar input::placeholder{color:var(--dim)}
 
-.client-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s}
+.client-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:12px;cursor:pointer;transition:.2s;position:relative}
 .client-card:hover{border-color:var(--cyan)}
-.client-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.client-name{font-size:14px;font-weight:700;color:var(--white)}
+.client-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px}
+.client-left{display:flex;gap:12px;align-items:flex-start;flex:1}
+.client-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.client-name{font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.02em}
+.client-subtitle{font-size:11px;color:var(--dim);margin-top:2px}
+.ind-badge{font-size:8px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;flex-shrink:0}
+.ind-logistics{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.25)}
+.ind-construction{background:rgba(249,115,22,.12);color:var(--orange);border:1px solid rgba(249,115,22,.25)}
+.ind-retail{background:rgba(234,179,8,.12);color:var(--yellow);border:1px solid rgba(234,179,8,.25)}
+.ind-insurance{background:rgba(16,185,129,.12);color:#10B981;border:1px solid rgba(16,185,129,.25)}
+.ind-accounting{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.25)}
+.ind-consulting{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.25)}
+.ind-technology{background:rgba(94,231,247,.1);color:var(--cyan);border:1px solid rgba(94,231,247,.2)}
+.client-status{display:flex;gap:8px;align-items:center;margin:8px 0;font-size:10px;flex-wrap:wrap}
+.st-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.st-active{background:var(--green)}.st-pending{background:var(--orange)}
+.st-label{color:var(--dim);font-weight:600}
+.client-tags{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0}
+.cl-tag{font-size:9px;font-weight:600;padding:3px 8px;border-radius:4px;background:var(--bg3);color:var(--dim);border:1px solid var(--border2)}
+.client-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)}
+.client-date{font-size:10px;color:var(--muted)}
+.client-rev{font-size:13px;font-weight:800;color:var(--green);display:flex;align-items:center;gap:4px}
+.client-rev .arr{font-size:16px}
 .client-info{font-size:11px;color:var(--dim);line-height:1.6}
 .client-meta{display:flex;gap:10px;margin-top:6px;font-size:10px;color:var(--dim);flex-wrap:wrap}
 .client-meta span{display:flex;align-items:center;gap:3px}
@@ -394,13 +415,22 @@ function makeAgents(allOn){
 }
 
 var SEED_CLIENTS=[
-  {id:'c-erp-logistics',name:'ERP Logistics',contact:'7group Admin',phone:'',email:'7groupcorp@zohomail.com',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'Plataforma logistica interna. Demo activo.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z'},
-  {id:'c-land-marmoles',name:'Land Marmoles',contact:'Ricardo Lancheros',phone:'3102696050',email:'',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'Marmol, granito, cuarzo. Landing page activa.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z'},
-  {id:'c-ultimate-bike',name:'Ultimate Bike Shop',contact:'7group Admin',phone:'',email:'7groupcorp@zohomail.com',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'Configurador de bicicletas. Demo activo.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z'},
-  {id:'c-accounting',name:'Accounting',contact:'',phone:'',email:'',city:'',state:'',country:'CO',taxId:'',notes:'Modulo contable. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'},
-  {id:'c-operational',name:'Operational',contact:'',phone:'',email:'',city:'',state:'',country:'CO',taxId:'',notes:'Modulo operacional. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'},
-  {id:'c-saas',name:'SaaS Platform',contact:'',phone:'',email:'',city:'',state:'',country:'US',taxId:'',notes:'Plataforma SaaS. En desarrollo.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z'},
-  {id:'c-aseguralo',name:'Aseguralo',contact:'',phone:'',email:'',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'Corredor de seguros. ERP con cotizador multi-aseguradora, facturacion, renovaciones, siniestros.',agents:makeAgents(true),createdAt:'2026-08-12T08:00:00Z'}
+  {id:'c-erp-logistics',name:'ERP Logistics',contact:'TechRetail Inc.',phone:'',email:'7groupcorp@zohomail.com',city:'Florida',state:'US',country:'US',taxId:'',notes:'Plataforma logistica interna. Demo activo.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z',
+   industry:'logistics',icon:'box',iconBg:'rgba(59,130,246,.15)',iconColor:'var(--blue)',status:'active',stage:'Diagnostic',docs:5,tags:['Receiving','Inventory','Warehouse','Dispatches','CEO Dashboard'],revenue:12500,lastActivity:'2026-07-29',demoUrl:'/demos/erp-logistics/'},
+  {id:'c-moving-crm',name:'Moving CRM',contact:'White-label Demo',phone:'',email:'',city:'Colombia',state:'',country:'CO',taxId:'',notes:'CRM logistico marca blanca.',agents:makeAgents(true),createdAt:'2026-07-15T08:00:00Z',
+   industry:'logistics',icon:'truck',iconBg:'rgba(94,231,247,.1)',iconColor:'var(--cyan)',status:'active',stage:'Onboarding',docs:5,tags:['Cotizador','Orden de Servicio','KPIs','Campanas','Finanzas'],revenue:8500,lastActivity:'2026-08-08',demoUrl:null},
+  {id:'c-land-marmoles',name:'Lan Marmoles',contact:'Ricardo Lancheros',phone:'3102696050',email:'',city:'Bogota',state:'CO',country:'CO',taxId:'',notes:'Marmol, granito, cuarzo. Landing page activa.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z',
+   industry:'construction',icon:'building',iconBg:'rgba(249,115,22,.12)',iconColor:'var(--orange)',status:'active',stage:'Onboarding',docs:3,tags:['Landing Page','WhatsApp','Telegram Alerts'],revenue:4800,lastActivity:'2026-07-18',demoUrl:'/demos/land-marmoles/'},
+  {id:'c-ultimate-bike',name:'Ultimate Bike Shop',contact:'Ultimate Bike Shop',phone:'',email:'7groupcorp@zohomail.com',city:'Honda',state:'Tolima, CO',country:'CO',taxId:'',notes:'Configurador de bicicletas. Demo activo.',agents:makeAgents(true),createdAt:'2026-07-01T08:00:00Z',
+   industry:'retail',icon:'bike',iconBg:'rgba(234,179,8,.12)',iconColor:'var(--yellow)',status:'active',stage:'Diagnostic',docs:4,tags:['Recibo','Inventario','Despachos','Arme su Bici'],revenue:3200,lastActivity:'2026-07-28',demoUrl:'/demos/ultimate-bike/'},
+  {id:'c-accounting',name:'7Group Accounting',contact:'7Group Corp.',phone:'',email:'',city:'Internal',state:'',country:'CO',taxId:'',notes:'Modulo contable interno.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z',
+   industry:'accounting',icon:'calculator',iconBg:'rgba(167,139,250,.12)',iconColor:'var(--purple)',status:'active',stage:'Onboarding',docs:0,tags:['Invoicing','Expenses','P&L','Tax Reports'],revenue:0,lastActivity:'2026-07-20',demoUrl:null},
+  {id:'c-operational',name:'Operational Consulting',contact:'Pipeline Lead',phone:'',email:'',city:'Georgia',state:'US',country:'US',taxId:'',notes:'Consultoria operacional.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z',
+   industry:'consulting',icon:'gear',iconBg:'rgba(167,139,250,.12)',iconColor:'var(--purple)',status:'pending',stage:'Lead',docs:1,tags:['Process Audit','KPIs'],revenue:0,lastActivity:'2026-07-14',demoUrl:null},
+  {id:'c-saas',name:'SaaS Startup Setup',contact:'Pipeline Lead',phone:'',email:'',city:'Texas',state:'US',country:'US',taxId:'',notes:'Infraestructura SaaS.',agents:makeAgents(false),createdAt:'2026-08-08T08:00:00Z',
+   industry:'technology',icon:'code',iconBg:'rgba(94,231,247,.1)',iconColor:'var(--cyan)',status:'pending',stage:'Lead',docs:1,tags:['Infrastructure','CI/CD','MVP'],revenue:0,lastActivity:'2026-07-10',demoUrl:null},
+  {id:'c-aseguralo',name:'Aseguralo',contact:'Corredor de Seguros',phone:'',email:'',city:'Bogota',state:'Colombia',country:'CO',taxId:'',notes:'ERP para corredor de seguros: cotizador multi-aseguradora, polizas, comisiones, facturacion, renovaciones, siniestros.',agents:makeAgents(true),createdAt:'2026-08-12T08:00:00Z',
+   industry:'insurance',icon:'shield',iconBg:'rgba(16,185,129,.12)',iconColor:'#10B981',status:'active',stage:'Onboarding',docs:8,tags:['Cotizador','Polizas','Comisiones','Facturacion','Renovaciones'],revenue:0,lastActivity:'2026-08-12',demoUrl:'/demos/aseguralo/'}
 ];
 
 function loadClients(){
@@ -410,12 +440,23 @@ function loadClients(){
     clients=SEED_CLIENTS;
     LocalCache.set('clients',clients);
   }
-  // Merge any new seed clients not yet in the list
+  // Merge seed clients: add new ones, update existing with missing fields
   var needsSave=false;
-  var existingIds={};
-  for(var i=0;i<clients.length;i++){existingIds[clients[i].id]=true;}
+  var existingMap={};
+  for(var i=0;i<clients.length;i++){existingMap[clients[i].id]=i;}
   for(var j=0;j<SEED_CLIENTS.length;j++){
-    if(!existingIds[SEED_CLIENTS[j].id]){clients.push(SEED_CLIENTS[j]);needsSave=true;}
+    var seed=SEED_CLIENTS[j];
+    if(existingMap.hasOwnProperty(seed.id)){
+      // Update existing client with new fields from seed (don't overwrite user edits)
+      var idx=existingMap[seed.id];
+      var fields=['industry','icon','iconBg','iconColor','status','stage','docs','tags','revenue','lastActivity','demoUrl'];
+      for(var f=0;f<fields.length;f++){
+        var key=fields[f];
+        if(seed[key]!==undefined&&!clients[idx][key]){clients[idx][key]=seed[key];needsSave=true;}
+      }
+    } else {
+      clients.push(seed);needsSave=true;
+    }
   }
   // Ensure every client has agents field
   for(var i=0;i<clients.length;i++){
@@ -465,26 +506,65 @@ function renderClients(){
     return;
   }
 
-  var h='';
+  var ICONS={
+    box:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+    truck:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+    building:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/><path d="M9 18h6"/></svg>',
+    bike:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><polyline points="12 17.5 8 7 16 7"/><line x1="16" y1="7" x2="18.5" y2="17.5"/><line x1="5.5" y1="17.5" x2="12" y2="17.5"/></svg>',
+    calculator:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><rect x="8" y="6" width="8" height="4"/><line x1="8" y1="14" x2="8" y2="14.01"/><line x1="12" y1="14" x2="12" y2="14.01"/><line x1="16" y1="14" x2="16" y2="14.01"/><line x1="8" y1="18" x2="8" y2="18.01"/><line x1="12" y1="18" x2="12" y2="18.01"/><line x1="16" y1="18" x2="16" y2="18.01"/></svg>',
+    gear:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
+    code:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+    shield:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>'
+  };
+  var IND_LABELS={logistics:'LOGISTICS',construction:'CONSTRUCTION',retail:'RETAIL',insurance:'INSURANCE',accounting:'ACCOUNTING',consulting:'CONSULTING',technology:'TECHNOLOGY'};
+
+  var h='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px">';
   for(var i=0;i<filtered.length;i++){
     var c=filtered[i];
     var addr=[c.city,c.state].filter(Boolean).join(', ');
-    h+='<div class="client-card" onclick="showDetail(\''+c.id+'\')">';
-    h+='<div class="client-head"><span class="client-name">'+esc(c.name||'')+'</span>';
-    if(c.taxId)h+='<span style="font-size:10px;color:var(--dim);font-family:\'JetBrains Mono\',monospace">'+esc(c.taxId)+'</span>';
+    var icon=ICONS[c.icon||'box']||ICONS.box;
+    var indKey=c.industry||'technology';
+    var isActive=c.status!=='pending';
+    var fmtRev=c.revenue?(c.revenue>=1000?'$'+(c.revenue/1000).toFixed(1)+'K':'$'+c.revenue):'--';
+
+    h+='<div class="client-card" onclick="showDetail(\''+c.id+'\')" style="border-left:3px solid '+(c.iconColor||'var(--cyan)')+'">';
+
+    // Header: icon + name + industry badge
+    h+='<div class="client-head">';
+    h+='<div class="client-left">';
+    h+='<div class="client-icon" style="background:'+(c.iconBg||'var(--bg3)')+';color:'+(c.iconColor||'var(--cyan)')+'">'+icon+'</div>';
+    h+='<div>';
+    h+='<div class="client-name">'+esc(c.name||'')+'</div>';
+    if(c.contact||addr)h+='<div class="client-subtitle">'+esc(c.contact||'')+((c.contact&&addr)?' &middot; ':'')+esc(addr)+'</div>';
+    h+='</div></div>';
+    h+='<span class="ind-badge ind-'+indKey+'">'+IND_LABELS[indKey]+'</span>';
     h+='</div>';
-    h+='<div class="client-info">';
-    if(c.contact)h+=esc(c.contact);
-    if(c.contact&&c.phone)h+=' -- ';
-    if(c.phone)h+=esc(c.phone);
+
+    // Status row
+    h+='<div class="client-status">';
+    h+='<span class="st-dot '+(isActive?'st-active':'st-pending')+'"></span>';
+    h+='<span class="st-label">'+(isActive?'Active':'Pending')+'</span>';
+    if(c.stage)h+='<span class="st-label">'+esc(c.stage)+'</span>';
+    h+='<span class="st-label">'+(c.docs||0)+' docs</span>';
     h+='</div>';
-    var agCount=0;if(c.agents){for(var aid in c.agents){if(c.agents[aid].active)agCount++;}}
-    h+='<div class="client-meta">';
-    if(addr)h+='<span>'+esc(addr)+'</span>';
-    h+='<span style="color:'+(agCount>0?'var(--green)':'var(--muted)')+'">'+agCount+'/5 agentes</span>';
+
+    // Tags
+    if(c.tags&&c.tags.length){
+      h+='<div class="client-tags">';
+      for(var ti=0;ti<c.tags.length;ti++){h+='<span class="cl-tag">'+esc(c.tags[ti])+'</span>';}
+      h+='</div>';
+    }
+
+    // Footer: last activity + revenue
+    h+='<div class="client-footer">';
+    h+='<span class="client-date">Last activity: '+(c.lastActivity||'--')+'</span>';
+    if(c.revenue){h+='<span class="client-rev">'+fmtRev+' <span class="arr">&#8594;</span></span>';}
+    else{h+='<span style="font-size:11px;color:var(--muted)">--</span>';}
     h+='</div>';
+
     h+='</div>';
   }
+  h+='</div>';
   el.innerHTML=h;
 }
 
