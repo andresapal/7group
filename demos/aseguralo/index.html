@@ -18,8 +18,8 @@ h1,h2,h3,h4{font-family:'Manrope',sans-serif;letter-spacing:-.03em}
 code,.mono{font-family:'JetBrains Mono',monospace}
 
 :root{
-  --brand:#1a2744;--brand-light:rgba(26,39,68,.08);--brand-mid:rgba(26,39,68,.15);
-  --accent:#10B981;--accent-light:rgba(16,185,129,.1);--accent-mid:rgba(16,185,129,.2);
+  --brand:#304770;--brand-light:rgba(48,71,112,.08);--brand-mid:rgba(48,71,112,.15);
+  --accent:#45AAFF;--accent-light:rgba(69,170,255,.1);--accent-mid:rgba(69,170,255,.2);
   --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f0f2f6;--bg4:#e4e7ed;
   --text:#0f172a;--dim:#64748b;--muted:#94a3b8;
   --green:#15803d;--green-bg:rgba(21,128,61,.08);
@@ -35,8 +35,8 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 :root.dark{
   --bg:#060a12;--bg2:#0c1220;--bg3:#141c2e;--bg4:#1c2640;
   --text:#e2e8f0;--dim:#64748b;--muted:#334155;
-  --brand-light:rgba(26,39,68,.35);--brand-mid:rgba(26,39,68,.5);
-  --accent-light:rgba(16,185,129,.15);--accent-mid:rgba(16,185,129,.25);
+  --brand-light:rgba(48,71,112,.35);--brand-mid:rgba(48,71,112,.5);
+  --accent-light:rgba(69,170,255,.15);--accent-mid:rgba(69,170,255,.25);
   --green-bg:rgba(21,128,61,.15);--orange-bg:rgba(217,119,6,.15);--red-bg:rgba(220,38,38,.15);
   --border:rgba(148,163,184,.06);--border2:rgba(148,163,184,.1);--border3:rgba(148,163,184,.16);
   --shadow:0 1px 3px rgba(0,0,0,.2);--shadow-lg:0 4px 16px rgba(0,0,0,.3);
@@ -53,7 +53,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .email-box input{width:100%;padding:12px 16px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;color:var(--text);background:var(--bg3);outline:none;transition:.2s;text-align:center}
 .email-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
 .email-box .gate-btn{width:100%;padding:12px;margin-top:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s}
-.email-box .gate-btn:hover{background:#0da271}
+.email-box .gate-btn:hover{background:#3a95e0}
 .email-box .gate-error{font-size:12px;color:var(--red);margin-top:12px;display:none}
 .email-box .gate-footer{font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:.5px}
 .app-wrap{display:none}.app-wrap.visible{display:block}
@@ -110,7 +110,10 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .tbl-search:focus{border-color:var(--accent)}
 .tbl-search::placeholder{color:var(--muted)}
 table{width:100%;border-collapse:collapse}
-thead th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border)}
+thead th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;transition:color .15s;position:relative;white-space:nowrap}
+thead th:hover{color:var(--accent)}
+thead th .sort-arrow{display:inline-block;margin-left:4px;font-size:8px;opacity:.4;transition:opacity .15s}
+thead th.sort-active .sort-arrow{opacity:1;color:var(--accent)}
 tbody td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--accent-light)}
@@ -130,7 +133,7 @@ tbody tr:hover{background:var(--accent-light)}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border:1px solid var(--border2);background:var(--bg2);color:var(--text)}
 .btn:hover{border-color:var(--accent);color:var(--accent)}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn-primary:hover{background:#0da271;border-color:#0da271;color:#fff}
+.btn-primary:hover{background:#3a95e0;border-color:#3a95e0;color:#fff}
 .btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
 .btn-wa{background:#25D366;color:#fff;border-color:#25D366}
 .btn-wa:hover{background:#1da851;border-color:#1da851;color:#fff}
@@ -257,7 +260,7 @@ tbody tr:hover{background:var(--accent-light)}
 <!-- EMAIL GATE -->
 <div class="email-gate" id="emailGate">
   <div class="email-box">
-    <div class="logo-text">ASEGURALO</div>
+    <img src="https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png" alt="Aseguralo" style="height:48px;margin-bottom:8px">
     <div class="sub">Panel Administrativo</div>
     <div class="desc">Ingrese su correo para acceder al sistema de gestion.</div>
     <input type="email" id="gateEmail" placeholder="correo@ejemplo.com" onkeydown="if(event.key==='Enter')checkEmail()">
@@ -272,7 +275,7 @@ tbody tr:hover{background:var(--accent-light)}
   <div class="accent-line"></div>
   <div class="topbar">
     <div class="tb-left">
-      <a class="tb-logo" href="#">ASEGURALO</a>
+      <a class="tb-logo" href="#"><img src="https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png" alt="Aseguralo" style="height:28px;vertical-align:middle"></a>
       <div class="tb-sep"></div>
       <span class="tb-badge">ERP</span>
     </div>
@@ -1053,6 +1056,16 @@ function initApp(){
   renderSiniestros();
   renderClientes();
   initCharts();
+
+  // Wire up sortable columns
+  // Polizas: id,cliente,tipo,aseguradora,prima,desde,estado,—acciones
+  makeSortHeaders('polizasTable',['id','cliente','tipo','aseguradora','prima','desde','estado',null],POLIZAS,function(){renderPolizas()});
+  // Comisiones: aseguradora,poliza,cliente,prima,pctComision,valorComision,estadoPago,fecha
+  makeSortHeaders('comisionesTable',['aseguradora','poliza','cliente','prima','pctComision','valorComision','estadoPago','fecha'],COMISIONES,function(){renderComisiones()});
+  // Facturacion: id,fecha,aseguradora,concepto,polizas,subtotal,iva,total,estado,vence
+  makeSortHeaders('facturaTable',['id','fecha','aseguradora','concepto','polizas','subtotal','iva','total','estado','vence'],FACTURAS,function(){renderFacturacion()});
+  // Renovaciones: cliente,poliza,tipo,aseguradora,vence,dias,alertLabel,—acciones
+  makeSortHeaders('renovacionesTable',['cliente','poliza','tipo','aseguradora','vence','dias',null,null],RENOV_DATA,function(){renderRenovTable()});
 }
 
 /* ====================================
@@ -1071,6 +1084,55 @@ document.getElementById('modNav').addEventListener('click',function(e){
    HELPERS
    ==================================== */
 function fmt(n){return '$'+n.toLocaleString('es-CO')}
+
+/* ====== SORT ENGINE ====== */
+var sortState={};
+function sortTable(tableId,dataArr,colIdx,key,renderer){
+  var stateKey=tableId+'-'+colIdx;
+  var dir=sortState[stateKey]==='asc'?'desc':'asc';
+  // Reset all states for this table
+  Object.keys(sortState).forEach(function(k){if(k.indexOf(tableId)===0)delete sortState[k]});
+  sortState[stateKey]=dir;
+  dataArr.sort(function(a,b){
+    var va=typeof key==='function'?key(a):a[key];
+    var vb=typeof key==='function'?key(b):b[key];
+    if(typeof va==='string')va=va.toLowerCase();
+    if(typeof vb==='string')vb=vb.toLowerCase();
+    if(va<vb)return dir==='asc'?-1:1;
+    if(va>vb)return dir==='asc'?1:-1;
+    return 0;
+  });
+  renderer();
+  // Update header arrows
+  var table=document.getElementById(tableId).closest('table');
+  if(table){
+    var ths=table.querySelectorAll('thead th');
+    for(var i=0;i<ths.length;i++){
+      ths[i].classList.remove('sort-active');
+      var arrow=ths[i].querySelector('.sort-arrow');
+      if(arrow)arrow.textContent='▲';
+    }
+    if(ths[colIdx]){
+      ths[colIdx].classList.add('sort-active');
+      var arr=ths[colIdx].querySelector('.sort-arrow');
+      if(arr)arr.textContent=dir==='asc'?'▲':'▼';
+    }
+  }
+}
+function makeSortHeaders(tableId,cols,dataArr,renderer){
+  var table=document.getElementById(tableId).closest('table');
+  if(!table)return;
+  var thead=table.querySelector('thead tr');
+  if(!thead)return;
+  var ths=thead.querySelectorAll('th');
+  for(var i=0;i<ths.length;i++){
+    if(cols[i]===null)continue;// skip non-sortable cols like Acciones
+    ths[i].innerHTML=ths[i].textContent+'<span class="sort-arrow">▲</span>';
+    (function(idx,key){
+      ths[idx].onclick=function(){sortTable(tableId,dataArr,idx,key,renderer)};
+    })(i,cols[i]);
+  }
+}
 
 function diasEntre(fechaStr){
   var fecha = new Date(fechaStr+'T12:00:00');
@@ -1302,9 +1364,10 @@ function renderComisiones(){
 /* ====================================
    RENOVACIONES (KILLER FEATURE)
    ==================================== */
+var RENOV_DATA=[];
 function renderRenovaciones(){
   // Build renewal data from policy expiration dates
-  var renewData=POLIZAS.filter(function(p){return p.estado!=='cancelada'}).map(function(p){
+  RENOV_DATA=POLIZAS.filter(function(p){return p.estado!=='cancelada'}).map(function(p){
     var dias=diasEntre(p.hasta);
     return {
       cliente:p.cliente,
@@ -1318,6 +1381,7 @@ function renderRenovaciones(){
       alertLabel:getAlertLabel(dias)
     };
   }).sort(function(a,b){return a.dias-b.dias});
+  var renewData=RENOV_DATA;
 
   var prox7=renewData.filter(function(r){return r.dias>=0&&r.dias<=7}).length;
   var prox30=renewData.filter(function(r){return r.dias>=0&&r.dias<=30}).length;
@@ -1331,7 +1395,10 @@ function renderRenovaciones(){
     {l:'Vencidas sin renovar',v:vencidasSinRenovar,c:'c-red'}
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
 
-  document.getElementById('renovacionesTable').innerHTML=renewData.map(function(r){
+  renderRenovTable();
+}
+function renderRenovTable(){
+  document.getElementById('renovacionesTable').innerHTML=RENOV_DATA.map(function(r){
     var diasText=r.dias<0?Math.abs(r.dias)+' dias vencida':(r.dias===0?'Hoy':r.dias+' dias');
     return '<tr>'+
       '<td><strong>'+r.cliente+'</strong></td>'+
