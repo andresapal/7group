@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal -- 7Group</title>
+<title>Agentes -- 7Group</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -164,8 +164,6 @@ code,.mono{font-family:'JetBrains Mono',monospace}
     <span class="tb-badge" data-t="badge">Portal</span>
   </div>
   <div class="tb-right">
-    <a href="/demos/clientes/" class="tb-btn" data-t="navClients">Clientes</a>
-    <a href="/demos/dashboard/" class="tb-btn" data-t="navDash">Dashboard</a>
     <div class="lang-switch">
       <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
       <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
@@ -247,11 +245,6 @@ function applyRoleFilter(){
   /* Client: filter PROJECTS to only show their assigned projects */
   var allowed=CLIENT_PROJECTS[CURRENT_USER]||[];
   PROJECTS=PROJECTS.filter(function(p){return allowed.indexOf(p.id)!==-1;});
-  /* Hide admin-only UI */
-  var navClients=document.querySelector('[href*="clientes"]');
-  if(navClients)navClients.style.display='none';
-  var navDash=document.querySelector('[href*="dashboard"]');
-  if(navDash)navDash.style.display='none';
   renderAll();
 }
 
@@ -265,7 +258,7 @@ var LANG='es';
 (function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
 
 var T={
-  badge:{es:'Portal',en:'Portal'},
+  badge:{es:'Agentes',en:'Agents'},
   navClients:{es:'Clientes',en:'Clients'},
   navDash:{es:'Dashboard',en:'Dashboard'},
   schedule:{es:'Agendar llamada',en:'Schedule a call'},
@@ -314,34 +307,19 @@ var BIZ_TYPES={
 /* =============== PROJECTS DATA =============== */
 var PROJECTS=[
   {
-    id:'crm-mudanzas',
-    title:{es:'CRM Mudanzas',en:'Moving CRM'},
-    client:'White-label Demo',
-    type:'logistics',
+    id:'aseguralo',
+    title:{es:'Aseguralo',en:'Aseguralo'},
+    client:'Fabian Carrera',
+    type:'insurance',
     status:'active',
     phase:'onboarding',
-    revenue:8500,
-    created:'2026-08-01',
-    lastActivity:'2026-08-08',
-    docs:5,
-    tags:['Cotizador','Orden de Servicio','KPIs','Campanas','Finanzas'],
-    link:'/demos/crm-mudanzas/',
-    region:'Colombia'
-  },
-  {
-    id:'logistics-pyme',
-    title:{es:'ERP Logistics',en:'ERP Logistics'},
-    client:'TechRetail Inc.',
-    type:'logistics',
-    status:'active',
-    phase:'diagnostic',
-    revenue:12500,
-    created:'2026-07-15',
-    lastActivity:'2026-07-20',
-    docs:5,
-    tags:['Receiving','Inventory','Warehouse','Dispatches','CEO Dashboard'],
-    link:'/demos/logistica-pyme/shipment/',
-    region:'Florida, US'
+    revenue:0,
+    created:'2026-08-12',
+    lastActivity:'2026-08-14',
+    docs:8,
+    tags:['Cotizador','Polizas','Comisiones','Facturacion','Renovaciones'],
+    link:'/agente/aseguralo/',
+    region:'Bogota, Colombia'
   },
   {
     id:'land-marmoles',
@@ -354,83 +332,8 @@ var PROJECTS=[
     created:'2026-06-20',
     lastActivity:'2026-07-18',
     docs:3,
-    tags:['Landing Page','WhatsApp','Telegram Alerts'],
-    link:'/demos/land-marmoles/',
-    region:'Bogota, CO'
-  },
-  {
-    id:'bike-shop-base',
-    title:{es:'Ultimate Bike Shop',en:'Ultimate Bike Shop'},
-    client:'Ultimate Bike Shop',
-    type:'retail',
-    status:'active',
-    phase:'diagnostic',
-    revenue:3200,
-    created:'2026-07-01',
-    lastActivity:'2026-07-28',
-    docs:4,
-    tags:['Recibo','Inventario','Despachos','Arme su Bici'],
-    link:'/demos/bike-shop/',
-    region:'Honda, Tolima CO'
-  },
-  {
-    id:'contabilidad-7g',
-    title:{es:'Contabilidad 7Group',en:'7Group Accounting'},
-    client:'7Group Corp.',
-    type:'accounting',
-    status:'active',
-    phase:'onboarding',
-    revenue:0,
-    created:'2026-07-20',
-    lastActivity:'2026-07-20',
-    docs:0,
-    tags:['Invoicing','Expenses','P&L','Tax Reports'],
-    link:null,
-    region:'Internal'
-  },
-  {
-    id:'consulting-demo',
-    title:{es:'Consultoria Operativa',en:'Operational Consulting'},
-    client:'Pipeline Lead',
-    type:'consulting',
-    status:'pending',
-    phase:'lead',
-    revenue:0,
-    created:'2026-07-10',
-    lastActivity:'2026-07-14',
-    docs:1,
-    tags:['Process Audit','KPIs'],
-    link:null,
-    region:'Georgia, US'
-  },
-  {
-    id:'tech-saas-lead',
-    title:{es:'SaaS Startup Setup',en:'SaaS Startup Setup'},
-    client:'Pipeline Lead',
-    type:'technology',
-    status:'pending',
-    phase:'lead',
-    revenue:0,
-    created:'2026-07-12',
-    lastActivity:'2026-07-13',
-    docs:1,
-    tags:['Infrastructure','CI/CD','MVP'],
-    link:null,
-    region:'Texas, US'
-  },
-  {
-    id:'aseguralo',
-    title:{es:'Aseguralo',en:'Aseguralo'},
-    client:'Corredor de Seguros',
-    type:'insurance',
-    status:'active',
-    phase:'onboarding',
-    revenue:0,
-    created:'2026-08-12',
-    lastActivity:'2026-08-12',
-    docs:8,
-    tags:['Cotizador','Polizas','Comisiones','Facturacion','Renovaciones'],
-    link:'/demos/aseguralo/',
+    tags:['Cotizador','ERP','Comisiones','Cuenta de Cobro'],
+    link:'/agente/land-marmoles/',
     region:'Bogota, Colombia'
   }
 ];
@@ -472,7 +375,7 @@ function renderFilters(){
     var tp=PROJECTS[i].type;
     counts[tp]=(counts[tp]||0)+1;
   }
-  var types=['all','logistics','construction','retail','accounting','consulting','technology','insurance'];
+  var types=['all','insurance','construction'];
   var h='';
   for(var i=0;i<types.length;i++){
     var tp=types[i];
@@ -566,7 +469,7 @@ function renderProjects(){
 
 function applyLang(){
   document.documentElement.lang=LANG;
-  document.title=LANG==='es'?'Portal -- 7Group':'Portal -- 7Group';
+  document.title=LANG==='es'?'Agentes -- 7Group':'Agents -- 7Group';
   var els=document.querySelectorAll('[data-t]');
   for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
   document.getElementById('langES').classList.toggle('active',LANG==='es');

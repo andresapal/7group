@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aseguralo ERP -- 7Group</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Manrope',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s;font-size:13px}
+h1,h2,h3,h4{font-family:'Manrope',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+
+:root{
+  --brand:#304770;--brand-light:rgba(48,71,112,.08);--brand-mid:rgba(48,71,112,.15);
+  --accent:#45AAFF;--accent-light:rgba(69,170,255,.1);--accent-mid:rgba(69,170,255,.2);
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f0f2f6;--bg4:#e4e7ed;
+  --text:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --green:#15803d;--green-bg:rgba(21,128,61,.08);
+  --orange:#d97706;--orange-bg:rgba(217,119,6,.08);
+  --red:#dc2626;--red-bg:rgba(220,38,38,.08);
+  --teal:#0d9488;--purple:#7c3aed;--sky:#0284c7;
+  --border:rgba(15,23,42,.07);--border2:rgba(15,23,42,.12);--border3:rgba(15,23,42,.18);
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --radius:12px;--radius-sm:8px;
+  --topbar-bg:rgba(255,255,255,.92);--topbar-border:rgba(15,23,42,.08);
+}
+:root.dark{
+  --bg:#060a12;--bg2:#0c1220;--bg3:#141c2e;--bg4:#1c2640;
+  --text:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --brand-light:rgba(48,71,112,.35);--brand-mid:rgba(48,71,112,.5);
+  --accent-light:rgba(69,170,255,.15);--accent-mid:rgba(69,170,255,.25);
+  --green-bg:rgba(21,128,61,.15);--orange-bg:rgba(217,119,6,.15);--red-bg:rgba(220,38,38,.15);
+  --border:rgba(148,163,184,.06);--border2:rgba(148,163,184,.1);--border3:rgba(148,163,184,.16);
+  --shadow:0 1px 3px rgba(0,0,0,.2);--shadow-lg:0 4px 16px rgba(0,0,0,.3);
+  --topbar-bg:rgba(6,10,18,.92);--topbar-border:rgba(148,163,184,.08);
+}
+
+/* EMAIL GATE */
+.email-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.email-gate.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
+.email-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px;box-shadow:var(--shadow-lg)}
+.email-box .logo-text{font-size:28px;font-weight:800;letter-spacing:-.04em;color:var(--accent);margin-bottom:4px}
+.email-box .sub{font-size:11px;color:var(--accent);margin-bottom:20px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
+.email-box .desc{font-size:13px;color:var(--dim);margin-bottom:24px;line-height:1.6}
+.email-box input{width:100%;padding:12px 16px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;color:var(--text);background:var(--bg3);outline:none;transition:.2s;text-align:center}
+.email-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.email-box .gate-btn{width:100%;padding:12px;margin-top:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s}
+.email-box .gate-btn:hover{background:#3a95e0}
+.email-box .gate-error{font-size:12px;color:var(--red);margin-top:12px;display:none}
+.email-box .gate-footer{font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:.5px}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+/* TOPBAR */
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:17px;font-weight:800;color:var(--accent);letter-spacing:-.02em;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:6px 12px;background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:6px;color:var(--accent);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:var(--accent);color:#fff}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--accent);color:var(--accent)}
+
+/* MODULE NAV */
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.mod-nav::-webkit-scrollbar{display:none}
+.mod-link{padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap;cursor:pointer}
+.mod-link:hover{color:var(--text)}.mod-link.active{color:var(--accent);border-color:var(--accent)}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:20px}
+.mod-section{display:none}.mod-section.active{display:block}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.kpi-card:hover{border-color:var(--accent-mid);box-shadow:var(--shadow-lg)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+.kpi-card.c-brand::before{background:var(--brand)}.kpi-card.c-accent::before{background:var(--accent)}
+.kpi-card.c-green::before{background:var(--green)}.kpi-card.c-orange::before{background:var(--orange)}
+.kpi-card.c-red::before{background:var(--red)}.kpi-card.c-teal::before{background:var(--teal)}
+.kpi-card.c-purple::before{background:var(--purple)}.kpi-card.c-sky::before{background:var(--sky)}
+.kpi-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.kpi-val{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.kpi-sub{font-size:11px;color:var(--dim);margin-top:6px;display:flex;align-items:center;gap:4px}
+.kpi-up{color:var(--green)}.kpi-down{color:var(--red)}
+
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:768px){.chart-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.chart-title{font-size:13px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.chart-wrap{position:relative;height:260px}
+
+/* TABLES */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px}
+.tbl-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tbl-title{font-size:14px;font-weight:700}
+.tbl-actions{display:flex;gap:6px;align-items:center}
+.tbl-search{padding:6px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text);outline:none;width:180px;transition:.2s}
+.tbl-search:focus{border-color:var(--accent)}
+.tbl-search::placeholder{color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;transition:color .15s;position:relative;white-space:nowrap}
+thead th:hover{color:var(--accent)}
+thead th .sort-arrow{display:inline-block;margin-left:4px;font-size:8px;opacity:.4;transition:opacity .15s}
+thead th.sort-active .sort-arrow{opacity:1;color:var(--accent)}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-light)}
+.tbl-overflow{overflow-x:auto}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.badge-activa{background:var(--green-bg);color:var(--green)}
+.badge-por-renovar{background:var(--orange-bg);color:var(--orange)}
+.badge-vencida{background:var(--red-bg);color:var(--red)}
+.badge-cancelada{background:var(--bg3);color:var(--muted)}
+.badge-pagado{background:var(--green-bg);color:var(--green)}
+.badge-pendiente{background:var(--orange-bg);color:var(--orange)}
+.badge-vencido{background:var(--red-bg);color:var(--red)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border:1px solid var(--border2);background:var(--bg2);color:var(--text)}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#3a95e0;border-color:#3a95e0;color:#fff}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.btn-wa{background:#25D366;color:#fff;border-color:#25D366}
+.btn-wa:hover{background:#1da851;border-color:#1da851;color:#fff}
+.btn-icon{width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px}
+.btn-renew{background:var(--accent-light);color:var(--accent);border-color:var(--accent-mid)}
+.btn-renew:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ACTIVITY FEED */
+.feed{display:flex;flex-direction:column;gap:0}
+.feed-item{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;transition:background .15s}
+.feed-item:hover{background:var(--accent-light)}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.feed-dot.blue{background:var(--brand)}.feed-dot.green{background:var(--green)}
+.feed-dot.orange{background:var(--orange)}.feed-dot.red{background:var(--red)}
+.feed-dot.accent{background:var(--accent)}
+.feed-text{font-size:13px;line-height:1.5;flex:1}
+.feed-time{font-size:11px;color:var(--muted);white-space:nowrap}
+
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;overflow-x:auto;padding-bottom:8px}
+@media(max-width:900px){.kanban{grid-template-columns:repeat(5,260px)}}
+.kanban-col{background:var(--bg3);border-radius:var(--radius);padding:12px;min-height:300px}
+.kanban-header{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.kanban-count{background:var(--bg4);border-radius:100px;padding:2px 8px;font-size:10px;font-weight:800}
+.kanban-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
+.kanban-card:hover{border-color:var(--accent-mid);box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.kanban-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.kanban-detail{font-size:11px;color:var(--dim);line-height:1.5}
+.kanban-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.kanban-value{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent)}
+.kanban-date{font-size:10px;color:var(--muted)}
+
+/* SECTION HEADER */
+.sec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.sec-title{font-size:18px;font-weight:800;letter-spacing:-.03em}
+.sec-desc{font-size:12px;color:var(--dim);margin-top:2px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:16px;font-weight:800}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--dim);transition:.2s}
+.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:6px}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text);transition:.2s;outline:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
+
+/* FINANZAS / COMISIONES */
+.fin-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.fin-stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+.fin-stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:6px}
+.fin-stat-val{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.fin-stat-sub{font-size:11px;color:var(--dim);margin-top:4px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .kanban{grid-template-columns:repeat(5,240px)}
+  .main{padding:12px}
+  .topbar{padding:0 12px}
+  .mod-nav{padding:0 12px}
+}
+@media(max-width:480px){
+  .kpi-grid{grid-template-columns:1fr}
+}
+
+/* POLICY DETAIL ROW */
+.pol-detail{padding:16px 20px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:2px solid var(--accent-mid)}
+.pd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+@media(max-width:768px){.pd-grid{grid-template-columns:1fr}}
+.pd-col{}
+.pd-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2)}
+.pd-field{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px}
+.pd-label{color:var(--dim);font-weight:600}
+.pd-value{font-weight:500;text-align:right}
+.pd-link{color:var(--accent);text-decoration:none;font-weight:600}
+.pd-link:hover{text-decoration:underline}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:600;padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;color:#fff;background:var(--accent);box-shadow:var(--shadow-lg);transform:translateY(100px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+
+/* ACCENT LINE */
+.accent-line{height:3px;background:linear-gradient(90deg,var(--brand),var(--accent));border-radius:0 0 2px 2px}
+
+/* MODULE CONFIG PANEL */
+.mod-cfg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.mod-cfg-overlay.open{display:flex}
+.mod-cfg{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mod-cfg-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.mod-cfg-title{font-size:16px;font-weight:800}
+.mod-cfg-body{padding:16px 24px}
+.mod-cfg-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.mod-cfg-item:last-child{border-bottom:none}
+.mod-cfg-info{flex:1}
+.mod-cfg-name{font-size:14px;font-weight:700}
+.mod-cfg-desc{font-size:11px;color:var(--dim);margin-top:2px}
+.mod-cfg-essential{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-top:4px}
+/* Toggle switch */
+.toggle-sw{position:relative;width:44px;height:24px;flex-shrink:0;margin-left:12px}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-sw .slider{position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.3s}
+.toggle-sw .slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle-sw input:checked+.slider{background:var(--accent)}
+.toggle-sw input:checked+.slider::before{transform:translateX(20px)}
+.toggle-sw input:disabled+.slider{opacity:.5;cursor:not-allowed}
+
+/* RENEWAL ALERT COLORS */
+.alert-vencida{color:var(--red);font-weight:700}
+.alert-urgente{color:var(--orange);font-weight:700}
+.alert-pronto{color:#ca8a04;font-weight:700}
+.alert-ok{color:var(--green);font-weight:600}
+.alert-lejano{color:var(--dim)}
+.dias-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.dias-pill.vencida{background:var(--red-bg);color:var(--red)}
+.dias-pill.urgente{background:var(--orange-bg);color:var(--orange)}
+.dias-pill.pronto{background:rgba(202,138,4,.1);color:#ca8a04}
+.dias-pill.ok{background:var(--green-bg);color:var(--green)}
+.dias-pill.lejano{background:var(--bg3);color:var(--dim)}
+</style>
+</head>
+<body>
+
+<!-- EMAIL GATE -->
+<div class="email-gate" id="emailGate">
+  <div class="email-box">
+    <img src="https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png" alt="Aseguralo" style="height:48px;margin-bottom:8px">
+    <div class="sub">Panel Administrativo</div>
+    <div class="desc">Ingrese su correo para acceder al sistema de gestion.</div>
+    <input type="email" id="gateEmail" placeholder="correo@ejemplo.com" onkeydown="if(event.key==='Enter')checkEmail()">
+    <button class="gate-btn" onclick="checkEmail()">Acceder</button>
+    <div class="gate-error" id="gateError">Correo no autorizado.</div>
+    <div class="gate-footer">Powered by 7Group</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-wrap" id="appWrap">
+  <div class="accent-line"></div>
+  <div class="topbar">
+    <div class="tb-left">
+      <a class="tb-logo" href="#"><img src="https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png" alt="Aseguralo" style="height:28px;vertical-align:middle"></a>
+      <div class="tb-sep"></div>
+      <span class="tb-badge">ERP</span>
+    </div>
+    <div class="tb-right">
+      <button class="tb-toggle" onclick="openModConfig()" id="modConfigBtn" style="display:none">Modulos</button>
+      <button class="tb-toggle" onclick="toggleTheme()" id="themeBtn">Claro</button>
+      <a class="tb-btn" href="/demos/">7Group</a>
+    </div>
+  </div>
+
+  <nav class="mod-nav" id="modNav">
+    <a class="mod-link active" data-mod="polizas">Polizas</a>
+    <a class="mod-link" data-mod="cotizador">Cotizador</a>
+    <a class="mod-link" data-mod="dashboard">Dashboard</a>
+    <a class="mod-link" data-mod="comisiones">Comisiones</a>
+    <a class="mod-link" data-mod="facturacion">Facturacion</a>
+    <a class="mod-link" data-mod="renovaciones">Renovaciones</a>
+    <a class="mod-link" data-mod="siniestros">Siniestros</a>
+    <a class="mod-link" data-mod="clientes">Clientes</a>
+  </nav>
+
+  <div class="main">
+
+    <!-- POLIZAS -->
+    <section class="mod-section active" id="mod-polizas">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Polizas</div>
+          <div class="sec-desc">Gestion y seguimiento de polizas de seguros</div>
+        </div>
+        <div class="tbl-actions">
+          <input class="tbl-search" placeholder="Buscar cliente..." id="searchPolizas" oninput="filterPolizas()">
+          <button class="btn btn-primary" onclick="openModal('newPoliza')">+ Nueva Poliza</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="polizasKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>No. Poliza</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Aseguradora</th>
+                <th>Intermediario</th>
+                <th>Prima</th>
+                <th>Vigencia</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="polizasTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- COTIZADOR -->
+    <section class="mod-section" id="mod-cotizador">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Cotizador Multi-Aseguradora</div>
+          <div class="sec-desc">Compara primas entre aseguradoras y envia propuestas al cliente</div>
+        </div>
+        <div class="tbl-actions">
+          <button class="btn btn-primary" onclick="openModal('newCotizacion')">+ Nueva Cotizacion</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="cotizadorKpi"></div>
+
+      <!-- Cotizaciones cards -->
+      <div id="cotizadorCards"></div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section class="mod-section" id="mod-dashboard">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Dashboard General</div>
+          <div class="sec-desc">Resumen operativo -- Agosto 2026</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="dashKpi"></div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-title">Polizas por Tipo</div>
+          <div class="chart-wrap"><canvas id="chartTipos"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Primas Mensuales (COP)</div>
+          <div class="chart-wrap"><canvas id="chartPrimas"></canvas></div>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div class="tbl-title">Actividad Reciente</div>
+        </div>
+        <div class="feed" id="feedList"></div>
+      </div>
+    </section>
+
+    <!-- COMISIONES -->
+    <section class="mod-section" id="mod-comisiones">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Comisiones</div>
+          <div class="sec-desc">Control de comisiones por aseguradora</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="comisionesKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>Aseguradora</th>
+                <th>Poliza</th>
+                <th>Cliente</th>
+                <th>Prima</th>
+                <th>% Comision</th>
+                <th>Valor Comision</th>
+                <th>Estado Pago</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="comisionesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- FACTURACION -->
+    <section class="mod-section" id="mod-facturacion">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Facturacion</div>
+          <div class="sec-desc">Cuentas de cobro a aseguradoras y control de cartera</div>
+        </div>
+        <div class="tbl-actions">
+          <button class="btn btn-primary" onclick="openModal('newFactura')">+ Nueva Cuenta de Cobro</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="facturaKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Fecha</th>
+                <th>Aseguradora</th>
+                <th>Concepto</th>
+                <th>Polizas</th>
+                <th>Subtotal</th>
+                <th>IVA</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Vence</th>
+              </tr>
+            </thead>
+            <tbody id="facturaTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Conciliacion summary -->
+      <div style="margin-top:20px">
+        <div class="sec-title" style="font-size:15px;margin-bottom:12px">Conciliacion de Cartera</div>
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th>Aseguradora</th>
+                  <th>Comisiones Esperadas</th>
+                  <th>Facturado</th>
+                  <th>Cobrado</th>
+                  <th>Pendiente</th>
+                  <th>Diferencia</th>
+                </tr>
+              </thead>
+              <tbody id="conciliacionTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RENOVACIONES -->
+    <section class="mod-section" id="mod-renovaciones">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Renovaciones</div>
+          <div class="sec-desc">Calendario de vencimientos y alertas de renovacion</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="renovacionesKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Poliza</th>
+                <th>Tipo</th>
+                <th>Aseguradora</th>
+                <th>Vence</th>
+                <th>Dias Restantes</th>
+                <th>Alerta</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="renovacionesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SINIESTROS -->
+    <section class="mod-section" id="mod-siniestros">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Siniestros</div>
+          <div class="sec-desc">Pipeline de gestion de reclamaciones</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="siniestrosKpi"></div>
+
+      <div style="overflow-x:auto;padding-bottom:12px">
+        <div class="kanban" id="siniestrosKanban"></div>
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section class="mod-section" id="mod-clientes">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Clientes</div>
+          <div class="sec-desc">Base de datos de asegurados</div>
+        </div>
+        <div class="tbl-actions">
+          <input class="tbl-search" placeholder="Buscar cliente..." id="searchClientes" oninput="filterClientes()">
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="clientesKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Telefono</th>
+                <th>Email</th>
+                <th>Polizas Activas</th>
+                <th>Prima Total</th>
+                <th>Ultima Actividad</th>
+              </tr>
+            </thead>
+            <tbody id="clientesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- MODULE CONFIG -->
+<div class="mod-cfg-overlay" id="modCfgOverlay" onclick="if(event.target===this)closeModConfig()">
+  <div class="mod-cfg">
+    <div class="mod-cfg-head">
+      <div class="mod-cfg-title">Configurar Modulos</div>
+      <button class="modal-close" onclick="closeModConfig()">&times;</button>
+    </div>
+    <div class="mod-cfg-body" id="modCfgBody"></div>
+  </div>
+</div>
+
+<!-- MODAL: Nueva Poliza -->
+<div class="modal-overlay" id="modalNewPoliza">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Nueva Poliza</div>
+      <button class="modal-close" onclick="closeModal('newPoliza')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cliente</label>
+          <input class="form-input" id="pCliente" placeholder="Nombre completo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefono</label>
+          <input class="form-input" id="pTelefono" placeholder="+57 3XX XXX XXXX">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="pEmail" placeholder="email@ejemplo.com">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tipo de Poliza</label>
+          <select class="form-select" id="pTipo">
+            <option value="">Seleccionar...</option>
+            <option value="Vida">Vida</option>
+            <option value="Auto">Auto</option>
+            <option value="Hogar">Hogar</option>
+            <option value="SOAT">SOAT</option>
+            <option value="Empresarial">Empresarial</option>
+            <option value="Salud">Salud</option>
+            <option value="Responsabilidad Civil">Responsabilidad Civil</option>
+            <option value="Cumplimiento">Cumplimiento</option>
+            <option value="Colectivo">Colectivo</option>
+            <option value="Vida Deudor">Vida Deudor</option>
+            <option value="Hogar Deudor">Hogar Deudor</option>
+            <option value="Exequial">Exequial</option>
+            <option value="Transporte">Transporte</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Aseguradora</label>
+          <select class="form-select" id="pAseguradora">
+            <option value="">Seleccionar...</option>
+            <option value="Allianz">Allianz</option>
+            <option value="AXA Colpatria">AXA Colpatria</option>
+            <option value="Seguros del Estado">Seguros del Estado</option>
+            <option value="Sura">Sura</option>
+            <option value="Bolivar">Bolivar</option>
+            <option value="Mapfre">Mapfre</option>
+            <option value="Liberty">Liberty</option>
+            <option value="Previsora">Previsora</option>
+            <option value="Mundial">Mundial</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Intermediario</label>
+        <select class="form-input" id="pIntermediario" onchange="toggleOtroIntermediario('p')"><option value="">Seleccionar...</option><option value="Fabian Carrera">Fabian Carrera</option><option value="Judith Neira">Judith Neira</option><option value="Sandra Marin">Sandra Marin</option><option value="Erika Pinzon">Erika Pinzon</option><option value="On Line">On Line</option><option value="__otro__">Otro</option></select>
+        <input class="form-input" id="pIntermediarioOtro" placeholder="Nombre del nuevo intermediario" style="display:none;margin-top:6px">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prima Anual</label>
+          <input class="form-input" type="number" id="pPrima" placeholder="ej: 2400000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor Asegurado</label>
+          <input class="form-input" type="number" id="pValorAsegurado" placeholder="ej: 150000000">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vigencia Desde</label>
+          <input class="form-input" type="date" id="pDesde">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vigencia Hasta</label>
+          <input class="form-input" type="date" id="pHasta">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notas</label>
+        <textarea class="form-textarea" id="pNotas" placeholder="Observaciones adicionales..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('newPoliza')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePoliza()">Guardar Poliza</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nueva Cotizacion -->
+<div class="modal-overlay" id="modalNewCotizacion">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head">
+      <div class="modal-title">Nueva Cotizacion Comparativa</div>
+      <button class="modal-close" onclick="closeModal('newCotizacion')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cliente</label>
+          <input class="form-input" id="cCliente" placeholder="Nombre completo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefono</label>
+          <input class="form-input" id="cTelefono" placeholder="+57 3XX XXX XXXX">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tipo de Seguro</label>
+          <select class="form-select" id="cTipo">
+            <option value="">Seleccionar...</option>
+            <option value="Auto">Auto</option>
+            <option value="Vida">Vida</option>
+            <option value="Hogar">Hogar</option>
+            <option value="SOAT">SOAT</option>
+            <option value="Empresarial">Empresarial</option>
+            <option value="Salud">Salud</option>
+            <option value="Responsabilidad Civil">Responsabilidad Civil</option>
+            <option value="Cumplimiento">Cumplimiento</option>
+            <option value="Colectivo">Colectivo</option>
+            <option value="Vida Deudor">Vida Deudor</option>
+            <option value="Hogar Deudor">Hogar Deudor</option>
+            <option value="Exequial">Exequial</option>
+            <option value="Transporte">Transporte</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripcion del Bien / Riesgo</label>
+          <input class="form-input" id="cBien" placeholder="ej: Mazda CX-5 2024, Apto 85m2 Chico...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Valor a Asegurar</label>
+          <input class="form-input" type="number" id="cValor" placeholder="ej: 85000000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Intermediario</label>
+          <select class="form-input" id="cIntermediario" onchange="toggleOtroIntermediario('c')"><option value="">Seleccionar...</option><option value="Fabian Carrera">Fabian Carrera</option><option value="Judith Neira">Judith Neira</option><option value="Sandra Marin">Sandra Marin</option><option value="Erika Pinzon">Erika Pinzon</option><option value="On Line">On Line</option><option value="__otro__">Otro</option></select>
+          <input class="form-input" id="cIntermediarioOtro" placeholder="Nombre del nuevo intermediario" style="display:none;margin-top:6px">
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px">Comparacion de Aseguradoras</div>
+        <div id="cComparaciones">
+          <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
+            <input class="form-input" type="number" placeholder="Prima anual">
+            <input class="form-input" type="number" placeholder="Deducible">
+            <input class="form-input" placeholder="Coberturas clave">
+          </div>
+          <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
+            <input class="form-input" type="number" placeholder="Prima anual">
+            <input class="form-input" type="number" placeholder="Deducible">
+            <input class="form-input" placeholder="Coberturas clave">
+          </div>
+          <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
+            <input class="form-input" type="number" placeholder="Prima anual">
+            <input class="form-input" type="number" placeholder="Deducible">
+            <input class="form-input" placeholder="Coberturas clave">
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label class="form-label">Notas para el cliente</label>
+        <textarea class="form-textarea" id="cNotas" placeholder="Recomendacion, observaciones..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('newCotizacion')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCotizacion()">Guardar y Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nueva Cuenta de Cobro -->
+<div class="modal-overlay" id="modalNewFactura">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <div class="modal-title">Nueva Cuenta de Cobro</div>
+      <button class="modal-close" onclick="closeModal('newFactura')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Aseguradora</label>
+          <select class="form-select" id="fAseguradora">
+            <option value="">Seleccionar...</option>
+            <option value="Sura">Sura</option>
+            <option value="Bolivar">Bolivar</option>
+            <option value="Mapfre">Mapfre</option>
+            <option value="Allianz">Allianz</option>
+            <option value="Liberty">Liberty</option>
+            <option value="AXA Colpatria">AXA Colpatria</option>
+            <option value="Previsora">Previsora</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha</label>
+          <input class="form-input" type="date" id="fFecha">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Concepto</label>
+        <input class="form-input" id="fConcepto" placeholder="Comisiones por intermediacion mes de...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Polizas Relacionadas</label>
+        <input class="form-input" id="fPolizas" placeholder="POL-001, POL-007 (separar con coma)">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Subtotal</label>
+          <input class="form-input" type="number" id="fSubtotal" placeholder="ej: 792000" oninput="calcFacturaTotal()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">IVA (19%)</label>
+          <input class="form-input" type="number" id="fIva" placeholder="Auto" readonly style="background:var(--bg4)">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total</label>
+        <input class="form-input" type="number" id="fTotal" readonly style="background:var(--bg4);font-weight:700;font-size:16px">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Fecha Vencimiento</label>
+          <input class="form-input" type="date" id="fVencimiento">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Datos Bancarios</label>
+          <input class="form-input" id="fBanco" placeholder="Bancolombia Ahorros 123-456789-00" value="Bancolombia Ahorros 098-765432-10">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('newFactura')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveFactura()">Emitir Cuenta de Cobro</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ====================================
+   EMAIL GATE
+   ==================================== */
+var ALLOWED_EMAILS=['aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co','aseguraloseguros@gmail.com','andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+var ADMIN_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+var GATE_KEY='aseg_erp_user';
+var IS_ADMIN=false;
+
+function setAdminMode(email){
+  IS_ADMIN = ADMIN_EMAILS.indexOf(email) !== -1;
+  var modBtn = document.getElementById('modConfigBtn');
+  if(modBtn) modBtn.style.display = IS_ADMIN ? '' : 'none';
+}
+
+function enterApp(){
+  var stored='';
+  try{stored=localStorage.getItem(GATE_KEY)||'';}catch(e){}
+  setAdminMode(stored);
+  document.getElementById('emailGate').classList.add('hidden');
+  document.getElementById('appWrap').classList.add('visible');
+  initApp();
+}
+
+window.checkEmail=function(){
+  var email=(document.getElementById('gateEmail').value||'').trim().toLowerCase();
+  if(ALLOWED_EMAILS.indexOf(email)!==-1){
+    try{localStorage.setItem(GATE_KEY,email);}catch(e){}
+    setAdminMode(email);
+    enterApp();
+  } else {
+    document.getElementById('gateError').style.display='block';
+    document.getElementById('gateEmail').style.borderColor='var(--red)';
+  }
+};
+
+function autoEnter(){
+  var ref=document.referrer||'';
+  var stored='';
+  try{stored=localStorage.getItem(GATE_KEY)||'';}catch(e){}
+  if(ref.indexOf('7group.site')!==-1 || ALLOWED_EMAILS.indexOf(stored)!==-1 || location.protocol==='file:'){
+    enterApp();
+  }
+}
+
+/* ====================================
+   DEMO DATA
+   ==================================== */
+var TODAY = new Date('2026-08-11');
+
+var CLIENTES=[
+  {nombre:'Carlos Mendoza',telefono:'3104567890',email:'carlos.mendoza@mail.com'},
+  {nombre:'Ana Patricia Rojas',telefono:'3209876543',email:'ana.rojas@corp.co'},
+  {nombre:'Roberto Silva',telefono:'3156789012',email:'roberto.silva@gmail.com'},
+  {nombre:'Maria Elena Torres',telefono:'3001234567',email:'maria.torres@outlook.com'},
+  {nombre:'Fernando Gutierrez',telefono:'3187654321',email:'fernando.g@empresa.com'},
+  {nombre:'Lucia Hernandez',telefono:'3112345678',email:'lucia.h@hotmail.com'},
+  {nombre:'Andres Castillo',telefono:'3223456789',email:'andres.c@mail.co'},
+  {nombre:'Paula Andrea Diaz',telefono:'3054321098',email:'paula.diaz@gmail.com'}
+];
+
+var POLIZAS=[
+  {id:'POL-001',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Auto',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:2400000,valorAsegurado:85000000,desde:'2026-03-15',hasta:'2027-03-15',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-002',cliente:'Ana Patricia Rojas',telefono:'3209876543',tipo:'Vida',aseguradora:'AXA Colpatria',intermediario:'Judith Neira',prima:3600000,valorAsegurado:300000000,desde:'2026-01-01',hasta:'2027-01-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-003',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Hogar',aseguradora:'Seguros del Estado',intermediario:'Sandra Marin',prima:1800000,valorAsegurado:450000000,desde:'2025-10-01',hasta:'2026-10-01',estado:'activa',sarlaft:'pendiente',pdfUrl:''},
+  {id:'POL-004',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'SOAT',aseguradora:'Allianz',intermediario:'Erika Pinzon',prima:980000,valorAsegurado:0,desde:'2026-06-01',hasta:'2026-08-15',estado:'por-renovar',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-005',cliente:'Fernando Gutierrez',telefono:'3187654321',tipo:'Empresarial',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:12000000,valorAsegurado:2000000000,desde:'2026-02-01',hasta:'2027-02-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-006',cliente:'Lucia Hernandez',telefono:'3112345678',tipo:'Auto',aseguradora:'AXA Colpatria',intermediario:'On Line',prima:1950000,valorAsegurado:62000000,desde:'2025-12-01',hasta:'2026-08-01',estado:'vencida',sarlaft:'pendiente',pdfUrl:''},
+  {id:'POL-007',cliente:'Andres Castillo',telefono:'3223456789',tipo:'Salud',aseguradora:'Seguros del Estado',intermediario:'Judith Neira',prima:4200000,valorAsegurado:0,desde:'2026-04-01',hasta:'2027-04-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-008',cliente:'Paula Andrea Diaz',telefono:'3054321098',tipo:'Hogar Deudor',aseguradora:'AXA Colpatria',intermediario:'Sandra Marin',prima:2100000,valorAsegurado:380000000,desde:'2026-05-15',hasta:'2026-09-15',estado:'por-renovar',sarlaft:'pendiente',pdfUrl:''},
+  {id:'POL-009',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Vida Deudor',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:5400000,valorAsegurado:500000000,desde:'2025-06-01',hasta:'2026-06-01',estado:'vencida',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-010',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Cumplimiento',aseguradora:'Seguros del Estado',intermediario:'Erika Pinzon',prima:3200000,valorAsegurado:1000000000,desde:'2025-04-01',hasta:'2026-04-01',estado:'cancelada',sarlaft:'sin-iniciar',pdfUrl:''}
+];
+
+var COMISIONES=[
+  {aseguradora:'Allianz',poliza:'POL-001',cliente:'Carlos Mendoza',prima:2400000,pctComision:12,valorComision:288000,estadoPago:'pagado',fecha:'2026-03-20'},
+  {aseguradora:'AXA Colpatria',poliza:'POL-002',cliente:'Ana Patricia Rojas',prima:3600000,pctComision:15,valorComision:540000,estadoPago:'pagado',fecha:'2026-01-10'},
+  {aseguradora:'Seguros del Estado',poliza:'POL-003',cliente:'Roberto Silva',prima:1800000,pctComision:10,valorComision:180000,estadoPago:'pendiente',fecha:'2026-10-05'},
+  {aseguradora:'Allianz',poliza:'POL-005',cliente:'Fernando Gutierrez',prima:12000000,pctComision:8,valorComision:960000,estadoPago:'pendiente',fecha:'2026-02-15'},
+  {aseguradora:'Seguros del Estado',poliza:'POL-007',cliente:'Andres Castillo',prima:4200000,pctComision:12,valorComision:504000,estadoPago:'vencido',fecha:'2026-04-10'}
+];
+
+var SINIESTROS=[
+  {cliente:'Carlos Mendoza',poliza:'POL-001',tipo:'Colision vehicular',fecha:'2026-07-15',aseguradora:'Allianz',etapa:'en_tramite',valor:8500000},
+  {cliente:'Roberto Silva',poliza:'POL-003',tipo:'Inundacion',fecha:'2026-08-02',aseguradora:'Seguros del Estado',etapa:'reportado',valor:15000000},
+  {cliente:'Fernando Gutierrez',poliza:'POL-005',tipo:'Robo de equipos',fecha:'2026-06-20',aseguradora:'Allianz',etapa:'documentacion',valor:22000000},
+  {cliente:'Paula Andrea Diaz',poliza:'POL-008',tipo:'Dano por tormenta',fecha:'2026-05-10',aseguradora:'AXA Colpatria',etapa:'resolucion',valor:9200000}
+];
+
+var FEED=[
+  {text:'Poliza POL-004 (SOAT) de Maria Elena Torres vence en 4 dias',dot:'red',time:'Hace 1h'},
+  {text:'Comision de $288,000 pagada por Sura (Poliza POL-001)',dot:'green',time:'Hace 3h'},
+  {text:'Siniestro reportado: Roberto Silva - Inundacion (POL-003)',dot:'orange',time:'Hace 6h'},
+  {text:'Nueva poliza POL-008 creada para Paula Andrea Diaz',dot:'accent',time:'Hace 12h'},
+  {text:'Poliza POL-006 de Lucia Hernandez vencio sin renovacion',dot:'red',time:'Ayer'},
+  {text:'Fernando Gutierrez - siniestro en etapa de documentacion',dot:'blue',time:'Ayer'},
+  {text:'Renovacion exitosa: Andres Castillo (POL-007, Salud)',dot:'green',time:'Hace 2d'},
+  {text:'Prima anual de $12,000,000 cobrada a Fernando Gutierrez',dot:'accent',time:'Hace 3d'}
+];
+
+var COTIZACIONES=[
+  {id:'COT-001',fecha:'2026-08-10',cliente:'Diego Ramirez',telefono:'3178901234',tipo:'Auto',bien:'Chevrolet Tracker 2025 - Gris',valorAsegurar:98000000,intermediario:'Fabian Carrera',estado:'enviada',poliza:null,
+    comparaciones:[
+      {aseguradora:'Allianz',prima:2850000,deducible:1500000,coberturas:'Todo riesgo, asistencia vial 24h, RC $500M'},
+      {aseguradora:'AXA Colpatria',prima:2640000,deducible:1800000,coberturas:'Todo riesgo, grua, RC $300M'},
+      {aseguradora:'Seguros del Estado',prima:2380000,deducible:2200000,coberturas:'Basico + hurto, RC $200M'}
+    ],notas:'Cliente prefiere cobertura amplia. Recomendado: Allianz por asistencia vial.'},
+  {id:'COT-002',fecha:'2026-08-08',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'Hogar',bien:'Apartamento 120m2 Cedritos, estrato 4',valorAsegurar:380000000,intermediario:'Sandra Marin',estado:'aceptada',poliza:'POL-008',
+    comparaciones:[
+      {aseguradora:'AXA Colpatria',prima:2100000,deducible:800000,coberturas:'Incendio, terremoto, inundacion, hurto contenido'},
+      {aseguradora:'Seguros del Estado',prima:2350000,deducible:650000,coberturas:'Todo riesgo hogar, responsabilidad civil'},
+      {aseguradora:'Allianz',prima:2580000,deducible:500000,coberturas:'Integral hogar, asistencia domiciliaria'}
+    ],notas:'Acepto AXA Colpatria por mejor relacion prima-deducible.'},
+  {id:'COT-003',fecha:'2026-08-05',cliente:'Fernando Gutierrez',telefono:'3187654321',tipo:'Empresarial',bien:'Bodega industrial 400m2, Fontibon - Maquinaria pesada',valorAsegurar:2000000000,intermediario:'Fabian Carrera',estado:'aceptada',poliza:'POL-005',
+    comparaciones:[
+      {aseguradora:'Allianz',prima:12000000,deducible:15000000,coberturas:'Todo riesgo industrial, lucro cesante, RC patronal'},
+      {aseguradora:'AXA Colpatria',prima:13800000,deducible:12000000,coberturas:'Integral empresarial, equipo electrico, RC'}
+    ],notas:'Allianz gano por mejor tarifa en riesgo industrial.'},
+  {id:'COT-004',fecha:'2026-07-28',cliente:'Sandra Milena Castro',telefono:'3136543210',tipo:'Vida',bien:'Poliza de vida - Ejecutiva 42 anos',valorAsegurar:500000000,intermediario:'On Line',estado:'rechazada',poliza:null,
+    comparaciones:[
+      {aseguradora:'AXA Colpatria',prima:4200000,deducible:0,coberturas:'Muerte, invalidez, enfermedades graves'},
+      {aseguradora:'Seguros del Estado',prima:4800000,deducible:0,coberturas:'Muerte, invalidez, ITP, hospitalizacion'}
+    ],notas:'Cliente considero las primas muy altas. Seguimiento en 30 dias.'},
+  {id:'COT-005',fecha:'2026-08-09',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Hogar',bien:'Casa 200m2 Chia, condominio cerrado',valorAsegurar:650000000,intermediario:'Erika Pinzon',estado:'enviada',poliza:null,
+    comparaciones:[
+      {aseguradora:'Allianz',prima:3200000,deducible:900000,coberturas:'Todo riesgo hogar, sismo, hurto, RC'},
+      {aseguradora:'Seguros del Estado',prima:2900000,deducible:1100000,coberturas:'Incendio, terremoto, contenido, asistencia'},
+      {aseguradora:'AXA Colpatria',prima:2750000,deducible:1200000,coberturas:'Basico hogar + hurto contenido'}
+    ],notas:'Ya es cliente con poliza Auto. Oportunidad de cross-sell.'}
+];
+
+var FACTURAS=[
+  {id:'CC-001',fecha:'2026-08-01',aseguradora:'Allianz',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-001, POL-005',subtotal:1248000,iva:237120,total:1485120,estado:'pagada',vence:'2026-08-30',fechaPago:'2026-08-18'},
+  {id:'CC-002',fecha:'2026-08-01',aseguradora:'AXA Colpatria',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-002, POL-008',subtotal:540000,iva:102600,total:642600,estado:'enviada',vence:'2026-08-30',fechaPago:null},
+  {id:'CC-003',fecha:'2026-07-01',aseguradora:'Seguros del Estado',concepto:'Comisiones polizas Jun 2026',polizas:'POL-003, POL-007',subtotal:684000,iva:129960,total:813960,estado:'vencida',vence:'2026-07-30',fechaPago:null},
+  {id:'CC-004',fecha:'2026-08-05',aseguradora:'Allianz',concepto:'Comision SOAT y renovaciones Jul 2026',polizas:'POL-004',subtotal:117600,iva:22344,total:139944,estado:'emitida',vence:'2026-09-05',fechaPago:null},
+  {id:'CC-005',fecha:'2026-06-01',aseguradora:'AXA Colpatria',concepto:'Comisiones intermediacion Mayo 2026',polizas:'POL-002',subtotal:540000,iva:102600,total:642600,estado:'pagada',vence:'2026-06-30',fechaPago:'2026-06-25'}
+];
+
+var NOTIFY={
+  TG_TOKEN:'8803208867:AAFUoq9iXIUWNCYC1AvFc1pnyBknRR2D1m8',
+  TG_CHAT:'1081707115'
+};
+
+/* ====================================
+   MODULE TOGGLE SYSTEM
+   ==================================== */
+var MODULE_DEFS = [
+  {id:'polizas',      label:'Polizas',        desc:'Gestion de polizas, estados, busqueda',            essential:true,  on:true},
+  {id:'cotizador',    label:'Cotizador',       desc:'Comparacion multi-aseguradora para clientes',      essential:true,  on:true},
+  {id:'dashboard',    label:'Dashboard',       desc:'KPIs, graficos y actividad reciente',              essential:true,  on:true},
+  {id:'comisiones',   label:'Comisiones',      desc:'Control de comisiones por aseguradora',            essential:true,  on:true},
+  {id:'facturacion',  label:'Facturacion',     desc:'Cuentas de cobro, cartera y conciliacion',         essential:true,  on:true},
+  {id:'renovaciones', label:'Renovaciones',    desc:'Calendario de vencimientos y alertas',             essential:true,  on:true},
+  {id:'siniestros',   label:'Siniestros',      desc:'Pipeline de gestion de reclamaciones',             essential:false, on:false},
+  {id:'clientes',     label:'Clientes',        desc:'Base de datos de asegurados',                     essential:false, on:false}
+];
+var MOD_STORAGE_KEY = 'aseg_erp_modules';
+
+function loadModuleState(){
+  try {
+    var saved = JSON.parse(localStorage.getItem(MOD_STORAGE_KEY));
+    if(saved){
+      MODULE_DEFS.forEach(function(m){
+        if(saved.hasOwnProperty(m.id)) m.on = saved[m.id];
+      });
+    }
+  } catch(e){}
+}
+
+function saveModuleLocal(){
+  var state = {};
+  MODULE_DEFS.forEach(function(m){ state[m.id] = m.on; });
+  try { localStorage.setItem(MOD_STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function saveModuleState(){
+  saveModuleLocal();
+}
+
+function applyModuleState(){
+  MODULE_DEFS.forEach(function(m){
+    var navLink = document.querySelector('.mod-link[data-mod="'+m.id+'"]');
+    var section = document.getElementById('mod-'+m.id);
+    if(navLink) navLink.style.display = m.on ? '' : 'none';
+    if(section && !m.on) section.classList.remove('active');
+  });
+  var anyActive = document.querySelector('.mod-section.active');
+  if(!anyActive){
+    var firstOn = MODULE_DEFS.find(function(m){ return m.on; });
+    if(firstOn){
+      var link = document.querySelector('.mod-link[data-mod="'+firstOn.id+'"]');
+      var sec  = document.getElementById('mod-'+firstOn.id);
+      if(link) link.classList.add('active');
+      if(sec) sec.classList.add('active');
+    }
+  }
+  var activeNav = document.querySelector('.mod-link.active');
+  if(activeNav && activeNav.style.display === 'none'){
+    activeNav.classList.remove('active');
+    var firstVisible = document.querySelector('.mod-link[style=""],.mod-link:not([style])');
+    if(firstVisible){
+      firstVisible.classList.add('active');
+      var secId = 'mod-' + firstVisible.dataset.mod;
+      var sec2 = document.getElementById(secId);
+      if(sec2) sec2.classList.add('active');
+    }
+  }
+}
+
+window.openModConfig=function(){
+  if(!IS_ADMIN) return;
+  var body = document.getElementById('modCfgBody');
+  body.innerHTML = MODULE_DEFS.map(function(m){
+    return '<div class="mod-cfg-item">'
+      + '<div class="mod-cfg-info">'
+      + '  <div class="mod-cfg-name">'+m.label+'</div>'
+      + '  <div class="mod-cfg-desc">'+m.desc+'</div>'
+      + (m.essential ? '<div class="mod-cfg-essential">Incluido en plan base</div>' : '')
+      + '</div>'
+      + '<label class="toggle-sw">'
+      + '  <input type="checkbox" '+(m.on?'checked':'')+' onchange="toggleModule(\''+m.id+'\',this.checked)">'
+      + '  <span class="slider"></span>'
+      + '</label>'
+      + '</div>';
+  }).join('');
+  document.getElementById('modCfgOverlay').classList.add('open');
+};
+
+window.closeModConfig=function(){
+  document.getElementById('modCfgOverlay').classList.remove('open');
+};
+
+window.toggleModule=function(id, checked){
+  if(!IS_ADMIN) return;
+  var mod = MODULE_DEFS.find(function(m){ return m.id === id; });
+  if(mod){
+    mod.on = checked;
+    saveModuleState();
+    applyModuleState();
+  }
+};
+
+/* ====================================
+   INIT
+   ==================================== */
+function initApp(){
+  loadModuleState();
+  applyModuleState();
+  renderPolizas();
+  renderCotizador();
+  renderDashboard();
+  renderComisiones();
+  renderFacturacion();
+  renderRenovaciones();
+  renderSiniestros();
+  renderClientes();
+  initCharts();
+
+  // Wire up sortable columns
+  // Polizas: id,cliente,tipo,aseguradora,prima,desde,estado,—acciones
+  makeSortHeaders('polizasTable',['id','cliente','tipo','aseguradora','intermediario','prima','desde','estado',null],POLIZAS,function(){renderPolizas()});
+  // Comisiones: aseguradora,poliza,cliente,prima,pctComision,valorComision,estadoPago,fecha
+  makeSortHeaders('comisionesTable',['aseguradora','poliza','cliente','prima','pctComision','valorComision','estadoPago','fecha'],COMISIONES,function(){renderComisiones()});
+  // Facturacion: id,fecha,aseguradora,concepto,polizas,subtotal,iva,total,estado,vence
+  makeSortHeaders('facturaTable',['id','fecha','aseguradora','concepto','polizas','subtotal','iva','total','estado','vence'],FACTURAS,function(){renderFacturacion()});
+  // Renovaciones: cliente,poliza,tipo,aseguradora,vence,dias,alertLabel,—acciones
+  makeSortHeaders('renovacionesTable',['cliente','poliza','tipo','aseguradora','vence','dias',null,null],RENOV_DATA,function(){renderRenovTable()});
+}
+
+/* ====================================
+   NAVIGATION
+   ==================================== */
+document.getElementById('modNav').addEventListener('click',function(e){
+  var link=e.target.closest('.mod-link');
+  if(!link) return;
+  document.querySelectorAll('.mod-link').forEach(function(l){l.classList.remove('active')});
+  link.classList.add('active');
+  document.querySelectorAll('.mod-section').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('mod-'+link.dataset.mod).classList.add('active');
+});
+
+/* ====================================
+   HELPERS
+   ==================================== */
+function fmt(n){return '$'+n.toLocaleString('es-CO')}
+
+/* ====== INTERMEDIARIO HELPERS ====== */
+function toggleOtroIntermediario(prefix){
+  var sel=document.getElementById(prefix+'Intermediario');
+  var otro=document.getElementById(prefix+'IntermediarioOtro');
+  if(sel.value==='__otro__'){otro.style.display='block';otro.focus()}else{otro.style.display='none';otro.value=''}
+}
+function getIntermediario(prefix){
+  var sel=document.getElementById(prefix+'Intermediario');
+  if(sel.value==='__otro__') return document.getElementById(prefix+'IntermediarioOtro').value.trim();
+  return sel.value;
+}
+
+/* ====== SORT ENGINE ====== */
+var sortState={};
+function sortTable(tableId,dataArr,colIdx,key,renderer){
+  var stateKey=tableId+'-'+colIdx;
+  var dir=sortState[stateKey]==='asc'?'desc':'asc';
+  // Reset all states for this table
+  Object.keys(sortState).forEach(function(k){if(k.indexOf(tableId)===0)delete sortState[k]});
+  sortState[stateKey]=dir;
+  dataArr.sort(function(a,b){
+    var va=typeof key==='function'?key(a):a[key];
+    var vb=typeof key==='function'?key(b):b[key];
+    if(typeof va==='string')va=va.toLowerCase();
+    if(typeof vb==='string')vb=vb.toLowerCase();
+    if(va<vb)return dir==='asc'?-1:1;
+    if(va>vb)return dir==='asc'?1:-1;
+    return 0;
+  });
+  renderer();
+  // Update header arrows
+  var table=document.getElementById(tableId).closest('table');
+  if(table){
+    var ths=table.querySelectorAll('thead th');
+    for(var i=0;i<ths.length;i++){
+      ths[i].classList.remove('sort-active');
+      var arrow=ths[i].querySelector('.sort-arrow');
+      if(arrow)arrow.textContent='▲';
+    }
+    if(ths[colIdx]){
+      ths[colIdx].classList.add('sort-active');
+      var arr=ths[colIdx].querySelector('.sort-arrow');
+      if(arr)arr.textContent=dir==='asc'?'▲':'▼';
+    }
+  }
+}
+function makeSortHeaders(tableId,cols,dataArr,renderer){
+  var table=document.getElementById(tableId).closest('table');
+  if(!table)return;
+  var thead=table.querySelector('thead tr');
+  if(!thead)return;
+  var ths=thead.querySelectorAll('th');
+  for(var i=0;i<ths.length;i++){
+    if(cols[i]===null)continue;// skip non-sortable cols like Acciones
+    ths[i].innerHTML=ths[i].textContent+'<span class="sort-arrow">▲</span>';
+    (function(idx,key){
+      ths[idx].onclick=function(){sortTable(tableId,dataArr,idx,key,renderer)};
+    })(i,cols[i]);
+  }
+}
+
+function diasEntre(fechaStr){
+  var fecha = new Date(fechaStr+'T12:00:00');
+  var diff = fecha.getTime() - TODAY.getTime();
+  return Math.ceil(diff / (1000*60*60*24));
+}
+
+function getAlertClass(dias){
+  if(dias < 0) return 'vencida';
+  if(dias <= 7) return 'urgente';
+  if(dias <= 30) return 'pronto';
+  if(dias <= 60) return 'ok';
+  return 'lejano';
+}
+
+function getAlertLabel(dias){
+  if(dias < 0) return 'Vencida';
+  if(dias <= 7) return 'Urgente';
+  if(dias <= 30) return 'Pronto';
+  if(dias <= 60) return 'En tiempo';
+  return 'Sin prisa';
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast '+(type||'')+' show';
+  setTimeout(function(){t.classList.remove('show')},3000);
+}
+
+window.openModal=function(id){
+  document.getElementById('modal'+id.charAt(0).toUpperCase()+id.slice(1)).classList.add('open');
+};
+window.closeModal=function(id){
+  document.getElementById('modal'+id.charAt(0).toUpperCase()+id.slice(1)).classList.remove('open');
+};
+
+window.toggleTheme=function(){
+  document.documentElement.classList.toggle('dark');
+  var isDark=document.documentElement.classList.contains('dark');
+  document.getElementById('themeBtn').textContent=isDark?'Claro':'Oscuro';
+};
+
+window.toggleDetail=function(id){
+  var row=document.getElementById(id);
+  if(!row)return;
+  row.style.display=row.style.display==='none'?'table-row':'none';
+};
+
+window.sendWA=function(phone,name){
+  var p=phone.replace(/\D/g,'');
+  if(p.length===10) p='57'+p;
+  var msg='Hola '+name+', le escribimos de Aseguralo. ';
+  window.open('https://wa.me/'+p+'?text='+encodeURIComponent(msg),'_blank');
+};
+
+document.querySelectorAll('.modal-overlay').forEach(function(m){
+  m.addEventListener('click',function(e){
+    if(e.target===m) m.classList.remove('open');
+  });
+});
+
+/* ====================================
+   NOTIFICATIONS
+   ==================================== */
+function notifyTelegram(text){
+  if(!NOTIFY.TG_TOKEN) return;
+  var url='https://api.telegram.org/bot'+NOTIFY.TG_TOKEN+'/sendMessage?chat_id='+NOTIFY.TG_CHAT+'&text='+encodeURIComponent('[ASEGURALO ERP]\n'+text);
+  fetch(url).catch(function(){});
+}
+
+/* ====================================
+   POLIZAS
+   ==================================== */
+function renderPolizas(filter){
+  var data=filter?POLIZAS.filter(function(p){return p.cliente.toLowerCase().indexOf(filter)!==-1}):POLIZAS;
+
+  var activas=POLIZAS.filter(function(p){return p.estado==='activa'}).length;
+  var porRenovar=POLIZAS.filter(function(p){return p.estado==='por-renovar'}).length;
+  var totalAsegurado=POLIZAS.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).reduce(function(s,p){return s+p.valorAsegurado},0);
+  var primaPromedio=POLIZAS.length?Math.round(POLIZAS.reduce(function(s,p){return s+p.prima},0)/POLIZAS.length/12):0;
+
+  document.getElementById('polizasKpi').innerHTML=[
+    {l:'Polizas Activas',v:activas,c:'c-green'},
+    {l:'Por Renovar',v:porRenovar,c:'c-orange'},
+    {l:'Valor Asegurado Total',v:fmt(totalAsegurado),c:'c-accent'},
+    {l:'Prima Mensual Promedio',v:fmt(primaPromedio),c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  var statusMap={'activa':'badge-activa','por-renovar':'badge-por-renovar','vencida':'badge-vencida','cancelada':'badge-cancelada'};
+  var statusLabel={'activa':'Activa','por-renovar':'Por renovar','vencida':'Vencida','cancelada':'Cancelada'};
+
+  var sarlaftMap={'completo':'badge-activa','pendiente':'badge-por-renovar','sin-iniciar':'badge-vencida'};
+  var sarlaftLabel={'completo':'Completo','pendiente':'Pendiente','sin-iniciar':'Sin iniciar'};
+
+  document.getElementById('polizasTable').innerHTML=data.map(function(p,idx){
+    var detailId='pol-detail-'+idx;
+    var sarlaft=p.sarlaft||'sin-iniciar';
+    var diasV=diasEntre(p.hasta);
+    var diasText=diasV<0?Math.abs(diasV)+' dias vencida':(diasV===0?'Hoy':diasV+' dias');
+    return '<tr style="cursor:pointer" onclick="toggleDetail(\''+detailId+'\')">'+
+      '<td class="mono" style="font-size:11px;font-weight:600;color:var(--accent)">'+p.id+' <span style="font-size:9px;color:var(--dim)">&#9660;</span></td>'+
+      '<td><strong>'+p.cliente+'</strong></td>'+
+      '<td>'+p.tipo+'</td>'+
+      '<td>'+p.aseguradora+'</td>'+
+      '<td style="font-size:12px">'+(p.intermediario||'<span style="color:var(--muted)">--</span>')+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(p.prima)+'</td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+p.desde+' / '+p.hasta+'</td>'+
+      '<td><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></td>'+
+      '<td><div style="display:flex;gap:4px" onclick="event.stopPropagation()">'+
+        '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+p.telefono+'\',\''+p.cliente+'\')">WA</button>'+
+        (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+p.id+'\')">Renovar</button>':'')+
+      '</div></td>'+
+    '</tr>'+
+    '<tr id="'+detailId+'" class="pol-detail-row" style="display:none">'+
+      '<td colspan="9" style="padding:0;border:none">'+
+        '<div class="pol-detail">'+
+          '<div class="pd-grid">'+
+            '<div class="pd-col">'+
+              '<div class="pd-section-title">Datos de la Poliza</div>'+
+              '<div class="pd-field"><span class="pd-label">No. Poliza</span><span class="pd-value">'+p.id+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Cliente</span><span class="pd-value">'+p.cliente+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Telefono</span><span class="pd-value">'+p.telefono+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Tipo</span><span class="pd-value">'+p.tipo+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Aseguradora</span><span class="pd-value">'+p.aseguradora+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Intermediario</span><span class="pd-value">'+(p.intermediario||'--')+'</span></div>'+
+            '</div>'+
+            '<div class="pd-col">'+
+              '<div class="pd-section-title">Valores y Vigencia</div>'+
+              '<div class="pd-field"><span class="pd-label">Prima Anual</span><span class="pd-value mono" style="font-weight:700">'+fmt(p.prima)+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Valor Asegurado</span><span class="pd-value mono">'+fmt(p.valorAsegurado)+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Vigencia</span><span class="pd-value">'+p.desde+' a '+p.hasta+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Dias Restantes</span><span class="pd-value" style="font-weight:700;color:'+(diasV<30?'var(--red)':'var(--green)')+'">'+diasText+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Estado</span><span class="pd-value"><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></span></div>'+
+            '</div>'+
+            '<div class="pd-col">'+
+              '<div class="pd-section-title">Documentacion</div>'+
+              '<div class="pd-field"><span class="pd-label">SARLAFT</span><span class="pd-value"><span class="badge '+sarlaftMap[sarlaft]+'">'+sarlaftLabel[sarlaft]+'</span></span></div>'+
+              '<div class="pd-field"><span class="pd-label">PDF Poliza</span><span class="pd-value">'+(p.pdfUrl?'<a href="'+p.pdfUrl+'" target="_blank" class="pd-link">Ver PDF</a>':'<span style="color:var(--muted)">Sin adjuntar</span>')+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Autorizacion Datos</span><span class="pd-value">'+(sarlaft==='completo'?'<span style="color:var(--green)">Si</span>':'<span style="color:var(--orange)">Pendiente</span>')+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Notas</span><span class="pd-value">'+(p.notas||'--')+'</span></div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</td>'+
+    '</tr>';
+  }).join('');
+}
+
+window.filterPolizas=function(){
+  var v=document.getElementById('searchPolizas').value.toLowerCase();
+  renderPolizas(v||null);
+};
+
+window.renovarPoliza=function(id){
+  POLIZAS.forEach(function(p){
+    if(p.id===id){
+      p.estado='activa';
+      var d=new Date(p.hasta+'T12:00:00');
+      p.desde=p.hasta;
+      d.setFullYear(d.getFullYear()+1);
+      p.hasta=d.toISOString().slice(0,10);
+    }
+  });
+  renderPolizas();
+  renderRenovaciones();
+  renderDashboard();
+  showToast('Poliza '+id+' renovada exitosamente','success');
+  notifyTelegram('POLIZA RENOVADA\nRef: '+id+'\nCliente: '+POLIZAS.find(function(p){return p.id===id}).cliente);
+};
+
+window.savePoliza=function(){
+  var cliente=document.getElementById('pCliente').value.trim();
+  var tipo=document.getElementById('pTipo').value;
+  var aseguradora=document.getElementById('pAseguradora').value;
+  var prima=parseFloat(document.getElementById('pPrima').value)||0;
+
+  if(!cliente||!tipo||!aseguradora||!prima){showToast('Completa los campos requeridos','error');return}
+
+  var newP={
+    id:'POL-'+String(POLIZAS.length+1).padStart(3,'0'),
+    cliente:cliente,
+    telefono:document.getElementById('pTelefono').value,
+    tipo:tipo,
+    aseguradora:aseguradora,
+    intermediario:getIntermediario('p'),
+    prima:prima,
+    valorAsegurado:parseFloat(document.getElementById('pValorAsegurado').value)||0,
+    desde:document.getElementById('pDesde').value||new Date().toISOString().slice(0,10),
+    hasta:document.getElementById('pHasta').value||'',
+    estado:'activa',
+    sarlaft:'sin-iniciar',
+    pdfUrl:'',
+    notas:document.getElementById('pNotas').value.trim()
+  };
+
+  // Add client if new
+  var exists=CLIENTES.find(function(c){return c.nombre===cliente});
+  if(!exists){
+    CLIENTES.push({nombre:cliente,telefono:newP.telefono,email:document.getElementById('pEmail').value});
+  }
+
+  POLIZAS.unshift(newP);
+  renderPolizas();
+  renderDashboard();
+  renderRenovaciones();
+  renderClientes();
+  closeModal('newPoliza');
+  showToast('Poliza '+newP.id+' creada -- '+fmt(prima),'success');
+  notifyTelegram('NUEVA POLIZA\nRef: '+newP.id+'\nCliente: '+cliente+'\nTipo: '+tipo+'\nAseguradora: '+aseguradora+'\nPrima: '+fmt(prima));
+};
+
+/* ====================================
+   DASHBOARD
+   ==================================== */
+function renderDashboard(){
+  var activas=POLIZAS.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'});
+  var clientesActivos=[];
+  activas.forEach(function(p){if(clientesActivos.indexOf(p.cliente)===-1)clientesActivos.push(p.cliente)});
+  var totalPrimas=activas.reduce(function(s,p){return s+p.prima},0);
+  var comisionesMes=COMISIONES.filter(function(c){return c.fecha.indexOf('2026-08')===0||c.fecha.indexOf('2026-07')===0}).reduce(function(s,c){return s+c.valorComision},0);
+  var totalPolizas=activas.length;
+  var renovadas=POLIZAS.filter(function(p){return p.estado==='activa'}).length;
+  var tasaRenov=POLIZAS.length?Math.round((renovadas/POLIZAS.length)*100):0;
+  var siniestrosAbiertos=SINIESTROS.filter(function(s){return s.etapa!=='cerrado'}).length;
+
+  var kpis=[
+    {label:'Clientes Activos',value:clientesActivos.length,sub:'Con polizas vigentes',up:true,color:'c-accent'},
+    {label:'Polizas Vigentes',value:totalPolizas,sub:'Activas y por renovar',up:true,color:'c-green'},
+    {label:'Comisiones del Mes',value:fmt(comisionesMes),sub:'Julio-Agosto 2026',up:true,color:'c-brand'},
+    {label:'Tasa de Renovacion',value:tasaRenov+'%',sub:'Sobre total de polizas',up:true,color:'c-teal'},
+    {label:'Primas Totales',value:fmt(totalPrimas),sub:'Cartera activa anual',up:true,color:'c-purple'},
+    {label:'Siniestros Abiertos',value:siniestrosAbiertos,sub:'En gestion',up:false,color:'c-orange'}
+  ];
+
+  document.getElementById('dashKpi').innerHTML=kpis.map(function(k){
+    return '<div class="kpi-card '+k.color+'"><div class="kpi-label">'+k.label+'</div><div class="kpi-val">'+k.value+'</div><div class="kpi-sub"><span class="'+(k.up?'kpi-up':'kpi-down')+'">'+(k.up?'&#9650;':'&#9660;')+'</span> '+k.sub+'</div></div>';
+  }).join('');
+
+  document.getElementById('feedList').innerHTML=FEED.map(function(f){
+    return '<div class="feed-item"><div class="feed-dot '+f.dot+'"></div><div class="feed-text">'+f.text+'</div><div class="feed-time">'+f.time+'</div></div>';
+  }).join('');
+}
+
+/* ====================================
+   COMISIONES
+   ==================================== */
+function renderComisiones(){
+  var acumulada=COMISIONES.reduce(function(s,c){return s+c.valorComision},0);
+  var pendiente=COMISIONES.filter(function(c){return c.estadoPago==='pendiente'}).reduce(function(s,c){return s+c.valorComision},0);
+  var pagado=COMISIONES.filter(function(c){return c.estadoPago==='pagado'}).reduce(function(s,c){return s+c.valorComision},0);
+  var totalPrimas=COMISIONES.reduce(function(s,c){return s+c.prima},0);
+  var tasaProm=totalPrimas?((acumulada/totalPrimas)*100).toFixed(1):0;
+
+  document.getElementById('comisionesKpi').innerHTML=[
+    {l:'Comision Acumulada',v:fmt(acumulada),c:'c-accent'},
+    {l:'Pendiente de Pago',v:fmt(pendiente),c:'c-orange'},
+    {l:'Pagado Este Mes',v:fmt(pagado),c:'c-green'},
+    {l:'Tasa Promedio',v:tasaProm+'%',c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  var statusMap={'pagado':'badge-pagado','pendiente':'badge-pendiente','vencido':'badge-vencido'};
+  var statusLabel={'pagado':'Pagado','pendiente':'Pendiente','vencido':'Vencido'};
+
+  document.getElementById('comisionesTable').innerHTML=COMISIONES.map(function(c){
+    return '<tr>'+
+      '<td style="font-weight:600">'+c.aseguradora+'</td>'+
+      '<td class="mono" style="font-size:11px;color:var(--accent)">'+c.poliza+'</td>'+
+      '<td>'+c.cliente+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(c.prima)+'</td>'+
+      '<td class="mono" style="text-align:center">'+c.pctComision+'%</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(c.valorComision)+'</td>'+
+      '<td><span class="badge '+statusMap[c.estadoPago]+'">'+statusLabel[c.estadoPago]+'</span></td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+c.fecha+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+/* ====================================
+   RENOVACIONES (KILLER FEATURE)
+   ==================================== */
+var RENOV_DATA=[];
+function renderRenovaciones(){
+  // Build renewal data from policy expiration dates
+  RENOV_DATA=POLIZAS.filter(function(p){return p.estado!=='cancelada'}).map(function(p){
+    var dias=diasEntre(p.hasta);
+    return {
+      cliente:p.cliente,
+      telefono:p.telefono,
+      poliza:p.id,
+      tipo:p.tipo,
+      aseguradora:p.aseguradora,
+      vence:p.hasta,
+      dias:dias,
+      alertClass:getAlertClass(dias),
+      alertLabel:getAlertLabel(dias)
+    };
+  }).sort(function(a,b){return a.dias-b.dias});
+  var renewData=RENOV_DATA;
+
+  var prox7=renewData.filter(function(r){return r.dias>=0&&r.dias<=7}).length;
+  var prox30=renewData.filter(function(r){return r.dias>=0&&r.dias<=30}).length;
+  var prox60=renewData.filter(function(r){return r.dias>=0&&r.dias<=60}).length;
+  var vencidasSinRenovar=renewData.filter(function(r){return r.dias<0}).length;
+
+  document.getElementById('renovacionesKpi').innerHTML=[
+    {l:'Proximas 7 dias',v:prox7,c:'c-red'},
+    {l:'Proximas 30 dias',v:prox30,c:'c-orange'},
+    {l:'Proximas 60 dias',v:prox60,c:'c-accent'},
+    {l:'Vencidas sin renovar',v:vencidasSinRenovar,c:'c-red'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  renderRenovTable();
+}
+function renderRenovTable(){
+  document.getElementById('renovacionesTable').innerHTML=RENOV_DATA.map(function(r){
+    var diasText=r.dias<0?Math.abs(r.dias)+' dias vencida':(r.dias===0?'Hoy':r.dias+' dias');
+    return '<tr>'+
+      '<td><strong>'+r.cliente+'</strong></td>'+
+      '<td class="mono" style="font-size:11px;color:var(--accent)">'+r.poliza+'</td>'+
+      '<td>'+r.tipo+'</td>'+
+      '<td>'+r.aseguradora+'</td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+r.vence+'</td>'+
+      '<td><span class="dias-pill '+r.alertClass+'">'+diasText+'</span></td>'+
+      '<td><span class="alert-'+r.alertClass+'">'+r.alertLabel+'</span></td>'+
+      '<td><div style="display:flex;gap:4px">'+
+        '<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+r.poliza+'\')">Renovar</button>'+
+        '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+r.telefono+'\',\''+r.cliente+'\')">WA</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+/* ====================================
+   SINIESTROS (KANBAN)
+   ==================================== */
+function renderSiniestros(){
+  var stages=[
+    {id:'reportado',label:'Reportado',color:'var(--red)'},
+    {id:'en_tramite',label:'En Tramite',color:'var(--orange)'},
+    {id:'documentacion',label:'Documentacion',color:'#ca8a04'},
+    {id:'resolucion',label:'Resolucion',color:'var(--accent)'},
+    {id:'cerrado',label:'Cerrado',color:'var(--green)'}
+  ];
+
+  var abiertos=SINIESTROS.filter(function(s){return s.etapa!=='cerrado'}).length;
+  var enTramite=SINIESTROS.filter(function(s){return s.etapa==='en_tramite'}).length;
+  var resueltos=SINIESTROS.filter(function(s){return s.etapa==='cerrado'}).length;
+
+  document.getElementById('siniestrosKpi').innerHTML=[
+    {l:'Siniestros Abiertos',v:abiertos,c:'c-red'},
+    {l:'En Tramite',v:enTramite,c:'c-orange'},
+    {l:'Resueltos Este Mes',v:resueltos,c:'c-green'},
+    {l:'Tiempo Promedio Resolucion',v:'18 dias',c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  document.getElementById('siniestrosKanban').innerHTML=stages.map(function(s){
+    var cards=SINIESTROS.filter(function(sin){return sin.etapa===s.id});
+    return '<div class="kanban-col">'+
+      '<div class="kanban-header"><span>'+s.label+'</span><span class="kanban-count">'+cards.length+'</span></div>'+
+      cards.map(function(sin){
+        return '<div class="kanban-card" onclick="showToast(\''+sin.cliente+' - '+sin.tipo+' - '+fmt(sin.valor)+'\',\'\')">'+
+          '<div class="kanban-name">'+sin.cliente+'</div>'+
+          '<div class="kanban-detail">'+sin.tipo+'<br>'+sin.aseguradora+'<br>Poliza: '+sin.poliza+'</div>'+
+          '<div class="kanban-footer"><span class="kanban-value">'+fmt(sin.valor)+'</span><span class="kanban-date">'+sin.fecha+'</span></div>'+
+        '</div>';
+      }).join('')+
+    '</div>';
+  }).join('');
+}
+
+/* ====================================
+   CLIENTES
+   ==================================== */
+function renderClientes(filter){
+  var data=filter?CLIENTES.filter(function(c){return c.nombre.toLowerCase().indexOf(filter)!==-1}):CLIENTES;
+
+  var total=CLIENTES.length;
+  var conActiva=0;
+  var sinRenovar=0;
+  CLIENTES.forEach(function(c){
+    var polizas=POLIZAS.filter(function(p){return p.cliente===c.nombre});
+    var tieneActiva=polizas.some(function(p){return p.estado==='activa'});
+    var tieneVencida=polizas.some(function(p){return p.estado==='vencida'||p.estado==='por-renovar'});
+    if(tieneActiva) conActiva++;
+    if(tieneVencida && !tieneActiva) sinRenovar++;
+  });
+
+  document.getElementById('clientesKpi').innerHTML=[
+    {l:'Total Clientes',v:total,c:'c-accent'},
+    {l:'Con Poliza Activa',v:conActiva,c:'c-green'},
+    {l:'Sin Renovar',v:sinRenovar,c:'c-orange'},
+    {l:'Nuevos Este Mes',v:1,c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  document.getElementById('clientesTable').innerHTML=data.map(function(c){
+    var polizas=POLIZAS.filter(function(p){return p.cliente===c.nombre});
+    var polizasActivas=polizas.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).length;
+    var primaTotal=polizas.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).reduce(function(s,p){return s+p.prima},0);
+    var ultimaActividad=polizas.length?polizas.sort(function(a,b){return b.desde>a.desde?1:-1})[0].desde:'--';
+
+    return '<tr>'+
+      '<td><strong>'+c.nombre+'</strong></td>'+
+      '<td class="mono" style="font-size:12px">'+c.telefono+'</td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+c.email+'</td>'+
+      '<td style="text-align:center;font-weight:700">'+polizasActivas+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(primaTotal)+'</td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+ultimaActividad+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+window.filterClientes=function(){
+  var v=document.getElementById('searchClientes').value.toLowerCase();
+  renderClientes(v||null);
+};
+
+/* ====================================
+   COTIZADOR
+   ==================================== */
+function renderCotizador(){
+  var enviadas=COTIZACIONES.filter(function(c){return c.estado==='enviada'}).length;
+  var aceptadas=COTIZACIONES.filter(function(c){return c.estado==='aceptada'}).length;
+  var rechazadas=COTIZACIONES.filter(function(c){return c.estado==='rechazada'}).length;
+  var total=COTIZACIONES.length;
+  var tasaConv=total?Math.round((aceptadas/total)*100):0;
+
+  document.getElementById('cotizadorKpi').innerHTML=[
+    {l:'Cotizaciones del Mes',v:total,c:'c-accent'},
+    {l:'Enviadas (Pendientes)',v:enviadas,c:'c-orange'},
+    {l:'Aceptadas',v:aceptadas,c:'c-green'},
+    {l:'Tasa de Conversion',v:tasaConv+'%',c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  var statusMap={'enviada':'badge-por-renovar','aceptada':'badge-activa','rechazada':'badge-vencida','vencida':'badge-cancelada'};
+  var statusLabel={'enviada':'Enviada','aceptada':'Aceptada','rechazada':'Rechazada','vencida':'Vencida'};
+
+  document.getElementById('cotizadorCards').innerHTML=COTIZACIONES.map(function(c){
+    var mejorPrima=Math.min.apply(null,c.comparaciones.map(function(x){return x.prima}));
+
+    return '<div class="cot-card" style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px">'+
+        '<div>'+
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'+
+            '<span class="mono" style="font-size:11px;font-weight:600;color:var(--accent)">'+c.id+'</span>'+
+            '<span class="badge '+statusMap[c.estado]+'">'+statusLabel[c.estado]+'</span>'+
+            (c.poliza?'<span style="font-size:10px;color:var(--dim)">&#8594; '+c.poliza+'</span>':'')+
+          '</div>'+
+          '<div style="font-size:16px;font-weight:700">'+c.cliente+'</div>'+
+          '<div style="font-size:12px;color:var(--dim);margin-top:2px">'+c.tipo+' | '+c.bien+'</div>'+
+          '<div style="font-size:12px;color:var(--dim)">Valor a asegurar: <strong style="color:var(--text)">'+fmt(c.valorAsegurar)+'</strong> | '+c.fecha+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:6px">'+
+          '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+c.telefono+'\',\''+c.cliente+'\')">WA</button>'+
+          (c.estado==='enviada'?'<button class="btn btn-sm btn-renew" onclick="aceptarCotizacion(\''+c.id+'\')">Convertir</button>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="tbl-wrap" style="margin:0"><div class="tbl-overflow">'+
+        '<table style="margin:0">'+
+          '<thead><tr><th>Aseguradora</th><th>Prima Anual</th><th>Deducible</th><th>Coberturas</th><th></th></tr></thead>'+
+          '<tbody>'+c.comparaciones.map(function(x){
+            var esMejor=x.prima===mejorPrima;
+            return '<tr style="'+(esMejor?'background:var(--accent-light)':'')+'">'+
+              '<td style="font-weight:600">'+x.aseguradora+'</td>'+
+              '<td class="mono" style="font-weight:700;'+(esMejor?'color:var(--accent)':'')+'">'+fmt(x.prima)+'</td>'+
+              '<td class="mono" style="font-size:12px">'+fmt(x.deducible)+'</td>'+
+              '<td style="font-size:12px;color:var(--dim);max-width:280px">'+x.coberturas+'</td>'+
+              '<td>'+(esMejor?'<span style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px">Mejor precio</span>':'')+'</td>'+
+            '</tr>';
+          }).join('')+
+          '</tbody>'+
+        '</table>'+
+      '</div></div>'+
+      (c.notas?'<div style="margin-top:12px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius-sm);font-size:12px;color:var(--dim)"><strong style="color:var(--text)">Nota:</strong> '+c.notas+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+window.aceptarCotizacion=function(id){
+  COTIZACIONES.forEach(function(c){
+    if(c.id===id){
+      c.estado='aceptada';
+      var mejor=c.comparaciones.sort(function(a,b){return a.prima-b.prima})[0];
+      var newId='POL-'+String(POLIZAS.length+1).padStart(3,'0');
+      c.poliza=newId;
+      var hoy=TODAY.toISOString().slice(0,10);
+      var hasta=new Date(TODAY);hasta.setFullYear(hasta.getFullYear()+1);
+      POLIZAS.unshift({
+        id:newId,cliente:c.cliente,telefono:c.telefono,tipo:c.tipo,
+        aseguradora:mejor.aseguradora,prima:mejor.prima,
+        valorAsegurado:c.valorAsegurar,desde:hoy,
+        hasta:hasta.toISOString().slice(0,10),estado:'activa'
+      });
+      showToast('Cotizacion '+id+' convertida a poliza '+newId,'success');
+      notifyTelegram('COTIZACION CONVERTIDA\n'+c.cliente+'\n'+c.tipo+' con '+mejor.aseguradora+'\nPrima: '+fmt(mejor.prima)+'\nPoliza: '+newId);
+    }
+  });
+  renderCotizador();
+  renderPolizas();
+  renderDashboard();
+  renderRenovaciones();
+};
+
+window.saveCotizacion=function(){
+  var cliente=document.getElementById('cCliente').value.trim();
+  var tipo=document.getElementById('cTipo').value;
+  var bien=document.getElementById('cBien').value.trim();
+  var valor=parseFloat(document.getElementById('cValor').value)||0;
+  if(!cliente||!tipo){showToast('Completa cliente y tipo de seguro','error');return}
+
+  var comps=[];
+  var rows=document.querySelectorAll('#cComparaciones .comp-row');
+  rows.forEach(function(row){
+    var inputs=row.querySelectorAll('input,select');
+    var aseg=inputs[0].value;
+    var prima=parseFloat(inputs[1].value)||0;
+    var ded=parseFloat(inputs[2].value)||0;
+    var cob=inputs[3].value;
+    if(aseg&&prima) comps.push({aseguradora:aseg,prima:prima,deducible:ded,coberturas:cob||'--'});
+  });
+
+  if(comps.length<1){showToast('Agrega al menos una aseguradora','error');return}
+
+  var newC={
+    id:'COT-'+String(COTIZACIONES.length+1).padStart(3,'0'),
+    fecha:TODAY.toISOString().slice(0,10),
+    cliente:cliente,telefono:document.getElementById('cTelefono').value.trim(),
+    tipo:tipo,bien:bien,valorAsegurar:valor,
+    intermediario:getIntermediario('c'),
+    estado:'enviada',poliza:null,
+    comparaciones:comps,
+    notas:document.getElementById('cNotas').value.trim()
+  };
+
+  COTIZACIONES.unshift(newC);
+  renderCotizador();
+  renderDashboard();
+  closeModal('newCotizacion');
+  showToast('Cotizacion '+newC.id+' creada -- '+comps.length+' aseguradoras','success');
+  notifyTelegram('NUEVA COTIZACION\n'+cliente+'\n'+tipo+': '+bien+'\nValor: '+fmt(valor)+'\n'+comps.length+' aseguradoras comparadas');
+};
+
+/* ====================================
+   FACTURACION
+   ==================================== */
+function renderFacturacion(){
+  var totalFacturado=FACTURAS.reduce(function(s,f){return s+f.total},0);
+  var pendiente=FACTURAS.filter(function(f){return f.estado==='enviada'||f.estado==='emitida'}).reduce(function(s,f){return s+f.total},0);
+  var cobrado=FACTURAS.filter(function(f){return f.estado==='pagada'}).reduce(function(s,f){return s+f.total},0);
+  var vencido=FACTURAS.filter(function(f){return f.estado==='vencida'}).reduce(function(s,f){return s+f.total},0);
+
+  document.getElementById('facturaKpi').innerHTML=[
+    {l:'Total Facturado',v:fmt(totalFacturado),c:'c-accent'},
+    {l:'Pendiente de Cobro',v:fmt(pendiente),c:'c-orange'},
+    {l:'Cobrado',v:fmt(cobrado),c:'c-green'},
+    {l:'Cartera Vencida',v:fmt(vencido),c:'c-red'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  var statusMap={'emitida':'badge-por-renovar','enviada':'badge-por-renovar','pagada':'badge-activa','vencida':'badge-vencida','anulada':'badge-cancelada'};
+  var statusLabel={'emitida':'Emitida','enviada':'Enviada','pagada':'Pagada','vencida':'Vencida','anulada':'Anulada'};
+
+  document.getElementById('facturaTable').innerHTML=FACTURAS.map(function(f){
+    return '<tr>'+
+      '<td class="mono" style="font-size:11px;font-weight:600;color:var(--accent)">'+f.id+'</td>'+
+      '<td style="font-size:12px">'+f.fecha+'</td>'+
+      '<td style="font-weight:600">'+f.aseguradora+'</td>'+
+      '<td style="font-size:12px;max-width:200px">'+f.concepto+'</td>'+
+      '<td class="mono" style="font-size:11px;color:var(--dim)">'+f.polizas+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(f.subtotal)+'</td>'+
+      '<td class="mono" style="font-size:12px;color:var(--dim)">'+fmt(f.iva)+'</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(f.total)+'</td>'+
+      '<td><span class="badge '+statusMap[f.estado]+'">'+statusLabel[f.estado]+'</span></td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+f.vence+'</td>'+
+    '</tr>';
+  }).join('');
+
+  // Conciliacion: agrupar por aseguradora
+  var aseguradoras={};
+  COMISIONES.forEach(function(c){
+    if(!aseguradoras[c.aseguradora]) aseguradoras[c.aseguradora]={esperado:0,facturado:0,cobrado:0};
+    aseguradoras[c.aseguradora].esperado+=c.valorComision;
+  });
+  FACTURAS.forEach(function(f){
+    if(!aseguradoras[f.aseguradora]) aseguradoras[f.aseguradora]={esperado:0,facturado:0,cobrado:0};
+    aseguradoras[f.aseguradora].facturado+=f.subtotal;
+    if(f.estado==='pagada') aseguradoras[f.aseguradora].cobrado+=f.total;
+  });
+
+  var concRows=Object.keys(aseguradoras);
+  document.getElementById('conciliacionTable').innerHTML=concRows.map(function(a){
+    var d=aseguradoras[a];
+    var pendiente=d.facturado-d.cobrado;
+    var diff=d.esperado-d.facturado;
+    return '<tr>'+
+      '<td style="font-weight:600">'+a+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(d.esperado)+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(d.facturado)+'</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--green)">'+fmt(d.cobrado)+'</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--orange)">'+fmt(pendiente>0?pendiente:0)+'</td>'+
+      '<td class="mono" style="font-weight:700;color:'+(diff>0?'var(--red)':'var(--green)')+'">'+
+        (diff>0?'-':diff<0?'+':'')+fmt(Math.abs(diff))+
+        (diff>0?' <span style="font-size:10px;color:var(--red);font-weight:400">(sin facturar)</span>':diff===0?' <span style="font-size:10px;color:var(--green);font-weight:400">(cuadrado)</span>':' <span style="font-size:10px;color:var(--green);font-weight:400">(a favor)</span>')+
+      '</td>'+
+    '</tr>';
+  }).join('');
+}
+
+window.calcFacturaTotal=function(){
+  var sub=parseFloat(document.getElementById('fSubtotal').value)||0;
+  var iva=Math.round(sub*0.19);
+  document.getElementById('fIva').value=iva;
+  document.getElementById('fTotal').value=sub+iva;
+};
+
+window.saveFactura=function(){
+  var aseg=document.getElementById('fAseguradora').value;
+  var concepto=document.getElementById('fConcepto').value.trim();
+  var sub=parseFloat(document.getElementById('fSubtotal').value)||0;
+  if(!aseg||!concepto||!sub){showToast('Completa aseguradora, concepto y subtotal','error');return}
+
+  var iva=Math.round(sub*0.19);
+  var newF={
+    id:'CC-'+String(FACTURAS.length+1).padStart(3,'0'),
+    fecha:document.getElementById('fFecha').value||TODAY.toISOString().slice(0,10),
+    aseguradora:aseg,
+    concepto:concepto,
+    polizas:document.getElementById('fPolizas').value.trim()||'--',
+    subtotal:sub,iva:iva,total:sub+iva,
+    estado:'emitida',
+    vence:document.getElementById('fVencimiento').value||'',
+    fechaPago:null
+  };
+
+  FACTURAS.unshift(newF);
+  renderFacturacion();
+  closeModal('newFactura');
+  showToast('Cuenta de cobro '+newF.id+' emitida -- '+fmt(newF.total),'success');
+  notifyTelegram('CUENTA DE COBRO EMITIDA\nNo: '+newF.id+'\nAseguradora: '+aseg+'\nConcepto: '+concepto+'\nTotal: '+fmt(newF.total));
+};
+
+/* ====================================
+   CHARTS
+   ==================================== */
+function initCharts(){
+  var accentColor='#10B981';
+  var brandColor='#1a2744';
+  var gridColor=document.documentElement.classList.contains('dark')?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
+  var textColor=document.documentElement.classList.contains('dark')?'#94a3b8':'#64748b';
+
+  var defaultOpts={
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:11,family:'Manrope'},color:textColor}},
+      y:{grid:{color:gridColor},ticks:{font:{size:11,family:'JetBrains Mono'},color:textColor,callback:function(v){return v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':v}}}
+    }
+  };
+
+  // Polizas por Tipo (doughnut)
+  var tipos={};
+  POLIZAS.forEach(function(p){
+    if(p.estado!=='cancelada') tipos[p.tipo]=(tipos[p.tipo]||0)+1;
+  });
+  var tipoLabels=Object.keys(tipos);
+  var tipoData=tipoLabels.map(function(t){return tipos[t]});
+
+  new Chart(document.getElementById('chartTipos'),{
+    type:'doughnut',
+    data:{
+      labels:tipoLabels,
+      datasets:[{
+        data:tipoData,
+        backgroundColor:[accentColor,brandColor,'#15803d','#d97706','#7c3aed','#0d9488','#0284c7'],
+        borderWidth:0
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{font:{size:11,family:'Manrope'},color:textColor,padding:12,usePointStyle:true,pointStyle:'circle'}}}
+    }
+  });
+
+  // Primas Mensuales (bar)
+  new Chart(document.getElementById('chartPrimas'),{
+    type:'bar',
+    data:{
+      labels:['Mar','Abr','May','Jun','Jul','Ago'],
+      datasets:[{
+        data:[2800000,3100000,4500000,3900000,5200000,4800000],
+        backgroundColor:accentColor,
+        borderRadius:6,
+        borderSkipped:false
+      }]
+    },
+    options:defaultOpts
+  });
+}
+
+/* Boot – defer to next tick so all declarations resolve */
+setTimeout(autoEnter, 0);
+
+})();
+</script>
+</body>
+</html>

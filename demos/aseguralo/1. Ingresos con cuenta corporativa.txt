@@ -1,0 +1,50 @@
+Experto en seguros Colombia ver PDF wssp
+1. Ingresos con cuenta corporativa: para generar pdfs, el lead tiene mas de 3 compañías de seguros. la idea es con un sola orden recibir las 3   
+2. lectura ocr de polizas 
+3. el lead maneja una agenda 
+4. modelo subasta TYGO para seguros 
+5. El lead tiene allianz,axxa y seguros del estado y aseguralo que es la agencia , etc, el quiere manejar la información por cada aseguradora, lo conocen como Fabian Carrera, pero quiere posicionar aseguralo, el sheet debe ser inteligente y registra por aseguradoras, poder filtrar la información en tiempo.
+6. las cuentas correo son celcarov@gmail.com, celso.carrera@allia2.com.co , aseguralo@outlook.com, asesorias@aseguralo.com.co. aseguraloseguros@gmail.com. la cuenta principal es aseguralo@outlook.com, es es el acceso de Fabian 
+7. en modo polizas, vamos con los datos que hay mas: Intermadiario
+8. En nueva póliza adicional el campo intenmediario 
+9. en póliza ver detalle, jala todos los datos de la póliza, enlaces pdf, e información del sheet y del sarlaft 
+10. caso: una sra quiere cotizar un carro; fabian la saluda y le escribe la información: el nombre del propietario, el tipo y numero de documento, fecha de nacimiento, placa del vehiculo, zona de circulación(ciudad) y color. 
+
+**Cuando son hogar: Dirección inmueble
+Area
+Número de pisos del edificio
+Número de sótanos
+Año de construcción del edificio
+Valor comercial del apartamento
+Valor muebles y enseres (incluye, cortinas, ropa, juegos de cama, losa, ollas, muebles en general, camas, etc...)
+Equipo eléctrico y electrónico
+Herramienta
+Artículos de valor (obras de arte, joyas, etc...)
+Equipos móviles y portátiles (no incluyen celulares)
+**Cuando es salud: 
+Datos de póliza de salud 
+Nombre
+Tipo y número de documento 
+Fecha de nacimiento 
+Eps
+(por cada asegurado)
+
+
+ 
+11. Envio de audios (por recibir) por tipo de serivico a cotizar
+12. una vez cotizado, fabian debe entrar a cada una de las paginas de seguros y hacer un proceso manual de cotización llenar datos, etc, necesitamos un bot que lo haga por ellos, que se nos ocurre aquí (este es el paso mas delicado) ya la tengo clara 
+13. Una vez fabian hace eso, envia un texto via wspp donde hace un resumen, resalta la mejor opción (no siempre la mas barata), un mensaje cálido, amigable, respetuoso y anexa los pdfs de las aseguradoras como soporte, cierra con un mensaje de atento a la respuesta ., esto es la cotización, de una vez debe quedar registrado en el sistema en su respectivo estado, y luego Fabian espera un dia según el tipo de póliza, para volver a comunicarse, revisemos esos estados de los leads de fabian, en campaña fabian envia otro mensaje el dia siguiente, y se actualiza el registro y el CRM
+
+14. luego el cliente o la sra, en el ejemplo, decide, Fabian gestiona todo el proceso en CRM: el requiere del cliente según el tipo de seguro los documentos pertinentes: si es vehiculo: cedula ,tarjeta de propiedad, sarlaft(aquí fabian lo envia según la aseguradora que el cliente escoja), en Axxa seguros toca enviar el pdf, en seguros del estado envia en link . En allianz fabian ingresa a la pagina de ellos, llama al cliente y pide los datos (revisemos como podríamos mejorar esto)   
+    
+15. Fabian genera la póliza escogida.
+16. necesito polizas para desarrollo de lectura OCR 
+17. De la cotización, cambiamos estado a vendido, en ese momento, se tiene info del cliente (nose en donde, el mismo sheet),mas  el certificado de la póliza (pdf) y la póliza en si(pdf), fabian carga y lees ocr los datos de estos pdf para completar el sheet, aquí toca generar alertas de renovación, de alertas, para evitar que se venza, debes enviar un mensaje al wspp, renovar cambia de color 10 días antes, el dia de vencimiento pasa a estado rojo con mensaje, y el dia 10 de vencido envia un corre a fabian y un msg wss con los datos del cliente,  y que dispare un mensaje siendo fabian al cliente.   
+
+
+18. campañas cuenta datos: celcarov@gmail.com, tomar modelo de ty para aseguralo, calendario, biblioteca, resultados,  mensaje a wspp y/o mensaje a correo
+19. seo: enfocado a salud, vida y ahorro, y los demás ya expuestos,  landings a nivel nacional y mercado hispona hablante en USA, palabra claves, posicionamiento orgánico ,renovación de website. en la landing crear un perfil de riesgo tipo torta, con ingreso salario, (arriendo o propietario) gastos mensuales, el resultado debe ser un indicador de ahorro, con una disposición de cuanto para seguro como plan recomendado, datos basicos u obligatorios, alertas al correo, para regresar campaña de ventas
+
+20. diseño web mas adelante   
+
+21. pagos por comisión 7group: 12.5%autos, dejemos un espacio para los porcentajes, debemos ir totalizando 15 días o mes los amrgenes, los totales, no van con iva, revisa como haríamos ese registro tanto para fabian como patra 7 group, nuemros de cuentas, etc (agente financiero)  
