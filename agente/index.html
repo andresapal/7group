@@ -212,6 +212,44 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 /* =============== AUTH =============== */
 var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
 
+/* =============== PROJECTS DATA =============== */
+var PROJECTS=[
+  {
+    id:'aseguralo',
+    title:{es:'Aseguralo',en:'Aseguralo'},
+    client:'Fabian Carrera',
+    type:'insurance',
+    status:'active',
+    phase:'onboarding',
+    revenue:0,
+    created:'2026-08-12',
+    lastActivity:'2026-08-14',
+    docs:8,
+    tags:['Cotizador','Polizas','Comisiones','Facturacion','Renovaciones'],
+    link:'/agente/aseguralo/',
+    region:'Bogota, Colombia'
+  },
+  {
+    id:'land-marmoles',
+    title:{es:'Lan Marmoles',en:'Lan Marmoles'},
+    client:'Ricardo Lancheros',
+    type:'construction',
+    status:'active',
+    phase:'onboarding',
+    revenue:4800,
+    created:'2026-06-20',
+    lastActivity:'2026-07-18',
+    docs:3,
+    tags:['Cotizador','ERP','Comisiones','Cuenta de Cobro'],
+    link:'/agente/land-marmoles/',
+    region:'Bogota, Colombia'
+  }
+];
+
+/* =============== STATE =============== */
+var currentView='grid';
+var currentFilter='all';
+
 /* ROLES: admin sees all, client sees only their projects */
 var USER_ROLES={
   'andresapalt@gmail.com':'admin',
@@ -303,44 +341,6 @@ var BIZ_TYPES={
   technology:{color:'var(--blue)',bg:'rgba(59,130,246,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>'},
   insurance:{color:'#10B981',bg:'rgba(16,185,129,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'}
 };
-
-/* =============== PROJECTS DATA =============== */
-var PROJECTS=[
-  {
-    id:'aseguralo',
-    title:{es:'Aseguralo',en:'Aseguralo'},
-    client:'Fabian Carrera',
-    type:'insurance',
-    status:'active',
-    phase:'onboarding',
-    revenue:0,
-    created:'2026-08-12',
-    lastActivity:'2026-08-14',
-    docs:8,
-    tags:['Cotizador','Polizas','Comisiones','Facturacion','Renovaciones'],
-    link:'/agente/aseguralo/',
-    region:'Bogota, Colombia'
-  },
-  {
-    id:'land-marmoles',
-    title:{es:'Lan Marmoles',en:'Lan Marmoles'},
-    client:'Ricardo Lancheros',
-    type:'construction',
-    status:'active',
-    phase:'onboarding',
-    revenue:4800,
-    created:'2026-06-20',
-    lastActivity:'2026-07-18',
-    docs:3,
-    tags:['Cotizador','ERP','Comisiones','Cuenta de Cobro'],
-    link:'/agente/land-marmoles/',
-    region:'Bogota, Colombia'
-  }
-];
-
-/* =============== STATE =============== */
-var currentView='grid';
-var currentFilter='all';
 
 function setView(v){
   currentView=v;
