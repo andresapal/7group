@@ -641,7 +641,8 @@ tbody tr:hover{background:var(--accent-light)}
       </div>
       <div class="form-group">
         <label class="form-label">Intermediario</label>
-        <input class="form-input" id="pIntermediario" placeholder="Nombre del intermediario o asesor">
+        <select class="form-input" id="pIntermediario" onchange="toggleOtroIntermediario('p')"><option value="">Seleccionar...</option><option value="Fabian Carrera">Fabian Carrera</option><option value="Judith Neira">Judith Neira</option><option value="Sandra Marin">Sandra Marin</option><option value="Erika Pinzon">Erika Pinzon</option><option value="On Line">On Line</option><option value="__otro__">Otro</option></select>
+        <input class="form-input" id="pIntermediarioOtro" placeholder="Nombre del nuevo intermediario" style="display:none;margin-top:6px">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -725,7 +726,8 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
         <div class="form-group">
           <label class="form-label">Intermediario</label>
-          <input class="form-input" id="cIntermediario" placeholder="Nombre del intermediario o asesor">
+          <select class="form-input" id="cIntermediario" onchange="toggleOtroIntermediario('c')"><option value="">Seleccionar...</option><option value="Fabian Carrera">Fabian Carrera</option><option value="Judith Neira">Judith Neira</option><option value="Sandra Marin">Sandra Marin</option><option value="Erika Pinzon">Erika Pinzon</option><option value="On Line">On Line</option><option value="__otro__">Otro</option></select>
+          <input class="form-input" id="cIntermediarioOtro" placeholder="Nombre del nuevo intermediario" style="display:none;margin-top:6px">
         </div>
       </div>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
@@ -898,15 +900,15 @@ var CLIENTES=[
 
 var POLIZAS=[
   {id:'POL-001',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Auto',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:2400000,valorAsegurado:85000000,desde:'2026-03-15',hasta:'2027-03-15',estado:'activa',sarlaft:'completo',pdfUrl:''},
-  {id:'POL-002',cliente:'Ana Patricia Rojas',telefono:'3209876543',tipo:'Vida',aseguradora:'AXA Colpatria',intermediario:'Fabian Carrera',prima:3600000,valorAsegurado:300000000,desde:'2026-01-01',hasta:'2027-01-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
-  {id:'POL-003',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Hogar',aseguradora:'Seguros del Estado',intermediario:'Fabian Carrera',prima:1800000,valorAsegurado:450000000,desde:'2025-10-01',hasta:'2026-10-01',estado:'activa',sarlaft:'pendiente',pdfUrl:''},
-  {id:'POL-004',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'SOAT',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:980000,valorAsegurado:0,desde:'2026-06-01',hasta:'2026-08-15',estado:'por-renovar',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-002',cliente:'Ana Patricia Rojas',telefono:'3209876543',tipo:'Vida',aseguradora:'AXA Colpatria',intermediario:'Judith Neira',prima:3600000,valorAsegurado:300000000,desde:'2026-01-01',hasta:'2027-01-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-003',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Hogar',aseguradora:'Seguros del Estado',intermediario:'Sandra Marin',prima:1800000,valorAsegurado:450000000,desde:'2025-10-01',hasta:'2026-10-01',estado:'activa',sarlaft:'pendiente',pdfUrl:''},
+  {id:'POL-004',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'SOAT',aseguradora:'Allianz',intermediario:'Erika Pinzon',prima:980000,valorAsegurado:0,desde:'2026-06-01',hasta:'2026-08-15',estado:'por-renovar',sarlaft:'completo',pdfUrl:''},
   {id:'POL-005',cliente:'Fernando Gutierrez',telefono:'3187654321',tipo:'Empresarial',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:12000000,valorAsegurado:2000000000,desde:'2026-02-01',hasta:'2027-02-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
-  {id:'POL-006',cliente:'Lucia Hernandez',telefono:'3112345678',tipo:'Auto',aseguradora:'AXA Colpatria',intermediario:'',prima:1950000,valorAsegurado:62000000,desde:'2025-12-01',hasta:'2026-08-01',estado:'vencida',sarlaft:'pendiente',pdfUrl:''},
-  {id:'POL-007',cliente:'Andres Castillo',telefono:'3223456789',tipo:'Salud',aseguradora:'Seguros del Estado',intermediario:'Fabian Carrera',prima:4200000,valorAsegurado:0,desde:'2026-04-01',hasta:'2027-04-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
-  {id:'POL-008',cliente:'Paula Andrea Diaz',telefono:'3054321098',tipo:'Hogar Deudor',aseguradora:'AXA Colpatria',intermediario:'',prima:2100000,valorAsegurado:380000000,desde:'2026-05-15',hasta:'2026-09-15',estado:'por-renovar',sarlaft:'pendiente',pdfUrl:''},
+  {id:'POL-006',cliente:'Lucia Hernandez',telefono:'3112345678',tipo:'Auto',aseguradora:'AXA Colpatria',intermediario:'On Line',prima:1950000,valorAsegurado:62000000,desde:'2025-12-01',hasta:'2026-08-01',estado:'vencida',sarlaft:'pendiente',pdfUrl:''},
+  {id:'POL-007',cliente:'Andres Castillo',telefono:'3223456789',tipo:'Salud',aseguradora:'Seguros del Estado',intermediario:'Judith Neira',prima:4200000,valorAsegurado:0,desde:'2026-04-01',hasta:'2027-04-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-008',cliente:'Paula Andrea Diaz',telefono:'3054321098',tipo:'Hogar Deudor',aseguradora:'AXA Colpatria',intermediario:'Sandra Marin',prima:2100000,valorAsegurado:380000000,desde:'2026-05-15',hasta:'2026-09-15',estado:'por-renovar',sarlaft:'pendiente',pdfUrl:''},
   {id:'POL-009',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Vida Deudor',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:5400000,valorAsegurado:500000000,desde:'2025-06-01',hasta:'2026-06-01',estado:'vencida',sarlaft:'completo',pdfUrl:''},
-  {id:'POL-010',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Cumplimiento',aseguradora:'Seguros del Estado',intermediario:'Fabian Carrera',prima:3200000,valorAsegurado:1000000000,desde:'2025-04-01',hasta:'2026-04-01',estado:'cancelada',sarlaft:'sin-iniciar',pdfUrl:''}
+  {id:'POL-010',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Cumplimiento',aseguradora:'Seguros del Estado',intermediario:'Erika Pinzon',prima:3200000,valorAsegurado:1000000000,desde:'2025-04-01',hasta:'2026-04-01',estado:'cancelada',sarlaft:'sin-iniciar',pdfUrl:''}
 ];
 
 var COMISIONES=[
@@ -942,7 +944,7 @@ var COTIZACIONES=[
       {aseguradora:'AXA Colpatria',prima:2640000,deducible:1800000,coberturas:'Todo riesgo, grua, RC $300M'},
       {aseguradora:'Seguros del Estado',prima:2380000,deducible:2200000,coberturas:'Basico + hurto, RC $200M'}
     ],notas:'Cliente prefiere cobertura amplia. Recomendado: Allianz por asistencia vial.'},
-  {id:'COT-002',fecha:'2026-08-08',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'Hogar',bien:'Apartamento 120m2 Cedritos, estrato 4',valorAsegurar:380000000,intermediario:'Fabian Carrera',estado:'aceptada',poliza:'POL-008',
+  {id:'COT-002',fecha:'2026-08-08',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'Hogar',bien:'Apartamento 120m2 Cedritos, estrato 4',valorAsegurar:380000000,intermediario:'Sandra Marin',estado:'aceptada',poliza:'POL-008',
     comparaciones:[
       {aseguradora:'AXA Colpatria',prima:2100000,deducible:800000,coberturas:'Incendio, terremoto, inundacion, hurto contenido'},
       {aseguradora:'Seguros del Estado',prima:2350000,deducible:650000,coberturas:'Todo riesgo hogar, responsabilidad civil'},
@@ -953,12 +955,12 @@ var COTIZACIONES=[
       {aseguradora:'Allianz',prima:12000000,deducible:15000000,coberturas:'Todo riesgo industrial, lucro cesante, RC patronal'},
       {aseguradora:'AXA Colpatria',prima:13800000,deducible:12000000,coberturas:'Integral empresarial, equipo electrico, RC'}
     ],notas:'Allianz gano por mejor tarifa en riesgo industrial.'},
-  {id:'COT-004',fecha:'2026-07-28',cliente:'Sandra Milena Castro',telefono:'3136543210',tipo:'Vida',bien:'Poliza de vida - Ejecutiva 42 anos',valorAsegurar:500000000,intermediario:'',estado:'rechazada',poliza:null,
+  {id:'COT-004',fecha:'2026-07-28',cliente:'Sandra Milena Castro',telefono:'3136543210',tipo:'Vida',bien:'Poliza de vida - Ejecutiva 42 anos',valorAsegurar:500000000,intermediario:'On Line',estado:'rechazada',poliza:null,
     comparaciones:[
       {aseguradora:'AXA Colpatria',prima:4200000,deducible:0,coberturas:'Muerte, invalidez, enfermedades graves'},
       {aseguradora:'Seguros del Estado',prima:4800000,deducible:0,coberturas:'Muerte, invalidez, ITP, hospitalizacion'}
     ],notas:'Cliente considero las primas muy altas. Seguimiento en 30 dias.'},
-  {id:'COT-005',fecha:'2026-08-09',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Hogar',bien:'Casa 200m2 Chia, condominio cerrado',valorAsegurar:650000000,intermediario:'Fabian Carrera',estado:'enviada',poliza:null,
+  {id:'COT-005',fecha:'2026-08-09',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Hogar',bien:'Casa 200m2 Chia, condominio cerrado',valorAsegurar:650000000,intermediario:'Erika Pinzon',estado:'enviada',poliza:null,
     comparaciones:[
       {aseguradora:'Allianz',prima:3200000,deducible:900000,coberturas:'Todo riesgo hogar, sismo, hurto, RC'},
       {aseguradora:'Seguros del Estado',prima:2900000,deducible:1100000,coberturas:'Incendio, terremoto, contenido, asistencia'},
@@ -1121,6 +1123,18 @@ document.getElementById('modNav').addEventListener('click',function(e){
    HELPERS
    ==================================== */
 function fmt(n){return '$'+n.toLocaleString('es-CO')}
+
+/* ====== INTERMEDIARIO HELPERS ====== */
+function toggleOtroIntermediario(prefix){
+  var sel=document.getElementById(prefix+'Intermediario');
+  var otro=document.getElementById(prefix+'IntermediarioOtro');
+  if(sel.value==='__otro__'){otro.style.display='block';otro.focus()}else{otro.style.display='none';otro.value=''}
+}
+function getIntermediario(prefix){
+  var sel=document.getElementById(prefix+'Intermediario');
+  if(sel.value==='__otro__') return document.getElementById(prefix+'IntermediarioOtro').value.trim();
+  return sel.value;
+}
 
 /* ====== SORT ENGINE ====== */
 var sortState={};
@@ -1355,7 +1369,7 @@ window.savePoliza=function(){
     telefono:document.getElementById('pTelefono').value,
     tipo:tipo,
     aseguradora:aseguradora,
-    intermediario:document.getElementById('pIntermediario').value.trim(),
+    intermediario:getIntermediario('p'),
     prima:prima,
     valorAsegurado:parseFloat(document.getElementById('pValorAsegurado').value)||0,
     desde:document.getElementById('pDesde').value||new Date().toISOString().slice(0,10),
@@ -1698,7 +1712,7 @@ window.saveCotizacion=function(){
     fecha:TODAY.toISOString().slice(0,10),
     cliente:cliente,telefono:document.getElementById('cTelefono').value.trim(),
     tipo:tipo,bien:bien,valorAsegurar:valor,
-    intermediario:document.getElementById('cIntermediario').value.trim(),
+    intermediario:getIntermediario('c'),
     estado:'enviada',poliza:null,
     comparaciones:comps,
     notas:document.getElementById('cNotas').value.trim()
