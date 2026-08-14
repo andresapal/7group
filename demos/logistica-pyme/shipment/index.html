@@ -2199,7 +2199,13 @@ function renderXDDestinations() {
       var it = items[i];
       var assigned = dest.items[it.sku] || 0;
       var otherAlloc = getXDAllocated(it.sku) - assigned;
-      var maxQty = it.qty - otherAlloc;
+      // Use adjusted physical qty (novedades) instead of doc qty
+      var adjQty = it.qty;
+      var nt = itemDamageType[it.sku] || '';
+      var nq = parseInt(itemNovQty[it.sku]) || 0;
+      if(nt === 'faltante' && nq > 0) adjQty = Math.max(0, it.qty - nq);
+      else if(nt === 'sobrante' && nq > 0) adjQty = it.qty + nq;
+      var maxQty = adjQty - otherAlloc;
       h += '<div class="xd-assign-row">';
       h += '<span style="font-size:10px;color:var(--dim);font-family:monospace;min-width:70px;flex-shrink:0">' + it.sku + '</span>';
       h += '<span style="font-size:10px;color:var(--white);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + it.name + '</span>';
@@ -2312,7 +2318,15 @@ function renderXDSummary() {
   if (!xdDestinations.length) { el.innerHTML = ''; return; }
 
   var totalXD = 0, totalAll = 0;
-  for (var i = 0; i < extractedData.items.length; i++) totalAll += extractedData.items[i].qty;
+  for (var i = 0; i < extractedData.items.length; i++) {
+    var _it = extractedData.items[i];
+    var _nt = itemDamageType[_it.sku] || '';
+    var _nq = parseInt(itemNovQty[_it.sku]) || 0;
+    var _adj = _it.qty;
+    if(_nt === 'faltante' && _nq > 0) _adj = Math.max(0, _it.qty - _nq);
+    else if(_nt === 'sobrante' && _nq > 0) _adj = _it.qty + _nq;
+    totalAll += _adj;
+  }
   for (var d = 0; d < xdDestinations.length; d++) {
     for (var sk in xdDestinations[d].items) totalXD += xdDestinations[d].items[sk];
   }
@@ -2581,7 +2595,7 @@ function deleteShipment(idx) {
 function buildPreReceiptHTML(s, isPreview) {
   var date = new Date(s.createdAt || new Date().toISOString());
   var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  var totalExpected = 0, totalVerified = 0, totalFlagged = 0;
+  var totalExpected = 0, totalVerified = 0, totalFlagged = 0, totalAdjusted = 0, totalDamaged = 0;
   var novLabels = {faltante:{es:'Faltante',en:'Shortage'},sobrante:{es:'Sobrante',en:'Surplus'},averia:{es:'Averia',en:'Damage'}};
   var rows = '';
   if (s.items) {
@@ -2591,13 +2605,22 @@ function buildPreReceiptHTML(s, isPreview) {
       var st = s.itemStatus ? (s.itemStatus[it.sku] || '') : '';
       var ob = s.itemObs ? (s.itemObs[it.sku] || '') : '';
       var dt = s.itemDamageType ? (s.itemDamageType[it.sku] || '') : '';
-      var nq = s.itemNovQty ? (s.itemNovQty[it.sku] || 0) : 0;
-      totalExpected += it.qty;
+      var nq = s.itemNovQty ? (parseInt(s.itemNovQty[it.sku]) || 0) : 0;
+      var docQty = parseInt(it.qty) || 0;
+      /* --- adjusted physical qty --- */
+      var adjQty = docQty;
+      var dmgQty = 0;
+      if (dt === 'faltante' && nq > 0) { adjQty = Math.max(0, docQty - nq); }
+      else if (dt === 'sobrante' && nq > 0) { adjQty = docQty + nq; }
+      else if (dt === 'averia' && nq > 0) { dmgQty = nq; }
+      totalExpected += docQty;
+      totalAdjusted += adjQty;
+      totalDamaged += dmgQty;
       totalVerified += sc;
       if (st === 'flagged') totalFlagged++;
       var stLabel = st === 'ok' ? t('pdfOK') : st === 'flagged' ? t('pdfFlagged') : t('pdfPending');
       var stColor = st === 'ok' ? '#22c55e' : st === 'flagged' ? '#ef4444' : '#94a3b8';
-      var diff = sc - it.qty;
+      var diff = adjQty - docQty;
       var diffStr = diff === 0 ? '=' : (diff > 0 ? '+' + diff : '' + diff);
       var diffColor = diff === 0 ? '#22c55e' : '#ef4444';
       var obsText = '';
@@ -2605,9 +2628,10 @@ function buildPreReceiptHTML(s, isPreview) {
         var novColor = dt === 'sobrante' ? '#f59e0b' : '#ef4444';
         obsText += '<span style="background:#fef2f2;color:' + novColor + ';padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">' + novLabels[dt][LANG] + (nq > 0 ? ': ' + nq : '') + '</span> ';
       }
+      if (dmgQty > 0) obsText += '<span style="background:#fef2f2;color:#ef4444;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700">' + (LANG==='es'?'Averiados':'Damaged') + ': ' + dmgQty + '</span> ';
       if (ob) obsText += ob;
       if (!obsText) obsText = '—';
-      rows += '<tr><td style="font-family:monospace;font-size:11px">' + it.sku + '</td><td>' + it.name + '</td><td style="text-align:center;font-weight:700">' + it.qty + '</td><td style="text-align:center;font-weight:700">' + sc + '</td><td style="text-align:center;font-weight:700;color:' + diffColor + '">' + diffStr + '</td><td style="text-align:center;color:' + stColor + ';font-weight:700">' + stLabel + '</td><td style="font-size:11px">' + obsText + '</td></tr>';
+      rows += '<tr><td style="font-family:monospace;font-size:11px">' + it.sku + '</td><td>' + it.name + '</td><td style="text-align:center;font-weight:700">' + docQty + '</td><td style="text-align:center;font-weight:700;color:' + (adjQty !== docQty ? '#f97316' : '#1e293b') + '">' + adjQty + '</td><td style="text-align:center;font-weight:700;color:' + diffColor + '">' + diffStr + '</td><td style="text-align:center;color:' + stColor + ';font-weight:700">' + stLabel + '</td><td style="font-size:11px">' + obsText + '</td></tr>';
     }
   }
 
@@ -2668,11 +2692,12 @@ function buildPreReceiptHTML(s, isPreview) {
   html += '</div>';
 
   html += '<h3 style="font-size:13px;margin-bottom:4px">' + t('pdfItemList') + '</h3>';
-  html += '<table><thead><tr><th>' + t('pdfSKU') + '</th><th>' + t('pdfDesc') + '</th><th style="text-align:center">Doc</th><th style="text-align:center">' + (LANG==='es'?'Fisico':'Physical') + '</th><th style="text-align:center">' + (LANG==='es'?'Dif':'Diff') + '</th><th style="text-align:center">' + t('pdfStatus') + '</th><th>' + t('pdfObs') + '</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  html += '<table><thead><tr><th>' + t('pdfSKU') + '</th><th>' + t('pdfDesc') + '</th><th style="text-align:center">Doc</th><th style="text-align:center">' + (LANG==='es'?'Ajustado':'Adjusted') + '</th><th style="text-align:center">' + (LANG==='es'?'Dif':'Diff') + '</th><th style="text-align:center">' + t('pdfStatus') + '</th><th>' + t('pdfObs') + '</th></tr></thead><tbody>' + rows + '</tbody></table>';
 
-  html += '<div class="summary-box">';
-  html += '<div><div class="summary-num">' + totalExpected + '</div><div class="summary-label">' + t('pdfTotalItems') + '</div></div>';
-  html += '<div><div class="summary-num" style="color:#22c55e">' + totalVerified + '</div><div class="summary-label">' + t('pdfVerified') + '</div></div>';
+  html += '<div class="summary-box" style="grid-template-columns:repeat(4,1fr)">';
+  html += '<div><div class="summary-num">' + totalExpected + '</div><div class="summary-label">' + (LANG==='es'?'Doc Total':'Doc Total') + '</div></div>';
+  html += '<div><div class="summary-num" style="color:' + (totalAdjusted !== totalExpected ? '#f97316' : '#22c55e') + '">' + totalAdjusted + '</div><div class="summary-label">' + (LANG==='es'?'Ajustado':'Adjusted') + '</div></div>';
+  html += '<div><div class="summary-num" style="color:' + (totalDamaged > 0 ? '#ef4444' : '#22c55e') + '">' + totalDamaged + '</div><div class="summary-label">' + (LANG==='es'?'Averiados':'Damaged') + '</div></div>';
   html += '<div><div class="summary-num" style="color:' + (totalFlagged > 0 ? '#ef4444' : '#22c55e') + '">' + totalFlagged + '</div><div class="summary-label">' + t('pdfFlagCount') + '</div></div>';
   html += '</div>';
 
@@ -2718,7 +2743,7 @@ function buildPreReceiptHTML(s, isPreview) {
       xdGrandTotal += destTotal;
     }
 
-    var whTotal = totalExpected - xdGrandTotal;
+    var whTotal = totalAdjusted - xdGrandTotal;
     html += '<div style="display:flex;gap:12px;padding:8px 12px;background:#fff0e6;border:1px solid #fed7aa;border-radius:6px;margin-bottom:8px">';
     html += '<div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:800;color:#f97316">' + xdGrandTotal + '</div><div style="font-size:9px;color:#9a3412;text-transform:uppercase;letter-spacing:.5px">' + (LANG==='es'?'Cross-dock':'Cross-dock') + '</div></div>';
     html += '<div style="flex:1;text-align:center"><div style="font-size:18px;font-weight:800;color:#1e293b">' + Math.max(0, whTotal) + '</div><div style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.5px">' + (LANG==='es'?'A bodega':'To warehouse') + '</div></div>';

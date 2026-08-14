@@ -941,13 +941,34 @@ function completeReception(){
     }
   }
 
+  // Build reception summary for report
+  recv.summary=[];
+
   for(var i=0;i<currentDetail.items.length;i++){
     var it=currentDetail.items[i];
-    var totalArriving=parseInt(it.qty)||0;
+    var docQty=parseInt(it.qty)||0;
     var totalXD=xdAlloc[it.sku]||0;
     var loc=recv.locations[it.sku]||{};
     var st=recv.itemStatus[it.sku]||'ok';
     var obs=recv.observations[it.sku]||'';
+
+    // ---- Apply novedades (faltante/sobrante/averia) ----
+    var novType=recv.novType[it.sku]||'';
+    var novQty=parseInt(recv.novQty[it.sku])||0;
+    var physicalQty=docQty;// adjusted physical count
+    var damagedQty=0;
+
+    if(novType==='faltante'&&novQty>0){
+      physicalQty=docQty-novQty;// arrived fewer than documented
+      if(physicalQty<0)physicalQty=0;
+    }else if(novType==='sobrante'&&novQty>0){
+      physicalQty=docQty+novQty;// arrived more than documented
+    }else if(novType==='averia'&&novQty>0){
+      damagedQty=novQty;// damaged units (still in count but flagged)
+    }
+
+    // ---- Validate XD against physical (can't XD more than arrived) ----
+    if(totalXD>physicalQty)totalXD=physicalQty;
 
     var existing=null;
     for(var j=0;j<inventory.length;j++){
@@ -955,9 +976,11 @@ function completeReception(){
     }
     var existingQty=existing?(parseInt(existing.qty)||0):0;
 
+    // XD fulfillment: use existing warehouse stock first (FIFO), then new cargo
     var fromWarehouse=Math.min(existingQty,totalXD);
     var fromNewCargo=totalXD-fromWarehouse;
-    var toInventory=totalArriving-fromNewCargo;
+    var toInventory=physicalQty-fromNewCargo;// physical minus what goes to XD
+    if(toInventory<0)toInventory=0;
 
     if(fromWarehouse>0&&existing){
       existing.qty=existingQty-fromWarehouse;
@@ -976,20 +999,35 @@ function completeReception(){
       existing.lastReceived=new Date().toISOString();
       existing.status=st;
       if(obs)existing.observation=obs;
+      if(damagedQty>0)existing.damagedQty=(parseInt(existing.damagedQty)||0)+damagedQty;
     }else{
       inventory.push({
         sku:it.sku,name:it.name,qty:toInventory,unitCost:it.unitCost||0,weight:it.weight||'',
         location:locStr,lot:loc.lot||'',expiry:loc.expiry||'',
         minStock:Math.max(1,Math.round(toInventory*0.2)),
-        status:st,observation:obs,
+        status:st,observation:obs,damagedQty:damagedQty,
         shipmentId:currentDetail.id,blNumber:currentDetail.blNumber,
         supplier:currentDetail.supplier,lastReceived:new Date().toISOString()
       });
     }
 
-    var logMsg=totalArriving+' arrived';
-    if(totalXD>0) logMsg+=' | XD:'+totalXD+' ('+fromWarehouse+' from stock, '+fromNewCargo+' from cargo) | To inv:'+toInventory;
-    logActivity('recv',it.sku,logMsg+' from '+currentDetail.blNumber);
+    // ---- Detailed log ----
+    var logParts=['Doc:'+docQty];
+    if(novType&&novQty>0)logParts.push(novType+':'+novQty);
+    logParts.push('Physical:'+physicalQty);
+    if(damagedQty>0)logParts.push('Damaged:'+damagedQty);
+    if(totalXD>0)logParts.push('XD:'+totalXD+'(stock:'+fromWarehouse+',cargo:'+fromNewCargo+')');
+    logParts.push('ToInv:'+toInventory);
+    logActivity('recv',it.sku,logParts.join(' | ')+' from '+currentDetail.blNumber);
+
+    // ---- Store summary for report ----
+    recv.summary.push({
+      sku:it.sku,name:it.name,docQty:docQty,
+      novType:novType,novQty:novQty,
+      physicalQty:physicalQty,damagedQty:damagedQty,
+      xdQty:totalXD,xdFromStock:fromWarehouse,xdFromCargo:fromNewCargo,
+      toInventory:toInventory,observation:obs
+    });
   }
 
   if(isXD&&typeof DB!=='undefined'&&DB.createDispatch){
