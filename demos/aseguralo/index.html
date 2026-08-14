@@ -211,6 +211,18 @@ tbody tr:hover{background:var(--accent-light)}
   .kpi-grid{grid-template-columns:1fr}
 }
 
+/* POLICY DETAIL ROW */
+.pol-detail{padding:16px 20px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:2px solid var(--accent-mid)}
+.pd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+@media(max-width:768px){.pd-grid{grid-template-columns:1fr}}
+.pd-col{}
+.pd-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2)}
+.pd-field{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px}
+.pd-label{color:var(--dim);font-weight:600}
+.pd-value{font-weight:500;text-align:right}
+.pd-link{color:var(--accent);text-decoration:none;font-weight:600}
+.pd-link:hover{text-decoration:underline}
+
 /* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;z-index:600;padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;color:#fff;background:var(--accent);box-shadow:var(--shadow-lg);transform:translateY(100px);opacity:0;transition:all .3s}
 .toast.show{transform:translateY(0);opacity:1}
@@ -323,6 +335,7 @@ tbody tr:hover{background:var(--accent-light)}
                 <th>Cliente</th>
                 <th>Tipo</th>
                 <th>Aseguradora</th>
+                <th>Intermediario</th>
                 <th>Prima</th>
                 <th>Vigencia</th>
                 <th>Estado</th>
@@ -602,21 +615,33 @@ tbody tr:hover{background:var(--accent-light)}
             <option value="Empresarial">Empresarial</option>
             <option value="Salud">Salud</option>
             <option value="Responsabilidad Civil">Responsabilidad Civil</option>
+            <option value="Cumplimiento">Cumplimiento</option>
+            <option value="Colectivo">Colectivo</option>
+            <option value="Vida Deudor">Vida Deudor</option>
+            <option value="Hogar Deudor">Hogar Deudor</option>
+            <option value="Exequial">Exequial</option>
+            <option value="Transporte">Transporte</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Aseguradora</label>
           <select class="form-select" id="pAseguradora">
             <option value="">Seleccionar...</option>
+            <option value="Allianz">Allianz</option>
+            <option value="AXA Colpatria">AXA Colpatria</option>
+            <option value="Seguros del Estado">Seguros del Estado</option>
             <option value="Sura">Sura</option>
             <option value="Bolivar">Bolivar</option>
             <option value="Mapfre">Mapfre</option>
-            <option value="Allianz">Allianz</option>
             <option value="Liberty">Liberty</option>
-            <option value="AXA Colpatria">AXA Colpatria</option>
             <option value="Previsora">Previsora</option>
+            <option value="Mundial">Mundial</option>
           </select>
         </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Intermediario</label>
+        <input class="form-input" id="pIntermediario" placeholder="Nombre del intermediario o asesor">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -680,6 +705,12 @@ tbody tr:hover{background:var(--accent-light)}
             <option value="Empresarial">Empresarial</option>
             <option value="Salud">Salud</option>
             <option value="Responsabilidad Civil">Responsabilidad Civil</option>
+            <option value="Cumplimiento">Cumplimiento</option>
+            <option value="Colectivo">Colectivo</option>
+            <option value="Vida Deudor">Vida Deudor</option>
+            <option value="Hogar Deudor">Hogar Deudor</option>
+            <option value="Exequial">Exequial</option>
+            <option value="Transporte">Transporte</option>
           </select>
         </div>
         <div class="form-group">
@@ -687,27 +718,33 @@ tbody tr:hover{background:var(--accent-light)}
           <input class="form-input" id="cBien" placeholder="ej: Mazda CX-5 2024, Apto 85m2 Chico...">
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Valor a Asegurar</label>
-        <input class="form-input" type="number" id="cValor" placeholder="ej: 85000000">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Valor a Asegurar</label>
+          <input class="form-input" type="number" id="cValor" placeholder="ej: 85000000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Intermediario</label>
+          <input class="form-input" id="cIntermediario" placeholder="Nombre del intermediario o asesor">
+        </div>
       </div>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
         <div style="font-size:13px;font-weight:700;margin-bottom:12px">Comparacion de Aseguradoras</div>
         <div id="cComparaciones">
           <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Allianz</option><option>Liberty</option><option>AXA Colpatria</option><option>Previsora</option></select>
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
             <input class="form-input" type="number" placeholder="Prima anual">
             <input class="form-input" type="number" placeholder="Deducible">
             <input class="form-input" placeholder="Coberturas clave">
           </div>
           <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Allianz</option><option>Liberty</option><option>AXA Colpatria</option><option>Previsora</option></select>
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
             <input class="form-input" type="number" placeholder="Prima anual">
             <input class="form-input" type="number" placeholder="Deducible">
             <input class="form-input" placeholder="Coberturas clave">
           </div>
           <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Allianz</option><option>Liberty</option><option>AXA Colpatria</option><option>Previsora</option></select>
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
             <input class="form-input" type="number" placeholder="Prima anual">
             <input class="form-input" type="number" placeholder="Deducible">
             <input class="form-input" placeholder="Coberturas clave">
@@ -802,8 +839,8 @@ tbody tr:hover{background:var(--accent-light)}
 /* ====================================
    EMAIL GATE
    ==================================== */
-var ALLOWED_EMAILS=['andresapal@gmail.com','andresapalt@gmail.com'];
-var ADMIN_EMAILS=['andresapal@gmail.com','andresapalt@gmail.com'];
+var ALLOWED_EMAILS=['aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co','aseguraloseguros@gmail.com','andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+var ADMIN_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
 var GATE_KEY='aseg_erp_user';
 var IS_ADMIN=false;
 
@@ -860,29 +897,29 @@ var CLIENTES=[
 ];
 
 var POLIZAS=[
-  {id:'POL-001',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Auto',aseguradora:'Sura',prima:2400000,valorAsegurado:85000000,desde:'2026-03-15',hasta:'2027-03-15',estado:'activa'},
-  {id:'POL-002',cliente:'Ana Patricia Rojas',telefono:'3209876543',tipo:'Vida',aseguradora:'Bolivar',prima:3600000,valorAsegurado:300000000,desde:'2026-01-01',hasta:'2027-01-01',estado:'activa'},
-  {id:'POL-003',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Hogar',aseguradora:'Mapfre',prima:1800000,valorAsegurado:450000000,desde:'2025-10-01',hasta:'2026-10-01',estado:'activa'},
-  {id:'POL-004',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'SOAT',aseguradora:'Previsora',prima:980000,valorAsegurado:0,desde:'2026-06-01',hasta:'2026-08-15',estado:'por-renovar'},
-  {id:'POL-005',cliente:'Fernando Gutierrez',telefono:'3187654321',tipo:'Empresarial',aseguradora:'Allianz',prima:12000000,valorAsegurado:2000000000,desde:'2026-02-01',hasta:'2027-02-01',estado:'activa'},
-  {id:'POL-006',cliente:'Lucia Hernandez',telefono:'3112345678',tipo:'Auto',aseguradora:'Liberty',prima:1950000,valorAsegurado:62000000,desde:'2025-12-01',hasta:'2026-08-01',estado:'vencida'},
-  {id:'POL-007',cliente:'Andres Castillo',telefono:'3223456789',tipo:'Salud',aseguradora:'Sura',prima:4200000,valorAsegurado:0,desde:'2026-04-01',hasta:'2027-04-01',estado:'activa'},
-  {id:'POL-008',cliente:'Paula Andrea Diaz',telefono:'3054321098',tipo:'Hogar',aseguradora:'AXA Colpatria',prima:2100000,valorAsegurado:380000000,desde:'2026-05-15',hasta:'2026-09-15',estado:'por-renovar'},
-  {id:'POL-009',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Vida',aseguradora:'Bolivar',prima:5400000,valorAsegurado:500000000,desde:'2025-06-01',hasta:'2026-06-01',estado:'vencida'},
-  {id:'POL-010',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Responsabilidad Civil',aseguradora:'Mapfre',prima:3200000,valorAsegurado:1000000000,desde:'2025-04-01',hasta:'2026-04-01',estado:'cancelada'}
+  {id:'POL-001',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Auto',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:2400000,valorAsegurado:85000000,desde:'2026-03-15',hasta:'2027-03-15',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-002',cliente:'Ana Patricia Rojas',telefono:'3209876543',tipo:'Vida',aseguradora:'AXA Colpatria',intermediario:'Fabian Carrera',prima:3600000,valorAsegurado:300000000,desde:'2026-01-01',hasta:'2027-01-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-003',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Hogar',aseguradora:'Seguros del Estado',intermediario:'Fabian Carrera',prima:1800000,valorAsegurado:450000000,desde:'2025-10-01',hasta:'2026-10-01',estado:'activa',sarlaft:'pendiente',pdfUrl:''},
+  {id:'POL-004',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'SOAT',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:980000,valorAsegurado:0,desde:'2026-06-01',hasta:'2026-08-15',estado:'por-renovar',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-005',cliente:'Fernando Gutierrez',telefono:'3187654321',tipo:'Empresarial',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:12000000,valorAsegurado:2000000000,desde:'2026-02-01',hasta:'2027-02-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-006',cliente:'Lucia Hernandez',telefono:'3112345678',tipo:'Auto',aseguradora:'AXA Colpatria',intermediario:'',prima:1950000,valorAsegurado:62000000,desde:'2025-12-01',hasta:'2026-08-01',estado:'vencida',sarlaft:'pendiente',pdfUrl:''},
+  {id:'POL-007',cliente:'Andres Castillo',telefono:'3223456789',tipo:'Salud',aseguradora:'Seguros del Estado',intermediario:'Fabian Carrera',prima:4200000,valorAsegurado:0,desde:'2026-04-01',hasta:'2027-04-01',estado:'activa',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-008',cliente:'Paula Andrea Diaz',telefono:'3054321098',tipo:'Hogar Deudor',aseguradora:'AXA Colpatria',intermediario:'',prima:2100000,valorAsegurado:380000000,desde:'2026-05-15',hasta:'2026-09-15',estado:'por-renovar',sarlaft:'pendiente',pdfUrl:''},
+  {id:'POL-009',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Vida Deudor',aseguradora:'Allianz',intermediario:'Fabian Carrera',prima:5400000,valorAsegurado:500000000,desde:'2025-06-01',hasta:'2026-06-01',estado:'vencida',sarlaft:'completo',pdfUrl:''},
+  {id:'POL-010',cliente:'Roberto Silva',telefono:'3156789012',tipo:'Cumplimiento',aseguradora:'Seguros del Estado',intermediario:'Fabian Carrera',prima:3200000,valorAsegurado:1000000000,desde:'2025-04-01',hasta:'2026-04-01',estado:'cancelada',sarlaft:'sin-iniciar',pdfUrl:''}
 ];
 
 var COMISIONES=[
-  {aseguradora:'Sura',poliza:'POL-001',cliente:'Carlos Mendoza',prima:2400000,pctComision:12,valorComision:288000,estadoPago:'pagado',fecha:'2026-03-20'},
-  {aseguradora:'Bolivar',poliza:'POL-002',cliente:'Ana Patricia Rojas',prima:3600000,pctComision:15,valorComision:540000,estadoPago:'pagado',fecha:'2026-01-10'},
-  {aseguradora:'Mapfre',poliza:'POL-003',cliente:'Roberto Silva',prima:1800000,pctComision:10,valorComision:180000,estadoPago:'pendiente',fecha:'2026-10-05'},
+  {aseguradora:'Allianz',poliza:'POL-001',cliente:'Carlos Mendoza',prima:2400000,pctComision:12,valorComision:288000,estadoPago:'pagado',fecha:'2026-03-20'},
+  {aseguradora:'AXA Colpatria',poliza:'POL-002',cliente:'Ana Patricia Rojas',prima:3600000,pctComision:15,valorComision:540000,estadoPago:'pagado',fecha:'2026-01-10'},
+  {aseguradora:'Seguros del Estado',poliza:'POL-003',cliente:'Roberto Silva',prima:1800000,pctComision:10,valorComision:180000,estadoPago:'pendiente',fecha:'2026-10-05'},
   {aseguradora:'Allianz',poliza:'POL-005',cliente:'Fernando Gutierrez',prima:12000000,pctComision:8,valorComision:960000,estadoPago:'pendiente',fecha:'2026-02-15'},
-  {aseguradora:'Sura',poliza:'POL-007',cliente:'Andres Castillo',prima:4200000,pctComision:12,valorComision:504000,estadoPago:'vencido',fecha:'2026-04-10'}
+  {aseguradora:'Seguros del Estado',poliza:'POL-007',cliente:'Andres Castillo',prima:4200000,pctComision:12,valorComision:504000,estadoPago:'vencido',fecha:'2026-04-10'}
 ];
 
 var SINIESTROS=[
-  {cliente:'Carlos Mendoza',poliza:'POL-001',tipo:'Colision vehicular',fecha:'2026-07-15',aseguradora:'Sura',etapa:'en_tramite',valor:8500000},
-  {cliente:'Roberto Silva',poliza:'POL-003',tipo:'Inundacion',fecha:'2026-08-02',aseguradora:'Mapfre',etapa:'reportado',valor:15000000},
+  {cliente:'Carlos Mendoza',poliza:'POL-001',tipo:'Colision vehicular',fecha:'2026-07-15',aseguradora:'Allianz',etapa:'en_tramite',valor:8500000},
+  {cliente:'Roberto Silva',poliza:'POL-003',tipo:'Inundacion',fecha:'2026-08-02',aseguradora:'Seguros del Estado',etapa:'reportado',valor:15000000},
   {cliente:'Fernando Gutierrez',poliza:'POL-005',tipo:'Robo de equipos',fecha:'2026-06-20',aseguradora:'Allianz',etapa:'documentacion',valor:22000000},
   {cliente:'Paula Andrea Diaz',poliza:'POL-008',tipo:'Dano por tormenta',fecha:'2026-05-10',aseguradora:'AXA Colpatria',etapa:'resolucion',valor:9200000}
 ];
@@ -899,46 +936,46 @@ var FEED=[
 ];
 
 var COTIZACIONES=[
-  {id:'COT-001',fecha:'2026-08-10',cliente:'Diego Ramirez',telefono:'3178901234',tipo:'Auto',bien:'Chevrolet Tracker 2025 - Gris',valorAsegurar:98000000,estado:'enviada',poliza:null,
+  {id:'COT-001',fecha:'2026-08-10',cliente:'Diego Ramirez',telefono:'3178901234',tipo:'Auto',bien:'Chevrolet Tracker 2025 - Gris',valorAsegurar:98000000,intermediario:'Fabian Carrera',estado:'enviada',poliza:null,
     comparaciones:[
-      {aseguradora:'Sura',prima:2850000,deducible:1500000,coberturas:'Todo riesgo, asistencia vial 24h, RC $500M'},
-      {aseguradora:'Bolivar',prima:2640000,deducible:1800000,coberturas:'Todo riesgo, grua, RC $300M'},
-      {aseguradora:'Liberty',prima:2380000,deducible:2200000,coberturas:'Basico + hurto, RC $200M'}
-    ],notas:'Cliente prefiere cobertura amplia. Recomendado: Sura por asistencia vial.'},
-  {id:'COT-002',fecha:'2026-08-08',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'Hogar',bien:'Apartamento 120m2 Cedritos, estrato 4',valorAsegurar:380000000,estado:'aceptada',poliza:'POL-008',
+      {aseguradora:'Allianz',prima:2850000,deducible:1500000,coberturas:'Todo riesgo, asistencia vial 24h, RC $500M'},
+      {aseguradora:'AXA Colpatria',prima:2640000,deducible:1800000,coberturas:'Todo riesgo, grua, RC $300M'},
+      {aseguradora:'Seguros del Estado',prima:2380000,deducible:2200000,coberturas:'Basico + hurto, RC $200M'}
+    ],notas:'Cliente prefiere cobertura amplia. Recomendado: Allianz por asistencia vial.'},
+  {id:'COT-002',fecha:'2026-08-08',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'Hogar',bien:'Apartamento 120m2 Cedritos, estrato 4',valorAsegurar:380000000,intermediario:'Fabian Carrera',estado:'aceptada',poliza:'POL-008',
     comparaciones:[
       {aseguradora:'AXA Colpatria',prima:2100000,deducible:800000,coberturas:'Incendio, terremoto, inundacion, hurto contenido'},
-      {aseguradora:'Mapfre',prima:2350000,deducible:650000,coberturas:'Todo riesgo hogar, responsabilidad civil'},
-      {aseguradora:'Sura',prima:2580000,deducible:500000,coberturas:'Integral hogar, asistencia domiciliaria'}
+      {aseguradora:'Seguros del Estado',prima:2350000,deducible:650000,coberturas:'Todo riesgo hogar, responsabilidad civil'},
+      {aseguradora:'Allianz',prima:2580000,deducible:500000,coberturas:'Integral hogar, asistencia domiciliaria'}
     ],notas:'Acepto AXA Colpatria por mejor relacion prima-deducible.'},
-  {id:'COT-003',fecha:'2026-08-05',cliente:'Fernando Gutierrez',telefono:'3187654321',tipo:'Empresarial',bien:'Bodega industrial 400m2, Fontibon - Maquinaria pesada',valorAsegurar:2000000000,estado:'aceptada',poliza:'POL-005',
+  {id:'COT-003',fecha:'2026-08-05',cliente:'Fernando Gutierrez',telefono:'3187654321',tipo:'Empresarial',bien:'Bodega industrial 400m2, Fontibon - Maquinaria pesada',valorAsegurar:2000000000,intermediario:'Fabian Carrera',estado:'aceptada',poliza:'POL-005',
     comparaciones:[
       {aseguradora:'Allianz',prima:12000000,deducible:15000000,coberturas:'Todo riesgo industrial, lucro cesante, RC patronal'},
-      {aseguradora:'Sura',prima:13800000,deducible:12000000,coberturas:'Integral empresarial, equipo electrico, RC'}
+      {aseguradora:'AXA Colpatria',prima:13800000,deducible:12000000,coberturas:'Integral empresarial, equipo electrico, RC'}
     ],notas:'Allianz gano por mejor tarifa en riesgo industrial.'},
-  {id:'COT-004',fecha:'2026-07-28',cliente:'Sandra Milena Castro',telefono:'3136543210',tipo:'Vida',bien:'Poliza de vida - Ejecutiva 42 anos',valorAsegurar:500000000,estado:'rechazada',poliza:null,
+  {id:'COT-004',fecha:'2026-07-28',cliente:'Sandra Milena Castro',telefono:'3136543210',tipo:'Vida',bien:'Poliza de vida - Ejecutiva 42 anos',valorAsegurar:500000000,intermediario:'',estado:'rechazada',poliza:null,
     comparaciones:[
-      {aseguradora:'Bolivar',prima:4200000,deducible:0,coberturas:'Muerte, invalidez, enfermedades graves'},
-      {aseguradora:'Sura',prima:4800000,deducible:0,coberturas:'Muerte, invalidez, ITP, hospitalizacion'}
+      {aseguradora:'AXA Colpatria',prima:4200000,deducible:0,coberturas:'Muerte, invalidez, enfermedades graves'},
+      {aseguradora:'Seguros del Estado',prima:4800000,deducible:0,coberturas:'Muerte, invalidez, ITP, hospitalizacion'}
     ],notas:'Cliente considero las primas muy altas. Seguimiento en 30 dias.'},
-  {id:'COT-005',fecha:'2026-08-09',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Hogar',bien:'Casa 200m2 Chia, condominio cerrado',valorAsegurar:650000000,estado:'enviada',poliza:null,
+  {id:'COT-005',fecha:'2026-08-09',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Hogar',bien:'Casa 200m2 Chia, condominio cerrado',valorAsegurar:650000000,intermediario:'Fabian Carrera',estado:'enviada',poliza:null,
     comparaciones:[
-      {aseguradora:'Sura',prima:3200000,deducible:900000,coberturas:'Todo riesgo hogar, sismo, hurto, RC'},
-      {aseguradora:'Mapfre',prima:2900000,deducible:1100000,coberturas:'Incendio, terremoto, contenido, asistencia'},
+      {aseguradora:'Allianz',prima:3200000,deducible:900000,coberturas:'Todo riesgo hogar, sismo, hurto, RC'},
+      {aseguradora:'Seguros del Estado',prima:2900000,deducible:1100000,coberturas:'Incendio, terremoto, contenido, asistencia'},
       {aseguradora:'AXA Colpatria',prima:2750000,deducible:1200000,coberturas:'Basico hogar + hurto contenido'}
     ],notas:'Ya es cliente con poliza Auto. Oportunidad de cross-sell.'}
 ];
 
 var FACTURAS=[
-  {id:'CC-001',fecha:'2026-08-01',aseguradora:'Sura',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-001, POL-007',subtotal:792000,iva:150480,total:942480,estado:'pagada',vence:'2026-08-30',fechaPago:'2026-08-18'},
-  {id:'CC-002',fecha:'2026-08-01',aseguradora:'Bolivar',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-002',subtotal:540000,iva:102600,total:642600,estado:'enviada',vence:'2026-08-30',fechaPago:null},
-  {id:'CC-003',fecha:'2026-07-01',aseguradora:'Allianz',concepto:'Comision poliza empresarial Jun 2026',polizas:'POL-005',subtotal:960000,iva:182400,total:1142400,estado:'vencida',vence:'2026-07-30',fechaPago:null},
-  {id:'CC-004',fecha:'2026-08-05',aseguradora:'Mapfre',concepto:'Comision poliza hogar Jul 2026',polizas:'POL-003',subtotal:180000,iva:34200,total:214200,estado:'emitida',vence:'2026-09-05',fechaPago:null},
-  {id:'CC-005',fecha:'2026-06-01',aseguradora:'Sura',concepto:'Comisiones intermediacion Mayo 2026',polizas:'POL-001, POL-007',subtotal:792000,iva:150480,total:942480,estado:'pagada',vence:'2026-06-30',fechaPago:'2026-06-25'}
+  {id:'CC-001',fecha:'2026-08-01',aseguradora:'Allianz',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-001, POL-005',subtotal:1248000,iva:237120,total:1485120,estado:'pagada',vence:'2026-08-30',fechaPago:'2026-08-18'},
+  {id:'CC-002',fecha:'2026-08-01',aseguradora:'AXA Colpatria',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-002, POL-008',subtotal:540000,iva:102600,total:642600,estado:'enviada',vence:'2026-08-30',fechaPago:null},
+  {id:'CC-003',fecha:'2026-07-01',aseguradora:'Seguros del Estado',concepto:'Comisiones polizas Jun 2026',polizas:'POL-003, POL-007',subtotal:684000,iva:129960,total:813960,estado:'vencida',vence:'2026-07-30',fechaPago:null},
+  {id:'CC-004',fecha:'2026-08-05',aseguradora:'Allianz',concepto:'Comision SOAT y renovaciones Jul 2026',polizas:'POL-004',subtotal:117600,iva:22344,total:139944,estado:'emitida',vence:'2026-09-05',fechaPago:null},
+  {id:'CC-005',fecha:'2026-06-01',aseguradora:'AXA Colpatria',concepto:'Comisiones intermediacion Mayo 2026',polizas:'POL-002',subtotal:540000,iva:102600,total:642600,estado:'pagada',vence:'2026-06-30',fechaPago:'2026-06-25'}
 ];
 
 var NOTIFY={
-  TG_TOKEN:'8815751812:AAEGlCiQAZKSamRUfD5r0lmzjLTRAaFcdqw',
+  TG_TOKEN:'8803208867:AAFUoq9iXIUWNCYC1AvFc1pnyBknRR2D1m8',
   TG_CHAT:'1081707115'
 };
 
@@ -1059,7 +1096,7 @@ function initApp(){
 
   // Wire up sortable columns
   // Polizas: id,cliente,tipo,aseguradora,prima,desde,estado,—acciones
-  makeSortHeaders('polizasTable',['id','cliente','tipo','aseguradora','prima','desde','estado',null],POLIZAS,function(){renderPolizas()});
+  makeSortHeaders('polizasTable',['id','cliente','tipo','aseguradora','intermediario','prima','desde','estado',null],POLIZAS,function(){renderPolizas()});
   // Comisiones: aseguradora,poliza,cliente,prima,pctComision,valorComision,estadoPago,fecha
   makeSortHeaders('comisionesTable',['aseguradora','poliza','cliente','prima','pctComision','valorComision','estadoPago','fecha'],COMISIONES,function(){renderComisiones()});
   // Facturacion: id,fecha,aseguradora,concepto,polizas,subtotal,iva,total,estado,vence
@@ -1176,6 +1213,12 @@ window.toggleTheme=function(){
   document.getElementById('themeBtn').textContent=isDark?'Claro':'Oscuro';
 };
 
+window.toggleDetail=function(id){
+  var row=document.getElementById(id);
+  if(!row)return;
+  row.style.display=row.style.display==='none'?'table-row':'none';
+};
+
 window.sendWA=function(phone,name){
   var p=phone.replace(/\D/g,'');
   if(p.length===10) p='57'+p;
@@ -1219,19 +1262,59 @@ function renderPolizas(filter){
   var statusMap={'activa':'badge-activa','por-renovar':'badge-por-renovar','vencida':'badge-vencida','cancelada':'badge-cancelada'};
   var statusLabel={'activa':'Activa','por-renovar':'Por renovar','vencida':'Vencida','cancelada':'Cancelada'};
 
-  document.getElementById('polizasTable').innerHTML=data.map(function(p){
-    return '<tr>'+
-      '<td class="mono" style="font-size:11px;font-weight:600;color:var(--accent)">'+p.id+'</td>'+
+  var sarlaftMap={'completo':'badge-activa','pendiente':'badge-por-renovar','sin-iniciar':'badge-vencida'};
+  var sarlaftLabel={'completo':'Completo','pendiente':'Pendiente','sin-iniciar':'Sin iniciar'};
+
+  document.getElementById('polizasTable').innerHTML=data.map(function(p,idx){
+    var detailId='pol-detail-'+idx;
+    var sarlaft=p.sarlaft||'sin-iniciar';
+    var diasV=diasEntre(p.hasta);
+    var diasText=diasV<0?Math.abs(diasV)+' dias vencida':(diasV===0?'Hoy':diasV+' dias');
+    return '<tr style="cursor:pointer" onclick="toggleDetail(\''+detailId+'\')">'+
+      '<td class="mono" style="font-size:11px;font-weight:600;color:var(--accent)">'+p.id+' <span style="font-size:9px;color:var(--dim)">&#9660;</span></td>'+
       '<td><strong>'+p.cliente+'</strong></td>'+
       '<td>'+p.tipo+'</td>'+
       '<td>'+p.aseguradora+'</td>'+
+      '<td style="font-size:12px">'+(p.intermediario||'<span style="color:var(--muted)">--</span>')+'</td>'+
       '<td class="mono" style="font-weight:700">'+fmt(p.prima)+'</td>'+
       '<td style="font-size:12px;color:var(--dim)">'+p.desde+' / '+p.hasta+'</td>'+
       '<td><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></td>'+
-      '<td><div style="display:flex;gap:4px">'+
+      '<td><div style="display:flex;gap:4px" onclick="event.stopPropagation()">'+
         '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+p.telefono+'\',\''+p.cliente+'\')">WA</button>'+
         (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+p.id+'\')">Renovar</button>':'')+
       '</div></td>'+
+    '</tr>'+
+    '<tr id="'+detailId+'" class="pol-detail-row" style="display:none">'+
+      '<td colspan="9" style="padding:0;border:none">'+
+        '<div class="pol-detail">'+
+          '<div class="pd-grid">'+
+            '<div class="pd-col">'+
+              '<div class="pd-section-title">Datos de la Poliza</div>'+
+              '<div class="pd-field"><span class="pd-label">No. Poliza</span><span class="pd-value">'+p.id+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Cliente</span><span class="pd-value">'+p.cliente+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Telefono</span><span class="pd-value">'+p.telefono+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Tipo</span><span class="pd-value">'+p.tipo+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Aseguradora</span><span class="pd-value">'+p.aseguradora+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Intermediario</span><span class="pd-value">'+(p.intermediario||'--')+'</span></div>'+
+            '</div>'+
+            '<div class="pd-col">'+
+              '<div class="pd-section-title">Valores y Vigencia</div>'+
+              '<div class="pd-field"><span class="pd-label">Prima Anual</span><span class="pd-value mono" style="font-weight:700">'+fmt(p.prima)+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Valor Asegurado</span><span class="pd-value mono">'+fmt(p.valorAsegurado)+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Vigencia</span><span class="pd-value">'+p.desde+' a '+p.hasta+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Dias Restantes</span><span class="pd-value" style="font-weight:700;color:'+(diasV<30?'var(--red)':'var(--green)')+'">'+diasText+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Estado</span><span class="pd-value"><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></span></div>'+
+            '</div>'+
+            '<div class="pd-col">'+
+              '<div class="pd-section-title">Documentacion</div>'+
+              '<div class="pd-field"><span class="pd-label">SARLAFT</span><span class="pd-value"><span class="badge '+sarlaftMap[sarlaft]+'">'+sarlaftLabel[sarlaft]+'</span></span></div>'+
+              '<div class="pd-field"><span class="pd-label">PDF Poliza</span><span class="pd-value">'+(p.pdfUrl?'<a href="'+p.pdfUrl+'" target="_blank" class="pd-link">Ver PDF</a>':'<span style="color:var(--muted)">Sin adjuntar</span>')+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Autorizacion Datos</span><span class="pd-value">'+(sarlaft==='completo'?'<span style="color:var(--green)">Si</span>':'<span style="color:var(--orange)">Pendiente</span>')+'</span></div>'+
+              '<div class="pd-field"><span class="pd-label">Notas</span><span class="pd-value">'+(p.notas||'--')+'</span></div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</td>'+
     '</tr>';
   }).join('');
 }
@@ -1272,11 +1355,15 @@ window.savePoliza=function(){
     telefono:document.getElementById('pTelefono').value,
     tipo:tipo,
     aseguradora:aseguradora,
+    intermediario:document.getElementById('pIntermediario').value.trim(),
     prima:prima,
     valorAsegurado:parseFloat(document.getElementById('pValorAsegurado').value)||0,
     desde:document.getElementById('pDesde').value||new Date().toISOString().slice(0,10),
     hasta:document.getElementById('pHasta').value||'',
-    estado:'activa'
+    estado:'activa',
+    sarlaft:'sin-iniciar',
+    pdfUrl:'',
+    notas:document.getElementById('pNotas').value.trim()
   };
 
   // Add client if new
@@ -1611,6 +1698,7 @@ window.saveCotizacion=function(){
     fecha:TODAY.toISOString().slice(0,10),
     cliente:cliente,telefono:document.getElementById('cTelefono').value.trim(),
     tipo:tipo,bien:bien,valorAsegurar:valor,
+    intermediario:document.getElementById('cIntermediario').value.trim(),
     estado:'enviada',poliza:null,
     comparaciones:comps,
     notas:document.getElementById('cNotas').value.trim()
