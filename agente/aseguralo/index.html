@@ -970,7 +970,7 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-6-cV_lCBNYzGp89I6xdDwGEa32Vhok8LfW7-oRAvxfUNABkIv7IjjTNGjZ7Qv3IQ/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1Un4ArXmUZ5v2Hfe8n3PtbVJ7waTxxQYFZp8noWU-gfbhUs9uhpZdbaEUlJtxE4Ul/exec';
 
 var CLIENTES=[];
 var POLIZAS=[];
@@ -1265,7 +1265,7 @@ function transformApiRows(rows){
   }).filter(function(p){return p.id;});
 }
 
-/* ---- Load data: live API first, hardcoded fallback ---- */
+/* ---- Load data: live API via fetch (follows redirects), fallback to local ---- */
 function loadFromSheet(callback){
   updateSyncStatus(null,'Conectando con Sheet...');
 
@@ -1286,57 +1286,65 @@ function loadFromSheet(callback){
     if(callback)callback(true);
   }
 
-  // Fetch live data from Apps Script
-  var script=document.createElement('script');
-  var cbName='_asegApiCb_'+Date.now();
-  var timeout=setTimeout(function(){
-    // Timeout: use cache or hardcoded fallback
-    delete window[cbName];
-    if(script.parentNode)script.parentNode.removeChild(script);
-    if(!SHEET_LOADED){
-      POLIZAS=buildPolizasFromRaw();
-      generateDerivedData();
-      SHEET_LOADED=true;
-      updateSyncStatus(false,'Sin conexion — datos locales ('+POLIZAS.length+')');
-      if(callback)callback(true);
-    }
-  },8000);
+  // Fetch via fetch API (follows Google redirects automatically)
+  var controller=new AbortController();
+  var timeout=setTimeout(function(){ controller.abort(); },12000);
 
-  window[cbName]=function(data){
-    clearTimeout(timeout);
-    delete window[cbName];
-    if(script.parentNode)script.parentNode.removeChild(script);
-    if(data&&data.status==='ok'&&data.rows&&data.rows.length>0){
-      try{
-        localStorage.setItem(SHEET_CACHE_KEY,JSON.stringify(data));
-        localStorage.setItem(SHEET_CACHE_TS,String(Date.now()));
-      }catch(e){}
-      POLIZAS=transformApiRows(data.rows);
-      generateDerivedData();
-      SHEET_LOADED=true;
-      updateSyncStatus(true,'Sincronizado ('+POLIZAS.length+' polizas)');
+  fetch(APPS_SCRIPT_URL,{redirect:'follow',signal:controller.signal})
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      clearTimeout(timeout);
+      if(data&&data.status==='ok'&&data.rows&&data.rows.length>0){
+        try{
+          localStorage.setItem(SHEET_CACHE_KEY,JSON.stringify(data));
+          localStorage.setItem(SHEET_CACHE_TS,String(Date.now()));
+        }catch(e){}
+        POLIZAS=transformApiRows(data.rows);
+        generateDerivedData();
+        SHEET_LOADED=true;
+        updateSyncStatus(true,'Sincronizado ('+POLIZAS.length+' polizas)');
+        if(callback)callback(true);
+      } else if(!SHEET_LOADED){
+        useFallback(callback);
+      }
+    })
+    .catch(function(){
+      clearTimeout(timeout);
+      if(!SHEET_LOADED) useFallback(callback);
+    });
+}
+
+function useFallback(callback){
+  POLIZAS=buildPolizasFromRaw();
+  generateDerivedData();
+  SHEET_LOADED=true;
+  updateSyncStatus(false,'Sin conexion — datos locales ('+POLIZAS.length+')');
+  if(callback)callback(true);
+}
+
+/* ---- Write back to Sheet via POST ---- */
+function postToSheet(action, polizaData, callback){
+  polizaData.action=action;
+  fetch(APPS_SCRIPT_URL,{
+    method:'POST',
+    redirect:'follow',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify(polizaData)
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(resp){
+    if(resp&&resp.status==='ok'){
+      updateSyncStatus(true,'Guardado en Sheet');
       if(callback)callback(true);
-    } else if(!SHEET_LOADED){
-      POLIZAS=buildPolizasFromRaw();
-      generateDerivedData();
-      SHEET_LOADED=true;
-      updateSyncStatus(false,'Error API — datos locales ('+POLIZAS.length+')');
-      if(callback)callback(true);
+    } else {
+      updateSyncStatus(false,'Error al guardar');
+      if(callback)callback(false);
     }
-  };
-  script.onerror=function(){
-    clearTimeout(timeout);
-    delete window[cbName];
-    if(!SHEET_LOADED){
-      POLIZAS=buildPolizasFromRaw();
-      generateDerivedData();
-      SHEET_LOADED=true;
-      updateSyncStatus(false,'Sin conexion — datos locales ('+POLIZAS.length+')');
-      if(callback)callback(true);
-    }
-  };
-  script.src=APPS_SCRIPT_URL+'?callback='+cbName;
-  document.body.appendChild(script);
+  })
+  .catch(function(){
+    updateSyncStatus(false,'Sin conexion — guardado local');
+    if(callback)callback(false);
+  });
 }
 
 /* ---- Sync status indicator ---- */
@@ -1814,6 +1822,9 @@ window.renovarPoliza=function(id){
   renderDashboard();
   showToast('Poliza '+id+' renovada exitosamente','success');
   notifyTelegram('POLIZA RENOVADA\nRef: '+id+'\nCliente: '+POLIZAS.find(function(p){return p.id===id}).cliente);
+  // Sync renewal to Sheet
+  var rp=POLIZAS.find(function(p){return p.id===id});
+  if(rp) postToSheet('update',{poliza:id, desde:rp.desde, hasta:rp.hasta});
 };
 
 window.savePoliza=function(){
@@ -1855,6 +1866,13 @@ window.savePoliza=function(){
   closeModal('newPoliza');
   showToast('Poliza '+newP.id+' creada -- '+fmt(prima),'success');
   notifyTelegram('NUEVA POLIZA\nRef: '+newP.id+'\nCliente: '+cliente+'\nTipo: '+tipo+'\nAseguradora: '+aseguradora+'\nPrima: '+fmt(prima));
+  // Sync to Sheet
+  postToSheet('add',{
+    poliza:newP.id, nombre:cliente, telefono:newP.telefono,
+    tipo:tipo, desde:newP.desde, hasta:newP.hasta,
+    prima:prima, cobertura:newP.notas||tipo,
+    colaborador:newP.intermediario==='Judith Neira'?'0731':'0001'
+  });
 };
 
 /* ====================================
@@ -2140,6 +2158,12 @@ window.aceptarCotizacion=function(id){
       });
       showToast('Cotizacion '+id+' convertida a poliza '+newId,'success');
       notifyTelegram('COTIZACION CONVERTIDA\n'+c.cliente+'\n'+c.tipo+' con '+mejor.aseguradora+'\nPrima: '+fmt(mejor.prima)+'\nPoliza: '+newId);
+      // Sync new poliza to Sheet
+      postToSheet('add',{
+        poliza:newId, nombre:c.cliente, telefono:c.telefono,
+        tipo:c.tipo, desde:hoy, hasta:hasta.toISOString().slice(0,10),
+        prima:mejor.prima, cobertura:c.tipo
+      });
     }
   });
   renderCotizador();
