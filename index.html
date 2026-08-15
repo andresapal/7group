@@ -1061,18 +1061,58 @@
       .agent-card:last-child { grid-column: 1; }
     }
 
-    /* CASE STUDIES */
-    .case-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+    /* CASE STUDIES — CAROUSEL */
+    .case-carousel-wrap {
+      overflow: hidden;
+      position: relative;
+      margin: 0 48px;
+    }
+    .case-carousel-wrap::before,
+    .case-carousel-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 60px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .case-carousel-wrap::before {
+      left: 0;
+      background: linear-gradient(to right, var(--white), transparent);
+    }
+    .case-carousel-wrap::after {
+      right: 0;
+      background: linear-gradient(to left, var(--white), transparent);
+    }
+    .case-track {
+      display: flex;
       gap: 1px;
       background: var(--light);
-      border: 1px solid var(--light);
-      margin: 0 48px;
+      width: max-content;
+      animation: caseScroll 40s linear infinite;
+    }
+    .case-track:hover {
+      animation-play-state: paused;
+    }
+    @keyframes caseScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
     }
     .case-card {
       background: var(--white);
       padding: 48px 40px;
+      min-width: 380px;
+      max-width: 420px;
+      flex-shrink: 0;
+    }
+    .case-card a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .case-card a:hover h4 {
+      color: var(--cyan);
+      transition: color 0.3s;
     }
     .case-logo {
       height: 40px;
@@ -1088,6 +1128,7 @@
       font-weight: 700;
       letter-spacing: -0.3px;
       margin-bottom: 6px;
+      transition: color 0.3s;
     }
     .case-type {
       font-size: 13px;
@@ -1116,9 +1157,28 @@
       color: var(--cyan);
       font-size: 13px;
     }
+    .case-visit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cyan);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-top: 4px;
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .case-card:hover .case-visit {
+      opacity: 1;
+      transform: translateX(0);
+    }
     @media (max-width: 768px) {
-      .case-grid { grid-template-columns: 1fr; margin: 0 24px; }
-      .case-card { padding: 36px 28px; }
+      .case-carousel-wrap { margin: 0 24px; }
+      .case-card { min-width: 300px; max-width: 340px; padding: 36px 28px; }
+      .case-visit { opacity: 1; transform: translateX(0); }
     }
     @media (max-width: 768px) {
       .plans-grid {
@@ -1525,58 +1585,138 @@
       <p class="section-label">Built. Deployed. Running.</p>
       <h2 class="clients-heading">Technology we built for real operations — not demos.</h2>
     </div>
-    <div class="case-grid">
-      <div class="case-card">
-        <img src="logo-trasteosya.webp" alt="Trasteos Ya" class="case-logo" />
-        <h4>Trasteos Ya</h4>
-        <p class="case-type">Urban logistics platform · Bogota, Colombia</p>
-        <ul class="case-results">
-          <li>Automated quoting engine — replaced a fully manual, phone-based process</li>
-          <li>Real-time order tracking from request through delivery</li>
-          <li>CEO dashboard with live operational KPIs</li>
-          <li>Automated customer campaigns and review collection</li>
-        </ul>
-        <span class="client-tag">In production · Web & Mobile</span>
-      </div>
-      <div class="case-card">
-        <img src="logo-tygo.webp" alt="TYGO" class="case-logo" />
-        <h4>TYGO</h4>
-        <p class="case-type">AI freight marketplace · United States</p>
-        <ul class="case-results">
-          <li>Real-time load posting and carrier matching</li>
-          <li>Bilingual platform — built for the US and Latin American markets</li>
-          <li>AI-powered pricing and route optimization</li>
-          <li>Active in Florida, Texas, and Georgia</li>
-        </ul>
-        <span class="client-tag">In production · AI-powered</span>
-      </div>
-      <div class="case-card">
-        <a href="https://andresapal.github.io/quickfix-app/land-marmoles.html" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
-          <div class="case-logo" style="height:40px;display:flex;align-items:center;margin-bottom:24px;filter:none">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#1a1a1a" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
-          </div>
-          <h4>Land Marmoles</h4>
-        </a>
-        <p class="case-type">Marble & stone supplier · Bogota, Colombia</p>
-        <ul class="case-results">
-          <li>Landing page with WhatsApp-first contact flow</li>
-          <li>Real-time lead alerts via Telegram bot</li>
-          <li>Email notifications through Web3Forms</li>
-          <li>Name capture modal for lead qualification</li>
-        </ul>
-        <span class="client-tag">In production · Lead generation</span>
-      </div>
-      <div class="case-card">
-        <img src="ultimate-bike-shop.webp" alt="Ultimate Bike Shop" class="case-logo" style="filter:none;height:80px;border-radius:8px;object-fit:cover;width:140px" />
-        <h4>Ultimate Bike Shop</h4>
-        <p class="case-type">Bicycle retail & workshop · Honda, Tolima, Colombia</p>
-        <ul class="case-results">
-          <li>Inventory management with barcode scanning</li>
-          <li>Receiving and dispatch tracking</li>
-          <li>Warehouse location mapping with 3D visual</li>
-          <li>Custom bike builder for customers</li>
-        </ul>
-        <span class="client-tag">In production · Full ERP</span>
+    <div class="case-carousel-wrap">
+      <div class="case-track" id="caseTrack">
+        <!-- Set 1 -->
+        <div class="case-card">
+          <a href="https://trasteosya.online" target="_blank" rel="noopener">
+            <img src="logo-trasteosya.webp" alt="Trasteos Ya" class="case-logo" />
+            <h4>Trasteos Ya</h4>
+            <p class="case-type">Urban logistics platform · Bogota, Colombia</p>
+            <ul class="case-results">
+              <li>Automated quoting engine — replaced a fully manual, phone-based process</li>
+              <li>Real-time order tracking from request through delivery</li>
+              <li>CEO dashboard with live operational KPIs</li>
+              <li>Automated customer campaigns and review collection</li>
+            </ul>
+            <span class="client-tag">In production · Web & Mobile</span>
+            <span class="case-visit">Visit site &#8594;</span>
+          </a>
+        </div>
+        <div class="case-card">
+          <a href="https://tygo.app" target="_blank" rel="noopener">
+            <img src="logo-tygo.webp" alt="TYGO" class="case-logo" />
+            <h4>TYGO</h4>
+            <p class="case-type">AI freight marketplace · United States</p>
+            <ul class="case-results">
+              <li>Real-time load posting and carrier matching</li>
+              <li>Bilingual platform — built for the US and Latin American markets</li>
+              <li>AI-powered pricing and route optimization</li>
+              <li>Active in Florida, Texas, and Georgia</li>
+            </ul>
+            <span class="client-tag">In production · AI-powered</span>
+            <span class="case-visit">Visit site &#8594;</span>
+          </a>
+        </div>
+        <div class="case-card">
+          <a href="https://7group.site/agente/aseguralo/" target="_blank" rel="noopener">
+            <div class="case-logo" style="height:40px;display:flex;align-items:center;margin-bottom:24px;filter:none">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#1a1a1a" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <h4>Aseguralo</h4>
+            <p class="case-type">Insurance broker ERP · Bogota, Colombia</p>
+            <ul class="case-results">
+              <li>Full ERP with 7 modules — policies, commissions, billing, renewals, claims</li>
+              <li>Live sync with Google Sheets — 96 real policies connected</li>
+              <li>Multi-insurer quoting engine (Allianz, AXA, Seguros del Estado)</li>
+              <li>Role-based access with Google Sign-In authentication</li>
+            </ul>
+            <span class="client-tag">In production · Full ERP</span>
+            <span class="case-visit">Visit site &#8594;</span>
+          </a>
+        </div>
+        <div class="case-card">
+          <a href="https://lanmarmoles.online" target="_blank" rel="noopener">
+            <div class="case-logo" style="height:40px;display:flex;align-items:center;margin-bottom:24px;filter:none">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#1a1a1a" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+            </div>
+            <h4>Lan Marmoles</h4>
+            <p class="case-type">Marble & stone supplier · Bogota, Colombia</p>
+            <ul class="case-results">
+              <li>Full ERP with quoting, invoicing, and commission tracking</li>
+              <li>Real-time lead alerts via Telegram bot</li>
+              <li>Landing page with WhatsApp-first contact flow</li>
+              <li>PDF proposal generator with brand customization</li>
+            </ul>
+            <span class="client-tag">In production · ERP & Lead gen</span>
+            <span class="case-visit">Visit site &#8594;</span>
+          </a>
+        </div>
+        <!-- Set 2 (duplicate for seamless loop) -->
+        <div class="case-card">
+          <a href="https://trasteosya.online" target="_blank" rel="noopener">
+            <img src="logo-trasteosya.webp" alt="Trasteos Ya" class="case-logo" />
+            <h4>Trasteos Ya</h4>
+            <p class="case-type">Urban logistics platform · Bogota, Colombia</p>
+            <ul class="case-results">
+              <li>Automated quoting engine — replaced a fully manual, phone-based process</li>
+              <li>Real-time order tracking from request through delivery</li>
+              <li>CEO dashboard with live operational KPIs</li>
+              <li>Automated customer campaigns and review collection</li>
+            </ul>
+            <span class="client-tag">In production · Web & Mobile</span>
+            <span class="case-visit">Visit site &#8594;</span>
+          </a>
+        </div>
+        <div class="case-card">
+          <a href="https://tygo.app" target="_blank" rel="noopener">
+            <img src="logo-tygo.webp" alt="TYGO" class="case-logo" />
+            <h4>TYGO</h4>
+            <p class="case-type">AI freight marketplace · United States</p>
+            <ul class="case-results">
+              <li>Real-time load posting and carrier matching</li>
+              <li>Bilingual platform — built for the US and Latin American markets</li>
+              <li>AI-powered pricing and route optimization</li>
+              <li>Active in Florida, Texas, and Georgia</li>
+            </ul>
+            <span class="client-tag">In production · AI-powered</span>
+            <span class="case-visit">Visit site &#8594;</span>
+          </a>
+        </div>
+        <div class="case-card">
+          <a href="https://7group.site/agente/aseguralo/" target="_blank" rel="noopener">
+            <div class="case-logo" style="height:40px;display:flex;align-items:center;margin-bottom:24px;filter:none">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#1a1a1a" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <h4>Aseguralo</h4>
+            <p class="case-type">Insurance broker ERP · Bogota, Colombia</p>
+            <ul class="case-results">
+              <li>Full ERP with 7 modules — policies, commissions, billing, renewals, claims</li>
+              <li>Live sync with Google Sheets — 96 real policies connected</li>
+              <li>Multi-insurer quoting engine (Allianz, AXA, Seguros del Estado)</li>
+              <li>Role-based access with Google Sign-In authentication</li>
+            </ul>
+            <span class="client-tag">In production · Full ERP</span>
+            <span class="case-visit">Visit site &#8594;</span>
+          </a>
+        </div>
+        <div class="case-card">
+          <a href="https://lanmarmoles.online" target="_blank" rel="noopener">
+            <div class="case-logo" style="height:40px;display:flex;align-items:center;margin-bottom:24px;filter:none">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#1a1a1a" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+            </div>
+            <h4>Lan Marmoles</h4>
+            <p class="case-type">Marble & stone supplier · Bogota, Colombia</p>
+            <ul class="case-results">
+              <li>Full ERP with quoting, invoicing, and commission tracking</li>
+              <li>Real-time lead alerts via Telegram bot</li>
+              <li>Landing page with WhatsApp-first contact flow</li>
+              <li>PDF proposal generator with brand customization</li>
+            </ul>
+            <span class="client-tag">In production · ERP & Lead gen</span>
+            <span class="case-visit">Visit site &#8594;</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
