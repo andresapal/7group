@@ -243,6 +243,96 @@ var PROJECTS=[
     tags:['Cotizador','ERP','Comisiones','Cuenta de Cobro'],
     link:'/agente/land-marmoles/',
     region:'Bogota, Colombia'
+  },
+  {
+    id:'crm-mudanzas',
+    title:{es:'CRM Mudanzas',en:'Moving CRM'},
+    client:'White-label Demo',
+    type:'logistics',
+    status:'active',
+    phase:'onboarding',
+    revenue:8500,
+    created:'2026-08-01',
+    lastActivity:'2026-08-08',
+    docs:5,
+    tags:['Cotizador','Orden de Servicio','KPIs','Campanas','Finanzas'],
+    link:'/demos/crm-mudanzas/',
+    region:'Colombia'
+  },
+  {
+    id:'logistics-pyme',
+    title:{es:'ERP Logistics',en:'ERP Logistics'},
+    client:'TechRetail Inc.',
+    type:'logistics',
+    status:'active',
+    phase:'diagnostic',
+    revenue:12500,
+    created:'2026-07-15',
+    lastActivity:'2026-07-20',
+    docs:5,
+    tags:['Receiving','Inventory','Warehouse','Dispatches','CEO Dashboard'],
+    link:'/demos/logistica-pyme/shipment/',
+    region:'Florida, US'
+  },
+  {
+    id:'bike-shop-base',
+    title:{es:'Ultimate Bike Shop',en:'Ultimate Bike Shop'},
+    client:'Ultimate Bike Shop',
+    type:'retail',
+    status:'active',
+    phase:'diagnostic',
+    revenue:3200,
+    created:'2026-07-01',
+    lastActivity:'2026-07-28',
+    docs:4,
+    tags:['Recibo','Inventario','Despachos','Arme su Bici'],
+    link:'/demos/bike-shop/',
+    region:'Honda, Tolima CO'
+  },
+  {
+    id:'contabilidad-7g',
+    title:{es:'Contabilidad 7Group',en:'7Group Accounting'},
+    client:'7Group Corp.',
+    type:'accounting',
+    status:'active',
+    phase:'onboarding',
+    revenue:0,
+    created:'2026-07-20',
+    lastActivity:'2026-07-20',
+    docs:0,
+    tags:['Invoicing','Expenses','P&L','Tax Reports'],
+    link:null,
+    region:'Internal'
+  },
+  {
+    id:'consulting-demo',
+    title:{es:'Consultoria Operativa',en:'Operational Consulting'},
+    client:'Pipeline Lead',
+    type:'consulting',
+    status:'pending',
+    phase:'lead',
+    revenue:0,
+    created:'2026-07-10',
+    lastActivity:'2026-07-14',
+    docs:1,
+    tags:['Process Audit','KPIs'],
+    link:null,
+    region:'Georgia, US'
+  },
+  {
+    id:'tech-saas-lead',
+    title:{es:'SaaS Startup Setup',en:'SaaS Startup Setup'},
+    client:'Pipeline Lead',
+    type:'technology',
+    status:'pending',
+    phase:'lead',
+    revenue:0,
+    created:'2026-07-12',
+    lastActivity:'2026-07-13',
+    docs:1,
+    tags:['Infrastructure','CI/CD','MVP'],
+    link:null,
+    region:'Texas, US'
   }
 ];
 
@@ -375,7 +465,7 @@ function renderFilters(){
     var tp=PROJECTS[i].type;
     counts[tp]=(counts[tp]||0)+1;
   }
-  var types=['all','insurance','construction'];
+  var types=['all','insurance','construction','logistics','retail','accounting','consulting','technology'];
   var h='';
   for(var i=0;i<types.length;i++){
     var tp=types[i];
