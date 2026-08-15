@@ -1,625 +1,2353 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agentes -- 7Group</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Aseguralo ERP -- 7Group</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
-h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+body{font-family:'Manrope',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s;font-size:13px}
+h1,h2,h3,h4{font-family:'Manrope',sans-serif;letter-spacing:-.03em}
 code,.mono{font-family:'JetBrains Mono',monospace}
+
 :root{
-  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
-  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
-  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
-  --blue:#3b82f6;--purple:#a78bfa;
-  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
-  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+  --brand:#304770;--brand-light:rgba(48,71,112,.08);--brand-mid:rgba(48,71,112,.15);
+  --accent:#45AAFF;--accent-light:rgba(69,170,255,.1);--accent-mid:rgba(69,170,255,.2);
+  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f0f2f6;--bg4:#e4e7ed;
+  --text:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --green:#15803d;--green-bg:rgba(21,128,61,.08);
+  --orange:#d97706;--orange-bg:rgba(217,119,6,.08);
+  --red:#dc2626;--red-bg:rgba(220,38,38,.08);
+  --teal:#0d9488;--purple:#7c3aed;--sky:#0284c7;
+  --border:rgba(15,23,42,.07);--border2:rgba(15,23,42,.12);--border3:rgba(15,23,42,.18);
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --radius:12px;--radius-sm:8px;
+  --topbar-bg:rgba(255,255,255,.92);--topbar-border:rgba(15,23,42,.08);
 }
-:root.light{
-  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
-  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
-  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
-  --topbar-bg:rgba(255,255,255,.95);--topbar-border:rgba(15,23,42,.08);
+:root.dark{
+  --bg:#060a12;--bg2:#0c1220;--bg3:#141c2e;--bg4:#1c2640;
+  --text:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --brand-light:rgba(48,71,112,.35);--brand-mid:rgba(48,71,112,.5);
+  --accent-light:rgba(69,170,255,.15);--accent-mid:rgba(69,170,255,.25);
+  --green-bg:rgba(21,128,61,.15);--orange-bg:rgba(217,119,6,.15);--red-bg:rgba(220,38,38,.15);
+  --border:rgba(148,163,184,.06);--border2:rgba(148,163,184,.1);--border3:rgba(148,163,184,.16);
+  --shadow:0 1px 3px rgba(0,0,0,.2);--shadow-lg:0 4px 16px rgba(0,0,0,.3);
+  --topbar-bg:rgba(6,10,18,.92);--topbar-border:rgba(148,163,184,.08);
 }
 
-/* AUTH */
-.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
-.auth-gate.hidden{opacity:0;pointer-events:none}
-.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
-.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
-.auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
-.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.5}
-.auth-divider{height:1px;background:var(--border2);margin:20px 0}
-.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
-.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
-#g_id_signin{display:flex;justify-content:center}
+/* EMAIL GATE */
+.email-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.email-gate.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
+.email-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px;box-shadow:var(--shadow-lg)}
+.email-box .logo-text{font-size:28px;font-weight:800;letter-spacing:-.04em;color:var(--accent);margin-bottom:4px}
+.email-box .sub{font-size:11px;color:var(--accent);margin-bottom:20px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
+.email-box .desc{font-size:13px;color:var(--dim);margin-bottom:24px;line-height:1.6}
+.email-box .gate-error{font-size:12px;color:var(--red);margin-top:14px;display:none;padding:8px 12px;background:var(--red-bg);border-radius:6px;font-weight:600}
+.email-box .gate-footer{font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:.5px}
 .app-wrap{display:none}.app-wrap.visible{display:block}
 
 /* TOPBAR */
-.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
 .tb-left{display:flex;align-items:center;gap:12px}
-.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-logo{font-size:17px;font-weight:800;color:var(--accent);letter-spacing:-.02em;text-decoration:none}
 .tb-sep{width:1px;height:18px;background:var(--border3)}
-.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
 .tb-right{display:flex;align-items:center;gap:8px}
-.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
-.tb-btn:hover{background:rgba(94,231,247,.15)}
+.tb-btn{padding:6px 12px;background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:6px;color:var(--accent);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:var(--accent);color:#fff}
 .tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
-.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
-.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
-.lang-opt{padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
-.lang-opt:first-child{border-right:1px solid var(--border3)}
-.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
-.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+.tb-toggle:hover{border-color:var(--accent);color:var(--accent)}
+
+/* MODULE NAV */
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.mod-nav::-webkit-scrollbar{display:none}
+.mod-link{padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap;cursor:pointer}
+.mod-link:hover{color:var(--text)}.mod-link.active{color:var(--accent);border-color:var(--accent)}
 
 /* MAIN */
-.main{max-width:1100px;margin:0 auto;padding:24px}
+.main{max-width:1200px;margin:0 auto;padding:20px}
+.mod-section{display:none}.mod-section.active{display:block}
 
-/* TOOLBAR */
-.toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
-.toolbar-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.toolbar-right{display:flex;align-items:center;gap:8px}
-.search-box{padding:7px 12px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;color:var(--white);font-size:12px;font-family:inherit;outline:none;transition:.2s;width:220px}
-.search-box:focus{border-color:var(--cyan)}
-.search-box::placeholder{color:var(--muted)}
-.sort-select{padding:6px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;color:var(--dim);font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;letter-spacing:.3px;outline:none;appearance:none;-webkit-appearance:none;padding-right:24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
-.sort-select:hover{border-color:var(--cyan);color:var(--cyan)}
-.view-btn{padding:6px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
-.view-btn:hover{border-color:var(--cyan);color:var(--cyan)}
-.view-btn.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.kpi-card:hover{border-color:var(--accent-mid);box-shadow:var(--shadow-lg)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+.kpi-card.c-brand::before{background:var(--brand)}.kpi-card.c-accent::before{background:var(--accent)}
+.kpi-card.c-green::before{background:var(--green)}.kpi-card.c-orange::before{background:var(--orange)}
+.kpi-card.c-red::before{background:var(--red)}.kpi-card.c-teal::before{background:var(--teal)}
+.kpi-card.c-purple::before{background:var(--purple)}.kpi-card.c-sky::before{background:var(--sky)}
+.kpi-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.kpi-val{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.kpi-sub{font-size:11px;color:var(--dim);margin-top:6px;display:flex;align-items:center;gap:4px}
+.kpi-up{color:var(--green)}.kpi-down{color:var(--red)}
 
-/* FILTER CHIPS */
-.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
-.filter-chip{padding:5px 14px;border-radius:20px;font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:1px solid var(--border3);background:var(--bg3);color:var(--dim);letter-spacing:.3px}
-.filter-chip:hover{border-color:var(--cyan);color:var(--cyan)}
-.filter-chip.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
-.filter-count{font-size:9px;font-family:'JetBrains Mono',monospace;margin-left:4px;opacity:.7}
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:768px){.chart-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.chart-title{font-size:13px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.chart-wrap{position:relative;height:260px}
 
-/* FOLDER GRID */
-.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
-.folder-list{display:flex;flex-direction:column;gap:10px}
+/* TABLES */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px}
+.tbl-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tbl-title{font-size:14px;font-weight:700}
+.tbl-actions{display:flex;gap:6px;align-items:center}
+.tbl-search{padding:6px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text);outline:none;width:180px;transition:.2s}
+.tbl-search:focus{border-color:var(--accent)}
+.tbl-search::placeholder{color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);background:var(--bg3);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;transition:color .15s;position:relative;white-space:nowrap}
+thead th:hover{color:var(--accent)}
+thead th .sort-arrow{display:inline-block;margin-left:4px;font-size:8px;opacity:.4;transition:opacity .15s}
+thead th.sort-active .sort-arrow{opacity:1;color:var(--accent)}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--accent-light)}
+.tbl-overflow{overflow-x:auto}
 
-/* FOLDER CARD */
-.folder{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;cursor:pointer;transition:.25s;position:relative;overflow:hidden}
-.folder:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
-.folder-accent{position:absolute;top:0;left:0;right:0;height:3px}
-.folder-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px}
-.folder-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
-.folder-icon svg{width:18px;height:18px}
-.folder-badge{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
-.folder-title{font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
-.folder-client{font-size:11px;color:var(--dim);margin-bottom:10px}
-.folder-meta{display:flex;gap:16px;font-size:10px;color:var(--dim);margin-bottom:12px;flex-wrap:wrap}
-.folder-meta-item{display:flex;align-items:center;gap:4px}
-.folder-meta-dot{width:5px;height:5px;border-radius:50%}
-.folder-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
-.folder-tag{font-size:9px;padding:2px 8px;background:var(--bg4);border:1px solid var(--border);border-radius:3px;color:var(--dim);font-weight:600;letter-spacing:.3px}
-.folder-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
-.folder-date{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
-.folder-revenue{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.folder-arrow{color:var(--muted);transition:.2s}
-.folder:hover .folder-arrow{color:var(--cyan);transform:translateX(3px)}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.badge-activa{background:var(--green-bg);color:var(--green)}
+.badge-por-renovar{background:var(--orange-bg);color:var(--orange)}
+.badge-vencida{background:var(--red-bg);color:var(--red)}
+.badge-cancelada{background:var(--bg3);color:var(--muted)}
+.badge-pagado{background:var(--green-bg);color:var(--green)}
+.badge-pendiente{background:var(--orange-bg);color:var(--orange)}
+.badge-vencido{background:var(--red-bg);color:var(--red)}
 
-/* LIST VIEW */
-.folder-list .folder{padding:14px 18px}
-.folder-list .folder-head{margin-bottom:6px}
-.folder-list .folder-meta{margin-bottom:6px}
-.folder-list .folder-tags{margin-bottom:6px}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border:1px solid var(--border2);background:var(--bg2);color:var(--text)}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#3a95e0;border-color:#3a95e0;color:#fff}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px}
+.btn-wa{background:#25D366;color:#fff;border-color:#25D366}
+.btn-wa:hover{background:#1da851;border-color:#1da851;color:#fff}
+.btn-icon{width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px}
+.btn-renew{background:var(--accent-light);color:var(--accent);border-color:var(--accent-mid)}
+.btn-renew:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 
-/* STATS BAR */
-.stats-bar{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:24px}
-.stat{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:14px 16px}
-.stat-val{font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em;margin-bottom:1px}
-.stat-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+/* ACTIVITY FEED */
+.feed{display:flex;flex-direction:column;gap:0}
+.feed-item{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;transition:background .15s}
+.feed-item:hover{background:var(--accent-light)}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.feed-dot.blue{background:var(--brand)}.feed-dot.green{background:var(--green)}
+.feed-dot.orange{background:var(--orange)}.feed-dot.red{background:var(--red)}
+.feed-dot.accent{background:var(--accent)}
+.feed-text{font-size:13px;line-height:1.5;flex:1}
+.feed-time{font-size:11px;color:var(--muted);white-space:nowrap}
 
-/* EMPTY STATE */
-.empty{text-align:center;padding:60px 20px;color:var(--dim)}
-.empty-icon{font-size:32px;margin-bottom:12px;opacity:.4}
-.empty-text{font-size:13px}
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;overflow-x:auto;padding-bottom:8px}
+@media(max-width:900px){.kanban{grid-template-columns:repeat(5,260px)}}
+.kanban-col{background:var(--bg3);border-radius:var(--radius);padding:12px;min-height:300px}
+.kanban-header{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.kanban-count{background:var(--bg4);border-radius:100px;padding:2px 8px;font-size:10px;font-weight:800}
+.kanban-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
+.kanban-card:hover{border-color:var(--accent-mid);box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.kanban-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.kanban-detail{font-size:11px;color:var(--dim);line-height:1.5}
+.kanban-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.kanban-value{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent)}
+.kanban-date{font-size:10px;color:var(--muted)}
 
-/* FOOTER */
-.foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+/* SECTION HEADER */
+.sec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.sec-title{font-size:18px;font-weight:800;letter-spacing:-.03em}
+.sec-desc{font-size:12px;color:var(--dim);margin-top:2px}
 
-@media(max-width:640px){
-  .main{padding:16px}
-  .topbar{padding:0 12px}
-  .tb-right{gap:4px}
-  .folder-grid{grid-template-columns:1fr}
-  .search-box{width:100%}
-  .stats-bar{grid-template-columns:1fr 1fr}
-  .toolbar{flex-direction:column;align-items:stretch}
-  .toolbar-left,.toolbar-right{justify-content:space-between}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:16px;font-weight:800}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--dim);transition:.2s}
+.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:6px}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text);transition:.2s;outline:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
+
+/* FINANZAS / COMISIONES */
+.fin-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.fin-stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+.fin-stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:6px}
+.fin-stat-val{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.fin-stat-sub{font-size:11px;color:var(--dim);margin-top:4px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .kanban{grid-template-columns:repeat(5,240px)}
+  .main{padding:12px}
+  .topbar{padding:0 10px;gap:6px}
+  .tb-right{gap:5px;flex-shrink:0}
+  .tb-right #syncStatus{display:none}
+  .tb-toggle,.tb-btn{padding:5px 8px;font-size:9px}
+  .mod-nav{padding:0 12px;gap:0}
+  .mod-nav .mod-link{padding:10px 8px;font-size:11px}
 }
+@media(max-width:480px){
+  .kpi-grid{grid-template-columns:1fr}
+  .tb-left .tb-sep,.tb-left .tb-badge{display:none}
+  .tb-logo img{height:22px!important}
+  .topbar{height:44px}
+}
+
+/* POLICY DETAIL ROW */
+.pol-detail{padding:16px 20px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:2px solid var(--accent-mid)}
+.pd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+@media(max-width:768px){.pd-grid{grid-template-columns:1fr}}
+.pd-col{}
+.pd-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2)}
+.pd-field{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px}
+.pd-label{color:var(--dim);font-weight:600}
+.pd-value{font-weight:500;text-align:right}
+.pd-link{color:var(--accent);text-decoration:none;font-weight:600}
+.pd-link:hover{text-decoration:underline}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:600;padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;color:#fff;background:var(--accent);box-shadow:var(--shadow-lg);transform:translateY(100px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+
+/* ACCENT LINE */
+.accent-line{height:3px;background:linear-gradient(90deg,var(--brand),var(--accent));border-radius:0 0 2px 2px}
+
+/* MODULE CONFIG PANEL */
+.mod-cfg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.mod-cfg-overlay.open{display:flex}
+.mod-cfg{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mod-cfg-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.mod-cfg-title{font-size:16px;font-weight:800}
+.mod-cfg-body{padding:16px 24px}
+.mod-cfg-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.mod-cfg-item:last-child{border-bottom:none}
+.mod-cfg-info{flex:1}
+.mod-cfg-name{font-size:14px;font-weight:700}
+.mod-cfg-desc{font-size:11px;color:var(--dim);margin-top:2px}
+.mod-cfg-essential{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-top:4px}
+/* Toggle switch */
+.toggle-sw{position:relative;width:44px;height:24px;flex-shrink:0;margin-left:12px}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-sw .slider{position:absolute;cursor:pointer;inset:0;background:var(--bg4);border-radius:24px;transition:.3s}
+.toggle-sw .slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle-sw input:checked+.slider{background:var(--accent)}
+.toggle-sw input:checked+.slider::before{transform:translateX(20px)}
+.toggle-sw input:disabled+.slider{opacity:.5;cursor:not-allowed}
+
+/* RENEWAL ALERT COLORS */
+.alert-vencida{color:var(--red);font-weight:700}
+.alert-urgente{color:var(--orange);font-weight:700}
+.alert-pronto{color:#ca8a04;font-weight:700}
+.alert-ok{color:var(--green);font-weight:600}
+.alert-lejano{color:var(--dim)}
+.dias-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.dias-pill.vencida{background:var(--red-bg);color:var(--red)}
+.dias-pill.urgente{background:var(--orange-bg);color:var(--orange)}
+.dias-pill.pronto{background:rgba(202,138,4,.1);color:#ca8a04}
+.dias-pill.ok{background:var(--green-bg);color:var(--green)}
+.dias-pill.lejano{background:var(--bg3);color:var(--dim)}
 </style>
 </head>
 <body>
 
-<div class="auth-gate" id="authGate">
-  <div class="auth-box">
-    <div class="auth-logo">7group</div>
-    <div class="auth-sub">Logistics Intelligence</div>
-    <div class="auth-divider"></div>
-    <div class="auth-desc" id="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
-    <div id="g_id_signin"></div>
-    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
-    <div class="auth-footer">Solo personal autorizado</div>
-  </div>
-</div>
-
-<div class="app-wrap" id="appWrap">
-
-<nav class="topbar">
-  <div class="tb-left">
-    <a href="/" class="tb-logo">7group</a>
-    <div class="tb-sep"></div>
-    <span class="tb-badge" data-t="badge">Portal</span>
-  </div>
-  <div class="tb-right">
-    <div class="lang-switch">
-      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
-      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
+<!-- AUTH GATE -->
+<div class="email-gate" id="emailGate">
+  <div class="email-box">
+    <img src="https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png" alt="Aseguralo" style="height:48px;margin-bottom:8px">
+    <div class="sub">Panel Administrativo</div>
+    <div class="desc">Acceso protegido con verificacion de identidad Google.</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:18px;color:var(--green);font-size:11px;font-weight:600">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Conexion segura SSL / Google OAuth 2.0
     </div>
-    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
-      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      LIGHT
-    </button>
-  </div>
-</nav>
-
-<div class="main">
-
-<div class="stats-bar" id="statsBar"></div>
-
-<div class="toolbar">
-  <div class="toolbar-left">
-    <input type="text" class="search-box" id="searchBox" placeholder="Buscar proyecto..." oninput="renderProjects()">
-  </div>
-  <div class="toolbar-right">
-    <select class="sort-select" id="sortSelect" onchange="renderProjects()">
-      <option value="revenue" data-t-opt="sortRevenue">Mayor ingreso</option>
-      <option value="recent" data-t-opt="sortRecent">Mas reciente</option>
-      <option value="oldest" data-t-opt="sortOldest">Mas antiguo</option>
-      <option value="az" data-t-opt="sortAZ">A - Z</option>
-      <option value="za" data-t-opt="sortZA">Z - A</option>
-    </select>
-    <button class="view-btn active" id="viewGrid" onclick="setView('grid')">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
-    </button>
-    <button class="view-btn" id="viewList" onclick="setView('list')">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M1 7h12M1 11h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-    </button>
+    <div id="g_id_signin" style="display:flex;justify-content:center;margin-bottom:8px"></div>
+    <div class="gate-error" id="gateError">Acceso denegado. Correo no autorizado.</div>
+    <div class="gate-error" id="gateBlocked" style="color:var(--red)">Cuenta bloqueada por intentos fallidos. Intente mas tarde.</div>
+    <div class="gate-footer">Verificacion Google &middot; Sesion diaria &middot; Powered by 7Group</div>
   </div>
 </div>
 
-<div class="filter-row" id="filterRow"></div>
+<!-- APP -->
+<div class="app-wrap" id="appWrap">
+  <div class="accent-line"></div>
+  <div class="topbar">
+    <div class="tb-left">
+      <a class="tb-logo" href="#"><img src="https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png" alt="Aseguralo" style="height:28px;vertical-align:middle"></a>
+      <div class="tb-sep"></div>
+      <span class="tb-badge">ERP</span>
+    </div>
+    <div class="tb-right">
+      <div id="syncStatus" style="margin-right:4px"></div>
+      <button class="tb-toggle" onclick="openModConfig()" id="modConfigBtn" style="display:none">Modulos</button>
+      <button class="tb-toggle" onclick="toggleTheme()" id="themeBtn">Claro</button>
+      <a class="tb-btn" href="/agente/" id="tb7gBtn" style="display:none">7Group</a>
+    </div>
+  </div>
 
-<div class="folder-grid" id="projectsContainer"></div>
+  <nav class="mod-nav" id="modNav">
+    <a class="mod-link active" data-mod="polizas">Polizas</a>
+    <a class="mod-link" data-mod="cotizador">Cotizador</a>
+    <a class="mod-link" data-mod="dashboard">Dashboard</a>
+    <a class="mod-link" data-mod="comisiones">Comisiones</a>
+    <a class="mod-link" data-mod="facturacion">Facturacion</a>
+    <a class="mod-link" data-mod="renovaciones">Renovaciones</a>
+    <a class="mod-link" data-mod="siniestros">Siniestros</a>
+    <a class="mod-link" data-mod="clientes">Clientes</a>
+  </nav>
 
+  <div class="main">
+
+    <!-- POLIZAS -->
+    <section class="mod-section active" id="mod-polizas">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Polizas</div>
+          <div class="sec-desc">Gestion y seguimiento de polizas de seguros</div>
+        </div>
+        <div class="tbl-actions">
+          <input class="tbl-search" placeholder="Buscar cliente..." id="searchPolizas" oninput="filterPolizas()">
+          <button class="btn btn-primary" onclick="openModal('newPoliza')">+ Nueva Poliza</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="polizasKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>No. Poliza</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Aseguradora</th>
+                <th>Intermediario</th>
+                <th>Prima</th>
+                <th>Vigencia</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="polizasTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- COTIZADOR -->
+    <section class="mod-section" id="mod-cotizador">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Cotizador Multi-Aseguradora</div>
+          <div class="sec-desc">Compara primas entre aseguradoras y envia propuestas al cliente</div>
+        </div>
+        <div class="tbl-actions">
+          <button class="btn btn-primary" onclick="openModal('newCotizacion')">+ Nueva Cotizacion</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="cotizadorKpi"></div>
+
+      <!-- Cotizaciones cards -->
+      <div id="cotizadorCards"></div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section class="mod-section" id="mod-dashboard">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Dashboard General</div>
+          <div class="sec-desc">Resumen operativo -- Agosto 2026</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="dashKpi"></div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-title">Polizas por Tipo</div>
+          <div class="chart-wrap"><canvas id="chartTipos"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Primas Mensuales (COP)</div>
+          <div class="chart-wrap"><canvas id="chartPrimas"></canvas></div>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div class="tbl-title">Actividad Reciente</div>
+        </div>
+        <div class="feed" id="feedList"></div>
+      </div>
+    </section>
+
+    <!-- COMISIONES -->
+    <section class="mod-section" id="mod-comisiones">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Comisiones</div>
+          <div class="sec-desc">Control de comisiones por aseguradora</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="comisionesKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>Aseguradora</th>
+                <th>Poliza</th>
+                <th>Cliente</th>
+                <th>Prima</th>
+                <th>% Comision</th>
+                <th>Valor Comision</th>
+                <th>Estado Pago</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="comisionesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- FACTURACION -->
+    <section class="mod-section" id="mod-facturacion">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Facturacion</div>
+          <div class="sec-desc">Cuentas de cobro a aseguradoras y control de cartera</div>
+        </div>
+        <div class="tbl-actions">
+          <button class="btn btn-primary" onclick="openModal('newFactura')">+ Nueva Cuenta de Cobro</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="facturaKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Fecha</th>
+                <th>Aseguradora</th>
+                <th>Concepto</th>
+                <th>Polizas</th>
+                <th>Subtotal</th>
+                <th>IVA</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Vence</th>
+              </tr>
+            </thead>
+            <tbody id="facturaTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Conciliacion summary -->
+      <div style="margin-top:20px">
+        <div class="sec-title" style="font-size:15px;margin-bottom:12px">Conciliacion de Cartera</div>
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th>Aseguradora</th>
+                  <th>Comisiones Esperadas</th>
+                  <th>Facturado</th>
+                  <th>Cobrado</th>
+                  <th>Pendiente</th>
+                  <th>Diferencia</th>
+                </tr>
+              </thead>
+              <tbody id="conciliacionTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RENOVACIONES -->
+    <section class="mod-section" id="mod-renovaciones">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Renovaciones</div>
+          <div class="sec-desc">Calendario de vencimientos y alertas de renovacion</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="renovacionesKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Poliza</th>
+                <th>Tipo</th>
+                <th>Aseguradora</th>
+                <th>Vence</th>
+                <th>Dias Restantes</th>
+                <th>Alerta</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="renovacionesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SINIESTROS -->
+    <section class="mod-section" id="mod-siniestros">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Siniestros</div>
+          <div class="sec-desc">Pipeline de gestion de reclamaciones</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="siniestrosKpi"></div>
+
+      <div style="overflow-x:auto;padding-bottom:12px">
+        <div class="kanban" id="siniestrosKanban"></div>
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section class="mod-section" id="mod-clientes">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Clientes</div>
+          <div class="sec-desc">Base de datos de asegurados</div>
+        </div>
+        <div class="tbl-actions">
+          <input class="tbl-search" placeholder="Buscar cliente..." id="searchClientes" oninput="filterClientes()">
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="clientesKpi"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Telefono</th>
+                <th>Email</th>
+                <th>Polizas Activas</th>
+                <th>Prima Total</th>
+                <th>Ultima Actividad</th>
+              </tr>
+            </thead>
+            <tbody id="clientesTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
 </div>
-<div class="foot">7group -- Logistics Intelligence Platform</div>
+
+<!-- MODULE CONFIG -->
+<div class="mod-cfg-overlay" id="modCfgOverlay" onclick="if(event.target===this)closeModConfig()">
+  <div class="mod-cfg">
+    <div class="mod-cfg-head">
+      <div class="mod-cfg-title">Configurar Modulos</div>
+      <button class="modal-close" onclick="closeModConfig()">&times;</button>
+    </div>
+    <div class="mod-cfg-body" id="modCfgBody"></div>
+  </div>
 </div>
+
+<!-- MODAL: Nueva Poliza -->
+<div class="modal-overlay" id="modalNewPoliza">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Nueva Poliza</div>
+      <button class="modal-close" onclick="closeModal('newPoliza')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cliente</label>
+          <input class="form-input" id="pCliente" placeholder="Nombre completo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefono</label>
+          <input class="form-input" id="pTelefono" placeholder="+57 3XX XXX XXXX">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="pEmail" placeholder="email@ejemplo.com">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tipo de Poliza</label>
+          <select class="form-select" id="pTipo">
+            <option value="">Seleccionar...</option>
+            <option value="Vida">Vida</option>
+            <option value="Auto">Auto</option>
+            <option value="Hogar">Hogar</option>
+            <option value="SOAT">SOAT</option>
+            <option value="Empresarial">Empresarial</option>
+            <option value="Salud">Salud</option>
+            <option value="Responsabilidad Civil">Responsabilidad Civil</option>
+            <option value="Cumplimiento">Cumplimiento</option>
+            <option value="Colectivo">Colectivo</option>
+            <option value="Vida Deudor">Vida Deudor</option>
+            <option value="Hogar Deudor">Hogar Deudor</option>
+            <option value="Exequial">Exequial</option>
+            <option value="Transporte">Transporte</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Aseguradora</label>
+          <select class="form-select" id="pAseguradora">
+            <option value="">Seleccionar...</option>
+            <option value="Allianz">Allianz</option>
+            <option value="AXA Colpatria">AXA Colpatria</option>
+            <option value="Seguros del Estado">Seguros del Estado</option>
+            <option value="Sura">Sura</option>
+            <option value="Bolivar">Bolivar</option>
+            <option value="Mapfre">Mapfre</option>
+            <option value="Liberty">Liberty</option>
+            <option value="Previsora">Previsora</option>
+            <option value="Mundial">Mundial</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Intermediario</label>
+        <select class="form-input" id="pIntermediario" onchange="toggleOtroIntermediario('p')"><option value="">Seleccionar...</option><option value="Fabian Carrera">Fabian Carrera</option><option value="Judith Neira">Judith Neira</option><option value="Sandra Marin">Sandra Marin</option><option value="Erika Pinzon">Erika Pinzon</option><option value="On Line">On Line</option><option value="__otro__">Otro</option></select>
+        <input class="form-input" id="pIntermediarioOtro" placeholder="Nombre del nuevo intermediario" style="display:none;margin-top:6px">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prima Anual</label>
+          <input class="form-input" type="number" id="pPrima" placeholder="ej: 2400000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor Asegurado</label>
+          <input class="form-input" type="number" id="pValorAsegurado" placeholder="ej: 150000000">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vigencia Desde</label>
+          <input class="form-input" type="date" id="pDesde">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vigencia Hasta</label>
+          <input class="form-input" type="date" id="pHasta">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notas</label>
+        <textarea class="form-textarea" id="pNotas" placeholder="Observaciones adicionales..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('newPoliza')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePoliza()">Guardar Poliza</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nueva Cotizacion -->
+<div class="modal-overlay" id="modalNewCotizacion">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head">
+      <div class="modal-title">Nueva Cotizacion Comparativa</div>
+      <button class="modal-close" onclick="closeModal('newCotizacion')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cliente</label>
+          <input class="form-input" id="cCliente" placeholder="Nombre completo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefono</label>
+          <input class="form-input" id="cTelefono" placeholder="+57 3XX XXX XXXX">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tipo de Seguro</label>
+          <select class="form-select" id="cTipo">
+            <option value="">Seleccionar...</option>
+            <option value="Auto">Auto</option>
+            <option value="Vida">Vida</option>
+            <option value="Hogar">Hogar</option>
+            <option value="SOAT">SOAT</option>
+            <option value="Empresarial">Empresarial</option>
+            <option value="Salud">Salud</option>
+            <option value="Responsabilidad Civil">Responsabilidad Civil</option>
+            <option value="Cumplimiento">Cumplimiento</option>
+            <option value="Colectivo">Colectivo</option>
+            <option value="Vida Deudor">Vida Deudor</option>
+            <option value="Hogar Deudor">Hogar Deudor</option>
+            <option value="Exequial">Exequial</option>
+            <option value="Transporte">Transporte</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripcion del Bien / Riesgo</label>
+          <input class="form-input" id="cBien" placeholder="ej: Mazda CX-5 2024, Apto 85m2 Chico...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Valor a Asegurar</label>
+          <input class="form-input" type="number" id="cValor" placeholder="ej: 85000000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Intermediario</label>
+          <select class="form-input" id="cIntermediario" onchange="toggleOtroIntermediario('c')"><option value="">Seleccionar...</option><option value="Fabian Carrera">Fabian Carrera</option><option value="Judith Neira">Judith Neira</option><option value="Sandra Marin">Sandra Marin</option><option value="Erika Pinzon">Erika Pinzon</option><option value="On Line">On Line</option><option value="__otro__">Otro</option></select>
+          <input class="form-input" id="cIntermediarioOtro" placeholder="Nombre del nuevo intermediario" style="display:none;margin-top:6px">
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px">Comparacion de Aseguradoras</div>
+        <div id="cComparaciones">
+          <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
+            <input class="form-input" type="number" placeholder="Prima anual">
+            <input class="form-input" type="number" placeholder="Deducible">
+            <input class="form-input" placeholder="Coberturas clave">
+          </div>
+          <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
+            <input class="form-input" type="number" placeholder="Prima anual">
+            <input class="form-input" type="number" placeholder="Deducible">
+            <input class="form-input" placeholder="Coberturas clave">
+          </div>
+          <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
+            <input class="form-input" type="number" placeholder="Prima anual">
+            <input class="form-input" type="number" placeholder="Deducible">
+            <input class="form-input" placeholder="Coberturas clave">
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label class="form-label">Notas para el cliente</label>
+        <textarea class="form-textarea" id="cNotas" placeholder="Recomendacion, observaciones..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('newCotizacion')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCotizacion()">Guardar y Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nueva Cuenta de Cobro -->
+<div class="modal-overlay" id="modalNewFactura">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <div class="modal-title">Nueva Cuenta de Cobro</div>
+      <button class="modal-close" onclick="closeModal('newFactura')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Aseguradora</label>
+          <select class="form-select" id="fAseguradora">
+            <option value="">Seleccionar...</option>
+            <option value="Sura">Sura</option>
+            <option value="Bolivar">Bolivar</option>
+            <option value="Mapfre">Mapfre</option>
+            <option value="Allianz">Allianz</option>
+            <option value="Liberty">Liberty</option>
+            <option value="AXA Colpatria">AXA Colpatria</option>
+            <option value="Previsora">Previsora</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha</label>
+          <input class="form-input" type="date" id="fFecha">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Concepto</label>
+        <input class="form-input" id="fConcepto" placeholder="Comisiones por intermediacion mes de...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Polizas Relacionadas</label>
+        <input class="form-input" id="fPolizas" placeholder="POL-001, POL-007 (separar con coma)">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Subtotal</label>
+          <input class="form-input" type="number" id="fSubtotal" placeholder="ej: 792000" oninput="calcFacturaTotal()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">IVA (19%)</label>
+          <input class="form-input" type="number" id="fIva" placeholder="Auto" readonly style="background:var(--bg4)">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total</label>
+        <input class="form-input" type="number" id="fTotal" readonly style="background:var(--bg4);font-weight:700;font-size:16px">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Fecha Vencimiento</label>
+          <input class="form-input" type="date" id="fVencimiento">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Datos Bancarios</label>
+          <input class="form-input" id="fBanco" placeholder="Bancolombia Ahorros 123-456789-00" value="Bancolombia Ahorros 098-765432-10">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('newFactura')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveFactura()">Emitir Cuenta de Cobro</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-/* =============== AUTH =============== */
+(function(){
+'use strict';
+
+/* ====================================
+   GOOGLE AUTH GATE
+   ==================================== */
 var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var ALLOWED_EMAILS=['aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co','aseguraloseguros@gmail.com','andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+var ADMIN_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+var GATE_KEY='aseg_erp_auth';
+var GATE_TS_KEY='aseg_erp_ts';
+var GATE_FAIL_KEY='aseg_erp_fails';
+var GATE_BLOCK_KEY='aseg_erp_block';
+var SESSION_HOURS=24;
+var MAX_ATTEMPTS=3;
+var BLOCK_MINUTES=30;
+var IS_ADMIN=false;
 
-/* =============== PROJECTS DATA =============== */
-var PROJECTS=[
-  {
-    id:'aseguralo',
-    title:{es:'Aseguralo',en:'Aseguralo'},
-    client:'Fabian Carrera',
-    type:'insurance',
-    scope:'agent',
-    status:'active',
-    phase:'onboarding',
-    revenue:0,
-    created:'2026-08-12',
-    lastActivity:'2026-08-14',
-    docs:8,
-    tags:['Cotizador','Polizas','Comisiones','Facturacion','Renovaciones'],
-    link:'/agente/aseguralo/',
-    region:'Bogota, Colombia'
-  },
-  {
-    id:'land-marmoles',
-    title:{es:'Lan Marmoles',en:'Lan Marmoles'},
-    client:'Ricardo Lancheros',
-    type:'construction',
-    scope:'agent',
-    status:'active',
-    phase:'onboarding',
-    revenue:4800,
-    created:'2026-06-20',
-    lastActivity:'2026-07-18',
-    docs:3,
-    tags:['Cotizador','ERP','Comisiones','Cuenta de Cobro'],
-    link:'/agente/land-marmoles/',
-    region:'Bogota, Colombia'
-  },
-  {
-    id:'crm-mudanzas',
-    title:{es:'CRM Mudanzas',en:'Moving CRM'},
-    client:'White-label Demo',
-    type:'logistics',
-    scope:'demo',
-    status:'active',
-    phase:'onboarding',
-    revenue:8500,
-    created:'2026-08-01',
-    lastActivity:'2026-08-08',
-    docs:5,
-    tags:['Cotizador','Orden de Servicio','KPIs','Campanas','Finanzas'],
-    link:'/demos/crm-mudanzas/',
-    region:'Colombia'
-  },
-  {
-    id:'logistics-pyme',
-    title:{es:'ERP Logistics',en:'ERP Logistics'},
-    client:'TechRetail Inc.',
-    type:'logistics',
-    scope:'demo',
-    status:'active',
-    phase:'diagnostic',
-    revenue:12500,
-    created:'2026-07-15',
-    lastActivity:'2026-07-20',
-    docs:5,
-    tags:['Receiving','Inventory','Warehouse','Dispatches','CEO Dashboard'],
-    link:'/demos/logistica-pyme/shipment/',
-    region:'Florida, US'
-  },
-  {
-    id:'bike-shop-base',
-    title:{es:'Ultimate Bike Shop',en:'Ultimate Bike Shop'},
-    client:'Ultimate Bike Shop',
-    type:'retail',
-    scope:'demo',
-    status:'active',
-    phase:'diagnostic',
-    revenue:3200,
-    created:'2026-07-01',
-    lastActivity:'2026-07-28',
-    docs:4,
-    tags:['Recibo','Inventario','Despachos','Arme su Bici'],
-    link:'/demos/bike-shop/',
-    region:'Honda, Tolima CO'
-  },
-  {
-    id:'contabilidad-7g',
-    title:{es:'Contabilidad 7Group',en:'7Group Accounting'},
-    client:'7Group Corp.',
-    type:'accounting',
-    scope:'demo',
-    status:'active',
-    phase:'onboarding',
-    revenue:0,
-    created:'2026-07-20',
-    lastActivity:'2026-07-20',
-    docs:0,
-    tags:['Invoicing','Expenses','P&L','Tax Reports'],
-    link:null,
-    region:'Internal'
-  },
-  {
-    id:'consulting-demo',
-    title:{es:'Consultoria Operativa',en:'Operational Consulting'},
-    client:'Pipeline Lead',
-    type:'consulting',
-    scope:'demo',
-    status:'pending',
-    phase:'lead',
-    revenue:0,
-    created:'2026-07-10',
-    lastActivity:'2026-07-14',
-    docs:1,
-    tags:['Process Audit','KPIs'],
-    link:null,
-    region:'Georgia, US'
-  },
-  {
-    id:'tech-saas-lead',
-    title:{es:'SaaS Startup Setup',en:'SaaS Startup Setup'},
-    client:'Pipeline Lead',
-    type:'technology',
-    scope:'demo',
-    status:'pending',
-    phase:'lead',
-    revenue:0,
-    created:'2026-07-12',
-    lastActivity:'2026-07-13',
-    docs:1,
-    tags:['Infrastructure','CI/CD','MVP'],
-    link:null,
-    region:'Texas, US'
-  }
-];
-
-/* =============== STATE =============== */
-var currentView='grid';
-var currentFilter='all';
-var currentScope='all'; /* all | agent | demo */
-
-/* ROLES: admin sees all, client sees only their projects */
-var USER_ROLES={
-  'andresapalt@gmail.com':'admin',
-  'andresapal@gmail.com':'admin',
-  '7groupcorp@zohomail.com':'admin',
-  'aseguralo@outlook.com':'client',
-  'celcarov@gmail.com':'client',
-  'celso.carrera@allia2.com.co':'client',
-  'asesorias@aseguralo.com.co':'client',
-  'aseguraloseguros@gmail.com':'client'
-};
-/* Map client emails to project IDs they can see */
-var CLIENT_PROJECTS={
-  'aseguralo@outlook.com':['aseguralo'],
-  'celcarov@gmail.com':['aseguralo'],
-  'celso.carrera@allia2.com.co':['aseguralo'],
-  'asesorias@aseguralo.com.co':['aseguralo'],
-  'aseguraloseguros@gmail.com':['aseguralo']
-};
-var ALLOWED_EMAILS=Object.keys(USER_ROLES);
-var CURRENT_USER='';
-var CURRENT_ROLE='admin';
-
-function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);CURRENT_USER=e;CURRENT_ROLE=USER_ROLES[e]||'client';unlockApp();}else{document.getElementById('authError').style.display='block';}}
-function unlockApp(){document.getElementById('authGate').classList.add('hidden');document.getElementById('appWrap').classList.add('visible');applyRoleFilter();}
-function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
-/* Auto-login IIFE moved to end of script (after all functions are defined) */
-
-function applyRoleFilter(){
-  if(CURRENT_ROLE==='admin'){renderAll();return;}
-  /* Client: filter PROJECTS to only show their assigned projects */
-  var allowed=CLIENT_PROJECTS[CURRENT_USER]||[];
-  PROJECTS=PROJECTS.filter(function(p){return allowed.indexOf(p.id)!==-1;});
-  renderAll();
+function setAdminMode(email){
+  IS_ADMIN = ADMIN_EMAILS.indexOf(email) !== -1;
+  var modBtn = document.getElementById('modConfigBtn');
+  if(modBtn) modBtn.style.display = IS_ADMIN ? '' : 'none';
+  var g7Btn = document.getElementById('tb7gBtn');
+  if(g7Btn) g7Btn.style.display = IS_ADMIN ? '' : 'none';
 }
 
-/* =============== THEME =============== */
-function toggleTheme(){var l=document.documentElement.classList.toggle('light');localStorage.setItem('7g-theme',l?'light':'dark');updateThemeButton(l);}
-function updateThemeButton(l){document.getElementById('themeToggle').innerHTML=l?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8.5a5.5 5.5 0 01-6-6 5.5 5.5 0 106 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
-
-/* =============== LANG =============== */
-var LANG='es';
-(function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
-
-var T={
-  badge:{es:'Agentes',en:'Agents'},
-  navClients:{es:'Clientes',en:'Clients'},
-  navDash:{es:'Dashboard',en:'Dashboard'},
-  schedule:{es:'Agendar llamada',en:'Schedule a call'},
-  searchPlaceholder:{es:'Buscar proyecto...',en:'Search project...'},
-  sortRevenue:{es:'Mayor ingreso',en:'Highest revenue'},
-  sortRecent:{es:'Mas reciente',en:'Most recent'},
-  sortOldest:{es:'Mas antiguo',en:'Oldest'},
-  sortAZ:{es:'A - Z',en:'A - Z'},
-  sortZA:{es:'Z - A',en:'Z - A'},
-  statProjects:{es:'Proyectos',en:'Projects'},
-  statActive:{es:'Activos',en:'Active'},
-  statRevenue:{es:'Ingresos Totales',en:'Total Revenue'},
-  statPending:{es:'Pendientes',en:'Pending'},
-  filterAll:{es:'Todos',en:'All'},
-  logistics:{es:'Logistica',en:'Logistics'},
-  construction:{es:'Construccion',en:'Construction'},
-  retail:{es:'Retail',en:'Retail'},
-  accounting:{es:'Contabilidad',en:'Accounting'},
-  consulting:{es:'Consultoria',en:'Consulting'},
-  technology:{es:'Tecnologia',en:'Technology'},
-  insurance:{es:'Seguros',en:'Insurance'},
-  lblOnboarding:{es:'Onboarding',en:'Onboarding'},
-  lblDiagnostic:{es:'Diagnostico',en:'Diagnostic'},
-  lblActive:{es:'Activo',en:'Active'},
-  lblPending:{es:'Pendiente',en:'Pending'},
-  lblCompleted:{es:'Completado',en:'Completed'},
-  lblLead:{es:'Lead',en:'Lead'},
-  lblDocs:{es:'docs',en:'docs'},
-  lblLastActivity:{es:'Ultima actividad',en:'Last activity'},
-  lblCreated:{es:'Creado',en:'Created'},
-  scopeAll:{es:'Todos',en:'All'},
-  scopeAgent:{es:'Agentes',en:'Agents'},
-  scopeDemo:{es:'Demos',en:'Demos'},
-  demoTag:{es:'DEMO',en:'DEMO'},
-  agentTag:{es:'ACTIVO',en:'LIVE'}
-};
-function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
-function tl(o){if(!o)return'';if(typeof o==='string')return o;return o[LANG]||o.en||'';}
-
-/* =============== BUSINESS TYPE CONFIG =============== */
-var BIZ_TYPES={
-  logistics:{color:'var(--cyan)',bg:'rgba(94,231,247,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 4v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'},
-  construction:{color:'var(--orange)',bg:'rgba(249,115,22,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"/><path d="M5 20V8l7-5 7 5v12"/><path d="M9 20v-6h6v6"/></svg>'},
-  retail:{color:'var(--green)',bg:'rgba(34,197,94,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 7v13a1 1 0 001 1h16a1 1 0 001-1V7l-3-5z"/><path d="M3 7h18"/><path d="M16 11a4 4 0 01-8 0"/></svg>'},
-  accounting:{color:'var(--yellow)',bg:'rgba(234,179,8,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M8 3v18"/><path d="M12 13h4M12 17h4"/></svg>'},
-  consulting:{color:'var(--purple)',bg:'rgba(167,139,250,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
-  technology:{color:'var(--blue)',bg:'rgba(59,130,246,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>'},
-  insurance:{color:'#10B981',bg:'rgba(16,185,129,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'}
-};
-
-function setView(v){
-  currentView=v;
-  document.getElementById('viewGrid').classList.toggle('active',v==='grid');
-  document.getElementById('viewList').classList.toggle('active',v==='list');
-  renderProjects();
+function isBlocked(){
+  try{
+    var blockUntil=parseInt(localStorage.getItem(GATE_BLOCK_KEY)||'0');
+    if(blockUntil && Date.now()<blockUntil){return true;}
+    if(blockUntil && Date.now()>=blockUntil){localStorage.removeItem(GATE_BLOCK_KEY);localStorage.removeItem(GATE_FAIL_KEY);}
+  }catch(e){}
+  return false;
 }
 
-/* =============== RENDER =============== */
-function renderAll(){renderStats();renderFilters();renderProjects();}
-
-function renderStats(){
-  var total=0;
-  var active=0,rev=0,pending=0;
-  for(var i=0;i<PROJECTS.length;i++){
-    var p=PROJECTS[i];
-    if(currentScope!=='all'&&p.scope!==currentScope)continue;
-    total++;
-    if(p.status==='active')active++;
-    if(p.status==='pending')pending++;
-    rev+=p.revenue;
-  }
-  document.getElementById('statsBar').innerHTML=
-    '<div class="stat"><div class="stat-val" style="color:var(--cyan)">'+total+'</div><div class="stat-label">'+t('statProjects')+'</div></div>'+
-    '<div class="stat"><div class="stat-val" style="color:var(--green)">'+active+'</div><div class="stat-label">'+t('statActive')+'</div></div>'+
-    '<div class="stat"><div class="stat-val" style="color:var(--yellow)">$'+formatNum(rev)+'</div><div class="stat-label">'+t('statRevenue')+'</div></div>'+
-    '<div class="stat"><div class="stat-val" style="color:var(--orange)">'+pending+'</div><div class="stat-label">'+t('statPending')+'</div></div>';
-}
-
-function formatNum(n){if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
-
-function renderFilters(){
-  /* Scope row: Todos | Agentes | Demos (admin only) */
-  var sh='';
-  if(CURRENT_ROLE==='admin'){
-    var scopes=['all','agent','demo'];
-    var scopeLabels={all:t('scopeAll'),agent:t('scopeAgent'),demo:t('scopeDemo')};
-    var scopeCounts={all:PROJECTS.length,agent:0,demo:0};
-    for(var i=0;i<PROJECTS.length;i++){scopeCounts[PROJECTS[i].scope]=(scopeCounts[PROJECTS[i].scope]||0)+1;}
-    for(var i=0;i<scopes.length;i++){
-      var sc=scopes[i];
-      sh+='<button class="filter-chip'+(currentScope===sc?' active':'')+'" style="'+(sc==='agent'?'border-color:var(--green);':'')+(sc==='demo'?'border-color:var(--purple);':'')+'" onclick="setScope(\''+sc+'\')">'+scopeLabels[sc]+'<span class="filter-count">'+scopeCounts[sc]+'</span></button>';
+function addFailedAttempt(){
+  try{
+    var fails=parseInt(localStorage.getItem(GATE_FAIL_KEY)||'0')+1;
+    localStorage.setItem(GATE_FAIL_KEY,fails.toString());
+    if(fails>=MAX_ATTEMPTS){
+      localStorage.setItem(GATE_BLOCK_KEY,(Date.now()+BLOCK_MINUTES*60000).toString());
+      document.getElementById('gateError').style.display='none';
+      document.getElementById('gateBlocked').style.display='block';
+      var btn=document.getElementById('g_id_signin');
+      if(btn)btn.style.display='none';
+      return;
     }
-    sh+='<span style="width:1px;height:20px;background:var(--border3);margin:0 4px"></span>';
-  }
-  /* Type filters - count only within current scope */
-  var counts={all:0};
-  for(var i=0;i<PROJECTS.length;i++){
-    if(currentScope!=='all'&&PROJECTS[i].scope!==currentScope)continue;
-    counts.all++;
-    var tp=PROJECTS[i].type;
-    counts[tp]=(counts[tp]||0)+1;
-  }
-  var types=['all','insurance','construction','logistics','retail','accounting','consulting','technology'];
-  var h='';
-  for(var i=0;i<types.length;i++){
-    var tp=types[i];
-    var cnt=counts[tp]||0;
-    if(tp!=='all'&&cnt===0)continue;
-    var label=tp==='all'?t('filterAll'):t(tp);
-    h+='<button class="filter-chip'+(currentFilter===tp?' active':'')+'" onclick="setFilter(\''+tp+'\')">'+label+'<span class="filter-count">'+cnt+'</span></button>';
-  }
-  document.getElementById('filterRow').innerHTML=sh+h;
+    document.getElementById('gateError').style.display='block';
+    document.getElementById('gateError').textContent='Acceso denegado. Correo no autorizado. (Intento '+fails+'/'+MAX_ATTEMPTS+')';
+  }catch(e){}
 }
 
-function setScope(s){currentScope=s;currentFilter='all';renderFilters();renderProjects();}
-function setFilter(f){currentFilter=f;renderFilters();renderProjects();}
-
-function getSortedProjects(){
-  var search=document.getElementById('searchBox').value.toLowerCase();
-  var sort=document.getElementById('sortSelect').value;
-  var list=[];
-  for(var i=0;i<PROJECTS.length;i++){
-    var p=PROJECTS[i];
-    if(currentScope!=='all'&&p.scope!==currentScope)continue;
-    if(currentFilter!=='all'&&p.type!==currentFilter)continue;
-    if(search){
-      var haystack=(tl(p.title)+' '+p.client+' '+p.tags.join(' ')+' '+p.region).toLowerCase();
-      if(haystack.indexOf(search)===-1)continue;
+function isSessionValid(){
+  try{
+    var stored=localStorage.getItem(GATE_KEY)||'';
+    var ts=parseInt(localStorage.getItem(GATE_TS_KEY)||'0');
+    if(!stored || !ts) return false;
+    if(ALLOWED_EMAILS.indexOf(stored)===-1) return false;
+    var elapsed=(Date.now()-ts)/(1000*60*60);
+    if(elapsed>SESSION_HOURS){
+      localStorage.removeItem(GATE_KEY);
+      localStorage.removeItem(GATE_TS_KEY);
+      return false;
     }
-    list.push(p);
-  }
-  list.sort(function(a,b){
-    if(sort==='revenue')return b.revenue-a.revenue;
-    if(sort==='recent')return new Date(b.lastActivity)-new Date(a.lastActivity);
-    if(sort==='oldest')return new Date(a.created)-new Date(b.created);
-    if(sort==='az')return tl(a.title).localeCompare(tl(b.title));
-    if(sort==='za')return tl(b.title).localeCompare(tl(a.title));
-    return 0;
-  });
-  return list;
+    return true;
+  }catch(e){return false;}
 }
 
-function renderProjects(){
-  var list=getSortedProjects();
-  var container=document.getElementById('projectsContainer');
-  container.className=currentView==='grid'?'folder-grid':'folder-list';
+function enterApp(){
+  var stored='';
+  try{stored=localStorage.getItem(GATE_KEY)||'';}catch(e){}
+  setAdminMode(stored);
+  document.getElementById('emailGate').classList.add('hidden');
+  document.getElementById('appWrap').classList.add('visible');
+  initApp();
+}
 
-  if(list.length===0){
-    container.innerHTML='<div class="empty"><div class="empty-icon">--</div><div class="empty-text">'+(LANG==='es'?'No se encontraron proyectos':'No projects found')+'</div></div>';
+function handleGoogleResponse(r){
+  if(isBlocked()){document.getElementById('gateBlocked').style.display='block';return;}
+  try{
+    var payload=JSON.parse(atob(r.credential.split('.')[1]));
+    var email=(payload.email||'').toLowerCase();
+    if(ALLOWED_EMAILS.indexOf(email)!==-1){
+      localStorage.setItem(GATE_KEY,email);
+      localStorage.setItem(GATE_TS_KEY,Date.now().toString());
+      localStorage.removeItem(GATE_FAIL_KEY);
+      localStorage.removeItem(GATE_BLOCK_KEY);
+      setAdminMode(email);
+      enterApp();
+    } else {
+      addFailedAttempt();
+    }
+  }catch(e){addFailedAttempt();}
+}
+
+function initGoogleSignIn(){
+  if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleSignIn,200);return;}
+  google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleResponse});
+  google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});
+}
+
+function autoEnter(){
+  if(isBlocked()){
+    document.getElementById('gateBlocked').style.display='block';
+    var btn=document.getElementById('g_id_signin');
+    if(btn)btn.style.display='none';
+    initGoogleSignIn();
     return;
   }
+  if(isSessionValid()){
+    enterApp();
+  } else {
+    initGoogleSignIn();
+  }
+}
 
-  var h='';
-  for(var i=0;i<list.length;i++){
-    var p=list[i];
-    var biz=BIZ_TYPES[p.type]||BIZ_TYPES.logistics;
-    var statusLabel=t('lbl'+p.status.charAt(0).toUpperCase()+p.status.slice(1));
-    var phaseLabel=t('lbl'+p.phase.charAt(0).toUpperCase()+p.phase.slice(1));
-    var statusColor=p.status==='active'?'var(--green)':p.status==='pending'?'var(--yellow)':'var(--dim)';
-    var revStr=p.revenue>0?'$'+formatNum(p.revenue):'--';
-    var revColor=p.revenue>0?'color:var(--green)':'color:var(--muted)';
-    var onclick=p.link?'onclick="window.location.href=\''+p.link+'\'"':'';
+/* ====================================
+   GOOGLE SHEET LIVE CONNECTION
+   ==================================== */
+var TODAY = new Date();
+var SHEET_ID = '1kazh3aAAmpmzmyQrd14KASKxxNx3R9Fu';
+var SHEET_GID = '1965436126';
+var SHEET_CACHE_KEY = 'aseg_sheet_data';
+var SHEET_CACHE_TS = 'aseg_sheet_ts';
+var SHEET_CACHE_HOURS = 1;
+var SHEET_LOADED = false;
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-6-cV_lCBNYzGp89I6xdDwGEa32Vhok8LfW7-oRAvxfUNABkIv7IjjTNGjZ7Qv3IQ/exec';
 
-    h+='<div class="folder" '+onclick+' style="'+(p.link?'':'opacity:.85;cursor:default')+'">'+
-      '<div class="folder-accent" style="background:'+biz.color+'"></div>'+
-      '<div class="folder-head">'+
-        '<div style="display:flex;align-items:center;gap:10px">'+
-          '<div class="folder-icon" style="background:'+biz.bg+';color:'+biz.color+'">'+biz.icon+'</div>'+
-          '<div>'+
-            '<div class="folder-title">'+tl(p.title)+'</div>'+
-            '<div class="folder-client">'+p.client+' &middot; '+p.region+'</div>'+
+var CLIENTES=[];
+var POLIZAS=[];
+var COMISIONES=[];
+var SINIESTROS=[];
+var FEED=[];
+
+/* ---- Datos reales: Google Sheet "Base de datos Aseguralo" (POLRES) ---- */
+/* [nombre, poliza, telefono, desde, hasta, anulacion, tipo, prima, cobertura] */
+var POLIZAS_RAW=[
+["Carlos Alfonso Pineda Chillan","021509469","3165284399","2014-04-01","2015-04-01","2025-04-01","Salud",43054075,"Protesis"],
+["Lida Elizabeth Bravo Cruz","021666317","3138331232","2014-12-01","2015-12-01","","Salud",22725156,"Urgencias"],
+["Rosillo Xiomara Reyes","021970622","3114773795","2016-08-31","2017-09-01","2025-09-01","Salud",10937787,"Protesis"],
+["Jessica Andrea Pulido Guerrero","022175861","3002752562","2017-11-09","2018-11-09","2024-11-09","Vida",2179262,"Fallecimiento"],
+["Jessica Andrea Pulido Guerrero","022175878","3002752562","2017-10-30","2018-10-30","2024-10-30","Vida",1365619,"Fallecimiento"],
+["Magda Mile Salcedo Jimenez","022432946","3202109150","2019-04-01","2020-04-01","2025-04-01","Salud",22058300,"Urgencias"],
+["Ronald Steve Cepeda Gutierrez","022455469","3003085741","2019-05-01","2020-05-01","2025-05-01","Salud",4969283,"Urgencias"],
+["Vela Jacobo Buitrago","022558568","3106198956","2019-11-01","2020-11-01","2024-11-01","Auto",1406490,"RCE+AJPP"],
+["Ligia Hortua Plazas","022565927","3103080213","2019-11-01","2020-11-01","2025-03-11","Auto",1416833,"RCE+AJPP"],
+["Miguel Ignacio Arrazola Montes","022643539","3002090101","2020-05-01","2020-05-01","2025-05-01","Auto",2139651,"RCE+AJPP"],
+["Raquel Zuleta Sanchez","022695782","3125701258","2020-08-01","2020-08-01","2025-08-01","Auto",1227874,"RCE+AJPP"],
+["Ilsa Cecilia Molina Portilla","022726364","3108743654","2020-06-01","2021-06-01","","Salud",11343997,"Urgencias"],
+["Julian Alberto Rico Bravo","022739168","3124812719","2020-08-26","2021-08-26","2024-08-26","Auto",1960525,"RCE+AJPP"],
+["Yudi Milena Rodriguez Mojica","022784736","3108608309","2021-01-01","2021-01-01","2025-01-01","Auto",1469354,"RCE+AJPP"],
+["Javier Enrique Pabon Moreno","022804772","3112511509","2021-02-01","2021-02-01","2024-12-13","Auto",1037509,"RCE+AJPP"],
+["Astrid Lorena Lopez Achury","022811930","3174098712","2020-12-28","2021-12-28","","Auto",1990881,"RCE+AJPP"],
+["Jose Luis Briceo Suarez","022863322","3204407615","2021-03-29","2022-03-29","2025-03-29","Auto",1418807,"RCE+AJPP"],
+["Construction And Advanced Consulting S A S","022867368","3184173959","2021-04-01","2022-04-01","2025-04-01","Salud",24023491,"Protesis"],
+["Magda Mile Salcedo Jimenez","022905018","3202109150","2021-06-01","2022-06-01","2025-06-01","Salud",13685087,"Urgencias"],
+["Lida Elizabeth Bravo Cruz","022942633","3138331232","2021-10-01","2021-10-01","","Hogar",2578137,"Incendio"],
+["Pavel Arciniegas Hernandez","022977668","3175243858","2021-09-24","2022-09-24","2024-09-24","Auto",2754652,"RCE+AJPP"],
+["Luis Eduardo Sanchez Mongui","022981244","3112050102","2021-09-30","2022-09-30","2025-03-13","Auto",2710322,"RCE+AJPP"],
+["Leidy Viviana Diaz Munoz","022988694","3229423989","2021-10-14","2022-10-14","2024-10-16","Auto",1927381,"RCE+AJPP"],
+["Noris Yolanda Garzon Otalora","023002254","3212294274","2021-09-29","2022-09-29","2024-09-29","Auto",1351700,"RCE+AJPP"],
+["Julian Alberto Rico Bravo","023059959","3124812719","2022-03-10","2023-03-10","","Hogar",494854,"Incendio"],
+["Luis Guillermo Correa Gutierrez","023079789","3105596471","2022-04-27","2023-04-27","2025-04-27","Auto",2164312,"RCE+AJPP"],
+["Juan Sebastian Sandino Ariza","023102842","3003286681","2022-06-04","2023-06-04","2024-08-05","Auto",1510811,"RCE+AJPP"],
+["Aymer Augusto Guzman Rivera","023140774","3202573741","2022-08-24","2023-08-24","2024-09-06","Auto",2609379,"RCE+AJPP"],
+["Julieth Castillo Carrillo","023178495","3002673411","2022-11-19","2023-11-19","2025-02-19","Auto",1589678,"RCE+AJPP"],
+["Pedro Jose Santamaria Higuera","023224237","3166914718","2023-03-09","2024-03-09","2025-03-09","Auto",2570512,"RCE+AJPP"],
+["Erika Sugey Pinzon Cardenas","023233549","3006609706","2023-03-31","2024-03-31","2025-03-31","Vida",1013034,"Fallecimiento"],
+["Construction And Advanced Consulting S A S","023265489","3184173959","2023-06-05","2024-06-05","2025-06-05","Auto",6192191,"RCE+AJPP"],
+["Celso Fabian Carrera Amaya","023291042","3165206865","2023-07-31","2024-07-31","2024-07-31","Vida",1013521,"Fallecimiento"],
+["Ramon Rangel Ospina","023305779","3173783321","2023-08-25","2024-08-25","2024-08-25","Hogar",374571,"Incendio"],
+["Juan Sebastian Sandino Ariza","023320559","3003286681","2023-09-29","2024-09-29","2025-03-01","Vida",355560,"Fallecimiento"],
+["Diana Alexandra Rodriguez Medina","023343826","3188288303","2023-10-01","2024-10-01","2024-08-02","Auto",1537454,"RCE+AJPP"],
+["Yazmin Perez Cortes","023348395","3107854961","2023-11-24","2024-11-24","2025-06-04","Auto",2912852,"RCE+AJPP"],
+["Luis Alberto Torres Martinez","023361098","3177258758","2023-12-29","2025-01-01","2025-01-01","Salud",16364202,"Protesis"],
+["Heidy Johanna Bernal Guerrero","023380614","3112229913","2024-02-04","2025-02-04","2025-02-04","Auto",2242151,"RCE+AJPP"],
+["Luis Eduardo Sanchez Mongui","023426584","3112050102","2024-05-09","2025-05-09","2025-05-09","Otros",2418472,"RCEH Decr.4299/"],
+["Annina Schlatter","023428326","3146149399","2024-05-01","2025-05-01","2025-05-01","Salud",14535063,"Protesis"],
+["Edgar Andres Camacho Cortes","023432418","3112633391","2024-05-18","2025-05-18","2025-05-18","Auto",2264764,"RCE+AJPP"],
+["Daniel Becerra Garzon","023432477","3144115279","2024-05-18","2025-05-18","2024-12-24","Auto",1300001,"RCE+AJPP"],
+["Hernan Trujillo Serrato","023442965","3002917954","2024-07-01","2025-07-01","2025-07-01","Auto",1649223,"RCE+AJPP"],
+["Carolina Diaz Carrera","023451991","3118535759","2024-06-27","2025-06-27","2025-02-27","Hogar",479055,"Incendio"],
+["Carlos Arturo Calderon","023452483","3184173959","2024-06-23","2025-06-23","2024-07-17","Auto",3781642,"RCE+AJPP"],
+["Sandra Patricia Garcia Caceres","023459770","3134021588","2024-07-19","2025-07-19","2025-03-19","Auto",3009298,"RCE+AJPP"],
+["Pablo Enrique Ramon Uribe Lenis","023462872","3002672078","2024-08-12","2025-08-12","","Auto",942242,"RCE+AJPP"],
+["Pavel Arciniegas Hernandez","023466680","3175243858","2024-09-24","2025-09-24","","Auto",2989824,"RCE+AJPP"],
+["Julian Alberto Rico Bravo","023487886","3124812719","2024-08-26","2025-08-26","","Auto",1849901,"RCE+AJPP"],
+["Franklin Arias Carrillo","023488394","3158999799","2024-09-06","2025-09-06","2024-09-06","Auto",0,"RCE+AJPP"],
+["Luz Amparo Chacon Babativa","023492760","3157816814","2024-10-01","2025-10-01","","Salud",25329964,"Hospitalizacion"],
+["Miguel Alberto Ocampo Gomez","023500973","3006100029","2024-10-01","2025-10-01","","Hogar",855653,"Incendio"],
+["Jose Fredy Gonzalez Ruiz","023501265","3202255515","2024-10-01","2025-10-01","","Auto",2096993,"RCE+AJPP"],
+["Miguel Alberto Ocampo Gomez","023501686","3006100029","2024-10-03","2025-10-03","","Auto",1678327,"RCE+AJPP"],
+["Jessica Andrea Pulido Guerrero","023502231","3002752562","2024-10-03","2025-10-03","2025-06-03","Auto",1714233,"RCE+AJPP"],
+["Angela Judith Carreno Perez","023507774","3002242217","2024-10-16","2025-10-16","","Auto",5933241,"RCE+AJPP"],
+["Smarty Pants Colombia Sas","023517780","3002672081","2024-11-05","2025-11-05","2025-06-30","Hogar",710672,"Incendio"],
+["El Ciguenal Medina Jara S.a.","023526599","3105581310","2024-11-23","2025-11-23","","Auto",10383270,"RCE+AJPP"],
+["Diego Andres Castiblanco Betancourt","023529236","3213953086","2024-11-29","2025-11-29","","Auto",2843253,"RCE+AJPP"],
+["Eduardo Andres Gutierrez Barriga","023531027","3212055938","2024-11-29","2025-11-29","","Auto",1496111,"RCE+AJPP"],
+["Andrea Pinzon Vargas","023534030","3134522531","2024-12-07","2025-12-07","","Auto",2586301,"RCE+AJPP"],
+["Noris Yolanda Garzon Otalora","023542697","3212294274","2024-12-18","2025-12-18","","Auto",1318688,"RCE+AJPP"],
+["Jennifer Maria Urrego Barragan","023543253","3156168398","2024-12-20","2025-12-20","","Auto",1330831,"RCE+AJPP"],
+["Luis Alberto Torres Martinez","023544978","3177258758","2025-01-01","2026-01-01","","Salud",17895961,"Hospitalizacion"],
+["Javier Enrique Pabon Moreno","023549038","3112511509","2024-12-27","2025-12-27","","Auto",2181651,"RCE+AJPP"],
+["Heidy Johanna Bernal Guerrero","023565449","3112229913","2025-02-04","2026-02-04","","Auto",2017922,"RCE+AJPP"],
+["Ramon Bernal Arevalo","023567880","3105513869","2025-02-14","2026-02-14","2025-05-20","Auto",1951143,"RCE+AJPP"],
+["Martha Lucia De Plaza Buritica","023573318","3002672081","2025-02-19","2026-02-19","","Auto",1077041,"RCE+AJPP"],
+["Karen Andrea Rodriguez Nungo","023576848","3204285601","2025-02-19","2026-02-19","","Auto",2208482,"RCE+AJPP"],
+["Miller Alonso Alvarez Chavarro","023582959","3182231625","2025-02-27","2026-02-27","","Auto",2815232,"RCE+AJPP"],
+["Carlos Alfonso Pineda Chillan","023587546","3165284399","2025-04-01","2026-04-01","","Salud",46089343,"Hospitalizacion"],
+["Construction And Advanced Consulting S A S","023588515","3184173959","2025-04-01","2026-04-01","","Salud",26930869,"Hospitalizacion"],
+["Magda Mile Salcedo Jimenez","023589086","3202109150","2025-04-01","2026-04-01","","Salud",23845753,"Hospitalizacion"],
+["Ronald Steve Cepeda Gutierrez","023600497","3003085741","2025-05-01","2026-05-01","","Salud",5042968,"Hospitalizacion"],
+["Jose Dario Cabezas Belalcazar","023601948","3103343557","2025-04-11","2026-04-11","","Auto",1163374,"RCE+AJPP"],
+["Jose Dario Cabezas Belalcazar","023601964","3103343557","2025-03-28","2026-03-28","2025-03-28","Auto",1118052,"RCE+AJPP"],
+["David Alfonso Cruz Gallo","023602094","3213245825","2025-03-28","2026-03-28","","Auto",2303257,"RCE+AJPP"],
+["Annina Schlatter","023604725","3146149399","2025-05-01","2026-05-01","","Salud",15585678,"Hospitalizacion"],
+["Luis Eduardo Sanchez Mongui","023605364","3112050102","2025-04-03","2026-04-03","","Auto",1763136,"RCE+AJPP"],
+["German Alexander Aranguren Amaya","023605594","3106987397","2025-04-04","2026-04-04","","Auto",2512695,"RCE+AJPP"],
+["Julieth Castillo Carrillo","023613764","3002673411","2025-04-16","2026-04-16","","Auto",1587286,"RCE+AJPP"],
+["Magda Mile Salcedo Jimenez","023616780","3202109150","2025-06-01","2026-06-01","","Salud",14703632,"Hospitalizacion"],
+["Jose Dario Cabezas Belalcazar","023619858","3103343557","2025-04-29","2026-04-29","","Auto",1342015,"RCE+AJPP"],
+["Luis Eduardo Sanchez Mongui","023622337","3112050102","2025-05-09","2026-05-09","","Otros",2648227,"RCEH Decr.4299/"],
+["Edgar Andres Camacho Cortes","023627816","3112633391","2025-05-18","2026-05-18","","Auto",2038408,"RCE+AJPP"],
+["Sandra Patricia Garcia Caceres","023628177","3134021588","2025-06-09","2026-06-09","","Auto",1217486,"RCE+AJPP"],
+["Maby Marcela Monroy Medina","023629384","3164451371","2025-05-16","2026-05-16","","Auto",1625775,"RCE+AJPP"],
+["Sonia Cubillos Cobos","023630595","3144685046","2025-05-17","2026-05-17","2025-05-17","Auto",1353102,"RCE+AJPP"],
+["Miguel Ignacio Arrazola Montes","023633839","3002090101","2025-05-01","2026-05-01","","Auto",1925781,"RCE+AJPP"],
+["Construction And Advanced Consulting S A S","023637157","3184173959","2025-06-05","2026-06-05","","Auto",5573059,"RCE+AJPP"],
+["Jessica Andrea Pulido Guerrero","023643921","3002752562","2025-06-09","2026-06-09","","Hogar",529203,"Incendio"],
+["Yazmin Perez Cortes","023648290","3107854961","2025-06-16","2026-06-16","","Auto",1466704,"RCE+AJPP"],
+["Carolina Diaz Carrera","023650756","3118535759","2025-06-27","2026-06-27","","Hogar",493437,"Incendio"],
+["Angela Viviana Quintero Quiceno","023657810","3113014138","2025-06-01","2026-06-01","","Auto",2528807,"RCE+AJPP"],
+["Hernan Trujillo Serrato","023659737","3002917954","2025-07-01","2026-07-01","","Auto",1484284,"RCE+AJPP"]
+];
+
+/* Vehicle plates for Auto policies */
+var PLACAS_MAP={'022558568':'NVR427','022565927':'HKS394','022643539':'HVM022','022695782':'MFT932','022739168':'JEP917','022784736':'JEZ213','022804772':'RNQ796','022811930':'NDY482','022863322':'MPT554','022977668':'JXS845','022981244':'JXW238','022988694':'EIY218','023002254':'EOL133','023079789':'KNX205','023102842':'DZT684','023140774':'GCQ059','023178495':'HJL450','023224237':'KYM864','023265489':'LOM010','023343826':'GLN578','023348395':'GWY420','023380614':'JCT965','023432418':'LON800','023432477':'IEL395','023442965':'DVM956','023452483':'FZN891','023459770':'FZO297','023462872':'JMW049','023466680':'JXS845','023487886':'JEP917','023488394':'RML982','023501265':'FZR380','023501686':'MPU348','023502231':'GCQ059','023507774':'LOZ409','023526599':'PHU573','023529236':'ZZS071','023531027':'INU818','023534030':'LTU904','023542697':'EOL133','023543253':'EBQ337','023549038':'PBU741','023565449':'JCT965','023567880':'REZ200','023573318':'FNZ265','023576848':'GFK404','023582959':'DHK835','023601948':'BES024','023601964':'BBE853','023602094':'PCZ929','023605364':'PCZ983','023605594':'IIP405','023613764':'HJL450','023619858':'BBE853','023627816':'LON800','023628177':'FZO297','023629384':'DZV411','023630595':'HDU823','023633839':'HVM022','023637157':'LOM010','023648290':'PRQ752','023657810':'JBS515','023659737':'DVM956'};
+
+/* ---- Build POLIZAS from hardcoded data ---- */
+function buildPolizasFromRaw(){
+  return POLIZAS_RAW.map(function(r){
+    return {
+      id:r[1],
+      cliente:r[0],
+      telefono:r[2],
+      tipo:r[6],
+      aseguradora:'Allianz',
+      intermediario:r[1]==='021666317'?'Judith Neira':'Fabian Carrera',
+      prima:r[7],
+      valorAsegurado:0,
+      desde:r[3],
+      hasta:r[4],
+      estado:deriveEstado(r[4],r[5]),
+      placa:PLACAS_MAP[r[1]]||'',
+      cobertura:r[8],
+      sarlaft:'pendiente',
+      pdfUrl:''
+    };
+  });
+}
+
+/* ---- Name formatter: "LAST, FIRST MIDDLE" -> "First Middle Last" ---- */
+function fmtSheetName(raw){
+  var n=(raw||'').trim();
+  if(!n) return '';
+  var parts=n.split(',');
+  function cap(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
+  if(parts.length<2) return n.split(/\s+/).map(cap).join(' ');
+  var last=parts[0].trim().split(/\s+/).map(cap).join(' ');
+  var first=parts[1].trim().split(/\s+/).map(cap).join(' ');
+  return first+' '+last;
+}
+
+/* ---- Date formatter: gviz Date(Y,M,D) or M/D/YYYY -> YYYY-MM-DD ---- */
+function fmtSheetDate(v){
+  if(!v) return '';
+  var s=String(v);
+  var m=s.match(/Date\((\d+),(\d+),(\d+)\)/);
+  if(m) return m[1]+'-'+String(parseInt(m[2])+1).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0');
+  var p=s.split('/');
+  if(p.length===3) return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');
+  return s;
+}
+
+/* ---- Detect policy type from TIPO + first coverage description ---- */
+function detectTipoPoliza(tipo,cob){
+  var t=(tipo||'').trim().toUpperCase();
+  var c=(cob||'').trim().toLowerCase();
+  if(t==='AUTOS') return 'Auto';
+  if(c.indexOf('incendio')>=0||c.indexOf('terremoto')>=0||c.indexOf('asiste')>=0||c.indexOf('daño')>=0||c.indexOf('agua')>=0) return 'Hogar';
+  if(c.indexOf('prótesis')>=0||c.indexOf('urgencias')>=0||c.indexOf('hospital')>=0||c.indexOf('enfermedad')>=0||c.indexOf('gmpt')>=0) return 'Salud';
+  if(c.indexOf('fallecimiento')>=0||c.indexOf('incap')>=0) return 'Vida';
+  if(c.indexOf('rceh')>=0||c.indexOf('contamin')>=0) return 'Empresarial';
+  return 'Otros';
+}
+
+/* ---- Derive estado from dates ---- */
+function deriveEstado(hasta,anulacion){
+  if(anulacion) return 'cancelada';
+  if(!hasta) return 'activa';
+  var now=new Date();
+  var vd=new Date(hasta);
+  if(isNaN(vd.getTime())) return 'activa';
+  if(vd<now) return 'vencida';
+  if((vd-now)/86400000<=30) return 'por-renovar';
+  return 'activa';
+}
+
+/* ---- Transform gviz rows to POLIZAS format ---- */
+function transformSheetRows(rows){
+  return rows.map(function(row){
+    var c=row.c||[];
+    var val=function(i){return c[i]?((c[i].f!=null?c[i].f:c[i].v)||''):'';};
+    var num=function(i){return c[i]?(parseFloat(c[i].v)||0):0;};
+    var dval=function(i){
+      if(!c[i]) return '';
+      if(c[i].v && String(c[i].v).indexOf('Date(')===0) return fmtSheetDate(c[i].v);
+      return fmtSheetDate(c[i].f||c[i].v||'');
+    };
+
+    var poliza=String(val(4)).trim();
+    var nombre=String(val(6)).trim();
+    var telefono=String(val(10)).trim();
+    var tipo_raw=String(val(35)).trim();
+    var cob1=String(val(43)).trim();
+    var colab=String(val(2)).trim();
+    var desde=dval(25);
+    var hasta=dval(26);
+    var anulacion=dval(27);
+
+    var prima=num(38)+num(40)+num(42);
+    var vaTotal=0;
+    [44,46,48,50,52,54,56,58].forEach(function(idx){vaTotal+=num(idx);});
+
+    return {
+      id:poliza,
+      cliente:fmtSheetName(nombre),
+      telefono:telefono,
+      tipo:detectTipoPoliza(tipo_raw,cob1),
+      aseguradora:'Allianz',
+      intermediario:colab==='0731'?'Judith Neira':'Fabian Carrera',
+      prima:Math.round(prima),
+      valorAsegurado:Math.round(vaTotal),
+      desde:desde,
+      hasta:hasta,
+      estado:deriveEstado(hasta,anulacion),
+      sarlaft:'pendiente',
+      pdfUrl:''
+    };
+  }).filter(function(p){return p.id;});
+}
+
+/* ---- Generate derived data from real POLIZAS ---- */
+function generateDerivedData(){
+  // Build CLIENTES from unique names in POLIZAS
+  var seen={};
+  CLIENTES=[];
+  POLIZAS.forEach(function(p){
+    if(!seen[p.cliente]){
+      seen[p.cliente]=true;
+      CLIENTES.push({nombre:p.cliente,telefono:p.telefono,email:''});
+    }
+  });
+
+  // Generate COMISIONES from non-cancelled policies
+  COMISIONES=POLIZAS.filter(function(p){return p.prima>0&&p.estado!=='cancelada';}).slice(0,20).map(function(p){
+    var pct=p.tipo==='Auto'?12:p.tipo==='Salud'?15:p.tipo==='Vida'?10:8;
+    var vc=Math.round(p.prima*pct/100);
+    return {
+      aseguradora:p.aseguradora,
+      poliza:p.id,
+      cliente:p.cliente,
+      prima:p.prima,
+      pctComision:pct,
+      valorComision:vc,
+      estadoPago:p.estado==='vencida'?'vencido':'pendiente',
+      fecha:p.desde
+    };
+  });
+
+  // Generate FEED from most recent policies
+  var sorted=POLIZAS.slice().sort(function(a,b){return b.hasta.localeCompare(a.hasta);});
+  FEED=sorted.slice(0,8).map(function(p,i){
+    var dots=['red','orange','accent','green','blue','red','green','accent'];
+    var times=['Reciente','Reciente','Hace 1d','Hace 2d','Hace 3d','Hace 4d','Hace 5d','Hace 1 sem'];
+    var msg='';
+    if(p.estado==='vencida') msg='Poliza '+p.id+' de '+p.cliente+' vencio ('+p.tipo+')';
+    else if(p.estado==='cancelada') msg='Poliza '+p.id+' de '+p.cliente+' fue cancelada';
+    else if(p.estado==='por-renovar') msg='Poliza '+p.id+' de '+p.cliente+' proxima a vencer';
+    else msg='Poliza '+p.id+' de '+p.cliente+' activa ('+p.tipo+')';
+    return {text:msg,dot:dots[i]||'accent',time:times[i]||''};
+  });
+
+  // SINIESTROS stays empty (no real data in sheet)
+  SINIESTROS=[];
+}
+
+/* ---- Transform API rows (Apps Script JSON) to POLIZAS format ---- */
+function transformApiRows(rows){
+  return rows.map(function(r){
+    var anulStr=(r.anulacion||'').trim();
+    var hasAnul=anulStr&&anulStr.length>=8&&anulStr!=='         ';
+    var prima=Math.round((r.prima_s1||0)+(r.prima_s2||0)+(r.prima_s3||0));
+    return {
+      id:r.poliza,
+      cliente:fmtSheetName(r.nombre),
+      telefono:r.telefono||'',
+      tipo:detectTipoPoliza(r.tipo,r.cobertura),
+      aseguradora:'Allianz',
+      intermediario:r.colaborador==='0731'?'Judith Neira':'Fabian Carrera',
+      prima:prima,
+      valorAsegurado:0,
+      desde:r.desde||'',
+      hasta:r.hasta||'',
+      estado:deriveEstado(r.hasta,hasAnul?anulStr:''),
+      sarlaft:'pendiente',
+      pdfUrl:''
+    };
+  }).filter(function(p){return p.id;});
+}
+
+/* ---- Load data: live API first, hardcoded fallback ---- */
+function loadFromSheet(callback){
+  updateSyncStatus(null,'Conectando con Sheet...');
+
+  // Check cache first
+  var cached=null;
+  try{
+    var ts=parseInt(localStorage.getItem(SHEET_CACHE_TS)||'0');
+    if(Date.now()-ts < SHEET_CACHE_HOURS*3600000){
+      cached=JSON.parse(localStorage.getItem(SHEET_CACHE_KEY));
+    }
+  }catch(e){}
+
+  if(cached&&cached.rows&&cached.rows.length>0){
+    POLIZAS=transformApiRows(cached.rows);
+    generateDerivedData();
+    SHEET_LOADED=true;
+    updateSyncStatus(true,'Cache ('+POLIZAS.length+' polizas) — recargando...');
+    if(callback)callback(true);
+  }
+
+  // Fetch live data from Apps Script
+  var script=document.createElement('script');
+  var cbName='_asegApiCb_'+Date.now();
+  var timeout=setTimeout(function(){
+    // Timeout: use cache or hardcoded fallback
+    delete window[cbName];
+    if(script.parentNode)script.parentNode.removeChild(script);
+    if(!SHEET_LOADED){
+      POLIZAS=buildPolizasFromRaw();
+      generateDerivedData();
+      SHEET_LOADED=true;
+      updateSyncStatus(false,'Sin conexion — datos locales ('+POLIZAS.length+')');
+      if(callback)callback(true);
+    }
+  },8000);
+
+  window[cbName]=function(data){
+    clearTimeout(timeout);
+    delete window[cbName];
+    if(script.parentNode)script.parentNode.removeChild(script);
+    if(data&&data.status==='ok'&&data.rows&&data.rows.length>0){
+      try{
+        localStorage.setItem(SHEET_CACHE_KEY,JSON.stringify(data));
+        localStorage.setItem(SHEET_CACHE_TS,String(Date.now()));
+      }catch(e){}
+      POLIZAS=transformApiRows(data.rows);
+      generateDerivedData();
+      SHEET_LOADED=true;
+      updateSyncStatus(true,'Sincronizado ('+POLIZAS.length+' polizas)');
+      if(callback)callback(true);
+    } else if(!SHEET_LOADED){
+      POLIZAS=buildPolizasFromRaw();
+      generateDerivedData();
+      SHEET_LOADED=true;
+      updateSyncStatus(false,'Error API — datos locales ('+POLIZAS.length+')');
+      if(callback)callback(true);
+    }
+  };
+  script.onerror=function(){
+    clearTimeout(timeout);
+    delete window[cbName];
+    if(!SHEET_LOADED){
+      POLIZAS=buildPolizasFromRaw();
+      generateDerivedData();
+      SHEET_LOADED=true;
+      updateSyncStatus(false,'Sin conexion — datos locales ('+POLIZAS.length+')');
+      if(callback)callback(true);
+    }
+  };
+  script.src=APPS_SCRIPT_URL+'?callback='+cbName;
+  document.body.appendChild(script);
+}
+
+/* ---- Sync status indicator ---- */
+function updateSyncStatus(ok,msg){
+  var el=document.getElementById('syncStatus');
+  if(!el)return;
+  var color=ok===null?'var(--orange)':ok?'var(--green)':'var(--red)';
+  var icon=ok===null?'&#8635;':ok?'&#10003;':'&#10007;';
+  el.innerHTML='<span style="color:'+color+';font-size:10px;font-weight:600;display:flex;align-items:center;gap:4px"><span>'+icon+'</span> '+msg+'</span>';
+}
+
+var COTIZACIONES=[
+  {id:'COT-001',fecha:'2026-08-10',cliente:'Diego Ramirez',telefono:'3178901234',tipo:'Auto',bien:'Chevrolet Tracker 2025 - Gris',valorAsegurar:98000000,intermediario:'Fabian Carrera',estado:'enviada',poliza:null,
+    comparaciones:[
+      {aseguradora:'Allianz',prima:2850000,deducible:1500000,coberturas:'Todo riesgo, asistencia vial 24h, RC $500M'},
+      {aseguradora:'AXA Colpatria',prima:2640000,deducible:1800000,coberturas:'Todo riesgo, grua, RC $300M'},
+      {aseguradora:'Seguros del Estado',prima:2380000,deducible:2200000,coberturas:'Basico + hurto, RC $200M'}
+    ],notas:'Cliente prefiere cobertura amplia. Recomendado: Allianz por asistencia vial.'},
+  {id:'COT-002',fecha:'2026-08-08',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'Hogar',bien:'Apartamento 120m2 Cedritos, estrato 4',valorAsegurar:380000000,intermediario:'Sandra Marin',estado:'aceptada',poliza:'POL-008',
+    comparaciones:[
+      {aseguradora:'AXA Colpatria',prima:2100000,deducible:800000,coberturas:'Incendio, terremoto, inundacion, hurto contenido'},
+      {aseguradora:'Seguros del Estado',prima:2350000,deducible:650000,coberturas:'Todo riesgo hogar, responsabilidad civil'},
+      {aseguradora:'Allianz',prima:2580000,deducible:500000,coberturas:'Integral hogar, asistencia domiciliaria'}
+    ],notas:'Acepto AXA Colpatria por mejor relacion prima-deducible.'},
+  {id:'COT-003',fecha:'2026-08-05',cliente:'Fernando Gutierrez',telefono:'3187654321',tipo:'Empresarial',bien:'Bodega industrial 400m2, Fontibon - Maquinaria pesada',valorAsegurar:2000000000,intermediario:'Fabian Carrera',estado:'aceptada',poliza:'POL-005',
+    comparaciones:[
+      {aseguradora:'Allianz',prima:12000000,deducible:15000000,coberturas:'Todo riesgo industrial, lucro cesante, RC patronal'},
+      {aseguradora:'AXA Colpatria',prima:13800000,deducible:12000000,coberturas:'Integral empresarial, equipo electrico, RC'}
+    ],notas:'Allianz gano por mejor tarifa en riesgo industrial.'},
+  {id:'COT-004',fecha:'2026-07-28',cliente:'Sandra Milena Castro',telefono:'3136543210',tipo:'Vida',bien:'Poliza de vida - Ejecutiva 42 anos',valorAsegurar:500000000,intermediario:'On Line',estado:'rechazada',poliza:null,
+    comparaciones:[
+      {aseguradora:'AXA Colpatria',prima:4200000,deducible:0,coberturas:'Muerte, invalidez, enfermedades graves'},
+      {aseguradora:'Seguros del Estado',prima:4800000,deducible:0,coberturas:'Muerte, invalidez, ITP, hospitalizacion'}
+    ],notas:'Cliente considero las primas muy altas. Seguimiento en 30 dias.'},
+  {id:'COT-005',fecha:'2026-08-09',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Hogar',bien:'Casa 200m2 Chia, condominio cerrado',valorAsegurar:650000000,intermediario:'Erika Pinzon',estado:'enviada',poliza:null,
+    comparaciones:[
+      {aseguradora:'Allianz',prima:3200000,deducible:900000,coberturas:'Todo riesgo hogar, sismo, hurto, RC'},
+      {aseguradora:'Seguros del Estado',prima:2900000,deducible:1100000,coberturas:'Incendio, terremoto, contenido, asistencia'},
+      {aseguradora:'AXA Colpatria',prima:2750000,deducible:1200000,coberturas:'Basico hogar + hurto contenido'}
+    ],notas:'Ya es cliente con poliza Auto. Oportunidad de cross-sell.'}
+];
+
+var FACTURAS=[
+  {id:'CC-001',fecha:'2026-08-01',aseguradora:'Allianz',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-001, POL-005',subtotal:1248000,iva:237120,total:1485120,estado:'pagada',vence:'2026-08-30',fechaPago:'2026-08-18'},
+  {id:'CC-002',fecha:'2026-08-01',aseguradora:'AXA Colpatria',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-002, POL-008',subtotal:540000,iva:102600,total:642600,estado:'enviada',vence:'2026-08-30',fechaPago:null},
+  {id:'CC-003',fecha:'2026-07-01',aseguradora:'Seguros del Estado',concepto:'Comisiones polizas Jun 2026',polizas:'POL-003, POL-007',subtotal:684000,iva:129960,total:813960,estado:'vencida',vence:'2026-07-30',fechaPago:null},
+  {id:'CC-004',fecha:'2026-08-05',aseguradora:'Allianz',concepto:'Comision SOAT y renovaciones Jul 2026',polizas:'POL-004',subtotal:117600,iva:22344,total:139944,estado:'emitida',vence:'2026-09-05',fechaPago:null},
+  {id:'CC-005',fecha:'2026-06-01',aseguradora:'AXA Colpatria',concepto:'Comisiones intermediacion Mayo 2026',polizas:'POL-002',subtotal:540000,iva:102600,total:642600,estado:'pagada',vence:'2026-06-30',fechaPago:'2026-06-25'}
+];
+
+var NOTIFY={
+  TG_TOKEN:'8803208867:AAFUoq9iXIUWNCYC1AvFc1pnyBknRR2D1m8',
+  TG_CHAT:'1081707115'
+};
+
+/* ====================================
+   MODULE TOGGLE SYSTEM
+   ==================================== */
+var MODULE_DEFS = [
+  {id:'polizas',      label:'Polizas',        desc:'Gestion de polizas, estados, busqueda',            essential:true,  on:true},
+  {id:'cotizador',    label:'Cotizador',       desc:'Comparacion multi-aseguradora para clientes',      essential:true,  on:true},
+  {id:'dashboard',    label:'Dashboard',       desc:'KPIs, graficos y actividad reciente',              essential:true,  on:true},
+  {id:'comisiones',   label:'Comisiones',      desc:'Control de comisiones por aseguradora',            essential:true,  on:true},
+  {id:'facturacion',  label:'Facturacion',     desc:'Cuentas de cobro, cartera y conciliacion',         essential:true,  on:true},
+  {id:'renovaciones', label:'Renovaciones',    desc:'Calendario de vencimientos y alertas',             essential:true,  on:true},
+  {id:'siniestros',   label:'Siniestros',      desc:'Pipeline de gestion de reclamaciones',             essential:false, on:false},
+  {id:'clientes',     label:'Clientes',        desc:'Base de datos de asegurados',                     essential:false, on:false}
+];
+var MOD_STORAGE_KEY = 'aseg_erp_modules';
+
+function loadModuleState(){
+  try {
+    var saved = JSON.parse(localStorage.getItem(MOD_STORAGE_KEY));
+    if(saved){
+      MODULE_DEFS.forEach(function(m){
+        if(saved.hasOwnProperty(m.id)) m.on = saved[m.id];
+      });
+    }
+  } catch(e){}
+}
+
+function saveModuleLocal(){
+  var state = {};
+  MODULE_DEFS.forEach(function(m){ state[m.id] = m.on; });
+  try { localStorage.setItem(MOD_STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function saveModuleState(){
+  saveModuleLocal();
+}
+
+function applyModuleState(){
+  MODULE_DEFS.forEach(function(m){
+    var navLink = document.querySelector('.mod-link[data-mod="'+m.id+'"]');
+    var section = document.getElementById('mod-'+m.id);
+    if(navLink) navLink.style.display = m.on ? '' : 'none';
+    if(section && !m.on) section.classList.remove('active');
+  });
+  var anyActive = document.querySelector('.mod-section.active');
+  if(!anyActive){
+    var firstOn = MODULE_DEFS.find(function(m){ return m.on; });
+    if(firstOn){
+      var link = document.querySelector('.mod-link[data-mod="'+firstOn.id+'"]');
+      var sec  = document.getElementById('mod-'+firstOn.id);
+      if(link) link.classList.add('active');
+      if(sec) sec.classList.add('active');
+    }
+  }
+  var activeNav = document.querySelector('.mod-link.active');
+  if(activeNav && activeNav.style.display === 'none'){
+    activeNav.classList.remove('active');
+    var firstVisible = document.querySelector('.mod-link[style=""],.mod-link:not([style])');
+    if(firstVisible){
+      firstVisible.classList.add('active');
+      var secId = 'mod-' + firstVisible.dataset.mod;
+      var sec2 = document.getElementById(secId);
+      if(sec2) sec2.classList.add('active');
+    }
+  }
+}
+
+window.openModConfig=function(){
+  if(!IS_ADMIN) return;
+  var body = document.getElementById('modCfgBody');
+  body.innerHTML = MODULE_DEFS.map(function(m){
+    return '<div class="mod-cfg-item">'
+      + '<div class="mod-cfg-info">'
+      + '  <div class="mod-cfg-name">'+m.label+'</div>'
+      + '  <div class="mod-cfg-desc">'+m.desc+'</div>'
+      + (m.essential ? '<div class="mod-cfg-essential">Incluido en plan base</div>' : '')
+      + '</div>'
+      + '<label class="toggle-sw">'
+      + '  <input type="checkbox" '+(m.on?'checked':'')+' onchange="toggleModule(\''+m.id+'\',this.checked)">'
+      + '  <span class="slider"></span>'
+      + '</label>'
+      + '</div>';
+  }).join('');
+  document.getElementById('modCfgOverlay').classList.add('open');
+};
+
+window.closeModConfig=function(){
+  document.getElementById('modCfgOverlay').classList.remove('open');
+};
+
+window.toggleModule=function(id, checked){
+  if(!IS_ADMIN) return;
+  var mod = MODULE_DEFS.find(function(m){ return m.id === id; });
+  if(mod){
+    mod.on = checked;
+    saveModuleState();
+    applyModuleState();
+  }
+};
+
+/* ====================================
+   INIT
+   ==================================== */
+function initApp(){
+  loadModuleState();
+  applyModuleState();
+  // Load real data from Google Sheet, then render
+  loadFromSheet(function(){
+    renderPolizas();
+    renderCotizador();
+    renderDashboard();
+    renderComisiones();
+    renderFacturacion();
+    renderRenovaciones();
+    renderSiniestros();
+    renderClientes();
+    initCharts();
+
+    // Wire up sortable columns (after data is loaded)
+    makeSortHeaders('polizasTable',['id','cliente','tipo','aseguradora','intermediario','prima','desde','estado',null],POLIZAS,function(){renderPolizas()});
+    makeSortHeaders('comisionesTable',['aseguradora','poliza','cliente','prima','pctComision','valorComision','estadoPago','fecha'],COMISIONES,function(){renderComisiones()});
+    makeSortHeaders('facturaTable',['id','fecha','aseguradora','concepto','polizas','subtotal','iva','total','estado','vence'],FACTURAS,function(){renderFacturacion()});
+    makeSortHeaders('renovacionesTable',['cliente','poliza','tipo','aseguradora','vence','dias',null,null],RENOV_DATA,function(){renderRenovTable()});
+  });
+}
+
+/* ====================================
+   NAVIGATION
+   ==================================== */
+document.getElementById('modNav').addEventListener('click',function(e){
+  var link=e.target.closest('.mod-link');
+  if(!link) return;
+  document.querySelectorAll('.mod-link').forEach(function(l){l.classList.remove('active')});
+  link.classList.add('active');
+  document.querySelectorAll('.mod-section').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('mod-'+link.dataset.mod).classList.add('active');
+});
+
+/* ====================================
+   HELPERS
+   ==================================== */
+function fmt(n){return '$'+n.toLocaleString('es-CO')}
+
+/* ====== INTERMEDIARIO HELPERS ====== */
+function toggleOtroIntermediario(prefix){
+  var sel=document.getElementById(prefix+'Intermediario');
+  var otro=document.getElementById(prefix+'IntermediarioOtro');
+  if(sel.value==='__otro__'){otro.style.display='block';otro.focus()}else{otro.style.display='none';otro.value=''}
+}
+function getIntermediario(prefix){
+  var sel=document.getElementById(prefix+'Intermediario');
+  if(sel.value==='__otro__') return document.getElementById(prefix+'IntermediarioOtro').value.trim();
+  return sel.value;
+}
+
+/* ====== SORT ENGINE ====== */
+var sortState={};
+function sortTable(tableId,dataArr,colIdx,key,renderer){
+  var stateKey=tableId+'-'+colIdx;
+  var dir=sortState[stateKey]==='asc'?'desc':'asc';
+  // Reset all states for this table
+  Object.keys(sortState).forEach(function(k){if(k.indexOf(tableId)===0)delete sortState[k]});
+  sortState[stateKey]=dir;
+  dataArr.sort(function(a,b){
+    var va=typeof key==='function'?key(a):a[key];
+    var vb=typeof key==='function'?key(b):b[key];
+    if(typeof va==='string')va=va.toLowerCase();
+    if(typeof vb==='string')vb=vb.toLowerCase();
+    if(va<vb)return dir==='asc'?-1:1;
+    if(va>vb)return dir==='asc'?1:-1;
+    return 0;
+  });
+  renderer();
+  // Update header arrows
+  var table=document.getElementById(tableId).closest('table');
+  if(table){
+    var ths=table.querySelectorAll('thead th');
+    for(var i=0;i<ths.length;i++){
+      ths[i].classList.remove('sort-active');
+      var arrow=ths[i].querySelector('.sort-arrow');
+      if(arrow)arrow.textContent='▲';
+    }
+    if(ths[colIdx]){
+      ths[colIdx].classList.add('sort-active');
+      var arr=ths[colIdx].querySelector('.sort-arrow');
+      if(arr)arr.textContent=dir==='asc'?'▲':'▼';
+    }
+  }
+}
+function makeSortHeaders(tableId,cols,dataArr,renderer){
+  var table=document.getElementById(tableId).closest('table');
+  if(!table)return;
+  var thead=table.querySelector('thead tr');
+  if(!thead)return;
+  var ths=thead.querySelectorAll('th');
+  for(var i=0;i<ths.length;i++){
+    if(cols[i]===null)continue;// skip non-sortable cols like Acciones
+    ths[i].innerHTML=ths[i].textContent+'<span class="sort-arrow">▲</span>';
+    (function(idx,key){
+      ths[idx].onclick=function(){sortTable(tableId,dataArr,idx,key,renderer)};
+    })(i,cols[i]);
+  }
+}
+
+function diasEntre(fechaStr){
+  var fecha = new Date(fechaStr+'T12:00:00');
+  var diff = fecha.getTime() - TODAY.getTime();
+  return Math.ceil(diff / (1000*60*60*24));
+}
+
+function getAlertClass(dias){
+  if(dias < 0) return 'vencida';
+  if(dias <= 7) return 'urgente';
+  if(dias <= 30) return 'pronto';
+  if(dias <= 60) return 'ok';
+  return 'lejano';
+}
+
+function getAlertLabel(dias){
+  if(dias < 0) return 'Vencida';
+  if(dias <= 7) return 'Urgente';
+  if(dias <= 30) return 'Pronto';
+  if(dias <= 60) return 'En tiempo';
+  return 'Sin prisa';
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast '+(type||'')+' show';
+  setTimeout(function(){t.classList.remove('show')},3000);
+}
+
+window.openModal=function(id){
+  document.getElementById('modal'+id.charAt(0).toUpperCase()+id.slice(1)).classList.add('open');
+};
+window.closeModal=function(id){
+  document.getElementById('modal'+id.charAt(0).toUpperCase()+id.slice(1)).classList.remove('open');
+};
+
+window.toggleTheme=function(){
+  document.documentElement.classList.toggle('dark');
+  var isDark=document.documentElement.classList.contains('dark');
+  document.getElementById('themeBtn').textContent=isDark?'Claro':'Oscuro';
+};
+
+window.toggleDetail=function(id){
+  var row=document.getElementById(id);
+  if(!row)return;
+  row.style.display=row.style.display==='none'?'table-row':'none';
+};
+
+window.sendWA=function(phone,name){
+  var p=phone.replace(/\D/g,'');
+  if(p.length===10) p='57'+p;
+  var msg='Hola '+name+', le escribimos de Aseguralo. ';
+  window.open('https://wa.me/'+p+'?text='+encodeURIComponent(msg),'_blank');
+};
+
+document.querySelectorAll('.modal-overlay').forEach(function(m){
+  m.addEventListener('click',function(e){
+    if(e.target===m) m.classList.remove('open');
+  });
+});
+
+/* ====================================
+   NOTIFICATIONS
+   ==================================== */
+function notifyTelegram(text){
+  if(!NOTIFY.TG_TOKEN) return;
+  var url='https://api.telegram.org/bot'+NOTIFY.TG_TOKEN+'/sendMessage?chat_id='+NOTIFY.TG_CHAT+'&text='+encodeURIComponent('[ASEGURALO ERP]\n'+text);
+  fetch(url).catch(function(){});
+}
+
+/* ====================================
+   POLIZAS
+   ==================================== */
+var POLIZAS_PAGE_SIZE=20;
+var polizasShown=POLIZAS_PAGE_SIZE;
+
+function renderPolizaRow(p,idx){
+  var statusMap={'activa':'badge-activa','por-renovar':'badge-por-renovar','vencida':'badge-vencida','cancelada':'badge-cancelada'};
+  var statusLabel={'activa':'Activa','por-renovar':'Por renovar','vencida':'Vencida','cancelada':'Cancelada'};
+  var sarlaftMap={'completo':'badge-activa','pendiente':'badge-por-renovar','sin-iniciar':'badge-vencida'};
+  var sarlaftLabel={'completo':'Completo','pendiente':'Pendiente','sin-iniciar':'Sin iniciar'};
+  var detailId='pol-detail-'+idx;
+  var sarlaft=p.sarlaft||'sin-iniciar';
+  var diasV=diasEntre(p.hasta);
+  var diasText=diasV<0?Math.abs(diasV)+' dias vencida':(diasV===0?'Hoy':diasV+' dias');
+  return '<tr style="cursor:pointer" onclick="toggleDetail(\''+detailId+'\')">'+
+    '<td class="mono" style="font-size:11px;font-weight:600;color:var(--accent)">'+p.id+' <span style="font-size:9px;color:var(--dim)">&#9660;</span></td>'+
+    '<td><strong>'+p.cliente+'</strong></td>'+
+    '<td>'+p.tipo+'</td>'+
+    '<td>'+p.aseguradora+'</td>'+
+    '<td style="font-size:12px">'+(p.intermediario||'<span style="color:var(--muted)">--</span>')+'</td>'+
+    '<td class="mono" style="font-weight:700">'+fmt(p.prima)+'</td>'+
+    '<td style="font-size:12px;color:var(--dim)">'+p.desde+' / '+p.hasta+'</td>'+
+    '<td><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></td>'+
+    '<td><div style="display:flex;gap:4px" onclick="event.stopPropagation()">'+
+      '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+p.telefono+'\',\''+p.cliente+'\')">WA</button>'+
+      (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+p.id+'\')">Renovar</button>':'')+
+    '</div></td>'+
+  '</tr>'+
+  '<tr id="'+detailId+'" class="pol-detail-row" style="display:none">'+
+    '<td colspan="9" style="padding:0;border:none">'+
+      '<div class="pol-detail">'+
+        '<div class="pd-grid">'+
+          '<div class="pd-col">'+
+            '<div class="pd-section-title">Datos de la Poliza</div>'+
+            '<div class="pd-field"><span class="pd-label">No. Poliza</span><span class="pd-value">'+p.id+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Cliente</span><span class="pd-value">'+p.cliente+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Telefono</span><span class="pd-value">'+p.telefono+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Tipo</span><span class="pd-value">'+p.tipo+'</span></div>'+
+            (p.placa?'<div class="pd-field"><span class="pd-label">Placa</span><span class="pd-value mono" style="font-weight:700;letter-spacing:1px">'+p.placa+'</span></div>':'')+
+            (p.cobertura?'<div class="pd-field"><span class="pd-label">Cobertura</span><span class="pd-value">'+p.cobertura+'</span></div>':'')+
+            '<div class="pd-field"><span class="pd-label">Aseguradora</span><span class="pd-value">'+p.aseguradora+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Intermediario</span><span class="pd-value">'+(p.intermediario||'--')+'</span></div>'+
+          '</div>'+
+          '<div class="pd-col">'+
+            '<div class="pd-section-title">Valores y Vigencia</div>'+
+            '<div class="pd-field"><span class="pd-label">Prima Anual</span><span class="pd-value mono" style="font-weight:700">'+fmt(p.prima)+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Valor Asegurado</span><span class="pd-value mono">'+fmt(p.valorAsegurado)+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Vigencia</span><span class="pd-value">'+p.desde+' a '+p.hasta+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Dias Restantes</span><span class="pd-value" style="font-weight:700;color:'+(diasV<30?'var(--red)':'var(--green)')+'">'+diasText+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Estado</span><span class="pd-value"><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></span></div>'+
+          '</div>'+
+          '<div class="pd-col">'+
+            '<div class="pd-section-title">Documentacion</div>'+
+            '<div class="pd-field"><span class="pd-label">SARLAFT</span><span class="pd-value"><span class="badge '+sarlaftMap[sarlaft]+'">'+sarlaftLabel[sarlaft]+'</span></span></div>'+
+            '<div class="pd-field"><span class="pd-label">PDF Poliza</span><span class="pd-value">'+(p.pdfUrl?'<a href="'+p.pdfUrl+'" target="_blank" class="pd-link">Ver PDF</a>':'<span style="color:var(--muted)">Sin adjuntar</span>')+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Autorizacion Datos</span><span class="pd-value">'+(sarlaft==='completo'?'<span style="color:var(--green)">Si</span>':'<span style="color:var(--orange)">Pendiente</span>')+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Notas</span><span class="pd-value">'+(p.notas||'--')+'</span></div>'+
           '</div>'+
         '</div>'+
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+
-          '<span class="folder-badge" style="background:'+biz.bg+';color:'+biz.color+';border:1px solid '+biz.color.replace(')',',0.15)')+'">'+t(p.type)+'</span>'+
-          '<span class="folder-badge" style="background:'+(p.scope==='agent'?'rgba(34,197,94,.1)':'rgba(167,139,250,.1)')+';color:'+(p.scope==='agent'?'var(--green)':'var(--purple)')+';border:1px solid '+(p.scope==='agent'?'rgba(34,197,94,.15)':'rgba(167,139,250,.15)')+';font-size:7px">'+t(p.scope==='agent'?'agentTag':'demoTag')+'</span>'+
-        '</div>'+
       '</div>'+
-      '<div class="folder-meta">'+
-        '<div class="folder-meta-item"><div class="folder-meta-dot" style="background:'+statusColor+'"></div>'+statusLabel+'</div>'+
-        '<div class="folder-meta-item">'+phaseLabel+'</div>'+
-        '<div class="folder-meta-item">'+p.docs+' '+t('lblDocs')+'</div>'+
-      '</div>'+
-      '<div class="folder-tags">';
-    for(var j=0;j<p.tags.length;j++){
-      h+='<span class="folder-tag">'+p.tags[j]+'</span>';
-    }
-    h+='</div>'+
-      '<div class="folder-footer">'+
-        '<span class="folder-date">'+t('lblLastActivity')+': '+p.lastActivity+'</span>'+
-        '<div style="display:flex;align-items:center;gap:12px">'+
-          '<span class="folder-revenue" style="'+revColor+'">'+revStr+'</span>'+
-          (p.link?'<span class="folder-arrow">&rarr;</span>':'')+
-        '</div>'+
-      '</div>'+
-    '</div>';
+    '</td>'+
+  '</tr>';
+}
+
+function renderPolizas(filter){
+  var data=filter?POLIZAS.filter(function(p){return p.cliente.toLowerCase().indexOf(filter)!==-1}):POLIZAS;
+
+  if(!filter) polizasShown=POLIZAS_PAGE_SIZE;
+
+  var activas=POLIZAS.filter(function(p){return p.estado==='activa'}).length;
+  var porRenovar=POLIZAS.filter(function(p){return p.estado==='por-renovar'}).length;
+  var totalAsegurado=POLIZAS.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).reduce(function(s,p){return s+p.valorAsegurado},0);
+  var primaPromedio=POLIZAS.length?Math.round(POLIZAS.reduce(function(s,p){return s+p.prima},0)/POLIZAS.length/12):0;
+
+  document.getElementById('polizasKpi').innerHTML=[
+    {l:'Polizas Activas',v:activas,c:'c-green'},
+    {l:'Por Renovar',v:porRenovar,c:'c-orange'},
+    {l:'Valor Asegurado Total',v:fmt(totalAsegurado),c:'c-accent'},
+    {l:'Prima Mensual Promedio',v:fmt(primaPromedio),c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  var visible=filter?data:data.slice(0,polizasShown);
+  var total=data.length;
+  var showing=visible.length;
+  var remaining=total-showing;
+
+  var html=visible.map(function(p,idx){return renderPolizaRow(p,idx);}).join('');
+
+  if(!filter&&remaining>0){
+    var next=Math.min(remaining,POLIZAS_PAGE_SIZE);
+    html+='<tr><td colspan="9" style="text-align:center;padding:16px;border:none">'+
+      '<button class="btn" onclick="loadMorePolizas()" style="background:var(--accent);color:#fff;padding:10px 28px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;border:none;letter-spacing:-.02em">'+
+        'Ver '+next+' mas <span style="color:rgba(255,255,255,.6);font-weight:400;margin-left:6px">('+showing+' de '+total+')</span>'+
+      '</button>'+
+    '</td></tr>';
+  } else if(!filter&&total>POLIZAS_PAGE_SIZE){
+    html+='<tr><td colspan="9" style="text-align:center;padding:12px;border:none;color:var(--dim);font-size:12px">'+
+      'Mostrando todas las '+total+' polizas'+
+    '</td></tr>';
   }
-  container.innerHTML=h;
+
+  document.getElementById('polizasTable').innerHTML=html;
 }
 
-function applyLang(){
-  document.documentElement.lang=LANG;
-  document.title=LANG==='es'?'Agentes -- 7Group':'Agents -- 7Group';
-  var els=document.querySelectorAll('[data-t]');
-  for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
-  document.getElementById('langES').classList.toggle('active',LANG==='es');
-  document.getElementById('langEN').classList.toggle('active',LANG==='en');
-  var sl=document.getElementById('scheduleLink');if(sl)sl.href='/agendar/'+(LANG==='en'?'?lang=en':'');
-  document.getElementById('searchBox').placeholder=t('searchPlaceholder');
-  var opts=document.querySelectorAll('[data-t-opt]');
-  for(var i=0;i<opts.length;i++){var k=opts[i].getAttribute('data-t-opt');if(T[k])opts[i].textContent=T[k][LANG];}
-  renderAll();
+window.loadMorePolizas=function(){
+  polizasShown+=POLIZAS_PAGE_SIZE;
+  var filter=document.getElementById('searchPolizas').value.toLowerCase();
+  var data=filter?POLIZAS.filter(function(p){return p.cliente.toLowerCase().indexOf(filter)!==-1}):POLIZAS;
+  var visible=data.slice(0,polizasShown);
+  var total=data.length;
+  var remaining=total-visible.length;
+
+  var html=visible.map(function(p,idx){return renderPolizaRow(p,idx);}).join('');
+  if(remaining>0){
+    var next=Math.min(remaining,POLIZAS_PAGE_SIZE);
+    html+='<tr><td colspan="9" style="text-align:center;padding:16px;border:none">'+
+      '<button class="btn" onclick="loadMorePolizas()" style="background:var(--accent);color:#fff;padding:10px 28px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;border:none;letter-spacing:-.02em">'+
+        'Ver '+next+' mas <span style="color:rgba(255,255,255,.6);font-weight:400;margin-left:6px">('+visible.length+' de '+total+')</span>'+
+      '</button>'+
+    '</td></tr>';
+  } else if(total>POLIZAS_PAGE_SIZE){
+    html+='<tr><td colspan="9" style="text-align:center;padding:12px;border:none;color:var(--dim);font-size:12px">'+
+      'Mostrando todas las '+total+' polizas'+
+    '</td></tr>';
+  }
+  document.getElementById('polizasTable').innerHTML=html;
+};
+
+window.filterPolizas=function(){
+  var v=document.getElementById('searchPolizas').value.toLowerCase();
+  renderPolizas(v||null);
+};
+
+window.renovarPoliza=function(id){
+  POLIZAS.forEach(function(p){
+    if(p.id===id){
+      p.estado='activa';
+      var d=new Date(p.hasta+'T12:00:00');
+      p.desde=p.hasta;
+      d.setFullYear(d.getFullYear()+1);
+      p.hasta=d.toISOString().slice(0,10);
+    }
+  });
+  renderPolizas();
+  renderRenovaciones();
+  renderDashboard();
+  showToast('Poliza '+id+' renovada exitosamente','success');
+  notifyTelegram('POLIZA RENOVADA\nRef: '+id+'\nCliente: '+POLIZAS.find(function(p){return p.id===id}).cliente);
+};
+
+window.savePoliza=function(){
+  var cliente=document.getElementById('pCliente').value.trim();
+  var tipo=document.getElementById('pTipo').value;
+  var aseguradora=document.getElementById('pAseguradora').value;
+  var prima=parseFloat(document.getElementById('pPrima').value)||0;
+
+  if(!cliente||!tipo||!aseguradora||!prima){showToast('Completa los campos requeridos','error');return}
+
+  var newP={
+    id:'POL-'+String(POLIZAS.length+1).padStart(3,'0'),
+    cliente:cliente,
+    telefono:document.getElementById('pTelefono').value,
+    tipo:tipo,
+    aseguradora:aseguradora,
+    intermediario:getIntermediario('p'),
+    prima:prima,
+    valorAsegurado:parseFloat(document.getElementById('pValorAsegurado').value)||0,
+    desde:document.getElementById('pDesde').value||new Date().toISOString().slice(0,10),
+    hasta:document.getElementById('pHasta').value||'',
+    estado:'activa',
+    sarlaft:'sin-iniciar',
+    pdfUrl:'',
+    notas:document.getElementById('pNotas').value.trim()
+  };
+
+  // Add client if new
+  var exists=CLIENTES.find(function(c){return c.nombre===cliente});
+  if(!exists){
+    CLIENTES.push({nombre:cliente,telefono:newP.telefono,email:document.getElementById('pEmail').value});
+  }
+
+  POLIZAS.unshift(newP);
+  renderPolizas();
+  renderDashboard();
+  renderRenovaciones();
+  renderClientes();
+  closeModal('newPoliza');
+  showToast('Poliza '+newP.id+' creada -- '+fmt(prima),'success');
+  notifyTelegram('NUEVA POLIZA\nRef: '+newP.id+'\nCliente: '+cliente+'\nTipo: '+tipo+'\nAseguradora: '+aseguradora+'\nPrima: '+fmt(prima));
+};
+
+/* ====================================
+   DASHBOARD
+   ==================================== */
+function renderDashboard(){
+  var activas=POLIZAS.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'});
+  var clientesActivos=[];
+  activas.forEach(function(p){if(clientesActivos.indexOf(p.cliente)===-1)clientesActivos.push(p.cliente)});
+  var totalPrimas=activas.reduce(function(s,p){return s+p.prima},0);
+  var comisionesMes=COMISIONES.filter(function(c){return c.fecha.indexOf('2026-08')===0||c.fecha.indexOf('2026-07')===0}).reduce(function(s,c){return s+c.valorComision},0);
+  var totalPolizas=activas.length;
+  var renovadas=POLIZAS.filter(function(p){return p.estado==='activa'}).length;
+  var tasaRenov=POLIZAS.length?Math.round((renovadas/POLIZAS.length)*100):0;
+  var siniestrosAbiertos=SINIESTROS.filter(function(s){return s.etapa!=='cerrado'}).length;
+
+  var kpis=[
+    {label:'Clientes Activos',value:clientesActivos.length,sub:'Con polizas vigentes',up:true,color:'c-accent'},
+    {label:'Polizas Vigentes',value:totalPolizas,sub:'Activas y por renovar',up:true,color:'c-green'},
+    {label:'Comisiones del Mes',value:fmt(comisionesMes),sub:'Julio-Agosto 2026',up:true,color:'c-brand'},
+    {label:'Tasa de Renovacion',value:tasaRenov+'%',sub:'Sobre total de polizas',up:true,color:'c-teal'},
+    {label:'Primas Totales',value:fmt(totalPrimas),sub:'Cartera activa anual',up:true,color:'c-purple'},
+    {label:'Siniestros Abiertos',value:siniestrosAbiertos,sub:'En gestion',up:false,color:'c-orange'}
+  ];
+
+  document.getElementById('dashKpi').innerHTML=kpis.map(function(k){
+    return '<div class="kpi-card '+k.color+'"><div class="kpi-label">'+k.label+'</div><div class="kpi-val">'+k.value+'</div><div class="kpi-sub"><span class="'+(k.up?'kpi-up':'kpi-down')+'">'+(k.up?'&#9650;':'&#9660;')+'</span> '+k.sub+'</div></div>';
+  }).join('');
+
+  document.getElementById('feedList').innerHTML=FEED.map(function(f){
+    return '<div class="feed-item"><div class="feed-dot '+f.dot+'"></div><div class="feed-text">'+f.text+'</div><div class="feed-time">'+f.time+'</div></div>';
+  }).join('');
 }
 
-function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
+/* ====================================
+   COMISIONES
+   ==================================== */
+function renderComisiones(){
+  var acumulada=COMISIONES.reduce(function(s,c){return s+c.valorComision},0);
+  var pendiente=COMISIONES.filter(function(c){return c.estadoPago==='pendiente'}).reduce(function(s,c){return s+c.valorComision},0);
+  var pagado=COMISIONES.filter(function(c){return c.estadoPago==='pagado'}).reduce(function(s,c){return s+c.valorComision},0);
+  var totalPrimas=COMISIONES.reduce(function(s,c){return s+c.prima},0);
+  var tasaProm=totalPrimas?((acumulada/totalPrimas)*100).toFixed(1):0;
 
-/* =============== INIT =============== */
-(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();
-applyLang();
-/* Auto-login: check portal session, then Aseguralo session as fallback */
-(function(){
-  var s=sessionStorage.getItem('7g-auth');
-  if(!s||ALLOWED_EMAILS.indexOf(s)===-1){s=sessionStorage.getItem('aseg_erp_auth');}
-  if(s&&ALLOWED_EMAILS.indexOf(s)!==-1){CURRENT_USER=s;CURRENT_ROLE=USER_ROLES[s]||'client';sessionStorage.setItem('7g-auth',s);unlockApp();}
-  else initGoogleAuth();
+  document.getElementById('comisionesKpi').innerHTML=[
+    {l:'Comision Acumulada',v:fmt(acumulada),c:'c-accent'},
+    {l:'Pendiente de Pago',v:fmt(pendiente),c:'c-orange'},
+    {l:'Pagado Este Mes',v:fmt(pagado),c:'c-green'},
+    {l:'Tasa Promedio',v:tasaProm+'%',c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  var statusMap={'pagado':'badge-pagado','pendiente':'badge-pendiente','vencido':'badge-vencido'};
+  var statusLabel={'pagado':'Pagado','pendiente':'Pendiente','vencido':'Vencido'};
+
+  document.getElementById('comisionesTable').innerHTML=COMISIONES.map(function(c){
+    return '<tr>'+
+      '<td style="font-weight:600">'+c.aseguradora+'</td>'+
+      '<td class="mono" style="font-size:11px;color:var(--accent)">'+c.poliza+'</td>'+
+      '<td>'+c.cliente+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(c.prima)+'</td>'+
+      '<td class="mono" style="text-align:center">'+c.pctComision+'%</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(c.valorComision)+'</td>'+
+      '<td><span class="badge '+statusMap[c.estadoPago]+'">'+statusLabel[c.estadoPago]+'</span></td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+c.fecha+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+/* ====================================
+   RENOVACIONES (KILLER FEATURE)
+   ==================================== */
+var RENOV_DATA=[];
+function renderRenovaciones(){
+  // Build renewal data from policy expiration dates
+  RENOV_DATA=POLIZAS.filter(function(p){return p.estado!=='cancelada'}).map(function(p){
+    var dias=diasEntre(p.hasta);
+    return {
+      cliente:p.cliente,
+      telefono:p.telefono,
+      poliza:p.id,
+      tipo:p.tipo,
+      aseguradora:p.aseguradora,
+      vence:p.hasta,
+      dias:dias,
+      alertClass:getAlertClass(dias),
+      alertLabel:getAlertLabel(dias)
+    };
+  }).sort(function(a,b){return a.dias-b.dias});
+  var renewData=RENOV_DATA;
+
+  var prox7=renewData.filter(function(r){return r.dias>=0&&r.dias<=7}).length;
+  var prox30=renewData.filter(function(r){return r.dias>=0&&r.dias<=30}).length;
+  var prox60=renewData.filter(function(r){return r.dias>=0&&r.dias<=60}).length;
+  var vencidasSinRenovar=renewData.filter(function(r){return r.dias<0}).length;
+
+  document.getElementById('renovacionesKpi').innerHTML=[
+    {l:'Proximas 7 dias',v:prox7,c:'c-red'},
+    {l:'Proximas 30 dias',v:prox30,c:'c-orange'},
+    {l:'Proximas 60 dias',v:prox60,c:'c-accent'},
+    {l:'Vencidas sin renovar',v:vencidasSinRenovar,c:'c-red'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  renderRenovTable();
+}
+function renderRenovTable(){
+  document.getElementById('renovacionesTable').innerHTML=RENOV_DATA.map(function(r){
+    var diasText=r.dias<0?Math.abs(r.dias)+' dias vencida':(r.dias===0?'Hoy':r.dias+' dias');
+    return '<tr>'+
+      '<td><strong>'+r.cliente+'</strong></td>'+
+      '<td class="mono" style="font-size:11px;color:var(--accent)">'+r.poliza+'</td>'+
+      '<td>'+r.tipo+'</td>'+
+      '<td>'+r.aseguradora+'</td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+r.vence+'</td>'+
+      '<td><span class="dias-pill '+r.alertClass+'">'+diasText+'</span></td>'+
+      '<td><span class="alert-'+r.alertClass+'">'+r.alertLabel+'</span></td>'+
+      '<td><div style="display:flex;gap:4px">'+
+        '<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+r.poliza+'\')">Renovar</button>'+
+        '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+r.telefono+'\',\''+r.cliente+'\')">WA</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+/* ====================================
+   SINIESTROS (KANBAN)
+   ==================================== */
+function renderSiniestros(){
+  var stages=[
+    {id:'reportado',label:'Reportado',color:'var(--red)'},
+    {id:'en_tramite',label:'En Tramite',color:'var(--orange)'},
+    {id:'documentacion',label:'Documentacion',color:'#ca8a04'},
+    {id:'resolucion',label:'Resolucion',color:'var(--accent)'},
+    {id:'cerrado',label:'Cerrado',color:'var(--green)'}
+  ];
+
+  var abiertos=SINIESTROS.filter(function(s){return s.etapa!=='cerrado'}).length;
+  var enTramite=SINIESTROS.filter(function(s){return s.etapa==='en_tramite'}).length;
+  var resueltos=SINIESTROS.filter(function(s){return s.etapa==='cerrado'}).length;
+
+  document.getElementById('siniestrosKpi').innerHTML=[
+    {l:'Siniestros Abiertos',v:abiertos,c:'c-red'},
+    {l:'En Tramite',v:enTramite,c:'c-orange'},
+    {l:'Resueltos Este Mes',v:resueltos,c:'c-green'},
+    {l:'Tiempo Promedio Resolucion',v:'18 dias',c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  document.getElementById('siniestrosKanban').innerHTML=stages.map(function(s){
+    var cards=SINIESTROS.filter(function(sin){return sin.etapa===s.id});
+    return '<div class="kanban-col">'+
+      '<div class="kanban-header"><span>'+s.label+'</span><span class="kanban-count">'+cards.length+'</span></div>'+
+      cards.map(function(sin){
+        return '<div class="kanban-card" onclick="showToast(\''+sin.cliente+' - '+sin.tipo+' - '+fmt(sin.valor)+'\',\'\')">'+
+          '<div class="kanban-name">'+sin.cliente+'</div>'+
+          '<div class="kanban-detail">'+sin.tipo+'<br>'+sin.aseguradora+'<br>Poliza: '+sin.poliza+'</div>'+
+          '<div class="kanban-footer"><span class="kanban-value">'+fmt(sin.valor)+'</span><span class="kanban-date">'+sin.fecha+'</span></div>'+
+        '</div>';
+      }).join('')+
+    '</div>';
+  }).join('');
+}
+
+/* ====================================
+   CLIENTES
+   ==================================== */
+function renderClientes(filter){
+  var data=filter?CLIENTES.filter(function(c){return c.nombre.toLowerCase().indexOf(filter)!==-1}):CLIENTES;
+
+  var total=CLIENTES.length;
+  var conActiva=0;
+  var sinRenovar=0;
+  CLIENTES.forEach(function(c){
+    var polizas=POLIZAS.filter(function(p){return p.cliente===c.nombre});
+    var tieneActiva=polizas.some(function(p){return p.estado==='activa'});
+    var tieneVencida=polizas.some(function(p){return p.estado==='vencida'||p.estado==='por-renovar'});
+    if(tieneActiva) conActiva++;
+    if(tieneVencida && !tieneActiva) sinRenovar++;
+  });
+
+  document.getElementById('clientesKpi').innerHTML=[
+    {l:'Total Clientes',v:total,c:'c-accent'},
+    {l:'Con Poliza Activa',v:conActiva,c:'c-green'},
+    {l:'Sin Renovar',v:sinRenovar,c:'c-orange'},
+    {l:'Nuevos Este Mes',v:1,c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  document.getElementById('clientesTable').innerHTML=data.map(function(c){
+    var polizas=POLIZAS.filter(function(p){return p.cliente===c.nombre});
+    var polizasActivas=polizas.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).length;
+    var primaTotal=polizas.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).reduce(function(s,p){return s+p.prima},0);
+    var ultimaActividad=polizas.length?polizas.sort(function(a,b){return b.desde>a.desde?1:-1})[0].desde:'--';
+
+    return '<tr>'+
+      '<td><strong>'+c.nombre+'</strong></td>'+
+      '<td class="mono" style="font-size:12px">'+c.telefono+'</td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+c.email+'</td>'+
+      '<td style="text-align:center;font-weight:700">'+polizasActivas+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(primaTotal)+'</td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+ultimaActividad+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+window.filterClientes=function(){
+  var v=document.getElementById('searchClientes').value.toLowerCase();
+  renderClientes(v||null);
+};
+
+/* ====================================
+   COTIZADOR
+   ==================================== */
+function renderCotizador(){
+  var enviadas=COTIZACIONES.filter(function(c){return c.estado==='enviada'}).length;
+  var aceptadas=COTIZACIONES.filter(function(c){return c.estado==='aceptada'}).length;
+  var rechazadas=COTIZACIONES.filter(function(c){return c.estado==='rechazada'}).length;
+  var total=COTIZACIONES.length;
+  var tasaConv=total?Math.round((aceptadas/total)*100):0;
+
+  document.getElementById('cotizadorKpi').innerHTML=[
+    {l:'Cotizaciones del Mes',v:total,c:'c-accent'},
+    {l:'Enviadas (Pendientes)',v:enviadas,c:'c-orange'},
+    {l:'Aceptadas',v:aceptadas,c:'c-green'},
+    {l:'Tasa de Conversion',v:tasaConv+'%',c:'c-brand'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  var statusMap={'enviada':'badge-por-renovar','aceptada':'badge-activa','rechazada':'badge-vencida','vencida':'badge-cancelada'};
+  var statusLabel={'enviada':'Enviada','aceptada':'Aceptada','rechazada':'Rechazada','vencida':'Vencida'};
+
+  document.getElementById('cotizadorCards').innerHTML=COTIZACIONES.map(function(c){
+    var mejorPrima=Math.min.apply(null,c.comparaciones.map(function(x){return x.prima}));
+
+    return '<div class="cot-card" style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px">'+
+        '<div>'+
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'+
+            '<span class="mono" style="font-size:11px;font-weight:600;color:var(--accent)">'+c.id+'</span>'+
+            '<span class="badge '+statusMap[c.estado]+'">'+statusLabel[c.estado]+'</span>'+
+            (c.poliza?'<span style="font-size:10px;color:var(--dim)">&#8594; '+c.poliza+'</span>':'')+
+          '</div>'+
+          '<div style="font-size:16px;font-weight:700">'+c.cliente+'</div>'+
+          '<div style="font-size:12px;color:var(--dim);margin-top:2px">'+c.tipo+' | '+c.bien+'</div>'+
+          '<div style="font-size:12px;color:var(--dim)">Valor a asegurar: <strong style="color:var(--text)">'+fmt(c.valorAsegurar)+'</strong> | '+c.fecha+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:6px">'+
+          '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+c.telefono+'\',\''+c.cliente+'\')">WA</button>'+
+          (c.estado==='enviada'?'<button class="btn btn-sm btn-renew" onclick="aceptarCotizacion(\''+c.id+'\')">Convertir</button>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="tbl-wrap" style="margin:0"><div class="tbl-overflow">'+
+        '<table style="margin:0">'+
+          '<thead><tr><th>Aseguradora</th><th>Prima Anual</th><th>Deducible</th><th>Coberturas</th><th></th></tr></thead>'+
+          '<tbody>'+c.comparaciones.map(function(x){
+            var esMejor=x.prima===mejorPrima;
+            return '<tr style="'+(esMejor?'background:var(--accent-light)':'')+'">'+
+              '<td style="font-weight:600">'+x.aseguradora+'</td>'+
+              '<td class="mono" style="font-weight:700;'+(esMejor?'color:var(--accent)':'')+'">'+fmt(x.prima)+'</td>'+
+              '<td class="mono" style="font-size:12px">'+fmt(x.deducible)+'</td>'+
+              '<td style="font-size:12px;color:var(--dim);max-width:280px">'+x.coberturas+'</td>'+
+              '<td>'+(esMejor?'<span style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px">Mejor precio</span>':'')+'</td>'+
+            '</tr>';
+          }).join('')+
+          '</tbody>'+
+        '</table>'+
+      '</div></div>'+
+      (c.notas?'<div style="margin-top:12px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius-sm);font-size:12px;color:var(--dim)"><strong style="color:var(--text)">Nota:</strong> '+c.notas+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+window.aceptarCotizacion=function(id){
+  COTIZACIONES.forEach(function(c){
+    if(c.id===id){
+      c.estado='aceptada';
+      var mejor=c.comparaciones.sort(function(a,b){return a.prima-b.prima})[0];
+      var newId='POL-'+String(POLIZAS.length+1).padStart(3,'0');
+      c.poliza=newId;
+      var hoy=TODAY.toISOString().slice(0,10);
+      var hasta=new Date(TODAY);hasta.setFullYear(hasta.getFullYear()+1);
+      POLIZAS.unshift({
+        id:newId,cliente:c.cliente,telefono:c.telefono,tipo:c.tipo,
+        aseguradora:mejor.aseguradora,prima:mejor.prima,
+        valorAsegurado:c.valorAsegurar,desde:hoy,
+        hasta:hasta.toISOString().slice(0,10),estado:'activa'
+      });
+      showToast('Cotizacion '+id+' convertida a poliza '+newId,'success');
+      notifyTelegram('COTIZACION CONVERTIDA\n'+c.cliente+'\n'+c.tipo+' con '+mejor.aseguradora+'\nPrima: '+fmt(mejor.prima)+'\nPoliza: '+newId);
+    }
+  });
+  renderCotizador();
+  renderPolizas();
+  renderDashboard();
+  renderRenovaciones();
+};
+
+window.saveCotizacion=function(){
+  var cliente=document.getElementById('cCliente').value.trim();
+  var tipo=document.getElementById('cTipo').value;
+  var bien=document.getElementById('cBien').value.trim();
+  var valor=parseFloat(document.getElementById('cValor').value)||0;
+  if(!cliente||!tipo){showToast('Completa cliente y tipo de seguro','error');return}
+
+  var comps=[];
+  var rows=document.querySelectorAll('#cComparaciones .comp-row');
+  rows.forEach(function(row){
+    var inputs=row.querySelectorAll('input,select');
+    var aseg=inputs[0].value;
+    var prima=parseFloat(inputs[1].value)||0;
+    var ded=parseFloat(inputs[2].value)||0;
+    var cob=inputs[3].value;
+    if(aseg&&prima) comps.push({aseguradora:aseg,prima:prima,deducible:ded,coberturas:cob||'--'});
+  });
+
+  if(comps.length<1){showToast('Agrega al menos una aseguradora','error');return}
+
+  var newC={
+    id:'COT-'+String(COTIZACIONES.length+1).padStart(3,'0'),
+    fecha:TODAY.toISOString().slice(0,10),
+    cliente:cliente,telefono:document.getElementById('cTelefono').value.trim(),
+    tipo:tipo,bien:bien,valorAsegurar:valor,
+    intermediario:getIntermediario('c'),
+    estado:'enviada',poliza:null,
+    comparaciones:comps,
+    notas:document.getElementById('cNotas').value.trim()
+  };
+
+  COTIZACIONES.unshift(newC);
+  renderCotizador();
+  renderDashboard();
+  closeModal('newCotizacion');
+  showToast('Cotizacion '+newC.id+' creada -- '+comps.length+' aseguradoras','success');
+  notifyTelegram('NUEVA COTIZACION\n'+cliente+'\n'+tipo+': '+bien+'\nValor: '+fmt(valor)+'\n'+comps.length+' aseguradoras comparadas');
+};
+
+/* ====================================
+   FACTURACION
+   ==================================== */
+function renderFacturacion(){
+  var totalFacturado=FACTURAS.reduce(function(s,f){return s+f.total},0);
+  var pendiente=FACTURAS.filter(function(f){return f.estado==='enviada'||f.estado==='emitida'}).reduce(function(s,f){return s+f.total},0);
+  var cobrado=FACTURAS.filter(function(f){return f.estado==='pagada'}).reduce(function(s,f){return s+f.total},0);
+  var vencido=FACTURAS.filter(function(f){return f.estado==='vencida'}).reduce(function(s,f){return s+f.total},0);
+
+  document.getElementById('facturaKpi').innerHTML=[
+    {l:'Total Facturado',v:fmt(totalFacturado),c:'c-accent'},
+    {l:'Pendiente de Cobro',v:fmt(pendiente),c:'c-orange'},
+    {l:'Cobrado',v:fmt(cobrado),c:'c-green'},
+    {l:'Cartera Vencida',v:fmt(vencido),c:'c-red'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  var statusMap={'emitida':'badge-por-renovar','enviada':'badge-por-renovar','pagada':'badge-activa','vencida':'badge-vencida','anulada':'badge-cancelada'};
+  var statusLabel={'emitida':'Emitida','enviada':'Enviada','pagada':'Pagada','vencida':'Vencida','anulada':'Anulada'};
+
+  document.getElementById('facturaTable').innerHTML=FACTURAS.map(function(f){
+    return '<tr>'+
+      '<td class="mono" style="font-size:11px;font-weight:600;color:var(--accent)">'+f.id+'</td>'+
+      '<td style="font-size:12px">'+f.fecha+'</td>'+
+      '<td style="font-weight:600">'+f.aseguradora+'</td>'+
+      '<td style="font-size:12px;max-width:200px">'+f.concepto+'</td>'+
+      '<td class="mono" style="font-size:11px;color:var(--dim)">'+f.polizas+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(f.subtotal)+'</td>'+
+      '<td class="mono" style="font-size:12px;color:var(--dim)">'+fmt(f.iva)+'</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(f.total)+'</td>'+
+      '<td><span class="badge '+statusMap[f.estado]+'">'+statusLabel[f.estado]+'</span></td>'+
+      '<td style="font-size:12px;color:var(--dim)">'+f.vence+'</td>'+
+    '</tr>';
+  }).join('');
+
+  // Conciliacion: agrupar por aseguradora
+  var aseguradoras={};
+  COMISIONES.forEach(function(c){
+    if(!aseguradoras[c.aseguradora]) aseguradoras[c.aseguradora]={esperado:0,facturado:0,cobrado:0};
+    aseguradoras[c.aseguradora].esperado+=c.valorComision;
+  });
+  FACTURAS.forEach(function(f){
+    if(!aseguradoras[f.aseguradora]) aseguradoras[f.aseguradora]={esperado:0,facturado:0,cobrado:0};
+    aseguradoras[f.aseguradora].facturado+=f.subtotal;
+    if(f.estado==='pagada') aseguradoras[f.aseguradora].cobrado+=f.total;
+  });
+
+  var concRows=Object.keys(aseguradoras);
+  document.getElementById('conciliacionTable').innerHTML=concRows.map(function(a){
+    var d=aseguradoras[a];
+    var pendiente=d.facturado-d.cobrado;
+    var diff=d.esperado-d.facturado;
+    return '<tr>'+
+      '<td style="font-weight:600">'+a+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(d.esperado)+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(d.facturado)+'</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--green)">'+fmt(d.cobrado)+'</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--orange)">'+fmt(pendiente>0?pendiente:0)+'</td>'+
+      '<td class="mono" style="font-weight:700;color:'+(diff>0?'var(--red)':'var(--green)')+'">'+
+        (diff>0?'-':diff<0?'+':'')+fmt(Math.abs(diff))+
+        (diff>0?' <span style="font-size:10px;color:var(--red);font-weight:400">(sin facturar)</span>':diff===0?' <span style="font-size:10px;color:var(--green);font-weight:400">(cuadrado)</span>':' <span style="font-size:10px;color:var(--green);font-weight:400">(a favor)</span>')+
+      '</td>'+
+    '</tr>';
+  }).join('');
+}
+
+window.calcFacturaTotal=function(){
+  var sub=parseFloat(document.getElementById('fSubtotal').value)||0;
+  var iva=Math.round(sub*0.19);
+  document.getElementById('fIva').value=iva;
+  document.getElementById('fTotal').value=sub+iva;
+};
+
+window.saveFactura=function(){
+  var aseg=document.getElementById('fAseguradora').value;
+  var concepto=document.getElementById('fConcepto').value.trim();
+  var sub=parseFloat(document.getElementById('fSubtotal').value)||0;
+  if(!aseg||!concepto||!sub){showToast('Completa aseguradora, concepto y subtotal','error');return}
+
+  var iva=Math.round(sub*0.19);
+  var newF={
+    id:'CC-'+String(FACTURAS.length+1).padStart(3,'0'),
+    fecha:document.getElementById('fFecha').value||TODAY.toISOString().slice(0,10),
+    aseguradora:aseg,
+    concepto:concepto,
+    polizas:document.getElementById('fPolizas').value.trim()||'--',
+    subtotal:sub,iva:iva,total:sub+iva,
+    estado:'emitida',
+    vence:document.getElementById('fVencimiento').value||'',
+    fechaPago:null
+  };
+
+  FACTURAS.unshift(newF);
+  renderFacturacion();
+  closeModal('newFactura');
+  showToast('Cuenta de cobro '+newF.id+' emitida -- '+fmt(newF.total),'success');
+  notifyTelegram('CUENTA DE COBRO EMITIDA\nNo: '+newF.id+'\nAseguradora: '+aseg+'\nConcepto: '+concepto+'\nTotal: '+fmt(newF.total));
+};
+
+/* ====================================
+   CHARTS
+   ==================================== */
+function initCharts(){
+  var accentColor='#10B981';
+  var brandColor='#1a2744';
+  var gridColor=document.documentElement.classList.contains('dark')?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
+  var textColor=document.documentElement.classList.contains('dark')?'#94a3b8':'#64748b';
+
+  var defaultOpts={
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:11,family:'Manrope'},color:textColor}},
+      y:{grid:{color:gridColor},ticks:{font:{size:11,family:'JetBrains Mono'},color:textColor,callback:function(v){return v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':v}}}
+    }
+  };
+
+  // Polizas por Tipo (doughnut)
+  var tipos={};
+  POLIZAS.forEach(function(p){
+    if(p.estado!=='cancelada') tipos[p.tipo]=(tipos[p.tipo]||0)+1;
+  });
+  var tipoLabels=Object.keys(tipos);
+  var tipoData=tipoLabels.map(function(t){return tipos[t]});
+
+  new Chart(document.getElementById('chartTipos'),{
+    type:'doughnut',
+    data:{
+      labels:tipoLabels,
+      datasets:[{
+        data:tipoData,
+        backgroundColor:[accentColor,brandColor,'#15803d','#d97706','#7c3aed','#0d9488','#0284c7'],
+        borderWidth:0
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{font:{size:11,family:'Manrope'},color:textColor,padding:12,usePointStyle:true,pointStyle:'circle'}}}
+    }
+  });
+
+  // Primas Mensuales (bar)
+  new Chart(document.getElementById('chartPrimas'),{
+    type:'bar',
+    data:{
+      labels:['Mar','Abr','May','Jun','Jul','Ago'],
+      datasets:[{
+        data:[2800000,3100000,4500000,3900000,5200000,4800000],
+        backgroundColor:accentColor,
+        borderRadius:6,
+        borderSkipped:false
+      }]
+    },
+    options:defaultOpts
+  });
+}
+
+/* Boot – defer to next tick so all declarations resolve */
+setTimeout(autoEnter, 0);
+
 })();
 </script>
 </body>
