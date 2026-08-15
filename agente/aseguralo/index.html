@@ -961,6 +961,7 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-6-cV_lCBNYzGp89I6xdDwGEa32Vhok8LfW7-oRAvxfUNABkIv7IjjTNGjZ7Qv3IQ/exec';
 
 var CLIENTES=[];
 var POLIZAS=[];
@@ -1231,14 +1232,102 @@ function generateDerivedData(){
   SINIESTROS=[];
 }
 
-/* ---- Load data: hardcoded real data + optional live sync ---- */
+/* ---- Transform API rows (Apps Script JSON) to POLIZAS format ---- */
+function transformApiRows(rows){
+  return rows.map(function(r){
+    var anulStr=(r.anulacion||'').trim();
+    var hasAnul=anulStr&&anulStr.length>=8&&anulStr!=='         ';
+    var prima=Math.round((r.prima_s1||0)+(r.prima_s2||0)+(r.prima_s3||0));
+    return {
+      id:r.poliza,
+      cliente:fmtSheetName(r.nombre),
+      telefono:r.telefono||'',
+      tipo:detectTipoPoliza(r.tipo,r.cobertura),
+      aseguradora:'Allianz',
+      intermediario:r.colaborador==='0731'?'Judith Neira':'Fabian Carrera',
+      prima:prima,
+      valorAsegurado:0,
+      desde:r.desde||'',
+      hasta:r.hasta||'',
+      estado:deriveEstado(r.hasta,hasAnul?anulStr:''),
+      sarlaft:'pendiente',
+      pdfUrl:''
+    };
+  }).filter(function(p){return p.id;});
+}
+
+/* ---- Load data: live API first, hardcoded fallback ---- */
 function loadFromSheet(callback){
-  // Primary: build from hardcoded real data
-  POLIZAS=buildPolizasFromRaw();
-  generateDerivedData();
-  SHEET_LOADED=true;
-  updateSyncStatus(true,'Datos reales ('+POLIZAS.length+' polizas)');
-  if(callback)callback(true);
+  updateSyncStatus(null,'Conectando con Sheet...');
+
+  // Check cache first
+  var cached=null;
+  try{
+    var ts=parseInt(localStorage.getItem(SHEET_CACHE_TS)||'0');
+    if(Date.now()-ts < SHEET_CACHE_HOURS*3600000){
+      cached=JSON.parse(localStorage.getItem(SHEET_CACHE_KEY));
+    }
+  }catch(e){}
+
+  if(cached&&cached.rows&&cached.rows.length>0){
+    POLIZAS=transformApiRows(cached.rows);
+    generateDerivedData();
+    SHEET_LOADED=true;
+    updateSyncStatus(true,'Cache ('+POLIZAS.length+' polizas) — recargando...');
+    if(callback)callback(true);
+  }
+
+  // Fetch live data from Apps Script
+  var script=document.createElement('script');
+  var cbName='_asegApiCb_'+Date.now();
+  var timeout=setTimeout(function(){
+    // Timeout: use cache or hardcoded fallback
+    delete window[cbName];
+    if(script.parentNode)script.parentNode.removeChild(script);
+    if(!SHEET_LOADED){
+      POLIZAS=buildPolizasFromRaw();
+      generateDerivedData();
+      SHEET_LOADED=true;
+      updateSyncStatus(false,'Sin conexion — datos locales ('+POLIZAS.length+')');
+      if(callback)callback(true);
+    }
+  },8000);
+
+  window[cbName]=function(data){
+    clearTimeout(timeout);
+    delete window[cbName];
+    if(script.parentNode)script.parentNode.removeChild(script);
+    if(data&&data.status==='ok'&&data.rows&&data.rows.length>0){
+      try{
+        localStorage.setItem(SHEET_CACHE_KEY,JSON.stringify(data));
+        localStorage.setItem(SHEET_CACHE_TS,String(Date.now()));
+      }catch(e){}
+      POLIZAS=transformApiRows(data.rows);
+      generateDerivedData();
+      SHEET_LOADED=true;
+      updateSyncStatus(true,'Sincronizado ('+POLIZAS.length+' polizas)');
+      if(callback)callback(true);
+    } else if(!SHEET_LOADED){
+      POLIZAS=buildPolizasFromRaw();
+      generateDerivedData();
+      SHEET_LOADED=true;
+      updateSyncStatus(false,'Error API — datos locales ('+POLIZAS.length+')');
+      if(callback)callback(true);
+    }
+  };
+  script.onerror=function(){
+    clearTimeout(timeout);
+    delete window[cbName];
+    if(!SHEET_LOADED){
+      POLIZAS=buildPolizasFromRaw();
+      generateDerivedData();
+      SHEET_LOADED=true;
+      updateSyncStatus(false,'Sin conexion — datos locales ('+POLIZAS.length+')');
+      if(callback)callback(true);
+    }
+  };
+  script.src=APPS_SCRIPT_URL+'?callback='+cbName;
+  document.body.appendChild(script);
 }
 
 /* ---- Sync status indicator ---- */
