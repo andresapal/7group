@@ -1,13 +1,83 @@
 Experto en seguros Colombia ver PDF wssp
-1. Ingresos con cuenta corporativa: para generar pdfs, el lead tiene mas de 3 compañías de seguros. la idea es con un sola orden recibir las 3   
-2. lectura ocr de polizas 
-3. el lead maneja una agenda 
-4. modelo subasta TYGO para seguros 
-5. El lead tiene allianz,axxa y seguros del estado y aseguralo que es la agencia , etc, el quiere manejar la información por cada aseguradora, lo conocen como Fabian Carrera, pero quiere posicionar aseguralo, el sheet debe ser inteligente y registra por aseguradoras, poder filtrar la información en tiempo.
-6. las cuentas correo son celcarov@gmail.com, celso.carrera@allia2.com.co , aseguralo@outlook.com, asesorias@aseguralo.com.co. aseguraloseguros@gmail.com. la cuenta principal es aseguralo@outlook.com, es es el acceso de Fabian 
-7. en modo polizas, vamos con los datos que hay mas: Intermadiario
-8. En nueva póliza adicional el campo intenmediario 
-9. en póliza ver detalle, jala todos los datos de la póliza, enlaces pdf, e información del sheet y del sarlaft 
+1. Ingreso y seguridad
+
+El acceso debe realizarse mediante **Google Authenticator**, mostrando al usuario que el sistema cuenta con un buen nivel de seguridad.
+
+* Cualquier usuario no autorizado debe ser bloqueado después de un máximo de **3 intentos fallidos**.
+* Si un usuario no ingresa diariamente, el sistema debe solicitar nuevamente la **verificación de Google** al momento de ingresar.
+
+2. Lectura OCR de pólizas
+
+Implementar **lectura OCR de las pólizas**, de manera que el sistema pueda extraer automáticamente la información relevante de los documentos y utilizarla para alimentar los registros correspondientes. Leer pdfs cargados en la carpeta C:\Users\Andres\Proyecto\Claude\7group\agente\aseguralo\Polizas de demo
+
+3. Agenda del lead
+
+Fabian debe contar con una **agenda integrada (sheet ya existente)**, que le permita gestionar y hacer seguimiento a sus actividades, clientes, compromisos y tareas relacionadas con su operación comercial. Sobre lo que ya esta montado revisemos cual es la mejor opcion amigable y precisa.
+
+4. AUN NO.  Modelo de subasta TYGO para seguros
+
+Incorporar el **modelo de subasta TYGO aplicado al sector asegurador**, adaptando la lógica de subasta a las necesidades específicas de las pólizas, aseguradoras e intermediarios.
+
+5. Gestión por aseguradora y posicionamiento de Asegúralo
+
+Fabian registra en una agenda a mano, y trabaja actualmente con diferentes aseguradoras, entre ellas **Allianz, AXA y Seguros del Estado**, y quiere que **Asegúralo** sea reconocida como la agencia por lo que el trabajo SEO y posicinamiento es alfo que podemos estructurar
+
+Actualmente, al lead lo conocen principalmente como **Fabian Carrera**, pero el objetivo es comenzar a posicionar la marca **Asegúralo**.
+
+Por esta razón, el Sheet ya existente debe ser **inteligente y estructurado por aseguradora**, permitiendo:
+
+* Registrar la información asociada a cada compañía de seguros.
+* Identificar rápidamente a qué aseguradora pertenece cada póliza, cliente u operación.
+* Filtrar la información en tiempo real por aseguradora.
+* Mantener una visión consolidada de toda la operación de Asegúralo.
+* Facilitar la gestión individual de Allianz, AXA, Seguros del Estado y las demás aseguradoras que se incorporen posteriormente.
+
+no cambiar nada, datos sensibles solo ampliar y mejorar. Politica de confindencialidad entre aseguralo y 7group por el manejo de base de datos, clientes, reserva, etc (agente experto en politicas)
+
+Las comisiones 7group no se cargan sobre este historico, se cargan sobre las nuevas ventas  
+
+6. Cuentas de correo
+Las cuentas de correo que deben contemplarse son:
+
+* [celcarov@gmail.com](mailto:celcarov@gmail.com)
+* [celso.carrera@allia2.com.co](mailto:celso.carrera@allia2.com.co)
+* [aseguralo@outlook.com](mailto:aseguralo@outlook.com)
+* [asesorias@aseguralo.com.co](mailto:asesorias@aseguralo.com.co)
+* [aseguraloseguros@gmail.com](mailto:aseguraloseguros@gmail.com)
+
+La **cuenta principal es ****`aseguralo@outlook.com`**, y corresponde al acceso de **Fabian Carrera**.
+
+**LISTO.**
+
+7. Modo Pólizas — Intermediario
+
+En el **modo Pólizas**, utilizar y mostrar inicialmente los datos que ya tenemos disponibles, incorporando el campo **Intermediario**.
+
+**LISTO.**
+
+8. Nueva póliza — Campo Intermediario
+
+En **Nueva Póliza**, agregar el campo **Intermediario** como parte de la información de la póliza.
+
+**LISTO.**
+
+9. Detalle de la póliza
+
+En **Ver detalle de póliza**, el sistema debe mostrar y consolidar toda la información disponible de la póliza.
+
+Debe incluir:
+
+* Todos los datos registrados de la póliza.
+* Enlaces a los archivos PDF correspondientes.
+* Información relacionada almacenada en el Sheet.
+* Información y documentos asociados al **SARLAFT**.
+* Cualquier otro dato que haya sido extraído mediante OCR o registrado durante el proceso.
+
+La idea es que **Ver detalle** sea una vista centralizada de toda la información de la póliza, evitando tener que consultar diferentes módulos o archivos para completar la información.
+
+
+
+
 10. caso: una sra quiere cotizar un carro; fabian la saluda y le escribe la información: el nombre del propietario, el tipo y numero de documento, fecha de nacimiento, placa del vehiculo, zona de circulación(ciudad) y color. 
 
 **Cuando son hogar: Dirección inmueble
@@ -47,4 +117,9 @@ Eps
 
 20. diseño web mas adelante   
 
-21. pagos por comisión 7group: 12.5%autos, dejemos un espacio para los porcentajes, debemos ir totalizando 15 días o mes los amrgenes, los totales, no van con iva, revisa como haríamos ese registro tanto para fabian como patra 7 group, nuemros de cuentas, etc (agente financiero)  
+21. pagos por comisión 7group: 12.5%autos, dejemos un espacio para los porcentajes, debemos ir totalizando 15 días o mes los amrgenes, los totales, no van con iva, revisa como haríamos ese registro tanto para fabian como patra 7 group, nuemros de cuentas, etc (agente financiero)
+
+
+
+
+Listo, una vez te pase el sheet debemos reemplazar la informacion  demo de aseguralo agente, a la real y actualizar todo, eso es claro, guarda esa tarea. Ahora bien, para ello Fabian me debe compartir este sheet (enlace) y le hacemos un script sin modificar lo que ya tienen, ya que son datos sensibles, y la idea es extraer la informacion de ese sheet a Aseguralo, crear otros campos sin dañar o sobrescribir los que ya tienen si es necesario. y ellos deben poder hacer cambios desde el agente o desde el sheet y en ambas vias se deben ver las actualizaciones   
