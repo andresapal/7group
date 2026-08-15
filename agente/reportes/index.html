@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reportes de Actividad -- 7Group</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script src="jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',-apple-system,sans-serif;background:#060a12;color:#e2e8f0;min-height:100vh;font-size:14px}
+
+/* TOPBAR */
+.topbar{background:rgba(6,10,18,.92);backdrop-filter:blur(20px);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(148,163,184,.08)}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:17px;font-weight:800;color:#4DE8F4;letter-spacing:-.02em;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:rgba(148,163,184,.16)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4DE8F4}
+.tb-btn{padding:6px 12px;background:rgba(77,232,244,.15);border:1px solid rgba(77,232,244,.25);border-radius:6px;color:#4DE8F4;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:#4DE8F4;color:#060a12}
+
+/* MAIN */
+.main{max-width:900px;margin:0 auto;padding:24px 20px}
+.page-title{font-size:22px;font-weight:800;letter-spacing:-.03em;margin-bottom:4px}
+.page-sub{font-size:12px;color:#64748b;margin-bottom:28px}
+
+/* FORM */
+.form-section{background:#0c1220;border:1px solid rgba(148,163,184,.08);border-radius:12px;padding:24px;margin-bottom:20px}
+.form-section h3{font-size:14px;font-weight:700;margin-bottom:16px;color:#4DE8F4;letter-spacing:.3px;text-transform:uppercase;font-size:11px}
+.form-row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.form-group{flex:1;min-width:200px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;letter-spacing:.3px;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;background:#141c2e;border:1px solid rgba(148,163,184,.1);border-radius:8px;color:#e2e8f0;font-size:13px;font-family:inherit;outline:none;transition:.2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#4DE8F4;box-shadow:0 0 0 2px rgba(77,232,244,.1)}
+.form-group select{cursor:pointer}
+.form-group textarea{resize:vertical;min-height:60px}
+
+/* ACTIVITIES LIST */
+.act-list{display:flex;flex-direction:column;gap:10px}
+.act-item{background:#141c2e;border:1px solid rgba(148,163,184,.08);border-radius:10px;padding:16px;position:relative;transition:.2s}
+.act-item:hover{border-color:rgba(77,232,244,.2)}
+.act-item .act-head{display:flex;gap:10px;margin-bottom:10px;align-items:center}
+.act-item .act-title{flex:1;padding:8px 10px;background:#0c1220;border:1px solid rgba(148,163,184,.08);border-radius:6px;color:#e2e8f0;font-size:13px;font-weight:600;font-family:inherit;outline:none}
+.act-item .act-title:focus{border-color:#4DE8F4}
+.act-item .act-status{padding:8px 10px;background:#0c1220;border:1px solid rgba(148,163,184,.08);border-radius:6px;color:#e2e8f0;font-size:12px;font-family:inherit;cursor:pointer;outline:none;min-width:130px}
+.act-item .act-desc{width:100%;padding:8px 10px;background:#0c1220;border:1px solid rgba(148,163,184,.08);border-radius:6px;color:#94a3b8;font-size:12px;font-family:inherit;outline:none;resize:vertical;min-height:50px}
+.act-item .act-desc:focus{border-color:#4DE8F4;color:#e2e8f0}
+.act-remove{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:rgba(220,38,38,.1);border:none;color:#dc2626;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s}
+.act-item:hover .act-remove{opacity:1}
+.act-num{width:28px;height:28px;border-radius:50%;background:rgba(77,232,244,.1);color:#4DE8F4;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:none;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-add{background:rgba(77,232,244,.1);color:#4DE8F4;border:1px solid rgba(77,232,244,.2)}
+.btn-add:hover{background:rgba(77,232,244,.2)}
+.btn-gen{background:#4DE8F4;color:#060a12;font-weight:700;padding:12px 28px;font-size:14px}
+.btn-gen:hover{background:#6ff0fa;transform:translateY(-1px);box-shadow:0 4px 16px rgba(77,232,244,.3)}
+.btn-gen:active{transform:translateY(0)}
+.btn-clear{background:rgba(220,38,38,.1);color:#dc2626;border:1px solid rgba(220,38,38,.15)}
+.btn-clear:hover{background:rgba(220,38,38,.2)}
+
+/* PREVIEW */
+.preview-section{background:#0c1220;border:1px solid rgba(148,163,184,.08);border-radius:12px;padding:24px;margin-bottom:20px;display:none}
+.preview-section.visible{display:block}
+.preview-section h3{font-size:11px;font-weight:700;margin-bottom:16px;color:#4DE8F4;letter-spacing:.3px;text-transform:uppercase}
+.preview-frame{background:#fff;border-radius:8px;overflow:hidden;min-height:200px}
+.preview-frame iframe{width:100%;height:600px;border:none}
+
+/* HISTORY */
+.history-section{background:#0c1220;border:1px solid rgba(148,163,184,.08);border-radius:12px;padding:24px;margin-top:20px}
+.history-section h3{font-size:11px;font-weight:700;margin-bottom:16px;color:#64748b;letter-spacing:.3px;text-transform:uppercase}
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#141c2e;border-radius:8px;margin-bottom:6px;font-size:12px}
+.hist-item .hist-client{font-weight:600;color:#e2e8f0}
+.hist-item .hist-date{color:#64748b;font-size:11px}
+.hist-item .hist-count{color:#4DE8F4;font-size:11px;font-weight:600}
+.hist-empty{text-align:center;padding:20px;color:#334155;font-size:12px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#15803d;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transform:translateY(20px);transition:.3s;z-index:200;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:600px){
+  .form-row{flex-direction:column}
+  .form-group{min-width:100%}
+  .act-item .act-head{flex-wrap:wrap}
+  .act-item .act-status{width:100%}
+  .btn-row{flex-direction:column}
+  .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <a class="tb-logo" href="/agente/">7GROUP</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge">Reportes</span>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a class="tb-btn" href="/agente/">Portal</a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <h1 class="page-title">Generador de Reportes</h1>
+  <p class="page-sub">Documenta la actividad diaria de desarrollo y genera un PDF profesional para el cliente.</p>
+
+  <!-- CLIENT & DATE -->
+  <div class="form-section">
+    <h3>Informacion del Reporte</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Cliente</label>
+        <select id="selClient">
+          <option value="aseguralo">Aseguralo -- Fabian Carrera</option>
+          <option value="lanmarmoles">Lan Marmoles -- Ricardo Lancheros</option>
+          <option value="trasteosya">Trasteos Ya</option>
+          <option value="tygo">TYGO</option>
+        </select>
+      </div>
+      <div class="form-group" style="max-width:200px">
+        <label>Fecha</label>
+        <input type="date" id="inpDate">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Titulo del reporte</label>
+        <input type="text" id="inpTitle" placeholder="Ej: Reporte de Avances - Sprint 3">
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITIES -->
+  <div class="form-section">
+    <h3>Actividades realizadas</h3>
+    <div class="act-list" id="actList">
+      <!-- dynamic -->
+    </div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn btn-add" onclick="addActivity()">+ Agregar actividad</button>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="form-section">
+    <h3>Notas adicionales (opcional)</h3>
+    <div class="form-group">
+      <textarea id="inpNotes" placeholder="Observaciones, proximos pasos, bloqueos..."></textarea>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="btn-row" style="justify-content:space-between">
+    <button class="btn btn-clear" onclick="clearAll()">Limpiar todo</button>
+    <button class="btn btn-gen" onclick="generatePDF()">Generar PDF</button>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-section" id="previewSection">
+    <h3>Vista previa</h3>
+    <div class="preview-frame">
+      <iframe id="previewFrame"></iframe>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-section">
+    <h3>Reportes generados</h3>
+    <div id="historyList">
+      <div class="hist-empty">No hay reportes generados aun.</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="logos.js"></script>
+<script>
+var CLIENT_DATA = {
+  aseguralo: {
+    name: 'Aseguralo',
+    contact: 'Fabian Carrera',
+    type: 'ERP para intermediario de seguros',
+    color: '#45AAFF'
+  },
+  lanmarmoles: {
+    name: 'Lan Marmoles',
+    contact: 'Ricardo Lancheros',
+    type: 'ERP & cotizador de marmol',
+    color: '#2B4C9B'
+  },
+  trasteosya: {
+    name: 'Trasteos Ya',
+    contact: 'Operaciones',
+    type: 'Plataforma de logistica urbana',
+    color: '#D4A017'
+  },
+  tygo: {
+    name: 'TYGO',
+    contact: 'Operaciones',
+    type: 'AI freight marketplace',
+    color: '#E53935'
+  }
+};
+
+// Init
+var actCount = 0;
+document.getElementById('inpDate').value = new Date().toISOString().split('T')[0];
+addActivity();
+addActivity();
+addActivity();
+loadHistory();
+
+function addActivity() {
+  actCount++;
+  var n = actCount;
+  var html = '<div class="act-item" id="act_'+n+'">' +
+    '<button class="act-remove" onclick="removeActivity('+n+')" title="Eliminar">x</button>' +
+    '<div class="act-head">' +
+      '<div class="act-num">'+n+'</div>' +
+      '<input class="act-title" placeholder="Titulo de la actividad" id="actT_'+n+'">' +
+      '<select class="act-status" id="actS_'+n+'">' +
+        '<option value="Completado">Completado</option>' +
+        '<option value="En progreso">En progreso</option>' +
+        '<option value="Pendiente">Pendiente</option>' +
+      '</select>' +
+    '</div>' +
+    '<textarea class="act-desc" placeholder="Descripcion detallada de lo realizado..." id="actD_'+n+'"></textarea>' +
+  '</div>';
+  var div = document.createElement('div');
+  div.innerHTML = html;
+  document.getElementById('actList').appendChild(div.firstChild);
+  renumberActivities();
+}
+
+function removeActivity(n) {
+  var el = document.getElementById('act_'+n);
+  if (el) el.remove();
+  renumberActivities();
+}
+
+function renumberActivities() {
+  var items = document.querySelectorAll('.act-item');
+  items.forEach(function(item, i) {
+    var num = item.querySelector('.act-num');
+    if (num) num.textContent = i + 1;
+  });
+}
+
+function clearAll() {
+  document.getElementById('actList').innerHTML = '';
+  document.getElementById('inpTitle').value = '';
+  document.getElementById('inpNotes').value = '';
+  actCount = 0;
+  addActivity();
+  showToast('Formulario limpiado');
+}
+
+function getActivities() {
+  var items = document.querySelectorAll('.act-item');
+  var acts = [];
+  items.forEach(function(item) {
+    var id = item.id.split('_')[1];
+    var t = document.getElementById('actT_'+id);
+    var s = document.getElementById('actS_'+id);
+    var d = document.getElementById('actD_'+id);
+    if (t && t.value.trim()) {
+      acts.push({
+        title: t.value.trim(),
+        status: s ? s.value : 'Completado',
+        desc: d ? d.value.trim() : ''
+      });
+    }
+  });
+  return acts;
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+// ─── PDF GENERATION ───
+function generatePDF() {
+  var clientKey = document.getElementById('selClient').value;
+  var client = CLIENT_DATA[clientKey];
+  var dateStr = document.getElementById('inpDate').value;
+  var title = document.getElementById('inpTitle').value || 'Reporte de Actividad';
+  var notes = document.getElementById('inpNotes').value.trim();
+  var acts = getActivities();
+
+  if (acts.length === 0) {
+    showToast('Agrega al menos una actividad');
+    return;
+  }
+
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ unit: 'mm', format: 'letter' });
+  var W = 215.9, H = 279.4;
+  var CYAN = [77, 232, 244];
+  var DARK = [10, 10, 10];
+  var DIM = [102, 102, 102];
+  var TEXT = [26, 26, 26];
+
+  // Format date
+  var parts = dateStr.split('-');
+  var months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var dateFormatted = parts[2] + ' de ' + months[parseInt(parts[1])-1] + ' de ' + parts[0];
+
+  // ── COVER PAGE ──
+  doc.setFillColor(DARK[0], DARK[1], DARK[2]);
+  doc.rect(0, 0, W, H, 'F');
+  // Cyan top bar
+  doc.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  doc.rect(0, 0, W, 3, 'F');
+  // 7Group logo
+  try {
+    doc.addImage(LOGOS['7group'], 'PNG', (W-35)/2, 30, 35, 20, undefined, 'FAST');
+  } catch(e) {
+    doc.setTextColor(CYAN[0], CYAN[1], CYAN[2]);
+    doc.setFontSize(28);
+    doc.setFont('helvetica','bold');
+    doc.text('7GROUP', W/2, 50, {align:'center'});
+  }
+  // Client logo
+  try {
+    var cLogo = LOGOS[clientKey];
+    if (cLogo) {
+      doc.addImage(cLogo, 'PNG', (W-40)/2, 70, 40, 15, undefined, 'FAST');
+    }
+  } catch(e) {}
+  // Title
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(24);
+  doc.setFont('helvetica','bold');
+  doc.text(title, W/2, 110, {align:'center'});
+  // Client name
+  doc.setFontSize(14);
+  doc.setTextColor(CYAN[0], CYAN[1], CYAN[2]);
+  doc.text(client.name, W/2, 122, {align:'center'});
+  // Subtitle
+  doc.setFontSize(10);
+  doc.setTextColor(136,136,136);
+  doc.text(client.type, W/2, 132, {align:'center'});
+  // Meta
+  doc.setFontSize(10);
+  doc.text('Preparado para: ' + client.contact, W/2, 160, {align:'center'});
+  doc.text('Fecha: ' + dateFormatted, W/2, 168, {align:'center'});
+  doc.text('Clasificacion: Confidencial', W/2, 176, {align:'center'});
+  // Bottom bar
+  doc.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  doc.rect(0, H-2, W, 2, 'F');
+
+  // ── CONTENT PAGES ──
+  doc.addPage();
+  var pageNum = 1;
+  var totalPages = 1 + (notes ? 1 : 0); // estimate, adjusted later
+  var y = 20;
+
+  function drawHeader() {
+    doc.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+    doc.rect(0, 0, W, 2.5, 'F');
+    // Footer
+    doc.setDrawColor(224, 224, 224);
+    doc.line(18, H-16, W-18, H-16);
+    doc.setFontSize(6);
+    doc.setTextColor(DIM[0], DIM[1], DIM[2]);
+    doc.text('7GROUP Corp  |  ' + client.name + '  |  Confidencial', 18, H-11);
+    doc.text(dateFormatted, W-18, H-11, {align:'right'});
+  }
+
+  drawHeader();
+
+  // Section title
+  doc.setTextColor(TEXT[0], TEXT[1], TEXT[2]);
+  doc.setFontSize(18);
+  doc.setFont('helvetica','bold');
+  doc.text('Actividades Realizadas', 18, y + 10);
+  doc.setDrawColor(CYAN[0], CYAN[1], CYAN[2]);
+  doc.setLineWidth(0.5);
+  doc.line(18, y + 14, 80, y + 14);
+  doc.setLineWidth(0.2);
+  y += 24;
+
+  // Summary bar
+  var done = 0, prog = 0, pend = 0;
+  acts.forEach(function(a) {
+    if (a.status === 'Completado') done++;
+    else if (a.status === 'En progreso') prog++;
+    else pend++;
+  });
+  var boxW = (W - 36 - 12) / 3;
+  var boxes = [
+    { val: '' + done, label: 'Completados', color: [21, 128, 61] },
+    { val: '' + prog, label: 'En progreso', color: [217, 119, 6] },
+    { val: '' + pend, label: 'Pendientes', color: [220, 38, 38] }
+  ];
+  boxes.forEach(function(b, i) {
+    var bx = 18 + i * (boxW + 6);
+    doc.setFillColor(245, 245, 245);
+    doc.roundedRect(bx, y, boxW, 22, 2, 2, 'F');
+    doc.setFontSize(16);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(b.color[0], b.color[1], b.color[2]);
+    doc.text(b.val, bx + boxW/2, y + 11, {align:'center'});
+    doc.setFontSize(7);
+    doc.setTextColor(DIM[0], DIM[1], DIM[2]);
+    doc.setFont('helvetica','normal');
+    doc.text(b.label, bx + boxW/2, y + 18, {align:'center'});
+  });
+  y += 30;
+
+  // Activities
+  acts.forEach(function(a, i) {
+    // Check page break
+    var blockH = 14 + (a.desc ? Math.ceil(a.desc.length / 80) * 5 + 4 : 0);
+    if (y + blockH > H - 25) {
+      doc.addPage();
+      y = 20;
+      drawHeader();
+    }
+
+    // Status color
+    var sc = a.status === 'Completado' ? [21,128,61] : a.status === 'En progreso' ? [217,119,6] : [220,38,38];
+
+    // Number circle
+    doc.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+    doc.circle(23, y + 3, 3, 'F');
+    doc.setFontSize(7);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(10,10,10);
+    doc.text(''+(i+1), 23, y + 4.5, {align:'center'});
+
+    // Title
+    doc.setFontSize(11);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(TEXT[0], TEXT[1], TEXT[2]);
+    doc.text(a.title, 30, y + 5);
+
+    // Status badge
+    var sw = doc.getTextWidth(a.status) + 6;
+    var sx = W - 18 - sw;
+    doc.setFillColor(sc[0], sc[1], sc[2], 0.1);
+    doc.roundedRect(sx, y, sw + 2, 8, 1.5, 1.5, 'F');
+    doc.setFontSize(7);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(sc[0], sc[1], sc[2]);
+    doc.text(a.status, sx + 4, y + 5.5);
+
+    y += 10;
+
+    // Description
+    if (a.desc) {
+      doc.setFontSize(9);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(DIM[0], DIM[1], DIM[2]);
+      var lines = doc.splitTextToSize(a.desc, W - 50);
+      lines.forEach(function(line) {
+        if (y > H - 25) {
+          doc.addPage();
+          y = 20;
+          drawHeader();
+        }
+        doc.text(line, 30, y);
+        y += 4.5;
+      });
+    }
+    y += 6;
+  });
+
+  // ── NOTES PAGE ──
+  if (notes) {
+    if (y + 40 > H - 25) {
+      doc.addPage();
+      y = 20;
+      drawHeader();
+    }
+    y += 6;
+    doc.setFontSize(14);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(TEXT[0], TEXT[1], TEXT[2]);
+    doc.text('Notas Adicionales', 18, y);
+    doc.setDrawColor(CYAN[0], CYAN[1], CYAN[2]);
+    doc.setLineWidth(0.5);
+    doc.line(18, y + 3, 65, y + 3);
+    doc.setLineWidth(0.2);
+    y += 12;
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(DIM[0], DIM[1], DIM[2]);
+    var noteLines = doc.splitTextToSize(notes, W - 36);
+    noteLines.forEach(function(line) {
+      if (y > H - 25) {
+        doc.addPage();
+        y = 20;
+        drawHeader();
+      }
+      doc.text(line, 18, y);
+      y += 4.5;
+    });
+  }
+
+  // ── CLOSING PAGE ──
+  doc.addPage();
+  doc.setFillColor(DARK[0], DARK[1], DARK[2]);
+  doc.rect(0, 0, W, H, 'F');
+  doc.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  doc.rect(0, 0, W, 2.5, 'F');
+  // Logo
+  try {
+    doc.addImage(LOGOS['7group'], 'PNG', (W-30)/2, H/2 - 20, 30, 17, undefined, 'FAST');
+  } catch(e) {
+    doc.setTextColor(CYAN[0], CYAN[1], CYAN[2]);
+    doc.setFontSize(24);
+    doc.setFont('helvetica','bold');
+    doc.text('7GROUP', W/2, H/2, {align:'center'});
+  }
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(14);
+  doc.setFont('helvetica','bold');
+  doc.text('Gracias por confiar en 7GROUP', W/2, H/2 + 10, {align:'center'});
+  doc.setTextColor(136,136,136);
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  doc.text('7group.site  |  7groupcorp@zohomail.com', W/2, H/2 + 22, {align:'center'});
+  doc.text('Bogota, Colombia', W/2, H/2 + 28, {align:'center'});
+  doc.setFillColor(CYAN[0], CYAN[1], CYAN[2]);
+  doc.rect(0, H-2, W, 2, 'F');
+
+  // ── Output ──
+  var fileName = 'Reporte_' + client.name.replace(/\s/g,'_') + '_' + dateStr + '.pdf';
+  var pdfBlob = doc.output('blob');
+  var pdfUrl = URL.createObjectURL(pdfBlob);
+
+  // Show preview
+  document.getElementById('previewFrame').src = pdfUrl;
+  document.getElementById('previewSection').classList.add('visible');
+  document.getElementById('previewSection').scrollIntoView({behavior:'smooth'});
+
+  // Download
+  doc.save(fileName);
+
+  // Save to history
+  saveHistory(clientKey, client.name, dateStr, acts.length, title);
+  showToast('PDF generado: ' + fileName);
+}
+
+// ─── HISTORY ───
+function saveHistory(key, name, date, count, title) {
+  var hist = JSON.parse(localStorage.getItem('7g_report_history') || '[]');
+  hist.unshift({ client: key, name: name, date: date, count: count, title: title, ts: Date.now() });
+  if (hist.length > 20) hist = hist.slice(0, 20);
+  localStorage.setItem('7g_report_history', JSON.stringify(hist));
+  loadHistory();
+}
+
+function loadHistory() {
+  var hist = JSON.parse(localStorage.getItem('7g_report_history') || '[]');
+  var el = document.getElementById('historyList');
+  if (hist.length === 0) {
+    el.innerHTML = '<div class="hist-empty">No hay reportes generados aun.</div>';
+    return;
+  }
+  var html = '';
+  hist.forEach(function(h) {
+    html += '<div class="hist-item">' +
+      '<span class="hist-client">' + h.name + '</span>' +
+      '<span style="flex:1;text-align:center;color:#94a3b8;font-size:11px">' + (h.title || '') + '</span>' +
+      '<span class="hist-count">' + h.count + ' actividades</span>' +
+      '<span class="hist-date">' + h.date + '</span>' +
+    '</div>';
+  });
+  el.innerHTML = html;
+}
+</script>
+
+</body>
+</html>

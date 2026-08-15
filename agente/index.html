@@ -164,6 +164,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
     <span class="tb-badge" data-t="badge">Portal</span>
   </div>
   <div class="tb-right">
+    <a class="tb-btn" href="/agente/reportes/" id="tbReportesBtn" style="display:none;font-size:10px;padding:6px 12px;background:rgba(94,231,247,.1);border:1px solid rgba(94,231,247,.2);border-radius:6px;color:var(--cyan);font-weight:700;text-decoration:none">Reportes</a>
     <div class="lang-switch">
       <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
       <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
@@ -378,6 +379,9 @@ function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setT
 /* Auto-login IIFE moved to end of script (after all functions are defined) */
 
 function applyRoleFilter(){
+  /* Show Reportes button for admins only */
+  var repBtn=document.getElementById('tbReportesBtn');
+  if(repBtn) repBtn.style.display=CURRENT_ROLE==='admin'?'':'none';
   if(CURRENT_ROLE==='admin'){renderAll();return;}
   /* Client: filter PROJECTS to only show their assigned projects */
   var allowed=CLIENT_PROJECTS[CURRENT_USER]||[];
