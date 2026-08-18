@@ -403,7 +403,7 @@ Quedo muy atento para ayudarte. 😊</div>
 
       <div class="divider">o</div>
 
-      <a class="btn btn-wa" href="https://wa.me/573165206865?text=Hola%2C%20quiero%20cotizar%20un%20seguro" target="_blank" rel="noopener">
+      <a class="btn btn-wa" id="btnWaFallback" href="https://wa.me/573165206865?text=Hola%20Fabian%2C%20quiero%20cotizar%20un%20seguro" target="_blank" rel="noopener" onclick="return waFallback(this)">
         Escribir directo por WhatsApp
       </a>
     </div>
@@ -428,72 +428,41 @@ Quedo muy atento para ayudarte. 😊</div>
   var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbz1Un4ArXmUZ5v2Hfe8n3PtbVJ7waTxxQYFZp8noWU-gfbhUs9uhpZdbaEUlJtxE4Ul/exec';
   var WA_FABIAN='573165206865';
 
-  // Mensajes pre-cargados por tipo — si el cliente prefiere WhatsApp directo,
-  // le abrimos el chat de Fabian con la lista de datos lista para llenar.
-  var WA_REQUEST = {
-    'Vehiculo':
-'Hola Fabian, quiero cotizar seguro de vehículo. Estos son mis datos:\n\n'+
-'• Nombre completo del propietario: \n'+
-'• Tipo y número de documento: \n'+
-'• Fecha de nacimiento: \n'+
-'• Placa del vehículo: \n'+
-'• Color del vehículo: \n'+
-'• Zona donde circula habitualmente: ',
-    'Salud':
-'Hola Fabian, quiero cotizar póliza de salud. Estos son los datos:\n\n'+
-'Por cada persona a asegurar:\n'+
-'• Nombre completo: \n'+
-'• Tipo y número de documento: \n'+
-'• Fecha de nacimiento: \n'+
-'• EPS actual: \n'+
-'• ¿Enfermedad diagnosticada?: ',
-    'Hogar':
-'Hola Fabian, quiero cotizar póliza de hogar. Estos son mis datos:\n\n'+
-'• Dirección exacta + ciudad: \n'+
-'• Área en m²: \n'+
-'• Total pisos de la edificación: \n'+
-'• Número de sótanos: \n'+
-'• Año de construcción: \n'+
-'• Valor comercial aproximado: \n\n'+
-'(Opcional) Valores aproximados de contenidos:\n'+
-'• Muebles y enseres: \n'+
-'• Equipos eléctricos/electrónicos: \n'+
-'• Herramientas: \n'+
-'• Artículos de valor (joyas, arte): \n'+
-'• Equipos móviles/portátiles: ',
-    'Vida':
-'Hola Fabian, quiero cotizar póliza de vida. Estos son mis datos:\n\n'+
-'• Nombre completo: \n'+
-'• Tipo y número de documento: \n'+
-'• Fecha de nacimiento: \n'+
-'• Estatura actual: \n'+
-'• Peso actual: \n'+
-'• Ocupación o actividad actual: \n\n'+
-'Tipo de protección (vida deudor o tradicional) y valor aproximado: ',
-    'Empresa':
-'Hola Fabian, quiero cotizar seguro empresarial. Tipo de negocio y qué necesito asegurar: ',
-    'Arrendamiento':
-'Hola Fabian, quiero cotizar póliza de arrendamiento. Canon mensual, tipo de inmueble y ciudad: ',
-    'Cumplimiento':
-'Hola Fabian, quiero cotizar póliza de cumplimiento. Objeto del contrato, entidad contratante y valor a amparar: ',
-    'Viaje':
-'Hola Fabian, quiero cotizar póliza de viaje. Estos son los datos:\n\n'+
-'• Fecha de salida: \n'+
-'• Fecha de regreso: \n'+
-'• Destino: \n\n'+
-'Por cada viajero:\n'+
-'• Nombre completo: \n'+
-'• Fecha de nacimiento: ',
-    'Otro':
-'Hola Fabian, quiero cotizar un seguro. Cuéntame qué opciones hay para: '
-  };
+  // Texto que va a WhatsApp = el mismo texto visible en el welcome del tipo seleccionado.
+  // Fuente unica: los <div class="welcome"> de arriba. Si Fabian quiere cambiar el mensaje,
+  // se edita ahi y automaticamente cambia lo que llega por WA.
+  function textoWelcome(tipo){
+    var w = document.querySelector('.welcome[data-for="'+tipo+'"]');
+    if(!w) return 'Hola Fabian, quiero cotizar un seguro.';
+    // innerText respeta los saltos de linea. Removemos la linea del "click aqui" (no aplica en WA).
+    var txt = w.innerText || w.textContent || '';
+    txt = txt.split('\n').filter(function(l){
+      return !/click\s+aqu[ií]/i.test(l);
+    }).join('\n').replace(/\n{3,}/g,'\n\n').trim();
+    // Personalizamos con nombre si ya lo escribio arriba
+    var nombre = ((document.querySelector('[name="nombre"]')||{}).value||'').trim();
+    if(nombre){
+      txt = 'Hola Fabian, soy '+nombre+'.\n\n'+txt;
+    } else {
+      txt = 'Hola Fabian.\n\n'+txt;
+    }
+    return txt;
+  }
 
   window.openWaReq = function(tipo){
-    var txt = WA_REQUEST[tipo] || WA_REQUEST['Otro'];
-    // Si ya escribió su nombre arriba, personalizamos el saludo
-    var nombre = (document.querySelector('[name="nombre"]')||{}).value || '';
-    if(nombre.trim()) txt = txt.replace('Hola Fabian,', 'Hola Fabian, soy '+nombre.trim()+' y');
+    var txt = textoWelcome(tipo);
     window.open('https://wa.me/'+WA_FABIAN+'?text='+encodeURIComponent(txt), '_blank', 'noopener');
+  };
+
+  // Boton "Escribir directo por WhatsApp": si ya escogio tipo, usa ese welcome;
+  // si no, envia el generico y le sugerimos escoger arriba.
+  window.waFallback = function(a){
+    var tipo = document.getElementById('fTipo').value;
+    if(tipo){
+      var txt = textoWelcome(tipo);
+      a.href = 'https://wa.me/'+WA_FABIAN+'?text='+encodeURIComponent(txt);
+    }
+    return true; // deja abrir el link
   };
 
   // Chip picker
