@@ -572,6 +572,8 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
+      <div id="renovAlert"></div>
+
       <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="renovacionesKpi"></div>
 
       <div class="tbl-wrap">
@@ -655,50 +657,6 @@ tbody tr:hover{background:var(--accent-light)}
       <button class="modal-close" onclick="closeModConfig()">&times;</button>
     </div>
     <div class="mod-cfg-body" id="modCfgBody"></div>
-  </div>
-</div>
-
-<!-- MODAL: Nuevo Lead manual (llamada / referido) -->
-<div class="modal-overlay" id="modalNewLead">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title">Nuevo Lead</div>
-      <button class="modal-close" onclick="closeModal('newLead')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" id="ldNombre" placeholder="Camila Ruiz"></div>
-        <div class="form-group"><label class="form-label">Correo</label><input class="form-input" id="ldCorreo" type="email" placeholder="cliente@correo.com"></div>
-      </div>
-      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-group"><label class="form-label">Telefono / WhatsApp</label><input class="form-input" id="ldTel" placeholder="3XXXXXXXXX" inputmode="tel"></div>
-        <div class="form-group"><label class="form-label">Tipo</label>
-          <select class="form-input" id="ldTipo">
-            <option value="">Selecciona</option>
-            <option>Vehiculo</option><option>Salud</option><option>Hogar</option><option>Vida</option><option>Empresa</option>
-            <option>Arrendamiento</option><option>Cumplimiento</option><option>Viaje</option><option>Otro</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row"><div class="form-group"><label class="form-label">Detalle</label><input class="form-input" id="ldDetalle" placeholder="Placa ABC123, Corolla 2019 / EPS Sanitas / etc."></div></div>
-      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-group"><label class="form-label">Urgencia</label>
-          <select class="form-input" id="ldUrgencia">
-            <option>Ya</option><option>Esta semana</option><option>Este mes</option><option>Solo cotizar</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="form-label">Origen</label>
-          <select class="form-input" id="ldOrigen">
-            <option>Llamada</option><option>WhatsApp</option><option>Referido</option><option>Instagram</option><option>Presencial</option><option>Otro</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row"><div class="form-group"><label class="form-label">Notas (opcional)</label><textarea class="form-input" id="ldNotas" rows="2" placeholder="Contexto de la conversacion"></textarea></div></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('newLead')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveLead()">Guardar Lead</button>
-    </div>
   </div>
 </div>
 
@@ -1723,11 +1681,12 @@ document.getElementById('modNav').addEventListener('click',function(e){
   switchMod(link.dataset.mod);
 });
 
-/* Nuevo prospecto -> Cotizador > Inbox + modal Nuevo Lead */
+/* Nuevo prospecto -> abre el mismo formulario publico (una sola forma de capturar).
+   Fabian lo puede usar en llamada para capturar prospecto estructurado. */
 window.nuevoProspecto=function(){
   switchMod('cotizador');
   switchSub('inbox');
-  openModal('newLead');
+  window.open('/agente/aseguralo/lead/', '_blank', 'noopener');
 };
 
 /* Sub-navegacion dentro de Cotizador: inbox / curso / emitir */
@@ -1934,14 +1893,21 @@ function renderPolizaRow(p,idx){
   var sarlaft=p.sarlaft||'sin-iniciar';
   var diasV=diasEntre(p.hasta);
   var diasText=diasV<0?Math.abs(diasV)+' dias vencida':(diasV===0?'Hoy':diasV+' dias');
-  return '<tr style="cursor:pointer" onclick="toggleDetail(\''+detailId+'\')">'+
+  // Tint de fila segun urgencia de renovacion
+  var rowBg='';
+  if(p.estado==='vencida') rowBg='background:rgba(239,68,68,.10);border-left:3px solid var(--red)';
+  else if(p.estado==='por-renovar') rowBg='background:rgba(245,158,11,.08);border-left:3px solid var(--orange)';
+  return '<tr style="cursor:pointer;'+rowBg+'" onclick="toggleDetail(\''+detailId+'\')">'+
     '<td class="mono" style="font-size:11px;font-weight:600;color:var(--accent)">'+p.id+' <span style="font-size:9px;color:var(--dim)">&#9660;</span></td>'+
     '<td><strong>'+p.cliente+'</strong></td>'+
     '<td>'+p.tipo+'</td>'+
     '<td>'+p.aseguradora+'</td>'+
     '<td style="font-size:12px">'+(p.intermediario||'<span style="color:var(--muted)">--</span>')+'</td>'+
     '<td class="mono" style="font-weight:700">'+fmt(p.prima)+'</td>'+
-    '<td style="font-size:12px;color:var(--dim)">'+p.desde+' / '+p.hasta+'</td>'+
+    '<td style="font-size:12px">'+
+      '<div style="color:var(--dim)">'+p.desde+' &rarr; '+p.hasta+'</div>'+
+      (p.estado!=='cancelada' ? '<div style="font-weight:700;font-size:11px;margin-top:2px;color:'+(diasV<0?'var(--red)':diasV<=30?'var(--orange)':'var(--green)')+'">'+diasText+'</div>' : '')+
+    '</td>'+
     '<td><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></td>'+
     '<td><div style="display:flex;gap:4px" onclick="event.stopPropagation()">'+
       '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+p.telefono+'\',\''+p.cliente+'\')">WA</button>'+
@@ -1985,20 +1951,30 @@ function renderPolizaRow(p,idx){
 }
 
 function renderPolizas(filter){
-  var data=filter?POLIZAS.filter(function(p){return p.cliente.toLowerCase().indexOf(filter)!==-1}):POLIZAS;
+  // Ordenar por urgencia de renovacion: primero vencidas (mas dias vencidas arriba),
+  // luego por-renovar (mas cerca de vencer arriba), luego activas, luego canceladas.
+  var orden={'vencida':0,'por-renovar':1,'activa':2,'cancelada':3};
+  var base=POLIZAS.slice().sort(function(a,b){
+    var oa=orden[a.estado]!=null?orden[a.estado]:9;
+    var ob=orden[b.estado]!=null?orden[b.estado]:9;
+    if(oa!==ob) return oa-ob;
+    // dentro del mismo estado, ordena por fecha hasta ASC (mas urgente primero)
+    return (a.hasta||'').localeCompare(b.hasta||'');
+  });
+  var data=filter?base.filter(function(p){return p.cliente.toLowerCase().indexOf(filter)!==-1}):base;
 
   if(!filter) polizasShown=POLIZAS_PAGE_SIZE;
 
-  var activas=POLIZAS.filter(function(p){return p.estado==='activa'}).length;
+  var vencidas=POLIZAS.filter(function(p){return p.estado==='vencida'}).length;
   var porRenovar=POLIZAS.filter(function(p){return p.estado==='por-renovar'}).length;
+  var activas=POLIZAS.filter(function(p){return p.estado==='activa'}).length;
   var totalAsegurado=POLIZAS.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).reduce(function(s,p){return s+p.valorAsegurado},0);
-  var primaPromedio=POLIZAS.length?Math.round(POLIZAS.reduce(function(s,p){return s+p.prima},0)/POLIZAS.length/12):0;
 
   document.getElementById('polizasKpi').innerHTML=[
-    {l:'Polizas Activas',v:activas,c:'c-green'},
-    {l:'Por Renovar',v:porRenovar,c:'c-orange'},
-    {l:'Valor Asegurado Total',v:fmt(totalAsegurado),c:'c-accent'},
-    {l:'Prima Mensual Promedio',v:fmt(primaPromedio),c:'c-brand'}
+    {l:'Vencidas (accion urgente)',v:vencidas,c:'c-red'},
+    {l:'Por Renovar (<30 dias)',v:porRenovar,c:'c-orange'},
+    {l:'Activas',v:activas,c:'c-green'},
+    {l:'Valor Asegurado Total',v:fmt(totalAsegurado),c:'c-accent'}
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
 
   var visible=filter?data:data.slice(0,polizasShown);
@@ -2214,11 +2190,29 @@ function renderRenovaciones(){
   var prox60=renewData.filter(function(r){return r.dias>=0&&r.dias<=60}).length;
   var vencidasSinRenovar=renewData.filter(function(r){return r.dias<0}).length;
 
+  // Banner de urgentes: vencidas + proximas 7 dias
+  var urgentes = vencidasSinRenovar + prox7;
+  var alertEl = document.getElementById('renovAlert');
+  if(alertEl){
+    if(urgentes>0){
+      alertEl.innerHTML =
+        '<div style="background:linear-gradient(90deg,var(--red) 0%,#f87171 100%);color:#fff;padding:16px 20px;border-radius:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">'+
+          '<div>'+
+            '<div style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:.9">Accion urgente hoy</div>'+
+            '<div style="font-size:22px;font-weight:800;margin-top:4px">'+urgentes+' poliza'+(urgentes===1?'':'s')+' requiere'+(urgentes===1?'':'n')+' contacto inmediato</div>'+
+            '<div style="font-size:12px;opacity:.9;margin-top:2px">'+vencidasSinRenovar+' ya vencidas &middot; '+prox7+' vencen en los proximos 7 dias</div>'+
+          '</div>'+
+        '</div>';
+    } else {
+      alertEl.innerHTML = '';
+    }
+  }
+
   document.getElementById('renovacionesKpi').innerHTML=[
+    {l:'Vencidas sin renovar',v:vencidasSinRenovar,c:'c-red'},
     {l:'Proximas 7 dias',v:prox7,c:'c-red'},
     {l:'Proximas 30 dias',v:prox30,c:'c-orange'},
-    {l:'Proximas 60 dias',v:prox60,c:'c-accent'},
-    {l:'Vencidas sin renovar',v:vencidasSinRenovar,c:'c-red'}
+    {l:'Proximas 60 dias',v:prox60,c:'c-accent'}
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
 
   renderRenovTable();
@@ -2226,13 +2220,18 @@ function renderRenovaciones(){
 function renderRenovTable(){
   document.getElementById('renovacionesTable').innerHTML=RENOV_DATA.map(function(r){
     var diasText=r.dias<0?Math.abs(r.dias)+' dias vencida':(r.dias===0?'Hoy':r.dias+' dias');
-    return '<tr>'+
+    // Tint fila segun urgencia
+    var rowBg='';
+    if(r.dias<0) rowBg='background:rgba(239,68,68,.12);border-left:3px solid var(--red)';
+    else if(r.dias<=7) rowBg='background:rgba(245,158,11,.10);border-left:3px solid var(--orange)';
+    else if(r.dias<=30) rowBg='background:rgba(245,158,11,.04)';
+    return '<tr style="'+rowBg+'">'+
       '<td><strong>'+r.cliente+'</strong></td>'+
       '<td class="mono" style="font-size:11px;color:var(--accent)">'+r.poliza+'</td>'+
       '<td>'+r.tipo+'</td>'+
       '<td>'+r.aseguradora+'</td>'+
       '<td style="font-size:12px;color:var(--dim)">'+r.vence+'</td>'+
-      '<td><span class="dias-pill '+r.alertClass+'">'+diasText+'</span></td>'+
+      '<td><span class="dias-pill '+r.alertClass+'" style="font-weight:'+(r.dias<=7?'800':'600')+'">'+diasText+'</span></td>'+
       '<td><span class="alert-'+r.alertClass+'">'+r.alertLabel+'</span></td>'+
       '<td><div style="display:flex;gap:4px">'+
         '<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+r.poliza+'\')">Renovar</button>'+
@@ -2858,34 +2857,7 @@ function renderLeads(){
   }).join('');
 }
 
-window.saveLead = function(){
-  var d = {
-    action: 'lead',
-    fecha: new Date().toISOString(),
-    nombre: (document.getElementById('ldNombre').value||'').trim(),
-    correo: (document.getElementById('ldCorreo').value||'').trim(),
-    telefono: (document.getElementById('ldTel').value||'').replace(/[^0-9]/g,''),
-    tipo: document.getElementById('ldTipo').value,
-    detalle: (document.getElementById('ldDetalle').value||'').trim(),
-    urgencia: document.getElementById('ldUrgencia').value,
-    origen: document.getElementById('ldOrigen').value,
-    notas: (document.getElementById('ldNotas').value||'').trim()
-  };
-  if(!d.nombre || !d.telefono || !d.tipo){ alert('Nombre, telefono y tipo son obligatorios'); return; }
-
-  // Optimista: agregar local antes de guardar
-  LEADS.unshift({fecha:d.fecha,id:'LD-local-'+Date.now(),nombre:d.nombre,correo:d.correo,telefono:d.telefono,tipo:d.tipo,detalle:d.detalle,urgencia:d.urgencia,origen:d.origen,estado:'Nuevo',notas:d.notas});
-  renderLeads();
-
-  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(d)})
-    .then(function(){ setTimeout(loadLeadsFromSheet, 1500); })
-    .catch(function(){});
-
-  // Limpiar y cerrar
-  ['ldNombre','ldCorreo','ldTel','ldDetalle','ldNotas'].forEach(function(i){document.getElementById(i).value=''});
-  document.getElementById('ldTipo').selectedIndex=0;
-  closeModal('newLead');
-};
+/* saveLead retirada: la captura se hace desde el formulario publico /lead/ (una sola verdad). */
 
 /* ---- Parser de chat WhatsApp ---- */
 window.parseWAChat = function(){
