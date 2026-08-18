@@ -37,7 +37,12 @@ h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:18px 0 4px;text-a
 .chip{padding:10px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s;user-select:none}
 .chip:hover{border-color:var(--accent);color:var(--accent)}
 .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
-.welcome{display:none;margin-top:16px;padding:16px;background:var(--soft);border-left:3px solid var(--accent);border-radius:8px;font-size:14px;line-height:1.55;color:#1e3a5f;white-space:pre-line}
+.welcome{display:none;margin-top:16px;padding:18px 20px;background:var(--soft);border-left:3px solid var(--accent);border-radius:8px;font-size:14px;line-height:1.65;color:#1e3a5f;white-space:pre-line;max-height:none;overflow:visible}
+.welcome a.wa-inline{color:var(--wa);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.welcome a.wa-inline:hover{color:#1fb855}
+.welcome ul{margin:6px 0 6px 18px;padding:0;list-style:none}
+.welcome ul li{margin-bottom:3px}
+.welcome strong{font-weight:700;color:var(--brand)}
 .welcome.on{display:block}
 .detail{display:none;margin-top:14px}
 .detail.on{display:block}
@@ -127,9 +132,22 @@ input[name*="placa"]{text-transform:uppercase}
         <!-- ===== BLOQUES DINÁMICOS ===== -->
 
         <!-- VEHÍCULO -->
-        <div class="welcome" data-for="Vehiculo">¡Hola! 😊 Con mucho gusto te ayudo a revisar la mejor alternativa para proteger tu vehículo. 🚗
+        <div class="welcome" data-for="Vehiculo">¡Hola! 😊 Claro que sí, con mucho gusto te ayudo a revisar la mejor alternativa para proteger tu vehículo. 🚗
 
-Para poder cotizarte, necesito algunos datos:</div>
+Para poder realizar la cotización y buscar una opción que se ajuste realmente a tus necesidades, necesito algunos datos:
+
+• Nombre completo del propietario
+• Tipo y número de documento
+• Fecha de nacimiento
+• Placa del vehículo
+• Color del vehículo
+• Zona donde circula habitualmente, es decir, el lugar donde permanece o se moviliza la mayor parte del tiempo.
+
+Puedes igualmente hacer click <a href="#" onclick="openWaReq('Vehiculo');return false" class="wa-inline">aquí</a> por si quieres enviarlo directamente por WhatsApp.
+
+Con esta información puedo empezar a revisar las alternativas disponibles y orientarte de manera personalizada. 🤝
+
+Quedo muy atento y con gusto te acompaño durante todo el proceso.</div>
         <div class="detail" data-for="Vehiculo">
           <div class="field">
             <label>Tipo y número de documento del propietario <span class="req">*</span></label>
@@ -156,9 +174,25 @@ Para poder cotizarte, necesito algunos datos:</div>
         <!-- SALUD -->
         <div class="welcome" data-for="Salud">🏥 Póliza de salud
 
-Con mucho gusto te ayudo con las alternativas de protección en salud. La cotización se hace de manera individual, así que necesitamos los datos de cada persona que quede incluida.
+¡Claro que sí! Con mucho gusto te ayudo a revisar las alternativas disponibles para contar con una protección en salud que se ajuste a tus necesidades. 🤝
 
-📌 Si son varias personas, agrégalas aquí abajo — nosotros revisamos las alternativas para cada una.</div>
+En este caso es muy importante tener en cuenta que la cotización se realiza de manera individual, por lo que necesitamos la información de cada una de las personas que desean quedar incluidas en la póliza.
+
+Por cada persona necesitamos:
+
+• Nombre completo
+• Tipo y número de documento
+• Fecha de nacimiento
+• EPS a la que se encuentra afiliada actualmente
+• ¿Tiene alguna enfermedad diagnosticada?
+
+Puedes igualmente hacer click <a href="#" onclick="openWaReq('Salud');return false" class="wa-inline">aquí</a> por si quieres enviarlo directamente por WhatsApp.
+
+📌 Si son varias personas, agrega cada una aquí abajo — nosotros revisamos las alternativas para cada una.
+
+Con esta información podremos orientarte de manera personalizada y presentarte las opciones que mejor se ajusten a cada persona. 😊
+
+Quedo muy atento para ayudarte.</div>
         <div class="detail" data-for="Salud">
           <div class="field">
             <label>Número de personas a asegurar <span class="req">*</span></label>
@@ -174,7 +208,30 @@ Con mucho gusto te ayudo con las alternativas de protección en salud. La cotiza
         <!-- HOGAR -->
         <div class="welcome" data-for="Hogar">🏠 Póliza para tu hogar
 
-Con mucho gusto te ayudo a revisar alternativas para proteger tu hogar. Diligencia estos datos y luego, si quieres proteger también los contenidos (muebles, electrónicos, joyas, portátiles, etc.), lo conversamos por WhatsApp — te orientamos para hacer la estimación.</div>
+¡Claro que sí! Con mucho gusto te ayudo a revisar las alternativas disponibles para proteger tu hogar y encontrar una opción que se ajuste a lo que necesitas. 🤝
+
+Para preparar la cotización del inmueble, necesito por favor la siguiente información:
+
+• Dirección exacta del inmueble, incluyendo la ciudad
+• Área del apartamento en metros cuadrados
+• Número total de pisos de la edificación
+• Número de sótanos del edificio
+• Año de construcción de la edificación
+• Valor comercial aproximado del apartamento
+
+Adicionalmente, si deseas proteger los contenidos de tu hogar, podemos incluirlos dentro de la cotización. Para ello necesitamos conocer aproximadamente los valores de:
+
+🛋️ Muebles y enseres: muebles en general, camas, cortinas, ropa, juegos de cama, vajilla/loza, ollas y demás elementos del hogar.
+📺 Equipos eléctricos y electrónicos: televisores, computadores, electrodomésticos y demás equipos.
+🔧 Herramientas: en caso de tenerlas.
+💎 Artículos de valor: joyas, obras de arte y otros bienes especiales que quieras proteger.
+💻 Equipos móviles y portátiles: computadores portátiles, tabletas y otros equipos de este tipo. Ten en cuenta que los teléfonos celulares no están incluidos en este ítem.
+
+Puedes igualmente hacer click <a href="#" onclick="openWaReq('Hogar');return false" class="wa-inline">aquí</a> por si quieres enviarlo directamente por WhatsApp.
+
+No es necesario que tengas los valores exactos de cada artículo; podemos orientarte para hacer una estimación adecuada.
+
+Envíame la información con tranquilidad y yo me encargo de acompañarte en el proceso para revisar las opciones disponibles. 😊</div>
         <div class="detail" data-for="Hogar">
           <div class="field">
             <label>Dirección exacta del inmueble + ciudad <span class="req">*</span></label>
@@ -198,7 +255,30 @@ Con mucho gusto te ayudo a revisar alternativas para proteger tu hogar. Diligenc
         <!-- VIDA -->
         <div class="welcome" data-for="Vida">❤️ Póliza de vida
 
-Con mucho gusto te ayudo a construir una protección de vida acorde con tus necesidades y objetivos. Diligencia estos datos básicos del tomador y luego te preguntamos por WhatsApp si es una póliza de vida para deudores o una tradicional — te orientamos con el monto adecuado.</div>
+¡Claro que sí! Con mucho gusto te ayudo a revisar las alternativas disponibles para construir una protección de vida acorde con tus necesidades y objetivos. 🤝
+
+Para poder realizar la cotización, necesitamos algunos datos básicos del tomador:
+
+• Nombre completo
+• Tipo y número de documento
+• Fecha de nacimiento
+• Estatura actual
+• Peso actual
+• Ocupación o actividad que desempeña actualmente
+
+Adicionalmente, necesitamos saber qué tipo de protección estás buscando:
+
+🏦 Si es una póliza de vida para deudores:
+Necesitamos conocer el valor aproximado del crédito o del leasing que deseas asegurar.
+
+🛡️ Si es una póliza de vida tradicional:
+Indícanos aproximadamente qué valor de protección te gustaría tener asegurado. Si aún no tienes claridad sobre este monto, no te preocupes; podemos orientarte para determinar una suma adecuada de acuerdo con tus necesidades.
+
+Puedes igualmente hacer click <a href="#" onclick="openWaReq('Vida');return false" class="wa-inline">aquí</a> por si quieres enviarlo directamente por WhatsApp.
+
+Con esta información podemos empezar a revisar las alternativas disponibles y acompañarte para encontrar una opción que tenga sentido para ti y tu situación. 😊
+
+Quedo muy atento para ayudarte.</div>
         <div class="detail" data-for="Vida">
           <div class="field">
             <label>Tipo y número de documento <span class="req">*</span></label>
@@ -225,7 +305,11 @@ Con mucho gusto te ayudo a construir una protección de vida acorde con tus nece
         <!-- EMPRESA -->
         <div class="welcome" data-for="Empresa">🏢 Seguro empresarial
 
-Cuéntanos qué necesitas asegurar y con gusto te revisamos alternativas.</div>
+¡Claro que sí! Con mucho gusto te ayudo a revisar las alternativas para proteger tu empresa. Cuéntanos qué tipo de negocio manejas y qué necesitas asegurar (bodega, oficina, maquinaria, mercancía, responsabilidad civil, etc.).
+
+Puedes igualmente hacer click <a href="#" onclick="openWaReq('Empresa');return false" class="wa-inline">aquí</a> por si quieres enviarlo directamente por WhatsApp.
+
+Quedo muy atento para ayudarte. 😊</div>
         <div class="detail" data-for="Empresa">
           <div class="field" style="margin:0">
             <label>Tipo de negocio y qué proteger <span class="req">*</span></label>
@@ -236,7 +320,11 @@ Cuéntanos qué necesitas asegurar y con gusto te revisamos alternativas.</div>
         <!-- ARRENDAMIENTO -->
         <div class="welcome" data-for="Arrendamiento">🔑 Póliza de arrendamiento
 
-Cuéntanos el contexto y te contactamos por WhatsApp para pedirte los documentos necesarios.</div>
+¡Claro que sí! Con mucho gusto te ayudo con la póliza de arrendamiento. Cuéntanos el canon mensual y el tipo de inmueble; luego te pedimos los documentos requeridos por la aseguradora.
+
+Puedes igualmente hacer click <a href="#" onclick="openWaReq('Arrendamiento');return false" class="wa-inline">aquí</a> por si quieres enviarlo directamente por WhatsApp.
+
+Quedo muy atento para ayudarte. 😊</div>
         <div class="detail" data-for="Arrendamiento">
           <div class="field" style="margin:0">
             <label>Cuéntanos el contexto <span class="req">*</span></label>
@@ -247,7 +335,11 @@ Cuéntanos el contexto y te contactamos por WhatsApp para pedirte los documentos
         <!-- CUMPLIMIENTO -->
         <div class="welcome" data-for="Cumplimiento">📋 Póliza de cumplimiento
 
-Cuéntanos brevemente qué contrato o proceso necesitas amparar y te contactamos por WhatsApp para revisarlo.</div>
+¡Claro que sí! Con mucho gusto te ayudo con la póliza de cumplimiento. Cuéntanos el objeto del contrato, la entidad contratante y el valor a amparar.
+
+Puedes igualmente hacer click <a href="#" onclick="openWaReq('Cumplimiento');return false" class="wa-inline">aquí</a> por si quieres enviarlo directamente por WhatsApp.
+
+Quedo muy atento para ayudarte. 😊</div>
         <div class="detail" data-for="Cumplimiento">
           <div class="field" style="margin:0">
             <label>Descripción del contrato o requerimiento <span class="req">*</span></label>
@@ -258,7 +350,17 @@ Cuéntanos brevemente qué contrato o proceso necesitas amparar y te contactamos
         <!-- VIAJE -->
         <div class="welcome" data-for="Viaje">✈️ Póliza de viaje
 
-Con mucho gusto te ayudo con la póliza para tu viaje. Diligencia el destino, las fechas y los datos de cada viajero.</div>
+¡Claro que sí! Con mucho gusto te ayudo con la póliza para tu viaje. Para cotizarte necesito:
+
+• Nombre de los viajeros
+• Fechas de nacimiento
+• Fecha de salida
+• Fecha de regreso
+• Destino
+
+Puedes igualmente hacer click <a href="#" onclick="openWaReq('Viaje');return false" class="wa-inline">aquí</a> por si quieres enviarlo directamente por WhatsApp.
+
+Quedo muy atento para ayudarte. 😊</div>
         <div class="detail" data-for="Viaje">
           <div class="row">
             <div class="field" style="margin:0"><label>Fecha de salida <span class="req">*</span></label><input class="input" type="date" name="vj_salida"></div>
@@ -280,7 +382,11 @@ Con mucho gusto te ayudo con la póliza para tu viaje. Diligencia el destino, la
         </div>
 
         <!-- OTRO -->
-        <div class="welcome" data-for="Otro">Cuéntanos qué necesitas y con gusto te contactamos por WhatsApp para orientarte.</div>
+        <div class="welcome" data-for="Otro">Cuéntanos brevemente qué necesitas asegurar y con gusto te contactamos para orientarte.
+
+Puedes igualmente hacer click <a href="#" onclick="openWaReq('Otro');return false" class="wa-inline">aquí</a> por si quieres enviarlo directamente por WhatsApp.
+
+Quedo muy atento para ayudarte. 😊</div>
         <div class="detail" data-for="Otro">
           <div class="field" style="margin:0">
             <label>¿Qué necesitas asegurar? <span class="req">*</span></label>
@@ -307,8 +413,8 @@ Con mucho gusto te ayudo con la póliza para tu viaje. Diligencia el destino, la
     <div class="card thanks">
       <div class="check">&#10003;</div>
       <h2>Recibimos tu solicitud</h2>
-      <p id="thanksMsg">Fabian Carrera te va a contactar por WhatsApp con las alternativas. Normalmente respondemos en menos de 2 horas hábiles.</p>
-      <a id="waLink" class="btn btn-wa" href="https://wa.me/573165206865" target="_blank" rel="noopener">Abrir WhatsApp con Fabian</a>
+      <p id="thanksMsg">Fabian Carrera te va a contactar en menos de 2 horas hábiles con las alternativas.<br><br><strong>Si quieres asegurarte de que llegue:</strong> abre WhatsApp con Fabian — ya lleva tu solicitud completa lista para enviar.</p>
+      <a id="waLink" class="btn btn-wa" href="https://wa.me/573165206865" target="_blank" rel="noopener">Enviar por WhatsApp a Fabian</a>
     </div>
   </div>
 
@@ -321,6 +427,74 @@ Con mucho gusto te ayudo con la póliza para tu viaje. Diligencia el destino, la
 (function(){
   var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbz1Un4ArXmUZ5v2Hfe8n3PtbVJ7waTxxQYFZp8noWU-gfbhUs9uhpZdbaEUlJtxE4Ul/exec';
   var WA_FABIAN='573165206865';
+
+  // Mensajes pre-cargados por tipo — si el cliente prefiere WhatsApp directo,
+  // le abrimos el chat de Fabian con la lista de datos lista para llenar.
+  var WA_REQUEST = {
+    'Vehiculo':
+'Hola Fabian, quiero cotizar seguro de vehículo. Estos son mis datos:\n\n'+
+'• Nombre completo del propietario: \n'+
+'• Tipo y número de documento: \n'+
+'• Fecha de nacimiento: \n'+
+'• Placa del vehículo: \n'+
+'• Color del vehículo: \n'+
+'• Zona donde circula habitualmente: ',
+    'Salud':
+'Hola Fabian, quiero cotizar póliza de salud. Estos son los datos:\n\n'+
+'Por cada persona a asegurar:\n'+
+'• Nombre completo: \n'+
+'• Tipo y número de documento: \n'+
+'• Fecha de nacimiento: \n'+
+'• EPS actual: \n'+
+'• ¿Enfermedad diagnosticada?: ',
+    'Hogar':
+'Hola Fabian, quiero cotizar póliza de hogar. Estos son mis datos:\n\n'+
+'• Dirección exacta + ciudad: \n'+
+'• Área en m²: \n'+
+'• Total pisos de la edificación: \n'+
+'• Número de sótanos: \n'+
+'• Año de construcción: \n'+
+'• Valor comercial aproximado: \n\n'+
+'(Opcional) Valores aproximados de contenidos:\n'+
+'• Muebles y enseres: \n'+
+'• Equipos eléctricos/electrónicos: \n'+
+'• Herramientas: \n'+
+'• Artículos de valor (joyas, arte): \n'+
+'• Equipos móviles/portátiles: ',
+    'Vida':
+'Hola Fabian, quiero cotizar póliza de vida. Estos son mis datos:\n\n'+
+'• Nombre completo: \n'+
+'• Tipo y número de documento: \n'+
+'• Fecha de nacimiento: \n'+
+'• Estatura actual: \n'+
+'• Peso actual: \n'+
+'• Ocupación o actividad actual: \n\n'+
+'Tipo de protección (vida deudor o tradicional) y valor aproximado: ',
+    'Empresa':
+'Hola Fabian, quiero cotizar seguro empresarial. Tipo de negocio y qué necesito asegurar: ',
+    'Arrendamiento':
+'Hola Fabian, quiero cotizar póliza de arrendamiento. Canon mensual, tipo de inmueble y ciudad: ',
+    'Cumplimiento':
+'Hola Fabian, quiero cotizar póliza de cumplimiento. Objeto del contrato, entidad contratante y valor a amparar: ',
+    'Viaje':
+'Hola Fabian, quiero cotizar póliza de viaje. Estos son los datos:\n\n'+
+'• Fecha de salida: \n'+
+'• Fecha de regreso: \n'+
+'• Destino: \n\n'+
+'Por cada viajero:\n'+
+'• Nombre completo: \n'+
+'• Fecha de nacimiento: ',
+    'Otro':
+'Hola Fabian, quiero cotizar un seguro. Cuéntame qué opciones hay para: '
+  };
+
+  window.openWaReq = function(tipo){
+    var txt = WA_REQUEST[tipo] || WA_REQUEST['Otro'];
+    // Si ya escribió su nombre arriba, personalizamos el saludo
+    var nombre = (document.querySelector('[name="nombre"]')||{}).value || '';
+    if(nombre.trim()) txt = txt.replace('Hola Fabian,', 'Hola Fabian, soy '+nombre.trim()+' y');
+    window.open('https://wa.me/'+WA_FABIAN+'?text='+encodeURIComponent(txt), '_blank', 'noopener');
+  };
 
   // Chip picker
   var chipsWrap=document.getElementById('tipoChips');
@@ -506,7 +680,30 @@ Con mucho gusto te ayudo con la póliza para tu viaje. Diligencia el destino, la
   function showThanks(d){
     document.getElementById('form-view').style.display='none';
     document.getElementById('thanks-view').style.display='block';
-    var msg=encodeURIComponent('Hola Fabian, soy '+d.nombre+'. Acabo de enviar la solicitud de '+d.tipo+' por la página. Quedo atento.');
+    // Mensaje enriquecido con TODOS los datos capturados — Fabian recibe todo por WA
+    // aunque el servidor todavia no este configurado.
+    var lineas = [
+      'Hola Fabian, soy '+d.nombre+' y quiero cotizar '+d.tipo+'.',
+      '',
+      'Datos de contacto:',
+      '• Correo: '+d.correo,
+      '• WhatsApp: '+d.telefono,
+      ''
+    ];
+    var skip = {action:1,fecha:1,origen:1,nombre:1,correo:1,telefono:1,tipo:1,urgencia:1,detalle:1};
+    var det = [];
+    for(var k in d){
+      if(skip[k]) continue;
+      if(d[k]==null || d[k]==='') continue;
+      // etiqueta legible: quitar prefijos v_ / s_ / h_ / vi_ / e_ / a_ / c_ / vj_ / o_
+      var label = k.replace(/^(v_|s_|h_|vi_|e_|a_|c_|vj_|o_)/,'').replace(/_/g,' ');
+      det.push('• '+label+': '+d[k]);
+    }
+    if(det.length){
+      lineas.push('Datos de la cotización:');
+      lineas.push.apply(lineas, det);
+    }
+    var msg = encodeURIComponent(lineas.join('\n'));
     document.getElementById('waLink').href='https://wa.me/'+WA_FABIAN+'?text='+msg;
     window.scrollTo({top:0,behavior:'smooth'});
   }
