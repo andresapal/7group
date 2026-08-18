@@ -421,6 +421,27 @@ Quedo muy atento para ayudarte. 😊</div>
   <div class="foot">
     Aseguralo · Corredor de Seguros · <a href="/">7group</a>
   </div>
+
+  <!-- MODAL: editar mensaje antes de enviar por WhatsApp -->
+  <div id="waModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;padding:20px;align-items:center;justify-content:center;overflow-y:auto">
+    <div style="max-width:560px;width:100%;background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;margin:auto">
+      <div style="padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:15px;font-weight:800;color:var(--brand)">Enviar por WhatsApp a Fabian</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:2px">Puedes editar el mensaje antes de enviarlo</div>
+        </div>
+        <button type="button" onclick="closeWaModal()" style="border:none;background:transparent;font-size:24px;cursor:pointer;color:var(--muted);padding:0;line-height:1">&times;</button>
+      </div>
+      <div style="padding:16px 20px">
+        <textarea id="waMsg" rows="14" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;line-height:1.55;color:var(--text);background:#fafbfc;resize:vertical;min-height:280px" placeholder="Aquí aparece el mensaje..."></textarea>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Se abre WhatsApp con este texto ya escrito. Puedes hacer cambios finales dentro de WhatsApp también.</div>
+      </div>
+      <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end">
+        <button type="button" onclick="closeWaModal()" style="padding:11px 18px;background:#fff;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;font-family:inherit">Cancelar</button>
+        <button type="button" onclick="sendWaEdited()" style="padding:11px 22px;background:var(--wa);border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit">Enviar por WhatsApp</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -449,20 +470,40 @@ Quedo muy atento para ayudarte. 😊</div>
     return txt;
   }
 
+  // Abre modal editable con el texto del welcome del tipo.
   window.openWaReq = function(tipo){
-    var txt = textoWelcome(tipo);
-    window.open('https://wa.me/'+WA_FABIAN+'?text='+encodeURIComponent(txt), '_blank', 'noopener');
+    var t = tipo || document.getElementById('fTipo').value;
+    if(!t){
+      alert('Primero selecciona qué necesitas asegurar arriba.');
+      document.getElementById('tipoChips').scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+    var txt = textoWelcome(t);
+    document.getElementById('waMsg').value = txt;
+    var m = document.getElementById('waModal');
+    m.style.display = 'flex';
+    document.body.style.overflow='hidden';
+    setTimeout(function(){ document.getElementById('waMsg').focus(); }, 100);
   };
 
-  // Boton "Escribir directo por WhatsApp": si ya escogio tipo, usa ese welcome;
-  // si no, envia el generico y le sugerimos escoger arriba.
+  // Boton "Escribir directo por WhatsApp" (fallback abajo) → abre el mismo modal
   window.waFallback = function(a){
-    var tipo = document.getElementById('fTipo').value;
-    if(tipo){
-      var txt = textoWelcome(tipo);
-      a.href = 'https://wa.me/'+WA_FABIAN+'?text='+encodeURIComponent(txt);
-    }
-    return true; // deja abrir el link
+    a.removeAttribute('href'); // evita que abra el link antes del modal
+    openWaReq(document.getElementById('fTipo').value);
+    setTimeout(function(){ a.setAttribute('href','https://wa.me/'+WA_FABIAN); }, 200);
+    return false;
+  };
+
+  window.closeWaModal = function(){
+    document.getElementById('waModal').style.display='none';
+    document.body.style.overflow='';
+  };
+
+  window.sendWaEdited = function(){
+    var txt = document.getElementById('waMsg').value.trim();
+    if(!txt){ alert('El mensaje esta vacio'); return; }
+    window.open('https://wa.me/'+WA_FABIAN+'?text='+encodeURIComponent(txt), '_blank', 'noopener');
+    closeWaModal();
   };
 
   // Chip picker
