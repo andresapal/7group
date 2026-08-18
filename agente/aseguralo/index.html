@@ -72,6 +72,19 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .mod-nav::-webkit-scrollbar{display:none}
 .mod-link{padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap;cursor:pointer}
 .mod-link:hover{color:var(--text)}.mod-link.active{color:var(--accent);border-color:var(--accent)}
+.sub-nav{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:16px;overflow-x:auto}
+.sub-tab{flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--dim);border-radius:7px;cursor:pointer;transition:.15s;white-space:nowrap;border:none;background:transparent;font-family:inherit;text-decoration:none}
+.sub-tab:hover{background:var(--bg3);color:var(--text)}
+.sub-tab.active{background:var(--accent);color:#fff}
+.sub-tab.active .sub-count{background:rgba(255,255,255,.25);color:#fff}
+.sub-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;background:var(--bg3);border-radius:10px;font-size:10px;font-weight:800;color:var(--dim)}
+.sub-section{display:none}
+.sub-section.active{display:block}
+.emitir-card{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:10px;padding:16px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.emitir-card .info{font-size:13px}
+.emitir-card .info .cli{font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px}
+.emitir-card .info .meta{color:var(--dim);font-size:12px}
+.emitir-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;background:var(--bg2);border:1px dashed var(--border);border-radius:10px}
 
 /* MAIN */
 .main{max-width:1200px;margin:0 auto;padding:20px}
@@ -325,11 +338,11 @@ tbody tr:hover{background:var(--accent-light)}
       <div class="sec-header">
         <div>
           <div class="sec-title">Polizas</div>
-          <div class="sec-desc">Gestion y seguimiento de polizas de seguros</div>
+          <div class="sec-desc">Base de polizas — foco en renovacion: vencidas y proximas a vencer</div>
         </div>
         <div class="tbl-actions">
           <input class="tbl-search" placeholder="Buscar cliente..." id="searchPolizas" oninput="filterPolizas()">
-          <button class="btn btn-primary" onclick="openModal('newPoliza')">+ Nueva Poliza</button>
+          <button class="btn btn-primary" onclick="nuevoProspecto()">+ Nuevo Prospecto</button>
         </div>
       </div>
 
@@ -357,22 +370,77 @@ tbody tr:hover{background:var(--accent-light)}
       </div>
     </section>
 
-    <!-- COTIZADOR -->
+    <!-- COTIZADOR — Pipeline de ventas: Lead > Cotizacion > Por emitir -->
     <section class="mod-section" id="mod-cotizador">
       <div class="sec-header">
         <div>
-          <div class="sec-title">Cotizador Multi-Aseguradora</div>
-          <div class="sec-desc">Compara primas entre aseguradoras y envia propuestas al cliente</div>
+          <div class="sec-title">Cotizador — Pipeline de ventas</div>
+          <div class="sec-desc">Lead &rarr; Cotizacion &rarr; Poliza. Tu dia empieza en el Inbox.</div>
         </div>
         <div class="tbl-actions">
-          <button class="btn btn-primary" onclick="openModal('newCotizacion')">+ Nueva Cotizacion</button>
+          <button class="btn btn-primary" onclick="nuevoProspecto()">+ Nuevo prospecto</button>
+          <button class="btn" onclick="openModal('pasteWA')" style="margin-left:6px">Pegar chat WA</button>
+          <button class="btn" onclick="openModal('plantillas')" style="margin-left:6px">Plantillas</button>
+          <button class="btn" onclick="openModal('leadQR')" style="margin-left:6px">QR formulario</button>
         </div>
       </div>
 
-      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="cotizadorKpi"></div>
+      <!-- Sub-navegacion tipo pipeline -->
+      <div class="sub-nav" id="cotSubNav">
+        <a class="sub-tab active" data-sub="inbox" onclick="switchSub('inbox')">
+          <span class="sub-lbl">Inbox</span>
+          <span class="sub-count" id="cntInbox">0</span>
+        </a>
+        <a class="sub-tab" data-sub="curso" onclick="switchSub('curso')">
+          <span class="sub-lbl">En cotizacion</span>
+          <span class="sub-count" id="cntCurso">0</span>
+        </a>
+        <a class="sub-tab" data-sub="emitir" onclick="switchSub('emitir')">
+          <span class="sub-lbl">Por emitir</span>
+          <span class="sub-count" id="cntEmitir">0</span>
+        </a>
+      </div>
 
-      <!-- Cotizaciones cards -->
-      <div id="cotizadorCards"></div>
+      <!-- Sub-seccion: INBOX (leads Nuevo + Contactado) -->
+      <div class="sub-section active" id="sub-inbox">
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="leadsKpi"></div>
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Cliente</th>
+                  <th>Telefono</th>
+                  <th>Tipo</th>
+                  <th>Detalle</th>
+                  <th>Urgencia</th>
+                  <th>Origen</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="leadsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-seccion: EN COTIZACION (cotizaciones activas) -->
+      <div class="sub-section" id="sub-curso">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:13px;color:var(--dim)">Cotizaciones armadas, esperando respuesta del cliente.</div>
+          <button class="btn btn-primary" onclick="openModal('newCotizacion')">+ Nueva cotizacion manual</button>
+        </div>
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="cotizadorKpi"></div>
+        <div id="cotizadorCards"></div>
+      </div>
+
+      <!-- Sub-seccion: POR EMITIR (cotizaciones aceptadas sin poliza) -->
+      <div class="sub-section" id="sub-emitir">
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Cotizaciones aceptadas por el cliente. Siguiente paso: emitir la poliza (OCR sobre cedula / tarjeta propiedad).</div>
+        <div id="porEmitirBox"></div>
+      </div>
     </section>
 
     <!-- DASHBOARD -->
@@ -500,7 +568,7 @@ tbody tr:hover{background:var(--accent-light)}
       <div class="sec-header">
         <div>
           <div class="sec-title">Renovaciones</div>
-          <div class="sec-desc">Calendario de vencimientos y alertas de renovacion</div>
+          <div class="sec-desc">Oportunidades de renovacion — polizas vencidas y proximas a vencer</div>
         </div>
       </div>
 
@@ -587,6 +655,110 @@ tbody tr:hover{background:var(--accent-light)}
       <button class="modal-close" onclick="closeModConfig()">&times;</button>
     </div>
     <div class="mod-cfg-body" id="modCfgBody"></div>
+  </div>
+</div>
+
+<!-- MODAL: Nuevo Lead manual (llamada / referido) -->
+<div class="modal-overlay" id="modalNewLead">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Nuevo Lead</div>
+      <button class="modal-close" onclick="closeModal('newLead')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Nombre</label><input class="form-input" id="ldNombre" placeholder="Camila Ruiz"></div>
+        <div class="form-group"><label class="form-label">Correo</label><input class="form-input" id="ldCorreo" type="email" placeholder="cliente@correo.com"></div>
+      </div>
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Telefono / WhatsApp</label><input class="form-input" id="ldTel" placeholder="3XXXXXXXXX" inputmode="tel"></div>
+        <div class="form-group"><label class="form-label">Tipo</label>
+          <select class="form-input" id="ldTipo">
+            <option value="">Selecciona</option>
+            <option>Vehiculo</option><option>Salud</option><option>Hogar</option><option>Vida</option><option>Empresa</option>
+            <option>Arrendamiento</option><option>Cumplimiento</option><option>Viaje</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Detalle</label><input class="form-input" id="ldDetalle" placeholder="Placa ABC123, Corolla 2019 / EPS Sanitas / etc."></div></div>
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Urgencia</label>
+          <select class="form-input" id="ldUrgencia">
+            <option>Ya</option><option>Esta semana</option><option>Este mes</option><option>Solo cotizar</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Origen</label>
+          <select class="form-input" id="ldOrigen">
+            <option>Llamada</option><option>WhatsApp</option><option>Referido</option><option>Instagram</option><option>Presencial</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Notas (opcional)</label><textarea class="form-input" id="ldNotas" rows="2" placeholder="Contexto de la conversacion"></textarea></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('newLead')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveLead()">Guardar Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Pegar chat de WhatsApp -->
+<div class="modal-overlay" id="modalPasteWA">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Pegar chat de WhatsApp</div>
+      <button class="modal-close" onclick="closeModal('pasteWA')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group">
+        <label class="form-label">Copia el chat (o solo el primer mensaje) y pegalo aqui</label>
+        <textarea class="form-input" id="waPasteBox" rows="8" placeholder="Ej:  Hola, soy Camila Ruiz, mi celular es 3105551234. Quiero cotizar SOAT de mi Corolla 2019 placa ABC123. Gracias."></textarea>
+      </div></div>
+      <div id="waPreview" style="display:none;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;margin-top:8px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('pasteWA')">Cancelar</button>
+      <button class="btn" onclick="parseWAChat()">Analizar</button>
+      <button class="btn btn-primary" id="waSaveBtn" onclick="saveLeadFromWA()" style="display:none">Guardar como lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Plantillas de mensaje WA -->
+<div class="modal-overlay" id="modalPlantillas">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head">
+      <div class="modal-title">Plantillas de mensaje WhatsApp</div>
+      <button class="modal-close" onclick="closeModal('plantillas')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--dim);margin-bottom:14px">Al enviar WA a un lead, se usa la plantilla del tipo correspondiente. Puedes editarlas aqui y se guardan en tu navegador.</p>
+      <div id="plantillasList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('plantillas')">Cerrar</button>
+      <button class="btn" onclick="resetPlantillas()">Restaurar por defecto</button>
+      <button class="btn btn-primary" onclick="savePlantillas()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: QR del formulario publico -->
+<div class="modal-overlay" id="modalLeadQR">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <div class="modal-title">QR del formulario</div>
+      <button class="modal-close" onclick="closeModal('leadQR')">&times;</button>
+    </div>
+    <div class="modal-body" style="text-align:center">
+      <div id="qrBox" style="background:#fff;padding:20px;border-radius:12px;display:inline-block;margin-bottom:12px"></div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:8px">Imprimelo, pegalo en la vitrina o compartelo en Instagram</div>
+      <div style="font-size:12px;word-break:break-all;padding:8px;background:var(--bg3);border-radius:6px" id="qrUrl"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('leadQR')">Cerrar</button>
+      <button class="btn btn-primary" onclick="downloadQR()">Descargar PNG</button>
+    </div>
   </div>
 </div>
 
@@ -1079,6 +1251,9 @@ var POLIZAS_RAW=[
 ["Hernan Trujillo Serrato","023659737","3002917954","2025-07-01","2026-07-01","","Auto",1484284,"RCE+AJPP"]
 ];
 
+/* Document numbers (cedula/NIT del tomador) — real data from POLRES */
+var DOCS_MAP={'021509469':'17116410','021666317':'41606205','021970622':'52501373','022175861':'52718171','022175878':'52718171','022432946':'103053976','022455469':'79879358','022558568':'19151881','022565927':'41678155','022643539':'79956667','022695782':'36183272','022726364':'52225436','022739168':'80019246','022784736':'52783481','022804772':'19332565','022811930':'102081190','022863322':'418516','022867368':'900603948','022905018':'103053976','022942633':'41606205','022977668':'103052726','022981244':'79471670','022988694':'101900311','023002254':'35515081','023059959':'80019246','023079789':'111749712','023102842':'80180445','023140774':'80064589','023178495':'53071025','023224237':'19107528','023233549':'52379460','023265489':'900603948','023291042':'79914033','023305779':'91534639','023320559':'80180445','023343826':'29117836','023348395':'65738826','023361098':'94542937','023380614':'52200531','023426584':'79471670','023428326':'1201016','023432418':'80417610','023432477':'80094356','023442965':'73073641','023451991':'52694461','023452483':'9534412','023459770':'52849661','023462872':'70129506','023466680':'103052726','023487886':'80019246','023488394':'101905270','023492760':'52587781','023500973':'10023605','023501265':'80724912','023501686':'10023605','023502231':'52718171','023507774':'40045284','023517780':'901847860','023526599':'800107810','023529236':'110470342','023531027':'86067566','023534030':'52702712','023542697':'35515081','023543253':'107587156','023544978':'94542937','023549038':'19332565','023565449':'52200531','023567880':'3226634','023573318':'21395509','023576848':'123351290','023582959':'80820266','023587546':'17116410','023588515':'900603948','023589086':'103053976','023600497':'79879358','023601948':'79346722','023601964':'79346722','023602094':'102393710','023604725':'1201016','023605364':'79471670','023605594':'74369856','023613764':'53071025','023616780':'103053976','023619858':'79346722','023622337':'79471670','023627816':'80417610','023628177':'52849661','023629384':'53167040','023630595':'52695168','023633839':'79956667','023637157':'900603948','023643921':'52718171','023648290':'65738826','023650756':'52694461','023657810':'43978770','023659737':'73073641'};
+
 /* Vehicle plates for Auto policies */
 var PLACAS_MAP={'022558568':'NVR427','022565927':'HKS394','022643539':'HVM022','022695782':'MFT932','022739168':'JEP917','022784736':'JEZ213','022804772':'RNQ796','022811930':'NDY482','022863322':'MPT554','022977668':'JXS845','022981244':'JXW238','022988694':'EIY218','023002254':'EOL133','023079789':'KNX205','023102842':'DZT684','023140774':'GCQ059','023178495':'HJL450','023224237':'KYM864','023265489':'LOM010','023343826':'GLN578','023348395':'GWY420','023380614':'JCT965','023432418':'LON800','023432477':'IEL395','023442965':'DVM956','023452483':'FZN891','023459770':'FZO297','023462872':'JMW049','023466680':'JXS845','023487886':'JEP917','023488394':'RML982','023501265':'FZR380','023501686':'MPU348','023502231':'GCQ059','023507774':'LOZ409','023526599':'PHU573','023529236':'ZZS071','023531027':'INU818','023534030':'LTU904','023542697':'EOL133','023543253':'EBQ337','023549038':'PBU741','023565449':'JCT965','023567880':'REZ200','023573318':'FNZ265','023576848':'GFK404','023582959':'DHK835','023601948':'BES024','023601964':'BBE853','023602094':'PCZ929','023605364':'PCZ983','023605594':'IIP405','023613764':'HJL450','023619858':'BBE853','023627816':'LON800','023628177':'FZO297','023629384':'DZV411','023630595':'HDU823','023633839':'HVM022','023637157':'LOM010','023648290':'PRQ752','023657810':'JBS515','023659737':'DVM956'};
 
@@ -1098,6 +1273,7 @@ function buildPolizasFromRaw(){
       hasta:r[4],
       estado:deriveEstado(r[4],r[5]),
       placa:PLACAS_MAP[r[1]]||'',
+      documento:DOCS_MAP[r[1]]||'',
       cobertura:r[8],
       sarlaft:'pendiente',
       pdfUrl:''
@@ -1167,6 +1343,7 @@ function transformSheetRows(rows){
     var poliza=String(val(4)).trim();
     var nombre=String(val(6)).trim();
     var telefono=String(val(10)).trim();
+    var documento=String(val(11)).trim();
     var tipo_raw=String(val(35)).trim();
     var cob1=String(val(43)).trim();
     var colab=String(val(2)).trim();
@@ -1182,6 +1359,8 @@ function transformSheetRows(rows){
       id:poliza,
       cliente:fmtSheetName(nombre),
       telefono:telefono,
+      documento:documento||DOCS_MAP[poliza]||'',
+      placa:PLACAS_MAP[poliza]||'',
       tipo:detectTipoPoliza(tipo_raw,cob1),
       aseguradora:'Allianz',
       intermediario:colab==='0731'?'Judith Neira':'Fabian Carrera',
@@ -1507,6 +1686,8 @@ function initApp(){
   applyModuleState();
   // Load real data from Google Sheet, then render
   loadFromSheet(function(){
+    renderLeads();
+    loadLeadsFromSheet();
     renderPolizas();
     renderCotizador();
     renderDashboard();
@@ -1528,14 +1709,79 @@ function initApp(){
 /* ====================================
    NAVIGATION
    ==================================== */
+function switchMod(modId){
+  document.querySelectorAll('.mod-link').forEach(function(l){l.classList.remove('active')});
+  var link=document.querySelector('.mod-link[data-mod="'+modId+'"]');
+  if(link) link.classList.add('active');
+  document.querySelectorAll('.mod-section').forEach(function(s){s.classList.remove('active')});
+  var sec=document.getElementById('mod-'+modId);
+  if(sec) sec.classList.add('active');
+}
 document.getElementById('modNav').addEventListener('click',function(e){
   var link=e.target.closest('.mod-link');
   if(!link) return;
-  document.querySelectorAll('.mod-link').forEach(function(l){l.classList.remove('active')});
-  link.classList.add('active');
-  document.querySelectorAll('.mod-section').forEach(function(s){s.classList.remove('active')});
-  document.getElementById('mod-'+link.dataset.mod).classList.add('active');
+  switchMod(link.dataset.mod);
 });
+
+/* Nuevo prospecto -> Cotizador > Inbox + modal Nuevo Lead */
+window.nuevoProspecto=function(){
+  switchMod('cotizador');
+  switchSub('inbox');
+  openModal('newLead');
+};
+
+/* Sub-navegacion dentro de Cotizador: inbox / curso / emitir */
+window.switchSub=function(subId){
+  document.querySelectorAll('#cotSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
+  var tab=document.querySelector('#cotSubNav .sub-tab[data-sub="'+subId+'"]');
+  if(tab) tab.classList.add('active');
+  document.querySelectorAll('#mod-cotizador .sub-section').forEach(function(s){s.classList.remove('active')});
+  var sec=document.getElementById('sub-'+subId);
+  if(sec) sec.classList.add('active');
+  if(subId==='emitir') renderPorEmitir();
+};
+
+/* Actualiza los contadores de las 3 sub-pestañas */
+function updateSubCounts(){
+  var elIn=document.getElementById('cntInbox');
+  var elCu=document.getElementById('cntCurso');
+  var elEm=document.getElementById('cntEmitir');
+  var nIn=LEADS.filter(function(l){return l.estado==='Nuevo'||l.estado==='Contactado'}).length;
+  var nCu=typeof COTIZACIONES!=='undefined' ? COTIZACIONES.filter(function(c){return c.estado==='enviada'}).length : 0;
+  var nEm=typeof COTIZACIONES!=='undefined' ? COTIZACIONES.filter(function(c){return c.estado==='aceptada' && !c.poliza}).length : 0;
+  if(elIn) elIn.textContent=nIn;
+  if(elCu) elCu.textContent=nCu;
+  if(elEm) elEm.textContent=nEm;
+}
+
+/* Sub-seccion POR EMITIR: cotizaciones aceptadas sin poliza */
+function renderPorEmitir(){
+  var box=document.getElementById('porEmitirBox'); if(!box) return;
+  var lista=typeof COTIZACIONES!=='undefined' ? COTIZACIONES.filter(function(c){return c.estado==='aceptada' && !c.poliza}) : [];
+  if(!lista.length){
+    box.innerHTML='<div class="emitir-empty">No hay cotizaciones por emitir. Cuando marques una cotizacion como aceptada, aparece aqui para emitir la poliza.</div>';
+    return;
+  }
+  box.innerHTML=lista.map(function(c){
+    var mejor=Math.min.apply(null,(c.comparaciones||[]).map(function(x){return x.prima}));
+    return '<div class="emitir-card">'+
+      '<div class="info">'+
+        '<div class="cli">'+c.cliente+' &middot; '+c.tipo+'</div>'+
+        '<div class="meta">'+(c.bien||'')+' &middot; Prima aceptada: <strong style="color:var(--accent)">'+fmt(mejor)+'</strong></div>'+
+        '<div class="meta" style="margin-top:4px">Aceptada '+c.fecha+' &middot; Intermediario: '+(c.intermediario||'—')+'</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
+        (c.telefono?'<a class="btn btn-sm btn-wa" href="https://wa.me/57'+c.telefono.replace(/[^0-9]/g,"")+'" target="_blank">WA cliente</a>':'')+
+        '<button class="btn btn-sm btn-primary" onclick="emitirPoliza(\''+c.id+'\')">Emitir poliza</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+/* Placeholder: en fase 3 abre el flujo OCR (cedula + tarjeta propiedad) */
+window.emitirPoliza=function(cotId){
+  alert('Fase 3: OCR sobre cedula / tarjeta de propiedad para armar la poliza.\n\nCotizacion: '+cotId+'\n\nPor ahora se puede cargar manual desde el modal "+ Nueva Poliza" en el modulo Polizas.');
+};
 
 /* ====================================
    HELPERS
@@ -1708,9 +1954,9 @@ function renderPolizaRow(p,idx){
         '<div class="pd-grid">'+
           '<div class="pd-col">'+
             '<div class="pd-section-title">Datos de la Poliza</div>'+
-            '<div class="pd-field"><span class="pd-label">No. Poliza</span><span class="pd-value">'+p.id+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">No. Documento</span><span class="pd-value mono">'+(p.documento||'<span style="color:var(--muted)">--</span>')+'</span></div>'+
             '<div class="pd-field"><span class="pd-label">Cliente</span><span class="pd-value">'+p.cliente+'</span></div>'+
-            '<div class="pd-field"><span class="pd-label">Telefono</span><span class="pd-value">'+p.telefono+'</span></div>'+
+            '<div class="pd-field"><span class="pd-label">Telefono</span><span class="pd-value">'+(p.telefono?'<a href="https://wa.me/57'+p.telefono.replace(/[^0-9]/g,"")+'" target="_blank" class="pd-link" title="Abrir WhatsApp" style="color:#25d366;font-weight:600">'+p.telefono+'</a>':'<span style="color:var(--muted)">--</span>')+'</span></div>'+
             '<div class="pd-field"><span class="pd-label">Tipo</span><span class="pd-value">'+p.tipo+'</span></div>'+
             (p.placa?'<div class="pd-field"><span class="pd-label">Placa</span><span class="pd-value mono" style="font-weight:700;letter-spacing:1px">'+p.placa+'</span></div>':'')+
             (p.cobertura?'<div class="pd-field"><span class="pd-label">Cobertura</span><span class="pd-value">'+p.cobertura+'</span></div>':'')+
@@ -2084,6 +2330,7 @@ window.filterClientes=function(){
    COTIZADOR
    ==================================== */
 function renderCotizador(){
+  if(typeof updateSubCounts==='function') updateSubCounts();
   var enviadas=COTIZACIONES.filter(function(c){return c.estado==='enviada'}).length;
   var aceptadas=COTIZACIONES.filter(function(c){return c.estado==='aceptada'}).length;
   var rechazadas=COTIZACIONES.filter(function(c){return c.estado==='rechazada'}).length;
@@ -2100,7 +2347,9 @@ function renderCotizador(){
   var statusMap={'enviada':'badge-por-renovar','aceptada':'badge-activa','rechazada':'badge-vencida','vencida':'badge-cancelada'};
   var statusLabel={'enviada':'Enviada','aceptada':'Aceptada','rechazada':'Rechazada','vencida':'Vencida'};
 
-  document.getElementById('cotizadorCards').innerHTML=COTIZACIONES.map(function(c){
+  // En "En cotizacion" solo mostramos las enviadas (las aceptadas viven en "Por emitir",
+  // las rechazadas se ocultan por defecto)
+  document.getElementById('cotizadorCards').innerHTML=COTIZACIONES.filter(function(c){return c.estado==='enviada'}).map(function(c){
     var mejorPrima=Math.min.apply(null,c.comparaciones.map(function(x){return x.prima}));
 
     return '<div class="cot-card" style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)">'+
@@ -2368,6 +2617,404 @@ function initCharts(){
     options:defaultOpts
   });
 }
+
+/* ====================================
+   LEADS — Inbox de prospectos
+   ==================================== */
+var LEADS=[];
+
+/* Plantillas de mensaje inicial por tipo de seguro (WhatsApp) */
+var PLANTILLAS_DEFAULT = {
+  'Vehiculo':
+'Hola {nombre}, soy Fabian Carrera de Aseguralo.\n\n'+
+'Con mucho gusto te ayudo a revisar la mejor alternativa para proteger tu vehiculo.\n\n'+
+'Para cotizarte y buscar una opcion que se ajuste a tus necesidades, necesito estos datos:\n\n'+
+'- Nombre completo del propietario\n'+
+'- Tipo y numero de documento\n'+
+'- Fecha de nacimiento\n'+
+'- Placa del vehiculo\n'+
+'- Color del vehiculo\n'+
+'- Zona donde circula habitualmente (el lugar donde permanece o se moviliza la mayor parte del tiempo)\n\n'+
+'Si prefieres, puedes diligenciarlo aqui: https://7group.site/agente/aseguralo/lead/\n\n'+
+'Con esta informacion empiezo a revisar las alternativas y te oriento de manera personalizada. Quedo atento.',
+
+  'Salud':
+'Hola {nombre}, soy Fabian Carrera de Aseguralo.\n\n'+
+'Con mucho gusto te ayudo a revisar las alternativas de proteccion en salud.\n\n'+
+'La cotizacion se hace de manera individual, asi que necesito la informacion de cada persona a incluir:\n\n'+
+'- Nombre completo\n'+
+'- Tipo y numero de documento\n'+
+'- Fecha de nacimiento\n'+
+'- EPS a la que se encuentra afiliada actualmente\n'+
+'- Tiene alguna enfermedad diagnosticada?\n\n'+
+'Si son varias personas, envia los datos de cada una. Si prefieres, diligenciala aqui: https://7group.site/agente/aseguralo/lead/\n\n'+
+'Quedo atento para ayudarte.',
+
+  'Hogar':
+'Hola {nombre}, soy Fabian Carrera de Aseguralo.\n\n'+
+'Con mucho gusto te ayudo a revisar alternativas para proteger tu hogar.\n\n'+
+'Para preparar la cotizacion necesito:\n\n'+
+'- Direccion exacta del inmueble, incluyendo ciudad\n'+
+'- Area del apartamento en metros cuadrados\n'+
+'- Numero total de pisos de la edificacion\n'+
+'- Numero de sotanos del edificio\n'+
+'- Año de construccion\n'+
+'- Valor comercial aproximado del apartamento\n\n'+
+'Si ademas quieres proteger contenidos (muebles, electronicos, joyas, portatiles, herramientas), lo conversamos y te oriento para hacer la estimacion.\n\n'+
+'Si prefieres, diligenciala aqui: https://7group.site/agente/aseguralo/lead/\n\n'+
+'Envia con tranquilidad y yo me encargo del proceso.',
+
+  'Vida':
+'Hola {nombre}, soy Fabian Carrera de Aseguralo.\n\n'+
+'Con mucho gusto te ayudo a revisar alternativas de proteccion de vida.\n\n'+
+'Para cotizarte necesito datos basicos del tomador:\n\n'+
+'- Nombre completo\n'+
+'- Tipo y numero de documento\n'+
+'- Fecha de nacimiento\n'+
+'- Estatura actual\n'+
+'- Peso actual\n'+
+'- Ocupacion o actividad actual\n\n'+
+'Ademas, si es poliza de vida deudor, indicame el valor aproximado del credito o leasing. Si es vida tradicional, indicame el valor de proteccion que te gustaria (si no tienes claridad, te oriento).\n\n'+
+'Si prefieres, diligenciala aqui: https://7group.site/agente/aseguralo/lead/\n\n'+
+'Quedo atento.',
+
+  'Empresa':
+'Hola {nombre}, soy Fabian Carrera de Aseguralo.\n\n'+
+'Con mucho gusto te ayudo con la proteccion de tu empresa. Cuentame que necesitas asegurar: bodega, oficina, maquinaria, mercancia, responsabilidad civil, etc.\n\n'+
+'Puedes tambien diligenciarlo aqui: https://7group.site/agente/aseguralo/lead/\n\n'+
+'Quedo atento.',
+
+  'Arrendamiento':
+'Hola {nombre}, soy Fabian Carrera de Aseguralo.\n\n'+
+'Con gusto te ayudo con la poliza de arrendamiento. Cuentame el canon mensual y el tipo de inmueble; luego te pido los documentos requeridos por la aseguradora.\n\n'+
+'Puedes empezar aqui: https://7group.site/agente/aseguralo/lead/',
+
+  'Cumplimiento':
+'Hola {nombre}, soy Fabian Carrera de Aseguralo.\n\n'+
+'Con gusto te ayudo con la poliza de cumplimiento. Cuentame el objeto del contrato, la entidad contratante y el valor a amparar.\n\n'+
+'Puedes empezar aqui: https://7group.site/agente/aseguralo/lead/',
+
+  'Viaje':
+'Hola {nombre}, soy Fabian Carrera de Aseguralo.\n\n'+
+'Con gusto te ayudo con la poliza de viaje. Para cotizar necesito:\n\n'+
+'- Nombre de los viajeros\n'+
+'- Fechas de nacimiento\n'+
+'- Fecha de salida\n'+
+'- Fecha de llegada\n'+
+'- Destino\n\n'+
+'Puedes tambien diligenciarlo aqui: https://7group.site/agente/aseguralo/lead/',
+
+  'Otro':
+'Hola {nombre}, soy Fabian Carrera de Aseguralo. Recibi tu solicitud, cuentame que necesitas asegurar y con gusto te oriento.\n\n'+
+'Puedes tambien diligenciarlo aqui: https://7group.site/agente/aseguralo/lead/'
+};
+var PLANTILLAS = null;
+function loadPlantillas(){
+  try{ PLANTILLAS = JSON.parse(localStorage.getItem('aseg_plantillas')||'null') || Object.assign({},PLANTILLAS_DEFAULT); }
+  catch(e){ PLANTILLAS = Object.assign({},PLANTILLAS_DEFAULT); }
+}
+loadPlantillas();
+
+function tplFor(tipo){
+  var key = tipo;
+  if(!PLANTILLAS[key]){
+    // aliases desde datos historicos
+    if(/auto|soat/i.test(tipo)) key='Vehiculo';
+    else if(/empresar/i.test(tipo)) key='Empresa';
+    else key='Otro';
+  }
+  return PLANTILLAS[key] || PLANTILLAS['Otro'];
+}
+function fillTpl(tpl, lead){
+  var nom = (lead.nombre||'').split(' ')[0] || 'cliente';
+  return tpl.replace(/\{nombre\}/g, nom);
+}
+
+/* Enviar WA a lead con la plantilla del tipo correspondiente */
+window.enviarWALead = function(id){
+  var l = LEADS.filter(function(x){return x.id===id})[0];
+  if(!l || !l.telefono) return;
+  var msg = fillTpl(tplFor(l.tipo), l);
+  var url = 'https://wa.me/57'+l.telefono+'?text='+encodeURIComponent(msg);
+  window.open(url, '_blank');
+  // marcar como Contactado
+  if(l.estado==='Nuevo'){
+    l.estado='Contactado';
+    renderLeads();
+  }
+};
+
+/* Render / edit del modal Plantillas */
+window.renderPlantillasModal = function(){
+  var box = document.getElementById('plantillasList');
+  if(!box) return;
+  var keys = Object.keys(PLANTILLAS_DEFAULT);
+  box.innerHTML = keys.map(function(k){
+    var val = (PLANTILLAS[k]||'').replace(/</g,'&lt;');
+    return '<div style="margin-bottom:16px">'+
+      '<div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">'+k+'</div>'+
+      '<textarea class="form-input" data-tpl="'+k+'" rows="8" style="font-family:inherit;font-size:12px;line-height:1.5">'+val+'</textarea>'+
+    '</div>';
+  }).join('');
+};
+window.savePlantillas = function(){
+  var out = {};
+  document.querySelectorAll('#plantillasList textarea[data-tpl]').forEach(function(t){
+    out[t.dataset.tpl] = t.value;
+  });
+  PLANTILLAS = out;
+  try{ localStorage.setItem('aseg_plantillas', JSON.stringify(out)); }catch(e){}
+  closeModal('plantillas');
+};
+window.resetPlantillas = function(){
+  if(!confirm('Restaurar todas las plantillas a su version original?')) return;
+  PLANTILLAS = Object.assign({}, PLANTILLAS_DEFAULT);
+  try{ localStorage.removeItem('aseg_plantillas'); }catch(e){}
+  renderPlantillasModal();
+};
+var LEAD_FORM_URL = location.origin.indexOf('localhost')>=0
+  ? location.origin + '/agente/aseguralo/lead/'
+  : 'https://7group.site/agente/aseguralo/lead/';
+
+function loadLeadsFromSheet(){
+  // Tab "LEADS" en la misma Sheet — se crea sola cuando llega el primer POST
+  var LEADS_GID = window.LEADS_GID || null;
+  var url = 'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet=LEADS';
+  var script = document.createElement('script');
+  var cb = 'leadsCb'+Date.now();
+  window[cb] = function(){}; // gviz ignores callback query, we use fetch below
+  fetch(url).then(function(r){return r.text()}).then(function(txt){
+    try{
+      var m = txt.match(/setResponse\((.+)\)/s) || txt.match(/\(([\s\S]+)\)/);
+      if(!m) return;
+      var j = JSON.parse(m[1]);
+      var rows = (j.table && j.table.rows) || [];
+      LEADS = rows.map(function(r){
+        var c = r.c||[];
+        var v = function(i){return c[i]?((c[i].f!=null?c[i].f:c[i].v)||''):''};
+        return {
+          fecha: String(v(0)),
+          id: String(v(1)),
+          nombre: String(v(2)),
+          correo: String(v(3)),
+          telefono: String(v(4)).replace(/[^0-9]/g,''),
+          tipo: String(v(5)),
+          detalle: String(v(6)),
+          urgencia: String(v(7)),
+          origen: String(v(8)),
+          estado: String(v(9)) || 'Nuevo',
+          notas: String(v(10))
+        };
+      }).filter(function(l){return l.id||l.nombre});
+      // ordenar por fecha desc
+      LEADS.sort(function(a,b){return (b.fecha||'').localeCompare(a.fecha||'')});
+      renderLeads();
+    }catch(e){ /* tab LEADS aún no existe */ }
+  }).catch(function(){});
+}
+
+function renderLeads(){
+  updateSubCounts();
+  var estMap = {'Nuevo':'badge-por-renovar','Contactado':'badge-activa','En cotizacion':'badge-activa','Convertido':'badge-activa','Perdido':'badge-vencida','Descartado':'badge-cancelada'};
+  var kpiEl = document.getElementById('leadsKpi'); if(!kpiEl) return;
+  var hoy = new Date().toISOString().slice(0,10);
+  var nuevosHoy = LEADS.filter(function(l){return (l.fecha||'').indexOf(hoy)===0}).length;
+  var sinContactar = LEADS.filter(function(l){return (l.estado||'Nuevo')==='Nuevo'}).length;
+  var enCot = LEADS.filter(function(l){return l.estado==='En cotizacion'}).length;
+  var conv = LEADS.filter(function(l){return l.estado==='Convertido'}).length;
+  kpiEl.innerHTML = [
+    {l:'Nuevos hoy', v:nuevosHoy, c:'c-accent'},
+    {l:'Sin contactar', v:sinContactar, c:'c-orange'},
+    {l:'En cotizacion', v:enCot, c:'c-brand'},
+    {l:'Convertidos', v:conv, c:'c-green'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  var tb = document.getElementById('leadsTable'); if(!tb) return;
+  if(!LEADS.length){
+    tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay leads. Comparte el link del formulario o usa "+ Lead manual" cuando entre uno por llamada.</td></tr>';
+    return;
+  }
+  tb.innerHTML = LEADS.map(function(l){
+    var fecha = (l.fecha||'').slice(0,10);
+    var tel = l.telefono||'';
+    var telHTML = tel
+      ? '<a href="https://wa.me/57'+tel+'" target="_blank" style="color:#25d366;font-weight:600;text-decoration:none">'+tel+'</a>'
+      : '<span style="color:var(--muted)">--</span>';
+    var badge = estMap[l.estado] || 'badge-por-renovar';
+    return '<tr>'+
+      '<td style="font-size:12px;color:var(--dim)">'+fecha+'</td>'+
+      '<td><strong>'+(l.nombre||'—')+'</strong></td>'+
+      '<td class="mono" style="font-size:12px">'+telHTML+'</td>'+
+      '<td>'+(l.tipo||'--')+'</td>'+
+      '<td style="font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis">'+(l.detalle||'')+'</td>'+
+      '<td style="font-size:12px">'+(l.urgencia||'')+'</td>'+
+      '<td style="font-size:11px;color:var(--dim)">'+(l.origen||'')+'</td>'+
+      '<td><span class="badge '+badge+'">'+(l.estado||'Nuevo')+'</span></td>'+
+      '<td><div style="display:flex;gap:4px;flex-wrap:wrap">'+
+        (tel?'<button class="btn btn-sm btn-wa" onclick="enviarWALead(\''+l.id+'\')" title="Enviar mensaje inicial por WhatsApp segun tipo">WA</button>':'')+
+        '<button class="btn btn-sm btn-primary" onclick="convertirLead(\''+l.id+'\')">Cotizar</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+window.saveLead = function(){
+  var d = {
+    action: 'lead',
+    fecha: new Date().toISOString(),
+    nombre: (document.getElementById('ldNombre').value||'').trim(),
+    correo: (document.getElementById('ldCorreo').value||'').trim(),
+    telefono: (document.getElementById('ldTel').value||'').replace(/[^0-9]/g,''),
+    tipo: document.getElementById('ldTipo').value,
+    detalle: (document.getElementById('ldDetalle').value||'').trim(),
+    urgencia: document.getElementById('ldUrgencia').value,
+    origen: document.getElementById('ldOrigen').value,
+    notas: (document.getElementById('ldNotas').value||'').trim()
+  };
+  if(!d.nombre || !d.telefono || !d.tipo){ alert('Nombre, telefono y tipo son obligatorios'); return; }
+
+  // Optimista: agregar local antes de guardar
+  LEADS.unshift({fecha:d.fecha,id:'LD-local-'+Date.now(),nombre:d.nombre,correo:d.correo,telefono:d.telefono,tipo:d.tipo,detalle:d.detalle,urgencia:d.urgencia,origen:d.origen,estado:'Nuevo',notas:d.notas});
+  renderLeads();
+
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(d)})
+    .then(function(){ setTimeout(loadLeadsFromSheet, 1500); })
+    .catch(function(){});
+
+  // Limpiar y cerrar
+  ['ldNombre','ldCorreo','ldTel','ldDetalle','ldNotas'].forEach(function(i){document.getElementById(i).value=''});
+  document.getElementById('ldTipo').selectedIndex=0;
+  closeModal('newLead');
+};
+
+/* ---- Parser de chat WhatsApp ---- */
+window.parseWAChat = function(){
+  var txt = (document.getElementById('waPasteBox').value||'').trim();
+  if(!txt){ alert('Pega el mensaje primero'); return; }
+
+  // Teléfono colombiano: 3XXXXXXXXX o +573XXXXXXXXX
+  var telMatch = txt.match(/(?:\+?57)?\s?(3\d{2})\s?(\d{3})\s?(\d{4})/);
+  var tel = telMatch ? (telMatch[1]+telMatch[2]+telMatch[3]) : '';
+
+  // Nombre: "soy X", "me llamo X", primera linea con letras (fallback)
+  var nomMatch = txt.match(/(?:soy|me llamo|mi nombre es|habla)\s+([A-ZÁÉÍÓÚÑa-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑa-záéíóúñ]+){0,3})/i);
+  var nombre = nomMatch ? nomMatch[1].replace(/\s+/g,' ').trim() : '';
+  if(!nombre){
+    var first = txt.split(/\n/)[0].replace(/^[^A-Za-zÁÉÍÓÚÑáéíóúñ]+/,'').slice(0,40).trim();
+    if(first && !/hola|buen[oa]s|saludos/i.test(first)) nombre = first;
+  }
+  nombre = nombre.replace(/\b\w/g, function(c){return c.toUpperCase()});
+
+  // Tipo por keywords
+  var lower = txt.toLowerCase();
+  var tipo = '';
+  if(/\bsoat\b|placa|carro|veh[ií]culo|moto|auto|corolla|hilux|mazda|renault|chevrolet|kia/i.test(lower)) tipo='Auto';
+  else if(/salud|eps|medicin[ao] prepagada|hospital/i.test(lower)) tipo='Salud';
+  else if(/hogar|casa|apartamento|apto|incendio|terremoto/i.test(lower)) tipo='Hogar';
+  else if(/vida|fallecim|beneficiari/i.test(lower)) tipo='Vida';
+  else if(/empresa|bodega|negocio|comercial|rc\b/i.test(lower)) tipo='Empresarial';
+
+  // Placa
+  var placaM = txt.match(/\b[A-Z]{3}\s?\d{2,3}[A-Z]?\b/);
+  var placa = placaM ? placaM[0].replace(/\s/g,'') : '';
+
+  // Detalle: placa + año + marca si aparecen
+  var anoM = txt.match(/\b(19|20)\d{2}\b/);
+  var ano = anoM ? anoM[0] : '';
+  var detalle = [];
+  if(placa) detalle.push('placa: '+placa);
+  if(ano) detalle.push('año: '+ano);
+  var marcaM = lower.match(/\b(toyota|chevrolet|mazda|renault|kia|hyundai|nissan|ford|volkswagen|bmw|mercedes|audi|jeep|suzuki|honda)\s+(\w+)/i);
+  if(marcaM) detalle.push('vehiculo: '+marcaM[0]);
+
+  window.__waParsed = {
+    action:'lead', fecha:new Date().toISOString(),
+    nombre: nombre || '(sin nombre)',
+    telefono: tel,
+    tipo: tipo || 'Otro',
+    detalle: detalle.join(' | '),
+    urgencia: /ya|urgente|hoy|ma[nñ]ana/i.test(lower) ? 'Ya' : 'Solo cotizar',
+    origen: 'WhatsApp',
+    notas: txt.slice(0,400)
+  };
+
+  document.getElementById('waPreview').style.display='block';
+  document.getElementById('waPreview').innerHTML =
+    '<strong>Detectado:</strong><br>'+
+    'Nombre: '+window.__waParsed.nombre+'<br>'+
+    'Tel: '+(tel||'<em style="color:var(--red)">no detectado — completa manual</em>')+'<br>'+
+    'Tipo: '+window.__waParsed.tipo+'<br>'+
+    'Detalle: '+(window.__waParsed.detalle||'—');
+
+  document.getElementById('waSaveBtn').style.display='inline-block';
+};
+
+window.saveLeadFromWA = function(){
+  var d = window.__waParsed;
+  if(!d) return;
+  if(!d.telefono){ alert('Falta el telefono. Editalo manual en "+ Lead manual".'); return; }
+
+  LEADS.unshift({fecha:d.fecha,id:'LD-local-'+Date.now(),nombre:d.nombre,telefono:d.telefono,tipo:d.tipo,detalle:d.detalle,urgencia:d.urgencia,origen:d.origen,estado:'Nuevo',notas:d.notas});
+  renderLeads();
+
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(d)})
+    .then(function(){ setTimeout(loadLeadsFromSheet, 1500); })
+    .catch(function(){});
+
+  document.getElementById('waPasteBox').value='';
+  document.getElementById('waPreview').style.display='none';
+  document.getElementById('waSaveBtn').style.display='none';
+  closeModal('pasteWA');
+};
+
+/* ---- Convertir lead a cotización ---- */
+window.convertirLead = function(id){
+  var l = LEADS.filter(function(x){return x.id===id})[0];
+  if(!l) return;
+  switchMod('cotizador');
+  switchSub('curso');
+  openModal('newCotizacion');
+  // Prellenar campos del modal newCotizacion
+  setTimeout(function(){
+    var mset = function(id,val){ var e=document.getElementById(id); if(e && val) e.value=val; };
+    mset('cCliente', l.nombre);
+    mset('cTelefono', l.telefono);
+    mset('cTipo', l.tipo);
+    mset('cBien', l.detalle);
+  }, 100);
+  // Marcar lead como En cotizacion (local + sheet best-effort)
+  l.estado = 'En cotizacion';
+  renderLeads();
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'lead-update', id:id, estado:'En cotizacion'})}).catch(function(){});
+};
+
+/* ---- QR del formulario público ---- */
+window.openLeadQR = function(){ openModal('leadQR'); };
+function renderQR(){
+  var box = document.getElementById('qrBox');
+  var urlEl = document.getElementById('qrUrl');
+  if(!box || !urlEl) return;
+  urlEl.textContent = LEAD_FORM_URL;
+  // QR via API pública gratis (goqr.me — sin key, respeta HTTPS)
+  var qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=10&data='+encodeURIComponent(LEAD_FORM_URL);
+  box.innerHTML = '<img id="qrImg" src="'+qrSrc+'" alt="QR formulario" width="240" height="240" style="display:block">';
+}
+window.downloadQR = function(){
+  var img = document.getElementById('qrImg');
+  if(!img){ return; }
+  var a = document.createElement('a');
+  a.href = img.src; a.download = 'aseguralo-lead-qr.png'; a.target='_blank';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+};
+
+// Render QR when its modal opens
+var _openModalOrig = window.openModal;
+window.openModal = function(name){
+  _openModalOrig(name);
+  if(name==='leadQR') setTimeout(renderQR, 50);
+  if(name==='plantillas') setTimeout(renderPlantillasModal, 50);
+};
 
 /* Boot – defer to next tick so all declarations resolve */
 setTimeout(autoEnter, 0);

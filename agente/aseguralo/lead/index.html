@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#45AAFF">
+<title>Cotiza fácil y rápido — Aseguralo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --brand:#304770;--accent:#45AAFF;--accent-d:#3399ee;
+  --bg:#f5f7fa;--card:#fff;--text:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --border:#e4e7ed;--ok:#10b981;--wa:#25d366;--soft:#f0f7ff;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Manrope',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.4}
+body{min-height:100vh;padding:16px}
+.wrap{max-width:560px;margin:0 auto}
+.head{text-align:center;padding:24px 0 20px}
+.logo{font-size:26px;font-weight:800;color:var(--accent);letter-spacing:-.03em}
+.logo span{color:var(--brand)}
+.tag{font-size:10px;font-weight:700;color:var(--brand);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:18px 0 4px;text-align:center}
+.sub{color:var(--dim);text-align:center;font-size:13px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--brand);margin-bottom:6px;letter-spacing:.2px;text-transform:uppercase}
+.field .hint{font-size:11px;color:var(--muted);font-weight:500;margin-top:4px;text-transform:none;letter-spacing:0;line-height:1.4}
+.req{color:#dc2626;margin-left:2px}
+.input,.select,.textarea{width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:inherit;color:var(--text);transition:.15s}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+.textarea{resize:vertical;min-height:70px}
+.select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'><path fill='none' stroke='%2364748b' stroke-width='2' d='M1 1l5 5 5-5'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:10px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s;user-select:none}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.welcome{display:none;margin-top:16px;padding:16px;background:var(--soft);border-left:3px solid var(--accent);border-radius:8px;font-size:14px;line-height:1.55;color:#1e3a5f;white-space:pre-line}
+.welcome.on{display:block}
+.detail{display:none;margin-top:14px}
+.detail.on{display:block}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.doc-row{display:grid;grid-template-columns:110px 1fr;gap:8px}
+.person-block{border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;background:var(--bg)}
+.person-block .p-head{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.person-actions{display:flex;gap:8px;margin-bottom:12px}
+.person-actions button{flex:1;padding:10px;background:#fff;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;color:var(--brand);cursor:pointer;font-family:inherit}
+.person-actions button:hover{border-color:var(--accent);color:var(--accent)}
+.person-actions .minus{color:#dc2626}
+.btn{width:100%;padding:14px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;margin-top:8px;letter-spacing:.2px}
+.btn:hover:not(:disabled){background:var(--accent-d)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-wa{background:var(--wa);margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn-wa:hover{background:#1fb855}
+.divider{text-align:center;color:var(--muted);font-size:11px;margin:16px 0;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:calc(50% - 20px);height:1px;background:var(--border)}
+.divider::before{left:0}.divider::after{right:0}
+.tos{font-size:11px;color:var(--dim);margin-top:10px;line-height:1.5}
+.tos a{color:var(--accent);text-decoration:none}
+.foot{text-align:center;color:var(--muted);font-size:11px;padding:20px 0}
+.foot a{color:var(--brand);font-weight:600;text-decoration:none}
+.thanks{text-align:center;padding:30px 20px}
+.check{width:64px;height:64px;background:var(--ok);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#fff;font-size:32px;font-weight:800}
+.thanks h2{font-size:20px;font-weight:800;margin-bottom:8px}
+.thanks p{color:var(--dim);font-size:14px;line-height:1.5;margin-bottom:20px}
+.err{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:10px 12px;border-radius:8px;font-size:13px;margin-top:10px;display:none}
+.err.on{display:block}
+.radio-group{display:flex;gap:8px}
+.radio-group label{flex:1;padding:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;text-align:center;font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;text-transform:none;letter-spacing:0}
+.radio-group input{display:none}
+.radio-group input:checked + span{color:var(--accent)}
+.radio-group label:has(input:checked){border-color:var(--accent);background:#fff;color:var(--accent)}
+input[type="text"],input[type="tel"],input[type="email"]{text-transform:none}
+input[name*="placa"]{text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="logo">Aseg<span>úralo</span></div>
+    <div class="tag">CORREDOR DE SEGUROS · BOGOTÁ</div>
+  </div>
+
+  <div id="form-view">
+    <h1>Cotiza fácil y rápido</h1>
+    <p class="sub">Compárate en varias aseguradoras. Te contactamos hoy mismo — sin costo, sin compromiso.</p>
+
+    <div class="card">
+      <form id="leadForm" autocomplete="on" novalidate>
+
+        <!-- CONTACTO BÁSICO -->
+        <div class="field">
+          <label>Nombre completo <span class="req">*</span></label>
+          <input class="input" type="text" name="nombre" required autocomplete="name" placeholder="Ej: Camila Ruiz Gómez">
+        </div>
+
+        <div class="field">
+          <label>Correo electrónico <span class="req">*</span></label>
+          <input class="input" type="email" name="correo" required autocomplete="email" placeholder="tucorreo@ejemplo.com">
+        </div>
+
+        <div class="field">
+          <label>Celular (WhatsApp) <span class="req">*</span></label>
+          <input class="input" type="tel" name="telefono" required autocomplete="tel" inputmode="tel" pattern="[0-9 +]{7,15}" placeholder="3XX XXX XXXX">
+        </div>
+
+        <div class="field">
+          <label>¿Qué necesitas asegurar? <span class="req">*</span></label>
+          <div class="chips" id="tipoChips">
+            <div class="chip" data-tipo="Vehiculo">Vehículo</div>
+            <div class="chip" data-tipo="Salud">Salud</div>
+            <div class="chip" data-tipo="Hogar">Hogar / Inmueble</div>
+            <div class="chip" data-tipo="Vida">Vida</div>
+            <div class="chip" data-tipo="Empresa">Empresa</div>
+            <div class="chip" data-tipo="Arrendamiento">Arrendamiento</div>
+            <div class="chip" data-tipo="Cumplimiento">Cumplimiento</div>
+            <div class="chip" data-tipo="Viaje">Póliza de viaje</div>
+            <div class="chip" data-tipo="Otro">Otro</div>
+          </div>
+          <input type="hidden" name="tipo" id="fTipo" required>
+        </div>
+
+        <!-- ===== BLOQUES DINÁMICOS ===== -->
+
+        <!-- VEHÍCULO -->
+        <div class="welcome" data-for="Vehiculo">¡Hola! 😊 Con mucho gusto te ayudo a revisar la mejor alternativa para proteger tu vehículo. 🚗
+
+Para poder cotizarte, necesito algunos datos:</div>
+        <div class="detail" data-for="Vehiculo">
+          <div class="field">
+            <label>Tipo y número de documento del propietario <span class="req">*</span></label>
+            <div class="doc-row">
+              <select class="select" name="v_tdoc"><option value="CC">CC</option><option value="CE">CE</option><option value="PA">Pasaporte</option><option value="NIT">NIT</option></select>
+              <input class="input" type="text" name="v_ndoc" inputmode="numeric" placeholder="Número">
+            </div>
+          </div>
+          <div class="field">
+            <label>Fecha de nacimiento <span class="req">*</span></label>
+            <input class="input" type="date" name="v_fnac">
+          </div>
+          <div class="row">
+            <div class="field" style="margin:0"><label>Placa <span class="req">*</span></label><input class="input" type="text" name="v_placa" maxlength="8" placeholder="ABC123"></div>
+            <div class="field" style="margin:0"><label>Color <span class="req">*</span></label><input class="input" type="text" name="v_color" placeholder="Blanco"></div>
+          </div>
+          <div class="field" style="margin-top:14px;margin-bottom:0">
+            <label>Zona donde circula habitualmente <span class="req">*</span></label>
+            <input class="input" type="text" name="v_zona" placeholder="Ej: Bogotá — norte">
+            <div class="hint">Es decir, el lugar donde permanece o se moviliza la mayor parte del tiempo.</div>
+          </div>
+        </div>
+
+        <!-- SALUD -->
+        <div class="welcome" data-for="Salud">🏥 Póliza de salud
+
+Con mucho gusto te ayudo con las alternativas de protección en salud. La cotización se hace de manera individual, así que necesitamos los datos de cada persona que quede incluida.
+
+📌 Si son varias personas, agrégalas aquí abajo — nosotros revisamos las alternativas para cada una.</div>
+        <div class="detail" data-for="Salud">
+          <div class="field">
+            <label>Número de personas a asegurar <span class="req">*</span></label>
+            <div class="row3">
+              <button type="button" class="input" onclick="setSaludCount(-1)" style="cursor:pointer;font-weight:800;color:var(--accent);text-align:center">−</button>
+              <input class="input" type="number" id="s_count" name="s_count" min="1" max="8" value="1" readonly style="text-align:center;font-weight:800;color:var(--accent)">
+              <button type="button" class="input" onclick="setSaludCount(1)" style="cursor:pointer;font-weight:800;color:var(--accent);text-align:center">+</button>
+            </div>
+          </div>
+          <div id="saludPersons"></div>
+        </div>
+
+        <!-- HOGAR -->
+        <div class="welcome" data-for="Hogar">🏠 Póliza para tu hogar
+
+Con mucho gusto te ayudo a revisar alternativas para proteger tu hogar. Diligencia estos datos y luego, si quieres proteger también los contenidos (muebles, electrónicos, joyas, portátiles, etc.), lo conversamos por WhatsApp — te orientamos para hacer la estimación.</div>
+        <div class="detail" data-for="Hogar">
+          <div class="field">
+            <label>Dirección exacta del inmueble + ciudad <span class="req">*</span></label>
+            <input class="input" type="text" name="h_direccion" placeholder="Cra 15 # 100-20, Bogotá">
+          </div>
+          <div class="row">
+            <div class="field" style="margin:0"><label>Área (m²) <span class="req">*</span></label><input class="input" type="number" name="h_area" min="10" max="9999" placeholder="80"></div>
+            <div class="field" style="margin:0"><label>Año construcción <span class="req">*</span></label><input class="input" type="number" name="h_ano" min="1900" max="2027" placeholder="2015"></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div class="field" style="margin:0"><label>Total pisos de la edificación <span class="req">*</span></label><input class="input" type="number" name="h_pisos" min="1" max="99" placeholder="8"></div>
+            <div class="field" style="margin:0"><label>Número de sótanos <span class="req">*</span></label><input class="input" type="number" name="h_sotanos" min="0" max="10" placeholder="1"></div>
+          </div>
+          <div class="field" style="margin-top:10px;margin-bottom:0">
+            <label>Valor comercial aproximado <span class="req">*</span></label>
+            <input class="input" type="number" name="h_valor" min="1000000" placeholder="350000000">
+            <div class="hint">En pesos colombianos. Aproximado, no requerimos avalúo.</div>
+          </div>
+        </div>
+
+        <!-- VIDA -->
+        <div class="welcome" data-for="Vida">❤️ Póliza de vida
+
+Con mucho gusto te ayudo a construir una protección de vida acorde con tus necesidades y objetivos. Diligencia estos datos básicos del tomador y luego te preguntamos por WhatsApp si es una póliza de vida para deudores o una tradicional — te orientamos con el monto adecuado.</div>
+        <div class="detail" data-for="Vida">
+          <div class="field">
+            <label>Tipo y número de documento <span class="req">*</span></label>
+            <div class="doc-row">
+              <select class="select" name="vi_tdoc"><option value="CC">CC</option><option value="CE">CE</option><option value="PA">Pasaporte</option></select>
+              <input class="input" type="text" name="vi_ndoc" inputmode="numeric" placeholder="Número">
+            </div>
+          </div>
+          <div class="field">
+            <label>Fecha de nacimiento <span class="req">*</span></label>
+            <input class="input" type="date" name="vi_fnac">
+            <div class="hint">A partir de esto calculamos la edad.</div>
+          </div>
+          <div class="row">
+            <div class="field" style="margin:0"><label>Estatura (cm) <span class="req">*</span></label><input class="input" type="number" name="vi_estatura" min="100" max="230" placeholder="170"></div>
+            <div class="field" style="margin:0"><label>Peso (kg) <span class="req">*</span></label><input class="input" type="number" name="vi_peso" min="30" max="250" placeholder="70"></div>
+          </div>
+          <div class="field" style="margin-top:14px;margin-bottom:0">
+            <label>Ocupación o actividad actual <span class="req">*</span></label>
+            <input class="input" type="text" name="vi_ocupacion" placeholder="Ej: Ingeniero civil">
+          </div>
+        </div>
+
+        <!-- EMPRESA -->
+        <div class="welcome" data-for="Empresa">🏢 Seguro empresarial
+
+Cuéntanos qué necesitas asegurar y con gusto te revisamos alternativas.</div>
+        <div class="detail" data-for="Empresa">
+          <div class="field" style="margin:0">
+            <label>Tipo de negocio y qué proteger <span class="req">*</span></label>
+            <textarea class="textarea" name="e_desc" placeholder="Ej: Bodega 400 m² en Fontibón, maquinaria y mercancía"></textarea>
+          </div>
+        </div>
+
+        <!-- ARRENDAMIENTO -->
+        <div class="welcome" data-for="Arrendamiento">🔑 Póliza de arrendamiento
+
+Cuéntanos el contexto y te contactamos por WhatsApp para pedirte los documentos necesarios.</div>
+        <div class="detail" data-for="Arrendamiento">
+          <div class="field" style="margin:0">
+            <label>Cuéntanos el contexto <span class="req">*</span></label>
+            <textarea class="textarea" name="a_desc" placeholder="Ej: Necesito póliza de arrendamiento para apartamento en Chapinero, canon $2.500.000"></textarea>
+          </div>
+        </div>
+
+        <!-- CUMPLIMIENTO -->
+        <div class="welcome" data-for="Cumplimiento">📋 Póliza de cumplimiento
+
+Cuéntanos brevemente qué contrato o proceso necesitas amparar y te contactamos por WhatsApp para revisarlo.</div>
+        <div class="detail" data-for="Cumplimiento">
+          <div class="field" style="margin:0">
+            <label>Descripción del contrato o requerimiento <span class="req">*</span></label>
+            <textarea class="textarea" name="c_desc" placeholder="Ej: Cumplimiento contrato obra pública, valor $500M, entidad ..."></textarea>
+          </div>
+        </div>
+
+        <!-- VIAJE -->
+        <div class="welcome" data-for="Viaje">✈️ Póliza de viaje
+
+Con mucho gusto te ayudo con la póliza para tu viaje. Diligencia el destino, las fechas y los datos de cada viajero.</div>
+        <div class="detail" data-for="Viaje">
+          <div class="row">
+            <div class="field" style="margin:0"><label>Fecha de salida <span class="req">*</span></label><input class="input" type="date" name="vj_salida"></div>
+            <div class="field" style="margin:0"><label>Fecha de regreso <span class="req">*</span></label><input class="input" type="date" name="vj_llegada"></div>
+          </div>
+          <div class="field" style="margin-top:10px">
+            <label>Destino <span class="req">*</span></label>
+            <input class="input" type="text" name="vj_destino" placeholder="Ej: España y Portugal">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Número de viajeros <span class="req">*</span></label>
+            <div class="row3">
+              <button type="button" class="input" onclick="setViajeCount(-1)" style="cursor:pointer;font-weight:800;color:var(--accent);text-align:center">−</button>
+              <input class="input" type="number" id="vj_count" name="vj_count" min="1" max="10" value="1" readonly style="text-align:center;font-weight:800;color:var(--accent)">
+              <button type="button" class="input" onclick="setViajeCount(1)" style="cursor:pointer;font-weight:800;color:var(--accent);text-align:center">+</button>
+            </div>
+          </div>
+          <div id="viajePersons" style="margin-top:12px"></div>
+        </div>
+
+        <!-- OTRO -->
+        <div class="welcome" data-for="Otro">Cuéntanos qué necesitas y con gusto te contactamos por WhatsApp para orientarte.</div>
+        <div class="detail" data-for="Otro">
+          <div class="field" style="margin:0">
+            <label>¿Qué necesitas asegurar? <span class="req">*</span></label>
+            <textarea class="textarea" name="o_desc" placeholder="Describe brevemente"></textarea>
+          </div>
+        </div>
+
+        <div class="err" id="err"></div>
+
+        <button class="btn" type="submit" id="btnSubmit">Enviar solicitud</button>
+
+        <p class="tos">Al enviar aceptas el tratamiento de tus datos personales conforme a la Ley 1581/2012 y a SARLAFT. Fabian Carrera (Aseguralo) te contactará por WhatsApp o correo.</p>
+      </form>
+
+      <div class="divider">o</div>
+
+      <a class="btn btn-wa" href="https://wa.me/573165206865?text=Hola%2C%20quiero%20cotizar%20un%20seguro" target="_blank" rel="noopener">
+        Escribir directo por WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <div id="thanks-view" style="display:none">
+    <div class="card thanks">
+      <div class="check">&#10003;</div>
+      <h2>Recibimos tu solicitud</h2>
+      <p id="thanksMsg">Fabian Carrera te va a contactar por WhatsApp con las alternativas. Normalmente respondemos en menos de 2 horas hábiles.</p>
+      <a id="waLink" class="btn btn-wa" href="https://wa.me/573165206865" target="_blank" rel="noopener">Abrir WhatsApp con Fabian</a>
+    </div>
+  </div>
+
+  <div class="foot">
+    Aseguralo · Corredor de Seguros · <a href="/">7group</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbz1Un4ArXmUZ5v2Hfe8n3PtbVJ7waTxxQYFZp8noWU-gfbhUs9uhpZdbaEUlJtxE4Ul/exec';
+  var WA_FABIAN='573165206865';
+
+  // Chip picker
+  var chipsWrap=document.getElementById('tipoChips');
+  chipsWrap.addEventListener('click',function(e){
+    var c=e.target.closest('.chip'); if(!c) return;
+    [].forEach.call(chipsWrap.querySelectorAll('.chip'),function(x){x.classList.remove('on')});
+    c.classList.add('on');
+    var val=c.dataset.tipo;
+    document.getElementById('fTipo').value=val;
+    [].forEach.call(document.querySelectorAll('.welcome,.detail'),function(d){d.classList.remove('on')});
+    [].forEach.call(document.querySelectorAll('.welcome[data-for="'+val+'"],.detail[data-for="'+val+'"]'),function(d){d.classList.add('on')});
+    if(val==='Salud' && !document.querySelector('#saludPersons .person-block')) renderSalud();
+    if(val==='Viaje' && !document.querySelector('#viajePersons .person-block')) renderViaje();
+  });
+
+  // Salud: repeater de personas
+  window.setSaludCount=function(delta){
+    var input=document.getElementById('s_count');
+    var n=parseInt(input.value,10)||1;
+    n=Math.max(1,Math.min(8,n+delta));
+    input.value=n;
+    renderSalud();
+  };
+  function renderSalud(){
+    var n=parseInt(document.getElementById('s_count').value,10)||1;
+    var box=document.getElementById('saludPersons');
+    var current=box.querySelectorAll('.person-block').length;
+    // Preserve current values before rebuild
+    var vals=[];
+    box.querySelectorAll('.person-block').forEach(function(pb,i){
+      vals.push({
+        nombre:pb.querySelector('[name="s_nombre_'+i+'"]').value,
+        tdoc:pb.querySelector('[name="s_tdoc_'+i+'"]').value,
+        ndoc:pb.querySelector('[name="s_ndoc_'+i+'"]').value,
+        fnac:pb.querySelector('[name="s_fnac_'+i+'"]').value,
+        eps:pb.querySelector('[name="s_eps_'+i+'"]').value,
+        enf:pb.querySelector('[name="s_enf_'+i+'"]').value,
+        enfDesc:pb.querySelector('[name="s_enfdesc_'+i+'"]').value
+      });
+    });
+    var html='';
+    for(var i=0;i<n;i++){
+      var v=vals[i]||{tdoc:'CC',enf:'No'};
+      html+='<div class="person-block">'+
+        '<div class="p-head">Persona '+(i+1)+'</div>'+
+        '<div class="field"><label>Nombre completo <span class="req">*</span></label>'+
+          '<input class="input" type="text" name="s_nombre_'+i+'" value="'+esc(v.nombre||'')+'"></div>'+
+        '<div class="field"><label>Tipo y número de documento <span class="req">*</span></label>'+
+          '<div class="doc-row">'+
+            '<select class="select" name="s_tdoc_'+i+'">'+opts(['CC','CE','TI','RC','PA'],v.tdoc||'CC')+'</select>'+
+            '<input class="input" type="text" name="s_ndoc_'+i+'" inputmode="numeric" placeholder="Número" value="'+esc(v.ndoc||'')+'">'+
+          '</div></div>'+
+        '<div class="field"><label>Fecha de nacimiento <span class="req">*</span></label>'+
+          '<input class="input" type="date" name="s_fnac_'+i+'" value="'+esc(v.fnac||'')+'"></div>'+
+        '<div class="field"><label>EPS actual <span class="req">*</span></label>'+
+          '<input class="input" type="text" name="s_eps_'+i+'" placeholder="Ej: Sanitas, Sura, Compensar" value="'+esc(v.eps||'')+'"></div>'+
+        '<div class="field" style="margin:0"><label>¿Tiene alguna enfermedad diagnosticada? <span class="req">*</span></label>'+
+          '<div class="radio-group">'+
+            '<label><input type="radio" name="s_enf_'+i+'" value="No" '+((v.enf||'No')==='No'?'checked':'')+' onchange="toggleEnf('+i+')"><span>No</span></label>'+
+            '<label><input type="radio" name="s_enf_'+i+'" value="Si" '+(v.enf==='Si'?'checked':'')+' onchange="toggleEnf('+i+')"><span>Sí</span></label>'+
+          '</div>'+
+          '<textarea class="textarea" name="s_enfdesc_'+i+'" placeholder="¿Cuál? (breve)" style="margin-top:8px;display:'+(v.enf==='Si'?'block':'none')+'">'+esc(v.enfDesc||'')+'</textarea>'+
+        '</div>'+
+      '</div>';
+    }
+    box.innerHTML=html;
+  }
+  // Viaje: repeater de viajeros
+  window.setViajeCount=function(delta){
+    var input=document.getElementById('vj_count');
+    var n=parseInt(input.value,10)||1;
+    n=Math.max(1,Math.min(10,n+delta));
+    input.value=n;
+    renderViaje();
+  };
+  function renderViaje(){
+    var n=parseInt(document.getElementById('vj_count').value,10)||1;
+    var box=document.getElementById('viajePersons');
+    var vals=[];
+    box.querySelectorAll('.person-block').forEach(function(pb,i){
+      vals.push({
+        nombre:pb.querySelector('[name="vj_nombre_'+i+'"]').value,
+        fnac:pb.querySelector('[name="vj_fnac_'+i+'"]').value
+      });
+    });
+    var html='';
+    for(var i=0;i<n;i++){
+      var v=vals[i]||{};
+      html+='<div class="person-block">'+
+        '<div class="p-head">Viajero '+(i+1)+'</div>'+
+        '<div class="field"><label>Nombre completo <span class="req">*</span></label>'+
+          '<input class="input" type="text" name="vj_nombre_'+i+'" value="'+esc(v.nombre||'')+'"></div>'+
+        '<div class="field" style="margin:0"><label>Fecha de nacimiento <span class="req">*</span></label>'+
+          '<input class="input" type="date" name="vj_fnac_'+i+'" value="'+esc(v.fnac||'')+'"></div>'+
+      '</div>';
+    }
+    box.innerHTML=html;
+  }
+
+  window.toggleEnf=function(i){
+    var chk=document.querySelector('input[name="s_enf_'+i+'"]:checked');
+    var ta=document.querySelector('textarea[name="s_enfdesc_'+i+'"]');
+    if(!chk||!ta) return;
+    ta.style.display=chk.value==='Si'?'block':'none';
+    if(chk.value==='No') ta.value='';
+  };
+  function opts(arr,sel){return arr.map(function(o){return '<option'+(o===sel?' selected':'')+'>'+o+'</option>'}).join('');}
+  function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+
+  // Validación + submit
+  document.getElementById('leadForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var err=document.getElementById('err');
+    err.classList.remove('on');
+    var f=e.target;
+
+    // Contacto básico
+    var nombre=(f.nombre.value||'').trim();
+    var correo=(f.correo.value||'').trim();
+    var tel=(f.telefono.value||'').replace(/[^0-9]/g,'');
+    var tipo=f.tipo.value;
+    if(!nombre) return fail('Escribe tu nombre completo');
+    if(!correo || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) return fail('Escribe un correo válido');
+    if(tel.length<7) return fail('Escribe tu celular (mínimo 7 dígitos)');
+    if(!tipo) return fail('Selecciona qué necesitas asegurar');
+
+    // Recolectar datos específicos + validar campos visibles requeridos
+    var detail={};
+    var visibleBlock=document.querySelector('.detail[data-for="'+tipo+'"]');
+    if(visibleBlock){
+      var inputs=visibleBlock.querySelectorAll('input:not([type="radio"]):not([type="button"]),select,textarea');
+      for(var i=0;i<inputs.length;i++){
+        var el=inputs[i];
+        if(el.readOnly) { detail[el.name||el.id]=el.value; continue; }
+        var val=(el.value||'').trim();
+        if(!val){
+          err.textContent='Falta: '+(el.previousElementSibling && el.previousElementSibling.textContent||'un campo requerido').replace('*','').trim();
+          err.classList.add('on');
+          el.focus();
+          return;
+        }
+        detail[el.name||el.id]=val;
+      }
+      // radios (salud enfermedad)
+      var radios=visibleBlock.querySelectorAll('input[type="radio"]:checked');
+      radios.forEach(function(r){ detail[r.name]=r.value; });
+    }
+
+    var btn=document.getElementById('btnSubmit');
+    btn.disabled=true; btn.textContent='Enviando...';
+
+    var data={
+      action:'lead',
+      fecha:new Date().toISOString(),
+      origen:'form-web',
+      nombre:nombre, correo:correo, telefono:tel, tipo:tipo,
+      urgencia:''
+    };
+    // Agregar todos los detalle_
+    for(var k in detail){ data[k]=detail[k]; }
+    // Detalle legible (para el Sheet y correo)
+    var detalleTxt=[];
+    for(var kk in detail){ if(detail[kk]) detalleTxt.push(kk+': '+detail[kk]); }
+    data.detalle=detalleTxt.join(' | ');
+
+    fetch(APPS_SCRIPT_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(data)
+    }).then(function(){ showThanks(data); })
+      .catch(function(){ showThanks(data); });
+
+    function fail(msg){ err.textContent=msg; err.classList.add('on'); return; }
+  });
+
+  function fail(msg){
+    var err=document.getElementById('err');
+    err.textContent=msg; err.classList.add('on');
+    window.scrollTo({top:document.getElementById('leadForm').offsetTop,behavior:'smooth'});
+  }
+
+  function showThanks(d){
+    document.getElementById('form-view').style.display='none';
+    document.getElementById('thanks-view').style.display='block';
+    var msg=encodeURIComponent('Hola Fabian, soy '+d.nombre+'. Acabo de enviar la solicitud de '+d.tipo+' por la página. Quedo atento.');
+    document.getElementById('waLink').href='https://wa.me/'+WA_FABIAN+'?text='+msg;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+})();
+</script>
+</body>
+</html>
