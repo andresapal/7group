@@ -2538,8 +2538,7 @@ window.filterClientes=function(){
 /* ============================================
    EN COTIZACION — prospectos con PDFs de aseguradoras (OCR con Gemini Flash)
    ============================================ */
-var GEMINI_API_KEY = 'AQ.Ab8RN6LBhuupEdlPBbOz3vpp8glUSFqxeLeh7E1Z5bgLAaOMMw';
-var GEMINI_MODEL   = 'gemini-3.6-flash';
+// OCR se hace via Apps Script (proxy que llama a Gemini). Key no vive en frontend.
 var COT_PDFS = {}; // {leadId: {allianz:{prima,vig,name,extraido}, axa:{...}, estado:{...}}}
 try{ COT_PDFS = JSON.parse(localStorage.getItem('aseg_cot_pdfs')||'{}'); }catch(e){ COT_PDFS = {}; }
 function saveCotPdfs_(){ try{ localStorage.setItem('aseg_cot_pdfs', JSON.stringify(COT_PDFS)); }catch(e){} }
@@ -2678,34 +2677,25 @@ function promptGemini_(tipo){
     'Reglas: Si un campo no aparece en el documento, ponlo como null. Todas las cifras deben ser numeros (sin puntos ni comas ni simbolo $). Devuelve SOLO el JSON, empezando con { y terminando con }. Sin ```json ni ```. Sin texto antes ni despues.';
 }
 
-/* Llama Gemini Flash con el PDF adjunto */
+/* Llama al Apps Script que hace de proxy hacia Gemini (key server-side, oculta) */
 async function llamarGemini_(file, tipo){
   var b64 = await fileToBase64_(file);
-  var url = 'https://generativelanguage.googleapis.com/v1beta/models/'+GEMINI_MODEL+':generateContent?key='+GEMINI_API_KEY;
-  var payload = {
-    contents: [{
-      parts: [
-        { inline_data: { mime_type: 'application/pdf', data: b64 } },
-        { text: promptGemini_(tipo) }
-      ]
-    }],
-    generationConfig: {
-      responseMimeType: 'application/json',
-      temperature: 0.1
-    }
-  };
-  var res = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
-  if(!res.ok){
-    var errTxt = await res.text();
-    throw new Error('Gemini '+res.status+': '+errTxt.slice(0,200));
-  }
+  var res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({
+      action: 'gemini-pdf',
+      pdfBase64: b64,
+      prompt: promptGemini_(tipo)
+    })
+  });
+  if(!res.ok) throw new Error('Apps Script HTTP '+res.status);
   var j = await res.json();
-  var txt = j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts && j.candidates[0].content.parts[0] && j.candidates[0].content.parts[0].text;
-  if(!txt) throw new Error('Gemini devolvio respuesta vacia');
-  // Limpiar markdown por si vino con ```json ... ```
-  txt = txt.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/,'').trim();
-  try{ return JSON.parse(txt); }
-  catch(e){ throw new Error('JSON invalido de Gemini: '+txt.slice(0,200)); }
+  if(j.error){
+    throw new Error(j.error + (j.raw?' | '+j.raw.slice(0,150):''));
+  }
+  return j.data;
 }
 
 window.subirPDFCotizacion = async function(inputEl, leadId, slotForzado){
