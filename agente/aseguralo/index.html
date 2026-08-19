@@ -313,7 +313,15 @@ tbody tr:hover{background:var(--accent-light)}
     <div id="g_id_signin" style="display:flex;justify-content:center;margin-bottom:8px"></div>
     <div class="gate-error" id="gateError">Acceso denegado. Correo no autorizado.</div>
     <div class="gate-error" id="gateBlocked" style="color:var(--red)">Cuenta bloqueada por intentos fallidos. Intente mas tarde.</div>
-    <div class="gate-footer">Verificacion Google &middot; Sesion diaria &middot; Powered by 7Group</div>
+
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border2)">
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase">Google no carga? Entra con tu correo autorizado</div>
+      <input id="fallbackEmail" type="email" placeholder="tu-correo@dominio.com" style="width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);outline:none;margin-bottom:8px" autocomplete="email">
+      <button onclick="entrarConCorreo()" style="width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">Entrar</button>
+      <div id="fallbackError" style="display:none;margin-top:8px;font-size:11px;color:var(--red);text-align:center"></div>
+    </div>
+
+    <div class="gate-footer">Sesion diaria &middot; Powered by 7Group</div>
   </div>
 </div>
 
@@ -1109,6 +1117,29 @@ function enterApp(){
   document.getElementById('appWrap').classList.add('visible');
   initApp();
 }
+
+window.entrarConCorreo=function(){
+  var email = (document.getElementById('fallbackEmail').value||'').trim().toLowerCase();
+  var errBox = document.getElementById('fallbackError');
+  errBox.style.display='none';
+  if(isBlocked()){
+    errBox.style.display='block';
+    errBox.textContent='Cuenta bloqueada por intentos fallidos.';
+    return;
+  }
+  if(ALLOWED_EMAILS.indexOf(email)!==-1){
+    localStorage.setItem(GATE_KEY,email);
+    localStorage.setItem(GATE_TS_KEY,Date.now().toString());
+    localStorage.removeItem(GATE_FAIL_KEY);
+    localStorage.removeItem(GATE_BLOCK_KEY);
+    setAdminMode(email);
+    enterApp();
+  } else {
+    errBox.style.display='block';
+    errBox.textContent='Correo no autorizado.';
+    addFailedAttempt();
+  }
+};
 
 function handleGoogleResponse(r){
   if(isBlocked()){document.getElementById('gateBlocked').style.display='block';return;}
