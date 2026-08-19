@@ -1265,12 +1265,21 @@ function fmtSheetDate(v){
 function detectTipoPoliza(tipo,cob){
   var t=(tipo||'').trim().toUpperCase();
   var c=(cob||'').trim().toLowerCase();
-  if(t==='AUTOS') return 'Auto';
+  // Priorizamos el RAMO/TIPO literal de la Sheet
+  if(t==='AUTOS'||t==='AUTO'||t==='SOAT') return 'Auto';
+  if(t==='SALUD') return 'Salud';
+  if(t==='VIDA') return 'Vida';
+  if(t==='HOGAR'||t==='INMUEBLE') return 'Hogar';
+  if(t==='EMPRESARIAL'||t==='EMPRESA') return 'Empresarial';
+  if(t==='ARRENDAMIENTO') return 'Arrendamiento';
+  if(t==='CUMPLIMIENTO') return 'Cumplimiento';
+  if(t==='VIAJE') return 'Viaje';
+  // Fallback por keywords de cobertura
   if(c.indexOf('incendio')>=0||c.indexOf('terremoto')>=0||c.indexOf('asiste')>=0||c.indexOf('daño')>=0||c.indexOf('agua')>=0) return 'Hogar';
   if(c.indexOf('prótesis')>=0||c.indexOf('urgencias')>=0||c.indexOf('hospital')>=0||c.indexOf('enfermedad')>=0||c.indexOf('gmpt')>=0) return 'Salud';
   if(c.indexOf('fallecimiento')>=0||c.indexOf('incap')>=0) return 'Vida';
   if(c.indexOf('rceh')>=0||c.indexOf('contamin')>=0) return 'Empresarial';
-  return 'Otros';
+  return t || 'Otros';
 }
 
 /* ---- Derive estado from dates ---- */
