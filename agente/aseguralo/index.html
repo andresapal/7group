@@ -2764,7 +2764,9 @@ window.continuarComparativo = function(leadId){
 
 function renderEnCotizacion(){
   if(typeof updateSubCounts==='function') updateSubCounts();
-  var enCotLeads = LEADS.filter(function(l){return l.estado==='En cotizacion'});
+  // Mostrar TODOS los leads activos (no cerrados) — asi Fabian sube PDFs sin necesidad de convertir uno por uno
+  var estadosCerrados = {'Convertido':1,'Perdido':1,'Descartado':1,'No tomado':1};
+  var enCotLeads = LEADS.filter(function(l){return !estadosCerrados[l.estado||'Nuevo']});
   var pdfsSubidos = 0, primaCapturada = 0;
   enCotLeads.forEach(function(l){
     var d = COT_PDFS[l.id]||{};
