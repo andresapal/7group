@@ -11,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
@@ -444,14 +446,11 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
-      <!-- Sub-seccion: EN COTIZACION (cotizaciones activas) -->
+      <!-- Sub-seccion: EN COTIZACION (prospectos con PDFs de aseguradoras) -->
       <div class="sub-section" id="sub-curso">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div style="font-size:13px;color:var(--dim)">Cotizaciones armadas, esperando respuesta del cliente.</div>
-          <button class="btn btn-primary" onclick="openModal('newCotizacion')">+ Nueva cotizacion manual</button>
-        </div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Prospectos en cotizacion. Sube los PDFs de las 3 aseguradoras (Allianz / AXA / Seguros del Estado) — el sistema extrae automaticamente la prima y vigencia.</div>
         <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="cotizadorKpi"></div>
-        <div id="cotizadorCards"></div>
+        <div id="enCotizacionCards"></div>
       </div>
 
       <!-- Sub-seccion: POR EMITIR (cotizaciones aceptadas sin poliza) -->
@@ -745,6 +744,28 @@ tbody tr:hover{background:var(--accent-light)}
   </div>
 </div>
 <style>
+/* EN COTIZACION cards */
+.ec-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.ec-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.ec-card-name{font-size:15px;font-weight:800;color:var(--text)}
+.ec-card-tipo{font-weight:600;color:var(--accent);font-size:13px}
+.ec-card-meta{font-size:11px;color:var(--dim);margin-top:2px}
+.ec-card-count{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-light);padding:5px 10px;border-radius:20px;white-space:nowrap}
+.ec-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:768px){.ec-slots{grid-template-columns:1fr}}
+.ec-slot{background:var(--bg3);border:1.5px dashed var(--border2);border-radius:10px;padding:12px;min-height:120px;position:relative}
+.ec-slot.ok{border-style:solid;border-color:var(--green);background:rgba(16,185,129,.05)}
+.ec-slot-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ec-slot-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--brand)}
+.ec-slot-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:0;line-height:1}
+.ec-slot-file{font-size:10px;color:var(--dim);word-break:break-all;margin-bottom:6px}
+.ec-slot-prima{font-size:13px;color:var(--text);margin-top:6px}
+.ec-slot-vig{font-size:11px;color:var(--dim);margin-top:2px}
+.ec-upload{display:block;padding:24px 10px;background:var(--bg2);border:1.5px dashed var(--border);border-radius:8px;text-align:center;cursor:pointer;color:var(--accent);font-weight:700;font-size:12px;transition:.15s}
+.ec-upload:hover{border-color:var(--accent);background:var(--accent-light)}
+.ec-status{font-size:11px;margin-top:6px;min-height:14px}
+.ec-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border)}
+
 .np-chip{padding:8px 12px;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
 .np-chip:hover{border-color:var(--accent);color:var(--accent)}
 .np-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -2514,26 +2535,207 @@ window.filterClientes=function(){
 /* ====================================
    COTIZADOR
    ==================================== */
-function renderCotizador(){
-  if(typeof updateSubCounts==='function') updateSubCounts();
-  var enviadas=COTIZACIONES.filter(function(c){return c.estado==='enviada'}).length;
-  var aceptadas=COTIZACIONES.filter(function(c){return c.estado==='aceptada'}).length;
-  var rechazadas=COTIZACIONES.filter(function(c){return c.estado==='rechazada'}).length;
-  var total=COTIZACIONES.length;
-  var tasaConv=total?Math.round((aceptadas/total)*100):0;
+/* ============================================
+   EN COTIZACION — prospectos con PDFs de aseguradoras (con OCR pdf.js)
+   ============================================ */
+var COT_PDFS = {}; // {leadId: {allianz:{prima,vig,name}, axa:{...}, estado:{...}}}
+try{ COT_PDFS = JSON.parse(localStorage.getItem('aseg_cot_pdfs')||'{}'); }catch(e){ COT_PDFS = {}; }
+function saveCotPdfs_(){ try{ localStorage.setItem('aseg_cot_pdfs', JSON.stringify(COT_PDFS)); }catch(e){} }
 
-  document.getElementById('cotizadorKpi').innerHTML=[
-    {l:'Cotizaciones del Mes',v:total,c:'c-accent'},
-    {l:'Enviadas (Pendientes)',v:enviadas,c:'c-orange'},
-    {l:'Aceptadas',v:aceptadas,c:'c-green'},
-    {l:'Tasa de Conversion',v:tasaConv+'%',c:'c-brand'}
+/* Parsea numero colombiano "1.930.530" o "1,930,530" o "1930530.50" -> Number */
+function parseNumColombia_(s){
+  if(!s) return 0;
+  s = String(s).replace(/[$\s]/g,'');
+  // Si tiene puntos y comas, asumir puntos=miles, coma=decimal
+  if(/[.,]/.test(s)){
+    var lastComma = s.lastIndexOf(',');
+    var lastDot   = s.lastIndexOf('.');
+    if(lastComma > lastDot){
+      // 1.930.530,50 -> 1930530.50
+      s = s.replace(/\./g,'').replace(',','.');
+    } else {
+      // 1,930,530.50 -> 1930530.50  OR 1.930.530 -> 1930530
+      s = s.replace(/,/g,'');
+      // Si solo hay puntos como separador de miles: elimina todos los puntos
+      // Un solo punto con 3 digitos despues seguro es miles
+      var dots = (s.match(/\./g)||[]).length;
+      if(dots>1) s = s.replace(/\./g,'');
+      else {
+        var p = s.split('.');
+        if(p.length===2 && p[1].length===3) s = p[0]+p[1];
+      }
+    }
+  }
+  return parseFloat(s)||0;
+}
+
+/* Extrae texto de un archivo PDF (File) usando pdf.js */
+async function pdfToText_(file){
+  if(!window.pdfjsLib) throw new Error('pdf.js no cargado');
+  var buf = await file.arrayBuffer();
+  var pdf = await pdfjsLib.getDocument({data: buf}).promise;
+  var pages = [];
+  for(var i=1; i<=pdf.numPages; i++){
+    var pg = await pdf.getPage(i);
+    var content = await pg.getTextContent();
+    pages.push(content.items.map(function(it){return it.str}).join(' '));
+  }
+  return {full: pages.join('\n\n'), pages: pages};
+}
+
+/* Detecta cual aseguradora es segun contenido */
+function detectarAseguradora_(text){
+  var t = text.toLowerCase();
+  if(t.indexOf('allianz')>=0) return 'Allianz';
+  if(t.indexOf('axa colpatria')>=0 || (t.indexOf('axa')>=0 && t.indexOf('colpatria')>=0) || t.indexOf('axxa')>=0) return 'AXA';
+  if(t.indexOf('seguros del estado')>=0 || t.indexOf('previsora')>=0) return 'Seguros del Estado';
+  return null;
+}
+
+/* Extrae la prima total segun aseguradora */
+function extraerPrima_(text, aseg){
+  var t = text.replace(/\s+/g,' ');
+  var m;
+  if(aseg==='Allianz'){
+    // "Anual - Prima total vigencia" o "Prima total vigencia"
+    m = t.match(/Prima\s+total\s+vigencia[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
+    if(!m) m = t.match(/Anual[^0-9]{0,120}([0-9][0-9.,]{5,15})/i);
+  } else if(aseg==='AXA'){
+    m = t.match(/TOTAL\s+A\s+PAGAR\s+EN\s+PESOS[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
+    if(!m) m = t.match(/TOTAL\s+A\s+PAGAR[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
+  } else if(aseg==='Seguros del Estado'){
+    m = t.match(/Prima\s+total[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
+  }
+  return m ? parseNumColombia_(m[1]) : 0;
+}
+
+/* Extrae vigencia (primeras 2 fechas del documento) */
+function extraerVigencia_(text){
+  var re = /(\d{1,2})[\/\-\s.](\d{1,2}|ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEP|OCT|NOV|DIC)[\/\-\s.](20\d{2}|\d{2})/gi;
+  var m, fechas = [];
+  while((m = re.exec(text)) && fechas.length<6){
+    fechas.push(m[0]);
+  }
+  return fechas.length>=2 ? {desde: fechas[0], hasta: fechas[1]} : {desde:'', hasta:''};
+}
+
+window.subirPDFCotizacion = async function(inputEl, leadId, slotForzado){
+  var file = inputEl.files[0]; if(!file) return;
+  var statusEl = document.getElementById('pdf-status-'+leadId+'-'+(slotForzado||'auto'));
+  if(statusEl){ statusEl.textContent='Procesando...'; statusEl.style.color='var(--dim)'; }
+  try {
+    var res = await pdfToText_(file);
+    var aseg = slotForzado ? {allianz:'Allianz',axa:'AXA',estado:'Seguros del Estado'}[slotForzado] : detectarAseguradora_(res.full);
+    if(!aseg){
+      if(statusEl){ statusEl.textContent='No se pudo identificar la aseguradora. Sube manualmente en el slot correcto.'; statusEl.style.color='var(--red)'; }
+      return;
+    }
+    var prima = extraerPrima_(res.full, aseg);
+    var vig = extraerVigencia_(res.full);
+    var slotKey = aseg==='Allianz'?'allianz':aseg==='AXA'?'axa':'estado';
+    if(!COT_PDFS[leadId]) COT_PDFS[leadId] = {};
+    COT_PDFS[leadId][slotKey] = {aseguradora: aseg, prima: prima, desde: vig.desde, hasta: vig.hasta, nombreArchivo: file.name, ts: Date.now()};
+    saveCotPdfs_();
+    renderEnCotizacion();
+  } catch(err){
+    if(statusEl){ statusEl.textContent='Error: '+err.message; statusEl.style.color='var(--red)'; }
+  }
+};
+
+window.borrarPDFCotizacion = function(leadId, slot){
+  if(!confirm('Borrar este PDF y su extraccion?')) return;
+  if(COT_PDFS[leadId]) delete COT_PDFS[leadId][slot];
+  saveCotPdfs_();
+  renderEnCotizacion();
+};
+
+window.marcarNoTomada = function(leadId){
+  if(!confirm('Marcar este prospecto como NO TOMADO?\nSe cerrara la cotizacion.')) return;
+  var l = LEADS.filter(function(x){return x.id===leadId})[0];
+  if(l){ l.estado='No tomado'; renderLeads(); renderEnCotizacion(); }
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'lead-update', id:leadId, estado:'No tomado'})}).catch(function(){});
+};
+
+window.continuarComparativo = function(leadId){
+  var data = COT_PDFS[leadId] || {};
+  var count = Object.keys(data).length;
+  if(count<2){ alert('Sube al menos 2 cotizaciones (PDFs de aseguradoras) para hacer el comparativo.'); return; }
+  alert('Fase siguiente (comparativo PDF + chulear ganadora + emision) — se construye en el siguiente paso.');
+};
+
+function renderEnCotizacion(){
+  if(typeof updateSubCounts==='function') updateSubCounts();
+  var enCotLeads = LEADS.filter(function(l){return l.estado==='En cotizacion'});
+  var pdfsSubidos = 0, primaCapturada = 0;
+  enCotLeads.forEach(function(l){
+    var d = COT_PDFS[l.id]||{};
+    Object.keys(d).forEach(function(k){ pdfsSubidos++; if(d[k].prima>0) primaCapturada++; });
+  });
+
+  var kpiEl = document.getElementById('cotizadorKpi');
+  if(kpiEl) kpiEl.innerHTML = [
+    {l:'Prospectos en cotizacion', v:enCotLeads.length, c:'c-accent'},
+    {l:'PDFs subidos', v:pdfsSubidos, c:'c-brand'},
+    {l:'Primas capturadas', v:primaCapturada, c:'c-green'},
+    {l:'Sin PDF aun', v:enCotLeads.filter(function(l){return !COT_PDFS[l.id]||!Object.keys(COT_PDFS[l.id]).length}).length, c:'c-orange'}
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
 
-  var statusMap={'enviada':'badge-por-renovar','aceptada':'badge-activa','rechazada':'badge-vencida','vencida':'badge-cancelada'};
-  var statusLabel={'enviada':'Enviada','aceptada':'Aceptada','rechazada':'Rechazada','vencida':'Vencida'};
+  var box = document.getElementById('enCotizacionCards');
+  if(!box) return;
+  if(!enCotLeads.length){
+    box.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;background:var(--bg2);border:1px dashed var(--border);border-radius:10px">No hay prospectos en cotizacion aun. Convierte un lead desde el Inbox ("Convertir a cotizacion").</div>';
+    return;
+  }
 
-  // En "En cotizacion" solo mostramos las enviadas (las aceptadas viven en "Por emitir",
-  // las rechazadas se ocultan por defecto)
+  var slotHTML = function(leadId, slot, aseg){
+    var d = (COT_PDFS[leadId]||{})[slot];
+    if(d){
+      return '<div class="ec-slot ok">'+
+        '<div class="ec-slot-head"><span class="ec-slot-title">'+aseg+'</span><button class="ec-slot-del" onclick="borrarPDFCotizacion(\''+leadId+'\',\''+slot+'\')" title="Borrar">&times;</button></div>'+
+        '<div class="ec-slot-file mono">'+d.nombreArchivo+'</div>'+
+        '<div class="ec-slot-prima">Prima: <strong>'+(d.prima?fmt(d.prima):'<span style="color:var(--red)">no detectada</span>')+'</strong></div>'+
+        (d.desde||d.hasta?'<div class="ec-slot-vig">Vigencia: '+d.desde+' &rarr; '+d.hasta+'</div>':'')+
+      '</div>';
+    }
+    return '<div class="ec-slot empty">'+
+      '<div class="ec-slot-head"><span class="ec-slot-title">'+aseg+'</span></div>'+
+      '<label class="ec-upload"><input type="file" accept="application/pdf" onchange="subirPDFCotizacion(this,\''+leadId+'\',\''+slot+'\')" style="display:none"><span>+ Subir PDF</span></label>'+
+      '<div class="ec-status" id="pdf-status-'+leadId+'-'+slot+'"></div>'+
+    '</div>';
+  };
+
+  box.innerHTML = enCotLeads.map(function(l){
+    var pdfs = COT_PDFS[l.id]||{};
+    var count = Object.keys(pdfs).length;
+    return '<div class="ec-card">'+
+      '<div class="ec-card-head">'+
+        '<div>'+
+          '<div class="ec-card-name">'+l.nombre+' <span class="ec-card-tipo">&middot; '+l.tipo+'</span></div>'+
+          '<div class="ec-card-meta">'+(l.telefono||'—')+(l.correo?' &middot; '+l.correo:'')+' &middot; '+(l.origen||'')+'</div>'+
+        '</div>'+
+        '<div class="ec-card-count">'+count+'/3 PDFs</div>'+
+      '</div>'+
+      '<div class="ec-slots">'+
+        slotHTML(l.id,'allianz','Allianz')+
+        slotHTML(l.id,'axa','AXA')+
+        slotHTML(l.id,'estado','Seguros del Estado')+
+      '</div>'+
+      '<div class="ec-actions">'+
+        '<button class="btn" onclick="marcarNoTomada(\''+l.id+'\')">No toma la poliza</button>'+
+        '<button class="btn btn-primary" onclick="continuarComparativo(\''+l.id+'\')">Continuar &rarr; comparativo</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function renderCotizador(){
+  renderEnCotizacion();
+  if(typeof updateSubCounts==='function') updateSubCounts();
+}
+
+// -- BLOQUE VIEJO DEMO (comentado - reemplazado por renderEnCotizacion) --
+function _renderCotizadorViejo(){
   document.getElementById('cotizadorCards').innerHTML=COTIZACIONES.filter(function(c){return c.estado==='enviada'}).map(function(c){
     var mejorPrima=Math.min.apply(null,c.comparaciones.map(function(x){return x.prima}));
 
@@ -3038,6 +3240,7 @@ function parseDetalleAmigable(det){
 
 function renderLeads(filter){
   updateSubCounts();
+  if(typeof renderEnCotizacion==='function') renderEnCotizacion();
   var estMap = {'Nuevo':'badge-por-renovar','Contactado':'badge-activa','En cotizacion':'badge-activa','Convertido':'badge-activa','Perdido':'badge-vencida','Descartado':'badge-cancelada'};
   var kpiEl = document.getElementById('leadsKpi'); if(!kpiEl) return;
   var hoy = new Date().toISOString().slice(0,10);
