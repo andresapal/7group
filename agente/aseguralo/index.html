@@ -1099,7 +1099,7 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1Un4ArXmUZ5v2Hfe8n3PtbVJ7waTxxQYFZp8noWU-gfbhUs9uhpZdbaEUlJtxE4Ul/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTrLvOiAP6Ztr6HINBv7VSxiGPtEb9cBMhurYTW8DyEpn_yVweoY_Rlhn5C_vBwX1t/exec';
 
 var CLIENTES=[];
 var POLIZAS=[];
@@ -1387,16 +1387,18 @@ function transformApiRows(rows){
       id:r.poliza,
       cliente:fmtSheetName(r.nombre),
       telefono:r.telefono||'',
-      tipo:detectTipoPoliza(r.tipo,r.cobertura),
-      aseguradora:'Allianz',
-      intermediario:r.colaborador==='0731'?'Judith Neira':'Fabian Carrera',
+      documento:r.documento||'',
+      tipo:detectTipoPoliza(r.ramo||r.tipo,r.cobertura),
+      aseguradora:r.aseguradora||'Allianz',
+      intermediario:r.agente||r.colaborador||'Fabian Carrera',
       prima:prima,
-      valorAsegurado:0,
+      valorAsegurado:Number(r.valorAsegurado)||0,
       desde:r.desde||'',
       hasta:r.hasta||'',
       estado:deriveEstado(r.hasta,hasAnul?anulStr:''),
       sarlaft:'pendiente',
-      pdfUrl:''
+      pdfUrl:'',
+      observaciones:r.observaciones||''
     };
   }).filter(function(p){return p.id;});
 }
