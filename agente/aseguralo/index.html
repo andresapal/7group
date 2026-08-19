@@ -3552,22 +3552,14 @@ window.saveLeadFromWA = function(){
 window.convertirLead = function(id){
   var l = LEADS.filter(function(x){return x.id===id})[0];
   if(!l) return;
-  switchMod('cotizador');
-  switchSub('curso');
-  openModal('newCotizacion');
-  // Prellenar campos del modal newCotizacion
-  setTimeout(function(){
-    var mset = function(id,val){ var e=document.getElementById(id); if(e && val) e.value=val; };
-    mset('cCliente', l.nombre);
-    mset('cTelefono', l.telefono);
-    mset('cTipo', l.tipo);
-    mset('cBien', l.detalle);
-  }, 100);
-  // Marcar lead como En cotizacion (local + sheet best-effort)
+  // Marca el lead como En cotizacion (local + sheet)
   l.estado = 'En cotizacion';
-  renderLeads();
   fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify({action:'lead-update', id:id, estado:'En cotizacion'})}).catch(function(){});
+  // Salta a la sub-pestaña En cotizacion — ahi aparece la tarjeta con los 3 slots de PDFs
+  switchSub('curso');
+  renderLeads();
+  if(typeof renderEnCotizacion==='function') renderEnCotizacion();
 };
 
 /* ---- QR del formulario público ---- */
