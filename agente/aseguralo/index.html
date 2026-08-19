@@ -1503,44 +1503,9 @@ function updateSyncStatus(ok,msg){
   el.innerHTML='<span style="color:'+color+';font-size:10px;font-weight:600;display:flex;align-items:center;gap:4px"><span>'+icon+'</span> '+msg+'</span>';
 }
 
-var COTIZACIONES=[
-  {id:'COT-001',fecha:'2026-08-10',cliente:'Diego Ramirez',telefono:'3178901234',tipo:'Auto',bien:'Chevrolet Tracker 2025 - Gris',valorAsegurar:98000000,intermediario:'Fabian Carrera',estado:'enviada',poliza:null,
-    comparaciones:[
-      {aseguradora:'Allianz',prima:2850000,deducible:1500000,coberturas:'Todo riesgo, asistencia vial 24h, RC $500M'},
-      {aseguradora:'AXA Colpatria',prima:2640000,deducible:1800000,coberturas:'Todo riesgo, grua, RC $300M'},
-      {aseguradora:'Seguros del Estado',prima:2380000,deducible:2200000,coberturas:'Basico + hurto, RC $200M'}
-    ],notas:'Cliente prefiere cobertura amplia. Recomendado: Allianz por asistencia vial.'},
-  {id:'COT-002',fecha:'2026-08-08',cliente:'Maria Elena Torres',telefono:'3001234567',tipo:'Hogar',bien:'Apartamento 120m2 Cedritos, estrato 4',valorAsegurar:380000000,intermediario:'Sandra Marin',estado:'aceptada',poliza:'POL-008',
-    comparaciones:[
-      {aseguradora:'AXA Colpatria',prima:2100000,deducible:800000,coberturas:'Incendio, terremoto, inundacion, hurto contenido'},
-      {aseguradora:'Seguros del Estado',prima:2350000,deducible:650000,coberturas:'Todo riesgo hogar, responsabilidad civil'},
-      {aseguradora:'Allianz',prima:2580000,deducible:500000,coberturas:'Integral hogar, asistencia domiciliaria'}
-    ],notas:'Acepto AXA Colpatria por mejor relacion prima-deducible.'},
-  {id:'COT-003',fecha:'2026-08-05',cliente:'Fernando Gutierrez',telefono:'3187654321',tipo:'Empresarial',bien:'Bodega industrial 400m2, Fontibon - Maquinaria pesada',valorAsegurar:2000000000,intermediario:'Fabian Carrera',estado:'aceptada',poliza:'POL-005',
-    comparaciones:[
-      {aseguradora:'Allianz',prima:12000000,deducible:15000000,coberturas:'Todo riesgo industrial, lucro cesante, RC patronal'},
-      {aseguradora:'AXA Colpatria',prima:13800000,deducible:12000000,coberturas:'Integral empresarial, equipo electrico, RC'}
-    ],notas:'Allianz gano por mejor tarifa en riesgo industrial.'},
-  {id:'COT-004',fecha:'2026-07-28',cliente:'Sandra Milena Castro',telefono:'3136543210',tipo:'Vida',bien:'Poliza de vida - Ejecutiva 42 anos',valorAsegurar:500000000,intermediario:'On Line',estado:'rechazada',poliza:null,
-    comparaciones:[
-      {aseguradora:'AXA Colpatria',prima:4200000,deducible:0,coberturas:'Muerte, invalidez, enfermedades graves'},
-      {aseguradora:'Seguros del Estado',prima:4800000,deducible:0,coberturas:'Muerte, invalidez, ITP, hospitalizacion'}
-    ],notas:'Cliente considero las primas muy altas. Seguimiento en 30 dias.'},
-  {id:'COT-005',fecha:'2026-08-09',cliente:'Carlos Mendoza',telefono:'3104567890',tipo:'Hogar',bien:'Casa 200m2 Chia, condominio cerrado',valorAsegurar:650000000,intermediario:'Erika Pinzon',estado:'enviada',poliza:null,
-    comparaciones:[
-      {aseguradora:'Allianz',prima:3200000,deducible:900000,coberturas:'Todo riesgo hogar, sismo, hurto, RC'},
-      {aseguradora:'Seguros del Estado',prima:2900000,deducible:1100000,coberturas:'Incendio, terremoto, contenido, asistencia'},
-      {aseguradora:'AXA Colpatria',prima:2750000,deducible:1200000,coberturas:'Basico hogar + hurto contenido'}
-    ],notas:'Ya es cliente con poliza Auto. Oportunidad de cross-sell.'}
-];
+var COTIZACIONES=[];
 
-var FACTURAS=[
-  {id:'CC-001',fecha:'2026-08-01',aseguradora:'Allianz',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-001, POL-005',subtotal:1248000,iva:237120,total:1485120,estado:'pagada',vence:'2026-08-30',fechaPago:'2026-08-18'},
-  {id:'CC-002',fecha:'2026-08-01',aseguradora:'AXA Colpatria',concepto:'Comisiones intermediacion Julio 2026',polizas:'POL-002, POL-008',subtotal:540000,iva:102600,total:642600,estado:'enviada',vence:'2026-08-30',fechaPago:null},
-  {id:'CC-003',fecha:'2026-07-01',aseguradora:'Seguros del Estado',concepto:'Comisiones polizas Jun 2026',polizas:'POL-003, POL-007',subtotal:684000,iva:129960,total:813960,estado:'vencida',vence:'2026-07-30',fechaPago:null},
-  {id:'CC-004',fecha:'2026-08-05',aseguradora:'Allianz',concepto:'Comision SOAT y renovaciones Jul 2026',polizas:'POL-004',subtotal:117600,iva:22344,total:139944,estado:'emitida',vence:'2026-09-05',fechaPago:null},
-  {id:'CC-005',fecha:'2026-06-01',aseguradora:'AXA Colpatria',concepto:'Comisiones intermediacion Mayo 2026',polizas:'POL-002',subtotal:540000,iva:102600,total:642600,estado:'pagada',vence:'2026-06-30',fechaPago:'2026-06-25'}
-];
+var FACTURAS=[];
 
 var NOTIFY={
   TG_TOKEN:'8803208867:AAFUoq9iXIUWNCYC1AvFc1pnyBknRR2D1m8',
@@ -2786,40 +2751,29 @@ var LEAD_FORM_URL = location.origin.indexOf('localhost')>=0
   : 'https://7group.site/agente/aseguralo/lead/';
 
 function loadLeadsFromSheet(){
-  // Tab "LEADS" en la misma Sheet — se crea sola cuando llega el primer POST
-  var LEADS_GID = window.LEADS_GID || null;
-  var url = 'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet=LEADS';
-  var script = document.createElement('script');
-  var cb = 'leadsCb'+Date.now();
-  window[cb] = function(){}; // gviz ignores callback query, we use fetch below
-  fetch(url).then(function(r){return r.text()}).then(function(txt){
-    try{
-      var m = txt.match(/setResponse\((.+)\)/s) || txt.match(/\(([\s\S]+)\)/);
-      if(!m) return;
-      var j = JSON.parse(m[1]);
-      var rows = (j.table && j.table.rows) || [];
-      LEADS = rows.map(function(r){
-        var c = r.c||[];
-        var v = function(i){return c[i]?((c[i].f!=null?c[i].f:c[i].v)||''):''};
+  // Lee LEADS vía Apps Script (más confiable que gviz sobre XLSX)
+  fetch(APPS_SCRIPT_URL + '?action=leads', {redirect:'follow'})
+    .then(function(r){return r.json()})
+    .then(function(j){
+      if(!j || j.status!=='ok' || !j.rows) return;
+      LEADS = j.rows.map(function(r){
         return {
-          fecha: String(v(0)),
-          id: String(v(1)),
-          nombre: String(v(2)),
-          correo: String(v(3)),
-          telefono: String(v(4)).replace(/[^0-9]/g,''),
-          tipo: String(v(5)),
-          detalle: String(v(6)),
-          urgencia: String(v(7)),
-          origen: String(v(8)),
-          estado: String(v(9)) || 'Nuevo',
-          notas: String(v(10))
+          fecha: r.timestamp || '',
+          id: r.id,
+          nombre: r.nombre,
+          correo: r.correo,
+          telefono: (r.telefono||'').replace(/[^0-9]/g,''),
+          tipo: r.tipo,
+          detalle: r.detalle,
+          urgencia: r.urgencia,
+          origen: r.origen,
+          estado: r.estado || 'Nuevo',
+          notas: r.notas
         };
-      }).filter(function(l){return l.id||l.nombre});
-      // ordenar por fecha desc
-      LEADS.sort(function(a,b){return (b.fecha||'').localeCompare(a.fecha||'')});
+      });
       renderLeads();
-    }catch(e){ /* tab LEADS aún no existe */ }
-  }).catch(function(){});
+    })
+    .catch(function(){});
 }
 
 function renderLeads(){

@@ -321,88 +321,28 @@ input[name*="placa"]{text-transform:uppercase}
   var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwTrLvOiAP6Ztr6HINBv7VSxiGPtEb9cBMhurYTW8DyEpn_yVweoY_Rlhn5C_vBwX1t/exec';
   var WA_FABIAN='573165206865';
 
-  // Plantillas por tipo. Fuente única (para editar: modifica aquí y sube).
-  var WA_TEMPLATES = {
-    'Vehiculo':
-'¡Hola! Con mucho gusto te ayudo a revisar la mejor alternativa para proteger tu vehículo. 🚗\n\n'+
-'Para poder realizar la cotización necesito estos datos:\n\n'+
-'• Nombre completo del propietario:\n'+
-'• Tipo y número de documento:\n'+
-'• Fecha de nacimiento:\n'+
-'• Placa del vehículo:\n'+
-'• Color del vehículo:\n'+
-'• Zona donde circula habitualmente (el lugar donde permanece o se moviliza la mayor parte del tiempo):',
-    'Salud':
-'🏥 Póliza de salud\n\n'+
-'Con mucho gusto te ayudo a revisar las alternativas de protección en salud.\n\n'+
-'La cotización se realiza de manera individual. Por cada persona a incluir necesito:\n\n'+
-'• Nombre completo:\n'+
-'• Tipo y número de documento:\n'+
-'• Fecha de nacimiento:\n'+
-'• EPS actual:\n'+
-'• ¿Tiene alguna enfermedad diagnosticada?:\n\n'+
-'Si son varias personas, envíame los datos de cada una.',
-    'Hogar':
-'🏠 Póliza para tu hogar\n\n'+
-'Con mucho gusto te ayudo a revisar alternativas para proteger tu hogar. Para preparar la cotización necesito:\n\n'+
-'• Dirección exacta del inmueble + ciudad:\n'+
-'• Área del apartamento (m²):\n'+
-'• Número total de pisos de la edificación:\n'+
-'• Número de sótanos:\n'+
-'• Año de construcción:\n'+
-'• Valor comercial aproximado:\n\n'+
-'(Opcional) Si deseas proteger también los contenidos, cuéntame valores aproximados de:\n'+
-'🛋️ Muebles y enseres:\n'+
-'📺 Equipos eléctricos y electrónicos:\n'+
-'🔧 Herramientas:\n'+
-'💎 Artículos de valor (joyas, obras de arte):\n'+
-'💻 Equipos móviles y portátiles:',
-    'Vida':
-'❤️ Póliza de vida\n\n'+
-'Con mucho gusto te ayudo a revisar alternativas de protección de vida. Para cotizar necesito datos básicos del tomador:\n\n'+
-'• Nombre completo:\n'+
-'• Tipo y número de documento:\n'+
-'• Fecha de nacimiento:\n'+
-'• Estatura actual:\n'+
-'• Peso actual:\n'+
-'• Ocupación o actividad actual:\n\n'+
-'Además, indícame el tipo de protección:\n'+
-'🏦 Vida deudor: valor aproximado del crédito o leasing.\n'+
-'🛡️ Vida tradicional: valor de protección deseado (si no tienes claridad, te oriento).',
-    'Empresa':
-'🏢 Seguro empresarial\n\n'+
-'Con mucho gusto te ayudo con la protección de tu empresa. Cuéntame el tipo de negocio y qué necesitas asegurar (bodega, oficina, maquinaria, mercancía, responsabilidad civil, etc.).',
-    'Arrendamiento':
-'🔑 Póliza de arrendamiento\n\n'+
-'Con mucho gusto te ayudo. Cuéntame:\n\n'+
-'• Canon mensual:\n'+
-'• Tipo de inmueble:\n'+
-'• Ciudad:\n\n'+
-'Luego te pido los documentos requeridos por la aseguradora.',
-    'Cumplimiento':
-'📋 Póliza de cumplimiento\n\n'+
-'Con mucho gusto te ayudo. Cuéntame:\n\n'+
-'• Objeto del contrato:\n'+
-'• Entidad contratante:\n'+
-'• Valor a amparar:',
-    'Viaje':
-'✈️ Póliza de viaje\n\n'+
-'Con mucho gusto te ayudo con la póliza para tu viaje. Necesito:\n\n'+
-'• Fecha de salida:\n'+
-'• Fecha de regreso:\n'+
-'• Destino:\n\n'+
-'Por cada viajero:\n'+
-'• Nombre completo:\n'+
-'• Fecha de nacimiento:',
-    'Otro':
-'Cuéntame qué necesitas asegurar y con gusto te oriento:'
+  // Etiqueta amigable por tipo (para el mensaje del cliente hacia Fabian)
+  var TIPO_LABEL = {
+    'Vehiculo':'seguro de vehículo',
+    'Salud':'póliza de salud',
+    'Hogar':'seguro para mi hogar / inmueble',
+    'Vida':'póliza de vida',
+    'Empresa':'seguro empresarial',
+    'Arrendamiento':'póliza de arrendamiento',
+    'Cumplimiento':'póliza de cumplimiento',
+    'Viaje':'póliza de viaje',
+    'Otro':'un seguro'
   };
 
+  // Mensaje que envía el CLIENTE a Fabian cuando aprieta "aquí" o el botón WA
+  // (aún no ha llenado el formulario — solo pide contacto)
   function textoWelcome(tipo){
-    var body = WA_TEMPLATES[tipo] || 'Quiero cotizar un seguro.';
+    var label = TIPO_LABEL[tipo] || 'un seguro';
     var nombre = ((document.querySelector('[name="nombre"]')||{}).value||'').trim();
-    var saludo = nombre ? ('Hola Fabian, soy '+nombre+'.') : 'Hola Fabian.';
-    return saludo + '\n\n' + body;
+    var saludo = nombre ? ('Hola Fabian, soy ' + nombre + '.') : 'Hola Fabian.';
+    return saludo + '\n\n' +
+           'Vi tu página de Aseguralo y quiero cotizar ' + label + '.\n\n' +
+           '¿Me contactas por aquí para orientarme?';
   }
 
   // Abre modal editable con el texto del welcome del tipo.
@@ -573,10 +513,19 @@ input[name*="placa"]{text-transform:uppercase}
       var inputs=visibleBlock.querySelectorAll('input:not([type="radio"]):not([type="button"]),select,textarea');
       for(var i=0;i<inputs.length;i++){
         var el=inputs[i];
+        // Saltar elementos ocultos (ej: textarea de "cual enfermedad" cuando esta en No)
+        if(el.offsetParent===null || el.style.display==='none') {
+          if(el.value) detail[el.name||el.id]=el.value;
+          continue;
+        }
         if(el.readOnly) { detail[el.name||el.id]=el.value; continue; }
         var val=(el.value||'').trim();
         if(!val){
-          err.textContent='Falta: '+(el.previousElementSibling && el.previousElementSibling.textContent||'un campo requerido').replace('*','').trim();
+          // Buscar label del .field padre (mas confiable que previousElementSibling)
+          var fieldParent = el.closest('.field');
+          var labelEl = fieldParent && fieldParent.querySelector('label');
+          var labelTxt = labelEl ? labelEl.textContent.replace('*','').trim() : 'un campo requerido';
+          err.textContent='Falta: '+labelTxt;
           err.classList.add('on');
           el.focus();
           return;
