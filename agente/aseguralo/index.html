@@ -2536,9 +2536,11 @@ window.filterClientes=function(){
    COTIZADOR
    ==================================== */
 /* ============================================
-   EN COTIZACION — prospectos con PDFs de aseguradoras (con OCR pdf.js)
+   EN COTIZACION — prospectos con PDFs de aseguradoras (OCR con Gemini Flash)
    ============================================ */
-var COT_PDFS = {}; // {leadId: {allianz:{prima,vig,name}, axa:{...}, estado:{...}}}
+var GEMINI_API_KEY = 'AQ.Ab8RN6LBhuupEdlPBbOz3vpp8glUSFqxeLeh7E1Z5bgLAaOMMw';
+var GEMINI_MODEL   = 'gemini-3.6-flash';
+var COT_PDFS = {}; // {leadId: {allianz:{prima,vig,name,extraido}, axa:{...}, estado:{...}}}
 try{ COT_PDFS = JSON.parse(localStorage.getItem('aseg_cot_pdfs')||'{}'); }catch(e){ COT_PDFS = {}; }
 function saveCotPdfs_(){ try{ localStorage.setItem('aseg_cot_pdfs', JSON.stringify(COT_PDFS)); }catch(e){} }
 
@@ -2619,26 +2621,132 @@ function extraerVigencia_(text){
   return fechas.length>=2 ? {desde: fechas[0], hasta: fechas[1]} : {desde:'', hasta:''};
 }
 
+/* Convierte File → base64 (sin prefijo data:) */
+function fileToBase64_(file){
+  return new Promise(function(resolve,reject){
+    var r = new FileReader();
+    r.onload = function(){
+      var s = r.result || '';
+      var i = s.indexOf(',');
+      resolve(i>=0 ? s.slice(i+1) : s);
+    };
+    r.onerror = function(){ reject(new Error('No se pudo leer el archivo')); };
+    r.readAsDataURL(file);
+  });
+}
+
+/* Devuelve el prompt segun tipo de poliza. Todos piden aseguradora + prima + vigencia. */
+function promptGemini_(tipo){
+  var camposEspecificos = '';
+  var t = (tipo||'').toLowerCase();
+  if(t.indexOf('veh')>=0 || t.indexOf('auto')>=0 || t==='soat'){
+    camposEspecificos =
+      '  "propietario": { "nombre": "...", "tipo_documento": "CC|CE|PA|NIT|null", "numero_documento": "...", "fecha_nacimiento": "YYYY-MM-DD o null" },\n'+
+      '  "vehiculo": { "placa": "...", "color": "...", "marca_modelo": "...", "ano": "..." },\n'+
+      '  "zona_circulacion": "..."';
+  } else if(t.indexOf('salud')>=0){
+    camposEspecificos =
+      '  "tomador": { "nombre": "...", "tipo_documento": "...", "numero_documento": "...", "fecha_nacimiento": "YYYY-MM-DD" },\n'+
+      '  "personas_incluidas": [ { "nombre":"...", "fecha_nacimiento":"YYYY-MM-DD", "parentesco":"..." } ],\n'+
+      '  "eps_actual": "..."';
+  } else if(t.indexOf('vida')>=0){
+    camposEspecificos =
+      '  "tomador": { "nombre": "...", "tipo_documento": "...", "numero_documento": "...", "fecha_nacimiento": "YYYY-MM-DD" },\n'+
+      '  "valor_asegurado": <numero>,\n'+
+      '  "estatura_cm": <numero>, "peso_kg": <numero>, "ocupacion": "..."';
+  } else if(t.indexOf('hogar')>=0 || t.indexOf('inmueble')>=0){
+    camposEspecificos =
+      '  "tomador": { "nombre":"...", "tipo_documento":"...", "numero_documento":"..." },\n'+
+      '  "inmueble": { "direccion":"...", "area_m2":<numero>, "pisos_edificacion":<numero>, "sotanos":<numero>, "ano_construccion":<numero>, "valor_comercial":<numero> }';
+  } else {
+    camposEspecificos = '  "tomador": { "nombre":"...", "documento":"..." }';
+  }
+
+  return 'Este documento PDF es una cotizacion de seguro de una aseguradora colombiana. '+
+    'Analizalo con cuidado y devuelve UNICAMENTE un objeto JSON valido (sin markdown, sin explicaciones) con esta estructura exacta:\n\n'+
+    '{\n'+
+    '  "aseguradora": "Allianz" | "AXA" | "AXA Colpatria" | "Seguros del Estado" | "Previsora" | otro,\n'+
+    '  "prima_total": <numero entero, la prima total anual/vigencia sin decimales, en pesos colombianos>,\n'+
+    '  "prima_mensual": <numero o null>,\n'+
+    '  "vigencia_desde": "YYYY-MM-DD",\n'+
+    '  "vigencia_hasta": "YYYY-MM-DD",\n'+
+    '  "valor_asegurado": <numero o null>,\n'+
+    '  "deducible": <numero o null>,\n'+
+    '  "coberturas_principales": "texto breve",\n'+
+    camposEspecificos+'\n'+
+    '}\n\n'+
+    'Reglas: Si un campo no aparece en el documento, ponlo como null. Todas las cifras deben ser numeros (sin puntos ni comas ni simbolo $). Devuelve SOLO el JSON, empezando con { y terminando con }. Sin ```json ni ```. Sin texto antes ni despues.';
+}
+
+/* Llama Gemini Flash con el PDF adjunto */
+async function llamarGemini_(file, tipo){
+  var b64 = await fileToBase64_(file);
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/'+GEMINI_MODEL+':generateContent?key='+GEMINI_API_KEY;
+  var payload = {
+    contents: [{
+      parts: [
+        { inline_data: { mime_type: 'application/pdf', data: b64 } },
+        { text: promptGemini_(tipo) }
+      ]
+    }],
+    generationConfig: {
+      responseMimeType: 'application/json',
+      temperature: 0.1
+    }
+  };
+  var res = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+  if(!res.ok){
+    var errTxt = await res.text();
+    throw new Error('Gemini '+res.status+': '+errTxt.slice(0,200));
+  }
+  var j = await res.json();
+  var txt = j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts && j.candidates[0].content.parts[0] && j.candidates[0].content.parts[0].text;
+  if(!txt) throw new Error('Gemini devolvio respuesta vacia');
+  // Limpiar markdown por si vino con ```json ... ```
+  txt = txt.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/,'').trim();
+  try{ return JSON.parse(txt); }
+  catch(e){ throw new Error('JSON invalido de Gemini: '+txt.slice(0,200)); }
+}
+
 window.subirPDFCotizacion = async function(inputEl, leadId, slotForzado){
   var file = inputEl.files[0]; if(!file) return;
   var statusEl = document.getElementById('pdf-status-'+leadId+'-'+(slotForzado||'auto'));
-  if(statusEl){ statusEl.textContent='Procesando...'; statusEl.style.color='var(--dim)'; }
+  var setStatus = function(msg,color){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=color||'var(--dim)'; } };
+  setStatus('Enviando a Gemini para analizar...','var(--accent)');
   try {
-    var res = await pdfToText_(file);
-    var aseg = slotForzado ? {allianz:'Allianz',axa:'AXA',estado:'Seguros del Estado'}[slotForzado] : detectarAseguradora_(res.full);
-    if(!aseg){
-      if(statusEl){ statusEl.textContent='No se pudo identificar la aseguradora. Sube manualmente en el slot correcto.'; statusEl.style.color='var(--red)'; }
+    var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {tipo:'Otro'};
+    var data = await llamarGemini_(file, lead.tipo);
+    var aseg = data.aseguradora || '';
+    var asegNorm = aseg.toLowerCase();
+    var slotKey = slotForzado;
+    if(!slotKey){
+      if(asegNorm.indexOf('allianz')>=0) slotKey='allianz';
+      else if(asegNorm.indexOf('axa')>=0) slotKey='axa';
+      else if(asegNorm.indexOf('estado')>=0 || asegNorm.indexOf('previsora')>=0) slotKey='estado';
+    }
+    if(!slotKey){
+      setStatus('No se pudo identificar la aseguradora ('+aseg+'). Sube manualmente en el slot correcto.','var(--red)');
       return;
     }
-    var prima = extraerPrima_(res.full, aseg);
-    var vig = extraerVigencia_(res.full);
-    var slotKey = aseg==='Allianz'?'allianz':aseg==='AXA'?'axa':'estado';
     if(!COT_PDFS[leadId]) COT_PDFS[leadId] = {};
-    COT_PDFS[leadId][slotKey] = {aseguradora: aseg, prima: prima, desde: vig.desde, hasta: vig.hasta, nombreArchivo: file.name, ts: Date.now()};
+    COT_PDFS[leadId][slotKey] = {
+      aseguradora: aseg || {allianz:'Allianz',axa:'AXA',estado:'Seguros del Estado'}[slotKey],
+      prima: Number(data.prima_total)||0,
+      primaMensual: Number(data.prima_mensual)||0,
+      desde: data.vigencia_desde || '',
+      hasta: data.vigencia_hasta || '',
+      valorAsegurado: Number(data.valor_asegurado)||0,
+      deducible: Number(data.deducible)||0,
+      coberturas: data.coberturas_principales || '',
+      extraido: data,   // guarda todo el JSON crudo por si hay campos extras
+      nombreArchivo: file.name,
+      ts: Date.now()
+    };
     saveCotPdfs_();
     renderEnCotizacion();
   } catch(err){
-    if(statusEl){ statusEl.textContent='Error: '+err.message; statusEl.style.color='var(--red)'; }
+    setStatus('Error: '+err.message,'var(--red)');
+    console.error('OCR error:', err);
   }
 };
 
