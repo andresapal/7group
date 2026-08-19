@@ -210,8 +210,13 @@ tbody tr:hover{background:var(--accent-light)}
 .fin-stat-sub{font-size:11px;color:var(--dim);margin-top:4px}
 
 /* RESPONSIVE */
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px!important}
+  .kpi-card{padding:14px 16px}
+  .kpi-val{font-size:24px}
+  .kpi-label{font-size:10px}
+}
 @media(max-width:768px){
-  .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .kanban{grid-template-columns:repeat(5,240px)}
   .main{padding:12px}
   .topbar{padding:0 10px;gap:6px}
@@ -220,23 +225,32 @@ tbody tr:hover{background:var(--accent-light)}
   .tb-toggle,.tb-btn{padding:5px 8px;font-size:9px}
   .mod-nav{padding:0 12px;gap:0}
   .mod-nav .mod-link{padding:10px 8px;font-size:11px}
+  .sec-header{flex-direction:column;align-items:stretch;gap:12px}
+  .tbl-actions{flex-wrap:wrap;gap:6px}
+  .tbl-actions .btn{flex:1 1 calc(50% - 6px);min-width:0;font-size:11px;padding:8px 10px;margin-left:0!important}
+  .sub-nav{padding:3px;gap:2px}
+  .sub-tab{min-width:0;padding:8px 6px;font-size:10px;gap:4px}
 }
 @media(max-width:480px){
-  .kpi-grid{grid-template-columns:1fr}
   .tb-left .tb-sep,.tb-left .tb-badge{display:none}
   .tb-logo img{height:22px!important}
   .topbar{height:44px}
+  .kpi-val{font-size:22px}
+}
+@media(max-width:360px){
+  .kpi-grid{grid-template-columns:1fr!important}
 }
 
 /* POLICY DETAIL ROW */
-.pol-detail{padding:16px 20px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:2px solid var(--accent-mid)}
-.pd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
-@media(max-width:768px){.pd-grid{grid-template-columns:1fr}}
-.pd-col{}
-.pd-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2)}
-.pd-field{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px}
-.pd-label{color:var(--dim);font-weight:600}
-.pd-value{font-weight:500;text-align:right}
+.pol-detail{padding:14px 18px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:2px solid var(--accent-mid)}
+.pd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:900px){.pd-grid{grid-template-columns:1fr 1fr;gap:12px}}
+@media(max-width:600px){.pd-grid{grid-template-columns:1fr;gap:10px} .pol-detail{padding:12px 14px}}
+.pd-col{min-width:0}
+.pd-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--accent);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border2)}
+.pd-field{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;font-size:12px;flex-wrap:wrap}
+.pd-label{color:var(--dim);font-weight:600;flex:0 0 auto;min-width:80px}
+.pd-value{font-weight:500;text-align:right;flex:1 1 auto;word-break:break-word;min-width:0}
 .pd-link{color:var(--accent);text-decoration:none;font-weight:600}
 .pd-link:hover{text-decoration:underline}
 
@@ -377,9 +391,8 @@ tbody tr:hover{background:var(--accent-light)}
           <div class="sec-desc">Lead &rarr; Cotizacion &rarr; Poliza. Tu dia empieza en el Inbox.</div>
         </div>
         <div class="tbl-actions">
+          <input class="tbl-search" placeholder="Buscar cliente..." id="searchLeads" oninput="filterLeads()">
           <button class="btn btn-primary" onclick="nuevoProspecto()">+ Nuevo prospecto</button>
-          <button class="btn" onclick="openModal('pasteWA')" style="margin-left:6px">Pegar chat WA</button>
-          <button class="btn" onclick="openModal('plantillas')" style="margin-left:6px">Plantillas</button>
           <button class="btn" onclick="openModal('leadQR')" style="margin-left:6px">QR formulario</button>
         </div>
       </div>
@@ -412,11 +425,8 @@ tbody tr:hover{background:var(--accent-light)}
                   <th>Cliente</th>
                   <th>Telefono</th>
                   <th>Tipo</th>
-                  <th>Detalle</th>
-                  <th>Urgencia</th>
                   <th>Origen</th>
                   <th>Estado</th>
-                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody id="leadsTable"></tbody>
@@ -680,6 +690,56 @@ tbody tr:hover{background:var(--accent-light)}
     </div>
   </div>
 </div>
+
+<!-- MODAL: Nuevo prospecto RÁPIDO (flujo Fabian: recibe WA, captura y responde con plantilla) -->
+<div class="modal-overlay" id="modalNuevoProspecto">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head">
+      <div class="modal-title">Nuevo prospecto</div>
+      <button class="modal-close" onclick="closeModal('nuevoProspecto')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Nombre <span style="color:var(--red)">*</span></label><input class="form-input" id="npNombre" placeholder="Camila Ruiz" autocomplete="off"></div>
+        <div class="form-group"><label class="form-label">Telefono / WhatsApp <span style="color:var(--red)">*</span></label><input class="form-input" id="npTel" placeholder="3XXXXXXXXX" inputmode="tel"></div>
+      </div>
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Correo <span style="color:var(--dim);font-weight:400;text-transform:none">(opcional al inicio)</span></label><input class="form-input" id="npCorreo" type="email" placeholder="cliente@correo.com"></div>
+        <div class="form-group"><label class="form-label">Origen</label>
+          <select class="form-input" id="npOrigen">
+            <option>WhatsApp</option><option>Llamada</option><option>Referido</option><option>Instagram</option><option>Presencial</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo de seguro que quiere cotizar <span style="color:var(--red)">*</span></label>
+        <div id="npTipoChips" style="display:flex;flex-wrap:wrap;gap:6px">
+          <button type="button" class="np-chip" data-tipo="Vehiculo">Vehiculo</button>
+          <button type="button" class="np-chip" data-tipo="Salud">Salud</button>
+          <button type="button" class="np-chip" data-tipo="Hogar">Hogar</button>
+          <button type="button" class="np-chip" data-tipo="Vida">Vida</button>
+          <button type="button" class="np-chip" data-tipo="Empresa">Empresa</button>
+          <button type="button" class="np-chip" data-tipo="Arrendamiento">Arrendamiento</button>
+          <button type="button" class="np-chip" data-tipo="Cumplimiento">Cumplimiento</button>
+          <button type="button" class="np-chip" data-tipo="Viaje">Viaje</button>
+          <button type="button" class="np-chip" data-tipo="Otro">Otro</button>
+        </div>
+        <input type="hidden" id="npTipo">
+      </div>
+      <div id="npPreview" style="display:none;margin-top:12px;padding:12px 14px;background:var(--bg3);border-left:3px solid var(--accent);border-radius:6px;font-size:12px;line-height:1.5;color:var(--text);white-space:pre-line;max-height:200px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('nuevoProspecto')">Cancelar</button>
+      <button class="btn" onclick="npGuardarSolo()">Solo guardar</button>
+      <button class="btn btn-primary" onclick="npGuardarYEnviarWA()" style="background:var(--wa)">Enviar WA + guardar</button>
+    </div>
+  </div>
+</div>
+<style>
+.np-chip{padding:8px 12px;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
+.np-chip:hover{border-color:var(--accent);color:var(--accent)}
+.np-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+</style>
 
 <!-- MODAL: Plantillas de mensaje WA -->
 <div class="modal-overlay" id="modalPlantillas">
@@ -1075,6 +1135,18 @@ function initGoogleSignIn(){
 }
 
 function autoEnter(){
+  // BYPASS DEV: localhost, 127.0.0.1, file:// o ?dev=1 saltan el login de Google.
+  // Esto solo aplica al probar en local — en 7group.site el login funciona normal.
+  var h = location.hostname;
+  var isDev = h==='localhost' || h==='127.0.0.1' || h==='' || location.search.indexOf('dev=1')>=0;
+  if(isDev){
+    try{
+      localStorage.setItem(GATE_KEY, ALLOWED_EMAILS[0] || 'dev@local');
+      localStorage.setItem(GATE_TS_KEY, String(Date.now()));
+    }catch(e){}
+    enterApp();
+    return;
+  }
   if(isBlocked()){
     document.getElementById('gateBlocked').style.display='block';
     var btn=document.getElementById('g_id_signin');
@@ -1656,13 +1728,83 @@ document.getElementById('modNav').addEventListener('click',function(e){
   switchMod(link.dataset.mod);
 });
 
-/* Nuevo prospecto -> abre el mismo formulario publico (una sola forma de capturar).
-   Fabian lo puede usar en llamada para capturar prospecto estructurado. */
+/* Nuevo prospecto (flujo Fabian: le entra WA/llamada, captura y responde con plantilla) */
 window.nuevoProspecto=function(){
   switchMod('cotizador');
   switchSub('inbox');
-  window.open('/agente/aseguralo/lead/', '_blank', 'noopener');
+  openModal('nuevoProspecto');
+  // reset campos
+  ['npNombre','npTel','npCorreo','npTipo'].forEach(function(id){var e=document.getElementById(id); if(e) e.value='';});
+  var o=document.getElementById('npOrigen'); if(o) o.selectedIndex=0;
+  document.getElementById('npPreview').style.display='none';
+  document.querySelectorAll('#npTipoChips .np-chip').forEach(function(c){c.classList.remove('on')});
 };
+
+/* Handler chips tipo dentro del modal — muestra preview del mensaje */
+document.addEventListener('click', function(e){
+  var chip = e.target.closest && e.target.closest('#npTipoChips .np-chip');
+  if(!chip) return;
+  document.querySelectorAll('#npTipoChips .np-chip').forEach(function(c){c.classList.remove('on')});
+  chip.classList.add('on');
+  var tipo = chip.dataset.tipo;
+  document.getElementById('npTipo').value = tipo;
+  // Preview del mensaje que se enviara
+  var nom = (document.getElementById('npNombre').value||'').trim();
+  var preview = fillTpl(tplFor(tipo), {nombre: nom || 'cliente'});
+  var box = document.getElementById('npPreview');
+  box.style.display = 'block';
+  box.textContent = preview;
+});
+
+/* Guardar SIN enviar WA (solo lead) */
+window.npGuardarSolo = function(){
+  var d = npCollect_(); if(!d) return;
+  npSaveLead_(d, function(){ closeModal('nuevoProspecto'); });
+};
+
+/* Guardar Y abrir WA con plantilla lista */
+window.npGuardarYEnviarWA = function(){
+  var d = npCollect_(); if(!d) return;
+  var msg = fillTpl(tplFor(d.tipo), {nombre: d.nombre});
+  var url = 'https://wa.me/57'+d.telefono+'?text='+encodeURIComponent(msg);
+  npSaveLead_(d, function(){
+    closeModal('nuevoProspecto');
+    window.open(url, '_blank');
+  });
+};
+
+function npCollect_(){
+  var nombre  = (document.getElementById('npNombre').value||'').trim();
+  var tel     = (document.getElementById('npTel').value||'').replace(/[^0-9]/g,'');
+  var correo  = (document.getElementById('npCorreo').value||'').trim();
+  var tipo    = document.getElementById('npTipo').value;
+  var origen  = document.getElementById('npOrigen').value || 'WhatsApp';
+  if(!nombre){ alert('Escribe el nombre del prospecto'); return null; }
+  if(tel.length<7){ alert('Escribe el telefono (minimo 7 digitos)'); return null; }
+  if(!tipo){ alert('Selecciona el tipo de seguro'); return null; }
+  if(correo && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)){ alert('El correo no tiene formato valido'); return null; }
+  return {nombre:nombre, telefono:tel, correo:correo, tipo:tipo, origen:origen};
+}
+
+function npSaveLead_(d, cb){
+  var payload = {
+    action:'lead',
+    fecha: new Date().toISOString(),
+    nombre: d.nombre,
+    correo: d.correo,
+    telefono: d.telefono,
+    tipo: d.tipo,
+    detalle: '',
+    urgencia: '',
+    origen: d.origen
+  };
+  // Optimista: agregar local para que aparezca ya en el Inbox
+  LEADS.unshift({fecha:payload.fecha, id:'LD-local-'+Date.now(), nombre:d.nombre, correo:d.correo, telefono:d.telefono, tipo:d.tipo, detalle:'', urgencia:'', origen:d.origen, estado:'Nuevo', notas:''});
+  renderLeads();
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(function(){ setTimeout(loadLeadsFromSheet, 1500); if(cb)cb(); })
+    .catch(function(){ if(cb)cb(); });
+}
 
 /* Sub-navegacion dentro de Cotizador: inbox / curso / emitir */
 window.switchSub=function(subId){
@@ -1831,10 +1973,18 @@ window.toggleDetail=function(id){
   row.style.display=row.style.display==='none'?'table-row':'none';
 };
 
-window.sendWA=function(phone,name){
-  var p=phone.replace(/\D/g,'');
+window.sendWA=function(phone,name,tipo){
+  var p=(phone||'').replace(/\D/g,'');
+  if(!p){ alert('Esta poliza no tiene telefono registrado'); return; }
   if(p.length===10) p='57'+p;
-  var msg='Hola '+name+', le escribimos de Aseguralo. ';
+  // Si viene tipo, usa la plantilla completa (misma que en Inbox de leads).
+  // Si no, un saludo corto de contacto.
+  var msg;
+  if(tipo && typeof tplFor==='function'){
+    msg = fillTpl(tplFor(tipo), {nombre:name});
+  } else {
+    msg = 'Hola '+(name||'').split(' ')[0]+', te escribe Fabian Carrera de Aseguralo. ¿Como te puedo ayudar?';
+  }
   window.open('https://wa.me/'+p+'?text='+encodeURIComponent(msg),'_blank');
 };
 
@@ -1885,7 +2035,7 @@ function renderPolizaRow(p,idx){
     '</td>'+
     '<td><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></td>'+
     '<td><div style="display:flex;gap:4px" onclick="event.stopPropagation()">'+
-      '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+p.telefono+'\',\''+p.cliente+'\')">WA</button>'+
+      '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+p.telefono+'\',\''+p.cliente+'\',\''+p.tipo+'\')">WA</button>'+
       (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+p.id+'\')">Renovar</button>':'')+
     '</div></td>'+
   '</tr>'+
@@ -1926,16 +2076,21 @@ function renderPolizaRow(p,idx){
 }
 
 function renderPolizas(filter){
-  // Ordenar por urgencia de renovacion: primero vencidas (mas dias vencidas arriba),
-  // luego por-renovar (mas cerca de vencer arriba), luego activas, luego canceladas.
-  var orden={'vencida':0,'por-renovar':1,'activa':2,'cancelada':3};
-  var base=POLIZAS.slice().sort(function(a,b){
-    var oa=orden[a.estado]!=null?orden[a.estado]:9;
-    var ob=orden[b.estado]!=null?orden[b.estado]:9;
-    if(oa!==ob) return oa-ob;
-    // dentro del mismo estado, ordena por fecha hasta ASC (mas urgente primero)
-    return (a.hasta||'').localeCompare(b.hasta||'');
-  });
+  // Si el usuario NO ha hecho click en un header, ordenamos por urgencia (default).
+  // Si ya hizo click en un header, respetamos ese orden (sortState tiene entries).
+  var userSorted = Object.keys(sortState).some(function(k){return k.indexOf('polizasTable')===0});
+  var base;
+  if(userSorted){
+    base = POLIZAS.slice(); // sortTable ya lo dejo ordenado
+  } else {
+    var orden={'vencida':0,'por-renovar':1,'activa':2,'cancelada':3};
+    base = POLIZAS.slice().sort(function(a,b){
+      var oa=orden[a.estado]!=null?orden[a.estado]:9;
+      var ob=orden[b.estado]!=null?orden[b.estado]:9;
+      if(oa!==ob) return oa-ob;
+      return (a.hasta||'').localeCompare(b.hasta||'');
+    });
+  }
   var data=filter?base.filter(function(p){return p.cliente.toLowerCase().indexOf(filter)!==-1}):base;
 
   if(!filter) polizasShown=POLIZAS_PAGE_SIZE;
@@ -2005,23 +2160,33 @@ window.filterPolizas=function(){
 };
 
 window.renovarPoliza=function(id){
-  POLIZAS.forEach(function(p){
-    if(p.id===id){
-      p.estado='activa';
-      var d=new Date(p.hasta+'T12:00:00');
-      p.desde=p.hasta;
-      d.setFullYear(d.getFullYear()+1);
-      p.hasta=d.toISOString().slice(0,10);
-    }
-  });
+  var p = POLIZAS.filter(function(x){return x.id===id})[0];
+  if(!p) return;
+  var confirmMsg =
+    '¿Confirmas renovar esta poliza?\n\n'+
+    'No: ' + id + '\n'+
+    'Cliente: ' + p.cliente + '\n'+
+    'Tipo: ' + p.tipo + '\n\n'+
+    'Al confirmar:\n'+
+    '• La vigencia pasa de ' + p.desde + ' → ' + p.hasta + '\n'+
+    '  a ' + p.hasta + ' → (+1 año)\n'+
+    '• El estado pasa a "Activa"\n'+
+    '• Se sincroniza al Sheet (Excel de Fabian)\n'+
+    '• Se notifica por Telegram al admin';
+  if(!confirm(confirmMsg)) return;
+
+  p.estado='activa';
+  var d=new Date(p.hasta+'T12:00:00');
+  p.desde=p.hasta;
+  d.setFullYear(d.getFullYear()+1);
+  p.hasta=d.toISOString().slice(0,10);
+
   renderPolizas();
   renderRenovaciones();
   renderDashboard();
-  showToast('Poliza '+id+' renovada exitosamente','success');
-  notifyTelegram('POLIZA RENOVADA\nRef: '+id+'\nCliente: '+POLIZAS.find(function(p){return p.id===id}).cliente);
-  // Sync renewal to Sheet
-  var rp=POLIZAS.find(function(p){return p.id===id});
-  if(rp) postToSheet('update',{poliza:id, desde:rp.desde, hasta:rp.hasta});
+  showToast('Poliza '+id+' renovada. Nueva vigencia: '+p.desde+' → '+p.hasta,'success');
+  notifyTelegram('POLIZA RENOVADA\nRef: '+id+'\nCliente: '+p.cliente+'\nNueva vigencia: '+p.desde+' -> '+p.hasta);
+  postToSheet('update',{poliza:id, desde:p.desde, hasta:p.hasta});
 };
 
 window.savePoliza=function(){
@@ -2210,7 +2375,7 @@ function renderRenovTable(){
       '<td><span class="alert-'+r.alertClass+'">'+r.alertLabel+'</span></td>'+
       '<td><div style="display:flex;gap:4px">'+
         '<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+r.poliza+'\')">Renovar</button>'+
-        '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+r.telefono+'\',\''+r.cliente+'\')">WA</button>'+
+        '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+r.telefono+'\',\''+r.cliente+'\',\''+r.tipo+'\')">WA</button>'+
       '</div></td>'+
     '</tr>';
   }).join('');
@@ -2776,7 +2941,56 @@ function loadLeadsFromSheet(){
     .catch(function(){});
 }
 
-function renderLeads(){
+// Convierte "v_placa" → "Placa", "s_nombre_0" → "Persona 1 · Nombre", etc.
+function humanizarKey(k){
+  var mapPref = {
+    'v_':'',       // vehiculo
+    's_':'',       // salud
+    'h_':'',       // hogar
+    'vi_':'',      // vida
+    'vj_':'Viaje · ',
+    'e_':'',
+    'a_':'',
+    'c_':'',
+    'o_':''
+  };
+  var mapCampos = {
+    'tdoc':'Tipo doc','ndoc':'N° documento','fnac':'Fecha nacimiento',
+    'placa':'Placa','color':'Color','zona':'Zona de circulacion','ano':'Año','vehiculo':'Vehiculo',
+    'edad':'Edad','personas':'N° personas','count':'Cantidad',
+    'eps':'EPS','enf':'Enfermedad diagnosticada','enfdesc':'Cual enfermedad',
+    'direccion':'Direccion','area':'Area (m2)','pisos':'Pisos edificacion','sotanos':'Sotanos','valor':'Valor comercial','estrato':'Estrato',
+    'estatura':'Estatura','peso':'Peso','ocupacion':'Ocupacion',
+    'desc':'Descripcion','empresa':'Detalle empresa',
+    'destino':'Destino','salida':'Fecha salida','llegada':'Fecha regreso','nombre':'Nombre'
+  };
+  // Detectar sufijo numerico (persona N o viajero N)
+  var m = k.match(/^([a-z]{1,3}_)([a-z]+?)_?(\d+)?$/);
+  if(!m){ return k; }
+  var pref = m[1], campo = m[2], idx = m[3];
+  var prefHuman = mapPref[pref]!==undefined?mapPref[pref]:'';
+  var human = mapCampos[campo] || (campo.charAt(0).toUpperCase()+campo.slice(1));
+  if(idx!=null){
+    // s_nombre_0 → "Persona 1 · Nombre"; vj_nombre_0 → "Viajero 1 · Nombre"
+    var grupo = pref==='vj_'?'Viajero':'Persona';
+    return grupo+' '+(parseInt(idx)+1)+' · '+human;
+  }
+  return prefHuman+human;
+}
+
+// Parsea el string detalle "v_placa: ABC | v_color: Rojo" a bloques legibles
+function parseDetalleAmigable(det){
+  if(!det) return [];
+  return det.split('|').map(function(part){
+    var i = part.indexOf(':');
+    if(i<0) return {label:'', value:part.trim()};
+    var k = part.slice(0,i).trim();
+    var v = part.slice(i+1).trim();
+    return {label:humanizarKey(k), value:v};
+  }).filter(function(x){return x.value});
+}
+
+function renderLeads(filter){
   updateSubCounts();
   var estMap = {'Nuevo':'badge-por-renovar','Contactado':'badge-activa','En cotizacion':'badge-activa','Convertido':'badge-activa','Perdido':'badge-vencida','Descartado':'badge-cancelada'};
   var kpiEl = document.getElementById('leadsKpi'); if(!kpiEl) return;
@@ -2793,33 +3007,117 @@ function renderLeads(){
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
 
   var tb = document.getElementById('leadsTable'); if(!tb) return;
-  if(!LEADS.length){
-    tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay leads. Comparte el link del formulario o usa "+ Lead manual" cuando entre uno por llamada.</td></tr>';
+  var data = filter ? LEADS.filter(function(l){return (l.nombre||'').toLowerCase().indexOf(filter)>=0 || (l.telefono||'').indexOf(filter)>=0}) : LEADS;
+  if(!data.length){
+    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay leads. Comparte el link del formulario o usa "+ Nuevo prospecto" cuando entre uno por llamada.</td></tr>';
     return;
   }
-  tb.innerHTML = LEADS.map(function(l){
+  tb.innerHTML = data.map(function(l,idx){
     var fecha = (l.fecha||'').slice(0,10);
     var tel = l.telefono||'';
-    var telHTML = tel
-      ? '<a href="https://wa.me/57'+tel+'" target="_blank" style="color:#25d366;font-weight:600;text-decoration:none">'+tel+'</a>'
-      : '<span style="color:var(--muted)">--</span>';
     var badge = estMap[l.estado] || 'badge-por-renovar';
-    return '<tr>'+
-      '<td style="font-size:12px;color:var(--dim)">'+fecha+'</td>'+
+    var detailId = 'lead-detail-'+idx;
+    // Datos base ordenados y en palabras completas
+    var baseRows =
+      '<div class="pd-field"><span class="pd-label">Nombre completo</span><span class="pd-value">'+(l.nombre||'—')+'</span></div>'+
+      '<div class="pd-field"><span class="pd-label">Correo</span><span class="pd-value">'+(l.correo||'<span style="color:var(--muted)">no registrado</span>')+'</span></div>'+
+      '<div class="pd-field"><span class="pd-label">Telefono / WhatsApp</span><span class="pd-value mono">'+(tel||'—')+'</span></div>'+
+      '<div class="pd-field"><span class="pd-label">Tipo de seguro</span><span class="pd-value">'+(l.tipo||'—')+'</span></div>'+
+      '<div class="pd-field"><span class="pd-label">Origen</span><span class="pd-value">'+(l.origen||'—')+'</span></div>'+
+      '<div class="pd-field"><span class="pd-label">Estado</span><span class="pd-value"><span class="badge '+badge+'">'+(l.estado||'Nuevo')+'</span></span></div>'+
+      '<div class="pd-field"><span class="pd-label">Fecha ingreso</span><span class="pd-value">'+fecha+'</span></div>'+
+      (l.urgencia?'<div class="pd-field"><span class="pd-label">Urgencia</span><span class="pd-value">'+l.urgencia+'</span></div>':'')+
+      (l.notas?'<div class="pd-field"><span class="pd-label">Notas internas</span><span class="pd-value">'+l.notas+'</span></div>':'');
+    // Datos especificos (si viene detalle del formulario publico)
+    var detalleAmigable = parseDetalleAmigable(l.detalle||'');
+    var detalleRows = detalleAmigable.length
+      ? detalleAmigable.map(function(f){return '<div class="pd-field"><span class="pd-label">'+f.label+'</span><span class="pd-value">'+f.value+'</span></div>'}).join('')
+      : '<div class="pd-field" style="color:var(--muted);font-size:11px">Sin datos especificos aun. Se completan cuando el cliente responde por WhatsApp.</div>';
+
+    // Plantilla WA precargada segun tipo
+    var plantillaId = 'lead-wa-tpl-'+idx;
+    var msgId = 'lead-wa-msg-'+idx;
+    var plantillaInicial = typeof fillTpl==='function' ? fillTpl(tplFor(l.tipo), {nombre:l.nombre}) : '';
+
+    return '<tr style="cursor:pointer" onclick="toggleDetail(\''+detailId+'\')">'+
+      '<td style="font-size:12px;color:var(--dim)">'+fecha+' <span style="font-size:9px;color:var(--dim)">&#9660;</span></td>'+
       '<td><strong>'+(l.nombre||'—')+'</strong></td>'+
-      '<td class="mono" style="font-size:12px">'+telHTML+'</td>'+
+      '<td class="mono" style="font-size:12px">'+(tel||'—')+'</td>'+
       '<td>'+(l.tipo||'--')+'</td>'+
-      '<td style="font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis">'+(l.detalle||'')+'</td>'+
-      '<td style="font-size:12px">'+(l.urgencia||'')+'</td>'+
       '<td style="font-size:11px;color:var(--dim)">'+(l.origen||'')+'</td>'+
       '<td><span class="badge '+badge+'">'+(l.estado||'Nuevo')+'</span></td>'+
-      '<td><div style="display:flex;gap:4px;flex-wrap:wrap">'+
-        (tel?'<button class="btn btn-sm btn-wa" onclick="enviarWALead(\''+l.id+'\')" title="Enviar mensaje inicial por WhatsApp segun tipo">WA</button>':'')+
-        '<button class="btn btn-sm btn-primary" onclick="convertirLead(\''+l.id+'\')">Cotizar</button>'+
-      '</div></td>'+
+    '</tr>'+
+    '<tr id="'+detailId+'" class="pol-detail-row" style="display:none">'+
+      '<td colspan="6" style="padding:0;border:none">'+
+        '<div class="pol-detail">'+
+          '<div class="pd-grid" style="grid-template-columns:1fr 1fr">'+
+            '<div class="pd-col">'+
+              '<div class="pd-section-title">Datos del prospecto</div>'+
+              baseRows+
+            '</div>'+
+            '<div class="pd-col">'+
+              '<div class="pd-section-title">Datos para la cotizacion</div>'+
+              detalleRows+
+            '</div>'+
+          '</div>'+
+          '<div style="margin-top:16px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px" onclick="event.stopPropagation()">'+
+            '<div class="pd-section-title" style="border:none;padding:0;margin-bottom:8px;color:#25d366">Enviar WhatsApp de seguimiento</div>'+
+            '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">'+
+              '<label style="font-size:11px;color:var(--dim);font-weight:600">Cargar plantilla:</label>'+
+              '<select id="'+plantillaId+'" class="form-input" style="flex:1;min-width:150px;padding:6px 10px;font-size:12px" onchange="cargarPlantillaLead(\''+msgId+'\', this.value, '+JSON.stringify(JSON.stringify(l)).slice(1,-1)+')">'+
+                '<option value="'+(l.tipo||'Otro')+'">'+(l.tipo||'Otro')+' (por tipo del lead)</option>'+
+                '<option value="Vehiculo">Vehiculo</option>'+
+                '<option value="Salud">Salud</option>'+
+                '<option value="Hogar">Hogar</option>'+
+                '<option value="Vida">Vida</option>'+
+                '<option value="Empresa">Empresa</option>'+
+                '<option value="Arrendamiento">Arrendamiento</option>'+
+                '<option value="Cumplimiento">Cumplimiento</option>'+
+                '<option value="Viaje">Viaje</option>'+
+                '<option value="Otro">Otro (mensaje corto)</option>'+
+              '</select>'+
+              '<button class="btn btn-sm" onclick="abrirEditorPlantilla(\''+(l.tipo||'Otro')+'\')" style="font-size:11px">Editar plantillas</button>'+
+            '</div>'+
+            '<textarea id="'+msgId+'" rows="6" class="form-input" style="font-family:inherit;font-size:12px;line-height:1.5">'+plantillaInicial+'</textarea>'+
+            '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">'+
+              '<button class="btn btn-sm btn-primary" onclick="convertirLead(\''+l.id+'\')">Convertir a cotizacion</button>'+
+              (tel?'<button class="btn btn-sm" style="background:#25d366;color:#fff;border:none" onclick="enviarWALeadEditado(\''+l.id+'\',\''+msgId+'\')">Enviar por WhatsApp</button>':'')+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</td>'+
     '</tr>';
   }).join('');
 }
+
+window.filterLeads = function(){
+  var v = (document.getElementById('searchLeads').value||'').toLowerCase();
+  renderLeads(v||null);
+};
+
+window.cargarPlantillaLead = function(msgId, tipo, leadJson){
+  var lead;
+  try{ lead = JSON.parse(leadJson); }catch(e){ lead = {nombre:''}; }
+  document.getElementById(msgId).value = fillTpl(tplFor(tipo), {nombre: lead.nombre});
+};
+
+window.enviarWALeadEditado = function(id, msgId){
+  var l = LEADS.filter(function(x){return x.id===id})[0];
+  if(!l || !l.telefono) return;
+  var msg = document.getElementById(msgId).value;
+  var url = 'https://wa.me/57'+l.telefono+'?text='+encodeURIComponent(msg);
+  window.open(url, '_blank');
+  if(l.estado==='Nuevo'){ l.estado='Contactado'; renderLeads(); }
+};
+
+window.abrirEditorPlantilla = function(tipo){
+  openModal('plantillas');
+  // scroll a la plantilla del tipo si el modal ya renderizo
+  setTimeout(function(){
+    var target = document.querySelector('#plantillasList textarea[data-tpl="'+tipo+'"]');
+    if(target){ target.scrollIntoView({behavior:'smooth',block:'center'}); target.focus(); }
+  }, 200);
+};
 
 /* saveLead retirada: la captura se hace desde el formulario publico /lead/ (una sola verdad). */
 
