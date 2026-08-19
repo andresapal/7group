@@ -116,7 +116,8 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .tbl-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .tbl-title{font-size:14px;font-weight:700}
 .tbl-actions{display:flex;gap:6px;align-items:center}
-.tbl-search{padding:6px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:inherit;color:var(--text);outline:none;width:180px;transition:.2s}
+.tbl-search{padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;font-size:13px;font-family:inherit;color:var(--text);outline:none;width:200px;transition:.2s}
+@media(max-width:768px){.tbl-search{width:100%;flex:1 1 100%;order:-1;margin-bottom:8px}}
 .tbl-search:focus{border-color:var(--accent)}
 .tbl-search::placeholder{color:var(--muted)}
 table{width:100%;border-collapse:collapse}
@@ -739,7 +740,7 @@ tbody tr:hover{background:var(--accent-light)}
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('nuevoProspecto')">Cancelar</button>
       <button class="btn" onclick="npGuardarSolo()">Solo guardar</button>
-      <button class="btn btn-primary" onclick="npGuardarYEnviarWA()" style="background:var(--wa)">Enviar WA + guardar</button>
+      <button class="btn btn-wa-solid" onclick="npGuardarYEnviarWA()">Enviar WA + guardar</button>
     </div>
   </div>
 </div>
@@ -747,6 +748,8 @@ tbody tr:hover{background:var(--accent-light)}
 .np-chip{padding:8px 12px;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;font-family:inherit;transition:.15s}
 .np-chip:hover{border-color:var(--accent);color:var(--accent)}
 .np-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-wa-solid{background:#25d366!important;color:#fff!important;border:1px solid #25d366!important}
+.btn-wa-solid:hover{background:#1fb855!important;border-color:#1fb855!important;color:#fff!important}
 </style>
 
 <!-- MODAL: Plantillas de mensaje WA -->
@@ -1054,7 +1057,7 @@ var GATE_KEY='aseg_erp_auth';
 var GATE_TS_KEY='aseg_erp_ts';
 var GATE_FAIL_KEY='aseg_erp_fails';
 var GATE_BLOCK_KEY='aseg_erp_block';
-var SESSION_HOURS=24;
+var SESSION_HOURS=24*30; // 30 dias, para que Fabian no tenga que loguear cada día en el celular
 var MAX_ATTEMPTS=3;
 var BLOCK_MINUTES=30;
 var IS_ADMIN=false;
@@ -1112,10 +1115,20 @@ function isSessionValid(){
 function enterApp(){
   var stored='';
   try{stored=localStorage.getItem(GATE_KEY)||'';}catch(e){}
-  setAdminMode(stored);
+  try{ setAdminMode(stored); }catch(e){}
   document.getElementById('emailGate').classList.add('hidden');
   document.getElementById('appWrap').classList.add('visible');
-  initApp();
+  try{
+    initApp();
+  }catch(err){
+    // Si initApp cae, al menos deja el menu visible en vez de pantalla en blanco
+    console.error('initApp fallo:',err);
+    var e = document.createElement('div');
+    e.style.cssText='padding:20px;text-align:center;color:var(--red);font-size:13px';
+    e.innerHTML='Error cargando datos. <button onclick="location.reload()" style="padding:8px 16px;margin-left:8px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer">Reintentar</button>';
+    var mainEl = document.querySelector('.main');
+    if(mainEl) mainEl.insertBefore(e, mainEl.firstChild);
+  }
 }
 
 window.entrarConCorreo=function(){
@@ -1735,10 +1748,10 @@ function initApp(){
     initCharts();
 
     // Wire up sortable columns (after data is loaded)
-    makeSortHeaders('polizasTable',['id','cliente','tipo','aseguradora','intermediario','prima','desde','estado',null],POLIZAS,function(){renderPolizas()});
-    makeSortHeaders('comisionesTable',['aseguradora','poliza','cliente','prima','pctComision','valorComision','estadoPago','fecha'],COMISIONES,function(){renderComisiones()});
-    makeSortHeaders('facturaTable',['id','fecha','aseguradora','concepto','polizas','subtotal','iva','total','estado','vence'],FACTURAS,function(){renderFacturacion()});
-    makeSortHeaders('renovacionesTable',['cliente','poliza','tipo','aseguradora','vence','dias',null,null],RENOV_DATA,function(){renderRenovTable()});
+    makeSortHeaders('polizasTable',['id','cliente','tipo','aseguradora','intermediario','prima','desde','estado',null],function(){return POLIZAS;},function(){renderPolizas()});
+    makeSortHeaders('comisionesTable',['aseguradora','poliza','cliente','prima','pctComision','valorComision','estadoPago','fecha'],function(){return COMISIONES;},function(){renderComisiones()});
+    makeSortHeaders('facturaTable',['id','fecha','aseguradora','concepto','polizas','subtotal','iva','total','estado','vence'],function(){return FACTURAS;},function(){renderFacturacion()});
+    makeSortHeaders('renovacionesTable',['cliente','poliza','tipo','aseguradora','vence','dias',null,null],function(){return RENOV_DATA;},function(){renderRenovTable()});
   });
 }
 
@@ -1941,17 +1954,19 @@ function sortTable(tableId,dataArr,colIdx,key,renderer){
     }
   }
 }
-function makeSortHeaders(tableId,cols,dataArr,renderer){
+function makeSortHeaders(tableId,cols,dataArrOrGetter,renderer){
   var table=document.getElementById(tableId).closest('table');
   if(!table)return;
   var thead=table.querySelector('thead tr');
   if(!thead)return;
   var ths=thead.querySelectorAll('th');
+  // getter que devuelve la referencia FRESCA (no la vieja cuando el array se reasigna)
+  var getArr = typeof dataArrOrGetter==='function' ? dataArrOrGetter : function(){return dataArrOrGetter;};
   for(var i=0;i<ths.length;i++){
-    if(cols[i]===null)continue;// skip non-sortable cols like Acciones
+    if(cols[i]===null)continue;
     ths[i].innerHTML=ths[i].textContent+'<span class="sort-arrow">▲</span>';
     (function(idx,key){
-      ths[idx].onclick=function(){sortTable(tableId,dataArr,idx,key,renderer)};
+      ths[idx].onclick=function(){sortTable(tableId,getArr(),idx,key,renderer)};
     })(i,cols[i]);
   }
 }
