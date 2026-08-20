@@ -24,7 +24,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 :root{
   --brand:#304770;--brand-light:rgba(48,71,112,.08);--brand-mid:rgba(48,71,112,.15);
   --accent:#45AAFF;--accent-light:rgba(69,170,255,.1);--accent-mid:rgba(69,170,255,.2);
-  --bg:#e9edf2;--bg2:#f4f6f9;--bg3:#dfe4eb;--bg4:#cfd6df;
+  --bg:#e5eaf1;--bg2:#eef1f6;--bg3:#dce2ea;--bg4:#c8d0da;
   --text:#0f172a;--dim:#64748b;--muted:#94a3b8;
   --green:#15803d;--green-bg:rgba(21,128,61,.08);
   --orange:#d97706;--orange-bg:rgba(217,119,6,.08);
@@ -307,7 +307,7 @@ tbody tr:hover{background:var(--accent-light)}
 <!-- AUTH GATE -->
 <div class="email-gate" id="emailGate">
   <div class="email-box">
-    <img src="https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png" alt="Aseguralo" style="height:48px;margin-bottom:8px">
+    <img src="/logo-aseguralo.png" alt="Aseguralo" style="height:48px;margin-bottom:8px">
     <div class="sub">Panel Administrativo</div>
     <div class="desc">Acceso protegido con verificacion de identidad Google.</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:18px;color:var(--green);font-size:11px;font-weight:600">
@@ -334,7 +334,7 @@ tbody tr:hover{background:var(--accent-light)}
   <div class="accent-line"></div>
   <div class="topbar">
     <div class="tb-left">
-      <a class="tb-logo" href="#"><img src="https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png" alt="Aseguralo" style="height:28px;vertical-align:middle"></a>
+      <a class="tb-logo" href="#"><img src="/logo-aseguralo.png" alt="Aseguralo" style="height:28px;vertical-align:middle"></a>
       <div class="tb-sep"></div>
       <span class="tb-badge">ERP</span>
     </div>
@@ -2945,13 +2945,12 @@ window.aceptarGanadora = function(leadId){
   alert('Marcada como aceptada. Movida a la sub-pestana "Por emitir".');
 };
 
-/* Precarga logo Aseguralo como base64 para embeber en PDFs */
+/* Precarga logo Aseguralo local (mismo origen, sin CORS) para embeber en PDFs */
 var __ASEG_LOGO_B64 = null;
 function precargarLogo_(){
   if(__ASEG_LOGO_B64) return Promise.resolve(__ASEG_LOGO_B64);
   return new Promise(function(resolve){
     var img = new Image();
-    img.crossOrigin = 'anonymous';
     img.onload = function(){
       try{
         var c = document.createElement('canvas');
@@ -2962,10 +2961,10 @@ function precargarLogo_(){
       }catch(e){ resolve(null); }
     };
     img.onerror = function(){ resolve(null); };
-    img.src = 'https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png';
+    // Ruta relativa al root de 7group.site → sin CORS
+    img.src = '/logo-aseguralo.png';
   });
 }
-// Empieza precarga apenas cargue el modulo
 setTimeout(function(){ if(document.readyState==='complete') precargarLogo_(); else window.addEventListener('load', precargarLogo_); }, 500);
 
 /* ---- Genera PDF comercial de Aseguralo con las 3 cotizaciones y recomendacion ---- */
@@ -2993,24 +2992,28 @@ window.descargarComparativoPDF = async function(leadId){
   var margin = 40, y = 40;
   var fmt = function(n){return '$'+Number(n||0).toLocaleString('es-CO');};
 
-  // Header con logo real de Aseguralo (si cargo)
-  doc.setFillColor(255,255,255); doc.rect(0,0,pw,80,'F');
-  doc.setDrawColor(48,71,112); doc.setLineWidth(3); doc.line(0,80,pw,80);
+  // Header azul con branding Aseguralo (logo si carga, sino texto)
+  doc.setFillColor(48,71,112); doc.rect(0,0,pw,72,'F');
   if(logoB64){
-    try{ doc.addImage(logoB64, 'PNG', margin, 18, 150, 50); }
-    catch(e){ /* logo failed, sigue con texto */ }
+    // Fondo blanco redondeado detras del logo para que el logo azul se vea sobre el header azul
+    try{
+      doc.setFillColor(255,255,255);
+      doc.roundedRect(margin-4, 12, 158, 48, 6, 6, 'F');
+      doc.addImage(logoB64, 'PNG', margin, 16, 150, 40);
+    }catch(e){
+      doc.setTextColor(255,255,255); doc.setFontSize(22); doc.setFont('helvetica','bold');
+      doc.text('Aseguralo', margin, 42);
+    }
   } else {
-    doc.setTextColor(48,71,112); doc.setFontSize(24); doc.setFont('helvetica','bold');
-    doc.text('ASEGURALO', margin, 42);
-    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(69,170,255);
-    doc.text('AGENTES DE SEGUROS', margin, 54);
+    doc.setTextColor(255,255,255); doc.setFontSize(22); doc.setFont('helvetica','bold');
+    doc.text('Aseguralo', margin, 42);
   }
-  // Datos de contacto a la derecha
-  doc.setTextColor(80,80,80); doc.setFontSize(8); doc.setFont('helvetica','normal');
-  doc.text('www.aseguralo.com.co', pw-margin, 34, {align:'right'});
-  doc.text('aseguralo@outlook.com', pw-margin, 46, {align:'right'});
+  // Datos de contacto arriba derecha
+  doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text('www.aseguralo.com.co', pw-margin, 30, {align:'right'});
+  doc.text('aseguralo@outlook.com', pw-margin, 44, {align:'right'});
   doc.text('WhatsApp: +57 316 520 6865', pw-margin, 58, {align:'right'});
-  y = 110;
+  y = 100;
 
   // Titulo propuesta
   doc.setTextColor(48,71,112); doc.setFontSize(16); doc.setFont('helvetica','bold');
