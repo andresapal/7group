@@ -13,6 +13,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
@@ -772,6 +773,21 @@ tbody tr:hover{background:var(--accent-light)}
 .btn-wa-solid{background:#25d366!important;color:#fff!important;border:1px solid #25d366!important}
 .btn-wa-solid:hover{background:#1fb855!important;border-color:#1fb855!important;color:#fff!important}
 </style>
+
+<!-- MODAL: Comparativo de cotizaciones -->
+<div class="modal-overlay" id="modalComparativo">
+  <div class="modal" style="max-width:900px;max-height:90vh;overflow-y:auto">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Comparativo de cotizaciones</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:2px">Selecciona la ganadora, descarga el PDF comercial y marca la aceptada</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('comparativo')">&times;</button>
+    </div>
+    <div class="modal-body" id="comparativoBody"></div>
+    <div class="modal-footer" id="comparativoFooter"></div>
+  </div>
+</div>
 
 <!-- MODAL: Plantillas de mensaje WA -->
 <div class="modal-overlay" id="modalPlantillas">
@@ -2759,7 +2775,212 @@ window.continuarComparativo = function(leadId){
   var data = COT_PDFS[leadId] || {};
   var count = Object.keys(data).length;
   if(count<2){ alert('Sube al menos 2 cotizaciones (PDFs de aseguradoras) para hacer el comparativo.'); return; }
-  alert('Fase siguiente (comparativo PDF + chulear ganadora + emision) — se construye en el siguiente paso.');
+  renderComparativoModal_(leadId);
+  openModal('comparativo');
+};
+
+function renderComparativoModal_(leadId){
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {};
+  var data = COT_PDFS[leadId] || {};
+  var slots = ['allianz','axa','estado'];
+  var etiq  = {allianz:'Allianz', axa:'AXA', estado:'Seguros del Estado'};
+  var cotizaciones = slots.filter(function(k){return data[k]}).map(function(k){
+    var d = data[k];
+    return {slot:k, nombre:etiq[k], prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
+            deducible:Number(d.deducible)||0, coberturas:d.coberturas||'', valorAseg:Number(d.valorAsegurado)||0,
+            aseguradora:d.aseguradora||etiq[k]};
+  }).filter(function(c){return c.prima>0});
+
+  if(!cotizaciones.length){ document.getElementById('comparativoBody').innerHTML = '<p style="color:var(--dim)">No hay primas capturadas todavia. Sube los PDFs primero.</p>'; return; }
+
+  var mejor = cotizaciones.reduce(function(a,b){return a.prima<=b.prima?a:b;});
+  var ganadora = (data.__ganadora) || mejor.slot;
+  var ahorroMax = cotizaciones.length>1 ? Math.max.apply(null,cotizaciones.map(function(c){return c.prima})) - mejor.prima : 0;
+
+  var body =
+    '<div style="background:var(--bg3);padding:14px 18px;border-radius:10px;margin-bottom:16px">'+
+      '<div style="font-size:11px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;font-weight:700">Prospecto</div>'+
+      '<div style="font-size:16px;font-weight:800;margin-top:4px">'+lead.nombre+' <span style="color:var(--accent);font-size:13px">&middot; '+lead.tipo+'</span></div>'+
+      '<div style="font-size:12px;color:var(--dim);margin-top:2px">'+lead.telefono+' &middot; '+lead.correo+' &middot; '+lead.origen+'</div>'+
+    '</div>'+
+    (ahorroMax>0?'<div style="background:rgba(16,185,129,.10);border-left:3px solid var(--green);padding:10px 14px;border-radius:6px;margin-bottom:12px;font-size:13px"><strong>Mejor precio:</strong> '+mejor.nombre+' &middot; Ahorro vs mas cara: <strong>$'+ahorroMax.toLocaleString('es-CO')+'</strong></div>':'')+
+    '<div style="display:grid;grid-template-columns:repeat('+cotizaciones.length+',1fr);gap:12px">'+
+      cotizaciones.map(function(c){
+        var esGanadora = c.slot===ganadora;
+        var esMejor    = c.slot===mejor.slot;
+        return '<div style="border:2px solid '+(esGanadora?'var(--accent)':'var(--border)')+';border-radius:10px;padding:14px;background:'+(esGanadora?'var(--accent-light)':'var(--bg2)')+';cursor:pointer" onclick="marcarGanadora(\''+leadId+'\',\''+c.slot+'\')">'+
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
+            '<div style="font-size:14px;font-weight:800;color:var(--brand)">'+c.nombre+'</div>'+
+            '<input type="radio" name="ganadora-'+leadId+'" '+(esGanadora?'checked':'')+' onclick="event.stopPropagation();marcarGanadora(\''+leadId+'\',\''+c.slot+'\')" style="width:20px;height:20px;cursor:pointer;accent-color:var(--accent)">'+
+          '</div>'+
+          (esMejor?'<div style="font-size:10px;font-weight:800;color:var(--green);letter-spacing:.5px;margin-bottom:6px">MEJOR PRECIO</div>':'')+
+          '<div style="font-size:20px;font-weight:800;color:'+(esMejor?'var(--green)':'var(--text)')+'">$'+c.prima.toLocaleString('es-CO')+'</div>'+
+          '<div style="font-size:11px;color:var(--dim);margin-top:2px">Prima anual</div>'+
+          '<div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px;font-size:12px;line-height:1.6">'+
+            (c.desde?'<div><strong>Vigencia:</strong> '+c.desde+' → '+c.hasta+'</div>':'')+
+            (c.valorAseg?'<div><strong>Valor aseg.:</strong> $'+c.valorAseg.toLocaleString('es-CO')+'</div>':'')+
+            (c.deducible?'<div><strong>Deducible:</strong> $'+c.deducible.toLocaleString('es-CO')+'</div>':'')+
+            (c.coberturas?'<div style="margin-top:4px;color:var(--dim)">'+c.coberturas+'</div>':'')+
+          '</div>'+
+        '</div>';
+      }).join('')+
+    '</div>'+
+    '<div style="margin-top:14px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--dim)"><strong>Tip:</strong> click en cualquier tarjeta o en el radio para marcarla como ganadora. Puedes cambiarla las veces que quieras antes de aceptar.</div>';
+
+  document.getElementById('comparativoBody').innerHTML = body;
+  document.getElementById('comparativoFooter').innerHTML =
+    '<button class="btn" onclick="closeModal(\'comparativo\')">Cerrar</button>'+
+    '<button class="btn" onclick="descargarComparativoPDF(\''+leadId+'\')">Descargar PDF comercial</button>'+
+    '<button class="btn btn-primary" onclick="aceptarGanadora(\''+leadId+'\')" style="background:var(--green);border:none">Marcar aceptada &rarr; Por emitir</button>';
+}
+
+window.marcarGanadora = function(leadId, slot){
+  if(!COT_PDFS[leadId]) return;
+  COT_PDFS[leadId].__ganadora = slot;
+  saveCotPdfs_();
+  renderComparativoModal_(leadId);
+};
+
+window.aceptarGanadora = function(leadId){
+  var data = COT_PDFS[leadId] || {};
+  var ganadora = data.__ganadora;
+  if(!ganadora){ alert('Selecciona primero cual es la ganadora (chulea una tarjeta).'); return; }
+  var g = data[ganadora]; if(!g){ alert('No se encontro la cotizacion ganadora'); return; }
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0];
+  if(!lead) return;
+  if(!confirm('Marcar '+g.aseguradora+' ($'+Number(g.prima).toLocaleString('es-CO')+') como aceptada?\n\nEl prospecto pasara a "Por emitir" y se notificara por correo/Telegram.')) return;
+  lead.estado = 'Aceptada';
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'lead-update', id:leadId, estado:'Aceptada'})}).catch(function(){});
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'cotizacion-aceptada', id:leadId, cliente:lead.nombre, tipo:lead.tipo, prima:g.prima, aseguradora:g.aseguradora})}).catch(function(){});
+  closeModal('comparativo');
+  renderLeads();
+  renderEnCotizacion();
+  switchSub('emitir');
+  if(typeof renderPorEmitir==='function') renderPorEmitir();
+  alert('Marcada como aceptada. Movida a la sub-pestana "Por emitir".');
+};
+
+/* ---- Genera PDF comercial de Aseguralo con las 3 cotizaciones y recomendacion ---- */
+window.descargarComparativoPDF = function(leadId){
+  if(!window.jspdf){ alert('jsPDF no cargo. Recarga la pagina.'); return; }
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {};
+  var data = COT_PDFS[leadId] || {};
+  var slots = ['allianz','axa','estado'];
+  var etiq  = {allianz:'Allianz', axa:'AXA Colpatria', estado:'Seguros del Estado'};
+  var cots = slots.filter(function(k){return data[k]&&Number(data[k].prima)>0}).map(function(k){
+    var d = data[k];
+    return {nombre:etiq[k], prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
+            deducible:Number(d.deducible)||0, coberturas:d.coberturas||'', valorAseg:Number(d.valorAsegurado)||0,
+            aseguradora:d.aseguradora||etiq[k]};
+  });
+  if(!cots.length){ alert('No hay primas capturadas'); return; }
+  var mejor = cots.reduce(function(a,b){return a.prima<=b.prima?a:b;});
+  var ganadora = data.__ganadora ? cots.filter(function(c){var sk=Object.keys(etiq).find(function(x){return etiq[x]===c.nombre});return sk===data.__ganadora;})[0] : mejor;
+  if(!ganadora) ganadora = mejor;
+
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt',format:'letter'});
+  var pw = doc.internal.pageSize.getWidth();
+  var margin = 40, y = 40;
+  var fmt = function(n){return '$'+Number(n||0).toLocaleString('es-CO');};
+
+  // Header con branding Aseguralo
+  doc.setFillColor(48,71,112); doc.rect(0,0,pw,70,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(24); doc.setFont('helvetica','bold');
+  doc.text('Aseguralo', margin, 42);
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text('Corredor de Seguros - Bogota - www.aseguralo.com.co', margin, 58);
+  y = 100;
+
+  // Titulo propuesta
+  doc.setTextColor(48,71,112); doc.setFontSize(16); doc.setFont('helvetica','bold');
+  doc.text('Propuesta de aseguramiento', margin, y); y += 24;
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
+  var hoy = new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
+  doc.text('Fecha: '+hoy, margin, y); y += 20;
+
+  // Datos del cliente
+  doc.setFillColor(245,247,250); doc.rect(margin, y, pw-margin*2, 60, 'F');
+  doc.setTextColor(48,71,112); doc.setFontSize(9); doc.setFont('helvetica','bold');
+  doc.text('CLIENTE', margin+12, y+14);
+  doc.setTextColor(0,0,0); doc.setFontSize(12); doc.setFont('helvetica','bold');
+  doc.text(lead.nombre||'', margin+12, y+30);
+  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
+  doc.text('Ramo: '+(lead.tipo||''), margin+12, y+46);
+  doc.text('WhatsApp: '+(lead.telefono||'-'), margin+220, y+30);
+  doc.text('Correo: '+(lead.correo||'-'), margin+220, y+46);
+  y += 80;
+
+  // Intro
+  doc.setTextColor(0,0,0); doc.setFontSize(10);
+  var intro = 'Cordial saludo, '+((lead.nombre||'').split(' ')[0]||'')+'.\n\n'+
+    'A continuacion encontraras la comparacion de '+cots.length+' alternativas de aseguradoras que analizamos '+
+    'para tu solicitud de '+(lead.tipo||'seguro')+'. Nuestra recomendacion es '+ganadora.nombre+' por relacion costo/beneficio.';
+  var lines = doc.splitTextToSize(intro, pw-margin*2);
+  doc.text(lines, margin, y); y += lines.length*13 + 12;
+
+  // Tabla comparativa
+  var colW = (pw-margin*2)/cots.length;
+  // Header verde suave
+  doc.setFillColor(48,71,112); doc.rect(margin, y, pw-margin*2, 22, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
+  cots.forEach(function(c,i){ doc.text(c.nombre, margin+i*colW+8, y+14); });
+  y += 22;
+
+  // Filas
+  var filas = [
+    {l:'Prima anual', get:function(c){return fmt(c.prima);}, highlight:true},
+    {l:'Vigencia',    get:function(c){return c.desde+' -> '+c.hasta;}},
+    {l:'Valor aseg.', get:function(c){return c.valorAseg?fmt(c.valorAseg):'-';}},
+    {l:'Deducible',   get:function(c){return c.deducible?fmt(c.deducible):'-';}},
+    {l:'Coberturas',  get:function(c){return c.coberturas||'-';}, tall:true}
+  ];
+  filas.forEach(function(f,fi){
+    var rowH = f.tall ? 40 : 22;
+    // Bandas
+    if(fi%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y, pw-margin*2, rowH, 'F'); }
+    doc.setTextColor(100,100,100); doc.setFontSize(8); doc.setFont('helvetica','bold');
+    doc.text(f.l.toUpperCase(), margin+8, y+12);
+    doc.setTextColor(0,0,0); doc.setFontSize(f.highlight?11:9); doc.setFont('helvetica', f.highlight?'bold':'normal');
+    cots.forEach(function(c,i){
+      var val = f.get(c);
+      var esGanadora = c.nombre===ganadora.nombre;
+      if(f.highlight && esGanadora){ doc.setTextColor(16,140,80); }
+      else if(f.highlight){ doc.setTextColor(0,0,0); }
+      var lns = doc.splitTextToSize(String(val), colW-16);
+      doc.text(lns.slice(0,3), margin+i*colW+8, y+20);
+      doc.setTextColor(0,0,0);
+    });
+    y += rowH;
+  });
+  y += 20;
+
+  // Bloque de recomendacion
+  doc.setFillColor(230,247,239); doc.setDrawColor(16,140,80); doc.setLineWidth(1);
+  doc.rect(margin, y, pw-margin*2, 76, 'FD');
+  doc.setTextColor(16,140,80); doc.setFontSize(10); doc.setFont('helvetica','bold');
+  doc.text('NUESTRA RECOMENDACION', margin+14, y+18);
+  doc.setTextColor(0,0,0); doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text(ganadora.nombre+' - Prima anual '+fmt(ganadora.prima), margin+14, y+36);
+  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
+  var rec = 'Analizadas las '+cots.length+' alternativas, '+ganadora.nombre+' ofrece la mejor relacion costo/beneficio para tu perfil. '+
+            'Estamos listos para acompañarte con la emision de la poliza cuando confirmes.';
+  var recLines = doc.splitTextToSize(rec, pw-margin*2-28);
+  doc.text(recLines, margin+14, y+52);
+  y += 100;
+
+  // Footer con firma
+  doc.setDrawColor(200,200,200); doc.line(margin, y, pw-margin, y); y += 16;
+  doc.setTextColor(48,71,112); doc.setFontSize(10); doc.setFont('helvetica','bold');
+  doc.text('Fabian Carrera', margin, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,80);
+  y += 14; doc.text('Aseguralo - Corredor de Seguros', margin, y);
+  y += 12; doc.text('WhatsApp: +57 316 520 6865  -  aseguralo@outlook.com', margin, y);
+
+  var fname = 'Propuesta_'+(lead.nombre||'cliente').replace(/\s+/g,'_')+'_'+Date.now()+'.pdf';
+  doc.save(fname);
 };
 
 function renderEnCotizacion(){
