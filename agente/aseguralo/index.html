@@ -2594,26 +2594,54 @@ function deleteCotFromSheet_(leadId, slot){
     body:JSON.stringify({action:'cotizacion-delete', lead_id:leadId, slot:slot})}).catch(function(){});
 }
 
-/* Al inicio, carga las cotizaciones del Sheet y las fusiona con localStorage */
+/* Al inicio: carga del Sheet + auto-migra lo que este solo en localStorage al Sheet */
 function loadCotizacionesFromSheet_(){
   return fetch(APPS_SCRIPT_URL+'?action=cotizaciones', {redirect:'follow'})
     .then(function(r){return r.json()})
     .then(function(j){
-      if(!j || j.status!=='ok' || !j.rows) return;
-      j.rows.forEach(function(r){
+      if(!j || j.status!=='ok') return;
+      // Set de claves ya sincronizadas ("leadId::slot")
+      var enSheet = {};
+      (j.rows||[]).forEach(function(r){
+        var k = r.lead_id+'::'+r.slot;
+        enSheet[k] = true;
         if(!COT_PDFS[r.lead_id]) COT_PDFS[r.lead_id] = {};
-        COT_PDFS[r.lead_id][r.slot] = {
-          aseguradora: r.aseguradora, prima: r.prima,
-          desde: r.desde, hasta: r.hasta,
-          valorAsegurado: r.valor_asegurado, deducible: r.deducible,
-          coberturas: r.coberturas, nombreArchivo: r.nombre_archivo,
-          ts: r.ts
-        };
+        // Solo sobrescribir si Sheet es mas reciente que local (o si no existe local)
+        var local = COT_PDFS[r.lead_id][r.slot];
+        var sheetTs = new Date(r.ts||0).getTime();
+        var localTs = local ? (local.ts||0) : 0;
+        if(!local || sheetTs>=localTs){
+          COT_PDFS[r.lead_id][r.slot] = {
+            aseguradora: r.aseguradora, prima: r.prima,
+            desde: r.desde, hasta: r.hasta,
+            valorAsegurado: r.valor_asegurado, deducible: r.deducible,
+            coberturas: r.coberturas, nombreArchivo: r.nombre_archivo,
+            ts: sheetTs
+          };
+        }
         if(r.ganadora) COT_PDFS[r.lead_id].__ganadora = r.slot;
+      });
+      // AUTO-MIGRATE: subir al Sheet lo que este solo en localStorage
+      var pendientes = 0;
+      Object.keys(COT_PDFS).forEach(function(leadId){
+        Object.keys(COT_PDFS[leadId]).forEach(function(slot){
+          if(slot.indexOf('__')===0) return; // saltar __ganadora, etc
+          var k = leadId+'::'+slot;
+          if(!enSheet[k] && COT_PDFS[leadId][slot] && COT_PDFS[leadId][slot].prima){
+            syncCotToSheet_(leadId, slot);
+            pendientes++;
+          }
+        });
+        // Sync ganadora si no esta en Sheet
+        if(COT_PDFS[leadId].__ganadora){
+          var yaHay = (j.rows||[]).some(function(r){return r.lead_id===leadId && r.ganadora;});
+          if(!yaHay) syncGanadoraToSheet_(leadId, COT_PDFS[leadId].__ganadora);
+        }
       });
       saveCotPdfs_();
       if(typeof renderEnCotizacion==='function') renderEnCotizacion();
       if(typeof renderPorEmitir==='function') renderPorEmitir();
+      if(pendientes>0){ console.log('Aseguralo: '+pendientes+' cotizaciones migradas de localStorage al Sheet'); }
     })
     .catch(function(){});
 }
