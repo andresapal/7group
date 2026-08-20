@@ -24,17 +24,17 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 :root{
   --brand:#304770;--brand-light:rgba(48,71,112,.08);--brand-mid:rgba(48,71,112,.15);
   --accent:#45AAFF;--accent-light:rgba(69,170,255,.1);--accent-mid:rgba(69,170,255,.2);
-  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f0f2f6;--bg4:#e4e7ed;
+  --bg:#e9edf2;--bg2:#f4f6f9;--bg3:#dfe4eb;--bg4:#cfd6df;
   --text:#0f172a;--dim:#64748b;--muted:#94a3b8;
   --green:#15803d;--green-bg:rgba(21,128,61,.08);
   --orange:#d97706;--orange-bg:rgba(217,119,6,.08);
   --red:#dc2626;--red-bg:rgba(220,38,38,.08);
   --teal:#0d9488;--purple:#7c3aed;--sky:#0284c7;
-  --border:rgba(15,23,42,.07);--border2:rgba(15,23,42,.12);--border3:rgba(15,23,42,.18);
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-lg:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --border:rgba(15,23,42,.09);--border2:rgba(15,23,42,.15);--border3:rgba(15,23,42,.22);
+  --shadow:0 1px 3px rgba(15,23,42,.08),0 1px 2px rgba(15,23,42,.05);
+  --shadow-lg:0 4px 18px rgba(15,23,42,.10),0 2px 5px rgba(15,23,42,.06);
   --radius:12px;--radius-sm:8px;
-  --topbar-bg:rgba(255,255,255,.92);--topbar-border:rgba(15,23,42,.08);
+  --topbar-bg:rgba(244,246,249,.94);--topbar-border:rgba(15,23,42,.10);
 }
 :root.dark{
   --bg:#060a12;--bg2:#0c1220;--bg3:#141c2e;--bg4:#1c2640;
@@ -1252,7 +1252,7 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyb29Z0-fZkQYO_Bc9CqSL1zDomUq49yoJEkgUfLehuaApHBh1Er5-3E7YvtgzrEob0/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfSjsXZgkjzxUdRLuI1_x1xbow0haD89SYO1c_f0d_-9AxD5yfZfjO6PaalVzpeTYz/exec';
 
 var CLIENTES=[];
 var POLIZAS=[];
@@ -1774,6 +1774,7 @@ function initApp(){
   loadFromSheet(function(){
     renderLeads();
     loadLeadsFromSheet();
+    if(typeof loadCotizacionesFromSheet_==='function') loadCotizacionesFromSheet_();
     renderPolizas();
     renderCotizador();
     renderDashboard();
@@ -1914,22 +1915,30 @@ function updateSubCounts(){
 /* Sub-seccion POR EMITIR: cotizaciones aceptadas sin poliza */
 function renderPorEmitir(){
   var box=document.getElementById('porEmitirBox'); if(!box) return;
-  var lista=typeof COTIZACIONES!=='undefined' ? COTIZACIONES.filter(function(c){return c.estado==='aceptada' && !c.poliza}) : [];
+  // Leads con estado 'Aceptada' — tienen su cotizacion ganadora en COT_PDFS.__ganadora
+  var lista = LEADS.filter(function(l){return l.estado==='Aceptada'});
   if(!lista.length){
     box.innerHTML='<div class="emitir-empty">No hay cotizaciones por emitir. Cuando marques una cotizacion como aceptada, aparece aqui para emitir la poliza.</div>';
     return;
   }
-  box.innerHTML=lista.map(function(c){
-    var mejor=Math.min.apply(null,(c.comparaciones||[]).map(function(x){return x.prima}));
+  box.innerHTML=lista.map(function(l){
+    var data = COT_PDFS[l.id] || {};
+    var ganadora = data.__ganadora ? data[data.__ganadora] : null;
+    var tel = (l.telefono||'').replace(/[^0-9]/g,'');
+    var primaTxt = ganadora ? fmt(Number(ganadora.prima)||0) : '—';
+    var asegTxt  = ganadora ? ganadora.aseguradora : '—';
+    var vigTxt   = ganadora && ganadora.desde ? ganadora.desde+' → '+ganadora.hasta : '';
     return '<div class="emitir-card">'+
       '<div class="info">'+
-        '<div class="cli">'+c.cliente+' &middot; '+c.tipo+'</div>'+
-        '<div class="meta">'+(c.bien||'')+' &middot; Prima aceptada: <strong style="color:var(--accent)">'+fmt(mejor)+'</strong></div>'+
-        '<div class="meta" style="margin-top:4px">Aceptada '+c.fecha+' &middot; Intermediario: '+(c.intermediario||'—')+'</div>'+
+        '<div class="cli">'+l.nombre+' &middot; '+l.tipo+'</div>'+
+        '<div class="meta"><strong>'+asegTxt+'</strong> &middot; Prima aceptada: <strong style="color:var(--green)">'+primaTxt+'</strong></div>'+
+        (vigTxt?'<div class="meta" style="margin-top:4px">Vigencia: '+vigTxt+'</div>':'')+
+        '<div class="meta" style="margin-top:4px">Telefono: '+(l.telefono||'—')+' &middot; Correo: '+(l.correo||'—')+'</div>'+
       '</div>'+
       '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
-        (c.telefono?'<a class="btn btn-sm btn-wa" href="https://wa.me/57'+c.telefono.replace(/[^0-9]/g,"")+'" target="_blank">WA cliente</a>':'')+
-        '<button class="btn btn-sm btn-primary" onclick="emitirPoliza(\''+c.id+'\')">Emitir poliza</button>'+
+        (tel?'<a class="btn btn-sm btn-wa-solid" href="https://wa.me/57'+tel+'" target="_blank">WA cliente</a>':'')+
+        '<button class="btn btn-sm" onclick="descargarComparativoPDF(\''+l.id+'\')">PDF propuesta</button>'+
+        '<button class="btn btn-sm btn-primary" onclick="emitirPoliza(\''+l.id+'\')">Emitir poliza</button>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -2555,9 +2564,59 @@ window.filterClientes=function(){
    EN COTIZACION — prospectos con PDFs de aseguradoras (OCR con Gemini Flash)
    ============================================ */
 // OCR se hace via Apps Script (proxy que llama a Gemini). Key no vive en frontend.
-var COT_PDFS = {}; // {leadId: {allianz:{prima,vig,name,extraido}, axa:{...}, estado:{...}}}
+var COT_PDFS = {}; // {leadId: {allianz:{prima,vig,name,extraido}, axa:{...}, estado:{...}, __ganadora:'allianz'}}
 try{ COT_PDFS = JSON.parse(localStorage.getItem('aseg_cot_pdfs')||'{}'); }catch(e){ COT_PDFS = {}; }
 function saveCotPdfs_(){ try{ localStorage.setItem('aseg_cot_pdfs', JSON.stringify(COT_PDFS)); }catch(e){} }
+
+/* Sincroniza una cotizacion al Sheet (para que mobile y web compartan lo mismo) */
+function syncCotToSheet_(leadId, slot){
+  if(!COT_PDFS[leadId] || !COT_PDFS[leadId][slot]) return;
+  var d = COT_PDFS[leadId][slot];
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({
+      action:'cotizacion-save',
+      lead_id:leadId, slot:slot,
+      aseguradora:d.aseguradora||'', prima:d.prima||0,
+      desde:d.desde||'', hasta:d.hasta||'',
+      valor_asegurado:d.valorAsegurado||0, deducible:d.deducible||0,
+      coberturas:d.coberturas||'', nombre_archivo:d.nombreArchivo||'',
+      ganadora: COT_PDFS[leadId].__ganadora===slot
+    })}).catch(function(){});
+}
+
+function syncGanadoraToSheet_(leadId, slot){
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'cotizacion-ganadora', lead_id:leadId, slot:slot||''})}).catch(function(){});
+}
+
+function deleteCotFromSheet_(leadId, slot){
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'cotizacion-delete', lead_id:leadId, slot:slot})}).catch(function(){});
+}
+
+/* Al inicio, carga las cotizaciones del Sheet y las fusiona con localStorage */
+function loadCotizacionesFromSheet_(){
+  return fetch(APPS_SCRIPT_URL+'?action=cotizaciones', {redirect:'follow'})
+    .then(function(r){return r.json()})
+    .then(function(j){
+      if(!j || j.status!=='ok' || !j.rows) return;
+      j.rows.forEach(function(r){
+        if(!COT_PDFS[r.lead_id]) COT_PDFS[r.lead_id] = {};
+        COT_PDFS[r.lead_id][r.slot] = {
+          aseguradora: r.aseguradora, prima: r.prima,
+          desde: r.desde, hasta: r.hasta,
+          valorAsegurado: r.valor_asegurado, deducible: r.deducible,
+          coberturas: r.coberturas, nombreArchivo: r.nombre_archivo,
+          ts: r.ts
+        };
+        if(r.ganadora) COT_PDFS[r.lead_id].__ganadora = r.slot;
+      });
+      saveCotPdfs_();
+      if(typeof renderEnCotizacion==='function') renderEnCotizacion();
+      if(typeof renderPorEmitir==='function') renderPorEmitir();
+    })
+    .catch(function(){});
+}
 
 /* Parsea numero colombiano "1.930.530" o "1,930,530" o "1930530.50" -> Number */
 function parseNumColombia_(s){
@@ -2650,10 +2709,16 @@ function fileToBase64_(file){
   });
 }
 
-/* Devuelve el prompt segun tipo de poliza. Todos piden aseguradora + prima + vigencia. */
+/* Devuelve el prompt segun tipo de poliza. Todos piden aseguradora + prima + vigencia + tipo_detectado. */
 function promptGemini_(tipo){
   var camposEspecificos = '';
   var t = (tipo||'').toLowerCase();
+  var tipoEsperado = t.indexOf('veh')>=0||t.indexOf('auto')>=0||t==='soat' ? 'Auto' :
+                     t.indexOf('salud')>=0 ? 'Salud' :
+                     t.indexOf('vida')>=0 ? 'Vida' :
+                     t.indexOf('hogar')>=0 ? 'Hogar' :
+                     t.indexOf('empresa')>=0 ? 'Empresa' :
+                     'Otro';
   if(t.indexOf('veh')>=0 || t.indexOf('auto')>=0 || t==='soat'){
     camposEspecificos =
       '  "propietario": { "nombre": "...", "tipo_documento": "CC|CE|PA|NIT|null", "numero_documento": "...", "fecha_nacimiento": "YYYY-MM-DD o null" },\n'+
@@ -2678,9 +2743,11 @@ function promptGemini_(tipo){
   }
 
   return 'Este documento PDF es una cotizacion de seguro de una aseguradora colombiana. '+
-    'Analizalo con cuidado y devuelve UNICAMENTE un objeto JSON valido (sin markdown, sin explicaciones) con esta estructura exacta:\n\n'+
+    'El prospecto esta solicitando seguro de tipo "'+tipoEsperado+'". '+
+    'Analiza el PDF con cuidado y devuelve UNICAMENTE un objeto JSON valido (sin markdown, sin explicaciones) con esta estructura exacta:\n\n'+
     '{\n'+
-    '  "aseguradora": "Allianz" | "AXA" | "AXA Colpatria" | "Seguros del Estado" | "Previsora" | otro,\n'+
+    '  "tipo_detectado": "Auto" | "Salud" | "Vida" | "Hogar" | "Empresa" | "Arrendamiento" | "Cumplimiento" | "Viaje" | "Otro",\n'+
+    '  "aseguradora": "Allianz" | "AXA" | "AXA Colpatria" | "Seguros del Estado" | "Previsora" | "Sura" | "Bolivar" | "Mapfre" | "Liberty" | otro,\n'+
     '  "prima_total": <numero entero, la prima total anual/vigencia sin decimales, en pesos colombianos>,\n'+
     '  "prima_mensual": <numero o null>,\n'+
     '  "vigencia_desde": "YYYY-MM-DD",\n'+
@@ -2690,6 +2757,7 @@ function promptGemini_(tipo){
     '  "coberturas_principales": "texto breve",\n'+
     camposEspecificos+'\n'+
     '}\n\n'+
+    'IMPORTANTE: en "tipo_detectado" pon lo que REALMENTE es el PDF (auto, vida, salud, hogar...) sin importar lo que dijimos que espera el prospecto. Si el PDF es un seguro de auto, pon "Auto" — asi el sistema puede detectar si no corresponde al tipo del prospecto.\n'+
     'Reglas: Si un campo no aparece en el documento, ponlo como null. Todas las cifras deben ser numeros (sin puntos ni comas ni simbolo $). Devuelve SOLO el JSON, empezando con { y terminando con }. Sin ```json ni ```. Sin texto antes ni despues.';
 }
 
@@ -2722,6 +2790,18 @@ window.subirPDFCotizacion = async function(inputEl, leadId, slotForzado){
   try {
     var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {tipo:'Otro'};
     var data = await llamarGemini_(file, lead.tipo);
+
+    // Validar que el tipo del PDF coincida con el tipo del prospecto
+    var tipoEsperado = (lead.tipo||'').toLowerCase();
+    var tipoDetectado = (data.tipo_detectado||'').toLowerCase();
+    var mapTipo = {'auto':'vehiculo','vehiculo':'vehiculo','soat':'vehiculo','salud':'salud','vida':'vida','hogar':'hogar','inmueble':'hogar','empresa':'empresa','empresarial':'empresa','arrendamiento':'arrendamiento','cumplimiento':'cumplimiento','viaje':'viaje'};
+    var eNorm = mapTipo[tipoEsperado] || tipoEsperado;
+    var dNorm = mapTipo[tipoDetectado] || tipoDetectado;
+    if(tipoDetectado && dNorm && eNorm && dNorm !== eNorm){
+      setStatus('Esta poliza no corresponde: el prospecto pidio '+(lead.tipo||'?')+' pero el PDF es de '+data.tipo_detectado+'.','var(--red)');
+      return;
+    }
+
     var aseg = data.aseguradora || '';
     var asegNorm = aseg.toLowerCase();
     var slotKey = slotForzado;
@@ -2744,11 +2824,12 @@ window.subirPDFCotizacion = async function(inputEl, leadId, slotForzado){
       valorAsegurado: Number(data.valor_asegurado)||0,
       deducible: Number(data.deducible)||0,
       coberturas: data.coberturas_principales || '',
-      extraido: data,   // guarda todo el JSON crudo por si hay campos extras
+      extraido: data,
       nombreArchivo: file.name,
       ts: Date.now()
     };
     saveCotPdfs_();
+    syncCotToSheet_(leadId, slotKey);  // sync web<->mobile
     renderEnCotizacion();
   } catch(err){
     setStatus('Error: '+err.message,'var(--red)');
@@ -2760,6 +2841,7 @@ window.borrarPDFCotizacion = function(leadId, slot){
   if(!confirm('Borrar este PDF y su extraccion?')) return;
   if(COT_PDFS[leadId]) delete COT_PDFS[leadId][slot];
   saveCotPdfs_();
+  deleteCotFromSheet_(leadId, slot);  // sync
   renderEnCotizacion();
 };
 
@@ -2838,6 +2920,7 @@ window.marcarGanadora = function(leadId, slot){
   if(!COT_PDFS[leadId]) return;
   COT_PDFS[leadId].__ganadora = slot;
   saveCotPdfs_();
+  syncGanadoraToSheet_(leadId, slot);  // sync
   renderComparativoModal_(leadId);
 };
 
@@ -2862,9 +2945,33 @@ window.aceptarGanadora = function(leadId){
   alert('Marcada como aceptada. Movida a la sub-pestana "Por emitir".');
 };
 
+/* Precarga logo Aseguralo como base64 para embeber en PDFs */
+var __ASEG_LOGO_B64 = null;
+function precargarLogo_(){
+  if(__ASEG_LOGO_B64) return Promise.resolve(__ASEG_LOGO_B64);
+  return new Promise(function(resolve){
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function(){
+      try{
+        var c = document.createElement('canvas');
+        c.width = img.width; c.height = img.height;
+        c.getContext('2d').drawImage(img,0,0);
+        __ASEG_LOGO_B64 = c.toDataURL('image/png');
+        resolve(__ASEG_LOGO_B64);
+      }catch(e){ resolve(null); }
+    };
+    img.onerror = function(){ resolve(null); };
+    img.src = 'https://aseguralo.com.co/wp-content/uploads/2018/09/logo_aseguralo-e1536001407598.png';
+  });
+}
+// Empieza precarga apenas cargue el modulo
+setTimeout(function(){ if(document.readyState==='complete') precargarLogo_(); else window.addEventListener('load', precargarLogo_); }, 500);
+
 /* ---- Genera PDF comercial de Aseguralo con las 3 cotizaciones y recomendacion ---- */
-window.descargarComparativoPDF = function(leadId){
+window.descargarComparativoPDF = async function(leadId){
   if(!window.jspdf){ alert('jsPDF no cargo. Recarga la pagina.'); return; }
+  var logoB64 = await precargarLogo_();
   var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {};
   var data = COT_PDFS[leadId] || {};
   var slots = ['allianz','axa','estado'];
@@ -2886,13 +2993,24 @@ window.descargarComparativoPDF = function(leadId){
   var margin = 40, y = 40;
   var fmt = function(n){return '$'+Number(n||0).toLocaleString('es-CO');};
 
-  // Header con branding Aseguralo
-  doc.setFillColor(48,71,112); doc.rect(0,0,pw,70,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(24); doc.setFont('helvetica','bold');
-  doc.text('Aseguralo', margin, 42);
-  doc.setFontSize(9); doc.setFont('helvetica','normal');
-  doc.text('Corredor de Seguros - Bogota - www.aseguralo.com.co', margin, 58);
-  y = 100;
+  // Header con logo real de Aseguralo (si cargo)
+  doc.setFillColor(255,255,255); doc.rect(0,0,pw,80,'F');
+  doc.setDrawColor(48,71,112); doc.setLineWidth(3); doc.line(0,80,pw,80);
+  if(logoB64){
+    try{ doc.addImage(logoB64, 'PNG', margin, 18, 150, 50); }
+    catch(e){ /* logo failed, sigue con texto */ }
+  } else {
+    doc.setTextColor(48,71,112); doc.setFontSize(24); doc.setFont('helvetica','bold');
+    doc.text('ASEGURALO', margin, 42);
+    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(69,170,255);
+    doc.text('AGENTES DE SEGUROS', margin, 54);
+  }
+  // Datos de contacto a la derecha
+  doc.setTextColor(80,80,80); doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text('www.aseguralo.com.co', pw-margin, 34, {align:'right'});
+  doc.text('aseguralo@outlook.com', pw-margin, 46, {align:'right'});
+  doc.text('WhatsApp: +57 316 520 6865', pw-margin, 58, {align:'right'});
+  y = 110;
 
   // Titulo propuesta
   doc.setTextColor(48,71,112); doc.setFontSize(16); doc.setFont('helvetica','bold');
