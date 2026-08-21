@@ -449,7 +449,7 @@ tbody tr:hover{background:var(--accent-light)}
 
       <!-- Sub-seccion: EN COTIZACION (prospectos con PDFs de aseguradoras) -->
       <div class="sub-section" id="sub-curso">
-        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Prospectos en cotizacion. Sube los PDFs de las 3 aseguradoras (Allianz / AXA / Seguros del Estado) — el sistema extrae automaticamente la prima y vigencia.</div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Prospectos en cotizacion. Sube los PDFs de las aseguradoras (Allianz / AXA / Seguros del Estado / BMI / etc.) — el sistema detecta la aseguradora y extrae automaticamente la prima y vigencia.</div>
         <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="cotizadorKpi"></div>
         <div id="enCotizacionCards"></div>
       </div>
@@ -508,6 +508,12 @@ tbody tr:hover{background:var(--accent-light)}
           <span class="sub-lbl">Aseguralo &rarr; 7GROUP</span>
           <span class="sub-count" id="cntLiqs">0</span>
         </a>
+        <a class="sub-tab" data-sub="asesores" onclick="switchComSub('asesores')">
+          <span class="sub-lbl">Asesores (distribucion)</span>
+        </a>
+        <a class="sub-tab" data-sub="netoFabian" onclick="switchComSub('netoFabian')">
+          <span class="sub-lbl">Aseguralo · Neto Fabian</span>
+        </a>
       </div>
 
       <!-- Sub: Aseguradoras → Aseguralo -->
@@ -530,20 +536,88 @@ tbody tr:hover{background:var(--accent-light)}
 
       <!-- Sub: Aseguralo → 7GROUP -->
       <div class="sub-section" id="sub-com-sevengroup">
-        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Liquidacion del 50% que Aseguralo paga a 7GROUP. Se crea automatico cuando una cotizacion pasa a estado <strong>Aceptada</strong> (vendido) y el prospecto entro por ERP o formulario.</div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Liquidacion del reparto Fabian &harr; 7GROUP (50/35/25/15% descendente por renovacion). Se crea automatico cuando una cotizacion pasa a <strong>Aceptada</strong>.</div>
         <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="liqsKpi"></div>
         <div class="tbl-wrap">
           <div class="tbl-overflow">
             <table>
               <thead>
                 <tr>
-                  <th>ID</th><th>Fecha venta</th><th>Cliente</th><th>Tipo</th>
+                  <th>ID</th><th>Fecha venta</th><th>Cliente</th><th>Intermediario</th><th>Tipo</th>
                   <th>Aseguradora</th><th>Prima</th>
-                  <th>Com. Aseguralo</th><th>Com. 7GROUP</th><th>Origen</th>
-                  <th>Pago Aseguralo</th><th>Pago 7GROUP</th><th>Acciones</th>
+                  <th>Com. total</th><th>Com. asesor</th><th>Com. Fabian bruta</th><th>Com. 7GROUP</th>
+                  <th>Fabian neta</th><th>Sostenim.</th><th>Neto Fabian</th>
+                  <th>Origen</th><th>Pago Aseg.</th><th>Pago 7G</th><th>Acc.</th>
                 </tr>
               </thead>
               <tbody id="liqsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub: Asesores / distribucion editable -->
+      <div class="sub-section" id="sub-com-asesores">
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Distribucion de comision entre asesor y Fabian por intermediario. Editable en linea, guarda a Sheet automatico.</div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;font-size:12px;line-height:1.65;color:var(--text)">
+          <strong>Reglas de reparto:</strong><br>
+          &bull; <strong>Split asesor/Fabian queda fijo ano tras ano</strong> (Erika siempre 70/30, en cualquier renovacion). No degrada.<br>
+          &bull; <strong>El % de Fabian</strong> (sea 100% dueno, 30% del split Erika, 40% Sandra, etc.) se convierte en su 100% y sobre eso aplica la <strong>cascada Fabian &harr; 7GROUP</strong> segun renovacion:<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;- Ano 1: 50 Fabian / 50 7GROUP<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;- Ano 2: 65 / 35<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;- Ano 3: 75 / 25<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;- Ano 4+: 85 / 15<br>
+          &bull; <strong>Sostenimiento</strong> aplica sobre lo que queda para Fabian tras el reparto 7GROUP.<br>
+          &bull; <strong>Andres Aparicio (referido admin):</strong> su % se factura a 7GROUP (referido directo).
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th>Intermediario</th><th>Tipo</th><th>% Asesor</th><th>% Fabian</th><th>Activo</th><th>Email login</th><th>Guardar</th>
+                </tr>
+              </thead>
+              <tbody id="asesoresTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub: Aseguralo Neto Fabian (sostenimiento) -->
+      <div class="sub-section" id="sub-com-netoFabian">
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Flujo administrativo de Aseguralo: <strong>Ingreso &rarr; Comision Fabian &rarr; Sostenimiento &rarr; Neto</strong>. El % de sostenimiento es configurable.</div>
+
+        <div style="background:var(--bg3);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:11px;color:var(--dim);letter-spacing:.5px;text-transform:uppercase;font-weight:700">% Sostenimiento</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+              <input type="number" id="sostenimientoPctInput" min="0" max="100" step="0.5" class="form-input" style="width:100px;font-weight:700" value="35">
+              <span style="font-size:18px;font-weight:700">%</span>
+              <button class="btn btn-primary btn-sm" onclick="guardarSostenimientoPct_()">Guardar</button>
+              <span id="sostenimientoStatus" style="font-size:11px;color:var(--muted)"></span>
+            </div>
+          </div>
+          <div style="flex:1;min-width:200px;font-size:12px;color:var(--dim);line-height:1.5">
+            Gastos operativos de Aseguralo (arriendo, personal, herramientas, etc.).<br>
+            Se aplica sobre el <strong>100% que le queda a Fabian</strong> despues del reparto con 7GROUP.<br>
+            Cambiarlo recalcula el neto en toda la vista (los registros historicos conservan el % con el que fueron creados).
+          </div>
+        </div>
+
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="netoFabianKpi"></div>
+
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th><th>Cliente</th><th>Intermediario</th><th>Poliza</th>
+                  <th>Ingreso (prima)</th><th>Com. total</th><th>Fabian bruta</th><th>7GROUP</th>
+                  <th>Fabian neta (100%)</th><th>Sostenim. (%)</th><th>Sostenim. $</th><th>Neto Fabian</th>
+                </tr>
+              </thead>
+              <tbody id="netoFabianTable"></tbody>
             </table>
           </div>
         </div>
@@ -748,6 +822,16 @@ tbody tr:hover{background:var(--accent-light)}
           </select>
         </div>
       </div>
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Intermediario <span style="color:var(--red)">*</span></label>
+          <select class="form-input" id="npInterm" onchange="npIntermChange_(this)"></select>
+        </div>
+        <div class="form-group" id="npIntermOtroWrap" style="display:none">
+          <label class="form-label">Nuevo intermediario <span style="color:var(--red)">*</span></label>
+          <input class="form-input" id="npIntermOtro" placeholder="Nombre y apellido" autocomplete="off">
+        </div>
+      </div>
       <div class="form-group">
         <label class="form-label">Tipo de seguro que quiere cotizar <span style="color:var(--red)">*</span></label>
         <div id="npTipoChips" style="display:flex;flex-wrap:wrap;gap:6px">
@@ -904,6 +988,7 @@ tbody tr:hover{background:var(--accent-light)}
             <option value="Allianz">Allianz</option>
             <option value="AXA Colpatria">AXA Colpatria</option>
             <option value="Seguros del Estado">Seguros del Estado</option>
+            <option value="BMI">BMI</option>
             <option value="Sura">Sura</option>
             <option value="Bolivar">Bolivar</option>
             <option value="Mapfre">Mapfre</option>
@@ -1008,19 +1093,19 @@ tbody tr:hover{background:var(--accent-light)}
         <div style="font-size:13px;font-weight:700;margin-bottom:12px">Comparacion de Aseguradoras</div>
         <div id="cComparaciones">
           <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>BMI</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
             <input class="form-input" type="number" placeholder="Prima anual">
             <input class="form-input" type="number" placeholder="Deducible">
             <input class="form-input" placeholder="Coberturas clave">
           </div>
           <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>BMI</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
             <input class="form-input" type="number" placeholder="Prima anual">
             <input class="form-input" type="number" placeholder="Deducible">
             <input class="form-input" placeholder="Coberturas clave">
           </div>
           <div class="comp-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
+            <select class="form-select comp-aseg"><option value="">Aseguradora</option><option>Allianz</option><option>AXA Colpatria</option><option>Seguros del Estado</option><option>BMI</option><option>Sura</option><option>Bolivar</option><option>Mapfre</option><option>Liberty</option><option>Previsora</option><option>Mundial</option></select>
             <input class="form-input" type="number" placeholder="Prima anual">
             <input class="form-input" type="number" placeholder="Deducible">
             <input class="form-input" placeholder="Coberturas clave">
@@ -1059,6 +1144,8 @@ tbody tr:hover{background:var(--accent-light)}
             <option value="Liberty">Liberty</option>
             <option value="AXA Colpatria">AXA Colpatria</option>
             <option value="Previsora">Previsora</option>
+            <option value="BMI">BMI</option>
+            <option value="Seguros del Estado">Seguros del Estado</option>
           </select>
         </div>
         <div class="form-group">
@@ -1280,7 +1367,7 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfFsaUm3duU4fxnza5EBwSQriw2spAHXmFSJ3z3eNSdLVXeMX_gwFwbOZpn6I3zk7b/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSib_Pttp5z8TfSvwvhLiVXEyOvdZ-ki3W86H20iT8DYQg_js_LuGJvYIFO_JgPwix/exec';
 
 var CLIENTES=[];
 var POLIZAS=[];
@@ -1804,6 +1891,9 @@ function initApp(){
     loadLeadsFromSheet();
     if(typeof loadCotizacionesFromSheet_==='function') loadCotizacionesFromSheet_();
     if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
+    if(typeof loadIntermediariosFromSheet==='function') loadIntermediariosFromSheet();
+    if(typeof loadIntermediariosFull_==='function')     loadIntermediariosFull_();
+    if(typeof loadConfigFromSheet_==='function')        loadConfigFromSheet_();
     renderPolizas();
     renderCotizador();
     renderDashboard();
@@ -1839,14 +1929,61 @@ document.getElementById('modNav').addEventListener('click',function(e){
   switchMod(link.dataset.mod);
 });
 
+/* ============================================
+   INTERMEDIARIOS (catalogo local + sync Sheet)
+   ============================================ */
+var INTERMED_SEED = ['Fabian Carrera','Monica Torres','Judith Neira','Erika Pinzon','Sandra Marin','Andres Aparicio'];
+function getIntermediarios_(){
+  try { var s = localStorage.getItem('aseguralo_intermediarios'); if(s){ var a = JSON.parse(s); if(Array.isArray(a)&&a.length) return a; } } catch(e){}
+  return INTERMED_SEED.slice();
+}
+function setIntermediarios_(arr){ localStorage.setItem('aseguralo_intermediarios', JSON.stringify(arr)); }
+function agregarIntermediario_(nombre){
+  nombre = String(nombre||'').trim(); if(!nombre) return;
+  var lista = getIntermediarios_();
+  var existe = lista.some(function(n){return n.toLowerCase()===nombre.toLowerCase();});
+  if(!existe){ lista.push(nombre); setIntermediarios_(lista); }
+  // Sync a Sheet (fire and forget)
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'intermediario-add', nombre:nombre})}).catch(function(){});
+}
+function poblarSelectInterm_(sel){
+  if(!sel) return;
+  var lista = getIntermediarios_();
+  sel.innerHTML = '<option value="">-- Selecciona --</option>' +
+    lista.map(function(n){return '<option>'+n+'</option>';}).join('') +
+    '<option value="__otro">Otro (escribir nuevo)</option>';
+}
+window.npIntermChange_ = function(sel){
+  var wrap = document.getElementById('npIntermOtroWrap');
+  if(sel.value==='__otro'){ wrap.style.display=''; setTimeout(function(){document.getElementById('npIntermOtro').focus();},50); }
+  else { wrap.style.display='none'; }
+};
+/* Al arrancar la app, refrescar catalogo desde Sheet (por si otro dispositivo agrego uno) */
+function loadIntermediariosFromSheet(){
+  fetch(APPS_SCRIPT_URL+'?action=intermediarios',{redirect:'follow'})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j && j.status==='ok' && Array.isArray(j.rows) && j.rows.length){
+        // Merge: union entre local y remoto, mantener orden remoto y agregar locales nuevos al final
+        var remoto = j.rows.slice();
+        var local  = getIntermediarios_();
+        local.forEach(function(n){ if(!remoto.some(function(r){return r.toLowerCase()===n.toLowerCase();})) remoto.push(n); });
+        setIntermediarios_(remoto);
+      }
+    }).catch(function(){});
+}
+
 /* Nuevo prospecto (flujo Fabian: le entra WA/llamada, captura y responde con plantilla) */
 window.nuevoProspecto=function(){
   switchMod('cotizador');
   switchSub('inbox');
   openModal('nuevoProspecto');
   // reset campos
-  ['npNombre','npTel','npCorreo','npTipo'].forEach(function(id){var e=document.getElementById(id); if(e) e.value='';});
+  ['npNombre','npTel','npCorreo','npTipo','npIntermOtro'].forEach(function(id){var e=document.getElementById(id); if(e) e.value='';});
   var o=document.getElementById('npOrigen'); if(o) o.selectedIndex=0;
+  poblarSelectInterm_(document.getElementById('npInterm'));
+  document.getElementById('npIntermOtroWrap').style.display='none';
   document.getElementById('npPreview').style.display='none';
   document.querySelectorAll('#npTipoChips .np-chip').forEach(function(c){c.classList.remove('on')});
 };
@@ -1890,11 +2027,18 @@ function npCollect_(){
   var correo  = (document.getElementById('npCorreo').value||'').trim();
   var tipo    = document.getElementById('npTipo').value;
   var origen  = document.getElementById('npOrigen').value || 'WhatsApp';
+  var intermSel = document.getElementById('npInterm').value;
+  var interm = intermSel === '__otro'
+    ? (document.getElementById('npIntermOtro').value||'').trim()
+    : (intermSel||'').trim();
   if(!nombre){ alert('Escribe el nombre del prospecto'); return null; }
   if(tel.length<7){ alert('Escribe el telefono (minimo 7 digitos)'); return null; }
   if(!tipo){ alert('Selecciona el tipo de seguro'); return null; }
   if(correo && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)){ alert('El correo no tiene formato valido'); return null; }
-  return {nombre:nombre, telefono:tel, correo:correo, tipo:tipo, origen:origen};
+  if(!interm){ alert('Selecciona un intermediario (o escribe uno nuevo si elegiste "Otro")'); return null; }
+  // Si es nuevo (opcion Otro), persistir en catalogo
+  if(intermSel === '__otro') agregarIntermediario_(interm);
+  return {nombre:nombre, telefono:tel, correo:correo, tipo:tipo, origen:origen, intermediario:interm};
 }
 
 function npSaveLead_(d, cb){
@@ -1907,10 +2051,11 @@ function npSaveLead_(d, cb){
     tipo: d.tipo,
     detalle: '',
     urgencia: '',
-    origen: d.origen
+    origen: d.origen,
+    intermediario: d.intermediario || ''
   };
   // Optimista: agregar local para que aparezca ya en el Inbox
-  LEADS.unshift({fecha:payload.fecha, id:'LD-local-'+Date.now(), nombre:d.nombre, correo:d.correo, telefono:d.telefono, tipo:d.tipo, detalle:'', urgencia:'', origen:d.origen, estado:'Nuevo', notas:''});
+  LEADS.unshift({fecha:payload.fecha, id:'LD-local-'+Date.now(), nombre:d.nombre, correo:d.correo, telefono:d.telefono, tipo:d.tipo, detalle:'', urgencia:'', origen:d.origen, estado:'Nuevo', notas:'', intermediario:d.intermediario||''});
   renderLeads();
   fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
     .then(function(){ setTimeout(loadLeadsFromSheet, 1500); if(cb)cb(); })
@@ -1923,6 +2068,9 @@ window.switchComSub=function(sub){
   var tab=document.querySelector('#comSubNav .sub-tab[data-sub="'+sub+'"]'); if(tab) tab.classList.add('active');
   document.querySelectorAll('#mod-comisiones .sub-section').forEach(function(s){s.classList.remove('active')});
   var sec=document.getElementById('sub-com-'+sub); if(sec) sec.classList.add('active');
+  if(sub==='asesores')    renderAsesores();
+  if(sub==='netoFabian')  renderNetoFabian();
+  if(sub==='sevengroup')  { if(typeof renderLiquidaciones==='function') renderLiquidaciones(); }
 };
 
 /* Sub-navegacion dentro de Cotizador: inbox / curso / emitir */
@@ -2677,7 +2825,7 @@ function renderLiquidaciones(){
 
   var tb = document.getElementById('liqsTable'); if(!tb) return;
   if(!LIQUIDACIONES.length){
-    tb.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay liquidaciones. Se crean automatico cuando una cotizacion se marca como Aceptada.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="18" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay liquidaciones. Se crean automatico cuando una cotizacion se marca como Aceptada.</td></tr>';
     return;
   }
   var estMap = {'pendiente':'badge-por-renovar','cobrado':'badge-activa','pagado':'badge-activa','no-aplica':'badge-cancelada','vencido':'badge-vencida'};
@@ -2688,18 +2836,177 @@ function renderLiquidaciones(){
       '<td class="mono" style="font-size:10px;color:var(--dim)">'+l.id+'</td>'+
       '<td style="font-size:11px">'+(l.fecha_venta||'').slice(0,10)+'</td>'+
       '<td><strong>'+l.cliente+'</strong></td>'+
+      '<td style="font-size:11px">'+(l.intermediario||'-')+'</td>'+
       '<td>'+l.tipo+'</td>'+
       '<td style="font-size:12px">'+l.aseguradora+'</td>'+
       '<td class="mono" style="font-weight:700">'+fmt(l.prima)+'</td>'+
       '<td class="mono" style="font-size:12px">'+fmt(l.com_aseguralo)+' <span style="color:var(--dim);font-size:10px">('+l.pct_aseguralo+'%)</span></td>'+
+      '<td class="mono" style="font-size:12px">'+fmt(l.com_asesor||0)+' <span style="color:var(--dim);font-size:10px">('+(l.pct_asesor||0)+'%)</span></td>'+
+      '<td class="mono" style="font-size:12px">'+fmt(l.com_fabian_bruta||0)+' <span style="color:var(--dim);font-size:10px">('+(l.pct_fabian||0)+'%)</span></td>'+
       '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(l.com_7group)+' <span style="color:var(--dim);font-size:10px">('+l.pct_7group+'% · '+(l.renovacion===1?'año 1':'reno '+l.renovacion)+')</span></td>'+
+      '<td class="mono">'+fmt(l.com_fabian_neta||0)+'</td>'+
+      '<td class="mono" style="color:var(--orange)">'+fmt(l.sostenimiento_valor||0)+' <span style="color:var(--dim);font-size:10px">('+(l.sostenimiento_pct||0)+'%)</span></td>'+
+      '<td class="mono" style="font-weight:800;color:var(--green)">'+fmt(l.neto_fabian||0)+'</td>'+
       '<td style="font-size:10px;color:var(--dim)">'+(l.origen||'')+'</td>'+
       '<td><span class="badge '+badgeAseg+'">'+l.estado_pago_aseguralo+'</span>'+(l.fecha_pago_aseguralo?'<div style="font-size:9px;color:var(--dim);margin-top:2px">'+l.fecha_pago_aseguralo+'</div>':'')+'</td>'+
       '<td><span class="badge '+badge7G+'">'+l.estado_pago_7group+'</span>'+(l.fecha_pago_7group?'<div style="font-size:9px;color:var(--dim);margin-top:2px">'+l.fecha_pago_7group+'</div>':'')+'</td>'+
       '<td><div style="display:flex;flex-direction:column;gap:3px">'+
-        (l.estado_pago_aseguralo==='pendiente'?'<button class="btn btn-sm" onclick="marcarLiqPagada(\''+l.id+'\',\'aseguralo\')" style="font-size:10px">Cobrado Aseguralo</button>':'')+
-        (l.estado_pago_7group==='pendiente'?'<button class="btn btn-sm btn-primary" onclick="marcarLiqPagada(\''+l.id+'\',\'7group\')" style="font-size:10px">Pagado a 7GROUP</button>':'')+
+        (l.estado_pago_aseguralo==='pendiente'?'<button class="btn btn-sm" onclick="marcarLiqPagada(\''+l.id+'\',\'aseguralo\')" style="font-size:10px">Cobrado</button>':'')+
+        (l.estado_pago_7group==='pendiente'?'<button class="btn btn-sm btn-primary" onclick="marcarLiqPagada(\''+l.id+'\',\'7group\')" style="font-size:10px">Pagado 7G</button>':'')+
       '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+/* ============================================
+   ADMIN ASESORES (distribucion editable)
+   ============================================ */
+var INTERMED_FULL = []; // {nombre, activo, pctAsesor, pctFabian, tipo, email}
+
+function loadIntermediariosFull_(){
+  return fetch(APPS_SCRIPT_URL+'?action=intermediarios',{redirect:'follow'})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j && j.status==='ok' && Array.isArray(j.full)) INTERMED_FULL = j.full;
+    }).catch(function(){});
+}
+
+function renderAsesores(){
+  var tb = document.getElementById('asesoresTable'); if(!tb) return;
+  var pinta = function(){
+    if(!INTERMED_FULL.length){
+      tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Cargando catalogo...</td></tr>';
+      return;
+    }
+    tb.innerHTML = INTERMED_FULL.map(function(x,idx){
+      var isDueno = x.tipo==='dueno';
+      var isRefAdmin = x.tipo==='referido_admin';
+      var tipoLbl = isDueno?'Dueno':(isRefAdmin?'Referido 7GROUP':'Asesor');
+      return '<tr data-nombre="'+x.nombre+'">'+
+        '<td><strong>'+x.nombre+'</strong></td>'+
+        '<td><select class="form-input" data-f="tipo" style="font-size:12px;padding:4px 6px">'+
+          ['dueno','asesor','referido_admin'].map(function(t){
+            var lbl = t==='dueno'?'Dueno':(t==='referido_admin'?'Referido 7GROUP':'Asesor');
+            return '<option value="'+t+'" '+(x.tipo===t?'selected':'')+'>'+lbl+'</option>';
+          }).join('')+
+        '</select></td>'+
+        '<td><input type="number" class="form-input mono" data-f="pctAsesor" min="0" max="100" step="1" value="'+x.pctAsesor+'" style="width:70px;text-align:right"></td>'+
+        '<td><input type="number" class="form-input mono" data-f="pctFabian" min="0" max="100" step="1" value="'+x.pctFabian+'" style="width:70px;text-align:right"></td>'+
+        '<td><select class="form-input" data-f="activo" style="font-size:12px;padding:4px 6px;width:70px">'+
+          ['si','no'].map(function(v){return '<option '+(x.activo===v?'selected':'')+'>'+v+'</option>';}).join('')+
+        '</select></td>'+
+        '<td><input class="form-input" data-f="email" value="'+(x.email||'')+'" style="font-size:12px" placeholder="opcional"></td>'+
+        '<td><button class="btn btn-sm btn-primary" onclick="guardarAsesor_(this)">Guardar</button><span class="save-status" style="display:block;font-size:10px;color:var(--muted);margin-top:2px"></span></td>'+
+      '</tr>';
+    }).join('');
+  };
+  if(!INTERMED_FULL.length){
+    loadIntermediariosFull_().then(pinta);
+  } else {
+    pinta();
+  }
+}
+
+window.guardarAsesor_ = function(btn){
+  var tr = btn.closest('tr'); if(!tr) return;
+  var nombre = tr.dataset.nombre;
+  var payload = {action:'intermediario-update', nombre:nombre};
+  tr.querySelectorAll('[data-f]').forEach(function(el){
+    var f = el.dataset.f;
+    var v = el.value;
+    if(f==='pctAsesor'||f==='pctFabian') v = Number(v)||0;
+    payload[f] = v;
+  });
+  // Validar suma <= 100
+  if((payload.pctAsesor||0) + (payload.pctFabian||0) > 100){
+    alert('La suma de % Asesor + % Fabian no puede pasar 100'); return;
+  }
+  var status = tr.querySelector('.save-status');
+  if(status){ status.textContent = 'guardando...'; status.style.color='var(--accent)'; }
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(function(){
+      // Actualizar cache local
+      var idx = INTERMED_FULL.findIndex(function(x){return x.nombre===nombre;});
+      if(idx>=0){
+        INTERMED_FULL[idx].pctAsesor = Number(payload.pctAsesor)||0;
+        INTERMED_FULL[idx].pctFabian = Number(payload.pctFabian)||0;
+        INTERMED_FULL[idx].activo = payload.activo;
+        INTERMED_FULL[idx].tipo = payload.tipo;
+        INTERMED_FULL[idx].email = payload.email;
+      }
+      if(status){ status.textContent = 'guardado'; status.style.color='var(--green)'; setTimeout(function(){status.textContent='';},2000); }
+    }).catch(function(){ if(status){ status.textContent='error'; status.style.color='var(--red)'; } });
+};
+
+/* ============================================
+   NETO FABIAN (sostenimiento configurable)
+   ============================================ */
+var CONFIG_CACHE = { sostenimiento_pct: 35 };
+
+function loadConfigFromSheet_(){
+  return fetch(APPS_SCRIPT_URL+'?action=config',{redirect:'follow'})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j && j.status==='ok' && j.config){
+        Object.keys(j.config).forEach(function(k){ CONFIG_CACHE[k] = j.config[k]; });
+      }
+    }).catch(function(){});
+}
+
+window.guardarSostenimientoPct_ = function(){
+  var v = Number(document.getElementById('sostenimientoPctInput').value)||0;
+  if(v<0||v>100){ alert('El % debe estar entre 0 y 100'); return; }
+  var st = document.getElementById('sostenimientoStatus');
+  st.textContent = 'guardando...'; st.style.color='var(--accent)';
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'config-set', clave:'sostenimiento_pct', valor:String(v)})})
+    .then(function(){
+      CONFIG_CACHE.sostenimiento_pct = v;
+      st.textContent = 'guardado (aplica a nuevas liquidaciones; las historicas conservan su %)';
+      st.style.color='var(--green)';
+      renderNetoFabian();
+    }).catch(function(){ st.textContent='error'; st.style.color='var(--red)'; });
+};
+
+function renderNetoFabian(){
+  var input = document.getElementById('sostenimientoPctInput');
+  if(input) input.value = Number(CONFIG_CACHE.sostenimiento_pct)||35;
+  var kpi = document.getElementById('netoFabianKpi'); if(!kpi) return;
+  var tb  = document.getElementById('netoFabianTable'); if(!tb) return;
+
+  var ingreso    = LIQUIDACIONES.reduce(function(s,l){return s+(Number(l.prima)||0);},0);
+  var comTotal   = LIQUIDACIONES.reduce(function(s,l){return s+(Number(l.com_aseguralo)||0);},0);
+  var fabBruta   = LIQUIDACIONES.reduce(function(s,l){return s+(Number(l.com_fabian_bruta)||0);},0);
+  var sietGrp    = LIQUIDACIONES.reduce(function(s,l){return s+(Number(l.com_7group)||0);},0);
+  var fabNeta    = LIQUIDACIONES.reduce(function(s,l){return s+(Number(l.com_fabian_neta)||0);},0);
+  var sosten     = LIQUIDACIONES.reduce(function(s,l){return s+(Number(l.sostenimiento_valor)||0);},0);
+  var neto       = LIQUIDACIONES.reduce(function(s,l){return s+(Number(l.neto_fabian)||0);},0);
+
+  kpi.innerHTML = [
+    {l:'Ingreso total (primas)', v:fmt(ingreso),  c:'c-brand'},
+    {l:'Fabian neta (100%)',      v:fmt(fabNeta),  c:'c-accent'},
+    {l:'Sostenimiento acumulado', v:fmt(sosten),   c:'c-orange'},
+    {l:'Neto Fabian (queda)',     v:fmt(neto),     c:'c-green'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val" style="font-size:18px">'+k.v+'</div></div>'}).join('');
+
+  if(!LIQUIDACIONES.length){
+    tb.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Sin liquidaciones aun.</td></tr>';
+    return;
+  }
+  tb.innerHTML = LIQUIDACIONES.map(function(l){
+    return '<tr>'+
+      '<td style="font-size:11px">'+(l.fecha_venta||'').slice(0,10)+'</td>'+
+      '<td><strong>'+l.cliente+'</strong></td>'+
+      '<td style="font-size:11px">'+(l.intermediario||'-')+'</td>'+
+      '<td class="mono" style="font-size:11px">'+(l.poliza||'-')+'</td>'+
+      '<td class="mono">'+fmt(l.prima)+'</td>'+
+      '<td class="mono">'+fmt(l.com_aseguralo)+'</td>'+
+      '<td class="mono">'+fmt(l.com_fabian_bruta||0)+'</td>'+
+      '<td class="mono" style="color:var(--accent)">'+fmt(l.com_7group)+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(l.com_fabian_neta||0)+'</td>'+
+      '<td class="mono" style="font-size:11px;color:var(--dim)">'+(l.sostenimiento_pct||0)+'%</td>'+
+      '<td class="mono" style="color:var(--orange)">'+fmt(l.sostenimiento_valor||0)+'</td>'+
+      '<td class="mono" style="font-weight:800;color:var(--green)">'+fmt(l.neto_fabian||0)+'</td>'+
     '</tr>';
   }).join('');
 }
@@ -2822,6 +3129,7 @@ function detectarAseguradora_(text){
   if(t.indexOf('allianz')>=0) return 'Allianz';
   if(t.indexOf('axa colpatria')>=0 || (t.indexOf('axa')>=0 && t.indexOf('colpatria')>=0) || t.indexOf('axxa')>=0) return 'AXA';
   if(t.indexOf('seguros del estado')>=0 || t.indexOf('previsora')>=0) return 'Seguros del Estado';
+  if(t.indexOf('bmi ')>=0 || t.indexOf('bmi colombia')>=0 || t.indexOf('bmi financial')>=0 || t.indexOf('bmi companies')>=0 || /(^|[^a-z])bmi([^a-z]|$)/i.test(t)) return 'BMI';
   return null;
 }
 
@@ -2838,6 +3146,12 @@ function extraerPrima_(text, aseg){
     if(!m) m = t.match(/TOTAL\s+A\s+PAGAR[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
   } else if(aseg==='Seguros del Estado'){
     m = t.match(/Prima\s+total[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
+  } else if(aseg==='BMI'){
+    // BMI usa: "Prima anual", "Prima total", "Valor de la Prima", "TOTAL A PAGAR"
+    m = t.match(/Prima\s+anual[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
+    if(!m) m = t.match(/Valor\s+de\s+la\s+Prima[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
+    if(!m) m = t.match(/Prima\s+total[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
+    if(!m) m = t.match(/TOTAL\s+A\s+PAGAR[^0-9]{0,60}([0-9][0-9.,]{4,15})/i);
   }
   return m ? parseNumColombia_(m[1]) : 0;
 }
@@ -2890,7 +3204,9 @@ function promptGemini_(tipo){
     camposEspecificos =
       '  "tomador": { "nombre": "...", "tipo_documento": "...", "numero_documento": "...", "fecha_nacimiento": "YYYY-MM-DD" },\n'+
       '  "valor_asegurado": <numero>,\n'+
-      '  "estatura_cm": <numero>, "peso_kg": <numero>, "ocupacion": "..."';
+      '  "estatura_cm": <numero>, "peso_kg": <numero>, "ocupacion": "...",\n'+
+      '  "plan_seleccionado": "Optima | Basica | Superior | ...",\n'+
+      '  "planes_alternos": [ { "nombre":"...", "prima":<numero>, "valor_asegurado":<numero o null> } ]';
   } else if(t.indexOf('hogar')>=0 || t.indexOf('inmueble')>=0){
     camposEspecificos =
       '  "tomador": { "nombre":"...", "tipo_documento":"...", "numero_documento":"..." },\n'+
@@ -2904,7 +3220,8 @@ function promptGemini_(tipo){
     'Analiza el PDF con cuidado y devuelve UNICAMENTE un objeto JSON valido (sin markdown, sin explicaciones) con esta estructura exacta:\n\n'+
     '{\n'+
     '  "tipo_detectado": "Auto" | "Salud" | "Vida" | "Hogar" | "Empresa" | "Arrendamiento" | "Cumplimiento" | "Viaje" | "Otro",\n'+
-    '  "aseguradora": "Allianz" | "AXA" | "AXA Colpatria" | "Seguros del Estado" | "Previsora" | "Sura" | "Bolivar" | "Mapfre" | "Liberty" | otro,\n'+
+    '  "aseguradora": "Allianz" | "AXA" | "AXA Colpatria" | "Seguros del Estado" | "BMI" | "Previsora" | "Sura" | "Bolivar" | "Mapfre" | "Liberty" | otro,\n'+
+    '  "titular": { "nombre_completo": "nombre y apellidos tal cual aparecen", "tipo_documento": "CC|CE|PA|NIT|null", "numero_documento": "solo digitos, sin puntos", "telefono": "solo digitos o null", "correo": "email o null" },\n'+
     '  "prima_total": <numero entero, la prima total anual/vigencia sin decimales, en pesos colombianos>,\n'+
     '  "prima_mensual": <numero o null>,\n'+
     '  "vigencia_desde": "YYYY-MM-DD",\n'+
@@ -2915,6 +3232,12 @@ function promptGemini_(tipo){
     camposEspecificos+'\n'+
     '}\n\n'+
     'IMPORTANTE: en "tipo_detectado" pon lo que REALMENTE es el PDF (auto, vida, salud, hogar...) sin importar lo que dijimos que espera el prospecto. Si el PDF es un seguro de auto, pon "Auto" — asi el sistema puede detectar si no corresponde al tipo del prospecto.\n'+
+    'IMPORTANTE 2: "titular" es el TOMADOR/PROPIETARIO/CONTRATANTE de la poliza, la persona a nombre de quien va la cotizacion. Extraelo siempre, incluso si tambien aparece en "tomador"/"propietario". Nombre completo con apellidos tal cual figura en el PDF.\n'+
+    'IMPORTANTE 3 (SOLO Allianz + Vida): los estudios de Vida de Allianz traen 3 opciones en un mismo PDF (usualmente Basica, Optima y Superior — o nombres equivalentes con distintas coberturas/primas). Debes:\n'+
+    '  a) Identificar las 3 opciones y sus primas/valores asegurados.\n'+
+    '  b) Extraer los datos de la opcion "OPTIMA" como la principal (prima_total, valor_asegurado, coberturas_principales, vigencia).\n'+
+    '  c) Poner "plan_seleccionado": "Optima" y guardar las otras 2 opciones en el array "planes_alternos".\n'+
+    '  d) Si no encuentras un plan llamado exactamente "Optima", elige el intermedio (ni el mas barato ni el mas caro) y explica en "plan_seleccionado" cual escogiste.\n'+
     'Reglas: Si un campo no aparece en el documento, ponlo como null. Todas las cifras deben ser numeros (sin puntos ni comas ni simbolo $). Devuelve SOLO el JSON, empezando con { y terminando con }. Sin ```json ni ```. Sin texto antes ni despues.';
 }
 
@@ -2939,16 +3262,97 @@ async function llamarGemini_(file, tipo){
   return j.data;
 }
 
-window.subirPDFCotizacion = async function(inputEl, leadId, slotForzado){
+/* ============================================
+   VALIDACION DE IDENTIDAD (nombre/documento del titular del PDF vs prospecto)
+   ============================================ */
+function normalizarNombre_(s){
+  return String(s||'')
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')  // quita tildes
+    .replace(/\b(sr|sra|dr|dra|don|dona)\b\.?/g,'')    // quita tratamientos
+    .replace(/[^a-z\s]/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function tokensNombre_(s){
+  return normalizarNombre_(s).split(' ').filter(function(w){return w.length>=3;});
+}
+function levenshtein_(a,b){
+  if(a===b) return 0; if(!a.length) return b.length; if(!b.length) return a.length;
+  var m=[]; for(var i=0;i<=b.length;i++){m[i]=[i];}
+  for(var j=0;j<=a.length;j++){m[0][j]=j;}
+  for(i=1;i<=b.length;i++) for(j=1;j<=a.length;j++){
+    m[i][j] = b.charAt(i-1)===a.charAt(j-1) ? m[i-1][j-1] :
+              Math.min(m[i-1][j-1]+1, m[i][j-1]+1, m[i-1][j]+1);
+  }
+  return m[b.length][a.length];
+}
+/* Compara identidad titular-PDF vs lead. Devuelve {ok, warn, msg}. */
+function validarIdentidadTitular_(data, lead){
+  var titular = data.titular || data.tomador || data.propietario || {};
+  var nomPDF = titular.nombre_completo || titular.nombre || '';
+  var docPDF = String(titular.numero_documento || titular.documento || '').replace(/\D/g,'');
+  var telPDF = String(titular.telefono || '').replace(/\D/g,'');
+
+  var nomLead = lead.nombre || '';
+  var docLead = String(lead.documento || '').replace(/\D/g,'');
+  var telLead = String(lead.telefono || '').replace(/\D/g,'').slice(-10);
+
+  if(!nomPDF) return {ok:true, warn:true, msg:'No se pudo leer el nombre del titular en el PDF. Verifica manualmente que corresponda a '+nomLead+'.'};
+
+  // 1. Documento: si ambos existen, es el juez de paz
+  if(docLead && docPDF){
+    if(docLead === docPDF) return {ok:true, warn:false, msg:''};
+    return {ok:false, warn:false, msg:'Documento NO coincide.\nProspecto: '+docLead+'\nPDF: '+docPDF+'\n\nEsta cotizacion parece ser de otra persona.'};
+  }
+
+  // 2. Nombre por tokens
+  var tokLead = tokensNombre_(nomLead);
+  var tokPDF  = tokensNombre_(nomPDF);
+  if(!tokLead.length || !tokPDF.length){
+    return {ok:true, warn:true, msg:'Nombre incompleto. Verifica que "'+nomPDF+'" corresponda a "'+nomLead+'".'};
+  }
+  var compartidos = tokLead.filter(function(t){return tokPDF.indexOf(t)>=0;}).length;
+  var score = compartidos / Math.max(tokLead.length, tokPDF.length);
+
+  // 3. Buscar tokens "parecidos" pero no identicos (Maria Gomez vs Maria Gamez)
+  var casiIguales = [];
+  tokLead.forEach(function(tl){
+    if(tokPDF.indexOf(tl)>=0) return;
+    tokPDF.forEach(function(tp){
+      if(tokPDF.indexOf(tl)<0 && Math.abs(tl.length-tp.length)<=2){
+        var d = levenshtein_(tl,tp);
+        if(d>0 && d<=2 && d < Math.min(tl.length,tp.length)/2){
+          casiIguales.push({lead:tl, pdf:tp, dist:d});
+        }
+      }
+    });
+  });
+
+  if(score>=0.99 && !casiIguales.length) return {ok:true, warn:false, msg:''};
+
+  var detalle = 'Prospecto: '+nomLead+(docLead?' (doc '+docLead+')':'')+
+                '\nTitular PDF: '+nomPDF+(docPDF?' (doc '+docPDF+')':'');
+  if(casiIguales.length){
+    detalle += '\n\nAtencion: hay tokens muy parecidos pero NO iguales:';
+    casiIguales.forEach(function(c){ detalle += '\n  "'+c.lead+'" vs "'+c.pdf+'" (posible error de tipeo)'; });
+  }
+  if(telLead && telPDF && telPDF.indexOf(telLead)>=0) detalle += '\n\n(Telefono si coincide: '+telLead+')';
+
+  if(score>=0.5 || casiIguales.length) return {ok:true, warn:true, msg:detalle};
+  return {ok:false, warn:false, msg:'Los nombres no coinciden.\n\n'+detalle};
+}
+
+window.subirPDFCotizacion = async function(inputEl, leadId){
   var file = inputEl.files[0]; if(!file) return;
-  var statusEl = document.getElementById('pdf-status-'+leadId+'-'+(slotForzado||'auto'));
+  var statusEl = document.getElementById('pdf-status-'+leadId+'-new');
   var setStatus = function(msg,color){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=color||'var(--dim)'; } };
   setStatus('Enviando a Gemini para analizar...','var(--accent)');
   try {
     var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {tipo:'Otro'};
     var data = await llamarGemini_(file, lead.tipo);
 
-    // Validar que el tipo del PDF coincida con el tipo del prospecto
+    // Validar tipo
     var tipoEsperado = (lead.tipo||'').toLowerCase();
     var tipoDetectado = (data.tipo_detectado||'').toLowerCase();
     var mapTipo = {'auto':'vehiculo','vehiculo':'vehiculo','soat':'vehiculo','salud':'salud','vida':'vida','hogar':'hogar','inmueble':'hogar','empresa':'empresa','empresarial':'empresa','arrendamiento':'arrendamiento','cumplimiento':'cumplimiento','viaje':'viaje'};
@@ -2959,21 +3363,31 @@ window.subirPDFCotizacion = async function(inputEl, leadId, slotForzado){
       return;
     }
 
-    var aseg = data.aseguradora || '';
-    var asegNorm = aseg.toLowerCase();
-    var slotKey = slotForzado;
-    if(!slotKey){
-      if(asegNorm.indexOf('allianz')>=0) slotKey='allianz';
-      else if(asegNorm.indexOf('axa')>=0) slotKey='axa';
-      else if(asegNorm.indexOf('estado')>=0 || asegNorm.indexOf('previsora')>=0) slotKey='estado';
-    }
-    if(!slotKey){
-      setStatus('No se pudo identificar la aseguradora ('+aseg+'). Sube manualmente en el slot correcto.','var(--red)');
+    // Validar identidad titular vs prospecto
+    var idCheck = validarIdentidadTitular_(data, lead);
+    if(!idCheck.ok){
+      setStatus('Identidad NO coincide con el prospecto.','var(--red)');
+      alert('ERROR - Identidad no coincide\n\n'+idCheck.msg+'\n\nEsta cotizacion NO se asociara al prospecto. Verifica que subiste el PDF correcto.');
       return;
     }
+    if(idCheck.warn){
+      var ok = confirm('ATENCION - Verificar identidad\n\n'+idCheck.msg+'\n\nDeseas asociar de todas formas esta cotizacion al prospecto?');
+      if(!ok){ setStatus('Cotizacion NO asociada (identidad no confirmada).','var(--orange)'); return; }
+    }
+
+    var aseg = data.aseguradora || 'Aseguradora sin identificar';
+
     if(!COT_PDFS[leadId]) COT_PDFS[leadId] = {};
+    // Generar slot dinamico (cot_1, cot_2, ...) — asi permite N cotizaciones
+    var maxN = 0;
+    Object.keys(COT_PDFS[leadId]).forEach(function(k){
+      var m = k.match(/^cot_(\d+)$/);
+      if(m) maxN = Math.max(maxN, parseInt(m[1]));
+    });
+    var slotKey = 'cot_' + (maxN+1);
+    var tit = data.titular || data.tomador || data.propietario || {};
     COT_PDFS[leadId][slotKey] = {
-      aseguradora: aseg || {allianz:'Allianz',axa:'AXA',estado:'Seguros del Estado'}[slotKey],
+      aseguradora: aseg,
       prima: Number(data.prima_total)||0,
       primaMensual: Number(data.prima_mensual)||0,
       desde: data.vigencia_desde || '',
@@ -2981,6 +3395,10 @@ window.subirPDFCotizacion = async function(inputEl, leadId, slotForzado){
       valorAsegurado: Number(data.valor_asegurado)||0,
       deducible: Number(data.deducible)||0,
       coberturas: data.coberturas_principales || '',
+      titularNombre: tit.nombre_completo || tit.nombre || '',
+      titularDoc: tit.numero_documento || tit.documento || '',
+      planSeleccionado: data.plan_seleccionado || '',
+      planesAlternos: Array.isArray(data.planes_alternos) ? data.planes_alternos : [],
       extraido: data,
       nombreArchivo: file.name,
       ts: Date.now()
@@ -3012,7 +3430,7 @@ window.marcarNoTomada = function(leadId){
 
 window.continuarComparativo = function(leadId){
   var data = COT_PDFS[leadId] || {};
-  var count = Object.keys(data).length;
+  var count = Object.keys(data).filter(function(k){return k.indexOf('__')!==0;}).length;
   if(count<2){ alert('Sube al menos 2 cotizaciones (PDFs de aseguradoras) para hacer el comparativo.'); return; }
   renderComparativoModal_(leadId);
   openModal('comparativo');
@@ -3021,13 +3439,12 @@ window.continuarComparativo = function(leadId){
 function renderComparativoModal_(leadId){
   var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {};
   var data = COT_PDFS[leadId] || {};
-  var slots = ['allianz','axa','estado'];
-  var etiq  = {allianz:'Allianz', axa:'AXA', estado:'Seguros del Estado'};
-  var cotizaciones = slots.filter(function(k){return data[k]}).map(function(k){
+  var slots = Object.keys(data).filter(function(k){return k.indexOf('__')!==0;});
+  var cotizaciones = slots.map(function(k){
     var d = data[k];
-    return {slot:k, nombre:etiq[k], prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
+    return {slot:k, nombre:d.aseguradora||k, prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
             deducible:Number(d.deducible)||0, coberturas:d.coberturas||'', valorAseg:Number(d.valorAsegurado)||0,
-            aseguradora:d.aseguradora||etiq[k]};
+            aseguradora:d.aseguradora||k};
   }).filter(function(c){return c.prima>0});
 
   if(!cotizaciones.length){ document.getElementById('comparativoBody').innerHTML = '<p style="color:var(--dim)">No hay primas capturadas todavia. Sube los PDFs primero.</p>'; return; }
@@ -3130,17 +3547,16 @@ window.descargarComparativoPDF = async function(leadId){
   var logoB64 = await precargarLogo_();
   var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {};
   var data = COT_PDFS[leadId] || {};
-  var slots = ['allianz','axa','estado'];
-  var etiq  = {allianz:'Allianz', axa:'AXA Colpatria', estado:'Seguros del Estado'};
-  var cots = slots.filter(function(k){return data[k]&&Number(data[k].prima)>0}).map(function(k){
+  var slotKeys = Object.keys(data).filter(function(k){return k.indexOf('__')!==0;});
+  var cots = slotKeys.filter(function(k){return Number(data[k].prima)>0}).map(function(k){
     var d = data[k];
-    return {nombre:etiq[k], prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
+    return {slot:k, nombre:d.aseguradora||k, prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
             deducible:Number(d.deducible)||0, coberturas:d.coberturas||'', valorAseg:Number(d.valorAsegurado)||0,
-            aseguradora:d.aseguradora||etiq[k]};
+            aseguradora:d.aseguradora||k};
   });
   if(!cots.length){ alert('No hay primas capturadas'); return; }
   var mejor = cots.reduce(function(a,b){return a.prima<=b.prima?a:b;});
-  var ganadora = data.__ganadora ? cots.filter(function(c){var sk=Object.keys(etiq).find(function(x){return etiq[x]===c.nombre});return sk===data.__ganadora;})[0] : mejor;
+  var ganadora = data.__ganadora ? cots.filter(function(c){return c.slot===data.__ganadora;})[0] : mejor;
   if(!ganadora) ganadora = mejor;
 
   var jsPDF = window.jspdf.jsPDF;
@@ -3287,39 +3703,49 @@ function renderEnCotizacion(){
     return;
   }
 
-  var slotHTML = function(leadId, slot, aseg){
-    var d = (COT_PDFS[leadId]||{})[slot];
-    if(d){
-      return '<div class="ec-slot ok">'+
-        '<div class="ec-slot-head"><span class="ec-slot-title">'+aseg+'</span><button class="ec-slot-del" onclick="borrarPDFCotizacion(\''+leadId+'\',\''+slot+'\')" title="Borrar">&times;</button></div>'+
-        '<div class="ec-slot-file mono">'+d.nombreArchivo+'</div>'+
-        '<div class="ec-slot-prima">Prima: <strong>'+(d.prima?fmt(d.prima):'<span style="color:var(--red)">no detectada</span>')+'</strong></div>'+
-        (d.desde||d.hasta?'<div class="ec-slot-vig">Vigencia: '+d.desde+' &rarr; '+d.hasta+'</div>':'')+
+  // Slot cargado (con datos extraidos)
+  var slotCargadoHTML = function(leadId, slot, d){
+    var alternosHTML = '';
+    if(d.planesAlternos && d.planesAlternos.length){
+      alternosHTML = '<div style="font-size:10px;color:var(--muted);margin-top:6px;border-top:1px dashed var(--border);padding-top:4px">'+
+        '<strong>Planes alternos:</strong> '+
+        d.planesAlternos.map(function(a){return (a.nombre||'?')+' ('+fmt(Number(a.prima)||0)+')';}).join(' &middot; ')+
       '</div>';
     }
+    return '<div class="ec-slot ok">'+
+      '<div class="ec-slot-head"><span class="ec-slot-title">'+(d.aseguradora||'Aseguradora')+(d.planSeleccionado?' <span style="font-size:10px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;font-weight:600;margin-left:4px">'+d.planSeleccionado+'</span>':'')+'</span><button class="ec-slot-del" onclick="borrarPDFCotizacion(\''+leadId+'\',\''+slot+'\')" title="Borrar">&times;</button></div>'+
+      '<div class="ec-slot-file mono">'+(d.nombreArchivo||'')+'</div>'+
+      (d.titularNombre?'<div class="ec-slot-titular" style="font-size:11px;color:var(--dim);margin:4px 0"><strong>Titular:</strong> '+d.titularNombre+(d.titularDoc?' &middot; '+d.titularDoc:'')+'</div>':'')+
+      '<div class="ec-slot-prima">Prima: <strong>'+(d.prima?fmt(d.prima):'<span style="color:var(--red)">no detectada</span>')+'</strong></div>'+
+      (d.desde||d.hasta?'<div class="ec-slot-vig">Vigencia: '+d.desde+' &rarr; '+d.hasta+'</div>':'')+
+      alternosHTML+
+    '</div>';
+  };
+  // Slot para subir nueva cotizacion
+  var slotAddHTML = function(leadId){
     return '<div class="ec-slot empty">'+
-      '<div class="ec-slot-head"><span class="ec-slot-title">'+aseg+'</span></div>'+
-      '<label class="ec-upload"><input type="file" accept="application/pdf" onchange="subirPDFCotizacion(this,\''+leadId+'\',\''+slot+'\')" style="display:none"><span>+ Subir PDF</span></label>'+
-      '<div class="ec-status" id="pdf-status-'+leadId+'-'+slot+'"></div>'+
+      '<div class="ec-slot-head"><span class="ec-slot-title" style="color:var(--dim)">+ Agregar cotizacion</span></div>'+
+      '<label class="ec-upload"><input type="file" accept="application/pdf" onchange="subirPDFCotizacion(this,\''+leadId+'\')" style="display:none"><span>+ Subir PDF</span></label>'+
+      '<div class="ec-status" id="pdf-status-'+leadId+'-new"></div>'+
+      '<div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">La aseguradora se detecta automatico</div>'+
     '</div>';
   };
 
   box.innerHTML = enCotLeads.map(function(l){
     var pdfs = COT_PDFS[l.id]||{};
-    var count = Object.keys(pdfs).length;
+    // Lista de slots reales (ignora __ganadora y otras marcas)
+    var slots = Object.keys(pdfs).filter(function(k){return k.indexOf('__')!==0;});
+    var count = slots.length;
+    var slotsHTML = slots.map(function(sk){return slotCargadoHTML(l.id, sk, pdfs[sk]);}).join('') + slotAddHTML(l.id);
     return '<div class="ec-card">'+
       '<div class="ec-card-head">'+
         '<div>'+
           '<div class="ec-card-name">'+l.nombre+' <span class="ec-card-tipo">&middot; '+l.tipo+'</span></div>'+
           '<div class="ec-card-meta">'+(l.telefono||'—')+(l.correo?' &middot; '+l.correo:'')+' &middot; '+(l.origen||'')+'</div>'+
         '</div>'+
-        '<div class="ec-card-count">'+count+'/3 PDFs</div>'+
+        '<div class="ec-card-count">'+count+' cotizacion'+(count===1?'':'es')+'</div>'+
       '</div>'+
-      '<div class="ec-slots">'+
-        slotHTML(l.id,'allianz','Allianz')+
-        slotHTML(l.id,'axa','AXA')+
-        slotHTML(l.id,'estado','Seguros del Estado')+
-      '</div>'+
+      '<div class="ec-slots">'+ slotsHTML +'</div>'+
       '<div class="ec-actions">'+
         '<button class="btn" onclick="marcarNoTomada(\''+l.id+'\')">No toma la poliza</button>'+
         '<button class="btn btn-primary" onclick="continuarComparativo(\''+l.id+'\')">Continuar &rarr; comparativo</button>'+
@@ -3780,7 +4206,8 @@ function loadLeadsFromSheet(){
           urgencia: r.urgencia,
           origen: r.origen,
           estado: r.estado || 'Nuevo',
-          notas: r.notas
+          notas: r.notas,
+          intermediario: r.intermediario || ''
         };
       });
       renderLeads();
