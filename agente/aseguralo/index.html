@@ -495,29 +495,57 @@ tbody tr:hover{background:var(--accent-light)}
       <div class="sec-header">
         <div>
           <div class="sec-title">Comisiones</div>
-          <div class="sec-desc">Control de comisiones por aseguradora</div>
+          <div class="sec-desc">Aseguradoras → Aseguralo (comision recibida) · Aseguralo → 7GROUP (50% por venta ingresada via ERP/formulario)</div>
         </div>
       </div>
 
-      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="comisionesKpi"></div>
+      <!-- Sub-navegacion -->
+      <div class="sub-nav" id="comSubNav">
+        <a class="sub-tab active" data-sub="aseguralo" onclick="switchComSub('aseguralo')">
+          <span class="sub-lbl">Aseguradoras &rarr; Aseguralo</span>
+        </a>
+        <a class="sub-tab" data-sub="sevengroup" onclick="switchComSub('sevengroup')">
+          <span class="sub-lbl">Aseguralo &rarr; 7GROUP</span>
+          <span class="sub-count" id="cntLiqs">0</span>
+        </a>
+      </div>
 
-      <div class="tbl-wrap">
-        <div class="tbl-overflow">
-          <table>
-            <thead>
-              <tr>
-                <th>Aseguradora</th>
-                <th>Poliza</th>
-                <th>Cliente</th>
-                <th>Prima</th>
-                <th>% Comision</th>
-                <th>Valor Comision</th>
-                <th>Estado Pago</th>
-                <th>Fecha</th>
-              </tr>
-            </thead>
-            <tbody id="comisionesTable"></tbody>
-          </table>
+      <!-- Sub: Aseguradoras → Aseguralo -->
+      <div class="sub-section active" id="sub-com-aseguralo">
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="comisionesKpi"></div>
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th>Aseguradora</th><th>Poliza</th><th>Cliente</th><th>Prima</th>
+                  <th>% Comision</th><th>Valor Comision</th><th>Estado Pago</th><th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody id="comisionesTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub: Aseguralo → 7GROUP -->
+      <div class="sub-section" id="sub-com-sevengroup">
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Liquidacion del 50% que Aseguralo paga a 7GROUP. Se crea automatico cuando una cotizacion pasa a estado <strong>Aceptada</strong> (vendido) y el prospecto entro por ERP o formulario.</div>
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="liqsKpi"></div>
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>Fecha venta</th><th>Cliente</th><th>Tipo</th>
+                  <th>Aseguradora</th><th>Prima</th>
+                  <th>Com. Aseguralo</th><th>Com. 7GROUP</th><th>Origen</th>
+                  <th>Pago Aseguralo</th><th>Pago 7GROUP</th><th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="liqsTable"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -1252,7 +1280,7 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfSjsXZgkjzxUdRLuI1_x1xbow0haD89SYO1c_f0d_-9AxD5yfZfjO6PaalVzpeTYz/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfFsaUm3duU4fxnza5EBwSQriw2spAHXmFSJ3z3eNSdLVXeMX_gwFwbOZpn6I3zk7b/exec';
 
 var CLIENTES=[];
 var POLIZAS=[];
@@ -1775,6 +1803,7 @@ function initApp(){
     renderLeads();
     loadLeadsFromSheet();
     if(typeof loadCotizacionesFromSheet_==='function') loadCotizacionesFromSheet_();
+    if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
     renderPolizas();
     renderCotizador();
     renderDashboard();
@@ -1887,6 +1916,14 @@ function npSaveLead_(d, cb){
     .then(function(){ setTimeout(loadLeadsFromSheet, 1500); if(cb)cb(); })
     .catch(function(){ if(cb)cb(); });
 }
+
+/* Sub-navegacion dentro de Comisiones: aseguralo / 7group */
+window.switchComSub=function(sub){
+  document.querySelectorAll('#comSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
+  var tab=document.querySelector('#comSubNav .sub-tab[data-sub="'+sub+'"]'); if(tab) tab.classList.add('active');
+  document.querySelectorAll('#mod-comisiones .sub-section').forEach(function(s){s.classList.remove('active')});
+  var sec=document.getElementById('sub-com-'+sub); if(sec) sec.classList.add('active');
+};
 
 /* Sub-navegacion dentro de Cotizador: inbox / curso / emitir */
 window.switchSub=function(subId){
@@ -2279,6 +2316,20 @@ window.renovarPoliza=function(id){
   showToast('Poliza '+id+' renovada. Nueva vigencia: '+p.desde+' → '+p.hasta,'success');
   notifyTelegram('POLIZA RENOVADA\nRef: '+id+'\nCliente: '+p.cliente+'\nNueva vigencia: '+p.desde+' -> '+p.hasta);
   postToSheet('update',{poliza:id, desde:p.desde, hasta:p.hasta});
+
+  // Si este cliente vino via 7GROUP, crear liquidacion de renovacion (pct descendente segun # renovacion)
+  var leadOrigen = LEADS.filter(function(l){return l.nombre===p.cliente && (l.origen||'').match(/form|erp|whatsapp|nuevo/i);})[0];
+  if(leadOrigen){
+    fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        action:'cotizacion-aceptada',
+        id: leadOrigen.id, cliente: p.cliente, tipo: p.tipo,
+        prima: p.prima, aseguradora: p.aseguradora,
+        origen: leadOrigen.origen
+      })}).catch(function(){});
+    // Recargar liquidaciones tras 2 seg
+    setTimeout(function(){ if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet(); }, 2000);
+  }
 };
 
 window.savePoliza=function(){
@@ -2593,6 +2644,84 @@ function deleteCotFromSheet_(leadId, slot){
   fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify({action:'cotizacion-delete', lead_id:leadId, slot:slot})}).catch(function(){});
 }
+
+/* ============================================
+   LIQUIDACIONES 7GROUP
+   ============================================ */
+var LIQUIDACIONES = [];
+
+function loadLiquidacionesFromSheet(){
+  return fetch(APPS_SCRIPT_URL+'?action=liquidaciones', {redirect:'follow'})
+    .then(function(r){return r.json()})
+    .then(function(j){
+      if(!j || j.status!=='ok') return;
+      LIQUIDACIONES = j.rows||[];
+      renderLiquidaciones();
+    }).catch(function(){});
+}
+
+function renderLiquidaciones(){
+  var kpiEl = document.getElementById('liqsKpi'); if(!kpiEl) return;
+  var cnt = document.getElementById('cntLiqs'); if(cnt) cnt.textContent = LIQUIDACIONES.length;
+  var totalCom7 = LIQUIDACIONES.reduce(function(s,l){return s+(Number(l.com_7group)||0)},0);
+  var pend7 = LIQUIDACIONES.filter(function(l){return l.estado_pago_7group==='pendiente'}).reduce(function(s,l){return s+(Number(l.com_7group)||0)},0);
+  var pagado7 = LIQUIDACIONES.filter(function(l){return l.estado_pago_7group==='pagado'}).reduce(function(s,l){return s+(Number(l.com_7group)||0)},0);
+  var pendAseg = LIQUIDACIONES.filter(function(l){return l.estado_pago_aseguralo==='pendiente'}).reduce(function(s,l){return s+(Number(l.com_aseguralo)||0)},0);
+
+  kpiEl.innerHTML = [
+    {l:'Total 7GROUP acumulado',v:fmt(totalCom7),c:'c-brand'},
+    {l:'Pendiente pago 7GROUP',v:fmt(pend7),c:'c-orange'},
+    {l:'Pagado a 7GROUP',v:fmt(pagado7),c:'c-green'},
+    {l:'Pendiente cobro Aseguralo',v:fmt(pendAseg),c:'c-red'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val" style="font-size:18px">'+k.v+'</div></div>'}).join('');
+
+  var tb = document.getElementById('liqsTable'); if(!tb) return;
+  if(!LIQUIDACIONES.length){
+    tb.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay liquidaciones. Se crean automatico cuando una cotizacion se marca como Aceptada.</td></tr>';
+    return;
+  }
+  var estMap = {'pendiente':'badge-por-renovar','cobrado':'badge-activa','pagado':'badge-activa','no-aplica':'badge-cancelada','vencido':'badge-vencida'};
+  tb.innerHTML = LIQUIDACIONES.map(function(l){
+    var badgeAseg = estMap[l.estado_pago_aseguralo]||'badge-por-renovar';
+    var badge7G   = estMap[l.estado_pago_7group]||'badge-por-renovar';
+    return '<tr>'+
+      '<td class="mono" style="font-size:10px;color:var(--dim)">'+l.id+'</td>'+
+      '<td style="font-size:11px">'+(l.fecha_venta||'').slice(0,10)+'</td>'+
+      '<td><strong>'+l.cliente+'</strong></td>'+
+      '<td>'+l.tipo+'</td>'+
+      '<td style="font-size:12px">'+l.aseguradora+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(l.prima)+'</td>'+
+      '<td class="mono" style="font-size:12px">'+fmt(l.com_aseguralo)+' <span style="color:var(--dim);font-size:10px">('+l.pct_aseguralo+'%)</span></td>'+
+      '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(l.com_7group)+' <span style="color:var(--dim);font-size:10px">('+l.pct_7group+'% · '+(l.renovacion===1?'año 1':'reno '+l.renovacion)+')</span></td>'+
+      '<td style="font-size:10px;color:var(--dim)">'+(l.origen||'')+'</td>'+
+      '<td><span class="badge '+badgeAseg+'">'+l.estado_pago_aseguralo+'</span>'+(l.fecha_pago_aseguralo?'<div style="font-size:9px;color:var(--dim);margin-top:2px">'+l.fecha_pago_aseguralo+'</div>':'')+'</td>'+
+      '<td><span class="badge '+badge7G+'">'+l.estado_pago_7group+'</span>'+(l.fecha_pago_7group?'<div style="font-size:9px;color:var(--dim);margin-top:2px">'+l.fecha_pago_7group+'</div>':'')+'</td>'+
+      '<td><div style="display:flex;flex-direction:column;gap:3px">'+
+        (l.estado_pago_aseguralo==='pendiente'?'<button class="btn btn-sm" onclick="marcarLiqPagada(\''+l.id+'\',\'aseguralo\')" style="font-size:10px">Cobrado Aseguralo</button>':'')+
+        (l.estado_pago_7group==='pendiente'?'<button class="btn btn-sm btn-primary" onclick="marcarLiqPagada(\''+l.id+'\',\'7group\')" style="font-size:10px">Pagado a 7GROUP</button>':'')+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+window.marcarLiqPagada = function(id, tipo){
+  var l = LIQUIDACIONES.filter(function(x){return x.id===id})[0];
+  if(!l) return;
+  var payload = {action:'liquidacion-update', id:id};
+  if(tipo==='aseguralo'){
+    if(!confirm('Marcar como COBRADO por Aseguralo?\n\nCliente: '+l.cliente+'\nMonto: '+fmt(l.com_aseguralo))) return;
+    payload.estado_pago_aseguralo = 'cobrado';
+    l.estado_pago_aseguralo = 'cobrado';
+    l.fecha_pago_aseguralo = new Date().toISOString().slice(0,10);
+  } else {
+    if(!confirm('Marcar como PAGADO a 7GROUP?\n\nCliente: '+l.cliente+'\nMonto: '+fmt(l.com_7group))) return;
+    payload.estado_pago_7group = 'pagado';
+    l.estado_pago_7group = 'pagado';
+    l.fecha_pago_7group = new Date().toISOString().slice(0,10);
+  }
+  renderLiquidaciones();
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(function(){});
+};
 
 /* Al inicio: carga del Sheet + auto-migra lo que este solo en localStorage al Sheet */
 function loadCotizacionesFromSheet_(){
