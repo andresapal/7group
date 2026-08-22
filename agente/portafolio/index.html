@@ -130,17 +130,75 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
 
 .hidden{display:none !important}
 
+/* PLANES */
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:22px}
+.plan-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;position:relative;transition:all .2s;display:flex;flex-direction:column}
+.plan-box.featured{border-color:var(--cyan);background:linear-gradient(180deg,rgba(77,208,225,.08),var(--bg2))}
+.plan-box.featured::before{content:'MAS POPULAR';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--cyan),var(--cyan-2));color:#000;padding:3px 12px;border-radius:12px;font-size:9px;font-weight:800;letter-spacing:1.5px}
+.plan-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);font-weight:800;margin-bottom:4px}
+.plan-name{font-size:22px;font-weight:800;margin-bottom:12px}
+.plan-price{font-size:32px;font-weight:900;line-height:1}
+.plan-price small{font-size:13px;color:var(--dim);font-weight:600}
+.plan-price-cop{font-size:12px;color:var(--muted);margin-top:4px}
+.plan-divider{height:1px;background:var(--border);margin:16px 0}
+.plan-features{list-style:none;padding:0;margin:0 0 20px 0;flex:1}
+.plan-features li{color:var(--dim);font-size:12.5px;padding:5px 0 5px 20px;position:relative;line-height:1.5}
+.plan-features li::before{content:'✓';position:absolute;left:0;color:var(--cyan);font-weight:900}
+
+/* Setup tiers */
+.setup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:26px}
+.setup-box{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--border);border-radius:12px;padding:18px}
+.setup-name{font-size:16px;font-weight:800;color:var(--cyan);margin-bottom:4px}
+.setup-target{font-size:11px;color:var(--dim);margin-bottom:10px}
+.setup-price{font-size:24px;font-weight:900}
+.setup-price small{font-size:12px;color:var(--muted);font-weight:600}
+.setup-includes{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.5}
+
+/* Combos */
+.combo-card{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--cyan);border-radius:14px;padding:18px;margin-bottom:14px;position:relative}
+.combo-tag{position:absolute;top:-8px;right:16px;background:var(--orange);color:#000;padding:3px 10px;border-radius:10px;font-size:9px;font-weight:800;letter-spacing:1px}
+.combo-tag.verde{background:var(--green);color:#fff}
+.combo-tag.violet{background:var(--violet);color:#fff}
+.combo-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.combo-title{font-size:17px;font-weight:800;color:var(--cyan)}
+.combo-desc{color:var(--dim);font-size:12.5px;margin-top:4px;line-height:1.5}
+.combo-precio{text-align:right;flex-shrink:0}
+.combo-precio-old{font-size:12px;color:var(--muted);text-decoration:line-through}
+.combo-precio-new{font-size:22px;font-weight:900;color:var(--green)}
+.combo-precio-cop{font-size:11px;color:var(--dim);margin-top:2px}
+.combo-ahorro{background:rgba(16,185,129,.15);color:var(--green);padding:2px 10px;border-radius:10px;font-size:11px;font-weight:800;display:inline-block;margin-top:6px}
+.combo-includes{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11.5px;color:var(--dim);line-height:1.6}
+
+/* Add-ons */
+.addon-table{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:12px}
+.addon-table thead{background:var(--bg3)}
+.addon-table th{text-align:left;padding:10px 14px;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.addon-table td{padding:10px 14px;border-top:1px solid var(--border);color:var(--text)}
+.addon-table td.precio{color:var(--green);font-weight:700;text-align:right;white-space:nowrap}
+.addon-table td.tipo{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+
+/* Descuentos */
+.desc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.desc-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.desc-item-txt{font-size:12px;color:var(--text)}
+.desc-item-pct{background:rgba(245,158,11,.15);color:var(--orange);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:800;flex-shrink:0}
+.desc-item-pct.green{background:rgba(16,185,129,.15);color:var(--green)}
+
 /* ================ MOBILE ================ */
 @media (max-width:768px){
-  body{overflow-x:hidden}
+  html,body{overflow-x:hidden;max-width:100vw}
   .container{padding:14px 12px}
   .topbar{padding:10px 12px;flex-wrap:wrap;gap:6px}
   .tb-titulo{font-size:10px;letter-spacing:2px}
   .tb-logo{font-size:26px}
   .tb-user{font-size:10px;padding:4px 8px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .nav{padding:0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .nav{padding:0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap}
   .nav::-webkit-scrollbar{display:none}
-  .nav a{padding:12px 10px;font-size:11px;letter-spacing:.3px;flex-shrink:0}
+  .nav a{padding:12px 8px;font-size:10px;letter-spacing:.2px;flex-shrink:0;white-space:nowrap}
+  .addon-table{min-width:420px}
+  .combo-precio{width:100%}
+  .cot-cliente-input{font-size:12px}
+  #mccModal input,#mccModal textarea{max-width:100%}
   .sec-title{font-size:20px}
   .sec-head{margin-bottom:16px}
   .kpis{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
@@ -197,6 +255,8 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
 
 <div class="nav">
   <a data-nav="dash" class="active" onclick="nav('dash')">Resumen</a>
+  <a data-nav="planes" onclick="nav('planes')">Planes</a>
+  <a data-nav="combos" onclick="nav('combos')">Combos & Ofertas</a>
   <a data-nav="svc" onclick="nav('svc')">Servicios</a>
   <a data-nav="casos" onclick="nav('casos')">Casos</a>
   <a data-nav="cot" onclick="nav('cot')">Cotizador</a>
@@ -222,6 +282,43 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
     <div style="margin-top:26px">
       <div class="sec-title" style="font-size:18px;margin-bottom:14px">Casos activos</div>
       <div class="case-grid" id="topCasos"></div>
+    </div>
+  </section>
+
+  <!-- SECTION: PLANES (alineados al home 7group) -->
+  <section class="section" id="s-planes">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title">Planes 7GROUP oficiales</div>
+        <div class="sec-desc">Precios alineados al home 7group.site. Mostrar en USD (principal) o COP (TRM $4.000). Listo para enviar.</div>
+      </div>
+      <div>
+        <div class="filtros" style="margin-bottom:0">
+          <div class="filtro-chip active" onclick="setMoneda('USD')" id="chipUSD">USD</div>
+          <div class="filtro-chip" onclick="setMoneda('COP')" id="chipCOP">COP</div>
+        </div>
+      </div>
+    </div>
+    <div id="planesContent"></div>
+  </section>
+
+  <!-- SECTION: COMBOS (con descuentos) -->
+  <section class="section" id="s-combos">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title">Combos y ofertas de cierre</div>
+        <div class="sec-desc">Bundles con descuento por pago anticipado, volumen o combinación de servicios. Herramientas para cerrar la venta.</div>
+      </div>
+    </div>
+    <div id="combosContent"></div>
+    <div style="margin-top:26px">
+      <div class="sec-title" style="font-size:18px;margin-bottom:14px">Add-ons individuales</div>
+      <div class="sec-desc" style="margin-bottom:14px">Para clientes que ya tienen plan y quieren extender capacidades.</div>
+      <div id="addonsContent"></div>
+    </div>
+    <div style="margin-top:26px">
+      <div class="sec-title" style="font-size:18px;margin-bottom:14px">Descuentos aplicables</div>
+      <div id="descuentosContent"></div>
     </div>
   </section>
 
@@ -277,6 +374,64 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
   </section>
 
 </div>
+</div>
+
+<!-- MODAL COTIZAR COMBO -->
+<div id="mccModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)cerrarModalCombo()">
+  <div style="background:var(--bg2);border:1px solid var(--cyan);border-radius:14px;max-width:640px;width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:20px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
+      <div style="flex:1">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);font-weight:800;margin-bottom:4px">Combo seleccionado</div>
+        <div id="mccTitulo" style="font-size:18px;font-weight:800"></div>
+        <div id="mccDesc" style="color:var(--dim);font-size:12px;margin-top:4px;line-height:1.5"></div>
+      </div>
+      <button onclick="cerrarModalCombo()" style="background:none;border:none;color:var(--dim);font-size:24px;cursor:pointer;line-height:1">&times;</button>
+    </div>
+    <div style="padding:16px 22px;overflow-y:auto;flex:1">
+      <!-- Precio destacado -->
+      <div style="background:linear-gradient(135deg,var(--bg3),var(--bg));border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center">
+        <div id="mccPrecio" style="font-size:30px;font-weight:900;color:var(--cyan)"></div>
+        <div id="mccPrecioSec" style="font-size:12px;color:var(--dim);margin-top:4px"></div>
+        <div id="mccAhorro" style="display:inline-block;margin-top:8px;background:rgba(16,185,129,.15);color:var(--green);padding:4px 12px;border-radius:12px;font-size:11px;font-weight:800"></div>
+      </div>
+      <!-- Servicios -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:8px">Servicios que jala</div>
+        <div id="mccServicios"></div>
+      </div>
+      <!-- Entregables -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:8px">Entregables</div>
+        <div id="mccEntregables"></div>
+      </div>
+      <!-- Timeline + Pago -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div>
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:4px">Timeline</div>
+          <div id="mccTimeline" style="font-size:12px;line-height:1.5;color:var(--text)"></div>
+        </div>
+        <div>
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:4px">Pago</div>
+          <div id="mccPago" style="font-size:12px;line-height:1.5;color:var(--text)"></div>
+        </div>
+      </div>
+      <!-- Datos cliente -->
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-top:14px">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);font-weight:800;margin-bottom:10px">Datos del cliente para la propuesta</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <input id="mccCliente" placeholder="Nombre contacto" class="cot-cliente-input" style="margin:0">
+          <input id="mccEmpresa" placeholder="Empresa" class="cot-cliente-input" style="margin:0">
+          <input id="mccEmail"   placeholder="Email" type="email" class="cot-cliente-input" style="margin:0">
+          <input id="mccTel"     placeholder="Telefono / WhatsApp" class="cot-cliente-input" style="margin:0">
+        </div>
+        <textarea id="mccNotas" placeholder="Notas adicionales (opcional)" class="cot-cliente-input" rows="2" style="margin-top:8px;resize:vertical;min-height:50px"></textarea>
+      </div>
+    </div>
+    <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+      <button class="filtro-chip" onclick="cerrarModalCombo()">Cancelar</button>
+      <button class="cot-btn" style="flex:0 1 240px" onclick="generarPDFCombo()">Generar PDF y descargar</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -410,6 +565,120 @@ var SERVICIOS = [
 ];
 
 /* ============================================
+   PLANES OFICIALES 7GROUP (alineados al home)
+   Fuente: 7group.site (seccion Pricing model)
+   TRM referencial: 1 USD = 4000 COP
+   ============================================ */
+var TRM = 4000;
+var MONEDA = 'USD';
+
+var PILOTO = {
+  nombre: 'Piloto gratis',
+  precio_usd: 0,
+  desc: '15 dias de prueba, 5 workflows automatizados, sin tarjeta, marca del cliente.',
+  cta: 'Empezar gratis'
+};
+
+var SETUP_TIERS = [
+  { nombre:'Essential',  target:'Equipos <10 · 1-2 modulos · MVP',    precio_usd:3500,  incluye:'Setup white-label, 2 agents IA, quoting, WhatsApp basico, 4 semanas launch, 90d soporte.' },
+  { nombre:'Business',   target:'Equipos <25 · 3-4 modulos · Growth', precio_usd:6500,  incluye:'Setup + 3 agents IA (Commercial, Operations, Finance), KPI dashboard, WhatsApp Business, 6-8 semanas, 90d soporte.' },
+  { nombre:'Enterprise', target:'Equipos >25 · 5 agents · Full',      precio_usd:12000, incluye:'Setup completo + 5 agents IA, quoting engine, order management, KPI, WhatsApp, onboarding equipo, 8-12 semanas, 90d soporte.' }
+];
+
+var PLANES_MENSUALES = [
+  { nombre:'Core',         tag:'Starter',      precio_usd:280,  featured:false,
+    features:['3 modulos activos','Hasta 5 usuarios','500 operaciones / mes','Soporte por email','KPI dashboard basico'] },
+  { nombre:'Professional', tag:'Mas popular',  precio_usd:450,  featured:true,
+    features:['Todos los modulos core','Hasta 20 usuarios','Operaciones ilimitadas','AI chat agent','Analiticas avanzadas','Soporte prioritario'] },
+  { nombre:'Scale',        tag:'Enterprise',   precio_usd:null, featured:false, custom:true,
+    features:['Usuarios + modulos ilimitados','AI voice + chat agents','Deployment multi-vertical','Licencia franchise / reseller','Google Ads + Meta setup','Equipo dev dedicado'] }
+];
+
+/* ============================================
+   COMBOS (con descuentos - herramientas de cierre)
+   ============================================ */
+var COMBOS = [
+  { id:'combo-anual-core', titulo:'Combo Anual Core',   tag:'12 MESES · 2 GRATIS', tagClass:'',
+    desc:'Pago anticipado de 12 meses del plan Core. Recibes 12 meses pagando 10. Ahorras 2 mensualidades.',
+    old_usd: 280*12, new_usd: 280*10,
+    incluye:'Plan Core completo por 12 meses. Facturacion unica al inicio. Cambio a plan superior con credito proporcional en cualquier momento.',
+    servicios:['dashboard','sheets-api','pin-gate','auth-google','modulo-pipeline'],
+    entregables:['Plataforma con 3 modulos activos','5 usuarios','500 operaciones/mes','KPI dashboard basico','Soporte por email'],
+    timeline:'Activacion en 24-48h. Modulos operativos desde el dia 1.',
+    condiciones_pago:'100% al inicio del contrato. Factura anual unica.' },
+
+  { id:'combo-anual-pro', titulo:'Combo Anual Professional', tag:'MAS POPULAR', tagClass:'verde',
+    desc:'12 meses de plan Professional con 2 meses gratis. La opcion mas balanceada para operaciones en crecimiento.',
+    old_usd: 450*12, new_usd: 450*10,
+    incluye:'Plan Pro completo por 12 meses. 20 usuarios, AI chat, analytics avanzados, soporte prioritario. Facturacion unica.',
+    servicios:['dashboard','sheets-api','auth-google','admin-panel','modulo-pipeline','bot-consulta','pdf-branded','validacion-ia'],
+    entregables:['Todos los modulos core','20 usuarios','Operaciones ilimitadas','AI chat agent','Analiticas avanzadas','Soporte prioritario'],
+    timeline:'Activacion en 24-48h. Onboarding de equipo en semana 1.',
+    condiciones_pago:'100% al inicio o 50/50 (inicio + mes 6). Factura anual.' },
+
+  { id:'combo-launch', titulo:'Combo Launch (Setup + Anual Pro)', tag:'CIERRE RAPIDO', tagClass:'',
+    desc:'Setup Business one-time + 12 meses de plan Professional con 2 meses gratis. Todo el lanzamiento y primer ano cubierto en un solo cierre. 10% adicional de descuento sobre el total.',
+    old_usd: 6500 + 450*12, new_usd: Math.round((6500 + 450*10) * 0.9),
+    incluye:'Setup Business + Plan Pro 12 meses. Descuento 10% sobre el bundle. Ideal para primer contacto: cierre en una sola factura.',
+    servicios:['erp-completo','ocr-ia','dashboard','admin-panel','sheets-api','pdf-branded','telegram-int','wa-forms','auth-google','sync-devices','modulo-pipeline','validacion-ia'],
+    entregables:['Setup Business white-label completo','3 AI agents (Commercial + Operations + Finance)','KPI dashboard corporativo','WhatsApp Business integrado','Onboarding equipo cliente','90 dias soporte dedicado','+ 12 meses plan Professional'],
+    timeline:'Setup 6-8 semanas + go-live. Suscripcion Pro activa desde go-live.',
+    condiciones_pago:'50% al firmar, 50% al go-live. Suscripcion anual factura separada.' },
+
+  { id:'combo-enterprise', titulo:'Combo Enterprise Total', tag:'FLAGSHIP', tagClass:'violet',
+    desc:'Setup Enterprise + 12 meses de Scale (custom) + 90 dias adicionales de soporte dedicado. Descuento 15% sobre el bundle.',
+    old_usd: 12000 + 850*12, new_usd: Math.round((12000 + 850*12) * 0.85),
+    incluye:'Setup Enterprise (5 agents, full deployment) + 12 meses plan Scale + 180d soporte total (90 base + 90 extra). Multi-vertical, franchise-ready.',
+    servicios:['erp-completo','ocr-ia','motor-comisiones','admin-panel','sheets-api','dashboard','pdf-branded','telegram-int','wa-forms','cron-jobs','validacion-ia','auth-google','sync-devices','bot-consulta','analisis-ia','workflow','geoprospector','campanas-wa','facturacion','orden-servicio','diseno-ui','capacitacion'],
+    entregables:['Setup Enterprise white-label (5 AI agents completos)','Deployment multi-vertical (hasta 3)','Licencia franchise / reseller','Google Ads + Meta Ads setup','Equipo dev dedicado','180 dias soporte total','+ 12 meses plan Scale'],
+    timeline:'Setup 8-12 semanas. Soporte extendido a 6 meses.',
+    condiciones_pago:'40% firma, 30% al 50% de avance, 30% al go-live. Suscripcion anual factura separada.' },
+
+  { id:'combo-bianual', titulo:'Combo Bi-anual Pro', tag:'PAGO 24M · 4 GRATIS', tagClass:'',
+    desc:'Pago anticipado 24 meses de plan Professional. Recibes 24 meses pagando 20. Ahorras 4 mensualidades.',
+    old_usd: 450*24, new_usd: 450*20,
+    incluye:'Plan Pro por 24 meses. Congela precio por 2 anos (proteccion contra ajustes). Facturacion unica.',
+    servicios:['dashboard','sheets-api','auth-google','admin-panel','modulo-pipeline','bot-consulta','pdf-branded','validacion-ia'],
+    entregables:['Plan Pro por 24 meses','Precio congelado 2 anos','Todos los modulos + soporte prioritario'],
+    timeline:'Activacion en 24-48h. Renovacion automatica a los 24m con derecho de cancelar.',
+    condiciones_pago:'100% al inicio. Factura bienal unica.' }
+];
+
+var ADDONS = [
+  { nombre:'Modulo adicional',                       tipo:'Mensual',   precio_usd:80 },
+  { nombre:'Usuario extra (plan Core)',              tipo:'Mensual',   precio_usd:15 },
+  { nombre:'Usuario extra (plan Professional)',      tipo:'Mensual',   precio_usd:8 },
+  { nombre:'AI Voice Agent',                         tipo:'Mensual',   precio_usd:150 },
+  { nombre:'Google Ads setup + campanas iniciales',  tipo:'One-time',  precio_usd:650 },
+  { nombre:'Meta Ads setup + campanas iniciales',    tipo:'One-time',  precio_usd:650 },
+  { nombre:'PDF branded generator (propuestas)',     tipo:'One-time',  precio_usd:350 },
+  { nombre:'OCR IA integration (Gemini/GPT vision)', tipo:'One-time',  precio_usd:850 },
+  { nombre:'White-label PDF/emails',                 tipo:'One-time',  precio_usd:200 },
+  { nombre:'WhatsApp Business API setup',            tipo:'One-time',  precio_usd:400 },
+  { nombre:'Migracion datos historicos',             tipo:'One-time',  precio_usd:500 },
+  { nombre:'Bot Telegram / WhatsApp custom',         tipo:'One-time',  precio_usd:1200 },
+  { nombre:'Dashboard KPI adicional',                tipo:'One-time',  precio_usd:1500 },
+  { nombre:'Landing page adicional',                 tipo:'One-time',  precio_usd:850 },
+  { nombre:'App PWA con push notifications',         tipo:'One-time',  precio_usd:2400 },
+  { nombre:'Retainer consultoria 10h/mes',           tipo:'Mensual',   precio_usd:650 },
+  { nombre:'Retainer consultoria 20h/mes',           tipo:'Mensual',   precio_usd:1200 },
+  { nombre:'Retainer consultoria 40h/mes',           tipo:'Mensual',   precio_usd:2200 }
+];
+
+var DESCUENTOS = [
+  { txt:'Pago anual anticipado', pct:'2 meses gratis (16%)', cls:'green' },
+  { txt:'Pago 2 anos anticipado', pct:'4 meses gratis (17%)', cls:'green' },
+  { txt:'Pago trimestral', pct:'5% off' },
+  { txt:'Startup <2 anos operacion', pct:'20% off setup', cls:'green' },
+  { txt:'Empresa social o educativa', pct:'25% off', cls:'green' },
+  { txt:'Referido por partner', pct:'10% off' },
+  { txt:'Bundle 2 verticales simultaneas', pct:'15% off' },
+  { txt:'3+ implementaciones simultaneas', pct:'20% off', cls:'green' },
+  { txt:'Cliente renovando (loyalty)', pct:'8% off primer ano renovacion' },
+  { txt:'Case study publico autorizado', pct:'12% off cambio por logo/testimonio' }
+];
+
+/* ============================================
    DATOS: CASOS Y PROYECTOS
    ============================================ */
 var CASOS = [
@@ -473,9 +742,352 @@ var filtroCatActual = 'todos';
 
 function render(){
   renderDash();
+  renderPlanes();
+  renderCombos();
+  renderAddons();
+  renderDescuentos();
   renderServicios();
   renderCasos();
   renderCotizador();
+}
+
+/* ============================================
+   MONEDA + PLANES + COMBOS
+   ============================================ */
+window.setMoneda = function(m){
+  MONEDA = m;
+  document.getElementById('chipUSD').classList.toggle('active', m==='USD');
+  document.getElementById('chipCOP').classList.toggle('active', m==='COP');
+  renderPlanes();
+  renderCombos();
+  renderAddons();
+};
+
+function fmtUSD(n){ return '$'+Number(n||0).toLocaleString('en-US'); }
+function fmtCOP(n){ return '$'+Number(n||0).toLocaleString('es-CO'); }
+function precioBox(usd, sufijo){
+  sufijo = sufijo || '';
+  if(usd===null || usd===undefined) return 'Custom';
+  if(MONEDA==='USD') return fmtUSD(usd)+' <small>USD'+sufijo+'</small>';
+  return fmtCOP(usd*TRM)+' <small>COP'+sufijo+'</small>';
+}
+function precioSecundario(usd, sufijo){
+  sufijo = sufijo || '';
+  if(usd===null || usd===undefined) return '';
+  if(MONEDA==='USD') return fmtCOP(usd*TRM)+' COP'+sufijo;
+  return fmtUSD(usd)+' USD'+sufijo;
+}
+
+function renderPlanes(){
+  var box = document.getElementById('planesContent');
+  if(!box) return;
+  var html = '';
+
+  // Piloto
+  html += '<div class="setup-box" style="border-color:var(--green);background:linear-gradient(135deg,rgba(16,185,129,.08),var(--bg2));margin-bottom:22px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap">'+
+    '<div style="flex:1"><div class="setup-name" style="color:var(--green)">Paso 1 — Piloto gratis</div>'+
+    '<div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px">'+PILOTO.nombre+'</div>'+
+    '<div class="setup-includes" style="margin-top:6px">'+PILOTO.desc+'</div></div>'+
+    '<div style="text-align:right"><div style="font-size:32px;font-weight:900;color:var(--green)">$0</div>'+
+    '<div style="font-size:11px;color:var(--dim);margin-top:2px">15 dias · sin tarjeta</div></div>'+
+    '</div></div>';
+
+  // Setup tiers
+  html += '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;letter-spacing:.5px">Paso 2 — Implementacion one-time</div>';
+  html += '<div class="setup-grid">';
+  SETUP_TIERS.forEach(function(t){
+    html += '<div class="setup-box">'+
+      '<div class="setup-name">'+t.nombre+'</div>'+
+      '<div class="setup-target">'+t.target+'</div>'+
+      '<div class="setup-price">'+precioBox(t.precio_usd)+'</div>'+
+      '<div class="plan-price-cop">'+precioSecundario(t.precio_usd)+'</div>'+
+      '<div class="setup-includes">'+t.incluye+'</div>'+
+    '</div>';
+  });
+  html += '</div>';
+
+  // Planes mensuales
+  html += '<div style="font-size:14px;font-weight:700;color:var(--text);margin:22px 0 10px 0;letter-spacing:.5px">Paso 3 — Suscripcion mensual</div>';
+  html += '<div class="plans-grid">';
+  PLANES_MENSUALES.forEach(function(p){
+    html += '<div class="plan-box '+(p.featured?'featured':'')+'">'+
+      '<div class="plan-tag">'+p.tag+'</div>'+
+      '<div class="plan-name">'+p.nombre+'</div>'+
+      '<div class="plan-price">'+ (p.custom?'Custom <small>/ scoped</small>':precioBox(p.precio_usd,'/mo')) +'</div>'+
+      (p.custom?'':'<div class="plan-price-cop">'+precioSecundario(p.precio_usd,'/mo')+'</div>')+
+      '<div class="plan-divider"></div>'+
+      '<ul class="plan-features">'+p.features.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>'+
+    '</div>';
+  });
+  html += '</div>';
+
+  box.innerHTML = html;
+}
+
+function renderCombos(){
+  var box = document.getElementById('combosContent');
+  if(!box) return;
+  box.innerHTML = COMBOS.map(function(c){
+    var ahorro = c.old_usd - c.new_usd;
+    var pctAhorro = Math.round((ahorro/c.old_usd)*100);
+    var svcNames = (c.servicios||[]).map(function(sid){
+      var s = SERVICIOS.find(function(x){return x.id===sid;});
+      return s ? '<span class="case-svc">'+s.nombre+'</span>' : '';
+    }).join('');
+    return '<div class="combo-card">'+
+      '<div class="combo-tag '+(c.tagClass||'')+'">'+c.tag+'</div>'+
+      '<div class="combo-head">'+
+        '<div style="flex:1;min-width:220px">'+
+          '<div class="combo-title">'+c.titulo+'</div>'+
+          '<div class="combo-desc">'+c.desc+'</div>'+
+        '</div>'+
+        '<div class="combo-precio">'+
+          '<div class="combo-precio-old">'+precioBox(c.old_usd)+'</div>'+
+          '<div class="combo-precio-new">'+precioBox(c.new_usd)+'</div>'+
+          '<div class="combo-precio-cop">'+precioSecundario(c.new_usd)+'</div>'+
+          '<div class="combo-ahorro">Ahorras '+pctAhorro+'% · '+precioBox(ahorro).replace(/<small>.*<\/small>/,'')+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="combo-includes"><strong>Incluye:</strong> '+c.incluye+'</div>'+
+      '<div style="margin-top:10px"><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:6px">Servicios que jala ('+(c.servicios||[]).length+')</div>'+
+        '<div class="case-svcs">'+svcNames+'</div></div>'+
+      '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">'+
+        '<button class="cot-btn" style="flex:1;min-width:160px" onclick="abrirModalCotizarCombo(\''+c.id+'\')">Cotizar y generar PDF &rarr;</button>'+
+        '<button class="filtro-chip" onclick="verDetalleCombo(\''+c.id+'\')" style="cursor:pointer">Ver detalle</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+/* ============================================
+   MODAL COTIZAR COMBO + PDF
+   ============================================ */
+window.abrirModalCotizarCombo = function(comboId){
+  var c = COMBOS.find(function(x){return x.id===comboId;});
+  if(!c) return;
+  document.getElementById('mccTitulo').textContent = c.titulo;
+  document.getElementById('mccDesc').textContent = c.desc;
+  document.getElementById('mccPrecio').innerHTML = precioBox(c.new_usd);
+  document.getElementById('mccPrecioSec').textContent = precioSecundario(c.new_usd);
+  var ahorro = c.old_usd - c.new_usd;
+  var pct = Math.round((ahorro/c.old_usd)*100);
+  document.getElementById('mccAhorro').textContent = 'Ahorra '+pct+'% ('+precioBox(ahorro).replace(/<small>.*<\/small>/,'').trim()+')';
+  var svcNames = (c.servicios||[]).map(function(sid){
+    var s = SERVICIOS.find(function(x){return x.id===sid;});
+    return s ? '<li><strong>'+s.nombre+'</strong> <span style="color:var(--dim)">- '+s.cat+'</span></li>' : '';
+  }).join('');
+  document.getElementById('mccServicios').innerHTML = '<ul style="padding-left:20px;margin:0;font-size:12px;line-height:1.7">'+svcNames+'</ul>';
+  document.getElementById('mccEntregables').innerHTML = '<ul style="padding-left:20px;margin:0;font-size:12px;line-height:1.7">'+
+    c.entregables.map(function(e){return '<li>'+e+'</li>';}).join('')+'</ul>';
+  document.getElementById('mccTimeline').textContent = c.timeline;
+  document.getElementById('mccPago').textContent = c.condiciones_pago;
+  // Reset form
+  document.getElementById('mccCliente').value = '';
+  document.getElementById('mccEmpresa').value = '';
+  document.getElementById('mccEmail').value = '';
+  document.getElementById('mccTel').value = '';
+  document.getElementById('mccNotas').value = '';
+  document.getElementById('mccModal').dataset.comboId = comboId;
+  document.getElementById('mccModal').style.display = 'flex';
+};
+window.cerrarModalCombo = function(){
+  document.getElementById('mccModal').style.display = 'none';
+};
+window.verDetalleCombo = function(comboId){
+  abrirModalCotizarCombo(comboId);
+};
+
+window.generarPDFCombo = function(){
+  var comboId = document.getElementById('mccModal').dataset.comboId;
+  var c = COMBOS.find(function(x){return x.id===comboId;});
+  if(!c || !window.jspdf){ alert('Error cargando'); return; }
+  var cliente = document.getElementById('mccCliente').value.trim() || 'Cliente';
+  var empresa = document.getElementById('mccEmpresa').value.trim();
+  var email = document.getElementById('mccEmail').value.trim();
+  var tel = document.getElementById('mccTel').value.trim();
+  var notas = document.getElementById('mccNotas').value.trim();
+
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt',format:'letter'});
+  var pw = doc.internal.pageSize.getWidth();
+  var ph = doc.internal.pageSize.getHeight();
+  var margin = 50, y;
+  var fmt = function(usd){ return '$'+Number(usd||0).toLocaleString('en-US')+' USD'; };
+  var fmtCop = function(usd){ return '$'+Number((usd||0)*TRM).toLocaleString('es-CO')+' COP'; };
+
+  // ================ PORTADA NEGRA 7GROUP ================
+  doc.setFillColor(10,10,15); doc.rect(0,0,pw,ph,'F');
+  doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(0,3,pw,3); doc.line(0,ph-3,pw,ph-3);
+  // Logo 7
+  doc.setDrawColor(77,208,225); doc.setLineWidth(2);
+  doc.line(pw/2-25, ph*0.72+90, pw/2+25, ph*0.72+90);
+  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(120);
+  doc.text('7', pw/2, ph*0.72, {align:'center'});
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.text('G  R  O  U  P', pw/2, ph*0.72-25, {align:'center'});
+  doc.setFillColor(77,208,225); doc.circle(pw/2, ph*0.72-45, 1.5, 'F');
+  doc.line(pw/2-25, ph*0.72-58, pw/2+25, ph*0.72-58);
+  // Titulo propuesta
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(30);
+  doc.text('Propuesta economica', pw/2, ph*0.42, {align:'center'});
+  doc.setTextColor(159,229,238); doc.setFontSize(16); doc.setFont('helvetica','normal');
+  doc.text(c.titulo, pw/2, ph*0.42+26, {align:'center'});
+  doc.setTextColor(77,208,225); doc.setFontSize(11); doc.setFont('helvetica','bold');
+  doc.text(c.tag, pw/2, ph*0.42+50, {align:'center'});
+  // Datos cliente en portada
+  doc.setTextColor(200,220,225); doc.setFontSize(11); doc.setFont('helvetica','normal');
+  doc.text('Preparado para: ' + (empresa ? empresa+' - '+cliente : cliente), pw/2, 240, {align:'center'});
+  if(email) doc.text(email, pw/2, 224, {align:'center'});
+  if(tel)   doc.text('Tel: '+tel, pw/2, 208, {align:'center'});
+  doc.setTextColor(120,140,155); doc.setFontSize(9);
+  doc.text('Fecha: '+new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'}), pw/2, 180, {align:'center'});
+  doc.text('7GROUP Corp  |  7group.site  |  Bogota, Colombia', pw/2, 164, {align:'center'});
+  doc.text('Clasificacion: Confidencial', pw/2, 148, {align:'center'});
+
+  // ================ HOJA 2: ALCANCE + PRECIO ================
+  doc.addPage();
+  doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F');
+  doc.setDrawColor(77,208,225); doc.setLineWidth(2); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2);
+  y = 60;
+  // Titulo con linea cyan
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(22);
+  doc.text('Alcance de la propuesta', margin, y);
+  doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(margin, y+6, margin+70, y+6);
+  y += 28;
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(80,80,95);
+  var descLines = doc.splitTextToSize(c.desc, pw-margin*2);
+  doc.text(descLines, margin, y); y += descLines.length*13 + 12;
+
+  // Bloque de precio
+  var ahorro = c.old_usd - c.new_usd;
+  var pctAhorro = Math.round((ahorro/c.old_usd)*100);
+  doc.setFillColor(10,10,15); doc.rect(margin, y-16, pw-margin*2, 100, 'F');
+  doc.setTextColor(77,208,225); doc.setFontSize(10); doc.setFont('helvetica','bold');
+  doc.text('INVERSION', margin+14, y);
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(32);
+  doc.text(fmt(c.new_usd), margin+14, y+30);
+  doc.setTextColor(159,229,238); doc.setFontSize(12); doc.setFont('helvetica','normal');
+  doc.text('~ '+fmtCop(c.new_usd), margin+14, y+48);
+  doc.setTextColor(200,200,200); doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text('Precio de lista: '+fmt(c.old_usd)+'  (tachado)', margin+14, y+66);
+  // Etiqueta ahorro
+  doc.setFillColor(16,185,129); doc.roundedRect(pw-margin-140, y+10, 126, 30, 6, 6, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
+  doc.text('Ahorra '+pctAhorro+'%', pw-margin-77, y+22, {align:'center'});
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text(fmt(ahorro), pw-margin-77, y+34, {align:'center'});
+  y += 100;
+
+  // Que incluye
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('Que incluye', margin, y); y += 20;
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
+  c.entregables.forEach(function(e){
+    if(y > ph-100){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
+    doc.setFillColor(77,208,225); doc.circle(margin+3, y-3, 2.5, 'F');
+    var lns = doc.splitTextToSize(e, pw-margin*2-14);
+    doc.text(lns, margin+12, y);
+    y += lns.length*13 + 4;
+  });
+  y += 10;
+
+  // Timeline y pago
+  if(y > ph-140){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('Timeline', margin, y); y += 16;
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
+  var tLines = doc.splitTextToSize(c.timeline, pw-margin*2);
+  doc.text(tLines, margin, y); y += tLines.length*13 + 14;
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('Condiciones de pago', margin, y); y += 16;
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
+  var pLines = doc.splitTextToSize(c.condiciones_pago, pw-margin*2);
+  doc.text(pLines, margin, y); y += pLines.length*13 + 14;
+
+  if(notas){
+    if(y > ph-100){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
+    doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+    doc.text('Notas', margin, y); y += 16;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
+    var nLines = doc.splitTextToSize(notas, pw-margin*2);
+    doc.text(nLines, margin, y); y += nLines.length*13;
+  }
+
+  // ================ HOJA 3: SERVICIOS TECNICOS ================
+  doc.addPage();
+  doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F');
+  doc.setDrawColor(77,208,225); doc.setLineWidth(2); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2);
+  y = 60;
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(22);
+  doc.text('Servicios tecnicos que jala', margin, y);
+  doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(margin, y+6, margin+70, y+6);
+  y += 22;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120,120,140);
+  doc.text('Detalle tecnico de los servicios incluidos en el combo.', margin, y); y += 18;
+
+  (c.servicios||[]).forEach(function(sid){
+    var s = SERVICIOS.find(function(x){return x.id===sid;});
+    if(!s) return;
+    if(y > ph-90){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
+    doc.setFillColor(77,208,225); doc.circle(margin+3, y-3, 3, 'F');
+    doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    doc.text(s.nombre, margin+14, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(77,140,80);
+    doc.text('['+s.cat+']', margin+14+doc.getTextWidth(s.nombre)+8, y);
+    y += 12;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,95);
+    var ls = doc.splitTextToSize(s.desc, pw-margin*2-14);
+    doc.text(ls, margin+14, y); y += ls.length*11 + 8;
+  });
+
+  // ================ CONTRAPORTADA NEGRA ================
+  doc.addPage();
+  doc.setFillColor(10,10,15); doc.rect(0,0,pw,ph,'F');
+  doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(0,3,pw,3); doc.line(0,ph-3,pw,ph-3);
+  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(120);
+  doc.text('7', pw/2, ph*0.55, {align:'center'});
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.text('G  R  O  U  P', pw/2, ph*0.55-25, {align:'center'});
+  doc.setFontSize(22); doc.text('Listos para acompanarte', pw/2, ph*0.36, {align:'center'});
+  doc.setFontSize(11); doc.setTextColor(159,229,238);
+  doc.text('Contacto para cerrar:', pw/2, 220, {align:'center'});
+  doc.setTextColor(255,255,255); doc.setFontSize(10);
+  doc.text('7group.site  |  7groupcorp@zohomail.com', pw/2, 200, {align:'center'});
+  doc.text('Bogota, Colombia', pw/2, 184, {align:'center'});
+
+  var fname = 'Propuesta_7GROUP_'+c.id+'_'+cliente.replace(/\s+/g,'_')+'_'+Date.now()+'.pdf';
+  doc.save(fname);
+  cerrarModalCombo();
+};
+
+function renderAddons(){
+  var box = document.getElementById('addonsContent');
+  if(!box) return;
+  box.innerHTML = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="addon-table"><thead><tr>'+
+    '<th>Add-on</th><th>Tipo</th><th style="text-align:right">'+MONEDA+'</th><th style="text-align:right;color:var(--muted)">'+(MONEDA==='USD'?'COP':'USD')+'</th>'+
+    '</tr></thead><tbody>'+
+    ADDONS.map(function(a){
+      return '<tr>'+
+        '<td>'+a.nombre+'</td>'+
+        '<td class="tipo">'+a.tipo+'</td>'+
+        '<td class="precio">'+precioBox(a.precio_usd)+'</td>'+
+        '<td class="precio" style="color:var(--muted);font-weight:500">'+precioSecundario(a.precio_usd)+'</td>'+
+      '</tr>';
+    }).join('')+
+    '</tbody></table></div>';
+}
+
+function renderDescuentos(){
+  var box = document.getElementById('descuentosContent');
+  if(!box) return;
+  box.innerHTML = '<div class="desc-grid">'+
+    DESCUENTOS.map(function(d){
+      return '<div class="desc-item">'+
+        '<div class="desc-item-txt">'+d.txt+'</div>'+
+        '<div class="desc-item-pct '+(d.cls||'')+'">'+d.pct+'</div>'+
+      '</div>';
+    }).join('')+
+  '</div>';
 }
 
 function renderDash(){
