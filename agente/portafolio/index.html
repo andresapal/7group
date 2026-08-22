@@ -129,6 +129,39 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
 .filtro-chip.active{background:linear-gradient(135deg,var(--cyan),var(--cyan-2));color:#000;border-color:transparent}
 
 .hidden{display:none !important}
+
+/* ================ MOBILE ================ */
+@media (max-width:768px){
+  body{overflow-x:hidden}
+  .container{padding:14px 12px}
+  .topbar{padding:10px 12px;flex-wrap:wrap;gap:6px}
+  .tb-titulo{font-size:10px;letter-spacing:2px}
+  .tb-logo{font-size:26px}
+  .tb-user{font-size:10px;padding:4px 8px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nav{padding:0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav a{padding:12px 10px;font-size:11px;letter-spacing:.3px;flex-shrink:0}
+  .sec-title{font-size:20px}
+  .sec-head{margin-bottom:16px}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+  .kpi{padding:12px 14px}
+  .kpi-val{font-size:20px}
+  .svc-grid{grid-template-columns:1fr;gap:12px}
+  .case-grid{grid-template-columns:1fr;gap:12px}
+  .svc-card,.case-card{padding:14px}
+  .cot-layout{gap:14px}
+  .cot-resumen{position:static;top:auto}
+  .cot-servicios{padding:14px}
+  .cot-item{padding:10px}
+  .cot-item-precio{font-size:11px;text-align:right;white-space:nowrap}
+  .filtros{gap:6px;margin-bottom:14px}
+  .filtro-chip{padding:5px 10px;font-size:10px}
+  .case-nombre{font-size:16px}
+  .case-metrics{gap:6px}
+  .case-metric-val{font-size:13px}
+  .gate-box{padding:28px 20px;max-width:100%}
+  .gate-logo{font-size:64px}
+}
 </style>
 </head>
 <body>
