@@ -164,7 +164,8 @@ code,.mono{font-family:'JetBrains Mono',monospace}
     <span class="tb-badge" data-t="badge">Portal</span>
   </div>
   <div class="tb-right">
-    <a class="tb-btn" href="/agente/reportes/" id="tbReportesBtn" style="display:none;font-size:10px;padding:6px 12px;background:rgba(94,231,247,.1);border:1px solid rgba(94,231,247,.2);border-radius:6px;color:var(--cyan);font-weight:700;text-decoration:none">Reportes</a>
+    <!-- Reportes module hidden — PDFs generated via Claude session -->
+    <!--<a class="tb-btn" href="/agente/reportes/" id="tbReportesBtn" style="display:none">Reportes</a>-->
     <div class="lang-switch">
       <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
       <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
@@ -215,6 +216,22 @@ var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleu
 
 /* =============== PROJECTS DATA =============== */
 var PROJECTS=[
+  {
+    id:'portafolio-7g',
+    title:{es:'Portafolio 7GROUP',en:'7GROUP Portfolio'},
+    client:'7GROUP Interno',
+    type:'internal',
+    scope:'admin',
+    status:'active',
+    phase:'active',
+    revenue:0,
+    created:'2026-08-22',
+    lastActivity:'2026-08-22',
+    docs:32,
+    tags:['Servicios','Casos','Cotizador','PDF'],
+    link:'/agente/portafolio/',
+    region:'Interno'
+  },
   {
     id:'aseguralo',
     title:{es:'Aseguralo',en:'Aseguralo'},
@@ -379,9 +396,7 @@ function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setT
 /* Auto-login IIFE moved to end of script (after all functions are defined) */
 
 function applyRoleFilter(){
-  /* Show Reportes button for admins only */
-  var repBtn=document.getElementById('tbReportesBtn');
-  if(repBtn) repBtn.style.display=CURRENT_ROLE==='admin'?'':'none';
+  /* Reportes button removed — PDFs generated via Claude session */
   if(CURRENT_ROLE==='admin'){renderAll();return;}
   /* Client: filter PROJECTS to only show their assigned projects */
   var allowed=CLIENT_PROJECTS[CURRENT_USER]||[];
