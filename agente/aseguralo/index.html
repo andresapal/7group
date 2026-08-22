@@ -560,14 +560,23 @@ tbody tr:hover{background:var(--accent-light)}
 
       <!-- Sub: Aseguradoras → Aseguralo -->
       <div class="sub-section active" id="sub-com-aseguralo">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--dim)">Comisiones recibidas de aseguradoras. Filtro por mes opcional.</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label style="font-size:11px;color:var(--dim);font-weight:600">Mes:</label>
+            <input type="month" id="comisionesMesFiltro" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" onchange="renderComisiones()">
+            <button class="btn btn-sm" onclick="document.getElementById('comisionesMesFiltro').value='';renderComisiones()">Todos</button>
+          </div>
+        </div>
         <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="comisionesKpi"></div>
+        <div id="comisionesPorInterm" style="margin-bottom:16px"></div>
         <div class="tbl-wrap">
           <div class="tbl-overflow">
             <table>
               <thead>
                 <tr>
-                  <th>Aseguradora</th><th>Poliza</th><th>Cliente</th><th>Prima</th>
-                  <th>% Comision</th><th>Valor Comision</th><th>Estado Pago</th><th>Fecha</th>
+                  <th>Fecha</th><th>Aseguradora</th><th>Poliza</th><th>Cliente</th><th>Intermediario</th>
+                  <th>Prima</th><th>% Com.</th><th>Valor Comision</th><th>Estado Pago</th>
                 </tr>
               </thead>
               <tbody id="comisionesTable"></tbody>
@@ -1809,6 +1818,7 @@ function generateDerivedData(){
       aseguradora:p.aseguradora,
       poliza:p.id,
       cliente:p.cliente,
+      intermediario:p.intermediario||p.agente||p.colaborador||'Fabian Carrera',
       prima:p.prima,
       pctComision:pct,
       valorComision:vc,
@@ -2780,32 +2790,78 @@ function renderDashboard(){
 function renderComisiones(){
   // Filtro por rol
   var COM_VIEW = filtrarPorPermiso_(COMISIONES, 'intermediario');
+
+  // Filtro por mes (opcional)
+  var mesInput = document.getElementById('comisionesMesFiltro');
+  var mesSel = mesInput ? mesInput.value : ''; // formato "YYYY-MM"
+  if(mesSel){
+    COM_VIEW = COM_VIEW.filter(function(c){ return String(c.fecha||'').slice(0,7) === mesSel; });
+  }
+
   var acumulada=COM_VIEW.reduce(function(s,c){return s+c.valorComision},0);
   var pendiente=COM_VIEW.filter(function(c){return c.estadoPago==='pendiente'}).reduce(function(s,c){return s+c.valorComision},0);
   var pagado=COM_VIEW.filter(function(c){return c.estadoPago==='pagado'}).reduce(function(s,c){return s+c.valorComision},0);
   var totalPrimas=COM_VIEW.reduce(function(s,c){return s+c.prima},0);
   var tasaProm=totalPrimas?((acumulada/totalPrimas)*100).toFixed(1):0;
 
+  var lblAcum = mesSel ? 'Comision del mes '+mesSel : 'Comision Acumulada';
   document.getElementById('comisionesKpi').innerHTML=[
-    {l:'Comision Acumulada',v:fmt(acumulada),c:'c-accent'},
+    {l:lblAcum,v:fmt(acumulada),c:'c-accent'},
     {l:'Pendiente de Pago',v:fmt(pendiente),c:'c-orange'},
-    {l:'Pagado Este Mes',v:fmt(pagado),c:'c-green'},
+    {l:mesSel?'Pagado en '+mesSel:'Pagado',v:fmt(pagado),c:'c-green'},
     {l:'Tasa Promedio',v:tasaProm+'%',c:'c-brand'}
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+
+  // Subtotales por intermediario (útil para pagar nomina de asesores)
+  var porInterm = {};
+  COM_VIEW.forEach(function(c){
+    var k = c.intermediario || 'Sin asignar';
+    if(!porInterm[k]) porInterm[k] = {intermediario:k, prima:0, valor:0, count:0, pend:0, pag:0};
+    porInterm[k].prima += Number(c.prima)||0;
+    porInterm[k].valor += Number(c.valorComision)||0;
+    porInterm[k].count += 1;
+    if(c.estadoPago==='pendiente') porInterm[k].pend += Number(c.valorComision)||0;
+    if(c.estadoPago==='pagado')    porInterm[k].pag  += Number(c.valorComision)||0;
+  });
+  var interms = Object.keys(porInterm).map(function(k){return porInterm[k];}).sort(function(a,b){return b.valor-a.valor;});
+  var boxPI = document.getElementById('comisionesPorInterm');
+  if(boxPI){
+    if(interms.length === 0){
+      boxPI.innerHTML = '';
+    } else {
+      boxPI.innerHTML =
+        '<div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:8px">Subtotales por intermediario'+(mesSel?' — '+mesSel:'')+'</div>'+
+        '<div class="tbl-overflow"><table style="width:100%"><thead><tr>'+
+          '<th>Intermediario</th><th>#</th><th>Prima total</th><th>Valor comision</th><th>Pendiente</th><th>Pagado</th>'+
+        '</tr></thead><tbody>'+
+        interms.map(function(g){
+          return '<tr>'+
+            '<td><strong>'+g.intermediario+'</strong></td>'+
+            '<td class="mono" style="text-align:center">'+g.count+'</td>'+
+            '<td class="mono" style="font-weight:600">'+fmt(g.prima)+'</td>'+
+            '<td class="mono" style="font-weight:800;color:var(--accent)">'+fmt(g.valor)+'</td>'+
+            '<td class="mono" style="color:var(--orange)">'+fmt(g.pend)+'</td>'+
+            '<td class="mono" style="color:var(--green)">'+fmt(g.pag)+'</td>'+
+          '</tr>';
+        }).join('')+
+        '</tbody></table></div>';
+    }
+  }
 
   var statusMap={'pagado':'badge-pagado','pendiente':'badge-pendiente','vencido':'badge-vencido'};
   var statusLabel={'pagado':'Pagado','pendiente':'Pendiente','vencido':'Vencido'};
 
   document.getElementById('comisionesTable').innerHTML=COM_VIEW.map(function(c){
     return '<tr>'+
+      '<td style="font-size:12px;color:var(--dim)">'+(c.fecha||'')+'</td>'+
       '<td style="font-weight:600">'+c.aseguradora+'</td>'+
       '<td class="mono" style="font-size:11px;color:var(--accent)">'+c.poliza+'</td>'+
       '<td>'+c.cliente+'</td>'+
+      '<td style="font-size:11px">'+(c.intermediario||'-')+'</td>'+
       '<td class="mono" style="font-weight:700">'+fmt(c.prima)+'</td>'+
       '<td class="mono" style="text-align:center">'+c.pctComision+'%</td>'+
       '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(c.valorComision)+'</td>'+
       '<td><span class="badge '+statusMap[c.estadoPago]+'">'+statusLabel[c.estadoPago]+'</span></td>'+
-      '<td style="font-size:12px;color:var(--dim)">'+c.fecha+'</td>'+
     '</tr>';
   }).join('');
 }
