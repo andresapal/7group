@@ -429,8 +429,13 @@ tbody tr:hover{background:var(--accent-light)}
       <!-- Sub-seccion: INBOX (leads Nuevo + Contactado) -->
       <div class="sub-section active" id="sub-inbox">
         <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="leadsKpi"></div>
-        <div style="display:flex;justify-content:flex-end;margin-bottom:10px" id="inboxAdminBar">
-          <button class="btn btn-sm" id="btnLimpiezaToggle" onclick="toggleLimpiezaMode_()" style="display:none">Modo limpieza</button>
+        <div id="inboxAdminBar" style="display:none;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="btn btn-sm" id="btnLimpiezaToggle" onclick="toggleLimpiezaMode_()">Borrar prospecto</button>
+          <span id="limpiezaExtras" style="display:none;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--dim);font-weight:600" id="limpiezaCountInline">0 seleccionados</span>
+            <button class="btn btn-sm" onclick="cancelarLimpieza_()">Cancelar</button>
+            <button class="btn btn-sm" id="btnBorrarSel" onclick="borrarSeleccionados_()" disabled style="background:var(--red);color:#fff;border:none;opacity:.5;cursor:not-allowed">Borrar (0)</button>
+          </span>
         </div>
         <div class="tbl-wrap">
           <div class="tbl-overflow">
@@ -452,12 +457,6 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
-      <!-- Barra flotante de limpieza (aparece cuando hay al menos 1 chuleado) -->
-      <div id="limpiezaBar" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:500;background:var(--bg2);border:2px solid var(--red);border-radius:14px;padding:12px 20px;box-shadow:0 8px 30px rgba(0,0,0,.4);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-        <span style="font-size:13px;font-weight:700;color:var(--text)"><span id="limpiezaCount">0</span> lead(s) seleccionado(s)</span>
-        <button class="btn btn-sm" onclick="cancelarLimpieza_()">Cancelar</button>
-        <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="borrarSeleccionados_()">Borrar seleccionados</button>
-      </div>
 
       <!-- Sub-seccion: EN COTIZACION (prospectos con PDFs de aseguradoras) -->
       <div class="sub-section" id="sub-curso">
@@ -4807,66 +4806,69 @@ window.toggleLimpiezaMode_ = function(){
   if(thLimp) thLimp.style.display = LIMPIEZA_MODE ? '' : 'none';
   var btn = document.getElementById('btnLimpiezaToggle');
   if(btn){
-    btn.textContent = LIMPIEZA_MODE ? 'Salir de limpieza' : 'Modo limpieza';
-    btn.style.background = LIMPIEZA_MODE ? 'var(--red)' : '';
-    btn.style.color = LIMPIEZA_MODE ? '#fff' : '';
+    btn.textContent = LIMPIEZA_MODE ? 'Cancelar borrado' : 'Borrar prospecto';
   }
-  actualizarBarraLimpieza_();
+  var extras = document.getElementById('limpiezaExtras');
+  if(extras) extras.style.display = LIMPIEZA_MODE ? 'inline-flex' : 'none';
+  actualizarBotonesLimpieza_();
   if(typeof renderLeads==='function') renderLeads();
 };
 window.toggleLimpiezaCheck_ = function(id){
   if(LIMPIEZA_SEL.has(id)) LIMPIEZA_SEL.delete(id);
   else LIMPIEZA_SEL.add(id);
-  actualizarBarraLimpieza_();
-  // Actualizar visual del checkbox sin re-render completo
-  var chk = document.querySelector('#leadsTable input[type=checkbox]');
+  actualizarBotonesLimpieza_();
   if(typeof renderLeads==='function') renderLeads();
 };
 window.cancelarLimpieza_ = function(){
   LIMPIEZA_SEL.clear();
-  actualizarBarraLimpieza_();
+  LIMPIEZA_MODE = false;
+  var thLimp = document.getElementById('thLimpieza');
+  if(thLimp) thLimp.style.display = 'none';
+  var btn = document.getElementById('btnLimpiezaToggle');
+  if(btn) btn.textContent = 'Borrar prospecto';
+  var extras = document.getElementById('limpiezaExtras');
+  if(extras) extras.style.display = 'none';
+  actualizarBotonesLimpieza_();
   if(typeof renderLeads==='function') renderLeads();
 };
 window.borrarSeleccionados_ = function(){
   var ids = Array.from(LIMPIEZA_SEL);
   if(!ids.length) return;
-  if(!confirm('Borrar '+ids.length+' lead(s) seleccionado(s)?\n\nSe eliminan tambien las cotizaciones y liquidaciones asociadas. Esta accion NO se puede deshacer.')) return;
-  var st = document.getElementById('limpiezaCount');
-  if(st) st.textContent = 'borrando...';
+  if(!confirm('Borrar '+ids.length+' prospecto(s) seleccionado(s)?\n\nSe eliminan tambien las cotizaciones y liquidaciones asociadas. Esta accion NO se puede deshacer.')) return;
+  var btnB = document.getElementById('btnBorrarSel');
+  if(btnB){ btnB.textContent = 'Borrando...'; btnB.disabled = true; }
   fetch(APPS_SCRIPT_URL, {
     method:'POST', mode:'no-cors',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body: JSON.stringify({action:'admin-delete-leads', ids:ids})
   }).then(function(){
-    // Optimista: quitar de la lista local
     LEADS = LEADS.filter(function(l){ return ids.indexOf(l.id) < 0; });
-    LIMPIEZA_SEL.clear();
-    LIMPIEZA_MODE = false;
-    var thLimp = document.getElementById('thLimpieza');
-    if(thLimp) thLimp.style.display = 'none';
-    var btn = document.getElementById('btnLimpiezaToggle');
-    if(btn){ btn.textContent = 'Modo limpieza'; btn.style.background = ''; btn.style.color = ''; }
-    actualizarBarraLimpieza_();
+    cancelarLimpieza_();
     if(typeof renderLeads==='function') renderLeads();
-    // Refrescar desde Sheet a los 2s (backend ya proceso)
     setTimeout(function(){ if(typeof loadLeadsFromSheet==='function') loadLeadsFromSheet(); }, 2000);
-    alert('Limpieza aplicada. '+ids.length+' lead(s) eliminado(s).');
+    alert(ids.length+' prospecto(s) eliminado(s).');
   }).catch(function(err){
     alert('Error: '+err.message);
+    if(btnB){ btnB.textContent = 'Borrar ('+ids.length+')'; btnB.disabled = false; btnB.style.opacity=1; btnB.style.cursor='pointer'; }
   });
 };
-function actualizarBarraLimpieza_(){
-  var bar = document.getElementById('limpiezaBar');
-  var cnt = document.getElementById('limpiezaCount');
+function actualizarBotonesLimpieza_(){
+  var cnt = document.getElementById('limpiezaCountInline');
+  var btnB = document.getElementById('btnBorrarSel');
   var n = LIMPIEZA_SEL.size;
-  if(cnt) cnt.textContent = n;
-  if(bar) bar.style.display = (LIMPIEZA_MODE && n > 0) ? 'flex' : 'none';
+  if(cnt) cnt.textContent = n + ' seleccionado' + (n===1?'':'s');
+  if(btnB){
+    btnB.textContent = 'Borrar ('+n+')';
+    btnB.disabled = n === 0;
+    btnB.style.opacity = n > 0 ? 1 : 0.5;
+    btnB.style.cursor = n > 0 ? 'pointer' : 'not-allowed';
+  }
 }
-/* Muestra el boton "Modo limpieza" solo para admin/dueno */
+/* Muestra el toolbar admin solo para admin/dueno */
 function mostrarBotonLimpieza_(){
-  var btn = document.getElementById('btnLimpiezaToggle');
-  if(!btn) return;
-  btn.style.display = (esAdminODueno_() || verTodo_()) ? '' : 'none';
+  var bar = document.getElementById('inboxAdminBar');
+  if(!bar) return;
+  bar.style.display = (esAdminODueno_() || verTodo_()) ? 'flex' : 'none';
 }
 
 function renderLeads(filter){
