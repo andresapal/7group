@@ -340,6 +340,7 @@ tbody tr:hover{background:var(--accent-light)}
     </div>
     <div class="tb-right">
       <div id="syncStatus" style="margin-right:4px"></div>
+      <span id="userChip" style="font-size:11px;color:var(--dim);padding:4px 10px;background:var(--bg3);border-radius:12px;font-weight:600"></span>
       <button class="tb-toggle" onclick="openModConfig()" id="modConfigBtn" style="display:none">Modulos</button>
       <button class="tb-toggle" onclick="toggleTheme()" id="themeBtn">Claro</button>
       <a class="tb-btn" href="/agente/" id="tb7gBtn" style="display:none">7Group</a>
@@ -482,7 +483,38 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
-      <div class="tbl-wrap">
+      <!-- COMISIONES DEL MES (por intermediario) -->
+      <div class="tbl-wrap" style="margin-top:16px">
+        <div class="tbl-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <div class="tbl-title">Comisiones del mes</div>
+            <div style="font-size:11px;color:var(--dim);margin-top:2px" id="comisionesMesSubtitulo">Vista ejecutiva por intermediario</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label style="font-size:11px;color:var(--dim);font-weight:600">Mes:</label>
+            <input type="month" id="comisionesMesInput" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" onchange="renderComisionesMes()">
+          </div>
+        </div>
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin:12px 0" id="comisionesMesKpi"></div>
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>Intermediario</th>
+                <th>Produccion (prima)</th>
+                <th>%</th>
+                <th>Comision generada</th>
+                <th>Valor asesor</th>
+                <th>Valor Fabian</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="comisionesMesTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tbl-wrap" style="margin-top:16px">
         <div class="tbl-head">
           <div class="tbl-title">Actividad Reciente</div>
         </div>
@@ -1214,12 +1246,88 @@ var MAX_ATTEMPTS=3;
 var BLOCK_MINUTES=30;
 var IS_ADMIN=false;
 
+/* ============================================
+   USUARIO ACTUAL / PERMISOS (roles: admin | dueno | asesor | anonimo)
+   ============================================ */
+var CURRENT_USER = { email:'', rol:'anonimo', nombre:'', tipo:'', activo:'no',
+                     intermediario:'', permisos:{} };
+
+function esAdminODueno_(){ return CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno'; }
+function esAsesor_(){ return CURRENT_USER.rol==='asesor'; }
+function verTodo_(){ return !!(CURRENT_USER.permisos && CURRENT_USER.permisos.verTodo); }
+function esMiIntermediario_(nombre){
+  if(esAdminODueno_() || verTodo_()) return true;
+  if(!nombre) return false;
+  return String(nombre).toLowerCase().trim() === String(CURRENT_USER.intermediario||'').toLowerCase().trim();
+}
+/* Filtra un array por el campo 'intermediario' segun rol.
+   Si admin/dueno: devuelve todo. Si asesor: solo los que tienen su intermediario.
+   Nota: para leads/polizas viejos sin intermediario, el asesor NO los ve (defensivo). */
+function filtrarPorPermiso_(arr, campo){
+  if(esAdminODueno_() || verTodo_()) return arr;
+  campo = campo || 'intermediario';
+  var mio = String(CURRENT_USER.intermediario||'').toLowerCase().trim();
+  if(!mio) return [];
+  return arr.filter(function(x){
+    return String((x||{})[campo]||'').toLowerCase().trim() === mio;
+  });
+}
+function puedeVerModulo_(mod){
+  if(esAdminODueno_() || verTodo_()) return true;
+  // Para asesor: solo estos modulos
+  var permitidos = {dashboard:1, cotizador:1, polizas:1, comisiones:1, renovaciones:1, siniestros:1, clientes:1};
+  return !!permitidos[mod];
+}
+
+function loadCurrentUser_(email){
+  if(!email){ CURRENT_USER = { email:'', rol:'anonimo', permisos:{} }; return Promise.resolve(); }
+  return fetch(APPS_SCRIPT_URL+'?action=me&email='+encodeURIComponent(email), {redirect:'follow'})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j && j.status==='ok' && j.perfil){
+        CURRENT_USER = j.perfil;
+        // Si el asesor esta inactivo, no puede entrar
+        if(CURRENT_USER.rol==='asesor' && CURRENT_USER.activo!=='si'){
+          alert('Tu usuario esta desactivado. Contacta al administrador.');
+          try{ localStorage.removeItem(GATE_KEY); localStorage.removeItem(GATE_TS_KEY); }catch(e){}
+          location.reload();
+          return;
+        }
+        aplicarPermisosUI_();
+      }
+    }).catch(function(){});
+}
+
+/* Muestra/oculta elementos segun permisos del CURRENT_USER */
+function aplicarPermisosUI_(){
+  var p = CURRENT_USER.permisos || {};
+  var ocultarSel = function(sel, ocultar){ document.querySelectorAll(sel).forEach(function(el){ el.style.display = ocultar ? 'none' : ''; }); };
+
+  // Sub-tabs de Comisiones restringidos
+  ocultarSel('#comSubNav .sub-tab[data-sub="asesores"]',   !p.editarPctIntermediarios);
+  ocultarSel('#comSubNav .sub-tab[data-sub="netoFabian"]', !p.verSostenimiento);
+  ocultarSel('#comSubNav .sub-tab[data-sub="sevengroup"]', !p.verLiquidacionesTodas);
+
+  // Modulos completos restringidos
+  ocultarSel('.mod-link[data-mod="facturacion"]', !p.verFacturacion);
+  ocultarSel('.mod-link[data-mod="config"]',      !p.editarConfig);
+
+  // Badge de usuario/rol arriba (si existe elemento)
+  var userChip = document.getElementById('userChip');
+  if(userChip){
+    var rolLbl = {admin:'ADMIN 7GROUP', dueno:'Fabian (dueno)', asesor:'Asesor', anonimo:'sin sesion'}[CURRENT_USER.rol] || CURRENT_USER.rol;
+    userChip.textContent = (CURRENT_USER.nombre||CURRENT_USER.email||'?') + ' · ' + rolLbl;
+  }
+}
+
 function setAdminMode(email){
   IS_ADMIN = ADMIN_EMAILS.indexOf(email) !== -1;
   var modBtn = document.getElementById('modConfigBtn');
   if(modBtn) modBtn.style.display = IS_ADMIN ? '' : 'none';
   var g7Btn = document.getElementById('tb7gBtn');
   if(g7Btn) g7Btn.style.display = IS_ADMIN ? '' : 'none';
+  // Cargar perfil del usuario (rol/permisos)
+  if(typeof loadCurrentUser_==='function') loadCurrentUser_(email);
 }
 
 function isBlocked(){
@@ -1916,6 +2024,11 @@ function initApp(){
    NAVIGATION
    ==================================== */
 function switchMod(modId){
+  // Guard por rol: si no puede ver este modulo, redirige a dashboard
+  if(typeof puedeVerModulo_==='function' && !puedeVerModulo_(modId)){
+    alert('No tienes permisos para acceder a este modulo.');
+    modId = 'dashboard';
+  }
   document.querySelectorAll('.mod-link').forEach(function(l){l.classList.remove('active')});
   var link=document.querySelector('.mod-link[data-mod="'+modId+'"]');
   if(link) link.classList.add('active');
@@ -2064,6 +2177,11 @@ function npSaveLead_(d, cb){
 
 /* Sub-navegacion dentro de Comisiones: aseguralo / 7group */
 window.switchComSub=function(sub){
+  // Guard por rol
+  var p = (typeof CURRENT_USER!=='undefined' && CURRENT_USER.permisos) || {};
+  if(sub==='asesores' && !p.editarPctIntermediarios){ alert('Solo admin/dueno.'); return; }
+  if(sub==='netoFabian' && !p.verSostenimiento){ alert('Solo admin/dueno.'); return; }
+  if(sub==='sevengroup' && !p.verLiquidacionesTodas && !esAdminODueno_()){ /* asesor puede ver las suyas */ }
   document.querySelectorAll('#comSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
   var tab=document.querySelector('#comSubNav .sub-tab[data-sub="'+sub+'"]'); if(tab) tab.classList.add('active');
   document.querySelectorAll('#mod-comisiones .sub-section').forEach(function(s){s.classList.remove('active')});
@@ -2353,15 +2471,16 @@ function renderPolizaRow(p,idx){
 }
 
 function renderPolizas(filter){
+  // Filtro por rol: asesor solo ve sus polizas
+  var POL_VIEW = filtrarPorPermiso_(POLIZAS, 'intermediario');
   // Si el usuario NO ha hecho click en un header, ordenamos por urgencia (default).
-  // Si ya hizo click en un header, respetamos ese orden (sortState tiene entries).
   var userSorted = Object.keys(sortState).some(function(k){return k.indexOf('polizasTable')===0});
   var base;
   if(userSorted){
-    base = POLIZAS.slice(); // sortTable ya lo dejo ordenado
+    base = POL_VIEW.slice();
   } else {
     var orden={'vencida':0,'por-renovar':1,'activa':2,'cancelada':3};
-    base = POLIZAS.slice().sort(function(a,b){
+    base = POL_VIEW.slice().sort(function(a,b){
       var oa=orden[a.estado]!=null?orden[a.estado]:9;
       var ob=orden[b.estado]!=null?orden[b.estado]:9;
       if(oa!==ob) return oa-ob;
@@ -2372,10 +2491,10 @@ function renderPolizas(filter){
 
   if(!filter) polizasShown=POLIZAS_PAGE_SIZE;
 
-  var vencidas=POLIZAS.filter(function(p){return p.estado==='vencida'}).length;
-  var porRenovar=POLIZAS.filter(function(p){return p.estado==='por-renovar'}).length;
-  var activas=POLIZAS.filter(function(p){return p.estado==='activa'}).length;
-  var totalAsegurado=POLIZAS.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).reduce(function(s,p){return s+p.valorAsegurado},0);
+  var vencidas=POL_VIEW.filter(function(p){return p.estado==='vencida'}).length;
+  var porRenovar=POL_VIEW.filter(function(p){return p.estado==='por-renovar'}).length;
+  var activas=POL_VIEW.filter(function(p){return p.estado==='activa'}).length;
+  var totalAsegurado=POL_VIEW.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).reduce(function(s,p){return s+p.valorAsegurado},0);
 
   document.getElementById('polizasKpi').innerHTML=[
     {l:'Vencidas (accion urgente)',v:vencidas,c:'c-red'},
@@ -2532,6 +2651,7 @@ window.savePoliza=function(){
    DASHBOARD
    ==================================== */
 function renderDashboard(){
+  if(typeof renderComisionesMes==='function') renderComisionesMes();
   var activas=POLIZAS.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'});
   var clientesActivos=[];
   activas.forEach(function(p){if(clientesActivos.indexOf(p.cliente)===-1)clientesActivos.push(p.cliente)});
@@ -2564,10 +2684,12 @@ function renderDashboard(){
    COMISIONES
    ==================================== */
 function renderComisiones(){
-  var acumulada=COMISIONES.reduce(function(s,c){return s+c.valorComision},0);
-  var pendiente=COMISIONES.filter(function(c){return c.estadoPago==='pendiente'}).reduce(function(s,c){return s+c.valorComision},0);
-  var pagado=COMISIONES.filter(function(c){return c.estadoPago==='pagado'}).reduce(function(s,c){return s+c.valorComision},0);
-  var totalPrimas=COMISIONES.reduce(function(s,c){return s+c.prima},0);
+  // Filtro por rol
+  var COM_VIEW = filtrarPorPermiso_(COMISIONES, 'intermediario');
+  var acumulada=COM_VIEW.reduce(function(s,c){return s+c.valorComision},0);
+  var pendiente=COM_VIEW.filter(function(c){return c.estadoPago==='pendiente'}).reduce(function(s,c){return s+c.valorComision},0);
+  var pagado=COM_VIEW.filter(function(c){return c.estadoPago==='pagado'}).reduce(function(s,c){return s+c.valorComision},0);
+  var totalPrimas=COM_VIEW.reduce(function(s,c){return s+c.prima},0);
   var tasaProm=totalPrimas?((acumulada/totalPrimas)*100).toFixed(1):0;
 
   document.getElementById('comisionesKpi').innerHTML=[
@@ -2580,7 +2702,7 @@ function renderComisiones(){
   var statusMap={'pagado':'badge-pagado','pendiente':'badge-pendiente','vencido':'badge-vencido'};
   var statusLabel={'pagado':'Pagado','pendiente':'Pendiente','vencido':'Vencido'};
 
-  document.getElementById('comisionesTable').innerHTML=COMISIONES.map(function(c){
+  document.getElementById('comisionesTable').innerHTML=COM_VIEW.map(function(c){
     return '<tr>'+
       '<td style="font-weight:600">'+c.aseguradora+'</td>'+
       '<td class="mono" style="font-size:11px;color:var(--accent)">'+c.poliza+'</td>'+
@@ -2599,8 +2721,10 @@ function renderComisiones(){
    ==================================== */
 var RENOV_DATA=[];
 function renderRenovaciones(){
+  // Filtro por rol
+  var POL_VIEW = filtrarPorPermiso_(POLIZAS, 'intermediario');
   // Build renewal data from policy expiration dates
-  RENOV_DATA=POLIZAS.filter(function(p){return p.estado!=='cancelada'}).map(function(p){
+  RENOV_DATA=POL_VIEW.filter(function(p){return p.estado!=='cancelada'}).map(function(p){
     var dias=diasEntre(p.hasta);
     return {
       cliente:p.cliente,
@@ -2714,13 +2838,20 @@ function renderSiniestros(){
    CLIENTES
    ==================================== */
 function renderClientes(filter){
-  var data=filter?CLIENTES.filter(function(c){return c.nombre.toLowerCase().indexOf(filter)!==-1}):CLIENTES;
+  // Filtro por rol — asesor solo ve clientes de sus polizas
+  var POL_VIEW = filtrarPorPermiso_(POLIZAS, 'intermediario');
+  var clientesMios = esAdminODueno_() || verTodo_()
+    ? CLIENTES
+    : CLIENTES.filter(function(c){
+        return POL_VIEW.some(function(p){return p.cliente===c.nombre;});
+      });
+  var data=filter?clientesMios.filter(function(c){return c.nombre.toLowerCase().indexOf(filter)!==-1}):clientesMios;
 
-  var total=CLIENTES.length;
+  var total=clientesMios.length;
   var conActiva=0;
   var sinRenovar=0;
-  CLIENTES.forEach(function(c){
-    var polizas=POLIZAS.filter(function(p){return p.cliente===c.nombre});
+  clientesMios.forEach(function(c){
+    var polizas=POL_VIEW.filter(function(p){return p.cliente===c.nombre});
     var tieneActiva=polizas.some(function(p){return p.estado==='activa'});
     var tieneVencida=polizas.some(function(p){return p.estado==='vencida'||p.estado==='por-renovar'});
     if(tieneActiva) conActiva++;
@@ -2735,7 +2866,7 @@ function renderClientes(filter){
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
 
   document.getElementById('clientesTable').innerHTML=data.map(function(c){
-    var polizas=POLIZAS.filter(function(p){return p.cliente===c.nombre});
+    var polizas=POL_VIEW.filter(function(p){return p.cliente===c.nombre});
     var polizasActivas=polizas.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).length;
     var primaTotal=polizas.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).reduce(function(s,p){return s+p.prima},0);
     var ultimaActividad=polizas.length?polizas.sort(function(a,b){return b.desde>a.desde?1:-1})[0].desde:'--';
@@ -2805,16 +2936,19 @@ function loadLiquidacionesFromSheet(){
       if(!j || j.status!=='ok') return;
       LIQUIDACIONES = j.rows||[];
       renderLiquidaciones();
+      if(typeof renderComisionesMes==='function') renderComisionesMes();
     }).catch(function(){});
 }
 
 function renderLiquidaciones(){
   var kpiEl = document.getElementById('liqsKpi'); if(!kpiEl) return;
-  var cnt = document.getElementById('cntLiqs'); if(cnt) cnt.textContent = LIQUIDACIONES.length;
-  var totalCom7 = LIQUIDACIONES.reduce(function(s,l){return s+(Number(l.com_7group)||0)},0);
-  var pend7 = LIQUIDACIONES.filter(function(l){return l.estado_pago_7group==='pendiente'}).reduce(function(s,l){return s+(Number(l.com_7group)||0)},0);
-  var pagado7 = LIQUIDACIONES.filter(function(l){return l.estado_pago_7group==='pagado'}).reduce(function(s,l){return s+(Number(l.com_7group)||0)},0);
-  var pendAseg = LIQUIDACIONES.filter(function(l){return l.estado_pago_aseguralo==='pendiente'}).reduce(function(s,l){return s+(Number(l.com_aseguralo)||0)},0);
+  // Filtro por rol: asesor solo ve sus propias liquidaciones
+  var LIQ_VIEW = filtrarPorPermiso_(LIQUIDACIONES, 'intermediario');
+  var cnt = document.getElementById('cntLiqs'); if(cnt) cnt.textContent = LIQ_VIEW.length;
+  var totalCom7 = LIQ_VIEW.reduce(function(s,l){return s+(Number(l.com_7group)||0)},0);
+  var pend7 = LIQ_VIEW.filter(function(l){return l.estado_pago_7group==='pendiente'}).reduce(function(s,l){return s+(Number(l.com_7group)||0)},0);
+  var pagado7 = LIQ_VIEW.filter(function(l){return l.estado_pago_7group==='pagado'}).reduce(function(s,l){return s+(Number(l.com_7group)||0)},0);
+  var pendAseg = LIQ_VIEW.filter(function(l){return l.estado_pago_aseguralo==='pendiente'}).reduce(function(s,l){return s+(Number(l.com_aseguralo)||0)},0);
 
   kpiEl.innerHTML = [
     {l:'Total 7GROUP acumulado',v:fmt(totalCom7),c:'c-brand'},
@@ -2824,12 +2958,12 @@ function renderLiquidaciones(){
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val" style="font-size:18px">'+k.v+'</div></div>'}).join('');
 
   var tb = document.getElementById('liqsTable'); if(!tb) return;
-  if(!LIQUIDACIONES.length){
-    tb.innerHTML = '<tr><td colspan="18" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay liquidaciones. Se crean automatico cuando una cotizacion se marca como Aceptada.</td></tr>';
+  if(!LIQ_VIEW.length){
+    tb.innerHTML = '<tr><td colspan="18" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay liquidaciones para tu usuario.</td></tr>';
     return;
   }
   var estMap = {'pendiente':'badge-por-renovar','cobrado':'badge-activa','pagado':'badge-activa','no-aplica':'badge-cancelada','vencido':'badge-vencida'};
-  tb.innerHTML = LIQUIDACIONES.map(function(l){
+  tb.innerHTML = LIQ_VIEW.map(function(l){
     var badgeAseg = estMap[l.estado_pago_aseguralo]||'badge-por-renovar';
     var badge7G   = estMap[l.estado_pago_7group]||'badge-por-renovar';
     return '<tr>'+
@@ -2873,6 +3007,11 @@ function loadIntermediariosFull_(){
 
 function renderAsesores(){
   var tb = document.getElementById('asesoresTable'); if(!tb) return;
+  // Solo admin/dueno pueden ver/editar. Los demas ven un mensaje.
+  if(!esAdminODueno_()){
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Solo el administrador y Fabian pueden gestionar la distribucion de intermediarios.</td></tr>';
+    return;
+  }
   var pinta = function(){
     if(!INTERMED_FULL.length){
       tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Cargando catalogo...</td></tr>';
@@ -2882,8 +3021,12 @@ function renderAsesores(){
       var isDueno = x.tipo==='dueno';
       var isRefAdmin = x.tipo==='referido_admin';
       var tipoLbl = isDueno?'Dueno':(isRefAdmin?'Referido 7GROUP':'Asesor');
+      // Badge de acceso segun activo + email presente
+      var accesoLbl = x.activo==='si'
+        ? (x.email ? '<span style="font-size:9px;background:rgba(16,185,129,.15);color:var(--green);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">ACCESO</span>' : '<span style="font-size:9px;background:rgba(255,180,0,.15);color:var(--orange);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">falta email</span>')
+        : '<span style="font-size:9px;background:rgba(239,68,68,.15);color:var(--red);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">BLOQUEADO</span>';
       return '<tr data-nombre="'+x.nombre+'">'+
-        '<td><strong>'+x.nombre+'</strong></td>'+
+        '<td><strong>'+x.nombre+'</strong>'+accesoLbl+'</td>'+
         '<td><select class="form-input" data-f="tipo" style="font-size:12px;padding:4px 6px">'+
           ['dueno','asesor','referido_admin'].map(function(t){
             var lbl = t==='dueno'?'Dueno':(t==='referido_admin'?'Referido 7GROUP':'Asesor');
@@ -2895,7 +3038,7 @@ function renderAsesores(){
         '<td><select class="form-input" data-f="activo" style="font-size:12px;padding:4px 6px;width:70px">'+
           ['si','no'].map(function(v){return '<option '+(x.activo===v?'selected':'')+'>'+v+'</option>';}).join('')+
         '</select></td>'+
-        '<td><input class="form-input" data-f="email" value="'+(x.email||'')+'" style="font-size:12px" placeholder="opcional"></td>'+
+        '<td><input class="form-input" data-f="email" value="'+(x.email||'')+'" style="font-size:12px" placeholder="correo@dominio.com"></td>'+
         '<td><button class="btn btn-sm btn-primary" onclick="guardarAsesor_(this)">Guardar</button><span class="save-status" style="display:block;font-size:10px;color:var(--muted);margin-top:2px"></span></td>'+
       '</tr>';
     }).join('');
@@ -3010,6 +3153,98 @@ function renderNetoFabian(){
     '</tr>';
   }).join('');
 }
+
+/* ============================================
+   DASHBOARD: COMISIONES DEL MES POR INTERMEDIARIO
+   Vista ejecutiva. Selector de mes. Filtro por rol.
+   ============================================ */
+window.renderComisionesMes = function(){
+  var input = document.getElementById('comisionesMesInput'); if(!input) return;
+  if(!input.value){
+    // Default: mes actual
+    var d = new Date();
+    input.value = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  }
+  var yyyymm = input.value; // "2026-08"
+  var subtit = document.getElementById('comisionesMesSubtitulo');
+
+  // Filtro por rol
+  var LIQ_ROL = filtrarPorPermiso_(LIQUIDACIONES, 'intermediario');
+  // Filtro por mes
+  var liqsMes = LIQ_ROL.filter(function(l){
+    var f = String(l.fecha_venta||'').slice(0,7);
+    return f === yyyymm;
+  });
+
+  // Agrupar por intermediario
+  var grupos = {};
+  liqsMes.forEach(function(l){
+    var k = l.intermediario || 'Sin asignar';
+    if(!grupos[k]) grupos[k] = {intermediario:k, produccion:0, comGenerada:0, valorAsesor:0, valorFabian:0, pctSum:0, pctN:0, pendiente:0, pagado:0, total:0};
+    var g = grupos[k];
+    g.produccion += Number(l.prima)||0;
+    g.comGenerada += Number(l.com_aseguralo)||0;
+    g.valorAsesor += Number(l.com_asesor)||0;
+    g.valorFabian += (Number(l.com_fabian_bruta)||0);
+    g.pctSum += Number(l.pct_aseguralo)||0; g.pctN += 1;
+    g.total += 1;
+    if(l.estado_pago_aseguralo === 'cobrado' || l.estado_pago_aseguralo === 'pagado'){ g.pagado += 1; }
+    else { g.pendiente += 1; }
+  });
+  var filas = Object.keys(grupos).map(function(k){ return grupos[k]; });
+  filas.sort(function(a,b){ return b.comGenerada - a.comGenerada; });
+
+  // KPIs mes
+  var totalProd = filas.reduce(function(s,g){return s+g.produccion;},0);
+  var totalCom  = filas.reduce(function(s,g){return s+g.comGenerada;},0);
+  var totalAses = filas.reduce(function(s,g){return s+g.valorAsesor;},0);
+  var totalPend = filas.reduce(function(s,g){return s+g.pendiente;},0);
+  var kpi = document.getElementById('comisionesMesKpi');
+  if(kpi){
+    kpi.innerHTML = [
+      {l:'Produccion mes', v:fmt(totalProd),   c:'c-brand'},
+      {l:'Comision generada', v:fmt(totalCom), c:'c-accent'},
+      {l:'Total asesores', v:fmt(totalAses),   c:'c-green'},
+      {l:'Registros pendientes', v:totalPend,  c:'c-orange'}
+    ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val" style="font-size:18px">'+k.v+'</div></div>';}).join('');
+  }
+  // Subtitulo por rol
+  if(subtit){
+    if(esAdminODueno_() || verTodo_()){
+      subtit.textContent = 'Vista ejecutiva por intermediario (todos)';
+    } else {
+      subtit.textContent = 'Vista personal — solo tu produccion';
+    }
+  }
+
+  // Tabla
+  var tb = document.getElementById('comisionesMesTable');
+  if(!tb) return;
+  if(!filas.length){
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);font-size:12px">Sin comisiones registradas en '+yyyymm+'</td></tr>';
+    return;
+  }
+  tb.innerHTML = filas.map(function(g){
+    var pctProm = g.pctN ? (g.pctSum/g.pctN).toFixed(1) : '-';
+    var estadoHtml;
+    if(g.pendiente===0){
+      estadoHtml = '<span class="badge badge-activa">Todo pagado</span>';
+    } else if(g.pagado===0){
+      estadoHtml = '<span class="badge badge-por-renovar">Pendiente ('+g.pendiente+')</span>';
+    } else {
+      estadoHtml = '<span class="badge badge-por-renovar">'+g.pendiente+' pend / '+g.pagado+' pag</span>';
+    }
+    return '<tr>'+
+      '<td><strong>'+g.intermediario+'</strong></td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(g.produccion)+'</td>'+
+      '<td class="mono" style="text-align:center">'+pctProm+'%</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(g.comGenerada)+'</td>'+
+      '<td class="mono" style="color:var(--green);font-weight:600">'+fmt(g.valorAsesor)+'</td>'+
+      '<td class="mono" style="color:var(--brand);font-weight:600">'+fmt(g.valorFabian)+'</td>'+
+      '<td>'+estadoHtml+'</td>'+
+    '</tr>';
+  }).join('');
+};
 
 window.marcarLiqPagada = function(id, tipo){
   var l = LIQUIDACIONES.filter(function(x){return x.id===id})[0];
@@ -3228,7 +3463,8 @@ function promptGemini_(tipo){
     '  "vigencia_hasta": "YYYY-MM-DD",\n'+
     '  "valor_asegurado": <numero o null>,\n'+
     '  "deducible": <numero o null>,\n'+
-    '  "coberturas_principales": "texto breve",\n'+
+    '  "coberturas_principales": "texto breve DEL PLAN SELECCIONADO — con montos EXACTOS del plan cotizado, nunca de otros planes",\n'+
+    '  "coberturas_detalle": [ { "nombre": "Cobertura X", "valor": <numero o null>, "condicion": "opcional (ej: hasta 65 anos)" } ],\n'+
     camposEspecificos+'\n'+
     '}\n\n'+
     'IMPORTANTE: en "tipo_detectado" pon lo que REALMENTE es el PDF (auto, vida, salud, hogar...) sin importar lo que dijimos que espera el prospecto. Si el PDF es un seguro de auto, pon "Auto" — asi el sistema puede detectar si no corresponde al tipo del prospecto.\n'+
@@ -3238,6 +3474,12 @@ function promptGemini_(tipo){
     '  b) Extraer los datos de la opcion "OPTIMA" como la principal (prima_total, valor_asegurado, coberturas_principales, vigencia).\n'+
     '  c) Poner "plan_seleccionado": "Optima" y guardar las otras 2 opciones en el array "planes_alternos".\n'+
     '  d) Si no encuentras un plan llamado exactamente "Optima", elige el intermedio (ni el mas barato ni el mas caro) y explica en "plan_seleccionado" cual escogiste.\n'+
+    'IMPORTANTE 4 - COHERENCIA COBERTURAS (aplica a TODAS las aseguradoras, especialmente Allianz Vida):\n'+
+    '  - "coberturas_principales" y "coberturas_detalle" DEBEN ser SOLO del plan seleccionado (Optima si es Allianz Vida). NUNCA mezclar montos de otros planes.\n'+
+    '  - Los montos que menciones en el texto de coberturas deben ser EXACTAMENTE los del plan cotizado, coherentes con "valor_asegurado".\n'+
+    '  - No inventes ni escales valores. Si el plan Optima cubre $200.000.000, no digas $500.000.000 aunque ese monto aparezca en el PDF (probablemente sea el plan Superior).\n'+
+    '  - Es preferible ser breve y decir "segun cotizacion" que dar un monto incorrecto. Un monto incorrecto es un error de responsabilidad comercial.\n'+
+    '  - En "coberturas_detalle" pon cada cobertura como objeto separado con su valor exacto del plan cotizado.\n'+
     'Reglas: Si un campo no aparece en el documento, ponlo como null. Todas las cifras deben ser numeros (sin puntos ni comas ni simbolo $). Devuelve SOLO el JSON, empezando con { y terminando con }. Sin ```json ni ```. Sin texto antes ni despues.';
 }
 
@@ -3343,6 +3585,70 @@ function validarIdentidadTitular_(data, lead){
   return {ok:false, warn:false, msg:'Los nombres no coinciden.\n\n'+detalle};
 }
 
+/* ============================================
+   VALIDACION DE COBERTURAS (montos vs valor_asegurado)
+   Extrae montos grandes ($100M+) del texto y del detalle, y verifica que
+   NINGUNO exceda significativamente el valor_asegurado del plan cotizado.
+   Un texto que diga "$500M" cuando la poliza cubre $200M es un error grave.
+   ============================================ */
+function extraerMontosCOP_(txt){
+  if(!txt) return [];
+  var out = [];
+  // Patrones: "$500.000.000", "500 millones", "500M", "$500M", "500.000"
+  var re1 = /\$?\s*([0-9]{1,3}(?:\.[0-9]{3}){1,4})(?![0-9])/g;  // 500.000.000
+  var re2 = /\$?\s*([0-9]{1,4})\s*(?:millones|mill\.|M)\b/gi;   // 500 millones / 500M
+  var m;
+  while((m=re1.exec(txt))){
+    var n = Number(String(m[1]).replace(/\./g,''));
+    if(n>=1000000) out.push(n); // solo montos "grandes" (>= 1M)
+  }
+  while((m=re2.exec(txt))){
+    var n2 = Number(m[1]) * 1000000;
+    if(n2>=1000000) out.push(n2);
+  }
+  return out;
+}
+function validarCoberturas_(data){
+  var vAseg = Number(data.valor_asegurado)||0;
+  var out = { ok:true, warn:false, msg:'', montosProblema:[] };
+  if(!vAseg) return out; // sin valor_asegurado no podemos comparar
+
+  var tol = 1.10; // tolerancia 10% por redondeos
+  var techo = vAseg * tol;
+
+  // 1. Revisar coberturas_detalle (array estructurado)
+  if(Array.isArray(data.coberturas_detalle)){
+    data.coberturas_detalle.forEach(function(cob){
+      var v = Number(cob.valor)||0;
+      if(v > techo){
+        out.montosProblema.push({fuente:'detalle', nombre:cob.nombre||'?', valor:v, vAseg:vAseg});
+      }
+    });
+  }
+
+  // 2. Revisar texto libre coberturas_principales
+  var montosTexto = extraerMontosCOP_(data.coberturas_principales||'');
+  montosTexto.forEach(function(v){
+    if(v > techo){
+      out.montosProblema.push({fuente:'texto', nombre:'monto citado en texto', valor:v, vAseg:vAseg});
+    }
+  });
+
+  if(out.montosProblema.length){
+    out.ok = true; // no bloquear
+    out.warn = true;
+    var det = out.montosProblema.map(function(p){
+      return '  - '+p.nombre+': $'+p.valor.toLocaleString('es-CO')+' (excede el valor asegurado del plan $'+p.vAseg.toLocaleString('es-CO')+')';
+    }).join('\n');
+    out.msg = 'ATENCION - Cobertura potencialmente inflada.\n\n'+
+      'El texto de coberturas menciona montos SUPERIORES al valor asegurado del plan cotizado. '+
+      'Esto puede ser un dato del plan Superior mezclado por error. Verifica el PDF original antes de enviar al cliente.\n\n'+
+      'Detalle:\n'+det+
+      '\n\nSi asocias esta cotizacion igual, el PDF comercial NO incluira estos montos (se reemplazan por texto generico) para evitar comunicar un valor incorrecto al cliente.';
+  }
+  return out;
+}
+
 window.subirPDFCotizacion = async function(inputEl, leadId){
   var file = inputEl.files[0]; if(!file) return;
   var statusEl = document.getElementById('pdf-status-'+leadId+'-new');
@@ -3375,6 +3681,13 @@ window.subirPDFCotizacion = async function(inputEl, leadId){
       if(!ok){ setStatus('Cotizacion NO asociada (identidad no confirmada).','var(--orange)'); return; }
     }
 
+    // Validar coherencia de coberturas vs valor asegurado
+    var cobCheck = validarCoberturas_(data);
+    if(cobCheck.warn){
+      var okCob = confirm(cobCheck.msg + '\n\nDeseas asociarla igual (con proteccion en el PDF comercial)?');
+      if(!okCob){ setStatus('Cotizacion NO asociada (cobertura inconsistente).','var(--orange)'); return; }
+    }
+
     var aseg = data.aseguradora || 'Aseguradora sin identificar';
 
     if(!COT_PDFS[leadId]) COT_PDFS[leadId] = {};
@@ -3399,6 +3712,10 @@ window.subirPDFCotizacion = async function(inputEl, leadId){
       titularDoc: tit.numero_documento || tit.documento || '',
       planSeleccionado: data.plan_seleccionado || '',
       planesAlternos: Array.isArray(data.planes_alternos) ? data.planes_alternos : [],
+      coberturasDetalle: Array.isArray(data.coberturas_detalle) ? data.coberturas_detalle : [],
+      coberturasWarning: cobCheck.warn || false,
+      coberturasWarningMsg: cobCheck.msg || '',
+      coberturasMontosProblema: cobCheck.montosProblema || [],
       extraido: data,
       nombreArchivo: file.name,
       ts: Date.now()
@@ -3550,52 +3867,64 @@ window.descargarComparativoPDF = async function(leadId){
   var slotKeys = Object.keys(data).filter(function(k){return k.indexOf('__')!==0;});
   var cots = slotKeys.filter(function(k){return Number(data[k].prima)>0}).map(function(k){
     var d = data[k];
+    // Sanitizacion: si hay warning de coberturas, sustituimos por texto generico seguro
+    // para NO comunicar al cliente un monto superior al real cotizado.
+    var coberturasSeguras = d.coberturasWarning
+      ? 'Coberturas segun cotizacion oficial de '+ (d.aseguradora||'la aseguradora') +'. Consulte el PDF anexo para el detalle exacto y montos por cobertura.'
+      : (d.coberturas||'');
     return {slot:k, nombre:d.aseguradora||k, prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
-            deducible:Number(d.deducible)||0, coberturas:d.coberturas||'', valorAseg:Number(d.valorAsegurado)||0,
-            aseguradora:d.aseguradora||k};
+            deducible:Number(d.deducible)||0, coberturas:coberturasSeguras, valorAseg:Number(d.valorAsegurado)||0,
+            aseguradora:d.aseguradora||k, plan:d.planSeleccionado||'',
+            coberturasWarning: !!d.coberturasWarning};
   });
   if(!cots.length){ alert('No hay primas capturadas'); return; }
   var mejor = cots.reduce(function(a,b){return a.prima<=b.prima?a:b;});
   var ganadora = data.__ganadora ? cots.filter(function(c){return c.slot===data.__ganadora;})[0] : mejor;
   if(!ganadora) ganadora = mejor;
 
+  // === LAYOUT ADAPTATIVO SEGUN N ===
+  var N = cots.length;
   var jsPDF = window.jspdf.jsPDF;
-  var doc = new jsPDF({unit:'pt',format:'letter'});
+  // <=3: portrait letter; 4-6: landscape letter; 7+: portrait + grid tarjetas 2 col
+  var orient = (N>=4 && N<=6) ? 'l' : 'p';
+  var doc = new jsPDF({unit:'pt', format:'letter', orientation:orient});
   var pw = doc.internal.pageSize.getWidth();
+  var ph = doc.internal.pageSize.getHeight();
   var margin = 40, y = 40;
   var fmt = function(n){return '$'+Number(n||0).toLocaleString('es-CO');};
 
-  // Header azul con branding Aseguralo (logo si carga, sino texto)
-  doc.setFillColor(48,71,112); doc.rect(0,0,pw,72,'F');
-  if(logoB64){
-    // Fondo blanco redondeado detras del logo para que el logo azul se vea sobre el header azul
-    try{
-      doc.setFillColor(255,255,255);
-      doc.roundedRect(margin-4, 12, 158, 48, 6, 6, 'F');
-      doc.addImage(logoB64, 'PNG', margin, 16, 150, 40);
-    }catch(e){
+  // ---- Header azul con branding Aseguralo ----
+  function pintarHeader_(){
+    doc.setFillColor(48,71,112); doc.rect(0,0,pw,72,'F');
+    if(logoB64){
+      try{
+        doc.setFillColor(255,255,255);
+        doc.roundedRect(margin-4, 12, 158, 48, 6, 6, 'F');
+        doc.addImage(logoB64, 'PNG', margin, 16, 150, 40);
+      }catch(e){
+        doc.setTextColor(255,255,255); doc.setFontSize(22); doc.setFont('helvetica','bold');
+        doc.text('Aseguralo', margin, 42);
+      }
+    } else {
       doc.setTextColor(255,255,255); doc.setFontSize(22); doc.setFont('helvetica','bold');
       doc.text('Aseguralo', margin, 42);
     }
-  } else {
-    doc.setTextColor(255,255,255); doc.setFontSize(22); doc.setFont('helvetica','bold');
-    doc.text('Aseguralo', margin, 42);
+    doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text('www.aseguralo.com.co', pw-margin, 30, {align:'right'});
+    doc.text('aseguralo@outlook.com', pw-margin, 44, {align:'right'});
+    doc.text('WhatsApp: +57 316 520 6865', pw-margin, 58, {align:'right'});
   }
-  // Datos de contacto arriba derecha
-  doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','normal');
-  doc.text('www.aseguralo.com.co', pw-margin, 30, {align:'right'});
-  doc.text('aseguralo@outlook.com', pw-margin, 44, {align:'right'});
-  doc.text('WhatsApp: +57 316 520 6865', pw-margin, 58, {align:'right'});
+  pintarHeader_();
   y = 100;
 
-  // Titulo propuesta
+  // Titulo
   doc.setTextColor(48,71,112); doc.setFontSize(16); doc.setFont('helvetica','bold');
   doc.text('Propuesta de aseguramiento', margin, y); y += 24;
   doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
   var hoy = new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
   doc.text('Fecha: '+hoy, margin, y); y += 20;
 
-  // Datos del cliente
+  // Datos cliente
   doc.setFillColor(245,247,250); doc.rect(margin, y, pw-margin*2, 60, 'F');
   doc.setTextColor(48,71,112); doc.setFontSize(9); doc.setFont('helvetica','bold');
   doc.text('CLIENTE', margin+12, y+14);
@@ -3603,69 +3932,190 @@ window.descargarComparativoPDF = async function(leadId){
   doc.text(lead.nombre||'', margin+12, y+30);
   doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
   doc.text('Ramo: '+(lead.tipo||''), margin+12, y+46);
-  doc.text('WhatsApp: '+(lead.telefono||'-'), margin+220, y+30);
-  doc.text('Correo: '+(lead.correo||'-'), margin+220, y+46);
+  doc.text('WhatsApp: '+(lead.telefono||'-'), margin+280, y+30);
+  doc.text('Correo: '+(lead.correo||'-'), margin+280, y+46);
   y += 80;
 
   // Intro
   doc.setTextColor(0,0,0); doc.setFontSize(10);
   var intro = 'Cordial saludo, '+((lead.nombre||'').split(' ')[0]||'')+'.\n\n'+
-    'A continuacion encontraras la comparacion de '+cots.length+' alternativas de aseguradoras que analizamos '+
-    'para tu solicitud de '+(lead.tipo||'seguro')+'. Nuestra recomendacion es '+ganadora.nombre+' por relacion costo/beneficio.';
+    'A continuacion encontraras la comparacion de '+N+' alternativa'+(N===1?'':'s')+
+    ' de aseguradoras analizadas para tu solicitud de '+(lead.tipo||'seguro')+
+    '. Nuestra recomendacion es '+ganadora.nombre+(ganadora.plan?' ('+ganadora.plan+')':'')+' por relacion costo/beneficio.';
   var lines = doc.splitTextToSize(intro, pw-margin*2);
   doc.text(lines, margin, y); y += lines.length*13 + 12;
 
-  // Tabla comparativa
-  var colW = (pw-margin*2)/cots.length;
-  // Header verde suave
-  doc.setFillColor(48,71,112); doc.rect(margin, y, pw-margin*2, 22, 'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
-  cots.forEach(function(c,i){ doc.text(c.nombre, margin+i*colW+8, y+14); });
-  y += 22;
-
-  // Filas
+  // Filas base de la comparacion (comunes a los 2 layouts)
   var filas = [
-    {l:'Prima anual', get:function(c){return fmt(c.prima);}, highlight:true},
-    {l:'Vigencia',    get:function(c){return c.desde+' -> '+c.hasta;}},
-    {l:'Valor aseg.', get:function(c){return c.valorAseg?fmt(c.valorAseg):'-';}},
-    {l:'Deducible',   get:function(c){return c.deducible?fmt(c.deducible):'-';}},
-    {l:'Coberturas',  get:function(c){return c.coberturas||'-';}, tall:true}
+    {l:'Prima anual',  get:function(c){return fmt(c.prima);},                                     highlight:true},
+    {l:'Vigencia',     get:function(c){return c.desde && c.hasta ? (c.desde+' -> '+c.hasta) : '-';}},
+    {l:'Valor aseg.',  get:function(c){return c.valorAseg?fmt(c.valorAseg):'-';}},
+    {l:'Deducible',    get:function(c){return c.deducible?fmt(c.deducible):'-';}},
+    {l:'Coberturas',   get:function(c){return c.coberturas||'-';},                                tall:true}
   ];
-  filas.forEach(function(f,fi){
-    var rowH = f.tall ? 40 : 22;
-    // Bandas
-    if(fi%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y, pw-margin*2, rowH, 'F'); }
-    doc.setTextColor(100,100,100); doc.setFontSize(8); doc.setFont('helvetica','bold');
-    doc.text(f.l.toUpperCase(), margin+8, y+12);
-    doc.setTextColor(0,0,0); doc.setFontSize(f.highlight?11:9); doc.setFont('helvetica', f.highlight?'bold':'normal');
-    cots.forEach(function(c,i){
-      var val = f.get(c);
-      var esGanadora = c.nombre===ganadora.nombre;
-      if(f.highlight && esGanadora){ doc.setTextColor(16,140,80); }
-      else if(f.highlight){ doc.setTextColor(0,0,0); }
-      var lns = doc.splitTextToSize(String(val), colW-16);
-      doc.text(lns.slice(0,3), margin+i*colW+8, y+20);
-      doc.setTextColor(0,0,0);
-    });
-    y += rowH;
-  });
-  y += 20;
 
-  // Bloque de recomendacion
+  // === LAYOUT A: TABLA HORIZONTAL (N <= 6) ===
+  // Portrait para 1-3 cotizaciones, landscape para 4-6
+  function pintarTabla_(cotsPagina){
+    var nCols = cotsPagina.length;
+    var labelW = 90;                       // ancho fijo columna izquierda (nombres de campo)
+    var totalW = pw - margin*2;
+    var colW = (totalW - labelW) / nCols;
+
+    // Header oscuro con nombres aseguradora + badge de plan si existe
+    doc.setFillColor(48,71,112); doc.rect(margin, y, totalW, 30, 'F');
+    // Celda label vacia
+    doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
+    cotsPagina.forEach(function(c,i){
+      var cx = margin + labelW + i*colW;
+      var esGan = c.slot===ganadora.slot;
+      if(esGan){
+        doc.setFillColor(16,140,80); doc.rect(cx, y, colW, 30, 'F');
+      }
+      doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
+      var nom = c.nombre + (esGan?'  *':'');
+      var nl = doc.splitTextToSize(nom, colW-14);
+      doc.text(nl.slice(0,1), cx+8, y+14);
+      if(c.plan){
+        doc.setFontSize(8); doc.setFont('helvetica','normal');
+        doc.text('Plan '+c.plan, cx+8, y+26);
+      }
+    });
+    y += 30;
+
+    filas.forEach(function(f,fi){
+      var rowH = f.tall ? Math.max(44, nCols>4?50:44) : 22;
+      // Bandas
+      if(fi%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y, totalW, rowH, 'F'); }
+      // Label
+      doc.setTextColor(90,90,110); doc.setFontSize(8); doc.setFont('helvetica','bold');
+      doc.text(f.l.toUpperCase(), margin+8, y+13);
+      // Valores por columna
+      cotsPagina.forEach(function(c,i){
+        var cx = margin + labelW + i*colW;
+        var esGan = c.slot===ganadora.slot;
+        var val = f.get(c);
+        if(f.highlight){
+          doc.setTextColor(esGan?16:0, esGan?140:0, esGan?80:0);
+          doc.setFontSize(nCols>4?10:12); doc.setFont('helvetica','bold');
+        } else {
+          doc.setTextColor(30,30,30);
+          doc.setFontSize(nCols>4?8:9); doc.setFont('helvetica','normal');
+        }
+        var lns = doc.splitTextToSize(String(val), colW-14);
+        var maxL = f.tall ? (nCols>4?5:4) : 2;
+        doc.text(lns.slice(0,maxL), cx+8, y+ (f.highlight?18:14));
+      });
+      // Bordes verticales sutiles
+      doc.setDrawColor(230,232,238); doc.setLineWidth(0.5);
+      for(var vi=1; vi<nCols; vi++){
+        var vx = margin+labelW+vi*colW;
+        doc.line(vx, y, vx, y+rowH);
+      }
+      y += rowH;
+    });
+    // Nota mejor precio abajo del bloque
+    var minPrima = cotsPagina.reduce(function(a,b){return a.prima<b.prima?a:b;});
+    y += 6;
+    doc.setTextColor(120,120,120); doc.setFontSize(8); doc.setFont('helvetica','italic');
+    doc.text('* Recomendada  |  Mejor precio del grupo: '+minPrima.nombre+' ('+fmt(minPrima.prima)+')', margin, y);
+    y += 14;
+  }
+
+  // === LAYOUT B: TARJETAS EN GRID 2 COLUMNAS (N >= 7) ===
+  function pintarTarjetas_(cotsAll){
+    var totalW = pw - margin*2;
+    var gap = 12;
+    var cardW = (totalW - gap) / 2;
+    var cardH = 145;
+    var x = margin;
+    cotsAll.forEach(function(c, i){
+      if(i>0 && i%2===0){
+        y += cardH + gap;
+        x = margin;
+        // Salto de pagina si no cabe
+        if(y + cardH > ph - 100){
+          doc.addPage(); pintarHeader_();
+          y = 100;
+          doc.setTextColor(48,71,112); doc.setFontSize(14); doc.setFont('helvetica','bold');
+          doc.text('Propuesta de aseguramiento  ·  '+(lead.nombre||''), margin, y);
+          y += 24;
+        }
+      }
+      x = margin + (i%2)*(cardW + gap);
+      var esGan = c.slot===ganadora.slot;
+      // Marco
+      doc.setDrawColor(esGan?16:210, esGan?140:214, esGan?80:222);
+      doc.setLineWidth(esGan?1.5:0.5);
+      doc.setFillColor(esGan?239:250, esGan?248:251, esGan?242:252);
+      doc.roundedRect(x, y, cardW, cardH, 6, 6, 'FD');
+      // Header tarjeta
+      doc.setFillColor(esGan?16:48, esGan?140:71, esGan?80:112);
+      doc.rect(x, y, cardW, 26, 'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(11); doc.setFont('helvetica','bold');
+      doc.text(c.nombre + (esGan?'  *':''), x+10, y+17);
+      if(c.plan){
+        doc.setFontSize(8); doc.setFont('helvetica','normal');
+        doc.text('Plan '+c.plan, x+cardW-10, y+17, {align:'right'});
+      }
+      // Prima destacada
+      doc.setTextColor(esGan?16:20, esGan?140:20, esGan?80:30);
+      doc.setFontSize(18); doc.setFont('helvetica','bold');
+      doc.text(fmt(c.prima), x+10, y+56);
+      doc.setTextColor(120,120,120); doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text('Prima anual', x+10, y+68);
+      // Vigencia / valor / deducible
+      var rowY = y+86;
+      doc.setTextColor(60,60,60); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
+      var vig = c.desde && c.hasta ? (c.desde+' -> '+c.hasta) : '-';
+      doc.text('Vigencia: '+vig, x+10, rowY);
+      doc.text('Valor aseg.: '+(c.valorAseg?fmt(c.valorAseg):'-'), x+10, rowY+12);
+      doc.text('Deducible: '+(c.deducible?fmt(c.deducible):'-'), x+10, rowY+24);
+      // Coberturas
+      if(c.coberturas){
+        doc.setTextColor(90,90,110); doc.setFontSize(7.5);
+        var cl = doc.splitTextToSize(c.coberturas, cardW-20);
+        doc.text(cl.slice(0,2), x+10, rowY+40);
+      }
+    });
+    y += cardH + gap;
+  }
+
+  // Pintar segun N
+  if(N <= 6){
+    pintarTabla_(cots);
+  } else {
+    pintarTarjetas_(cots);
+  }
+
+  // === BLOQUE RECOMENDACION (en pagina nueva si no cabe) ===
+  var recH = 90;
+  if(y + recH > ph - 120){ doc.addPage(); pintarHeader_(); y = 100; }
   doc.setFillColor(230,247,239); doc.setDrawColor(16,140,80); doc.setLineWidth(1);
-  doc.rect(margin, y, pw-margin*2, 76, 'FD');
+  doc.rect(margin, y, pw-margin*2, recH, 'FD');
   doc.setTextColor(16,140,80); doc.setFontSize(10); doc.setFont('helvetica','bold');
   doc.text('NUESTRA RECOMENDACION', margin+14, y+18);
   doc.setTextColor(0,0,0); doc.setFontSize(13); doc.setFont('helvetica','bold');
-  doc.text(ganadora.nombre+' - Prima anual '+fmt(ganadora.prima), margin+14, y+36);
+  doc.text(ganadora.nombre+(ganadora.plan?' - Plan '+ganadora.plan:'')+' - Prima anual '+fmt(ganadora.prima), margin+14, y+38);
   doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
-  var rec = 'Analizadas las '+cots.length+' alternativas, '+ganadora.nombre+' ofrece la mejor relacion costo/beneficio para tu perfil. '+
-            'Estamos listos para acompañarte con la emision de la poliza cuando confirmes.';
+  var rec = 'Analizadas las '+N+' alternativa'+(N===1?'':'s')+', '+ganadora.nombre+' ofrece la mejor relacion costo/beneficio para tu perfil. '+
+            'Estamos listos para acompanarte con la emision de la poliza cuando confirmes.';
   var recLines = doc.splitTextToSize(rec, pw-margin*2-28);
-  doc.text(recLines, margin+14, y+52);
-  y += 100;
+  doc.text(recLines, margin+14, y+56);
+  y += recH + 14;
 
-  // Footer con firma
+  // === FOOTER ===
+  if(y + 90 > ph - 40){ doc.addPage(); pintarHeader_(); y = 100; }
+  // Nota legal (siempre) — protege comercialmente
+  doc.setFillColor(252,252,245); doc.setDrawColor(230,220,180); doc.setLineWidth(0.5);
+  doc.rect(margin, y, pw-margin*2, 32, 'FD');
+  doc.setTextColor(120,100,40); doc.setFontSize(7.5); doc.setFont('helvetica','italic');
+  var nota = 'Este documento es un resumen comparativo con fines comerciales. Los valores, coberturas, exclusiones y condiciones exactas del plan '+
+             'estan detallados en la cotizacion oficial emitida por la aseguradora, que se adjunta como soporte. En caso de diferencia, prevalece la cotizacion oficial.';
+  var notaL = doc.splitTextToSize(nota, pw-margin*2-16);
+  doc.text(notaL, margin+8, y+11);
+  y += 40;
+
   doc.setDrawColor(200,200,200); doc.line(margin, y, pw-margin, y); y += 16;
   doc.setTextColor(48,71,112); doc.setFontSize(10); doc.setFont('helvetica','bold');
   doc.text('Fabian Carrera', margin, y);
@@ -3681,7 +4131,9 @@ function renderEnCotizacion(){
   if(typeof updateSubCounts==='function') updateSubCounts();
   // Mostrar TODOS los leads activos (no cerrados) — asi Fabian sube PDFs sin necesidad de convertir uno por uno
   var estadosCerrados = {'Convertido':1,'Perdido':1,'Descartado':1,'No tomado':1};
-  var enCotLeads = LEADS.filter(function(l){return !estadosCerrados[l.estado||'Nuevo']});
+  // Filtro por rol
+  var LEADS_ROL = filtrarPorPermiso_(LEADS, 'intermediario');
+  var enCotLeads = LEADS_ROL.filter(function(l){return !estadosCerrados[l.estado||'Nuevo']});
   var pdfsSubidos = 0, primaCapturada = 0;
   enCotLeads.forEach(function(l){
     var d = COT_PDFS[l.id]||{};
@@ -3712,6 +4164,12 @@ function renderEnCotizacion(){
         d.planesAlternos.map(function(a){return (a.nombre||'?')+' ('+fmt(Number(a.prima)||0)+')';}).join(' &middot; ')+
       '</div>';
     }
+    var warnHTML = '';
+    if(d.coberturasWarning){
+      warnHTML = '<div style="background:rgba(255,180,0,.15);border-left:3px solid var(--orange);padding:6px 8px;margin-top:6px;font-size:10px;color:var(--text);border-radius:4px" title="'+((d.coberturasWarningMsg||'').replace(/"/g,'&quot;').slice(0,300))+'">'+
+        '<strong style="color:var(--orange)">! Cobertura sospechosa:</strong> el texto menciona montos superiores al valor asegurado del plan. El PDF comercial usara texto generico para no comunicar un valor incorrecto.'+
+      '</div>';
+    }
     return '<div class="ec-slot ok">'+
       '<div class="ec-slot-head"><span class="ec-slot-title">'+(d.aseguradora||'Aseguradora')+(d.planSeleccionado?' <span style="font-size:10px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;font-weight:600;margin-left:4px">'+d.planSeleccionado+'</span>':'')+'</span><button class="ec-slot-del" onclick="borrarPDFCotizacion(\''+leadId+'\',\''+slot+'\')" title="Borrar">&times;</button></div>'+
       '<div class="ec-slot-file mono">'+(d.nombreArchivo||'')+'</div>'+
@@ -3719,6 +4177,7 @@ function renderEnCotizacion(){
       '<div class="ec-slot-prima">Prima: <strong>'+(d.prima?fmt(d.prima):'<span style="color:var(--red)">no detectada</span>')+'</strong></div>'+
       (d.desde||d.hasta?'<div class="ec-slot-vig">Vigencia: '+d.desde+' &rarr; '+d.hasta+'</div>':'')+
       alternosHTML+
+      warnHTML+
     '</div>';
   };
   // Slot para subir nueva cotizacion
@@ -4265,15 +4724,17 @@ function parseDetalleAmigable(det){
 }
 
 function renderLeads(filter){
+  // Filtro por rol
+  var LEADS_VIEW = filtrarPorPermiso_(LEADS, 'intermediario');
   updateSubCounts();
   if(typeof renderEnCotizacion==='function') renderEnCotizacion();
   var estMap = {'Nuevo':'badge-por-renovar','Contactado':'badge-activa','En cotizacion':'badge-activa','Convertido':'badge-activa','Perdido':'badge-vencida','Descartado':'badge-cancelada'};
   var kpiEl = document.getElementById('leadsKpi'); if(!kpiEl) return;
   var hoy = new Date().toISOString().slice(0,10);
-  var nuevosHoy = LEADS.filter(function(l){return (l.fecha||'').indexOf(hoy)===0}).length;
-  var sinContactar = LEADS.filter(function(l){return (l.estado||'Nuevo')==='Nuevo'}).length;
-  var enCot = LEADS.filter(function(l){return l.estado==='En cotizacion'}).length;
-  var conv = LEADS.filter(function(l){return l.estado==='Convertido'}).length;
+  var nuevosHoy = LEADS_VIEW.filter(function(l){return (l.fecha||'').indexOf(hoy)===0}).length;
+  var sinContactar = LEADS_VIEW.filter(function(l){return (l.estado||'Nuevo')==='Nuevo'}).length;
+  var enCot = LEADS_VIEW.filter(function(l){return l.estado==='En cotizacion'}).length;
+  var conv = LEADS_VIEW.filter(function(l){return l.estado==='Convertido'}).length;
   kpiEl.innerHTML = [
     {l:'Nuevos hoy', v:nuevosHoy, c:'c-accent'},
     {l:'Sin contactar', v:sinContactar, c:'c-orange'},
@@ -4282,7 +4743,7 @@ function renderLeads(filter){
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
 
   var tb = document.getElementById('leadsTable'); if(!tb) return;
-  var data = filter ? LEADS.filter(function(l){return (l.nombre||'').toLowerCase().indexOf(filter)>=0 || (l.telefono||'').indexOf(filter)>=0}) : LEADS;
+  var data = filter ? LEADS_VIEW.filter(function(l){return (l.nombre||'').toLowerCase().indexOf(filter)>=0 || (l.telefono||'').indexOf(filter)>=0}) : LEADS_VIEW;
   if(!data.length){
     tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay leads. Comparte el link del formulario o usa "+ Nuevo prospecto" cuando entre uno por llamada.</td></tr>';
     return;
