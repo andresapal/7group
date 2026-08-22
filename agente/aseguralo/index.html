@@ -429,11 +429,15 @@ tbody tr:hover{background:var(--accent-light)}
       <!-- Sub-seccion: INBOX (leads Nuevo + Contactado) -->
       <div class="sub-section active" id="sub-inbox">
         <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="leadsKpi"></div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:10px" id="inboxAdminBar">
+          <button class="btn btn-sm" id="btnLimpiezaToggle" onclick="toggleLimpiezaMode_()" style="display:none">Modo limpieza</button>
+        </div>
         <div class="tbl-wrap">
           <div class="tbl-overflow">
             <table>
               <thead>
                 <tr>
+                  <th id="thLimpieza" style="display:none;width:30px"></th>
                   <th>Fecha</th>
                   <th>Cliente</th>
                   <th>Telefono</th>
@@ -446,6 +450,13 @@ tbody tr:hover{background:var(--accent-light)}
             </table>
           </div>
         </div>
+      </div>
+
+      <!-- Barra flotante de limpieza (aparece cuando hay al menos 1 chuleado) -->
+      <div id="limpiezaBar" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:500;background:var(--bg2);border:2px solid var(--red);border-radius:14px;padding:12px 20px;box-shadow:0 8px 30px rgba(0,0,0,.4);display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:700;color:var(--text)"><span id="limpiezaCount">0</span> lead(s) seleccionado(s)</span>
+        <button class="btn btn-sm" onclick="cancelarLimpieza_()">Cancelar</button>
+        <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none" onclick="borrarSeleccionados_()">Borrar seleccionados</button>
       </div>
 
       <!-- Sub-seccion: EN COTIZACION (prospectos con PDFs de aseguradoras) -->
@@ -1285,6 +1296,36 @@ function puedeVerModulo_(mod){
   return !!permitidos[mod];
 }
 
+/* ============================================
+   INTERCEPTOR fetch: inyecta email del CURRENT_USER en todas las peticiones al Apps Script.
+   El backend valida rol/permisos en cada action.
+   Transparente: el codigo existente no cambia, solo se enriquece la peticion.
+   ============================================ */
+(function(){
+  var _origFetch = window.fetch;
+  window.fetch = function(url, opts){
+    try{
+      var email = (window.CURRENT_USER && CURRENT_USER.email) || '';
+      // Solo interceptar si es al Apps Script y hay email de sesion
+      if(email && typeof url === 'string' && url.indexOf(APPS_SCRIPT_URL) === 0){
+        // GET (o sin body): inyectar &email=... si no viene
+        if(!opts || !opts.body){
+          if(url.indexOf('email=') < 0){
+            url += (url.indexOf('?')>=0 ? '&' : '?') + 'email=' + encodeURIComponent(email);
+          }
+        } else if(opts.method === 'POST' && typeof opts.body === 'string'){
+          // POST: parsear body JSON, inyectar email si no viene
+          try{
+            var b = JSON.parse(opts.body);
+            if(!b.email){ b.email = email; opts = Object.assign({}, opts, {body: JSON.stringify(b)}); }
+          }catch(e){}
+        }
+      }
+    }catch(e){}
+    return _origFetch.call(window, url, opts);
+  };
+})();
+
 function loadCurrentUser_(email){
   if(!email){ CURRENT_USER = { email:'', rol:'anonimo', permisos:{} }; return Promise.resolve(); }
   return fetch(APPS_SCRIPT_URL+'?action=me&email='+encodeURIComponent(email), {redirect:'follow'})
@@ -1300,6 +1341,16 @@ function loadCurrentUser_(email){
           return;
         }
         aplicarPermisosUI_();
+        // Recargar todos los datos ahora que el email si esta seteado
+        // (los loads previos pudieron haber fallado por falta de auth)
+        if(typeof loadFromSheet==='function') loadFromSheet(function(){
+          if(typeof renderPolizas==='function') renderPolizas();
+        });
+        if(typeof loadLeadsFromSheet==='function') loadLeadsFromSheet();
+        if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
+        if(typeof loadCotizacionesFromSheet_==='function') loadCotizacionesFromSheet_();
+        if(typeof loadIntermediariosFull_==='function') loadIntermediariosFull_();
+        if(typeof loadConfigFromSheet_==='function') loadConfigFromSheet_();
       }
     }).catch(function(){});
 }
@@ -1494,7 +1545,7 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMZLIQiU5-jnSBwflim9ozBeW3rkgaCgCYkdjCflnWC1RvGrI9C-RlanvsWCXC5H5H/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVC2ySmjXlwN8fWPvVx4exIijOK0o3B09oSnBdddmwcNUDX5iEttJ2wUxOXLDbICCV/exec';
 
 var CLIENTES=[];
 var POLIZAS=[];
@@ -4742,7 +4793,84 @@ function parseDetalleAmigable(det){
   }).filter(function(x){return x.value});
 }
 
+/* ============================================
+   MODO LIMPIEZA (admin/dueno) - borrar leads en cascada
+   ============================================ */
+var LIMPIEZA_MODE = false;
+var LIMPIEZA_SEL = new Set();
+
+window.toggleLimpiezaMode_ = function(){
+  if(!esAdminODueno_() && !verTodo_()){ alert('Solo admin/dueno.'); return; }
+  LIMPIEZA_MODE = !LIMPIEZA_MODE;
+  LIMPIEZA_SEL.clear();
+  var thLimp = document.getElementById('thLimpieza');
+  if(thLimp) thLimp.style.display = LIMPIEZA_MODE ? '' : 'none';
+  var btn = document.getElementById('btnLimpiezaToggle');
+  if(btn){
+    btn.textContent = LIMPIEZA_MODE ? 'Salir de limpieza' : 'Modo limpieza';
+    btn.style.background = LIMPIEZA_MODE ? 'var(--red)' : '';
+    btn.style.color = LIMPIEZA_MODE ? '#fff' : '';
+  }
+  actualizarBarraLimpieza_();
+  if(typeof renderLeads==='function') renderLeads();
+};
+window.toggleLimpiezaCheck_ = function(id){
+  if(LIMPIEZA_SEL.has(id)) LIMPIEZA_SEL.delete(id);
+  else LIMPIEZA_SEL.add(id);
+  actualizarBarraLimpieza_();
+  // Actualizar visual del checkbox sin re-render completo
+  var chk = document.querySelector('#leadsTable input[type=checkbox]');
+  if(typeof renderLeads==='function') renderLeads();
+};
+window.cancelarLimpieza_ = function(){
+  LIMPIEZA_SEL.clear();
+  actualizarBarraLimpieza_();
+  if(typeof renderLeads==='function') renderLeads();
+};
+window.borrarSeleccionados_ = function(){
+  var ids = Array.from(LIMPIEZA_SEL);
+  if(!ids.length) return;
+  if(!confirm('Borrar '+ids.length+' lead(s) seleccionado(s)?\n\nSe eliminan tambien las cotizaciones y liquidaciones asociadas. Esta accion NO se puede deshacer.')) return;
+  var st = document.getElementById('limpiezaCount');
+  if(st) st.textContent = 'borrando...';
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action:'admin-delete-leads', ids:ids})
+  }).then(function(){
+    // Optimista: quitar de la lista local
+    LEADS = LEADS.filter(function(l){ return ids.indexOf(l.id) < 0; });
+    LIMPIEZA_SEL.clear();
+    LIMPIEZA_MODE = false;
+    var thLimp = document.getElementById('thLimpieza');
+    if(thLimp) thLimp.style.display = 'none';
+    var btn = document.getElementById('btnLimpiezaToggle');
+    if(btn){ btn.textContent = 'Modo limpieza'; btn.style.background = ''; btn.style.color = ''; }
+    actualizarBarraLimpieza_();
+    if(typeof renderLeads==='function') renderLeads();
+    // Refrescar desde Sheet a los 2s (backend ya proceso)
+    setTimeout(function(){ if(typeof loadLeadsFromSheet==='function') loadLeadsFromSheet(); }, 2000);
+    alert('Limpieza aplicada. '+ids.length+' lead(s) eliminado(s).');
+  }).catch(function(err){
+    alert('Error: '+err.message);
+  });
+};
+function actualizarBarraLimpieza_(){
+  var bar = document.getElementById('limpiezaBar');
+  var cnt = document.getElementById('limpiezaCount');
+  var n = LIMPIEZA_SEL.size;
+  if(cnt) cnt.textContent = n;
+  if(bar) bar.style.display = (LIMPIEZA_MODE && n > 0) ? 'flex' : 'none';
+}
+/* Muestra el boton "Modo limpieza" solo para admin/dueno */
+function mostrarBotonLimpieza_(){
+  var btn = document.getElementById('btnLimpiezaToggle');
+  if(!btn) return;
+  btn.style.display = (esAdminODueno_() || verTodo_()) ? '' : 'none';
+}
+
 function renderLeads(filter){
+  mostrarBotonLimpieza_();
   // Filtro por rol
   var LEADS_VIEW = filtrarPorPermiso_(LEADS, 'intermediario');
   updateSubCounts();
@@ -4764,7 +4892,7 @@ function renderLeads(filter){
   var tb = document.getElementById('leadsTable'); if(!tb) return;
   var data = filter ? LEADS_VIEW.filter(function(l){return (l.nombre||'').toLowerCase().indexOf(filter)>=0 || (l.telefono||'').indexOf(filter)>=0}) : LEADS_VIEW;
   if(!data.length){
-    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay leads. Comparte el link del formulario o usa "+ Nuevo prospecto" cuando entre uno por llamada.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="'+(LIMPIEZA_MODE?7:6)+'" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay leads. Comparte el link del formulario o usa "+ Nuevo prospecto" cuando entre uno por llamada.</td></tr>';
     return;
   }
   tb.innerHTML = data.map(function(l,idx){
@@ -4794,7 +4922,12 @@ function renderLeads(filter){
     var msgId = 'lead-wa-msg-'+idx;
     var plantillaInicial = typeof fillTpl==='function' ? fillTpl(tplFor(l.tipo), {nombre:l.nombre}) : '';
 
+    var chkCell = LIMPIEZA_MODE
+      ? '<td onclick="event.stopPropagation();toggleLimpiezaCheck_(\''+l.id+'\')" style="width:30px;text-align:center"><input type="checkbox" '+(LIMPIEZA_SEL.has(l.id)?'checked':'')+' style="width:16px;height:16px;cursor:pointer;accent-color:var(--red)"></td>'
+      : '';
+    var colspan = LIMPIEZA_MODE ? 7 : 6;
     return '<tr style="cursor:pointer" onclick="toggleDetail(\''+detailId+'\')">'+
+      chkCell+
       '<td style="font-size:12px;color:var(--dim)">'+fecha+' <span style="font-size:9px;color:var(--dim)">&#9660;</span></td>'+
       '<td><strong>'+(l.nombre||'—')+'</strong></td>'+
       '<td class="mono" style="font-size:12px">'+(tel||'—')+'</td>'+
@@ -4803,7 +4936,7 @@ function renderLeads(filter){
       '<td><span class="badge '+badge+'">'+(l.estado||'Nuevo')+'</span></td>'+
     '</tr>'+
     '<tr id="'+detailId+'" class="pol-detail-row" style="display:none">'+
-      '<td colspan="6" style="padding:0;border:none">'+
+      '<td colspan="'+colspan+'" style="padding:0;border:none">'+
         '<div class="pol-detail">'+
           '<div class="pd-grid" style="grid-template-columns:1fr 1fr">'+
             '<div class="pd-col">'+
