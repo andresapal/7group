@@ -1255,8 +1255,14 @@ var CURRENT_USER = { email:'', rol:'anonimo', nombre:'', tipo:'', activo:'no',
 function esAdminODueno_(){ return CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno'; }
 function esAsesor_(){ return CURRENT_USER.rol==='asesor'; }
 function verTodo_(){ return !!(CURRENT_USER.permisos && CURRENT_USER.permisos.verTodo); }
+/* Fallback: si el usuario ya paso el Google Sign-In (esta en ALLOWED_EMAILS pero
+   sin match en INTERMEDIARIOS/ADMIN_EMAILS del backend), lo tratamos como admin.
+   Evita que un email nuevo autorizado se quede sin datos. Solo bloquea al rol 'asesor'. */
+function esUsuarioSinRestriccion_(){
+  return esAdminODueno_() || verTodo_() || CURRENT_USER.rol==='anonimo';
+}
 function esMiIntermediario_(nombre){
-  if(esAdminODueno_() || verTodo_()) return true;
+  if(esUsuarioSinRestriccion_()) return true;
   if(!nombre) return false;
   return String(nombre).toLowerCase().trim() === String(CURRENT_USER.intermediario||'').toLowerCase().trim();
 }
@@ -1264,16 +1270,16 @@ function esMiIntermediario_(nombre){
    Si admin/dueno: devuelve todo. Si asesor: solo los que tienen su intermediario.
    Nota: para leads/polizas viejos sin intermediario, el asesor NO los ve (defensivo). */
 function filtrarPorPermiso_(arr, campo){
-  if(esAdminODueno_() || verTodo_()) return arr;
+  if(esUsuarioSinRestriccion_()) return arr;  // admin/dueno/anonimo-logueado ven todo
   campo = campo || 'intermediario';
   var mio = String(CURRENT_USER.intermediario||'').toLowerCase().trim();
-  if(!mio) return [];
+  if(!mio) return arr;  // sin intermediario asignado: mejor mostrar todo que nada
   return arr.filter(function(x){
     return String((x||{})[campo]||'').toLowerCase().trim() === mio;
   });
 }
 function puedeVerModulo_(mod){
-  if(esAdminODueno_() || verTodo_()) return true;
+  if(esUsuarioSinRestriccion_()) return true;
   // Para asesor: solo estos modulos
   var permitidos = {dashboard:1, cotizador:1, polizas:1, comisiones:1, renovaciones:1, siniestros:1, clientes:1};
   return !!permitidos[mod];
@@ -1301,23 +1307,36 @@ function loadCurrentUser_(email){
 /* Muestra/oculta elementos segun permisos del CURRENT_USER */
 function aplicarPermisosUI_(){
   var p = CURRENT_USER.permisos || {};
+  var libre = esUsuarioSinRestriccion_(); // admin/dueno/anonimo-logueado no tienen restricciones
   var ocultarSel = function(sel, ocultar){ document.querySelectorAll(sel).forEach(function(el){ el.style.display = ocultar ? 'none' : ''; }); };
 
-  // Sub-tabs de Comisiones restringidos
-  ocultarSel('#comSubNav .sub-tab[data-sub="asesores"]',   !p.editarPctIntermediarios);
-  ocultarSel('#comSubNav .sub-tab[data-sub="netoFabian"]', !p.verSostenimiento);
-  ocultarSel('#comSubNav .sub-tab[data-sub="sevengroup"]', !p.verLiquidacionesTodas);
+  // Sub-tabs de Comisiones restringidos (solo se ocultan si NO es libre y el permiso falta)
+  ocultarSel('#comSubNav .sub-tab[data-sub="asesores"]',   !libre && !p.editarPctIntermediarios);
+  ocultarSel('#comSubNav .sub-tab[data-sub="netoFabian"]', !libre && !p.verSostenimiento);
+  ocultarSel('#comSubNav .sub-tab[data-sub="sevengroup"]', !libre && !p.verLiquidacionesTodas);
 
   // Modulos completos restringidos
-  ocultarSel('.mod-link[data-mod="facturacion"]', !p.verFacturacion);
-  ocultarSel('.mod-link[data-mod="config"]',      !p.editarConfig);
+  ocultarSel('.mod-link[data-mod="facturacion"]', !libre && !p.verFacturacion);
+  ocultarSel('.mod-link[data-mod="config"]',      !libre && !p.editarConfig);
 
-  // Badge de usuario/rol arriba (si existe elemento)
+  // Badge de usuario: nombre limpio. Solo muestra rol si aporta info (asesor).
   var userChip = document.getElementById('userChip');
   if(userChip){
-    var rolLbl = {admin:'ADMIN 7GROUP', dueno:'Fabian (dueno)', asesor:'Asesor', anonimo:'sin sesion'}[CURRENT_USER.rol] || CURRENT_USER.rol;
-    userChip.textContent = (CURRENT_USER.nombre||CURRENT_USER.email||'?') + ' · ' + rolLbl;
+    var nom = CURRENT_USER.nombre || CURRENT_USER.email || '?';
+    // Para admin/dueno solo el nombre. Para asesor mostramos "Asesor: nombre" para distinguir.
+    var txt;
+    if(CURRENT_USER.rol === 'asesor')      txt = 'Asesor · ' + nom;
+    else if(CURRENT_USER.rol === 'anonimo') txt = CURRENT_USER.email || 'invitado';
+    else                                    txt = nom; // admin -> "7Group", dueno -> "Fabian Carrera"
+    userChip.textContent = txt;
   }
+  // Refrescar renders para que se apliquen los filtros con permisos actualizados
+  if(typeof renderPolizas==='function') renderPolizas();
+  if(typeof renderLeads==='function') renderLeads();
+  if(typeof renderLiquidaciones==='function') renderLiquidaciones();
+  if(typeof renderComisiones==='function') renderComisiones();
+  if(typeof renderClientes==='function') renderClientes();
+  if(typeof renderComisionesMes==='function') renderComisionesMes();
 }
 
 function setAdminMode(email){
@@ -1475,7 +1494,7 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx71HtmMe6iLpEIZMgZWpFyMmYm8q8crg7-SY0HzBelIjCQxhZj-XwA5FEsub8D5Nej/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMZLIQiU5-jnSBwflim9ozBeW3rkgaCgCYkdjCflnWC1RvGrI9C-RlanvsWCXC5H5H/exec';
 
 var CLIENTES=[];
 var POLIZAS=[];
