@@ -1304,7 +1304,10 @@ function puedeVerModulo_(mod){
   var _origFetch = window.fetch;
   window.fetch = function(url, opts){
     try{
-      var email = (window.CURRENT_USER && CURRENT_USER.email) || '';
+      // Fallback a localStorage si CURRENT_USER aun no cargo el perfil
+      var email = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
+                  localStorage.getItem('aseg_erp_auth') || '';
       // Solo interceptar si es al Apps Script y hay email de sesion
       if(email && typeof url === 'string' && url.indexOf(APPS_SCRIPT_URL) === 0){
         // GET (o sin body): inyectar &email=... si no viene
