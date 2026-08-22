@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>7GROUP · Portafolio Tecnico Interno</title>
+<link rel="icon" href="/logo7group.png">
+<style>
+:root{
+  --bg:#0a0a0f; --bg2:#12121a; --bg3:#1a1a24; --bg4:#242430;
+  --border:rgba(148,163,184,.14); --text:#f1f5f9; --dim:#94a3b8; --muted:#64748b;
+  --cyan:#4dd0e1; --cyan-2:#22d3ee; --cyan-dark:#0891b2;
+  --green:#10b981; --orange:#f59e0b; --red:#ef4444; --violet:#8b5cf6;
+  --shadow:0 4px 20px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+
+/* Gate */
+#gate{position:fixed;inset:0;background:radial-gradient(circle at top,#12121a,#0a0a0f);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.gate-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow)}
+.gate-logo{font-size:80px;font-weight:900;color:var(--cyan);line-height:1;margin-bottom:6px}
+.gate-sub{font-size:12px;letter-spacing:6px;color:var(--text);font-weight:600;margin-bottom:24px}
+.gate-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.gate-desc{color:var(--dim);font-size:13px;margin-bottom:24px}
+#gateError{background:rgba(239,68,68,.12);color:var(--red);padding:10px;border-radius:8px;margin-top:12px;font-size:12px;display:none}
+#g_id_signin{display:flex;justify-content:center;margin-top:16px}
+
+/* Topbar */
+.topbar{background:rgba(10,10,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.tb-left{display:flex;align-items:center;gap:14px}
+.tb-logo{color:var(--cyan);font-size:32px;font-weight:900;line-height:1}
+.tb-titulo{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text);font-weight:700}
+.tb-badge{background:linear-gradient(135deg,var(--cyan),var(--cyan-2));color:#000;padding:3px 8px;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:1.5px;margin-left:8px}
+.tb-right{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--dim)}
+.tb-user{background:var(--bg3);padding:6px 12px;border-radius:14px;font-size:11px;font-weight:600}
+
+/* Nav */
+.nav{display:flex;gap:2px;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px}
+.nav a{padding:14px 18px;color:var(--dim);cursor:pointer;font-weight:600;font-size:13px;text-decoration:none;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.5px;text-transform:uppercase}
+.nav a:hover{color:var(--text)}
+.nav a.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+
+/* Sections */
+.section{display:none;padding:30px 0}
+.section.active{display:block}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;gap:20px;flex-wrap:wrap}
+.sec-title{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.sec-desc{color:var(--dim);font-size:13px;margin-top:4px}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:26px}
+.kpi{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--cyan)}
+.kpi-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700}
+.kpi-val{font-size:26px;font-weight:900;color:var(--text);margin-top:4px}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.kpi.c-green::before{background:var(--green)}
+.kpi.c-orange::before{background:var(--orange)}
+.kpi.c-violet::before{background:var(--violet)}
+
+/* Servicios grid */
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.svc-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .2s;cursor:pointer;position:relative;overflow:hidden}
+.svc-card:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:var(--shadow)}
+.svc-icon{width:44px;height:44px;background:linear-gradient(135deg,rgba(77,208,225,.14),rgba(34,211,238,.08));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;color:var(--cyan)}
+.svc-title{font-size:16px;font-weight:700;margin-bottom:6px}
+.svc-cat{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);font-weight:700;margin-bottom:8px}
+.svc-desc{color:var(--dim);font-size:12px;line-height:1.55;margin-bottom:12px}
+.svc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.svc-tag{background:var(--bg3);color:var(--dim);padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600}
+.svc-meta{display:flex;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);font-size:11px}
+.svc-precio{color:var(--green);font-weight:800}
+.svc-comp{color:var(--orange)}
+.svc-refs{color:var(--dim);font-size:10px;margin-top:6px}
+
+/* Casos grid */
+.case-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
+.case-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all .2s;position:relative;overflow:hidden}
+.case-card:hover{border-color:var(--violet);transform:translateY(-2px);box-shadow:var(--shadow)}
+.case-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.case-nombre{font-size:18px;font-weight:800;color:var(--text)}
+.case-cliente{color:var(--dim);font-size:11px;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.case-estado{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:12px;font-weight:800}
+.case-estado.produccion{background:rgba(16,185,129,.15);color:var(--green)}
+.case-estado.desarrollo{background:rgba(245,158,11,.15);color:var(--orange)}
+.case-estado.planeacion{background:rgba(139,92,246,.15);color:var(--violet)}
+.case-desc{color:var(--dim);font-size:12px;line-height:1.55;margin:10px 0 14px 0}
+.case-svcs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.case-svc{background:rgba(77,208,225,.10);color:var(--cyan);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600}
+.case-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:12px;border-top:1px solid var(--border)}
+.case-metric{}
+.case-metric-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.case-metric-val{font-size:15px;font-weight:800;margin-top:2px}
+.case-metric-val.verde{color:var(--green)}
+.case-metric-val.cyan{color:var(--cyan)}
+
+/* Cotizador */
+.cot-layout{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start}
+@media (max-width:960px){.cot-layout{grid-template-columns:1fr}}
+.cot-servicios{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.cot-h{font-size:16px;font-weight:800;margin-bottom:14px}
+.cot-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;transition:all .2s;cursor:pointer}
+.cot-item:hover{border-color:var(--cyan);background:var(--bg3)}
+.cot-item.sel{border-color:var(--cyan);background:rgba(77,208,225,.06)}
+.cot-item-info{flex:1}
+.cot-item-title{font-weight:700;font-size:13px}
+.cot-item-cat{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.cot-item-precio{font-weight:800;color:var(--green);font-size:13px}
+.cot-item input[type=checkbox]{margin-right:10px;width:18px;height:18px;cursor:pointer;accent-color:var(--cyan)}
+.cot-resumen{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--cyan);border-radius:14px;padding:20px;position:sticky;top:80px}
+.cot-cliente-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:10px;font-family:inherit}
+.cot-cliente-input:focus{outline:none;border-color:var(--cyan)}
+.cot-total{background:var(--bg);border-radius:10px;padding:14px;margin:14px 0;text-align:center}
+.cot-total-lbl{font-size:10px;letter-spacing:2px;color:var(--dim);font-weight:700;text-transform:uppercase}
+.cot-total-val{font-size:28px;font-weight:900;color:var(--cyan);margin-top:4px}
+.cot-total-sub{font-size:11px;color:var(--dim);margin-top:2px}
+.cot-selected-list{max-height:160px;overflow-y:auto;margin:10px 0;font-size:11px}
+.cot-selected-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)}
+.cot-selected-item span:first-child{color:var(--dim)}
+.cot-btn{width:100%;background:linear-gradient(135deg,var(--cyan),var(--cyan-2));color:#000;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+.cot-btn:hover{opacity:.9}
+
+/* Filtros */
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filtro-chip{background:var(--bg2);border:1px solid var(--border);color:var(--dim);padding:6px 14px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:.5px}
+.filtro-chip:hover{border-color:var(--cyan);color:var(--text)}
+.filtro-chip.active{background:linear-gradient(135deg,var(--cyan),var(--cyan-2));color:#000;border-color:transparent}
+
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<!-- Gate -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-logo">7</div>
+    <div class="gate-sub">G R O U P</div>
+    <div class="gate-title">Portafolio Tecnico</div>
+    <div class="gate-desc">Acceso privado. Solo administrador.</div>
+    <div id="g_id_signin"></div>
+    <div id="gateError">Correo no autorizado.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-logo">7</div>
+    <div>
+      <div class="tb-titulo">GROUP <span class="tb-badge">PORTAFOLIO</span></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px">Servicios · Casos · Cotizador interno</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <span class="tb-user" id="tbUser">--</span>
+    <a href="/agente/" style="color:var(--cyan);text-decoration:none;font-weight:700">Volver</a>
+  </div>
+</div>
+
+<div class="nav">
+  <a data-nav="dash" class="active" onclick="nav('dash')">Resumen</a>
+  <a data-nav="svc" onclick="nav('svc')">Servicios</a>
+  <a data-nav="casos" onclick="nav('casos')">Casos</a>
+  <a data-nav="cot" onclick="nav('cot')">Cotizador</a>
+</div>
+
+<div class="container">
+
+  <!-- SECTION: RESUMEN -->
+  <section class="section active" id="s-dash">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title">Resumen ejecutivo</div>
+        <div class="sec-desc">Panorama general del portafolio tecnico 7GROUP</div>
+      </div>
+    </div>
+    <div class="kpis" id="dashKpis"></div>
+
+    <div style="margin-top:26px">
+      <div class="sec-title" style="font-size:18px;margin-bottom:14px">Servicios mas usados</div>
+      <div class="svc-grid" id="topSvcs"></div>
+    </div>
+
+    <div style="margin-top:26px">
+      <div class="sec-title" style="font-size:18px;margin-bottom:14px">Casos activos</div>
+      <div class="case-grid" id="topCasos"></div>
+    </div>
+  </section>
+
+  <!-- SECTION: SERVICIOS -->
+  <section class="section" id="s-svc">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title">Catalogo de servicios tecnicos</div>
+        <div class="sec-desc">Capacidades entregables de 7GROUP con rangos de precio referenciales</div>
+      </div>
+    </div>
+    <div class="filtros" id="filtrosSvc"></div>
+    <div class="svc-grid" id="svcGrid"></div>
+  </section>
+
+  <!-- SECTION: CASOS -->
+  <section class="section" id="s-casos">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title">Casos y proyectos</div>
+        <div class="sec-desc">Historial de implementaciones ejecutadas y en curso</div>
+      </div>
+    </div>
+    <div class="case-grid" id="caseGrid"></div>
+  </section>
+
+  <!-- SECTION: COTIZADOR -->
+  <section class="section" id="s-cot">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title">Cotizador rapido</div>
+        <div class="sec-desc">Selecciona servicios del catalogo y arma propuesta con branding 7GROUP</div>
+      </div>
+    </div>
+    <div class="cot-layout">
+      <div class="cot-servicios">
+        <div class="cot-h">Servicios disponibles</div>
+        <div id="cotItems"></div>
+      </div>
+      <div class="cot-resumen">
+        <div class="cot-h">Propuesta</div>
+        <input type="text" id="cotCliente" class="cot-cliente-input" placeholder="Nombre del cliente">
+        <input type="text" id="cotProyecto" class="cot-cliente-input" placeholder="Nombre del proyecto">
+        <div class="cot-total">
+          <div class="cot-total-lbl">Total estimado</div>
+          <div class="cot-total-val" id="cotTotal">$0</div>
+          <div class="cot-total-sub" id="cotHoras">0 horas · 0 servicios</div>
+        </div>
+        <div class="cot-selected-list" id="cotSelectedList"></div>
+        <button class="cot-btn" onclick="descargarPropuestaPDF()">Descargar propuesta PDF</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ============================================
+   AUTH GATE (solo admin 7GROUP)
+   ============================================ */
+var ADMIN_EMAILS = ['andresapal@gmail.com','andresapalt@gmail.com','7groupcorp@zohomail.com'];
+var GOOGLE_CLIENT_ID = '160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
+var GATE_KEY = '7g_portafolio_email';
+
+function handleGoogleResponse(r){
+  try{
+    var payload = JSON.parse(atob(r.credential.split('.')[1]));
+    var email = (payload.email||'').toLowerCase();
+    if(ADMIN_EMAILS.indexOf(email) !== -1){
+      localStorage.setItem(GATE_KEY, email);
+      entrar(email);
+    } else {
+      document.getElementById('gateError').style.display='block';
+    }
+  }catch(e){ document.getElementById('gateError').style.display='block'; }
+}
+function initGoogleSignIn(){
+  if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleSignIn,200);return;}
+  google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleResponse});
+  google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',width:280});
+}
+function entrar(email){
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('tbUser').textContent = email;
+  render();
+}
+window.addEventListener('DOMContentLoaded', function(){
+  var stored = localStorage.getItem(GATE_KEY);
+  // Dev bypass
+  var h = location.hostname;
+  var isDev = h==='localhost' || h==='127.0.0.1' || h==='' || location.search.indexOf('dev=1')>=0;
+  if(stored && ADMIN_EMAILS.indexOf(stored)>=0){ entrar(stored); return; }
+  if(isDev){ entrar('dev@local'); return; }
+  initGoogleSignIn();
+});
+
+/* ============================================
+   DATOS: CATALOGO DE SERVICIOS
+   Cada servicio: id, nombre, categoria, icon, descripcion,
+                  complejidad (baja/media/alta/muy_alta),
+                  horas_min, horas_max, precio_min, precio_max,
+                  tags, casos_referencia
+   ============================================ */
+var TARIFA_HORA = 70000; // COP - referencia
+
+var SERVICIOS = [
+  // === DESARROLLO WEB ===
+  { id:'landing',       nombre:'Landing page profesional',    cat:'Web',        icon:'L',  desc:'Sitio one-page con branding, formulario captura leads, integrado a WhatsApp/email. Deploy en GitHub Pages/Vercel.',
+    complejidad:'Baja', hmin:12, hmax:20, tags:['HTML/CSS','Responsive','SEO basico'], refs:['Trasteos Ya','Juan Andres','Lan Marmoles'] },
+  { id:'multipage',     nombre:'Sitio web multi-pagina',      cat:'Web',        icon:'W',  desc:'Sitio corporativo con secciones (nosotros, servicios, portafolio, contacto), CMS ligero, sitemap.',
+    complejidad:'Media', hmin:20, hmax:40, tags:['HTML/CSS','JS','SEO','Deploy'], refs:['7group.site','ejemplos varios'] },
+  { id:'cotizador-pub', nombre:'Cotizador publico',           cat:'Web',        icon:'$',  desc:'Formulario paso a paso que calcula precio en vivo, envia lead a Sheet + notifica WhatsApp/Telegram. Branding cliente.',
+    complejidad:'Media', hmin:16, hmax:30, tags:['JS','Sheets API','Telegram'], refs:['cotizadorparati (Trasteos)','Lan Marmoles'] },
+
+  // === ERPs / SISTEMAS DE GESTION ===
+  { id:'erp-completo',  nombre:'ERP a medida',                 cat:'ERP',        icon:'E',  desc:'Sistema completo de gestion multi-modulo (polizas/inventario/clientes/pipeline). Autenticacion, roles, dashboard, reportes.',
+    complejidad:'Muy Alta', hmin:120, hmax:280, tags:['JS','Apps Script','Sheets','Auth','Mobile'], refs:['Aseguralo','Trasteos Ya','Lan Marmoles'] },
+  { id:'modulo-pipeline', nombre:'Modulo pipeline (kanban)',  cat:'ERP',        icon:'P',  desc:'Pipeline visual tipo kanban con estados, drag-drop, filtros, KPIs de conversion.',
+    complejidad:'Media', hmin:14, hmax:24, tags:['JS','Sheets'], refs:['Aseguralo (Cotizador)','TYGO'] },
+  { id:'dashboard',     nombre:'Dashboard con KPIs',           cat:'ERP',        icon:'D',  desc:'Panel de indicadores en tiempo real, graficos Chart.js, filtros de fecha, exportacion.',
+    complejidad:'Media', hmin:12, hmax:20, tags:['Chart.js','JS','Sheets'], refs:['Aseguralo','Trasteos Ya (KPI CEO)'] },
+  { id:'admin-panel',   nombre:'Panel administracion + roles', cat:'ERP',        icon:'A',  desc:'Sistema de gestion de usuarios, roles configurables (admin/dueno/asesor), permisos por modulo, activacion/desactivacion.',
+    complejidad:'Alta', hmin:16, hmax:30, tags:['Auth','Roles','Google Sign-In'], refs:['Aseguralo'] },
+
+  // === COMISIONES / FINANCIERO ===
+  { id:'motor-comisiones', nombre:'Motor de comisiones con reglas', cat:'Financiero', icon:'%', desc:'Calculo automatico con cascada multi-nivel, splits configurables por intermediario, sostenimiento, renovaciones. Regla dinamica editable.',
+    complejidad:'Muy Alta', hmin:24, hmax:50, tags:['Backend','Reglas complejas'], refs:['Aseguralo'] },
+  { id:'facturacion',    nombre:'Modulo facturacion + cartera', cat:'Financiero', icon:'F', desc:'Cuentas de cobro, control de cartera, estados de pago, alertas de vencimiento, exportacion.',
+    complejidad:'Media', hmin:14, hmax:26, tags:['Sheets','PDF'], refs:['Aseguralo','Lan Marmoles'] },
+  { id:'orden-servicio', nombre:'Orden de servicio digital',    cat:'Financiero', icon:'O', desc:'Formulario dinamico de OS con firma, adjuntos, envio automatico a Sheet + email + WhatsApp.',
+    complejidad:'Media', hmin:12, hmax:24, tags:['Forms','Sheets','WhatsApp'], refs:['Trasteos Ya (orden-servicio.html)'] },
+
+  // === IA / OCR / AUTOMATIZACION ===
+  { id:'ocr-ia',        nombre:'OCR de documentos con IA',     cat:'IA',         icon:'O',  desc:'Lectura automatica de PDFs/imagenes con Gemini/GPT vision, extraccion estructurada de campos, validacion cruzada.',
+    complejidad:'Muy Alta', hmin:20, hmax:40, tags:['Gemini','Vision AI','Extraccion'], refs:['Aseguralo (cotizaciones)'] },
+  { id:'validacion-ia', nombre:'Validacion inteligente de datos', cat:'IA',      icon:'V',  desc:'Validacion cruzada de identidad, similitud de texto (Levenshtein), deteccion de tipeos, coherencia entre campos.',
+    complejidad:'Alta', hmin:10, hmax:18, tags:['Algoritmos','Similitud'], refs:['Aseguralo (identidad + coberturas)'] },
+  { id:'bot-consulta',  nombre:'Bot de consulta (Telegram/WA)', cat:'IA',        icon:'B',  desc:'Bot conversacional para consultas frecuentes: estado pedido/poliza, cotizacion rapida, preguntas frecuentes.',
+    complejidad:'Alta', hmin:20, hmax:40, tags:['Telegram Bot','WhatsApp API'], refs:['AseguraloBot (base)','TrasteoBot'] },
+  { id:'analisis-ia',   nombre:'Analisis IA de datos',         cat:'IA',        icon:'I',  desc:'Insights automaticos, deteccion de anomalias, recomendaciones, resumenes ejecutivos generados con IA.',
+    complejidad:'Alta', hmin:16, hmax:30, tags:['Gemini','Analytics'], refs:['propuesta TYGO'] },
+
+  // === INTEGRACIONES ===
+  { id:'sheets-api',    nombre:'Integracion Google Sheets',    cat:'Integracion',icon:'G',  desc:'Backend Apps Script como API REST: GET/POST, autenticacion, cache, retry, migracion de schemas.',
+    complejidad:'Media', hmin:10, hmax:24, tags:['Apps Script','JSONP'], refs:['Aseguralo','Trasteos','Lan Marmoles'] },
+  { id:'telegram-int',  nombre:'Notificaciones Telegram',      cat:'Integracion',icon:'T',  desc:'Envio automatico de eventos criticos por Telegram Bot API. Formato Markdown, botones inline.',
+    complejidad:'Baja', hmin:4, hmax:8, tags:['Bot API'], refs:['Aseguralo','7group'] },
+  { id:'wa-forms',      nombre:'WhatsApp + Web3Forms',         cat:'Integracion',icon:'W',  desc:'Envio de leads/pedidos a WhatsApp + copia email via Web3Forms (Zoho/Gmail).',
+    complejidad:'Baja', hmin:4, hmax:8, tags:['Web3Forms','Zoho'], refs:['7group agendar','Trasteos'] },
+  { id:'calendar-int',  nombre:'Google Calendar integrado',    cat:'Integracion',icon:'C',  desc:'Reserva de citas con creacion automatica de evento, invitados, recordatorios, disponibilidad en vivo.',
+    complejidad:'Media', hmin:10, hmax:18, tags:['Calendar API'], refs:['7group agendar'] },
+  { id:'pdf-branded',   nombre:'Reportes PDF con branding',    cat:'Integracion',icon:'P',  desc:'Generacion de PDFs profesionales con logo, colores, layout responsive segun contenido. jsPDF + Reportlab.',
+    complejidad:'Media', hmin:8, hmax:20, tags:['jsPDF','Reportlab'], refs:['Aseguralo (propuesta)','7GROUP (avances)'] },
+
+  // === AUTOMATIZACION ===
+  { id:'cron-jobs',     nombre:'Cron / automatizaciones diarias', cat:'Automatizacion', icon:'C',  desc:'Tareas programadas: cross-match, notificaciones, respaldos, sincronizacion de datos.',
+    complejidad:'Media', hmin:6, hmax:14, tags:['Apps Script Trigger'], refs:['Aseguralo (auto-ventas)'] },
+  { id:'workflow',      nombre:'Workflow multi-paso',          cat:'Automatizacion', icon:'F',  desc:'Automatizacion de procesos: lead -> cotizacion -> aceptado -> factura -> pago, con eventos y triggers.',
+    complejidad:'Alta', hmin:16, hmax:32, tags:['State machine'], refs:['Aseguralo (pipeline completo)'] },
+  { id:'sync-devices',  nombre:'Sincronizacion multi-dispositivo', cat:'Automatizacion', icon:'S',  desc:'Sync bidireccional web-mobile via backend. Cambios en un dispositivo se propagan sin conflictos.',
+    complejidad:'Media', hmin:8, hmax:16, tags:['Sync','localStorage','Sheets'], refs:['Aseguralo (cotizaciones)'] },
+
+  // === PROSPECCION / MARKETING ===
+  { id:'geoprospector', nombre:'GeoProspector (prospeccion geografica)', cat:'Marketing', icon:'M',  desc:'Mapa interactivo con clientes/prospectos por zona, filtros, exportacion de rutas de visita.',
+    complejidad:'Alta', hmin:20, hmax:40, tags:['Maps API','Geodata'], refs:['GeoProspector 7group/Trasteos'] },
+  { id:'campanas-wa',   nombre:'Campanas WhatsApp masivas',    cat:'Marketing',  icon:'C',  desc:'Envio masivo con plantillas personalizadas, segmentacion, tracking de respuestas.',
+    complejidad:'Alta', hmin:14, hmax:28, tags:['WA Business','Templates'], refs:['reactivacion Trasteos (base)'] },
+
+  // === CONSULTORIA ===
+  { id:'analisis-neg',  nombre:'Analisis de negocio + arquitectura', cat:'Consultoria', icon:'A', desc:'Sesion de descubrimiento, mapeo de procesos, propuesta de arquitectura, definicion de MVP.',
+    complejidad:'Media', hmin:8, hmax:20, tags:['Product','Arquitectura'], refs:['todos los proyectos'] },
+  { id:'diseno-ui',     nombre:'Diseno UI/UX + branding',      cat:'Consultoria', icon:'D', desc:'Diseno visual del sistema, paleta, tipografia, mockups, sistema de componentes coherente.',
+    complejidad:'Media', hmin:10, hmax:24, tags:['UI','UX','Branding'], refs:['Aseguralo','7group','Lan Marmoles'] },
+  { id:'capacitacion',  nombre:'Capacitacion + soporte',       cat:'Consultoria', icon:'S', desc:'Formacion al equipo cliente, documentacion, soporte post-lanzamiento, ajustes menores.',
+    complejidad:'Baja', hmin:4, hmax:12, tags:['Onboarding'], refs:['Fabian (Aseguralo)'] },
+
+  // === SEGURIDAD ===
+  { id:'auth-google',   nombre:'Autenticacion Google Sign-In',  cat:'Seguridad',  icon:'A', desc:'Login con Google OAuth, lista blanca de emails, gate anti fuerza bruta, TTL configurable.',
+    complejidad:'Media', hmin:6, hmax:12, tags:['OAuth','Google'], refs:['Aseguralo','7group agentes'] },
+  { id:'pin-gate',      nombre:'Gate por PIN para operadores', cat:'Seguridad',  icon:'P', desc:'Acceso con PIN para operadores sin correo. Bloqueo tras intentos fallidos, expiracion.',
+    complejidad:'Baja', hmin:4, hmax:8, tags:['PIN','localStorage'], refs:['Trasteos Ya (operarios)'] },
+];
+
+/* ============================================
+   DATOS: CASOS Y PROYECTOS
+   ============================================ */
+var CASOS = [
+  { id:'aseguralo', nombre:'Aseguralo ERP', cliente:'Fabian Carrera - Aseguralo', estado:'produccion',
+    desc:'ERP integral para intermediario de seguros. Cotizador multi-aseguradora con OCR Gemini, motor de comisiones con cascada, sistema de roles, PDF adaptativo, 96 polizas conectadas en vivo.',
+    servicios:['erp-completo','ocr-ia','motor-comisiones','admin-panel','sheets-api','dashboard','pdf-branded','telegram-int','cron-jobs','validacion-ia','auth-google','sync-devices'],
+    valor:20300000, pendiente:8500000, horas:290, url:'/agente/aseguralo/' },
+
+  { id:'trasteosya', nombre:'Trasteos Ya (web + operativo)', cliente:'Trasteos Ya', estado:'produccion',
+    desc:'Sitio principal + herramientas operativas gated (cotizador cliente, orden de servicio, KPI CEO, reactivacion). 679 contactos, 85 ordenes.',
+    servicios:['multipage','cotizador-pub','orden-servicio','dashboard','pin-gate','sheets-api','telegram-int'],
+    valor:12000000, pendiente:3000000, horas:180, url:'https://trasteosya.online' },
+
+  { id:'lanmarmoles', nombre:'Lan Marmoles (ERP + cotizador + landing)', cliente:'Ricardo Lancheros', estado:'produccion',
+    desc:'Sistema completo marca blanca: cotizador con propuesta PDF, cuenta cobro, ERP, comisiones, toggles. Base reutilizable para futuros clientes.',
+    servicios:['erp-completo','cotizador-pub','facturacion','landing','pdf-branded','sheets-api','admin-panel'],
+    valor:10500000, pendiente:1500000, horas:150, url:'https://lanmarmoles.online' },
+
+  { id:'juanandres', nombre:'Sitio web Juan Andres', cliente:'Hijo de Andres', estado:'desarrollo',
+    desc:'Sitio personal estilo messi.com. Assets en Drive andresapalt.',
+    servicios:['landing','diseno-ui'],
+    valor:800000, pendiente:400000, horas:14 },
+
+  { id:'tygo', nombre:'TYGO App (logistics OS)', cliente:'7GROUP interno', estado:'desarrollo',
+    desc:'App AI-first para logistica. Auth/onboarding/publicar hechos. Next.js + Supabase. Marketplace como data source.',
+    servicios:['erp-completo','analisis-ia','auth-google','modulo-pipeline'],
+    valor:0, pendiente:35000000, horas:0 },
+
+  { id:'7group-agendar', nombre:'7GROUP agendar (leads + citas)', cliente:'7GROUP interno', estado:'produccion',
+    desc:'Flujo de agendamiento: Web3Forms + Apps Script + Calendar + Sheet Citas. Envio automatico de email lead + calendario + reserva.',
+    servicios:['calendar-int','wa-forms','sheets-api'],
+    valor:1500000, pendiente:0, horas:22, url:'/agente/agendar/' },
+
+  { id:'geoprospector', nombre:'GeoProspector', cliente:'7GROUP + Trasteos', estado:'planeacion',
+    desc:'Prospeccion geografica: mapa con clientes/prospectos por zona, filtros, rutas. Uso: TY cayendo (49->26->10), oportunidad hogar.',
+    servicios:['geoprospector','analisis-neg'],
+    valor:0, pendiente:5000000, horas:0 },
+
+  { id:'phone-bot', nombre:'Phone bot', cliente:'Andres personal', estado:'planeacion',
+    desc:'Bot para contestar llamadas de desconocidos a 3143095194. Twilio o WhatsApp API.',
+    servicios:['bot-consulta'],
+    valor:0, pendiente:2500000, horas:0 },
+
+  { id:'finca-raiz', nombre:'Finca raiz venta casa', cliente:'Amigo Andres', estado:'planeacion',
+    desc:'Casa vendida a buyers US. Recorrido 3D + landing bilingue. Servicio 7group.',
+    servicios:['landing','multipage','diseno-ui'],
+    valor:0, pendiente:3000000, horas:0 },
+];
+
+/* Cada servicio: precio referencial = horas * tarifa */
+SERVICIOS.forEach(function(s){
+  s.precio_min = s.hmin * TARIFA_HORA;
+  s.precio_max = s.hmax * TARIFA_HORA;
+});
+
+/* ============================================
+   RENDER
+   ============================================ */
+var fmt = function(n){ return '$'+Number(n||0).toLocaleString('es-CO'); };
+var filtroCatActual = 'todos';
+
+function render(){
+  renderDash();
+  renderServicios();
+  renderCasos();
+  renderCotizador();
+}
+
+function renderDash(){
+  var totalSvcs = SERVICIOS.length;
+  var totalCasos = CASOS.length;
+  var casosProd = CASOS.filter(function(c){return c.estado==='produccion'}).length;
+  var valorRealizado = CASOS.reduce(function(s,c){return s+(c.valor||0);},0);
+  var valorPendiente = CASOS.reduce(function(s,c){return s+(c.pendiente||0);},0);
+  var horasTotal = CASOS.reduce(function(s,c){return s+(c.horas||0);},0);
+
+  document.getElementById('dashKpis').innerHTML = [
+    {l:'Servicios en catalogo', v:totalSvcs, c:''},
+    {l:'Casos totales', v:totalCasos, sub:casosProd+' en produccion', c:'c-violet'},
+    {l:'Valor realizado', v:fmt(valorRealizado), c:'c-green'},
+    {l:'Valor pendiente / oportunidad', v:fmt(valorPendiente), c:'c-orange'},
+    {l:'Horas ejecutadas', v:horasTotal+'h', c:''},
+    {l:'Tarifa base', v:fmt(TARIFA_HORA)+'/h', c:''},
+  ].map(function(k){
+    return '<div class="kpi '+(k.c||'')+'"><div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div>'+(k.sub?'<div class="kpi-sub">'+k.sub+'</div>':'')+'</div>';
+  }).join('');
+
+  // Top servicios (los mas usados en casos)
+  var count = {};
+  CASOS.forEach(function(c){ (c.servicios||[]).forEach(function(sid){ count[sid]=(count[sid]||0)+1; }); });
+  var top = SERVICIOS.slice().sort(function(a,b){return (count[b.id]||0)-(count[a.id]||0);}).slice(0,6);
+  document.getElementById('topSvcs').innerHTML = top.map(function(s){return svcCardHTML(s, count[s.id]||0);}).join('');
+
+  // Casos activos
+  var activos = CASOS.filter(function(c){return c.estado==='produccion'||c.estado==='desarrollo'});
+  document.getElementById('topCasos').innerHTML = activos.map(caseCardHTML).join('');
+}
+
+function svcCardHTML(s, extraUsos){
+  var precioRange = fmt(s.precio_min)+' - '+fmt(s.precio_max);
+  return '<div class="svc-card">'+
+    '<div class="svc-icon">'+s.icon+'</div>'+
+    '<div class="svc-cat">'+s.cat+'</div>'+
+    '<div class="svc-title">'+s.nombre+'</div>'+
+    '<div class="svc-desc">'+s.desc+'</div>'+
+    '<div class="svc-tags">'+s.tags.map(function(t){return '<span class="svc-tag">'+t+'</span>';}).join('')+'</div>'+
+    '<div class="svc-meta">'+
+      '<div class="svc-comp">'+s.complejidad+' &middot; '+s.hmin+'-'+s.hmax+'h</div>'+
+      '<div class="svc-precio">'+precioRange+'</div>'+
+    '</div>'+
+    (s.refs&&s.refs.length?'<div class="svc-refs">Referencias: '+s.refs.join(', ')+(extraUsos?' <strong style="color:var(--cyan)">&middot; '+extraUsos+' casos</strong>':'')+'</div>':'')+
+  '</div>';
+}
+
+function caseCardHTML(c){
+  var valorTot = (c.valor||0)+(c.pendiente||0);
+  var svcNames = (c.servicios||[]).slice(0,5).map(function(sid){
+    var s = SERVICIOS.find(function(x){return x.id===sid;});
+    return s ? '<span class="case-svc">'+s.nombre+'</span>' : '';
+  }).join('');
+  var more = (c.servicios||[]).length > 5 ? '<span class="case-svc">+'+((c.servicios||[]).length-5)+'</span>' : '';
+  return '<div class="case-card">'+
+    '<div class="case-head">'+
+      '<div>'+
+        '<div class="case-nombre">'+c.nombre+'</div>'+
+        '<div class="case-cliente">'+c.cliente+'</div>'+
+      '</div>'+
+      '<div class="case-estado '+c.estado+'">'+c.estado+'</div>'+
+    '</div>'+
+    '<div class="case-desc">'+c.desc+'</div>'+
+    '<div class="case-svcs">'+svcNames+more+'</div>'+
+    '<div class="case-metrics">'+
+      '<div class="case-metric"><div class="case-metric-lbl">Valor realizado</div><div class="case-metric-val verde">'+fmt(c.valor||0)+'</div></div>'+
+      '<div class="case-metric"><div class="case-metric-lbl">'+(c.pendiente?'Pendiente':'Total')+'</div><div class="case-metric-val cyan">'+fmt(c.pendiente||valorTot)+'</div></div>'+
+    '</div>'+
+    (c.url?'<a href="'+c.url+'" target="_blank" style="display:block;margin-top:12px;color:var(--cyan);font-size:11px;text-decoration:none;font-weight:700">Ver &rarr;</a>':'')+
+  '</div>';
+}
+
+function renderServicios(){
+  var cats = ['todos'].concat(Array.from(new Set(SERVICIOS.map(function(s){return s.cat;}))));
+  document.getElementById('filtrosSvc').innerHTML = cats.map(function(c){
+    return '<div class="filtro-chip '+(c===filtroCatActual?'active':'')+'" onclick="setFiltroCat(\''+c+'\')">'+c+'</div>';
+  }).join('');
+  var lista = filtroCatActual==='todos' ? SERVICIOS : SERVICIOS.filter(function(s){return s.cat===filtroCatActual;});
+  var count = {};
+  CASOS.forEach(function(c){ (c.servicios||[]).forEach(function(sid){ count[sid]=(count[sid]||0)+1; }); });
+  document.getElementById('svcGrid').innerHTML = lista.map(function(s){return svcCardHTML(s, count[s.id]||0);}).join('');
+}
+window.setFiltroCat = function(c){ filtroCatActual=c; renderServicios(); };
+
+function renderCasos(){
+  document.getElementById('caseGrid').innerHTML = CASOS.map(caseCardHTML).join('');
+}
+
+/* ============================================
+   COTIZADOR
+   ============================================ */
+var COT_SELECTED = new Set();
+
+function renderCotizador(){
+  document.getElementById('cotItems').innerHTML = SERVICIOS.map(function(s){
+    var sel = COT_SELECTED.has(s.id);
+    return '<div class="cot-item '+(sel?'sel':'')+'" onclick="toggleCot(\''+s.id+'\')">'+
+      '<input type="checkbox" '+(sel?'checked':'')+' onclick="event.stopPropagation()">'+
+      '<div class="cot-item-info">'+
+        '<div class="cot-item-title">'+s.nombre+'</div>'+
+        '<div class="cot-item-cat">'+s.cat+' &middot; '+s.complejidad+' &middot; '+s.hmin+'-'+s.hmax+'h</div>'+
+      '</div>'+
+      '<div class="cot-item-precio">'+fmt(s.precio_min)+' -<br>'+fmt(s.precio_max)+'</div>'+
+    '</div>';
+  }).join('');
+  renderCotResumen();
+}
+window.toggleCot = function(id){
+  if(COT_SELECTED.has(id)) COT_SELECTED.delete(id);
+  else COT_SELECTED.add(id);
+  renderCotizador();
+};
+function renderCotResumen(){
+  var sels = Array.from(COT_SELECTED).map(function(id){return SERVICIOS.find(function(s){return s.id===id;});}).filter(Boolean);
+  var totalMin = sels.reduce(function(s,x){return s+x.precio_min;},0);
+  var totalMax = sels.reduce(function(s,x){return s+x.precio_max;},0);
+  var totalHMin = sels.reduce(function(s,x){return s+x.hmin;},0);
+  var totalHMax = sels.reduce(function(s,x){return s+x.hmax;},0);
+  document.getElementById('cotTotal').innerHTML = fmt(totalMin)+'<br><span style="font-size:16px;color:var(--dim)">- '+fmt(totalMax)+'</span>';
+  document.getElementById('cotHoras').textContent = totalHMin+'-'+totalHMax+' horas &middot; '+sels.length+' servicio'+(sels.length===1?'':'s');
+  document.getElementById('cotSelectedList').innerHTML = sels.length
+    ? sels.map(function(s){return '<div class="cot-selected-item"><span>'+s.nombre+'</span><span>'+fmt(s.precio_min)+'-'+fmt(s.precio_max)+'</span></div>';}).join('')
+    : '<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px">Selecciona servicios del catalogo</div>';
+}
+
+/* ============================================
+   PROPUESTA PDF
+   ============================================ */
+window.descargarPropuestaPDF = function(){
+  if(!window.jspdf){ alert('jsPDF no cargo'); return; }
+  var cliente = document.getElementById('cotCliente').value.trim() || 'Cliente';
+  var proyecto = document.getElementById('cotProyecto').value.trim() || 'Proyecto sin nombre';
+  var sels = Array.from(COT_SELECTED).map(function(id){return SERVICIOS.find(function(s){return s.id===id;});}).filter(Boolean);
+  if(!sels.length){ alert('Selecciona al menos un servicio'); return; }
+
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt',format:'letter'});
+  var pw = doc.internal.pageSize.getWidth();
+  var ph = doc.internal.pageSize.getHeight();
+  var margin = 50, y;
+
+  // Portada negra 7GROUP
+  doc.setFillColor(10,10,15); doc.rect(0,0,pw,ph,'F');
+  doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(0,3,pw,3); doc.line(0,ph-3,pw,ph-3);
+  // Logo 7
+  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(120);
+  doc.text('7', pw/2, ph*0.4, {align:'center'});
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.text('G  R  O  U  P', pw/2, ph*0.4+30, {align:'center'});
+  // Titulo
+  doc.setFontSize(28); doc.text('Propuesta economica', pw/2, ph*0.62, {align:'center'});
+  doc.setFontSize(18); doc.setTextColor(77,208,225); doc.text(proyecto, pw/2, ph*0.62+30, {align:'center'});
+  doc.setFontSize(11); doc.setTextColor(200,220,225); doc.text('Cliente: '+cliente, pw/2, ph*0.62+56, {align:'center'});
+  doc.setFontSize(10); doc.setTextColor(148,163,184); doc.text('Fecha: '+new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'}), pw/2, 220, {align:'center'});
+  doc.text('7GROUP Corp  |  7group.site  |  Bogota, Colombia', pw/2, 200, {align:'center'});
+
+  // Interior
+  doc.addPage();
+  doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F');
+  doc.setDrawColor(77,208,225); doc.setLineWidth(2); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2);
+  y = 70;
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(22);
+  doc.text('Alcance de servicios', margin, y);
+  doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(margin, y+6, margin+70, y+6);
+  y += 30;
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(80,80,95);
+  doc.text('A continuacion el detalle de servicios propuestos para '+proyecto+'.', margin, y); y += 18;
+  doc.text('Los valores son referenciales, en pesos colombianos (COP), IVA no incluido.', margin, y); y += 24;
+
+  // Tabla
+  var totalW = pw - margin*2;
+  var colW = [200, 60, 40, 100, 100];
+  doc.setFillColor(10,10,15); doc.rect(margin, y-16, totalW, 20, 'F');
+  doc.setTextColor(77,208,225); doc.setFontSize(9); doc.setFont('helvetica','bold');
+  var xx = margin;
+  ['SERVICIO','CATEGORIA','HRS','MIN COP','MAX COP'].forEach(function(h,i){
+    doc.text(h, xx+5, y-3); xx += colW[i];
+  });
+  y += 8;
+
+  var totalMin = 0, totalMax = 0, totalH = 0;
+  sels.forEach(function(s, idx){
+    if(y > ph - 120){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 70; }
+    var rowH = 28;
+    if(idx%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y-rowH+8, totalW, rowH, 'F'); }
+    doc.setTextColor(30,30,45); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    var xx = margin;
+    var nomLines = doc.splitTextToSize(s.nombre, colW[0]-8);
+    doc.text(nomLines.slice(0,2), xx+5, y); xx += colW[0];
+    doc.setFontSize(8); doc.setTextColor(80,80,95);
+    doc.text(s.cat, xx+5, y); xx += colW[1];
+    doc.setFontSize(9); doc.setTextColor(30,30,45);
+    doc.text(s.hmin+'-'+s.hmax, xx+5, y); xx += colW[2];
+    doc.setFont('helvetica','bold'); doc.setTextColor(16,140,80);
+    doc.text('$'+s.precio_min.toLocaleString('es-CO'), xx+5, y); xx += colW[3];
+    doc.setTextColor(77,140,80);
+    doc.text('$'+s.precio_max.toLocaleString('es-CO'), xx+5, y);
+    totalMin += s.precio_min; totalMax += s.precio_max; totalH += (s.hmin+s.hmax)/2;
+    y += rowH;
+  });
+  y += 4;
+  // Total
+  doc.setFillColor(10,10,15); doc.rect(margin, y-16, totalW, 24, 'F');
+  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text('TOTAL ESTIMADO', margin+8, y-2);
+  var xx = margin + colW[0]+colW[1];
+  doc.text(Math.round(totalH)+'h', xx+5, y-2);
+  doc.text('$'+totalMin.toLocaleString('es-CO'), xx+colW[2]+5, y-2);
+  doc.text('$'+totalMax.toLocaleString('es-CO'), xx+colW[2]+colW[3]+5, y-2);
+  y += 18;
+
+  // Descripcion detallada
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('Descripcion de servicios', margin, y); y += 18;
+  sels.forEach(function(s){
+    if(y > ph - 100){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 70; }
+    doc.setFillColor(77,208,225); doc.circle(margin+3, y-2, 2.5, 'F');
+    doc.setTextColor(30,30,45); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+    doc.text(s.nombre, margin+12, y); y += 12;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,95);
+    var lines = doc.splitTextToSize(s.desc, totalW-12);
+    doc.text(lines, margin+12, y); y += lines.length*11 + 6;
+  });
+
+  // Contraportada negra
+  doc.addPage();
+  doc.setFillColor(10,10,15); doc.rect(0,0,pw,ph,'F');
+  doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(0,3,pw,3); doc.line(0,ph-3,pw,ph-3);
+  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(120);
+  doc.text('7', pw/2, ph*0.55, {align:'center'});
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.text('G  R  O  U  P', pw/2, ph*0.55+30, {align:'center'});
+  doc.setFontSize(22); doc.text('Estamos listos para acompanarte', pw/2, ph*0.36, {align:'center'});
+  doc.setFontSize(11); doc.setTextColor(148,163,184);
+  doc.text('7group.site  |  7groupcorp@zohomail.com', pw/2, 190, {align:'center'});
+  doc.text('Bogota, Colombia', pw/2, 174, {align:'center'});
+
+  doc.save('Propuesta_7GROUP_'+cliente.replace(/\s+/g,'_')+'_'+Date.now()+'.pdf');
+};
+
+/* ============================================
+   NAV
+   ============================================ */
+window.nav = function(id){
+  document.querySelectorAll('.nav a').forEach(function(a){ a.classList.remove('active'); });
+  document.querySelector('.nav a[data-nav="'+id+'"]').classList.add('active');
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('s-'+id).classList.add('active');
+};
+</script>
+
+</body>
+</html>
