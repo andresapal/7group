@@ -2062,7 +2062,29 @@ window.toggleModule=function(id, checked){
 function initApp(){
   loadModuleState();
   applyModuleState();
-  // Load real data from Google Sheet, then render
+  // Esperar a que CURRENT_USER.email este seteado antes de disparar los loads
+  // (evita que el backend rechace las peticiones por falta de email)
+  esperarUsuarioLuego_(_initAppReal);
+}
+function esperarUsuarioLuego_(cb, intentos){
+  intentos = intentos || 0;
+  var email = (typeof CURRENT_USER!=='undefined' && CURRENT_USER.email) ||
+              localStorage.getItem(GATE_KEY);
+  if(email && CURRENT_USER && CURRENT_USER.email){ cb(); return; }
+  if(email && !CURRENT_USER.email && intentos < 30){
+    // Aun no cargo el perfil del backend, esperar
+    setTimeout(function(){ esperarUsuarioLuego_(cb, intentos+1); }, 200);
+    return;
+  }
+  if(intentos >= 30){
+    // Timeout: seguir igual con lo que haya
+    cb();
+    return;
+  }
+  // Sin email en absoluto: seguir (dev mode / no autenticado)
+  cb();
+}
+function _initAppReal(){
   loadFromSheet(function(){
     renderLeads();
     loadLeadsFromSheet();
