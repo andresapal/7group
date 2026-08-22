@@ -61,6 +61,42 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
 .theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
 
+/* HAMBURGUESA ADMIN */
+.admin-hamb{padding:5px 8px;display:flex;align-items:center;justify-content:center}
+.admin-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--bg2);border:1px solid var(--border3);border-radius:8px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,.35);padding:6px;display:none;z-index:1000}
+.admin-menu.open{display:block}
+.admin-menu-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:8px 10px 6px;font-weight:700;border-bottom:1px solid var(--border3);margin-bottom:4px}
+.admin-menu-item{display:flex;align-items:center;gap:10px;padding:9px 10px;color:var(--text);text-decoration:none;font-size:12px;font-weight:600;border-radius:6px;background:none;border:none;cursor:pointer;font-family:inherit;width:100%;text-align:left;transition:.15s}
+.admin-menu-item:hover{background:var(--bg3);color:var(--cyan)}
+.admin-menu-item svg{opacity:.7;flex-shrink:0}
+
+/* MODAL AGENTS */
+.admin-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000;padding:16px}
+.admin-modal-overlay.open{display:flex}
+.admin-modal{background:var(--bg2);border:1px solid var(--border3);border-radius:12px;max-width:520px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.admin-modal-head{padding:18px 20px;border-bottom:1px solid var(--border3);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.admin-modal-title{font-size:15px;font-weight:800;color:var(--text)}
+.admin-modal-sub{font-size:11px;color:var(--dim);margin-top:2px}
+.admin-modal-close{background:none;border:none;color:var(--dim);font-size:24px;cursor:pointer;line-height:1;padding:0}
+.admin-modal-close:hover{color:var(--cyan)}
+.admin-modal-body{padding:12px 20px;overflow-y:auto;flex:1}
+.admin-modal-foot{padding:14px 20px;border-top:1px solid var(--border3);display:flex;gap:8px;justify-content:flex-end}
+.agent-toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;border:1px solid var(--border3);margin-bottom:6px;background:var(--bg3)}
+.agent-toggle-row .info{flex:1;min-width:0}
+.agent-toggle-row .name{font-size:13px;font-weight:700;color:var(--text)}
+.agent-toggle-row .meta{font-size:11px;color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.agent-toggle-row .switch{position:relative;width:40px;height:22px;background:var(--bg);border-radius:12px;cursor:pointer;transition:.2s;flex-shrink:0;margin-left:12px}
+.agent-toggle-row .switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--dim);border-radius:50%;transition:.2s}
+.agent-toggle-row.on .switch{background:rgba(94,231,247,.25)}
+.agent-toggle-row.on .switch::after{left:20px;background:var(--cyan)}
+
+@media(max-width:640px){
+  .admin-menu{right:-8px;min-width:200px}
+  .admin-modal{max-height:90vh}
+  .admin-modal-head{padding:14px 16px}
+  .admin-modal-body{padding:10px 14px}
+}
+
 /* MAIN */
 .main{max-width:1100px;margin:0 auto;padding:24px}
 
@@ -174,8 +210,47 @@ code,.mono{font-family:'JetBrains Mono',monospace}
       <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       LIGHT
     </button>
+    <!-- Hamburguesa admin (solo para andresapalt) -->
+    <div class="admin-menu-wrap" id="adminMenuWrap" style="display:none;position:relative">
+      <button class="tb-toggle admin-hamb" onclick="toggleAdminMenu(event)" aria-label="Menu admin">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <div class="admin-menu" id="adminMenu">
+        <div class="admin-menu-title">7GROUP Admin</div>
+        <a href="/agente/portafolio/" class="admin-menu-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+          Portafolio 7GROUP
+        </a>
+        <a href="/agente/reportes/" class="admin-menu-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12V4a1 1 0 011-1h6l3 3v6a1 1 0 01-1 1H3a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h4M5 9h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Reportes
+        </a>
+        <button class="admin-menu-item" onclick="abrirGestionAgents()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M3 12v-1a2 2 0 012-2h4a2 2 0 012 2v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Habilitar / deshabilitar agents
+        </button>
+      </div>
+    </div>
   </div>
 </nav>
+
+<!-- Modal: gestion de visibilidad de agents -->
+<div class="admin-modal-overlay" id="agentsModalOverlay" onclick="if(event.target===this)cerrarGestionAgents()">
+  <div class="admin-modal" onclick="event.stopPropagation()">
+    <div class="admin-modal-head">
+      <div>
+        <div class="admin-modal-title">Habilitar / deshabilitar agents</div>
+        <div class="admin-modal-sub">Los desactivados se ocultan de la grilla (solo para tu vista admin).</div>
+      </div>
+      <button class="admin-modal-close" onclick="cerrarGestionAgents()">&times;</button>
+    </div>
+    <div class="admin-modal-body" id="agentsToggleList"></div>
+    <div class="admin-modal-foot">
+      <button class="tb-toggle" onclick="cerrarGestionAgents()">Cerrar</button>
+      <button class="tb-toggle" onclick="restaurarAgentsTodos()">Habilitar todos</button>
+    </div>
+  </div>
+</div>
 
 <div class="main">
 
@@ -216,22 +291,6 @@ var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleu
 
 /* =============== PROJECTS DATA =============== */
 var PROJECTS=[
-  {
-    id:'portafolio-7g',
-    title:{es:'Portafolio 7GROUP',en:'7GROUP Portfolio'},
-    client:'7GROUP Interno',
-    type:'internal',
-    scope:'admin',
-    status:'active',
-    phase:'active',
-    revenue:0,
-    created:'2026-08-22',
-    lastActivity:'2026-08-22',
-    docs:32,
-    tags:['Servicios','Casos','Cotizador','PDF'],
-    link:'/agente/portafolio/',
-    region:'Interno'
-  },
   {
     id:'aseguralo',
     title:{es:'Aseguralo',en:'Aseguralo'},
@@ -396,7 +455,12 @@ function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setT
 /* Auto-login IIFE moved to end of script (after all functions are defined) */
 
 function applyRoleFilter(){
-  /* Reportes button removed — PDFs generated via Claude session */
+  /* Hamburguesa admin: 3 admins de 7GROUP */
+  var adminMenuUsers = ['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+  if(adminMenuUsers.indexOf(CURRENT_USER) >= 0){
+    var wrap = document.getElementById('adminMenuWrap');
+    if(wrap) wrap.style.display = '';
+  }
   if(CURRENT_ROLE==='admin'){renderAll();return;}
   /* Client: filter PROJECTS to only show their assigned projects */
   var allowed=CLIENT_PROJECTS[CURRENT_USER]||[];
@@ -534,9 +598,11 @@ function setFilter(f){currentFilter=f;renderFilters();renderProjects();}
 function getSortedProjects(){
   var search=document.getElementById('searchBox').value.toLowerCase();
   var sort=document.getElementById('sortSelect').value;
+  var disabled = getDisabledAgents_();
   var list=[];
   for(var i=0;i<PROJECTS.length;i++){
     var p=PROJECTS[i];
+    if(disabled.indexOf(p.id)>=0) continue; // oculto por admin
     if(currentScope!=='all'&&p.scope!==currentScope)continue;
     if(currentFilter!=='all'&&p.type!==currentFilter)continue;
     if(search){
@@ -633,6 +699,70 @@ function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchPa
 /* =============== INIT =============== */
 (function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();
 applyLang();
+
+/* ============ MENU ADMIN (hamburguesa) ============ */
+var DISABLED_AGENTS_KEY = '7g-disabled-agents';
+function getDisabledAgents_(){
+  try{ var s = localStorage.getItem(DISABLED_AGENTS_KEY); return s ? JSON.parse(s) : []; }catch(e){ return []; }
+}
+function setDisabledAgents_(arr){
+  try{ localStorage.setItem(DISABLED_AGENTS_KEY, JSON.stringify(arr)); }catch(e){}
+}
+window.toggleAdminMenu = function(ev){
+  if(ev) ev.stopPropagation();
+  document.getElementById('adminMenu').classList.toggle('open');
+};
+// Cerrar dropdown al click fuera
+document.addEventListener('click', function(ev){
+  var wrap = document.getElementById('adminMenuWrap');
+  var menu = document.getElementById('adminMenu');
+  if(!wrap || !menu) return;
+  if(!wrap.contains(ev.target)) menu.classList.remove('open');
+});
+
+window.abrirGestionAgents = function(){
+  document.getElementById('adminMenu').classList.remove('open');
+  var body = document.getElementById('agentsToggleList');
+  var disabled = getDisabledAgents_();
+  body.innerHTML = PROJECTS.map(function(p){
+    var on = disabled.indexOf(p.id) < 0;
+    var titulo = (p.title && (p.title.es || p.title.en)) || p.id;
+    return '<div class="agent-toggle-row '+(on?'on':'')+'" data-id="'+p.id+'" onclick="toggleAgent_(\''+p.id+'\')">'+
+      '<div class="info">'+
+        '<div class="name">'+titulo+'</div>'+
+        '<div class="meta">'+(p.client||'')+' &middot; '+(p.scope||'')+' &middot; '+(p.tags||[]).slice(0,3).join(', ')+'</div>'+
+      '</div>'+
+      '<div class="switch"></div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('agentsModalOverlay').classList.add('open');
+};
+window.cerrarGestionAgents = function(){
+  document.getElementById('agentsModalOverlay').classList.remove('open');
+};
+window.toggleAgent_ = function(id){
+  var disabled = getDisabledAgents_();
+  var idx = disabled.indexOf(id);
+  if(idx >= 0) disabled.splice(idx, 1);
+  else disabled.push(id);
+  setDisabledAgents_(disabled);
+  // Refrescar visual del toggle
+  var row = document.querySelector('.agent-toggle-row[data-id="'+id+'"]');
+  if(row){
+    if(disabled.indexOf(id) >= 0) row.classList.remove('on');
+    else row.classList.add('on');
+  }
+  // Re-render grilla
+  if(typeof renderProjects === 'function') renderProjects();
+  if(typeof renderStats === 'function') renderStats();
+};
+window.restaurarAgentsTodos = function(){
+  setDisabledAgents_([]);
+  abrirGestionAgents();
+  if(typeof renderProjects === 'function') renderProjects();
+  if(typeof renderStats === 'function') renderStats();
+};
+
 /* Auto-login: check portal session, then Aseguralo session as fallback */
 (function(){
   var s=sessionStorage.getItem('7g-auth');
