@@ -14,7 +14,7 @@
   --shadow:0 4px 20px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;min-height:100vh;letter-spacing:-.01em}
 .container{max-width:1400px;margin:0 auto;padding:20px}
 
 /* Gate */
@@ -62,7 +62,7 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
 
 /* Servicios grid */
 .svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
-.svc-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .2s;cursor:pointer;position:relative;overflow:hidden}
+.svc-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .2s;position:relative;overflow:hidden}
 .svc-card:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:var(--shadow)}
 .svc-icon{width:44px;height:44px;background:linear-gradient(135deg,rgba(77,208,225,.14),rgba(34,211,238,.08));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;color:var(--cyan)}
 .svc-title{font-size:16px;font-weight:700;margin-bottom:6px}
@@ -119,7 +119,7 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
 .cot-selected-list{max-height:160px;overflow-y:auto;margin:10px 0;font-size:11px}
 .cot-selected-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)}
 .cot-selected-item span:first-child{color:var(--dim)}
-.cot-btn{width:100%;background:linear-gradient(135deg,var(--cyan),var(--cyan-2));color:#000;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+.cot-btn{width:100%;background:linear-gradient(135deg,var(--cyan),var(--cyan-2));color:#000;border:none;padding:11px 14px;border-radius:10px;font-weight:600;cursor:pointer;font-size:12px;letter-spacing:.3px;text-transform:none;font-family:inherit}
 .cot-btn:hover{opacity:.9}
 
 /* Filtros */
@@ -157,7 +157,10 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
 .setup-includes{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.5}
 
 /* Combos */
-.combo-card{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--cyan);border-radius:14px;padding:18px;margin-bottom:14px;position:relative}
+#combosContent{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1100px){#combosContent{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){#combosContent{grid-template-columns:1fr}}
+.combo-card{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--cyan);border-radius:14px;padding:18px;position:relative;display:flex;flex-direction:column}
 .combo-tag{position:absolute;top:-8px;right:16px;background:var(--orange);color:#000;padding:3px 10px;border-radius:10px;font-size:9px;font-weight:800;letter-spacing:1px}
 .combo-tag.verde{background:var(--green);color:#fff}
 .combo-tag.violet{background:var(--violet);color:#fff}
@@ -246,7 +249,6 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
     <div class="tb-logo">7</div>
     <div>
       <div class="tb-titulo">GROUP <span class="tb-badge">PORTAFOLIO</span></div>
-      <div style="font-size:10px;color:var(--dim);margin-top:2px">Servicios · Casos · Cotizador interno</div>
     </div>
   </div>
   <div class="tb-right">
@@ -254,7 +256,7 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
       <button class="lang-opt active" id="langES" onclick="setLang('es')" style="padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--dim);border:none;border-right:1px solid var(--border);font-family:inherit">ES</button>
       <button class="lang-opt" id="langEN" onclick="setLang('en')" style="padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--dim);border:none;font-family:inherit">EN</button>
     </div>
-    <span class="tb-user" id="tbUser">--</span>
+    <span class="tb-user" id="tbUser" style="display:none">--</span>
     <a href="/agente/" style="color:var(--cyan);text-decoration:none;font-weight:700" data-t="back">Volver</a>
   </div>
 </div>
@@ -1172,7 +1174,7 @@ function renderCombos(){
       '<div class="combo-includes"><strong>'+t('combo_incluye')+'</strong> '+tl(c.incluye)+'</div>'+
       '<div style="margin-top:10px"><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:6px">'+t('combo_servicios')+' ('+(c.servicios||[]).length+')</div>'+
         '<div class="case-svcs">'+svcNames+'</div></div>'+
-      '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">'+
+      '<div style="display:flex;gap:8px;margin-top:auto;padding-top:14px;flex-wrap:wrap">'+
         '<button class="cot-btn" style="flex:1;min-width:160px" onclick="abrirModalCotizarCombo(\''+c.id+'\')">'+t('combo_cotizar')+'</button>'+
         '<button class="filtro-chip" onclick="verDetalleCombo(\''+c.id+'\')" style="cursor:pointer">'+t('combo_ver_detalle')+'</button>'+
       '</div>'+
