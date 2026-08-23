@@ -216,18 +216,18 @@ code,.mono{font-family:'JetBrains Mono',monospace}
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       </button>
       <div class="admin-menu" id="adminMenu">
-        <div class="admin-menu-title">7GROUP Admin</div>
+        <div class="admin-menu-title" data-t-opt="adminTitle">7GROUP Admin</div>
         <a href="/agente/portafolio/" class="admin-menu-item">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
-          Portafolio 7GROUP
+          <span data-t-opt="adminPortafolio">Portafolio 7GROUP</span>
         </a>
         <a href="/agente/reportes/" class="admin-menu-item">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12V4a1 1 0 011-1h6l3 3v6a1 1 0 01-1 1H3a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h4M5 9h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          Reportes
+          <span data-t-opt="adminReportes">Reportes</span>
         </a>
         <button class="admin-menu-item" onclick="abrirGestionAgents()">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M3 12v-1a2 2 0 012-2h4a2 2 0 012 2v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          Habilitar / deshabilitar agents
+          <span data-t-opt="adminAgents">Habilitar / deshabilitar agentes</span>
         </button>
       </div>
     </div>
@@ -239,15 +239,15 @@ code,.mono{font-family:'JetBrains Mono',monospace}
   <div class="admin-modal" onclick="event.stopPropagation()">
     <div class="admin-modal-head">
       <div>
-        <div class="admin-modal-title">Habilitar / deshabilitar agents</div>
-        <div class="admin-modal-sub">Los desactivados se ocultan de la grilla (solo para tu vista admin).</div>
+        <div class="admin-modal-title" data-t-opt="agModalTitle">Habilitar / deshabilitar agentes</div>
+        <div class="admin-modal-sub" data-t-opt="agModalSub">Los desactivados se ocultan de la grilla (solo para tu vista admin).</div>
       </div>
       <button class="admin-modal-close" onclick="cerrarGestionAgents()">&times;</button>
     </div>
     <div class="admin-modal-body" id="agentsToggleList"></div>
     <div class="admin-modal-foot">
-      <button class="tb-toggle" onclick="cerrarGestionAgents()">Cerrar</button>
-      <button class="tb-toggle" onclick="restaurarAgentsTodos()">Habilitar todos</button>
+      <button class="tb-toggle" onclick="cerrarGestionAgents()" data-t-opt="agModalCerrar">Cerrar</button>
+      <button class="tb-toggle" onclick="restaurarAgentsTodos()" data-t-opt="agModalRestaurar">Habilitar todos</button>
     </div>
   </div>
 </div>
@@ -517,7 +517,17 @@ var T={
   scopeAgent:{es:'Agentes',en:'Agents'},
   scopeDemo:{es:'Demos',en:'Demos'},
   demoTag:{es:'DEMO',en:'DEMO'},
-  agentTag:{es:'ACTIVO',en:'LIVE'}
+  agentTag:{es:'ACTIVO',en:'LIVE'},
+  // Menu hamburguesa admin
+  adminTitle:{es:'7GROUP Admin', en:'7GROUP Admin'},
+  adminPortafolio:{es:'Portafolio 7GROUP', en:'7GROUP Portfolio'},
+  adminReportes:{es:'Reportes', en:'Reports'},
+  adminAgents:{es:'Habilitar / deshabilitar agentes', en:'Enable / disable agents'},
+  // Modal habilitar agents
+  agModalTitle:{es:'Habilitar / deshabilitar agentes', en:'Enable / disable agents'},
+  agModalSub:{es:'Los desactivados se ocultan de la grilla (solo para tu vista admin).', en:'Disabled ones are hidden from the grid (admin view only).'},
+  agModalCerrar:{es:'Cerrar', en:'Close'},
+  agModalRestaurar:{es:'Habilitar todos', en:'Enable all'}
 };
 function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
 function tl(o){if(!o)return'';if(typeof o==='string')return o;return o[LANG]||o.en||'';}
