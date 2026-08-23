@@ -474,7 +474,12 @@ function updateThemeButton(l){document.getElementById('themeToggle').innerHTML=l
 
 /* =============== LANG =============== */
 var LANG='es';
-(function(){if(new URLSearchParams(window.location.search).get('lang')==='en')LANG='en';})();
+(function(){
+  // Precedencia: query string > localStorage > default 'es'
+  var q = new URLSearchParams(window.location.search).get('lang');
+  if(q==='en'||q==='es'){ LANG = q; }
+  else { try{ var stored=localStorage.getItem('7g-lang'); if(stored==='en'||stored==='es') LANG=stored; }catch(e){} }
+})();
 
 var T={
   badge:{es:'Agentes',en:'Agents'},
@@ -694,7 +699,7 @@ function applyLang(){
   renderAll();
 }
 
-function setLang(l){LANG=l;var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
+function setLang(l){LANG=l;try{localStorage.setItem('7g-lang',l);}catch(e){}var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
 
 /* =============== INIT =============== */
 (function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();

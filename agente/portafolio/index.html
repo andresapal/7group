@@ -446,7 +446,12 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
 /* ============================================
    i18n (ES / EN)
    ============================================ */
-var LANG = localStorage.getItem('7g_port_lang') || 'es';
+var LANG = (function(){
+  var q = new URLSearchParams(window.location.search).get('lang');
+  if(q==='en'||q==='es') return q;
+  var stored = localStorage.getItem('7g-lang');
+  return (stored==='en'||stored==='es') ? stored : 'es';
+})();
 var T = {
   es: {
     back:'Volver',
@@ -549,7 +554,7 @@ function t(k){ return (T[LANG] && T[LANG][k]) || (T.es && T.es[k]) || k; }
 function tl(obj){ if(!obj) return ''; if(typeof obj==='string') return obj; return obj[LANG] || obj.es || obj.en || ''; }
 window.setLang = function(l){
   LANG = l;
-  localStorage.setItem('7g_port_lang', l);
+  localStorage.setItem('7g-lang', l);
   document.getElementById('langES').classList.toggle('active', l==='es');
   document.getElementById('langEN').classList.toggle('active', l==='en');
   document.documentElement.lang = l;
