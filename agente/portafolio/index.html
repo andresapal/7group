@@ -129,6 +129,8 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
 .filtro-chip.active{background:linear-gradient(135deg,var(--cyan),var(--cyan-2));color:#000;border-color:transparent}
 
 .hidden{display:none !important}
+.lang-opt:hover{color:var(--cyan) !important}
+.lang-opt.active{background:rgba(77,208,225,.15) !important;color:var(--cyan) !important}
 
 /* PLANES */
 .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:22px}
@@ -248,18 +250,22 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
     </div>
   </div>
   <div class="tb-right">
+    <div class="lang-switch" style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')" style="padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--dim);border:none;border-right:1px solid var(--border);font-family:inherit">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')" style="padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--dim);border:none;font-family:inherit">EN</button>
+    </div>
     <span class="tb-user" id="tbUser">--</span>
-    <a href="/agente/" style="color:var(--cyan);text-decoration:none;font-weight:700">Volver</a>
+    <a href="/agente/" style="color:var(--cyan);text-decoration:none;font-weight:700" data-t="back">Volver</a>
   </div>
 </div>
 
 <div class="nav">
-  <a data-nav="dash" class="active" onclick="nav('dash')">Resumen</a>
-  <a data-nav="planes" onclick="nav('planes')">Planes</a>
-  <a data-nav="combos" onclick="nav('combos')">Combos & Ofertas</a>
-  <a data-nav="svc" onclick="nav('svc')">Servicios</a>
-  <a data-nav="casos" onclick="nav('casos')">Casos</a>
-  <a data-nav="cot" onclick="nav('cot')">Cotizador</a>
+  <a data-nav="dash" class="active" onclick="nav('dash')" data-t="nav_dash">Resumen</a>
+  <a data-nav="planes" onclick="nav('planes')" data-t="nav_planes">Planes</a>
+  <a data-nav="combos" onclick="nav('combos')" data-t="nav_combos">Combos & Ofertas</a>
+  <a data-nav="svc" onclick="nav('svc')" data-t="nav_svc">Servicios</a>
+  <a data-nav="casos" onclick="nav('casos')" data-t="nav_casos">Casos</a>
+  <a data-nav="cot" onclick="nav('cot')" data-t="nav_cot">Cotizador</a>
 </div>
 
 <div class="container">
@@ -268,19 +274,19 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
   <section class="section active" id="s-dash">
     <div class="sec-head">
       <div>
-        <div class="sec-title">Resumen ejecutivo</div>
-        <div class="sec-desc">Panorama general del portafolio tecnico 7GROUP</div>
+        <div class="sec-title" data-t="dash_title">Resumen ejecutivo</div>
+        <div class="sec-desc" data-t="dash_desc">Panorama general del portafolio tecnico 7GROUP</div>
       </div>
     </div>
     <div class="kpis" id="dashKpis"></div>
 
     <div style="margin-top:26px">
-      <div class="sec-title" style="font-size:18px;margin-bottom:14px">Servicios mas usados</div>
+      <div class="sec-title" style="font-size:18px;margin-bottom:14px" data-t="top_svcs_title">Servicios mas usados</div>
       <div class="svc-grid" id="topSvcs"></div>
     </div>
 
     <div style="margin-top:26px">
-      <div class="sec-title" style="font-size:18px;margin-bottom:14px">Casos activos</div>
+      <div class="sec-title" style="font-size:18px;margin-bottom:14px" data-t="casos_activos_title">Casos activos</div>
       <div class="case-grid" id="topCasos"></div>
     </div>
   </section>
@@ -289,8 +295,8 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
   <section class="section" id="s-planes">
     <div class="sec-head">
       <div>
-        <div class="sec-title">Planes 7GROUP oficiales</div>
-        <div class="sec-desc">Precios alineados al home 7group.site. Mostrar en USD (principal) o COP (TRM $4.000). Listo para enviar.</div>
+        <div class="sec-title" data-t="planes_title">Planes 7GROUP oficiales</div>
+        <div class="sec-desc" data-t="planes_desc">Precios alineados al home 7group.site. Mostrar en USD (principal) o COP (TRM $4.000). Listo para enviar.</div>
       </div>
       <div>
         <div class="filtros" style="margin-bottom:0">
@@ -306,18 +312,18 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
   <section class="section" id="s-combos">
     <div class="sec-head">
       <div>
-        <div class="sec-title">Combos y ofertas de cierre</div>
-        <div class="sec-desc">Bundles con descuento por pago anticipado, volumen o combinación de servicios. Herramientas para cerrar la venta.</div>
+        <div class="sec-title" data-t="combos_title">Combos y ofertas de cierre</div>
+        <div class="sec-desc" data-t="combos_desc">Bundles con descuento por pago anticipado, volumen o combinacion de servicios. Herramientas para cerrar la venta.</div>
       </div>
     </div>
     <div id="combosContent"></div>
     <div style="margin-top:26px">
-      <div class="sec-title" style="font-size:18px;margin-bottom:14px">Add-ons individuales</div>
-      <div class="sec-desc" style="margin-bottom:14px">Para clientes que ya tienen plan y quieren extender capacidades.</div>
+      <div class="sec-title" style="font-size:18px;margin-bottom:14px" data-t="addons_title">Add-ons individuales</div>
+      <div class="sec-desc" style="margin-bottom:14px" data-t="addons_desc">Para clientes que ya tienen plan y quieren extender capacidades.</div>
       <div id="addonsContent"></div>
     </div>
     <div style="margin-top:26px">
-      <div class="sec-title" style="font-size:18px;margin-bottom:14px">Descuentos aplicables</div>
+      <div class="sec-title" style="font-size:18px;margin-bottom:14px" data-t="desc_title">Descuentos aplicables</div>
       <div id="descuentosContent"></div>
     </div>
   </section>
@@ -326,8 +332,8 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
   <section class="section" id="s-svc">
     <div class="sec-head">
       <div>
-        <div class="sec-title">Catalogo de servicios tecnicos</div>
-        <div class="sec-desc">Capacidades entregables de 7GROUP con rangos de precio referenciales</div>
+        <div class="sec-title" data-t="svc_title">Catalogo de servicios tecnicos</div>
+        <div class="sec-desc" data-t="svc_desc">Capacidades entregables de 7GROUP con rangos de precio referenciales</div>
       </div>
     </div>
     <div class="filtros" id="filtrosSvc"></div>
@@ -338,8 +344,8 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
   <section class="section" id="s-casos">
     <div class="sec-head">
       <div>
-        <div class="sec-title">Casos y proyectos</div>
-        <div class="sec-desc">Historial de implementaciones ejecutadas y en curso</div>
+        <div class="sec-title" data-t="casos_title">Casos y proyectos</div>
+        <div class="sec-desc" data-t="casos_desc">Historial de implementaciones ejecutadas y en curso</div>
       </div>
     </div>
     <div class="case-grid" id="caseGrid"></div>
@@ -349,26 +355,26 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
   <section class="section" id="s-cot">
     <div class="sec-head">
       <div>
-        <div class="sec-title">Cotizador rapido</div>
-        <div class="sec-desc">Selecciona servicios del catalogo y arma propuesta con branding 7GROUP</div>
+        <div class="sec-title" data-t="cot_title">Cotizador rapido</div>
+        <div class="sec-desc" data-t="cot_desc">Selecciona servicios del catalogo y arma propuesta con branding 7GROUP</div>
       </div>
     </div>
     <div class="cot-layout">
       <div class="cot-servicios">
-        <div class="cot-h">Servicios disponibles</div>
+        <div class="cot-h" data-t="cot_servicios_title">Servicios disponibles</div>
         <div id="cotItems"></div>
       </div>
       <div class="cot-resumen">
-        <div class="cot-h">Propuesta</div>
-        <input type="text" id="cotCliente" class="cot-cliente-input" placeholder="Nombre del cliente">
-        <input type="text" id="cotProyecto" class="cot-cliente-input" placeholder="Nombre del proyecto">
+        <div class="cot-h" data-t="cot_propuesta">Propuesta</div>
+        <input type="text" id="cotCliente" class="cot-cliente-input" placeholder="Nombre del cliente" data-t-ph="ph_cliente">
+        <input type="text" id="cotProyecto" class="cot-cliente-input" placeholder="Nombre del proyecto" data-t-ph="ph_proyecto">
         <div class="cot-total">
-          <div class="cot-total-lbl">Total estimado</div>
+          <div class="cot-total-lbl" data-t="cot_total">Total estimado</div>
           <div class="cot-total-val" id="cotTotal">$0</div>
           <div class="cot-total-sub" id="cotHoras">0 horas · 0 servicios</div>
         </div>
         <div class="cot-selected-list" id="cotSelectedList"></div>
-        <button class="cot-btn" onclick="descargarPropuestaPDF()">Descargar propuesta PDF</button>
+        <button class="cot-btn" onclick="descargarPropuestaPDF()" data-t="cot_descargar">Descargar propuesta PDF</button>
       </div>
     </div>
   </section>
@@ -381,7 +387,7 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
   <div style="background:var(--bg2);border:1px solid var(--cyan);border-radius:14px;max-width:640px;width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden">
     <div style="padding:20px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
       <div style="flex:1">
-        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);font-weight:800;margin-bottom:4px">Combo seleccionado</div>
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);font-weight:800;margin-bottom:4px" data-t="modal_seleccionado">Combo seleccionado</div>
         <div id="mccTitulo" style="font-size:18px;font-weight:800"></div>
         <div id="mccDesc" style="color:var(--dim);font-size:12px;margin-top:4px;line-height:1.5"></div>
       </div>
@@ -396,40 +402,40 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
       </div>
       <!-- Servicios -->
       <div style="margin-bottom:14px">
-        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:8px">Servicios que jala</div>
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:8px" data-t="combo_servicios">Servicios que jala</div>
         <div id="mccServicios"></div>
       </div>
       <!-- Entregables -->
       <div style="margin-bottom:14px">
-        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:8px">Entregables</div>
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:8px" data-t="modal_entregables">Entregables</div>
         <div id="mccEntregables"></div>
       </div>
       <!-- Timeline + Pago -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
         <div>
-          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:4px">Timeline</div>
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:4px" data-t="modal_timeline">Timeline</div>
           <div id="mccTimeline" style="font-size:12px;line-height:1.5;color:var(--text)"></div>
         </div>
         <div>
-          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:4px">Pago</div>
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:4px" data-t="modal_pago">Pago</div>
           <div id="mccPago" style="font-size:12px;line-height:1.5;color:var(--text)"></div>
         </div>
       </div>
       <!-- Datos cliente -->
       <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-top:14px">
-        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);font-weight:800;margin-bottom:10px">Datos del cliente para la propuesta</div>
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);font-weight:800;margin-bottom:10px" data-t="modal_datos">Datos del cliente para la propuesta</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <input id="mccCliente" placeholder="Nombre contacto" class="cot-cliente-input" style="margin:0">
-          <input id="mccEmpresa" placeholder="Empresa" class="cot-cliente-input" style="margin:0">
-          <input id="mccEmail"   placeholder="Email" type="email" class="cot-cliente-input" style="margin:0">
-          <input id="mccTel"     placeholder="Telefono / WhatsApp" class="cot-cliente-input" style="margin:0">
+          <input id="mccCliente" placeholder="Nombre contacto" data-t-ph="ph_contacto" class="cot-cliente-input" style="margin:0">
+          <input id="mccEmpresa" placeholder="Empresa" data-t-ph="ph_empresa" class="cot-cliente-input" style="margin:0">
+          <input id="mccEmail"   placeholder="Email" data-t-ph="ph_email" type="email" class="cot-cliente-input" style="margin:0">
+          <input id="mccTel"     placeholder="Telefono / WhatsApp" data-t-ph="ph_tel" class="cot-cliente-input" style="margin:0">
         </div>
-        <textarea id="mccNotas" placeholder="Notas adicionales (opcional)" class="cot-cliente-input" rows="2" style="margin-top:8px;resize:vertical;min-height:50px"></textarea>
+        <textarea id="mccNotas" placeholder="Notas adicionales (opcional)" data-t-ph="ph_notas" class="cot-cliente-input" rows="2" style="margin-top:8px;resize:vertical;min-height:50px"></textarea>
       </div>
     </div>
     <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
-      <button class="filtro-chip" onclick="cerrarModalCombo()">Cancelar</button>
-      <button class="cot-btn" style="flex:0 1 240px" onclick="generarPDFCombo()">Generar PDF y descargar</button>
+      <button class="filtro-chip" onclick="cerrarModalCombo()" data-t="modal_cancelar">Cancelar</button>
+      <button class="cot-btn" style="flex:0 1 240px" onclick="generarPDFCombo()" data-t="modal_descargar">Generar PDF y descargar</button>
     </div>
   </div>
 </div>
@@ -437,6 +443,130 @@ body{background:var(--bg);color:var(--text);font-family:'Manrope','Segoe UI',sys
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
+/* ============================================
+   i18n (ES / EN)
+   ============================================ */
+var LANG = localStorage.getItem('7g_port_lang') || 'es';
+var T = {
+  es: {
+    back:'Volver',
+    nav_dash:'Resumen', nav_planes:'Planes', nav_combos:'Combos & Ofertas',
+    nav_svc:'Servicios', nav_casos:'Casos', nav_cot:'Cotizador',
+    dash_title:'Resumen ejecutivo', dash_desc:'Panorama general del portafolio tecnico 7GROUP',
+    planes_title:'Planes 7GROUP oficiales', planes_desc:'Precios alineados al home 7group.site. Mostrar en USD (principal) o COP (TRM $4.000). Listo para enviar.',
+    combos_title:'Combos y ofertas de cierre', combos_desc:'Bundles con descuento por pago anticipado, volumen o combinacion de servicios. Herramientas para cerrar la venta.',
+    svc_title:'Catalogo de servicios tecnicos', svc_desc:'Capacidades entregables de 7GROUP con rangos de precio referenciales',
+    casos_title:'Casos y proyectos', casos_desc:'Historial de implementaciones ejecutadas y en curso',
+    cot_title:'Cotizador rapido', cot_desc:'Selecciona servicios del catalogo y arma propuesta con branding 7GROUP',
+    kpi_svcs:'Servicios en catalogo', kpi_casos:'Casos totales', kpi_prod:'en produccion',
+    kpi_realizado:'Valor realizado', kpi_pendiente:'Valor pendiente / oportunidad',
+    kpi_horas:'Horas ejecutadas', kpi_tarifa:'Tarifa base',
+    top_svcs_title:'Servicios mas usados', casos_activos_title:'Casos activos',
+    combo_ver_detalle:'Ver detalle', combo_cotizar:'Cotizar y generar PDF →',
+    combo_incluye:'Incluye:', combo_servicios:'Servicios que jala',
+    combo_ahorra:'Ahorras', ahorra:'Ahorra',
+    todos:'Todos',
+    addons_title:'Add-ons individuales', addons_desc:'Para clientes que ya tienen plan y quieren extender capacidades.',
+    desc_title:'Descuentos aplicables',
+    paso_pil:'Paso 1 — Piloto gratis', paso_setup:'Paso 2 — Implementacion one-time', paso_susc:'Paso 3 — Suscripcion mensual',
+    piloto_nombre:'Piloto gratis', piloto_desc:'15 dias de prueba, 5 workflows automatizados, sin tarjeta, marca del cliente.',
+    piloto_sub:'15 dias · sin tarjeta',
+    setup_ess_target:'Equipos <10 · 1-2 modulos · MVP',
+    setup_bus_target:'Equipos <25 · 3-4 modulos · Growth',
+    setup_ent_target:'Equipos >25 · 5 agents · Full',
+    plan_starter:'Starter', plan_popular:'Mas popular', plan_enterprise:'Enterprise',
+    plan_custom:'Custom', plan_scoped:'/ scoped',
+    combo_ejem_tag:'12 MESES · 2 GRATIS', combo_pop_tag:'MAS POPULAR',
+    combo_launch_tag:'CIERRE RAPIDO', combo_flagship_tag:'FLAGSHIP',
+    combo_biannual_tag:'PAGO 24M · 4 GRATIS',
+    modal_seleccionado:'Combo seleccionado',
+    modal_datos:'Datos del cliente para la propuesta',
+    modal_entregables:'Entregables', modal_timeline:'Timeline', modal_pago:'Pago',
+    modal_cancelar:'Cancelar', modal_descargar:'Generar PDF y descargar',
+    ph_contacto:'Nombre contacto', ph_empresa:'Empresa', ph_email:'Email',
+    ph_tel:'Telefono / WhatsApp', ph_notas:'Notas adicionales (opcional)',
+    cot_servicios_title:'Servicios disponibles', cot_propuesta:'Propuesta',
+    ph_cliente:'Nombre del cliente', ph_proyecto:'Nombre del proyecto',
+    cot_total:'Total estimado', cot_selecciona:'Selecciona servicios del catalogo',
+    cot_descargar:'Descargar propuesta PDF',
+    filter_todos:'Todos',
+    servicios_label:'servicios', servicio_label:'servicio',
+    horas:'horas', cases_word:'casos', case_word:'caso',
+    referencias:'Referencias:',
+    valor_realizado:'Valor realizado', pendiente_lbl:'Pendiente', total_lbl:'Total',
+    ver_arrow:'Ver →'
+  },
+  en: {
+    back:'Back',
+    nav_dash:'Overview', nav_planes:'Plans', nav_combos:'Bundles & Offers',
+    nav_svc:'Services', nav_casos:'Cases', nav_cot:'Quote builder',
+    dash_title:'Executive overview', dash_desc:'General view of the 7GROUP technical portfolio',
+    planes_title:'Official 7GROUP plans', planes_desc:'Prices aligned with 7group.site homepage. Display in USD (primary) or COP (FX $4,000). Ready to send.',
+    combos_title:'Closing bundles & offers', combos_desc:'Bundles with discounts by prepayment, volume or service combination. Sales-closing tools.',
+    svc_title:'Technical services catalog', svc_desc:'7GROUP delivery capabilities with reference price ranges',
+    casos_title:'Cases & projects', casos_desc:'History of executed and ongoing implementations',
+    cot_title:'Quick quote builder', cot_desc:'Pick services from the catalog and build a proposal with 7GROUP branding',
+    kpi_svcs:'Services in catalog', kpi_casos:'Total cases', kpi_prod:'in production',
+    kpi_realizado:'Delivered value', kpi_pendiente:'Pending / opportunity value',
+    kpi_horas:'Hours delivered', kpi_tarifa:'Base rate',
+    top_svcs_title:'Most used services', casos_activos_title:'Active cases',
+    combo_ver_detalle:'See details', combo_cotizar:'Quote & generate PDF →',
+    combo_incluye:'Includes:', combo_servicios:'Services included',
+    combo_ahorra:'You save', ahorra:'Save',
+    todos:'All',
+    addons_title:'Individual add-ons', addons_desc:'For clients that already have a plan and want to extend capabilities.',
+    desc_title:'Applicable discounts',
+    paso_pil:'Step 1 — Free pilot', paso_setup:'Step 2 — One-time implementation', paso_susc:'Step 3 — Monthly subscription',
+    piloto_nombre:'Free pilot', piloto_desc:'15-day trial, 5 automated workflows, no credit card, white-label.',
+    piloto_sub:'15 days · no card',
+    setup_ess_target:'Teams <10 · 1-2 modules · MVP',
+    setup_bus_target:'Teams <25 · 3-4 modules · Growth',
+    setup_ent_target:'Teams >25 · 5 agents · Full',
+    plan_starter:'Starter', plan_popular:'Most popular', plan_enterprise:'Enterprise',
+    plan_custom:'Custom', plan_scoped:'/ scoped',
+    combo_ejem_tag:'12 MONTHS · 2 FREE', combo_pop_tag:'MOST POPULAR',
+    combo_launch_tag:'FAST CLOSE', combo_flagship_tag:'FLAGSHIP',
+    combo_biannual_tag:'24M PAY · 4 FREE',
+    modal_seleccionado:'Selected bundle',
+    modal_datos:'Client data for the proposal',
+    modal_entregables:'Deliverables', modal_timeline:'Timeline', modal_pago:'Payment',
+    modal_cancelar:'Cancel', modal_descargar:'Generate PDF and download',
+    ph_contacto:'Contact name', ph_empresa:'Company', ph_email:'Email',
+    ph_tel:'Phone / WhatsApp', ph_notas:'Additional notes (optional)',
+    cot_servicios_title:'Available services', cot_propuesta:'Proposal',
+    ph_cliente:'Client name', ph_proyecto:'Project name',
+    cot_total:'Estimated total', cot_selecciona:'Pick services from the catalog',
+    cot_descargar:'Download proposal PDF',
+    filter_todos:'All',
+    servicios_label:'services', servicio_label:'service',
+    horas:'hours', cases_word:'cases', case_word:'case',
+    referencias:'Reference cases:',
+    valor_realizado:'Delivered value', pendiente_lbl:'Pending', total_lbl:'Total',
+    ver_arrow:'Open →'
+  }
+};
+function t(k){ return (T[LANG] && T[LANG][k]) || (T.es && T.es[k]) || k; }
+function tl(obj){ if(!obj) return ''; if(typeof obj==='string') return obj; return obj[LANG] || obj.es || obj.en || ''; }
+window.setLang = function(l){
+  LANG = l;
+  localStorage.setItem('7g_port_lang', l);
+  document.getElementById('langES').classList.toggle('active', l==='es');
+  document.getElementById('langEN').classList.toggle('active', l==='en');
+  document.documentElement.lang = l;
+  applyLang_();
+  if(typeof render === 'function') render();
+};
+function applyLang_(){
+  document.querySelectorAll('[data-t]').forEach(function(el){
+    var k = el.getAttribute('data-t');
+    if(k) el.textContent = t(k);
+  });
+  document.querySelectorAll('[data-t-ph]').forEach(function(el){
+    var k = el.getAttribute('data-t-ph');
+    if(k) el.setAttribute('placeholder', t(k));
+  });
+}
+
 /* ============================================
    AUTH GATE (solo admin 7GROUP)
    ============================================ */
@@ -465,7 +595,8 @@ function entrar(email){
   document.getElementById('gate').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('tbUser').textContent = email;
-  render();
+  // Aplicar idioma guardado (o ES por defecto)
+  setLang(LANG);
 }
 window.addEventListener('DOMContentLoaded', function(){
   var stored = localStorage.getItem(GATE_KEY);
@@ -486,82 +617,190 @@ window.addEventListener('DOMContentLoaded', function(){
    ============================================ */
 var TARIFA_HORA = 70000; // COP - referencia
 
+/* Helpers de complejidad y categorias bilingues */
+var COMP_MAP = {
+  'Baja': {es:'Baja', en:'Low'},
+  'Media':{es:'Media',en:'Medium'},
+  'Alta': {es:'Alta', en:'High'},
+  'Muy Alta':{es:'Muy Alta',en:'Very High'}
+};
+var CAT_MAP = {
+  'Web':          {es:'Web',           en:'Web'},
+  'ERP':          {es:'ERP',           en:'ERP'},
+  'Financiero':   {es:'Financiero',    en:'Finance'},
+  'IA':           {es:'IA',            en:'AI'},
+  'Integracion':  {es:'Integracion',   en:'Integration'},
+  'Automatizacion':{es:'Automatizacion',en:'Automation'},
+  'Marketing':    {es:'Marketing',     en:'Marketing'},
+  'Consultoria':  {es:'Consultoria',   en:'Consulting'},
+  'Seguridad':    {es:'Seguridad',     en:'Security'}
+};
+function tComp(c){ return (COMP_MAP[c] && COMP_MAP[c][LANG]) || c; }
+function tCat(c){ return (CAT_MAP[c] && CAT_MAP[c][LANG]) || c; }
+
 var SERVICIOS = [
   // === DESARROLLO WEB ===
-  { id:'landing',       nombre:'Landing page profesional',    cat:'Web',        icon:'L',  desc:'Sitio one-page con branding, formulario captura leads, integrado a WhatsApp/email. Deploy en GitHub Pages/Vercel.',
+  { id:'landing', cat:'Web', icon:'L',
+    nombre:{es:'Landing page profesional', en:'Professional landing page'},
+    desc:{es:'Sitio one-page con branding, formulario captura leads, integrado a WhatsApp/email. Deploy en GitHub Pages/Vercel.',
+          en:'One-page site with branding, lead capture form, WhatsApp/email integration. GitHub Pages/Vercel deploy.'},
     complejidad:'Baja', hmin:12, hmax:20, tags:['HTML/CSS','Responsive','SEO basico'], refs:['Trasteos Ya','Juan Andres','Lan Marmoles'] },
-  { id:'multipage',     nombre:'Sitio web multi-pagina',      cat:'Web',        icon:'W',  desc:'Sitio corporativo con secciones (nosotros, servicios, portafolio, contacto), CMS ligero, sitemap.',
-    complejidad:'Media', hmin:20, hmax:40, tags:['HTML/CSS','JS','SEO','Deploy'], refs:['7group.site','ejemplos varios'] },
-  { id:'cotizador-pub', nombre:'Cotizador publico',           cat:'Web',        icon:'$',  desc:'Formulario paso a paso que calcula precio en vivo, envia lead a Sheet + notifica WhatsApp/Telegram. Branding cliente.',
+  { id:'multipage', cat:'Web', icon:'W',
+    nombre:{es:'Sitio web multi-pagina', en:'Multi-page website'},
+    desc:{es:'Sitio corporativo con secciones (nosotros, servicios, portafolio, contacto), CMS ligero, sitemap.',
+          en:'Corporate site with sections (about, services, portfolio, contact), light CMS, sitemap.'},
+    complejidad:'Media', hmin:20, hmax:40, tags:['HTML/CSS','JS','SEO','Deploy'], refs:['7group.site','multiple examples'] },
+  { id:'cotizador-pub', cat:'Web', icon:'$',
+    nombre:{es:'Cotizador publico', en:'Public quote builder'},
+    desc:{es:'Formulario paso a paso que calcula precio en vivo, envia lead a Sheet + notifica WhatsApp/Telegram. Branding cliente.',
+          en:'Step-by-step form that calculates price live, sends lead to Sheet + WhatsApp/Telegram notification. Client branding.'},
     complejidad:'Media', hmin:16, hmax:30, tags:['JS','Sheets API','Telegram'], refs:['cotizadorparati (Trasteos)','Lan Marmoles'] },
 
   // === ERPs / SISTEMAS DE GESTION ===
-  { id:'erp-completo',  nombre:'ERP a medida',                 cat:'ERP',        icon:'E',  desc:'Sistema completo de gestion multi-modulo (polizas/inventario/clientes/pipeline). Autenticacion, roles, dashboard, reportes.',
+  { id:'erp-completo', cat:'ERP', icon:'E',
+    nombre:{es:'ERP a medida', en:'Custom ERP'},
+    desc:{es:'Sistema completo de gestion multi-modulo (polizas/inventario/clientes/pipeline). Autenticacion, roles, dashboard, reportes.',
+          en:'Complete multi-module management system (policies/inventory/clients/pipeline). Auth, roles, dashboard, reports.'},
     complejidad:'Muy Alta', hmin:120, hmax:280, tags:['JS','Apps Script','Sheets','Auth','Mobile'], refs:['Aseguralo','Trasteos Ya','Lan Marmoles'] },
-  { id:'modulo-pipeline', nombre:'Modulo pipeline (kanban)',  cat:'ERP',        icon:'P',  desc:'Pipeline visual tipo kanban con estados, drag-drop, filtros, KPIs de conversion.',
+  { id:'modulo-pipeline', cat:'ERP', icon:'P',
+    nombre:{es:'Modulo pipeline (kanban)', en:'Pipeline module (kanban)'},
+    desc:{es:'Pipeline visual tipo kanban con estados, drag-drop, filtros, KPIs de conversion.',
+          en:'Visual kanban pipeline with states, drag-drop, filters, conversion KPIs.'},
     complejidad:'Media', hmin:14, hmax:24, tags:['JS','Sheets'], refs:['Aseguralo (Cotizador)','TYGO'] },
-  { id:'dashboard',     nombre:'Dashboard con KPIs',           cat:'ERP',        icon:'D',  desc:'Panel de indicadores en tiempo real, graficos Chart.js, filtros de fecha, exportacion.',
+  { id:'dashboard', cat:'ERP', icon:'D',
+    nombre:{es:'Dashboard con KPIs', en:'KPI dashboard'},
+    desc:{es:'Panel de indicadores en tiempo real, graficos Chart.js, filtros de fecha, exportacion.',
+          en:'Real-time KPI panel, Chart.js graphs, date filters, export.'},
     complejidad:'Media', hmin:12, hmax:20, tags:['Chart.js','JS','Sheets'], refs:['Aseguralo','Trasteos Ya (KPI CEO)'] },
-  { id:'admin-panel',   nombre:'Panel administracion + roles', cat:'ERP',        icon:'A',  desc:'Sistema de gestion de usuarios, roles configurables (admin/dueno/asesor), permisos por modulo, activacion/desactivacion.',
+  { id:'admin-panel', cat:'ERP', icon:'A',
+    nombre:{es:'Panel administracion + roles', en:'Admin panel + roles'},
+    desc:{es:'Sistema de gestion de usuarios, roles configurables (admin/dueno/asesor), permisos por modulo, activacion/desactivacion.',
+          en:'User management system, configurable roles (admin/owner/advisor), per-module permissions, activate/deactivate.'},
     complejidad:'Alta', hmin:16, hmax:30, tags:['Auth','Roles','Google Sign-In'], refs:['Aseguralo'] },
 
   // === COMISIONES / FINANCIERO ===
-  { id:'motor-comisiones', nombre:'Motor de comisiones con reglas', cat:'Financiero', icon:'%', desc:'Calculo automatico con cascada multi-nivel, splits configurables por intermediario, sostenimiento, renovaciones. Regla dinamica editable.',
-    complejidad:'Muy Alta', hmin:24, hmax:50, tags:['Backend','Reglas complejas'], refs:['Aseguralo'] },
-  { id:'facturacion',    nombre:'Modulo facturacion + cartera', cat:'Financiero', icon:'F', desc:'Cuentas de cobro, control de cartera, estados de pago, alertas de vencimiento, exportacion.',
+  { id:'motor-comisiones', cat:'Financiero', icon:'%',
+    nombre:{es:'Motor de comisiones con reglas', en:'Rules-based commission engine'},
+    desc:{es:'Calculo automatico con cascada multi-nivel, splits configurables por intermediario, sostenimiento, renovaciones. Regla dinamica editable.',
+          en:'Automatic calculation with multi-level cascade, configurable splits per broker, sustainability fee, renewals. Editable dynamic rules.'},
+    complejidad:'Muy Alta', hmin:24, hmax:50, tags:['Backend','Complex rules'], refs:['Aseguralo'] },
+  { id:'facturacion', cat:'Financiero', icon:'F',
+    nombre:{es:'Modulo facturacion + cartera', en:'Billing + collections module'},
+    desc:{es:'Cuentas de cobro, control de cartera, estados de pago, alertas de vencimiento, exportacion.',
+          en:'Invoices, receivables tracking, payment status, expiration alerts, export.'},
     complejidad:'Media', hmin:14, hmax:26, tags:['Sheets','PDF'], refs:['Aseguralo','Lan Marmoles'] },
-  { id:'orden-servicio', nombre:'Orden de servicio digital',    cat:'Financiero', icon:'O', desc:'Formulario dinamico de OS con firma, adjuntos, envio automatico a Sheet + email + WhatsApp.',
+  { id:'orden-servicio', cat:'Financiero', icon:'O',
+    nombre:{es:'Orden de servicio digital', en:'Digital service order'},
+    desc:{es:'Formulario dinamico de OS con firma, adjuntos, envio automatico a Sheet + email + WhatsApp.',
+          en:'Dynamic work-order form with signature, attachments, auto-send to Sheet + email + WhatsApp.'},
     complejidad:'Media', hmin:12, hmax:24, tags:['Forms','Sheets','WhatsApp'], refs:['Trasteos Ya (orden-servicio.html)'] },
 
   // === IA / OCR / AUTOMATIZACION ===
-  { id:'ocr-ia',        nombre:'OCR de documentos con IA',     cat:'IA',         icon:'O',  desc:'Lectura automatica de PDFs/imagenes con Gemini/GPT vision, extraccion estructurada de campos, validacion cruzada.',
-    complejidad:'Muy Alta', hmin:20, hmax:40, tags:['Gemini','Vision AI','Extraccion'], refs:['Aseguralo (cotizaciones)'] },
-  { id:'validacion-ia', nombre:'Validacion inteligente de datos', cat:'IA',      icon:'V',  desc:'Validacion cruzada de identidad, similitud de texto (Levenshtein), deteccion de tipeos, coherencia entre campos.',
-    complejidad:'Alta', hmin:10, hmax:18, tags:['Algoritmos','Similitud'], refs:['Aseguralo (identidad + coberturas)'] },
-  { id:'bot-consulta',  nombre:'Bot de consulta (Telegram/WA)', cat:'IA',        icon:'B',  desc:'Bot conversacional para consultas frecuentes: estado pedido/poliza, cotizacion rapida, preguntas frecuentes.',
+  { id:'ocr-ia', cat:'IA', icon:'O',
+    nombre:{es:'OCR de documentos con IA', en:'AI-powered document OCR'},
+    desc:{es:'Lectura automatica de PDFs/imagenes con Gemini/GPT vision, extraccion estructurada de campos, validacion cruzada.',
+          en:'Automatic reading of PDFs/images with Gemini/GPT vision, structured field extraction, cross-validation.'},
+    complejidad:'Muy Alta', hmin:20, hmax:40, tags:['Gemini','Vision AI','Extraction'], refs:['Aseguralo (quotes)'] },
+  { id:'validacion-ia', cat:'IA', icon:'V',
+    nombre:{es:'Validacion inteligente de datos', en:'Intelligent data validation'},
+    desc:{es:'Validacion cruzada de identidad, similitud de texto (Levenshtein), deteccion de tipeos, coherencia entre campos.',
+          en:'Cross-validation of identity, text similarity (Levenshtein), typo detection, cross-field coherence.'},
+    complejidad:'Alta', hmin:10, hmax:18, tags:['Algorithms','Similarity'], refs:['Aseguralo (identity + coverages)'] },
+  { id:'bot-consulta', cat:'IA', icon:'B',
+    nombre:{es:'Bot de consulta (Telegram/WA)', en:'Query bot (Telegram/WA)'},
+    desc:{es:'Bot conversacional para consultas frecuentes: estado pedido/poliza, cotizacion rapida, preguntas frecuentes.',
+          en:'Conversational bot for FAQs: order/policy status, quick quote, frequent questions.'},
     complejidad:'Alta', hmin:20, hmax:40, tags:['Telegram Bot','WhatsApp API'], refs:['AseguraloBot (base)','TrasteoBot'] },
-  { id:'analisis-ia',   nombre:'Analisis IA de datos',         cat:'IA',        icon:'I',  desc:'Insights automaticos, deteccion de anomalias, recomendaciones, resumenes ejecutivos generados con IA.',
-    complejidad:'Alta', hmin:16, hmax:30, tags:['Gemini','Analytics'], refs:['propuesta TYGO'] },
+  { id:'analisis-ia', cat:'IA', icon:'I',
+    nombre:{es:'Analisis IA de datos', en:'AI data analytics'},
+    desc:{es:'Insights automaticos, deteccion de anomalias, recomendaciones, resumenes ejecutivos generados con IA.',
+          en:'Automatic insights, anomaly detection, recommendations, AI-generated executive summaries.'},
+    complejidad:'Alta', hmin:16, hmax:30, tags:['Gemini','Analytics'], refs:['TYGO proposal'] },
 
   // === INTEGRACIONES ===
-  { id:'sheets-api',    nombre:'Integracion Google Sheets',    cat:'Integracion',icon:'G',  desc:'Backend Apps Script como API REST: GET/POST, autenticacion, cache, retry, migracion de schemas.',
+  { id:'sheets-api', cat:'Integracion', icon:'G',
+    nombre:{es:'Integracion Google Sheets', en:'Google Sheets integration'},
+    desc:{es:'Backend Apps Script como API REST: GET/POST, autenticacion, cache, retry, migracion de schemas.',
+          en:'Apps Script backend as REST API: GET/POST, auth, cache, retry, schema migrations.'},
     complejidad:'Media', hmin:10, hmax:24, tags:['Apps Script','JSONP'], refs:['Aseguralo','Trasteos','Lan Marmoles'] },
-  { id:'telegram-int',  nombre:'Notificaciones Telegram',      cat:'Integracion',icon:'T',  desc:'Envio automatico de eventos criticos por Telegram Bot API. Formato Markdown, botones inline.',
+  { id:'telegram-int', cat:'Integracion', icon:'T',
+    nombre:{es:'Notificaciones Telegram', en:'Telegram notifications'},
+    desc:{es:'Envio automatico de eventos criticos por Telegram Bot API. Formato Markdown, botones inline.',
+          en:'Automatic critical-event delivery via Telegram Bot API. Markdown format, inline buttons.'},
     complejidad:'Baja', hmin:4, hmax:8, tags:['Bot API'], refs:['Aseguralo','7group'] },
-  { id:'wa-forms',      nombre:'WhatsApp + Web3Forms',         cat:'Integracion',icon:'W',  desc:'Envio de leads/pedidos a WhatsApp + copia email via Web3Forms (Zoho/Gmail).',
+  { id:'wa-forms', cat:'Integracion', icon:'W',
+    nombre:{es:'WhatsApp + Web3Forms', en:'WhatsApp + Web3Forms'},
+    desc:{es:'Envio de leads/pedidos a WhatsApp + copia email via Web3Forms (Zoho/Gmail).',
+          en:'Send leads/orders to WhatsApp + email copy via Web3Forms (Zoho/Gmail).'},
     complejidad:'Baja', hmin:4, hmax:8, tags:['Web3Forms','Zoho'], refs:['7group agendar','Trasteos'] },
-  { id:'calendar-int',  nombre:'Google Calendar integrado',    cat:'Integracion',icon:'C',  desc:'Reserva de citas con creacion automatica de evento, invitados, recordatorios, disponibilidad en vivo.',
+  { id:'calendar-int', cat:'Integracion', icon:'C',
+    nombre:{es:'Google Calendar integrado', en:'Google Calendar integrated'},
+    desc:{es:'Reserva de citas con creacion automatica de evento, invitados, recordatorios, disponibilidad en vivo.',
+          en:'Appointment booking with auto event creation, invitees, reminders, live availability.'},
     complejidad:'Media', hmin:10, hmax:18, tags:['Calendar API'], refs:['7group agendar'] },
-  { id:'pdf-branded',   nombre:'Reportes PDF con branding',    cat:'Integracion',icon:'P',  desc:'Generacion de PDFs profesionales con logo, colores, layout responsive segun contenido. jsPDF + Reportlab.',
-    complejidad:'Media', hmin:8, hmax:20, tags:['jsPDF','Reportlab'], refs:['Aseguralo (propuesta)','7GROUP (avances)'] },
+  { id:'pdf-branded', cat:'Integracion', icon:'P',
+    nombre:{es:'Reportes PDF con branding', en:'Branded PDF reports'},
+    desc:{es:'Generacion de PDFs profesionales con logo, colores, layout responsive segun contenido. jsPDF + Reportlab.',
+          en:'Professional PDF generation with logo, colors, responsive layout by content. jsPDF + Reportlab.'},
+    complejidad:'Media', hmin:8, hmax:20, tags:['jsPDF','Reportlab'], refs:['Aseguralo (proposal)','7GROUP (progress reports)'] },
 
   // === AUTOMATIZACION ===
-  { id:'cron-jobs',     nombre:'Cron / automatizaciones diarias', cat:'Automatizacion', icon:'C',  desc:'Tareas programadas: cross-match, notificaciones, respaldos, sincronizacion de datos.',
-    complejidad:'Media', hmin:6, hmax:14, tags:['Apps Script Trigger'], refs:['Aseguralo (auto-ventas)'] },
-  { id:'workflow',      nombre:'Workflow multi-paso',          cat:'Automatizacion', icon:'F',  desc:'Automatizacion de procesos: lead -> cotizacion -> aceptado -> factura -> pago, con eventos y triggers.',
-    complejidad:'Alta', hmin:16, hmax:32, tags:['State machine'], refs:['Aseguralo (pipeline completo)'] },
-  { id:'sync-devices',  nombre:'Sincronizacion multi-dispositivo', cat:'Automatizacion', icon:'S',  desc:'Sync bidireccional web-mobile via backend. Cambios en un dispositivo se propagan sin conflictos.',
-    complejidad:'Media', hmin:8, hmax:16, tags:['Sync','localStorage','Sheets'], refs:['Aseguralo (cotizaciones)'] },
+  { id:'cron-jobs', cat:'Automatizacion', icon:'C',
+    nombre:{es:'Cron / automatizaciones diarias', en:'Cron / daily automation'},
+    desc:{es:'Tareas programadas: cross-match, notificaciones, respaldos, sincronizacion de datos.',
+          en:'Scheduled tasks: cross-match, notifications, backups, data sync.'},
+    complejidad:'Media', hmin:6, hmax:14, tags:['Apps Script Trigger'], refs:['Aseguralo (auto-sales)'] },
+  { id:'workflow', cat:'Automatizacion', icon:'F',
+    nombre:{es:'Workflow multi-paso', en:'Multi-step workflow'},
+    desc:{es:'Automatizacion de procesos: lead -> cotizacion -> aceptado -> factura -> pago, con eventos y triggers.',
+          en:'Process automation: lead -> quote -> accepted -> invoice -> payment, with events and triggers.'},
+    complejidad:'Alta', hmin:16, hmax:32, tags:['State machine'], refs:['Aseguralo (full pipeline)'] },
+  { id:'sync-devices', cat:'Automatizacion', icon:'S',
+    nombre:{es:'Sincronizacion multi-dispositivo', en:'Multi-device sync'},
+    desc:{es:'Sync bidireccional web-mobile via backend. Cambios en un dispositivo se propagan sin conflictos.',
+          en:'Bidirectional web-mobile sync via backend. Changes propagate without conflicts.'},
+    complejidad:'Media', hmin:8, hmax:16, tags:['Sync','localStorage','Sheets'], refs:['Aseguralo (quotes)'] },
 
   // === PROSPECCION / MARKETING ===
-  { id:'geoprospector', nombre:'GeoProspector (prospeccion geografica)', cat:'Marketing', icon:'M',  desc:'Mapa interactivo con clientes/prospectos por zona, filtros, exportacion de rutas de visita.',
+  { id:'geoprospector', cat:'Marketing', icon:'M',
+    nombre:{es:'GeoProspector (prospeccion geografica)', en:'GeoProspector (geo prospecting)'},
+    desc:{es:'Mapa interactivo con clientes/prospectos por zona, filtros, exportacion de rutas de visita.',
+          en:'Interactive map with clients/prospects by zone, filters, visit-route export.'},
     complejidad:'Alta', hmin:20, hmax:40, tags:['Maps API','Geodata'], refs:['GeoProspector 7group/Trasteos'] },
-  { id:'campanas-wa',   nombre:'Campanas WhatsApp masivas',    cat:'Marketing',  icon:'C',  desc:'Envio masivo con plantillas personalizadas, segmentacion, tracking de respuestas.',
-    complejidad:'Alta', hmin:14, hmax:28, tags:['WA Business','Templates'], refs:['reactivacion Trasteos (base)'] },
+  { id:'campanas-wa', cat:'Marketing', icon:'C',
+    nombre:{es:'Campanas WhatsApp masivas', en:'Mass WhatsApp campaigns'},
+    desc:{es:'Envio masivo con plantillas personalizadas, segmentacion, tracking de respuestas.',
+          en:'Bulk send with custom templates, segmentation, response tracking.'},
+    complejidad:'Alta', hmin:14, hmax:28, tags:['WA Business','Templates'], refs:['Trasteos reactivation (base)'] },
 
   // === CONSULTORIA ===
-  { id:'analisis-neg',  nombre:'Analisis de negocio + arquitectura', cat:'Consultoria', icon:'A', desc:'Sesion de descubrimiento, mapeo de procesos, propuesta de arquitectura, definicion de MVP.',
-    complejidad:'Media', hmin:8, hmax:20, tags:['Product','Arquitectura'], refs:['todos los proyectos'] },
-  { id:'diseno-ui',     nombre:'Diseno UI/UX + branding',      cat:'Consultoria', icon:'D', desc:'Diseno visual del sistema, paleta, tipografia, mockups, sistema de componentes coherente.',
+  { id:'analisis-neg', cat:'Consultoria', icon:'A',
+    nombre:{es:'Analisis de negocio + arquitectura', en:'Business analysis + architecture'},
+    desc:{es:'Sesion de descubrimiento, mapeo de procesos, propuesta de arquitectura, definicion de MVP.',
+          en:'Discovery session, process mapping, architecture proposal, MVP scoping.'},
+    complejidad:'Media', hmin:8, hmax:20, tags:['Product','Architecture'], refs:['all projects'] },
+  { id:'diseno-ui', cat:'Consultoria', icon:'D',
+    nombre:{es:'Diseno UI/UX + branding', en:'UI/UX design + branding'},
+    desc:{es:'Diseno visual del sistema, paleta, tipografia, mockups, sistema de componentes coherente.',
+          en:'System visual design, palette, typography, mockups, coherent component system.'},
     complejidad:'Media', hmin:10, hmax:24, tags:['UI','UX','Branding'], refs:['Aseguralo','7group','Lan Marmoles'] },
-  { id:'capacitacion',  nombre:'Capacitacion + soporte',       cat:'Consultoria', icon:'S', desc:'Formacion al equipo cliente, documentacion, soporte post-lanzamiento, ajustes menores.',
+  { id:'capacitacion', cat:'Consultoria', icon:'S',
+    nombre:{es:'Capacitacion + soporte', en:'Training + support'},
+    desc:{es:'Formacion al equipo cliente, documentacion, soporte post-lanzamiento, ajustes menores.',
+          en:'Client team training, documentation, post-launch support, minor tweaks.'},
     complejidad:'Baja', hmin:4, hmax:12, tags:['Onboarding'], refs:['Fabian (Aseguralo)'] },
 
   // === SEGURIDAD ===
-  { id:'auth-google',   nombre:'Autenticacion Google Sign-In',  cat:'Seguridad',  icon:'A', desc:'Login con Google OAuth, lista blanca de emails, gate anti fuerza bruta, TTL configurable.',
-    complejidad:'Media', hmin:6, hmax:12, tags:['OAuth','Google'], refs:['Aseguralo','7group agentes'] },
-  { id:'pin-gate',      nombre:'Gate por PIN para operadores', cat:'Seguridad',  icon:'P', desc:'Acceso con PIN para operadores sin correo. Bloqueo tras intentos fallidos, expiracion.',
-    complejidad:'Baja', hmin:4, hmax:8, tags:['PIN','localStorage'], refs:['Trasteos Ya (operarios)'] },
+  { id:'auth-google', cat:'Seguridad', icon:'A',
+    nombre:{es:'Autenticacion Google Sign-In', en:'Google Sign-In authentication'},
+    desc:{es:'Login con Google OAuth, lista blanca de emails, gate anti fuerza bruta, TTL configurable.',
+          en:'Google OAuth login, email whitelist, anti-brute-force gate, configurable TTL.'},
+    complejidad:'Media', hmin:6, hmax:12, tags:['OAuth','Google'], refs:['Aseguralo','7group agents'] },
+  { id:'pin-gate', cat:'Seguridad', icon:'P',
+    nombre:{es:'Gate por PIN para operadores', en:'PIN gate for operators'},
+    desc:{es:'Acceso con PIN para operadores sin correo. Bloqueo tras intentos fallidos, expiracion.',
+          en:'PIN access for operators without email. Lockout on failed attempts, expiration.'},
+    complejidad:'Baja', hmin:4, hmax:8, tags:['PIN','localStorage'], refs:['Trasteos Ya (operators)'] },
 ];
 
 /* ============================================
@@ -598,132 +837,194 @@ var PLANES_MENSUALES = [
    COMBOS (con descuentos - herramientas de cierre)
    ============================================ */
 var COMBOS = [
-  { id:'combo-anual-core', titulo:'Combo Anual Core',   tag:'12 MESES · 2 GRATIS', tagClass:'',
-    desc:'Pago anticipado de 12 meses del plan Core. Recibes 12 meses pagando 10. Ahorras 2 mensualidades.',
+  { id:'combo-anual-core',
+    titulo:{es:'Combo Anual Core', en:'Core Annual Bundle'},
+    tag:{es:'12 MESES - 2 GRATIS', en:'12 MONTHS - 2 FREE'}, tagClass:'',
+    desc:{es:'Pago anticipado de 12 meses del plan Core. Recibes 12 meses pagando 10. Ahorras 2 mensualidades.',
+          en:'Prepaid 12 months of Core plan. Get 12 months paying 10. Save 2 months.'},
     old_usd: 280*12, new_usd: 280*10,
-    incluye:'Plan Core completo por 12 meses. Facturacion unica al inicio. Cambio a plan superior con credito proporcional en cualquier momento.',
+    incluye:{es:'Plan Core completo por 12 meses. Facturacion unica al inicio. Cambio a plan superior con credito proporcional en cualquier momento.',
+             en:'Full Core plan for 12 months. Single upfront invoice. Upgrade to higher plan with prorated credit anytime.'},
     servicios:['dashboard','sheets-api','pin-gate','auth-google','modulo-pipeline'],
-    entregables:['Plataforma con 3 modulos activos','5 usuarios','500 operaciones/mes','KPI dashboard basico','Soporte por email'],
-    timeline:'Activacion en 24-48h. Modulos operativos desde el dia 1.',
-    condiciones_pago:'100% al inicio del contrato. Factura anual unica.' },
+    entregables:{es:['Plataforma con 3 modulos activos','5 usuarios','500 operaciones/mes','KPI dashboard basico','Soporte por email'],
+                 en:['Platform with 3 active modules','5 users','500 ops/month','Basic KPI dashboard','Email support']},
+    timeline:{es:'Activacion en 24-48h. Modulos operativos desde el dia 1.',
+              en:'Activation in 24-48h. Modules live from day 1.'},
+    condiciones_pago:{es:'100% al inicio del contrato. Factura anual unica.',
+                       en:'100% at contract start. Single annual invoice.'} },
 
-  { id:'combo-anual-pro', titulo:'Combo Anual Professional', tag:'MAS POPULAR', tagClass:'verde',
-    desc:'12 meses de plan Professional con 2 meses gratis. La opcion mas balanceada para operaciones en crecimiento.',
+  { id:'combo-anual-pro',
+    titulo:{es:'Combo Anual Professional', en:'Professional Annual Bundle'},
+    tag:{es:'MAS POPULAR', en:'MOST POPULAR'}, tagClass:'verde',
+    desc:{es:'12 meses de plan Professional con 2 meses gratis. La opcion mas balanceada para operaciones en crecimiento.',
+          en:'12 months of Professional plan with 2 free months. Most balanced option for growing operations.'},
     old_usd: 450*12, new_usd: 450*10,
-    incluye:'Plan Pro completo por 12 meses. 20 usuarios, AI chat, analytics avanzados, soporte prioritario. Facturacion unica.',
+    incluye:{es:'Plan Pro completo por 12 meses. 20 usuarios, AI chat, analytics avanzados, soporte prioritario. Facturacion unica.',
+             en:'Full Pro plan for 12 months. 20 users, AI chat, advanced analytics, priority support. Single invoice.'},
     servicios:['dashboard','sheets-api','auth-google','admin-panel','modulo-pipeline','bot-consulta','pdf-branded','validacion-ia'],
-    entregables:['Todos los modulos core','20 usuarios','Operaciones ilimitadas','AI chat agent','Analiticas avanzadas','Soporte prioritario'],
-    timeline:'Activacion en 24-48h. Onboarding de equipo en semana 1.',
-    condiciones_pago:'100% al inicio o 50/50 (inicio + mes 6). Factura anual.' },
+    entregables:{es:['Todos los modulos core','20 usuarios','Operaciones ilimitadas','AI chat agent','Analiticas avanzadas','Soporte prioritario'],
+                 en:['All core modules','20 users','Unlimited operations','AI chat agent','Advanced analytics','Priority support']},
+    timeline:{es:'Activacion en 24-48h. Onboarding de equipo en semana 1.',
+              en:'Activation in 24-48h. Team onboarding week 1.'},
+    condiciones_pago:{es:'100% al inicio o 50/50 (inicio + mes 6). Factura anual.',
+                       en:'100% at start or 50/50 (start + month 6). Annual invoice.'} },
 
-  { id:'combo-launch', titulo:'Combo Launch (Setup + Anual Pro)', tag:'CIERRE RAPIDO', tagClass:'',
-    desc:'Setup Business one-time + 12 meses de plan Professional con 2 meses gratis. Todo el lanzamiento y primer ano cubierto en un solo cierre. 10% adicional de descuento sobre el total.',
-    old_usd: 6500 + 450*12, new_usd: Math.round((6500 + 450*10) * 0.9),
-    incluye:'Setup Business + Plan Pro 12 meses. Descuento 10% sobre el bundle. Ideal para primer contacto: cierre en una sola factura.',
+  { id:'combo-launch',
+    titulo:{es:'Combo Launch (Setup + Anual Pro)', en:'Launch Bundle (Setup + Annual Pro)'},
+    tag:{es:'CIERRE RAPIDO', en:'FAST CLOSE'}, tagClass:'',
+    desc:{es:'Setup Business one-time + 12 meses de plan Professional con 2 meses gratis. Todo el lanzamiento y primer ano cubierto en un solo cierre. 10% adicional de descuento sobre el total.',
+          en:'One-time Business setup + 12 months of Professional plan with 2 free months. Launch and first year covered in one close. Extra 10% off the bundle.'},
+    old_usd: 6500 + 450*12, new_usd: round((6500 + 450*10) * 0.9),
+    incluye:{es:'Setup Business + Plan Pro 12 meses. Descuento 10% sobre el bundle. Ideal para primer contacto: cierre en una sola factura.',
+             en:'Business setup + 12mo Pro plan. 10% bundle discount. Ideal first contact: close on a single invoice.'},
     servicios:['erp-completo','ocr-ia','dashboard','admin-panel','sheets-api','pdf-branded','telegram-int','wa-forms','auth-google','sync-devices','modulo-pipeline','validacion-ia'],
-    entregables:['Setup Business white-label completo','3 AI agents (Commercial + Operations + Finance)','KPI dashboard corporativo','WhatsApp Business integrado','Onboarding equipo cliente','90 dias soporte dedicado','+ 12 meses plan Professional'],
-    timeline:'Setup 6-8 semanas + go-live. Suscripcion Pro activa desde go-live.',
-    condiciones_pago:'50% al firmar, 50% al go-live. Suscripcion anual factura separada.' },
+    entregables:{es:['Setup Business white-label completo','3 AI agents (Commercial + Operations + Finance)','KPI dashboard corporativo','WhatsApp Business integrado','Onboarding equipo cliente','90 dias soporte dedicado','+ 12 meses plan Professional'],
+                 en:['Full white-label Business setup','3 AI agents (Commercial + Operations + Finance)','Corporate KPI dashboard','WhatsApp Business integrated','Client team onboarding','90 days dedicated support','+ 12 months Professional plan']},
+    timeline:{es:'Setup 6-8 semanas + go-live. Suscripcion Pro activa desde go-live.',
+              en:'Setup 6-8 weeks + go-live. Pro subscription active from go-live.'},
+    condiciones_pago:{es:'50% al firmar, 50% al go-live. Suscripcion anual factura separada.',
+                       en:'50% on sign, 50% at go-live. Annual subscription invoiced separately.'} },
 
-  { id:'combo-enterprise', titulo:'Combo Enterprise Total', tag:'FLAGSHIP', tagClass:'violet',
-    desc:'Setup Enterprise + 12 meses de Scale (custom) + 90 dias adicionales de soporte dedicado. Descuento 15% sobre el bundle.',
-    old_usd: 12000 + 850*12, new_usd: Math.round((12000 + 850*12) * 0.85),
-    incluye:'Setup Enterprise (5 agents, full deployment) + 12 meses plan Scale + 180d soporte total (90 base + 90 extra). Multi-vertical, franchise-ready.',
+  { id:'combo-enterprise',
+    titulo:{es:'Combo Enterprise Total', en:'Enterprise Total Bundle'},
+    tag:{es:'FLAGSHIP', en:'FLAGSHIP'}, tagClass:'violet',
+    desc:{es:'Setup Enterprise + 12 meses de Scale (custom) + 90 dias adicionales de soporte dedicado. Descuento 15% sobre el bundle.',
+          en:'Enterprise setup + 12 months of Scale (custom) + 90 extra days of dedicated support. 15% bundle discount.'},
+    old_usd: 12000 + 850*12, new_usd: round((12000 + 850*12) * 0.85),
+    incluye:{es:'Setup Enterprise (5 agents, full deployment) + 12 meses plan Scale + 180d soporte total (90 base + 90 extra). Multi-vertical, franchise-ready.',
+             en:'Enterprise setup (5 agents, full deployment) + 12 months Scale plan + 180d total support (90 base + 90 extra). Multi-vertical, franchise-ready.'},
     servicios:['erp-completo','ocr-ia','motor-comisiones','admin-panel','sheets-api','dashboard','pdf-branded','telegram-int','wa-forms','cron-jobs','validacion-ia','auth-google','sync-devices','bot-consulta','analisis-ia','workflow','geoprospector','campanas-wa','facturacion','orden-servicio','diseno-ui','capacitacion'],
-    entregables:['Setup Enterprise white-label (5 AI agents completos)','Deployment multi-vertical (hasta 3)','Licencia franchise / reseller','Google Ads + Meta Ads setup','Equipo dev dedicado','180 dias soporte total','+ 12 meses plan Scale'],
-    timeline:'Setup 8-12 semanas. Soporte extendido a 6 meses.',
-    condiciones_pago:'40% firma, 30% al 50% de avance, 30% al go-live. Suscripcion anual factura separada.' },
+    entregables:{es:['Setup Enterprise white-label (5 AI agents completos)','Deployment multi-vertical (hasta 3)','Licencia franchise / reseller','Google Ads + Meta Ads setup','Equipo dev dedicado','180 dias soporte total','+ 12 meses plan Scale'],
+                 en:['Full white-label Enterprise setup (5 AI agents)','Multi-vertical deployment (up to 3)','Franchise / reseller license','Google Ads + Meta Ads setup','Dedicated dev team','180 days total support','+ 12 months Scale plan']},
+    timeline:{es:'Setup 8-12 semanas. Soporte extendido a 6 meses.',
+              en:'Setup 8-12 weeks. Extended support to 6 months.'},
+    condiciones_pago:{es:'40% firma, 30% al 50% de avance, 30% al go-live. Suscripcion anual factura separada.',
+                       en:'40% signing, 30% at 50% progress, 30% at go-live. Annual subscription invoiced separately.'} },
 
-  { id:'combo-bianual', titulo:'Combo Bi-anual Pro', tag:'PAGO 24M · 4 GRATIS', tagClass:'',
-    desc:'Pago anticipado 24 meses de plan Professional. Recibes 24 meses pagando 20. Ahorras 4 mensualidades.',
+  { id:'combo-bianual',
+    titulo:{es:'Combo Bi-anual Pro', en:'Pro Bi-annual Bundle'},
+    tag:{es:'PAGO 24M - 4 GRATIS', en:'24M PAY - 4 FREE'}, tagClass:'',
+    desc:{es:'Pago anticipado 24 meses de plan Professional. Recibes 24 meses pagando 20. Ahorras 4 mensualidades.',
+          en:'Prepaid 24 months of Professional plan. Get 24 months paying 20. Save 4 months.'},
     old_usd: 450*24, new_usd: 450*20,
-    incluye:'Plan Pro por 24 meses. Congela precio por 2 anos (proteccion contra ajustes). Facturacion unica.',
+    incluye:{es:'Plan Pro por 24 meses. Congela precio por 2 anos (proteccion contra ajustes). Facturacion unica.',
+             en:'Pro plan for 24 months. Locks price for 2 years (protection against increases). Single invoice.'},
     servicios:['dashboard','sheets-api','auth-google','admin-panel','modulo-pipeline','bot-consulta','pdf-branded','validacion-ia'],
-    entregables:['Plan Pro por 24 meses','Precio congelado 2 anos','Todos los modulos + soporte prioritario'],
-    timeline:'Activacion en 24-48h. Renovacion automatica a los 24m con derecho de cancelar.',
-    condiciones_pago:'100% al inicio. Factura bienal unica.' }
+    entregables:{es:['Plan Pro por 24 meses','Precio congelado 2 anos','Todos los modulos + soporte prioritario'],
+                 en:['Pro plan for 24 months','Price locked 2 years','All modules + priority support']},
+    timeline:{es:'Activacion en 24-48h. Renovacion automatica a los 24m con derecho de cancelar.',
+              en:'Activation in 24-48h. Auto-renew at 24m with cancel right.'},
+    condiciones_pago:{es:'100% al inicio. Factura bienal unica.',
+                       en:'100% at start. Single bi-annual invoice.'} }
 ];
 
 var ADDONS = [
-  { nombre:'Modulo adicional',                       tipo:'Mensual',   precio_usd:80 },
-  { nombre:'Usuario extra (plan Core)',              tipo:'Mensual',   precio_usd:15 },
-  { nombre:'Usuario extra (plan Professional)',      tipo:'Mensual',   precio_usd:8 },
-  { nombre:'AI Voice Agent',                         tipo:'Mensual',   precio_usd:150 },
-  { nombre:'Google Ads setup + campanas iniciales',  tipo:'One-time',  precio_usd:650 },
-  { nombre:'Meta Ads setup + campanas iniciales',    tipo:'One-time',  precio_usd:650 },
-  { nombre:'PDF branded generator (propuestas)',     tipo:'One-time',  precio_usd:350 },
-  { nombre:'OCR IA integration (Gemini/GPT vision)', tipo:'One-time',  precio_usd:850 },
-  { nombre:'White-label PDF/emails',                 tipo:'One-time',  precio_usd:200 },
-  { nombre:'WhatsApp Business API setup',            tipo:'One-time',  precio_usd:400 },
-  { nombre:'Migracion datos historicos',             tipo:'One-time',  precio_usd:500 },
-  { nombre:'Bot Telegram / WhatsApp custom',         tipo:'One-time',  precio_usd:1200 },
-  { nombre:'Dashboard KPI adicional',                tipo:'One-time',  precio_usd:1500 },
-  { nombre:'Landing page adicional',                 tipo:'One-time',  precio_usd:850 },
-  { nombre:'App PWA con push notifications',         tipo:'One-time',  precio_usd:2400 },
-  { nombre:'Retainer consultoria 10h/mes',           tipo:'Mensual',   precio_usd:650 },
-  { nombre:'Retainer consultoria 20h/mes',           tipo:'Mensual',   precio_usd:1200 },
-  { nombre:'Retainer consultoria 40h/mes',           tipo:'Mensual',   precio_usd:2200 }
+  { nombre:{es:'Modulo adicional', en:'Additional module'},                  tipo:{es:'Mensual',en:'Monthly'},   precio_usd:80 },
+  { nombre:{es:'Usuario extra (plan Core)', en:'Extra user (Core plan)'},    tipo:{es:'Mensual',en:'Monthly'},   precio_usd:15 },
+  { nombre:{es:'Usuario extra (plan Professional)', en:'Extra user (Pro plan)'}, tipo:{es:'Mensual',en:'Monthly'}, precio_usd:8 },
+  { nombre:{es:'AI Voice Agent', en:'AI Voice Agent'},                       tipo:{es:'Mensual',en:'Monthly'},   precio_usd:150 },
+  { nombre:{es:'Google Ads setup + campanas iniciales', en:'Google Ads setup + initial campaigns'}, tipo:{es:'Unico',en:'One-time'}, precio_usd:650 },
+  { nombre:{es:'Meta Ads setup + campanas iniciales', en:'Meta Ads setup + initial campaigns'},     tipo:{es:'Unico',en:'One-time'}, precio_usd:650 },
+  { nombre:{es:'PDF branded generator (propuestas)', en:'Branded PDF generator (proposals)'},       tipo:{es:'Unico',en:'One-time'}, precio_usd:350 },
+  { nombre:{es:'OCR IA integration (Gemini/GPT vision)', en:'AI OCR integration (Gemini/GPT vision)'}, tipo:{es:'Unico',en:'One-time'}, precio_usd:850 },
+  { nombre:{es:'White-label PDF/emails', en:'White-label PDF/emails'},        tipo:{es:'Unico',en:'One-time'}, precio_usd:200 },
+  { nombre:{es:'WhatsApp Business API setup', en:'WhatsApp Business API setup'}, tipo:{es:'Unico',en:'One-time'}, precio_usd:400 },
+  { nombre:{es:'Migracion datos historicos', en:'Historical data migration'}, tipo:{es:'Unico',en:'One-time'}, precio_usd:500 },
+  { nombre:{es:'Bot Telegram / WhatsApp custom', en:'Custom Telegram / WhatsApp bot'}, tipo:{es:'Unico',en:'One-time'}, precio_usd:1200 },
+  { nombre:{es:'Dashboard KPI adicional', en:'Additional KPI dashboard'},     tipo:{es:'Unico',en:'One-time'}, precio_usd:1500 },
+  { nombre:{es:'Landing page adicional', en:'Additional landing page'},       tipo:{es:'Unico',en:'One-time'}, precio_usd:850 },
+  { nombre:{es:'App PWA con push notifications', en:'PWA app with push notifications'}, tipo:{es:'Unico',en:'One-time'}, precio_usd:2400 },
+  { nombre:{es:'Retainer consultoria 10h/mes', en:'Consulting retainer 10h/month'}, tipo:{es:'Mensual',en:'Monthly'}, precio_usd:650 },
+  { nombre:{es:'Retainer consultoria 20h/mes', en:'Consulting retainer 20h/month'}, tipo:{es:'Mensual',en:'Monthly'}, precio_usd:1200 },
+  { nombre:{es:'Retainer consultoria 40h/mes', en:'Consulting retainer 40h/month'}, tipo:{es:'Mensual',en:'Monthly'}, precio_usd:2200 }
 ];
 
 var DESCUENTOS = [
-  { txt:'Pago anual anticipado', pct:'2 meses gratis (16%)', cls:'green' },
-  { txt:'Pago 2 anos anticipado', pct:'4 meses gratis (17%)', cls:'green' },
-  { txt:'Pago trimestral', pct:'5% off' },
-  { txt:'Startup <2 anos operacion', pct:'20% off setup', cls:'green' },
-  { txt:'Empresa social o educativa', pct:'25% off', cls:'green' },
-  { txt:'Referido por partner', pct:'10% off' },
-  { txt:'Bundle 2 verticales simultaneas', pct:'15% off' },
-  { txt:'3+ implementaciones simultaneas', pct:'20% off', cls:'green' },
-  { txt:'Cliente renovando (loyalty)', pct:'8% off primer ano renovacion' },
-  { txt:'Case study publico autorizado', pct:'12% off cambio por logo/testimonio' }
+  { txt:{es:'Pago anual anticipado', en:'Annual prepayment'}, pct:{es:'2 meses gratis (16%)', en:'2 months free (16%)'}, cls:'green' },
+  { txt:{es:'Pago 2 anos anticipado', en:'2-year prepayment'}, pct:{es:'4 meses gratis (17%)', en:'4 months free (17%)'}, cls:'green' },
+  { txt:{es:'Pago trimestral', en:'Quarterly payment'}, pct:{es:'5% off', en:'5% off'} },
+  { txt:{es:'Startup <2 anos operacion', en:'Startup <2 years operation'}, pct:{es:'20% off setup', en:'20% off setup'}, cls:'green' },
+  { txt:{es:'Empresa social o educativa', en:'Social or educational company'}, pct:{es:'25% off', en:'25% off'}, cls:'green' },
+  { txt:{es:'Referido por partner', en:'Partner referral'}, pct:{es:'10% off', en:'10% off'} },
+  { txt:{es:'Bundle 2 verticales simultaneas', en:'Bundle 2 simultaneous verticals'}, pct:{es:'15% off', en:'15% off'} },
+  { txt:{es:'3+ implementaciones simultaneas', en:'3+ simultaneous implementations'}, pct:{es:'20% off', en:'20% off'}, cls:'green' },
+  { txt:{es:'Cliente renovando (loyalty)', en:'Renewing client (loyalty)'}, pct:{es:'8% off primer ano renovacion', en:'8% off first renewal year'} },
+  { txt:{es:'Case study publico autorizado', en:'Authorized public case study'}, pct:{es:'12% off cambio por logo/testimonio', en:'12% off in exchange for logo/testimonial'} }
 ];
 
 /* ============================================
    DATOS: CASOS Y PROYECTOS
    ============================================ */
 var CASOS = [
-  { id:'aseguralo', nombre:'Aseguralo ERP', cliente:'Fabian Carrera - Aseguralo', estado:'produccion',
-    desc:'ERP integral para intermediario de seguros. Cotizador multi-aseguradora con OCR Gemini, motor de comisiones con cascada, sistema de roles, PDF adaptativo, 96 polizas conectadas en vivo.',
+  { id:'aseguralo',
+    nombre:{es:'Aseguralo ERP', en:'Aseguralo ERP'},
+    cliente:'Fabian Carrera - Aseguralo', estado:'produccion',
+    desc:{es:'ERP integral para intermediario de seguros. Cotizador multi-aseguradora con OCR Gemini, motor de comisiones con cascada, sistema de roles, PDF adaptativo, 96 polizas conectadas en vivo.',
+          en:'End-to-end ERP for insurance broker. Multi-carrier quote builder with Gemini OCR, cascade commission engine, role system, adaptive PDF, 96 policies connected live.'},
     servicios:['erp-completo','ocr-ia','motor-comisiones','admin-panel','sheets-api','dashboard','pdf-branded','telegram-int','cron-jobs','validacion-ia','auth-google','sync-devices'],
     valor:20300000, pendiente:8500000, horas:290, url:'/agente/aseguralo/' },
 
-  { id:'trasteosya', nombre:'Trasteos Ya (web + operativo)', cliente:'Trasteos Ya', estado:'produccion',
-    desc:'Sitio principal + herramientas operativas gated (cotizador cliente, orden de servicio, KPI CEO, reactivacion). 679 contactos, 85 ordenes.',
+  { id:'trasteosya',
+    nombre:{es:'Trasteos Ya (web + operativo)', en:'Trasteos Ya (web + ops)'},
+    cliente:'Trasteos Ya', estado:'produccion',
+    desc:{es:'Sitio principal + herramientas operativas gated (cotizador cliente, orden de servicio, KPI CEO, reactivacion). 679 contactos, 85 ordenes.',
+          en:'Main site + gated operations tools (client quote, service order, CEO KPI, reactivation). 679 contacts, 85 orders.'},
     servicios:['multipage','cotizador-pub','orden-servicio','dashboard','pin-gate','sheets-api','telegram-int'],
     valor:12000000, pendiente:3000000, horas:180, url:'https://trasteosya.online' },
 
-  { id:'lanmarmoles', nombre:'Lan Marmoles (ERP + cotizador + landing)', cliente:'Ricardo Lancheros', estado:'produccion',
-    desc:'Sistema completo marca blanca: cotizador con propuesta PDF, cuenta cobro, ERP, comisiones, toggles. Base reutilizable para futuros clientes.',
+  { id:'lanmarmoles',
+    nombre:{es:'Lan Marmoles (ERP + cotizador + landing)', en:'Lan Marmoles (ERP + quote + landing)'},
+    cliente:'Ricardo Lancheros', estado:'produccion',
+    desc:{es:'Sistema completo marca blanca: cotizador con propuesta PDF, cuenta cobro, ERP, comisiones, toggles. Base reutilizable para futuros clientes.',
+          en:'Complete white-label system: quote with PDF proposal, invoice, ERP, commissions, toggles. Reusable base for future clients.'},
     servicios:['erp-completo','cotizador-pub','facturacion','landing','pdf-branded','sheets-api','admin-panel'],
     valor:10500000, pendiente:1500000, horas:150, url:'https://lanmarmoles.online' },
 
-  { id:'juanandres', nombre:'Sitio web Juan Andres', cliente:'Hijo de Andres', estado:'desarrollo',
-    desc:'Sitio personal estilo messi.com. Assets en Drive andresapalt.',
+  { id:'juanandres',
+    nombre:{es:'Sitio web Juan Andres', en:'Juan Andres website'},
+    cliente:'Hijo de Andres', estado:'desarrollo',
+    desc:{es:'Sitio personal estilo messi.com. Assets en Drive andresapalt.',
+          en:'Personal site messi.com-style. Assets in Drive andresapalt.'},
     servicios:['landing','diseno-ui'],
     valor:800000, pendiente:400000, horas:14 },
 
-  { id:'tygo', nombre:'TYGO App (logistics OS)', cliente:'7GROUP interno', estado:'desarrollo',
-    desc:'App AI-first para logistica. Auth/onboarding/publicar hechos. Next.js + Supabase. Marketplace como data source.',
+  { id:'tygo',
+    nombre:{es:'TYGO App (logistics OS)', en:'TYGO App (logistics OS)'},
+    cliente:'7GROUP interno', estado:'desarrollo',
+    desc:{es:'App AI-first para logistica. Auth/onboarding/publicar hechos. Next.js + Supabase. Marketplace como data source.',
+          en:'AI-first logistics app. Auth/onboarding/publish done. Next.js + Supabase. Marketplace as data source.'},
     servicios:['erp-completo','analisis-ia','auth-google','modulo-pipeline'],
     valor:0, pendiente:35000000, horas:0 },
 
-  { id:'7group-agendar', nombre:'7GROUP agendar (leads + citas)', cliente:'7GROUP interno', estado:'produccion',
-    desc:'Flujo de agendamiento: Web3Forms + Apps Script + Calendar + Sheet Citas. Envio automatico de email lead + calendario + reserva.',
+  { id:'7group-agendar',
+    nombre:{es:'7GROUP agendar (leads + citas)', en:'7GROUP scheduler (leads + bookings)'},
+    cliente:'7GROUP interno', estado:'produccion',
+    desc:{es:'Flujo de agendamiento: Web3Forms + Apps Script + Calendar + Sheet Citas. Envio automatico de email lead + calendario + reserva.',
+          en:'Booking flow: Web3Forms + Apps Script + Calendar + Bookings Sheet. Auto lead email + calendar + reservation.'},
     servicios:['calendar-int','wa-forms','sheets-api'],
     valor:1500000, pendiente:0, horas:22, url:'/agente/agendar/' },
 
-  { id:'geoprospector', nombre:'GeoProspector', cliente:'7GROUP + Trasteos', estado:'planeacion',
-    desc:'Prospeccion geografica: mapa con clientes/prospectos por zona, filtros, rutas. Uso: TY cayendo (49->26->10), oportunidad hogar.',
+  { id:'geoprospector',
+    nombre:{es:'GeoProspector', en:'GeoProspector'},
+    cliente:'7GROUP + Trasteos', estado:'planeacion',
+    desc:{es:'Prospeccion geografica: mapa con clientes/prospectos por zona, filtros, rutas. Uso: TY cayendo (49->26->10), oportunidad hogar.',
+          en:'Geographic prospecting: map with clients/prospects by zone, filters, routes. Use case: TY dropping (49->26->10), home opportunity.'},
     servicios:['geoprospector','analisis-neg'],
     valor:0, pendiente:5000000, horas:0 },
 
-  { id:'phone-bot', nombre:'Phone bot', cliente:'Andres personal', estado:'planeacion',
-    desc:'Bot para contestar llamadas de desconocidos a 3143095194. Twilio o WhatsApp API.',
+  { id:'phone-bot',
+    nombre:{es:'Phone bot', en:'Phone bot'},
+    cliente:'Andres personal', estado:'planeacion',
+    desc:{es:'Bot para contestar llamadas de desconocidos a 3143095194. Twilio o WhatsApp API.',
+          en:'Bot to answer unknown calls to 3143095194. Twilio or WhatsApp API.'},
     servicios:['bot-consulta'],
     valor:0, pendiente:2500000, horas:0 },
 
-  { id:'finca-raiz', nombre:'Finca raiz venta casa', cliente:'Amigo Andres', estado:'planeacion',
-    desc:'Casa vendida a buyers US. Recorrido 3D + landing bilingue. Servicio 7group.',
+  { id:'finca-raiz',
+    nombre:{es:'Finca raiz venta casa', en:'Real estate house sale'},
+    cliente:'Amigo Andres', estado:'planeacion',
+    desc:{es:'Casa vendida a buyers US. Recorrido 3D + landing bilingue. Servicio 7group.',
+          en:'House sold to US buyers. 3D tour + bilingual landing. 7group service.'},
     servicios:['landing','multipage','diseno-ui'],
     valor:0, pendiente:3000000, horas:0 },
 ];
@@ -786,35 +1087,40 @@ function renderPlanes(){
   // Piloto
   html += '<div class="setup-box" style="border-color:var(--green);background:linear-gradient(135deg,rgba(16,185,129,.08),var(--bg2));margin-bottom:22px">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap">'+
-    '<div style="flex:1"><div class="setup-name" style="color:var(--green)">Paso 1 — Piloto gratis</div>'+
-    '<div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px">'+PILOTO.nombre+'</div>'+
-    '<div class="setup-includes" style="margin-top:6px">'+PILOTO.desc+'</div></div>'+
+    '<div style="flex:1"><div class="setup-name" style="color:var(--green)">'+t('paso_pil')+'</div>'+
+    '<div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px">'+t('piloto_nombre')+'</div>'+
+    '<div class="setup-includes" style="margin-top:6px">'+t('piloto_desc')+'</div></div>'+
     '<div style="text-align:right"><div style="font-size:32px;font-weight:900;color:var(--green)">$0</div>'+
-    '<div style="font-size:11px;color:var(--dim);margin-top:2px">15 dias · sin tarjeta</div></div>'+
+    '<div style="font-size:11px;color:var(--dim);margin-top:2px">'+t('piloto_sub')+'</div></div>'+
     '</div></div>';
 
-  // Setup tiers
-  html += '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;letter-spacing:.5px">Paso 2 — Implementacion one-time</div>';
+  // Setup tiers - traducir target segun ID
+  var setupTargetMap = {Essential:'setup_ess_target', Business:'setup_bus_target', Enterprise:'setup_ent_target'};
+  html += '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;letter-spacing:.5px">'+t('paso_setup')+'</div>';
   html += '<div class="setup-grid">';
-  SETUP_TIERS.forEach(function(t){
+  SETUP_TIERS.forEach(function(x){
+    var tKey = setupTargetMap[x.nombre];
+    var targetTxt = tKey ? t(tKey) : x.target;
     html += '<div class="setup-box">'+
-      '<div class="setup-name">'+t.nombre+'</div>'+
-      '<div class="setup-target">'+t.target+'</div>'+
-      '<div class="setup-price">'+precioBox(t.precio_usd)+'</div>'+
-      '<div class="plan-price-cop">'+precioSecundario(t.precio_usd)+'</div>'+
-      '<div class="setup-includes">'+t.incluye+'</div>'+
+      '<div class="setup-name">'+x.nombre+'</div>'+
+      '<div class="setup-target">'+targetTxt+'</div>'+
+      '<div class="setup-price">'+precioBox(x.precio_usd)+'</div>'+
+      '<div class="plan-price-cop">'+precioSecundario(x.precio_usd)+'</div>'+
+      '<div class="setup-includes">'+x.incluye+'</div>'+
     '</div>';
   });
   html += '</div>';
 
   // Planes mensuales
-  html += '<div style="font-size:14px;font-weight:700;color:var(--text);margin:22px 0 10px 0;letter-spacing:.5px">Paso 3 — Suscripcion mensual</div>';
+  var planTagMap = {'Starter':'plan_starter', 'Mas popular':'plan_popular', 'Enterprise':'plan_enterprise'};
+  html += '<div style="font-size:14px;font-weight:700;color:var(--text);margin:22px 0 10px 0;letter-spacing:.5px">'+t('paso_susc')+'</div>';
   html += '<div class="plans-grid">';
   PLANES_MENSUALES.forEach(function(p){
+    var tagTxt = planTagMap[p.tag] ? t(planTagMap[p.tag]) : p.tag;
     html += '<div class="plan-box '+(p.featured?'featured':'')+'">'+
-      '<div class="plan-tag">'+p.tag+'</div>'+
+      '<div class="plan-tag">'+tagTxt+'</div>'+
       '<div class="plan-name">'+p.nombre+'</div>'+
-      '<div class="plan-price">'+ (p.custom?'Custom <small>/ scoped</small>':precioBox(p.precio_usd,'/mo')) +'</div>'+
+      '<div class="plan-price">'+ (p.custom?t('plan_custom')+' <small>'+t('plan_scoped')+'</small>':precioBox(p.precio_usd,'/mo')) +'</div>'+
       (p.custom?'':'<div class="plan-price-cop">'+precioSecundario(p.precio_usd,'/mo')+'</div>')+
       '<div class="plan-divider"></div>'+
       '<ul class="plan-features">'+p.features.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>'+
@@ -833,28 +1139,28 @@ function renderCombos(){
     var pctAhorro = Math.round((ahorro/c.old_usd)*100);
     var svcNames = (c.servicios||[]).map(function(sid){
       var s = SERVICIOS.find(function(x){return x.id===sid;});
-      return s ? '<span class="case-svc">'+s.nombre+'</span>' : '';
+      return s ? '<span class="case-svc">'+tl(s.nombre)+'</span>' : '';
     }).join('');
     return '<div class="combo-card">'+
-      '<div class="combo-tag '+(c.tagClass||'')+'">'+c.tag+'</div>'+
+      '<div class="combo-tag '+(c.tagClass||'')+'">'+tl(c.tag)+'</div>'+
       '<div class="combo-head">'+
         '<div style="flex:1;min-width:220px">'+
-          '<div class="combo-title">'+c.titulo+'</div>'+
-          '<div class="combo-desc">'+c.desc+'</div>'+
+          '<div class="combo-title">'+tl(c.titulo)+'</div>'+
+          '<div class="combo-desc">'+tl(c.desc)+'</div>'+
         '</div>'+
         '<div class="combo-precio">'+
           '<div class="combo-precio-old">'+precioBox(c.old_usd)+'</div>'+
           '<div class="combo-precio-new">'+precioBox(c.new_usd)+'</div>'+
           '<div class="combo-precio-cop">'+precioSecundario(c.new_usd)+'</div>'+
-          '<div class="combo-ahorro">Ahorras '+pctAhorro+'% · '+precioBox(ahorro).replace(/<small>.*<\/small>/,'')+'</div>'+
+          '<div class="combo-ahorro">'+t('combo_ahorra')+' '+pctAhorro+'% · '+precioBox(ahorro).replace(/<small>.*<\/small>/,'')+'</div>'+
         '</div>'+
       '</div>'+
-      '<div class="combo-includes"><strong>Incluye:</strong> '+c.incluye+'</div>'+
-      '<div style="margin-top:10px"><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:6px">Servicios que jala ('+(c.servicios||[]).length+')</div>'+
+      '<div class="combo-includes"><strong>'+t('combo_incluye')+'</strong> '+tl(c.incluye)+'</div>'+
+      '<div style="margin-top:10px"><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:6px">'+t('combo_servicios')+' ('+(c.servicios||[]).length+')</div>'+
         '<div class="case-svcs">'+svcNames+'</div></div>'+
       '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">'+
-        '<button class="cot-btn" style="flex:1;min-width:160px" onclick="abrirModalCotizarCombo(\''+c.id+'\')">Cotizar y generar PDF &rarr;</button>'+
-        '<button class="filtro-chip" onclick="verDetalleCombo(\''+c.id+'\')" style="cursor:pointer">Ver detalle</button>'+
+        '<button class="cot-btn" style="flex:1;min-width:160px" onclick="abrirModalCotizarCombo(\''+c.id+'\')">'+t('combo_cotizar')+'</button>'+
+        '<button class="filtro-chip" onclick="verDetalleCombo(\''+c.id+'\')" style="cursor:pointer">'+t('combo_ver_detalle')+'</button>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -866,22 +1172,23 @@ function renderCombos(){
 window.abrirModalCotizarCombo = function(comboId){
   var c = COMBOS.find(function(x){return x.id===comboId;});
   if(!c) return;
-  document.getElementById('mccTitulo').textContent = c.titulo;
-  document.getElementById('mccDesc').textContent = c.desc;
+  document.getElementById('mccTitulo').textContent = tl(c.titulo);
+  document.getElementById('mccDesc').textContent = tl(c.desc);
   document.getElementById('mccPrecio').innerHTML = precioBox(c.new_usd);
   document.getElementById('mccPrecioSec').textContent = precioSecundario(c.new_usd);
   var ahorro = c.old_usd - c.new_usd;
   var pct = Math.round((ahorro/c.old_usd)*100);
-  document.getElementById('mccAhorro').textContent = 'Ahorra '+pct+'% ('+precioBox(ahorro).replace(/<small>.*<\/small>/,'').trim()+')';
+  document.getElementById('mccAhorro').textContent = t('ahorra')+' '+pct+'% ('+precioBox(ahorro).replace(/<small>.*<\/small>/,'').trim()+')';
   var svcNames = (c.servicios||[]).map(function(sid){
     var s = SERVICIOS.find(function(x){return x.id===sid;});
-    return s ? '<li><strong>'+s.nombre+'</strong> <span style="color:var(--dim)">- '+s.cat+'</span></li>' : '';
+    return s ? '<li><strong>'+tl(s.nombre)+'</strong> <span style="color:var(--dim)">- '+tCat(s.cat)+'</span></li>' : '';
   }).join('');
   document.getElementById('mccServicios').innerHTML = '<ul style="padding-left:20px;margin:0;font-size:12px;line-height:1.7">'+svcNames+'</ul>';
+  var entArr = tl(c.entregables) || c.entregables;
   document.getElementById('mccEntregables').innerHTML = '<ul style="padding-left:20px;margin:0;font-size:12px;line-height:1.7">'+
-    c.entregables.map(function(e){return '<li>'+e+'</li>';}).join('')+'</ul>';
-  document.getElementById('mccTimeline').textContent = c.timeline;
-  document.getElementById('mccPago').textContent = c.condiciones_pago;
+    (Array.isArray(entArr)?entArr:[]).map(function(e){return '<li>'+e+'</li>';}).join('')+'</ul>';
+  document.getElementById('mccTimeline').textContent = tl(c.timeline);
+  document.getElementById('mccPago').textContent = tl(c.condiciones_pago);
   // Reset form
   document.getElementById('mccCliente').value = '';
   document.getElementById('mccEmpresa').value = '';
@@ -1063,13 +1370,15 @@ window.generarPDFCombo = function(){
 function renderAddons(){
   var box = document.getElementById('addonsContent');
   if(!box) return;
+  var addonLbl = LANG==='en' ? 'Add-on' : 'Add-on';
+  var tipoLbl = LANG==='en' ? 'Type' : 'Tipo';
   box.innerHTML = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="addon-table"><thead><tr>'+
-    '<th>Add-on</th><th>Tipo</th><th style="text-align:right">'+MONEDA+'</th><th style="text-align:right;color:var(--muted)">'+(MONEDA==='USD'?'COP':'USD')+'</th>'+
+    '<th>'+addonLbl+'</th><th>'+tipoLbl+'</th><th style="text-align:right">'+MONEDA+'</th><th style="text-align:right;color:var(--muted)">'+(MONEDA==='USD'?'COP':'USD')+'</th>'+
     '</tr></thead><tbody>'+
     ADDONS.map(function(a){
       return '<tr>'+
-        '<td>'+a.nombre+'</td>'+
-        '<td class="tipo">'+a.tipo+'</td>'+
+        '<td>'+tl(a.nombre)+'</td>'+
+        '<td class="tipo">'+tl(a.tipo)+'</td>'+
         '<td class="precio">'+precioBox(a.precio_usd)+'</td>'+
         '<td class="precio" style="color:var(--muted);font-weight:500">'+precioSecundario(a.precio_usd)+'</td>'+
       '</tr>';
@@ -1083,8 +1392,8 @@ function renderDescuentos(){
   box.innerHTML = '<div class="desc-grid">'+
     DESCUENTOS.map(function(d){
       return '<div class="desc-item">'+
-        '<div class="desc-item-txt">'+d.txt+'</div>'+
-        '<div class="desc-item-pct '+(d.cls||'')+'">'+d.pct+'</div>'+
+        '<div class="desc-item-txt">'+tl(d.txt)+'</div>'+
+        '<div class="desc-item-pct '+(d.cls||'')+'">'+tl(d.pct)+'</div>'+
       '</div>';
     }).join('')+
   '</div>';
@@ -1099,12 +1408,12 @@ function renderDash(){
   var horasTotal = CASOS.reduce(function(s,c){return s+(c.horas||0);},0);
 
   document.getElementById('dashKpis').innerHTML = [
-    {l:'Servicios en catalogo', v:totalSvcs, c:''},
-    {l:'Casos totales', v:totalCasos, sub:casosProd+' en produccion', c:'c-violet'},
-    {l:'Valor realizado', v:fmt(valorRealizado), c:'c-green'},
-    {l:'Valor pendiente / oportunidad', v:fmt(valorPendiente), c:'c-orange'},
-    {l:'Horas ejecutadas', v:horasTotal+'h', c:''},
-    {l:'Tarifa base', v:fmt(TARIFA_HORA)+'/h', c:''},
+    {l:t('kpi_svcs'), v:totalSvcs, c:''},
+    {l:t('kpi_casos'), v:totalCasos, sub:casosProd+' '+t('kpi_prod'), c:'c-violet'},
+    {l:t('kpi_realizado'), v:fmt(valorRealizado), c:'c-green'},
+    {l:t('kpi_pendiente'), v:fmt(valorPendiente), c:'c-orange'},
+    {l:t('kpi_horas'), v:horasTotal+'h', c:''},
+    {l:t('kpi_tarifa'), v:fmt(TARIFA_HORA)+'/h', c:''},
   ].map(function(k){
     return '<div class="kpi '+(k.c||'')+'"><div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div>'+(k.sub?'<div class="kpi-sub">'+k.sub+'</div>':'')+'</div>';
   }).join('');
@@ -1122,17 +1431,18 @@ function renderDash(){
 
 function svcCardHTML(s, extraUsos){
   var precioRange = fmt(s.precio_min)+' - '+fmt(s.precio_max);
+  var casesLbl = extraUsos ? (extraUsos===1?t('case_word'):t('cases_word')) : '';
   return '<div class="svc-card">'+
     '<div class="svc-icon">'+s.icon+'</div>'+
-    '<div class="svc-cat">'+s.cat+'</div>'+
-    '<div class="svc-title">'+s.nombre+'</div>'+
-    '<div class="svc-desc">'+s.desc+'</div>'+
-    '<div class="svc-tags">'+s.tags.map(function(t){return '<span class="svc-tag">'+t+'</span>';}).join('')+'</div>'+
+    '<div class="svc-cat">'+tCat(s.cat)+'</div>'+
+    '<div class="svc-title">'+tl(s.nombre)+'</div>'+
+    '<div class="svc-desc">'+tl(s.desc)+'</div>'+
+    '<div class="svc-tags">'+s.tags.map(function(x){return '<span class="svc-tag">'+x+'</span>';}).join('')+'</div>'+
     '<div class="svc-meta">'+
-      '<div class="svc-comp">'+s.complejidad+' &middot; '+s.hmin+'-'+s.hmax+'h</div>'+
+      '<div class="svc-comp">'+tComp(s.complejidad)+' &middot; '+s.hmin+'-'+s.hmax+'h</div>'+
       '<div class="svc-precio">'+precioRange+'</div>'+
     '</div>'+
-    (s.refs&&s.refs.length?'<div class="svc-refs">Referencias: '+s.refs.join(', ')+(extraUsos?' <strong style="color:var(--cyan)">&middot; '+extraUsos+' casos</strong>':'')+'</div>':'')+
+    (s.refs&&s.refs.length?'<div class="svc-refs">'+t('referencias')+' '+s.refs.join(', ')+(extraUsos?' <strong style="color:var(--cyan)">&middot; '+extraUsos+' '+casesLbl+'</strong>':'')+'</div>':'')+
   '</div>';
 }
 
@@ -1140,31 +1450,34 @@ function caseCardHTML(c){
   var valorTot = (c.valor||0)+(c.pendiente||0);
   var svcNames = (c.servicios||[]).slice(0,5).map(function(sid){
     var s = SERVICIOS.find(function(x){return x.id===sid;});
-    return s ? '<span class="case-svc">'+s.nombre+'</span>' : '';
+    return s ? '<span class="case-svc">'+tl(s.nombre)+'</span>' : '';
   }).join('');
   var more = (c.servicios||[]).length > 5 ? '<span class="case-svc">+'+((c.servicios||[]).length-5)+'</span>' : '';
+  var estadoMap = {produccion:{es:'produccion',en:'production'}, desarrollo:{es:'desarrollo',en:'development'}, planeacion:{es:'planeacion',en:'planning'}};
+  var estadoTxt = (estadoMap[c.estado] && estadoMap[c.estado][LANG]) || c.estado;
   return '<div class="case-card">'+
     '<div class="case-head">'+
       '<div>'+
-        '<div class="case-nombre">'+c.nombre+'</div>'+
+        '<div class="case-nombre">'+tl(c.nombre)+'</div>'+
         '<div class="case-cliente">'+c.cliente+'</div>'+
       '</div>'+
-      '<div class="case-estado '+c.estado+'">'+c.estado+'</div>'+
+      '<div class="case-estado '+c.estado+'">'+estadoTxt+'</div>'+
     '</div>'+
-    '<div class="case-desc">'+c.desc+'</div>'+
+    '<div class="case-desc">'+tl(c.desc)+'</div>'+
     '<div class="case-svcs">'+svcNames+more+'</div>'+
     '<div class="case-metrics">'+
-      '<div class="case-metric"><div class="case-metric-lbl">Valor realizado</div><div class="case-metric-val verde">'+fmt(c.valor||0)+'</div></div>'+
-      '<div class="case-metric"><div class="case-metric-lbl">'+(c.pendiente?'Pendiente':'Total')+'</div><div class="case-metric-val cyan">'+fmt(c.pendiente||valorTot)+'</div></div>'+
+      '<div class="case-metric"><div class="case-metric-lbl">'+t('valor_realizado')+'</div><div class="case-metric-val verde">'+fmt(c.valor||0)+'</div></div>'+
+      '<div class="case-metric"><div class="case-metric-lbl">'+(c.pendiente?t('pendiente_lbl'):t('total_lbl'))+'</div><div class="case-metric-val cyan">'+fmt(c.pendiente||valorTot)+'</div></div>'+
     '</div>'+
-    (c.url?'<a href="'+c.url+'" target="_blank" style="display:block;margin-top:12px;color:var(--cyan);font-size:11px;text-decoration:none;font-weight:700">Ver &rarr;</a>':'')+
+    (c.url?'<a href="'+c.url+'" target="_blank" style="display:block;margin-top:12px;color:var(--cyan);font-size:11px;text-decoration:none;font-weight:700">'+t('ver_arrow')+'</a>':'')+
   '</div>';
 }
 
 function renderServicios(){
   var cats = ['todos'].concat(Array.from(new Set(SERVICIOS.map(function(s){return s.cat;}))));
   document.getElementById('filtrosSvc').innerHTML = cats.map(function(c){
-    return '<div class="filtro-chip '+(c===filtroCatActual?'active':'')+'" onclick="setFiltroCat(\''+c+'\')">'+c+'</div>';
+    var label = c==='todos' ? t('filter_todos') : tCat(c);
+    return '<div class="filtro-chip '+(c===filtroCatActual?'active':'')+'" onclick="setFiltroCat(\''+c+'\')">'+label+'</div>';
   }).join('');
   var lista = filtroCatActual==='todos' ? SERVICIOS : SERVICIOS.filter(function(s){return s.cat===filtroCatActual;});
   var count = {};
@@ -1188,8 +1501,8 @@ function renderCotizador(){
     return '<div class="cot-item '+(sel?'sel':'')+'" onclick="toggleCot(\''+s.id+'\')">'+
       '<input type="checkbox" '+(sel?'checked':'')+' onclick="event.stopPropagation()">'+
       '<div class="cot-item-info">'+
-        '<div class="cot-item-title">'+s.nombre+'</div>'+
-        '<div class="cot-item-cat">'+s.cat+' &middot; '+s.complejidad+' &middot; '+s.hmin+'-'+s.hmax+'h</div>'+
+        '<div class="cot-item-title">'+tl(s.nombre)+'</div>'+
+        '<div class="cot-item-cat">'+tCat(s.cat)+' &middot; '+tComp(s.complejidad)+' &middot; '+s.hmin+'-'+s.hmax+'h</div>'+
       '</div>'+
       '<div class="cot-item-precio">'+fmt(s.precio_min)+' -<br>'+fmt(s.precio_max)+'</div>'+
     '</div>';
@@ -1207,11 +1520,12 @@ function renderCotResumen(){
   var totalMax = sels.reduce(function(s,x){return s+x.precio_max;},0);
   var totalHMin = sels.reduce(function(s,x){return s+x.hmin;},0);
   var totalHMax = sels.reduce(function(s,x){return s+x.hmax;},0);
+  var svcW = sels.length===1 ? t('servicio_label') : t('servicios_label');
   document.getElementById('cotTotal').innerHTML = fmt(totalMin)+'<br><span style="font-size:16px;color:var(--dim)">- '+fmt(totalMax)+'</span>';
-  document.getElementById('cotHoras').textContent = totalHMin+'-'+totalHMax+' horas &middot; '+sels.length+' servicio'+(sels.length===1?'':'s');
+  document.getElementById('cotHoras').innerHTML = totalHMin+'-'+totalHMax+' '+t('horas')+' &middot; '+sels.length+' '+svcW;
   document.getElementById('cotSelectedList').innerHTML = sels.length
-    ? sels.map(function(s){return '<div class="cot-selected-item"><span>'+s.nombre+'</span><span>'+fmt(s.precio_min)+'-'+fmt(s.precio_max)+'</span></div>';}).join('')
-    : '<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px">Selecciona servicios del catalogo</div>';
+    ? sels.map(function(s){return '<div class="cot-selected-item"><span>'+tl(s.nombre)+'</span><span>'+fmt(s.precio_min)+'-'+fmt(s.precio_max)+'</span></div>';}).join('')
+    : '<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px">'+t('cot_selecciona')+'</div>';
 }
 
 /* ============================================
