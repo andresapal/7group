@@ -600,8 +600,17 @@ function entrar(email){
   document.getElementById('gate').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('tbUser').textContent = email;
-  // Aplicar idioma guardado (o ES por defecto)
-  setLang(LANG);
+  // Aplicar idioma + render (con retries por si algo no esta listo)
+  function _init(intentos){
+    intentos = intentos || 0;
+    if(typeof render === 'function' && typeof SERVICIOS !== 'undefined'){
+      setLang(LANG);
+      render();
+      return;
+    }
+    if(intentos < 20) setTimeout(function(){_init(intentos+1);}, 50);
+  }
+  _init();
 }
 window.addEventListener('DOMContentLoaded', function(){
   var stored = localStorage.getItem(GATE_KEY);
