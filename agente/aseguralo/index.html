@@ -2233,6 +2233,28 @@ window.nuevoProspecto=function(){
   document.getElementById('npIntermOtroWrap').style.display='none';
   document.getElementById('npPreview').style.display='none';
   document.querySelectorAll('#npTipoChips .np-chip').forEach(function(c){c.classList.remove('on')});
+
+  // Regla de rol (Andres 2026-08):
+  //  - admin/dueno pueden elegir intermediario (Fabian asigna a cualquier agente).
+  //  - asesor: intermediario forzado a su propio nombre (Erika, Judith, etc), sin poder cambiarlo.
+  var esAsesor = (typeof CURRENT_USER!=='undefined') && CURRENT_USER.rol==='asesor';
+  var intermGrp = document.getElementById('npInterm') && document.getElementById('npInterm').closest('.form-row');
+  if(esAsesor){
+    // Ocultar el bloque de intermediario y forzar valor
+    var miNombre = (CURRENT_USER.intermediario || CURRENT_USER.nombre || '').trim();
+    var sel = document.getElementById('npInterm');
+    if(sel){
+      // asegurar que la opcion existe (por si el asesor no fue agregado aun al catalogo)
+      if(miNombre && !Array.prototype.some.call(sel.options, function(o){return o.value===miNombre;})){
+        var opt = document.createElement('option'); opt.value = miNombre; opt.textContent = miNombre; sel.appendChild(opt);
+      }
+      sel.value = miNombre;
+    }
+    if(intermGrp) intermGrp.style.display = 'none';
+    var otroWrap = document.getElementById('npIntermOtroWrap'); if(otroWrap) otroWrap.style.display='none';
+  } else {
+    if(intermGrp) intermGrp.style.display = '';
+  }
 };
 
 /* Handler chips tipo dentro del modal — muestra preview del mensaje */
@@ -4516,8 +4538,10 @@ window.descargarComparativoPDF = async function(leadId){
   y += 40;
 
   doc.setDrawColor(200,200,200); doc.line(margin, y, pw-margin, y); y += 16;
+  // Firma: el intermediario asignado al lead. Si no hay (leads viejos), Fabian por defecto.
+  var firmaNombre = String(lead.intermediario||'').trim() || 'Fabian Carrera';
   doc.setTextColor(48,71,112); doc.setFontSize(10); doc.setFont('helvetica','bold');
-  doc.text('Fabian Carrera', margin, y);
+  doc.text(firmaNombre, margin, y);
   doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,80);
   y += 14; doc.text('Aseguralo - Corredor de Seguros', margin, y);
   y += 12; doc.text('WhatsApp: +57 316 520 6865  -  aseguralo@outlook.com', margin, y);
