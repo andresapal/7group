@@ -501,7 +501,20 @@ var T = {
     horas:'horas', cases_word:'casos', case_word:'caso',
     referencias:'Referencias:',
     valor_realizado:'Valor realizado', pendiente_lbl:'Pendiente', total_lbl:'Total',
-    ver_arrow:'Ver →'
+    ver_arrow:'Ver →',
+    // PDF
+    pdf_propuesta:'Propuesta economica', pdf_preparado:'Preparado para',
+    pdf_fecha:'Fecha', pdf_confidencial:'Clasificacion: Confidencial',
+    pdf_alcance:'Alcance de la propuesta',
+    pdf_inversion:'INVERSION', pdf_lista:'Precio de lista:',
+    pdf_incluye_h:'Que incluye', pdf_timeline_h:'Timeline', pdf_pago_h:'Condiciones de pago',
+    pdf_notas_h:'Notas',
+    pdf_servicios_titulo:'Servicios tecnicos incluidos',
+    pdf_servicios_sub:'Detalle tecnico de los servicios incluidos en el combo.',
+    pdf_listos:'Listos para acompanarte',
+    pdf_contacto:'Contacto para cerrar:',
+    pdf_vermas:t('pdf_vermas'),
+    pdf_pie:'DOCUMENTO CONFIDENCIAL'
   },
   en: {
     back:'Back',
@@ -549,7 +562,20 @@ var T = {
     horas:'hours', cases_word:'cases', case_word:'case',
     referencias:'Reference cases:',
     valor_realizado:'Delivered value', pendiente_lbl:'Pending', total_lbl:'Total',
-    ver_arrow:'Open →'
+    ver_arrow:'Open →',
+    // PDF
+    pdf_propuesta:'Economic proposal', pdf_preparado:'Prepared for',
+    pdf_fecha:'Date', pdf_confidencial:'Classification: Confidential',
+    pdf_alcance:'Proposal scope',
+    pdf_inversion:'INVESTMENT', pdf_lista:'List price:',
+    pdf_incluye_h:"What's included", pdf_timeline_h:'Timeline', pdf_pago_h:'Payment terms',
+    pdf_notas_h:'Notes',
+    pdf_servicios_titulo:'Included technical services',
+    pdf_servicios_sub:'Technical detail of the services included in the bundle.',
+    pdf_listos:'Ready to accompany you',
+    pdf_contacto:'Contact to close:',
+    pdf_vermas:'See more solutions at 7group.site',
+    pdf_pie:'CONFIDENTIAL DOCUMENT'
   }
 };
 function t(k){ return (T[LANG] && T[LANG][k]) || (T.es && T.es[k]) || k; }
@@ -1245,27 +1271,25 @@ window.generarPDFCombo = function(){
   // Logo 7
   doc.setDrawColor(77,208,225); doc.setLineWidth(2);
   doc.line(pw/2-25, ph*0.72+90, pw/2+25, ph*0.72+90);
-  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(120);
-  doc.text('7', pw/2, ph*0.72, {align:'center'});
-  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.text('G  R  O  U  P', pw/2, ph*0.72-25, {align:'center'});
+  drawLogo7_(doc, pw/2, ph*0.72, 1.0);
   doc.setFillColor(77,208,225); doc.circle(pw/2, ph*0.72-45, 1.5, 'F');
   doc.line(pw/2-25, ph*0.72-58, pw/2+25, ph*0.72-58);
   // Titulo propuesta
   doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(30);
-  doc.text('Propuesta economica', pw/2, ph*0.42, {align:'center'});
+  doc.text(t('pdf_propuesta'), pw/2, ph*0.42, {align:'center'});
   doc.setTextColor(159,229,238); doc.setFontSize(16); doc.setFont('helvetica','normal');
   doc.text(c.titulo, pw/2, ph*0.42+26, {align:'center'});
   doc.setTextColor(77,208,225); doc.setFontSize(11); doc.setFont('helvetica','bold');
   doc.text(c.tag, pw/2, ph*0.42+50, {align:'center'});
   // Datos cliente en portada
   doc.setTextColor(200,220,225); doc.setFontSize(11); doc.setFont('helvetica','normal');
-  doc.text('Preparado para: ' + (empresa ? empresa+' - '+cliente : cliente), pw/2, 240, {align:'center'});
+  doc.text(t('pdf_preparado')+': ' + (empresa ? empresa+' - '+cliente : cliente), pw/2, 240, {align:'center'});
   if(email) doc.text(email, pw/2, 224, {align:'center'});
   if(tel)   doc.text('Tel: '+tel, pw/2, 208, {align:'center'});
   doc.setTextColor(120,140,155); doc.setFontSize(9);
-  doc.text('Fecha: '+new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'}), pw/2, 180, {align:'center'});
+  doc.text(t('pdf_fecha')+': '+new Date().toLocaleDateString(LANG==='en'?'en-US':'es-CO',{year:'numeric',month:'long',day:'numeric'}), pw/2, 180, {align:'center'});
   doc.text('7GROUP Corp  |  7group.site  |  Bogota, Colombia', pw/2, 164, {align:'center'});
-  doc.text('Clasificacion: Confidencial', pw/2, 148, {align:'center'});
+  doc.text(t('pdf_confidencial'), pw/2, 148, {align:'center'});
 
   // ================ HOJA 2: ALCANCE + PRECIO ================
   doc.addPage();
@@ -1274,7 +1298,7 @@ window.generarPDFCombo = function(){
   y = 60;
   // Titulo con linea cyan
   doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(22);
-  doc.text('Alcance de la propuesta', margin, y);
+  doc.text(t('pdf_alcance'), margin, y);
   doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(margin, y+6, margin+70, y+6);
   y += 28;
 
@@ -1287,7 +1311,7 @@ window.generarPDFCombo = function(){
   var pctAhorro = Math.round((ahorro/c.old_usd)*100);
   doc.setFillColor(10,10,15); doc.rect(margin, y-16, pw-margin*2, 100, 'F');
   doc.setTextColor(77,208,225); doc.setFontSize(10); doc.setFont('helvetica','bold');
-  doc.text('INVERSION', margin+14, y);
+  doc.text(t('pdf_inversion'), margin+14, y);
   doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(32);
   doc.text(fmt(c.new_usd), margin+14, y+30);
   doc.setTextColor(159,229,238); doc.setFontSize(12); doc.setFont('helvetica','normal');
@@ -1304,7 +1328,7 @@ window.generarPDFCombo = function(){
 
   // Que incluye
   doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
-  doc.text('Que incluye', margin, y); y += 20;
+  doc.text(t('pdf_incluye_h'), margin, y); y += 20;
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
   c.entregables.forEach(function(e){
     if(y > ph-100){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
@@ -1318,12 +1342,12 @@ window.generarPDFCombo = function(){
   // Timeline y pago
   if(y > ph-140){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
   doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
-  doc.text('Timeline', margin, y); y += 16;
+  doc.text(t('pdf_timeline_h'), margin, y); y += 16;
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
   var tLines = doc.splitTextToSize(c.timeline, pw-margin*2);
   doc.text(tLines, margin, y); y += tLines.length*13 + 14;
   doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
-  doc.text('Condiciones de pago', margin, y); y += 16;
+  doc.text(t('pdf_pago_h'), margin, y); y += 16;
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
   var pLines = doc.splitTextToSize(c.condiciones_pago, pw-margin*2);
   doc.text(pLines, margin, y); y += pLines.length*13 + 14;
@@ -1331,7 +1355,7 @@ window.generarPDFCombo = function(){
   if(notas){
     if(y > ph-100){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
     doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
-    doc.text('Notas', margin, y); y += 16;
+    doc.text(t('pdf_notas_h'), margin, y); y += 16;
     doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
     var nLines = doc.splitTextToSize(notas, pw-margin*2);
     doc.text(nLines, margin, y); y += nLines.length*13;
@@ -1343,7 +1367,7 @@ window.generarPDFCombo = function(){
   doc.setDrawColor(77,208,225); doc.setLineWidth(2); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2);
   y = 60;
   doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(22);
-  doc.text('Servicios tecnicos que jala', margin, y);
+  doc.text(t('pdf_servicios_titulo'), margin, y);
   doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(margin, y+6, margin+70, y+6);
   y += 22;
   doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120,120,140);
@@ -1368,20 +1392,82 @@ window.generarPDFCombo = function(){
   doc.addPage();
   doc.setFillColor(10,10,15); doc.rect(0,0,pw,ph,'F');
   doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(0,3,pw,3); doc.line(0,ph-3,pw,ph-3);
-  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(120);
-  doc.text('7', pw/2, ph*0.55, {align:'center'});
-  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.text('G  R  O  U  P', pw/2, ph*0.55-25, {align:'center'});
-  doc.setFontSize(22); doc.text('Listos para acompanarte', pw/2, ph*0.36, {align:'center'});
+  drawLogo7_(doc, pw/2, ph*0.55, 1.1);
+  doc.setFontSize(22); doc.text(t('pdf_listos'), pw/2, ph*0.36, {align:'center'});
   doc.setFontSize(11); doc.setTextColor(159,229,238);
-  doc.text('Contacto para cerrar:', pw/2, 220, {align:'center'});
+  doc.text(t('pdf_contacto'), pw/2, 220, {align:'center'});
   doc.setTextColor(255,255,255); doc.setFontSize(10);
-  doc.text('7group.site  |  7groupcorp@zohomail.com', pw/2, 200, {align:'center'});
-  doc.text('Bogota, Colombia', pw/2, 184, {align:'center'});
+  // Link clickable a 7group.site
+  var linkTxt = 'www.7group.site';
+  var linkW = doc.getTextWidth(linkTxt);
+  doc.textWithLink(linkTxt, pw/2 - linkW/2, 200, {url:'https://7group.site'});
+  doc.text('7groupcorp@zohomail.com', pw/2, 184, {align:'center'});
+  doc.text('Bogota, Colombia', pw/2, 168, {align:'center'});
+  doc.setTextColor(77,208,225); doc.setFontSize(9);
+  doc.text(t('pdf_vermas'), pw/2, 140, {align:'center'});
 
   var fname = 'Propuesta_7GROUP_'+c.id+'_'+cliente.replace(/\s+/g,'_')+'_'+Date.now()+'.pdf';
-  doc.save(fname);
+  guardarPDF_(doc, fname);
   cerrarModalCombo();
 };
+
+/* Logo 7GROUP completo: linea corta arriba + "7" grande cyan + "G R O U P" + punto + linea abajo.
+   Uso en PDFs para mantener branding consistente. */
+function drawLogo7_(doc, cx, cy, scale){
+  scale = scale || 1;
+  doc.setDrawColor(77,208,225); doc.setLineWidth(2*scale);
+  // Linea corta arriba (encima del 7)
+  doc.line(cx-25*scale, cy-88*scale, cx+25*scale, cy-88*scale);
+  // "7" grande cyan
+  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(Math.round(120*scale));
+  doc.text('7', cx, cy, {align:'center'});
+  // "G R O U P" blanco espaciado
+  doc.setTextColor(255,255,255); doc.setFontSize(Math.round(14*scale));
+  doc.text('G  R  O  U  P', cx, cy+22*scale, {align:'center'});
+  // Punto cyan
+  doc.setFillColor(77,208,225);
+  doc.circle(cx, cy+38*scale, 1.5*scale, 'F');
+  // Linea corta abajo del punto
+  doc.setDrawColor(77,208,225); doc.setLineWidth(2*scale);
+  doc.line(cx-25*scale, cy+50*scale, cx+25*scale, cy+50*scale);
+}
+
+/* Descarga PDF universal (web / Android / iOS) con opcion de volver a 7group.
+   Estrategia: crear blob URL + intentar descarga via <a download> + fallback
+   abrir en nueva pestaña (el usuario cierra y vuelve a 7group). */
+function guardarPDF_(doc, fname){
+  try{
+    var blob = doc.output('blob');
+    var url = URL.createObjectURL(blob);
+    // Primer intento: descarga directa
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = fname;
+    a.rel = 'noopener';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); }, 100);
+
+    // En iOS <a download> no funciona; el navegador ignora y abrimos en nueva pestaña
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if(isIOS){
+      setTimeout(function(){
+        var w = window.open(url, '_blank', 'noopener');
+        if(!w){
+          alert('El navegador bloqueo la ventana. Presiona el boton compartir para guardar el PDF.');
+          location.href = url;
+        }
+      }, 200);
+    }
+    // Limpiar URL despues de 60s
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+  }catch(e){
+    alert('Error generando PDF: '+e.message);
+    // Ultimo fallback: metodo original de jsPDF
+    try{ doc.save(fname); }catch(e2){}
+  }
+}
 
 function renderAddons(){
   var box = document.getElementById('addonsContent');
@@ -1564,14 +1650,12 @@ window.descargarPropuestaPDF = function(){
   doc.setFillColor(10,10,15); doc.rect(0,0,pw,ph,'F');
   doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(0,3,pw,3); doc.line(0,ph-3,pw,ph-3);
   // Logo 7
-  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(120);
-  doc.text('7', pw/2, ph*0.4, {align:'center'});
-  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.text('G  R  O  U  P', pw/2, ph*0.4+30, {align:'center'});
+  drawLogo7_(doc, pw/2, ph*0.4, 1.0);
   // Titulo
-  doc.setFontSize(28); doc.text('Propuesta economica', pw/2, ph*0.62, {align:'center'});
+  doc.setFontSize(28); doc.text(t('pdf_propuesta'), pw/2, ph*0.62, {align:'center'});
   doc.setFontSize(18); doc.setTextColor(77,208,225); doc.text(proyecto, pw/2, ph*0.62+30, {align:'center'});
   doc.setFontSize(11); doc.setTextColor(200,220,225); doc.text('Cliente: '+cliente, pw/2, ph*0.62+56, {align:'center'});
-  doc.setFontSize(10); doc.setTextColor(148,163,184); doc.text('Fecha: '+new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'}), pw/2, 220, {align:'center'});
+  doc.setFontSize(10); doc.setTextColor(148,163,184); doc.text(t('pdf_fecha')+': '+new Date().toLocaleDateString(LANG==='en'?'en-US':'es-CO',{year:'numeric',month:'long',day:'numeric'}), pw/2, 220, {align:'center'});
   doc.text('7GROUP Corp  |  7group.site  |  Bogota, Colombia', pw/2, 200, {align:'center'});
 
   // Interior
@@ -1647,15 +1731,13 @@ window.descargarPropuestaPDF = function(){
   doc.addPage();
   doc.setFillColor(10,10,15); doc.rect(0,0,pw,ph,'F');
   doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(0,3,pw,3); doc.line(0,ph-3,pw,ph-3);
-  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(120);
-  doc.text('7', pw/2, ph*0.55, {align:'center'});
-  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.text('G  R  O  U  P', pw/2, ph*0.55+30, {align:'center'});
+  drawLogo7_(doc, pw/2, ph*0.55, 1.1);
   doc.setFontSize(22); doc.text('Estamos listos para acompanarte', pw/2, ph*0.36, {align:'center'});
   doc.setFontSize(11); doc.setTextColor(148,163,184);
   doc.text('7group.site  |  7groupcorp@zohomail.com', pw/2, 190, {align:'center'});
   doc.text('Bogota, Colombia', pw/2, 174, {align:'center'});
 
-  doc.save('Propuesta_7GROUP_'+cliente.replace(/\s+/g,'_')+'_'+Date.now()+'.pdf');
+  guardarPDF_(doc, 'Propuesta_7GROUP_'+cliente.replace(/\s+/g,'_')+'_'+Date.now()+'.pdf');
 };
 
 /* ============================================
