@@ -1417,8 +1417,12 @@ function aplicarPermisosUI_(){
 
 function setAdminMode(email){
   IS_ADMIN = ADMIN_EMAILS.indexOf(email) !== -1;
+  // Modulos: admin 7GROUP + dueno Aseguralo (Fabian, varios emails) pueden gestionar
+  var DUENOS_FABIAN = ['aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co','aseguraloseguros@gmail.com'];
+  var esDueno = DUENOS_FABIAN.indexOf(email) >= 0;
   var modBtn = document.getElementById('modConfigBtn');
-  if(modBtn) modBtn.style.display = IS_ADMIN ? '' : 'none';
+  if(modBtn) modBtn.style.display = (IS_ADMIN || esDueno) ? '' : 'none';
+  // Link 7Group: solo admin 7GROUP (no Fabian)
   var g7Btn = document.getElementById('tb7gBtn');
   if(g7Btn) g7Btn.style.display = IS_ADMIN ? '' : 'none';
   // Cargar perfil del usuario (rol/permisos)
@@ -1570,7 +1574,7 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBScAqF-oFK4dRRFyBSDa0PDI_8zpHe_q9B1NcctnVVeMMO3PyCkk8R28ueEZE5ic5/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbziqKTOETzmkdTIJtsOYGSBKWDYS_WuwiaqQM_o-sem7KBbBji8nlTyJBaEViqpwmZr/exec';
 
 var CLIENTES=[];
 var POLIZAS=[];
