@@ -1574,7 +1574,19 @@ var SHEET_CACHE_KEY = 'aseg_sheet_data';
 var SHEET_CACHE_TS = 'aseg_sheet_ts';
 var SHEET_CACHE_HOURS = 1;
 var SHEET_LOADED = false;
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQRQRboolEJawNzpdqkHywxbbhonlzmuI2vwmIYzmLBGrC94tw3H46SPjcCxJaQZzo/exec';
+var APPS_SCRIPT_URL_FALLBACK = 'https://script.google.com/macros/s/AKfycbzQRQRboolEJawNzpdqkHywxbbhonlzmuI2vwmIYzmLBGrC94tw3H46SPjcCxJaQZzo/exec';
+var APPS_SCRIPT_URL = (function(){
+  try {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'config.json?_=' + Date.now(), false); // sync: 1 sola vez al arrancar
+    xhr.send();
+    if(xhr.status === 200){
+      var cfg = JSON.parse(xhr.responseText);
+      if(cfg && cfg.apps_script_url) return cfg.apps_script_url;
+    }
+  } catch(e){ console.warn('config.json no disponible, uso fallback', e); }
+  return APPS_SCRIPT_URL_FALLBACK;
+})();
 
 var CLIENTES=[];
 var POLIZAS=[];

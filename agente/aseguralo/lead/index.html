@@ -325,7 +325,19 @@ input[name*="placa"]{text-transform:uppercase}
 
 <script>
 (function(){
-  var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzQRQRboolEJawNzpdqkHywxbbhonlzmuI2vwmIYzmLBGrC94tw3H46SPjcCxJaQZzo/exec';
+  var APPS_SCRIPT_URL_FALLBACK='https://script.google.com/macros/s/AKfycbzQRQRboolEJawNzpdqkHywxbbhonlzmuI2vwmIYzmLBGrC94tw3H46SPjcCxJaQZzo/exec';
+var APPS_SCRIPT_URL=(function(){
+  try {
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET','../config.json?_='+Date.now(),false);
+    xhr.send();
+    if(xhr.status===200){
+      var cfg=JSON.parse(xhr.responseText);
+      if(cfg&&cfg.apps_script_url) return cfg.apps_script_url;
+    }
+  } catch(e){}
+  return APPS_SCRIPT_URL_FALLBACK;
+})();
   var WA_FABIAN='573165206865';
 
   // Etiqueta amigable por tipo (para el mensaje del cliente hacia Fabian)
