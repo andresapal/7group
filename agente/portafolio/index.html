@@ -229,20 +229,10 @@ body{background:var(--bg);color:var(--text);font-family:'Helvetica Neue',Helveti
 </head>
 <body>
 
-<!-- Gate -->
-<div id="gate">
-  <div class="gate-box">
-    <div class="gate-logo">7</div>
-    <div class="gate-sub">G R O U P</div>
-    <div class="gate-title">Portafolio Tecnico</div>
-    <div class="gate-desc">Acceso privado. Solo administrador.</div>
-    <div id="g_id_signin"></div>
-    <div id="gateError">Correo no autorizado.</div>
-  </div>
-</div>
+<!-- Gate removido: el portafolio vive dentro de /agente/ que ya tiene gate. -->
 
 <!-- APP -->
-<div id="app" style="display:none">
+<div id="app">
 
 <div class="topbar">
   <div class="tb-left">
@@ -625,10 +615,8 @@ function initGoogleSignIn(){
   google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'filled_black',size:'large',shape:'pill',text:'signin_with',width:280});
 }
 function entrar(email){
-  document.getElementById('gate').style.display='none';
-  document.getElementById('app').style.display='block';
-  document.getElementById('tbUser').textContent = email;
-  // Aplicar idioma + render (con retries por si algo no esta listo)
+  var app = document.getElementById('app'); if(app) app.style.display='block';
+  var chip = document.getElementById('tbUser'); if(chip && email) chip.textContent = email;
   function _init(intentos){
     intentos = intentos || 0;
     if(typeof render === 'function' && typeof SERVICIOS !== 'undefined'){
@@ -640,16 +628,11 @@ function entrar(email){
   }
   _init();
 }
+// Sin gate: el portafolio vive dentro del portal /agente/ que ya autentica.
+// Arrancar directo cuando DOM listo (o inmediato si ya cargo).
 function _bootPortafolio(){
-  var stored = localStorage.getItem(GATE_KEY);
-  // Dev bypass
-  var h = location.hostname;
-  var isDev = h==='localhost' || h==='127.0.0.1' || h==='' || location.search.indexOf('dev=1')>=0;
-  if(stored && ADMIN_EMAILS.indexOf(stored)>=0){ entrar(stored); return; }
-  if(isDev){ entrar('dev@local'); return; }
-  initGoogleSignIn();
+  if(typeof entrar === 'function') entrar('');
 }
-// Robusto: si DOM ya cargo, ejecutar ya; si no, esperar
 if(document.readyState === 'loading'){
   window.addEventListener('DOMContentLoaded', _bootPortafolio);
 } else {
@@ -1278,8 +1261,11 @@ window.generarPDFCombo = function(){
   var pw = doc.internal.pageSize.getWidth();
   var ph = doc.internal.pageSize.getHeight();
   var margin = 50, y;
-  var fmt = function(usd){ return '$'+Number(usd||0).toLocaleString('en-US')+' USD'; };
-  var fmtCop = function(usd){ return '$'+Number((usd||0)*TRM).toLocaleString('es-CO')+' COP'; };
+  // Moneda principal segun idioma: EN=USD, ES=COP
+  var _fmtUSD = function(usd){ return '$'+Number(usd||0).toLocaleString('en-US')+' USD'; };
+  var _fmtCOP = function(usd){ return '$'+Number((usd||0)*TRM).toLocaleString('es-CO')+' COP'; };
+  var fmt    = LANG==='en' ? _fmtUSD : _fmtCOP;
+  var fmtCop = LANG==='en' ? _fmtCOP : _fmtUSD; // secundaria
 
   // ================ PORTADA NEGRA 7GROUP ================
   doc.setFillColor(10,10,15); doc.rect(0,0,pw,ph,'F');
@@ -1333,11 +1319,11 @@ window.generarPDFCombo = function(){
   doc.setTextColor(159,229,238); doc.setFontSize(12); doc.setFont('helvetica','normal');
   doc.text('~ '+fmtCop(c.new_usd), margin+14, y+48);
   doc.setTextColor(200,200,200); doc.setFontSize(10); doc.setFont('helvetica','normal');
-  doc.text('Precio de lista: '+fmt(c.old_usd)+'  (tachado)', margin+14, y+66);
+  doc.text(t('pdf_lista')+' '+fmt(c.old_usd), margin+14, y+66);
   // Etiqueta ahorro
   doc.setFillColor(16,185,129); doc.roundedRect(pw-margin-140, y+10, 126, 30, 6, 6, 'F');
   doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold');
-  doc.text('Ahorra '+pctAhorro+'%', pw-margin-77, y+22, {align:'center'});
+  doc.text(t('ahorra')+' '+pctAhorro+'%', pw-margin-77, y+22, {align:'center'});
   doc.setFontSize(9); doc.setFont('helvetica','normal');
   doc.text(fmt(ahorro), pw-margin-77, y+34, {align:'center'});
   y += 100;
@@ -1695,22 +1681,30 @@ window.descargarPropuestaPDF = function(){
     doc.text(tCat(s.cat), xx+5, y); xx += colW[1];
     doc.setFontSize(9); doc.setTextColor(30,30,45);
     doc.text(s.hmin+'-'+s.hmax, xx+5, y); xx += colW[2];
+    // Precio segun idioma: EN=USD (dividido por TRM), ES=COP
+    var pMin = LANG==='en' ? Math.round(s.precio_min/TRM) : s.precio_min;
+    var pMax = LANG==='en' ? Math.round(s.precio_max/TRM) : s.precio_max;
+    var locale = LANG==='en' ? 'en-US' : 'es-CO';
     doc.setFont('helvetica','bold'); doc.setTextColor(16,140,80);
-    doc.text('$'+s.precio_min.toLocaleString('es-CO'), xx+5, y); xx += colW[3];
+    doc.text('$'+pMin.toLocaleString(locale), xx+5, y); xx += colW[3];
     doc.setTextColor(77,140,80);
-    doc.text('$'+s.precio_max.toLocaleString('es-CO'), xx+5, y);
+    doc.text('$'+pMax.toLocaleString(locale), xx+5, y);
     totalMin += s.precio_min; totalMax += s.precio_max; totalH += (s.hmin+s.hmax)/2;
     y += rowH;
   });
   y += 4;
   // Total
+  var _tMin = LANG==='en' ? Math.round(totalMin/TRM) : totalMin;
+  var _tMax = LANG==='en' ? Math.round(totalMax/TRM) : totalMax;
+  var _loc  = LANG==='en' ? 'en-US' : 'es-CO';
+  var _sfx  = LANG==='en' ? ' USD' : ' COP';
   doc.setFillColor(10,10,15); doc.rect(margin, y-16, totalW, 24, 'F');
   doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(11);
-  doc.text('TOTAL ESTIMADO', margin+8, y-2);
+  doc.text(LANG==='en'?'ESTIMATED TOTAL':'TOTAL ESTIMADO', margin+8, y-2);
   var xx = margin + colW[0]+colW[1];
   doc.text(Math.round(totalH)+'h', xx+5, y-2);
-  doc.text('$'+totalMin.toLocaleString('es-CO'), xx+colW[2]+5, y-2);
-  doc.text('$'+totalMax.toLocaleString('es-CO'), xx+colW[2]+colW[3]+5, y-2);
+  doc.text('$'+_tMin.toLocaleString(_loc)+_sfx, xx+colW[2]+5, y-2);
+  doc.text('$'+_tMax.toLocaleString(_loc)+_sfx, xx+colW[2]+colW[3]+5, y-2);
   y += 18;
 
   // Descripcion detallada

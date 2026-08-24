@@ -71,7 +71,19 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .tb-toggle:hover{border-color:var(--accent);color:var(--accent)}
 
 /* MODULE NAV */
-.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x mandatory}
+.mod-nav::-webkit-scrollbar{display:none}
+.mod-nav .mod-link{scroll-snap-align:start;white-space:nowrap;flex-shrink:0}
+/* Sombra a la derecha del modNav mobile indicando que hay mas contenido */
+@media(max-width:768px){
+  .mod-nav{position:relative}
+  .mod-nav::after{content:'';position:sticky;right:0;top:0;bottom:0;width:24px;background:linear-gradient(90deg,transparent,var(--bg2));pointer-events:none;flex-shrink:0}
+}
+/* Tablas anchas: cursor grab en desktop, hint visual con sombra derecha en mobile */
+.tbl-overflow{position:relative}
+@media(max-width:768px){
+  .tbl-overflow::after{content:'';position:sticky;right:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,var(--bg));pointer-events:none;display:block;height:100%;float:right;margin-top:-100%}
+}
 .mod-nav::-webkit-scrollbar{display:none}
 .mod-link{padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap;cursor:pointer}
 .mod-link:hover{color:var(--text)}.mod-link.active{color:var(--accent);border-color:var(--accent)}
@@ -500,9 +512,11 @@ tbody tr:hover{background:var(--accent-light)}
             <div class="tbl-title">Comisiones del mes</div>
             <div style="font-size:11px;color:var(--dim);margin-top:2px" id="comisionesMesSubtitulo">Vista ejecutiva por intermediario</div>
           </div>
-          <div style="display:flex;gap:8px;align-items:center">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <label style="font-size:11px;color:var(--dim);font-weight:600">Mes:</label>
             <input type="month" id="comisionesMesInput" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" onchange="renderComisionesMes()">
+            <button class="btn btn-sm" onclick="exportarComisionesMes_('csv')" title="Descargar CSV para Excel">CSV</button>
+            <button class="btn btn-sm" onclick="exportarComisionesMes_('pdf')" title="Descargar PDF con branding">PDF</button>
           </div>
         </div>
         <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin:12px 0" id="comisionesMesKpi"></div>
@@ -3395,6 +3409,204 @@ window.renderComisionesMes = function(){
     '</tr>';
   }).join('');
 };
+
+/* ============================================
+   EXPORTAR COMISIONES MES (CSV / PDF)
+   ============================================ */
+window.exportarComisionesMes_ = function(formato){
+  var input = document.getElementById('comisionesMesInput');
+  var mesSel = input ? input.value : '';
+  if(!mesSel){
+    var d = new Date();
+    mesSel = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  }
+  var LIQ_ROL = filtrarPorPermiso_(LIQUIDACIONES, 'intermediario');
+  var liqsMes = LIQ_ROL.filter(function(l){ return String(l.fecha_venta||'').slice(0,7) === mesSel; });
+  if(!liqsMes.length){ alert('No hay comisiones registradas en '+mesSel); return; }
+
+  // Agrupar por intermediario para subtotales
+  var grupos = {};
+  liqsMes.forEach(function(l){
+    var k = l.intermediario || 'Sin asignar';
+    if(!grupos[k]) grupos[k] = {intermediario:k, ventas:0, prima:0, comGen:0, comAsesor:0, comFabian:0, com7g:0, pend:0, pag:0};
+    var g = grupos[k];
+    g.ventas += 1;
+    g.prima += Number(l.prima)||0;
+    g.comGen += Number(l.com_aseguralo)||0;
+    g.comAsesor += Number(l.com_asesor)||0;
+    g.comFabian += (Number(l.com_fabian_bruta)||0);
+    g.com7g += Number(l.com_7group)||0;
+    if(l.estado_pago_aseguralo === 'cobrado') g.pag += Number(l.com_aseguralo)||0;
+    else g.pend += Number(l.com_aseguralo)||0;
+  });
+  var filasG = Object.keys(grupos).map(function(k){return grupos[k];}).sort(function(a,b){return b.comGen-a.comGen;});
+
+  if(formato === 'csv'){
+    exportarCSVMes_(mesSel, liqsMes, filasG);
+  } else {
+    exportarPDFMes_(mesSel, liqsMes, filasG);
+  }
+};
+
+function exportarCSVMes_(mesSel, liqsMes, filasG){
+  var sep = ';'; // Excel Colombia usa ; por defecto
+  var lines = [];
+  lines.push('COMISIONES ASEGURALO · '+mesSel);
+  lines.push('Generado: '+new Date().toISOString().slice(0,19).replace('T',' '));
+  lines.push('');
+  lines.push('SUBTOTALES POR INTERMEDIARIO');
+  lines.push(['Intermediario','Ventas','Prima total','Comision generada','Valor asesor','Valor Fabian','Valor 7GROUP','Pendiente','Pagado'].join(sep));
+  filasG.forEach(function(g){
+    lines.push([g.intermediario, g.ventas, g.prima, g.comGen, g.comAsesor, g.comFabian, g.com7g, g.pend, g.pag].join(sep));
+  });
+  var tot = filasG.reduce(function(s,g){return {ventas:s.ventas+g.ventas, prima:s.prima+g.prima, comGen:s.comGen+g.comGen, comAsesor:s.comAsesor+g.comAsesor, comFabian:s.comFabian+g.comFabian, com7g:s.com7g+g.com7g, pend:s.pend+g.pend, pag:s.pag+g.pag};}, {ventas:0,prima:0,comGen:0,comAsesor:0,comFabian:0,com7g:0,pend:0,pag:0});
+  lines.push(['TOTAL', tot.ventas, tot.prima, tot.comGen, tot.comAsesor, tot.comFabian, tot.com7g, tot.pend, tot.pag].join(sep));
+  lines.push('');
+  lines.push('DETALLE POR LIQUIDACION');
+  lines.push(['Fecha','Cliente','Intermediario','Aseguradora','Poliza','Tipo','Prima','% Com','Com Aseguralo','% Asesor','Val Asesor','% Fabian','Val Fabian bruta','% 7GROUP','Val 7GROUP','Fabian neta','Sosten %','Sosten $','Neto Fabian','Estado Aseguralo','Estado 7GROUP'].join(sep));
+  liqsMes.forEach(function(l){
+    lines.push([
+      (l.fecha_venta||'').slice(0,10),
+      (l.cliente||'').replace(/;/g,','),
+      (l.intermediario||'').replace(/;/g,','),
+      (l.aseguradora||'').replace(/;/g,','),
+      (l.poliza||''),
+      (l.tipo||''),
+      l.prima||0, l.pct_aseguralo||0, l.com_aseguralo||0,
+      l.pct_asesor||0, l.com_asesor||0,
+      l.pct_fabian||0, l.com_fabian_bruta||0,
+      l.pct_7group||0, l.com_7group||0,
+      l.com_fabian_neta||0,
+      l.sostenimiento_pct||0, l.sostenimiento_valor||0,
+      l.neto_fabian||0,
+      l.estado_pago_aseguralo||'',
+      l.estado_pago_7group||''
+    ].join(sep));
+  });
+  // BOM UTF-8 para Excel abra bien acentos
+  var csv = '﻿' + lines.join('\r\n');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'Comisiones_Aseguralo_'+mesSel+'.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+
+function exportarPDFMes_(mesSel, liqsMes, filasG){
+  if(!window.jspdf){ alert('jsPDF no cargo'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt',format:'letter',orientation:'l'});
+  var pw = doc.internal.pageSize.getWidth();
+  var ph = doc.internal.pageSize.getHeight();
+  var margin = 40, y;
+  var fmtN = function(n){return '$'+Number(n||0).toLocaleString('es-CO');};
+
+  // Header Aseguralo azul
+  doc.setFillColor(48,71,112); doc.rect(0,0,pw,60,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(20);
+  doc.text('Aseguralo · Comisiones ' + mesSel, margin, 36);
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text('Generado ' + new Date().toLocaleString('es-CO'), pw-margin, 26, {align:'right'});
+  doc.text('7GROUP · Reporte confidencial', pw-margin, 44, {align:'right'});
+  y = 90;
+
+  // KPIs
+  var tot = filasG.reduce(function(s,g){return {ventas:s.ventas+g.ventas, prima:s.prima+g.prima, comGen:s.comGen+g.comGen, pend:s.pend+g.pend};}, {ventas:0,prima:0,comGen:0,pend:0});
+  var kpiW = (pw - margin*2 - 24)/4;
+  var kpis = [
+    {l:'Ventas', v:tot.ventas},
+    {l:'Prima total', v:fmtN(tot.prima)},
+    {l:'Comision generada', v:fmtN(tot.comGen)},
+    {l:'Pendiente cobro', v:fmtN(tot.pend), c:[245,158,11]}
+  ];
+  kpis.forEach(function(k,i){
+    var x = margin + i*(kpiW+8);
+    doc.setFillColor(245,247,250); doc.rect(x, y, kpiW, 46, 'F');
+    doc.setTextColor(90,90,110); doc.setFontSize(8); doc.setFont('helvetica','bold');
+    doc.text(k.l.toUpperCase(), x+8, y+14);
+    var c = k.c || [48,71,112];
+    doc.setTextColor(c[0],c[1],c[2]); doc.setFontSize(14); doc.setFont('helvetica','bold');
+    doc.text(String(k.v), x+8, y+34);
+  });
+  y += 62;
+
+  // Tabla subtotales por intermediario
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+  doc.text('Subtotales por intermediario', margin, y); y += 14;
+  var cols1 = [
+    {t:'Intermediario', w:130, get:function(g){return g.intermediario;}},
+    {t:'Ventas',        w:45,  get:function(g){return g.ventas;}, r:1},
+    {t:'Prima',         w:90,  get:function(g){return fmtN(g.prima);}, r:1},
+    {t:'Com. generada', w:90,  get:function(g){return fmtN(g.comGen);}, r:1},
+    {t:'Valor asesor',  w:80,  get:function(g){return fmtN(g.comAsesor);}, r:1},
+    {t:'Valor Fabian',  w:80,  get:function(g){return fmtN(g.comFabian);}, r:1},
+    {t:'Val. 7GROUP',   w:75,  get:function(g){return fmtN(g.com7g);}, r:1},
+    {t:'Pendiente',     w:75,  get:function(g){return fmtN(g.pend);}, r:1},
+    {t:'Pagado',        w:75,  get:function(g){return fmtN(g.pag);}, r:1}
+  ];
+  var totW1 = cols1.reduce(function(s,c){return s+c.w;},0);
+  drawTablaPDF_(doc, cols1, filasG, margin, y, totW1, 18, [48,71,112]);
+  y += 18 * (filasG.length+1) + 14;
+
+  // Detalle
+  if(y > ph - 100){ doc.addPage(); y = 60; }
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+  doc.text('Detalle por liquidacion', margin, y); y += 14;
+  var cols2 = [
+    {t:'Fecha',       w:60, get:function(l){return (l.fecha_venta||'').slice(0,10);}},
+    {t:'Cliente',     w:110,get:function(l){return String(l.cliente||'').slice(0,26);}},
+    {t:'Interm.',     w:80, get:function(l){return String(l.intermediario||'').slice(0,18);}},
+    {t:'Aseg.',       w:60, get:function(l){return String(l.aseguradora||'').slice(0,10);}},
+    {t:'Prima',       w:70, get:function(l){return fmtN(l.prima);}, r:1},
+    {t:'Com. Aseg.',  w:65, get:function(l){return fmtN(l.com_aseguralo);}, r:1},
+    {t:'Val. asesor', w:65, get:function(l){return fmtN(l.com_asesor);}, r:1},
+    {t:'Neto Fabian', w:65, get:function(l){return fmtN(l.neto_fabian);}, r:1},
+    {t:'Estado',      w:60, get:function(l){return l.estado_pago_aseguralo||'';}}
+  ];
+  var totW2 = cols2.reduce(function(s,c){return s+c.w;},0);
+  drawTablaPDF_(doc, cols2, liqsMes, margin, y, totW2, 15, [48,71,112], ph);
+
+  doc.save('Comisiones_Aseguralo_'+mesSel+'.pdf');
+}
+
+function drawTablaPDF_(doc, cols, rows, margin, y0, totW, rowH, headerRGB, phLimit){
+  // Header
+  doc.setFillColor(headerRGB[0],headerRGB[1],headerRGB[2]); doc.rect(margin, y0, totW, rowH, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
+  var x = margin;
+  cols.forEach(function(c){
+    if(c.r) doc.text(c.t, x+c.w-6, y0+12, {align:'right'});
+    else doc.text(c.t, x+5, y0+12);
+    x += c.w;
+  });
+  var y = y0 + rowH;
+  rows.forEach(function(row, idx){
+    if(phLimit && y > phLimit - 60){
+      doc.addPage(); y = 60;
+      // Repetir header
+      doc.setFillColor(headerRGB[0],headerRGB[1],headerRGB[2]); doc.rect(margin, y, totW, rowH, 'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
+      var xh = margin;
+      cols.forEach(function(c){
+        if(c.r) doc.text(c.t, xh+c.w-6, y+12, {align:'right'});
+        else doc.text(c.t, xh+5, y+12);
+        xh += c.w;
+      });
+      y += rowH;
+    }
+    if(idx%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y, totW, rowH, 'F'); }
+    doc.setTextColor(30,30,45); doc.setFontSize(8); doc.setFont('helvetica','normal');
+    var xx = margin;
+    cols.forEach(function(c){
+      var v = c.get(row);
+      if(c.r) doc.text(String(v), xx+c.w-6, y+10, {align:'right'});
+      else doc.text(String(v), xx+5, y+10);
+      xx += c.w;
+    });
+    y += rowH;
+  });
+}
 
 window.marcarLiqPagada = function(id, tipo){
   var l = LIQUIDACIONES.filter(function(x){return x.id===id})[0];
