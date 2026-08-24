@@ -640,7 +640,7 @@ function entrar(email){
   }
   _init();
 }
-window.addEventListener('DOMContentLoaded', function(){
+function _bootPortafolio(){
   var stored = localStorage.getItem(GATE_KEY);
   // Dev bypass
   var h = location.hostname;
@@ -648,7 +648,13 @@ window.addEventListener('DOMContentLoaded', function(){
   if(stored && ADMIN_EMAILS.indexOf(stored)>=0){ entrar(stored); return; }
   if(isDev){ entrar('dev@local'); return; }
   initGoogleSignIn();
-});
+}
+// Robusto: si DOM ya cargo, ejecutar ya; si no, esperar
+if(document.readyState === 'loading'){
+  window.addEventListener('DOMContentLoaded', _bootPortafolio);
+} else {
+  _bootPortafolio();
+}
 
 /* ============================================
    DATOS: CATALOGO DE SERVICIOS
