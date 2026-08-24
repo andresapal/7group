@@ -1373,21 +1373,136 @@ window.generarPDFCombo = function(){
   doc.setDrawColor(77,208,225); doc.setLineWidth(3); doc.line(margin, y+6, margin+70, y+6);
   y += 22;
   doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120,120,140);
-  doc.text('Detalle tecnico de los servicios incluidos en el combo.', margin, y); y += 18;
+  var sub = LANG==='en'
+    ? 'Formal itemized breakdown of each service. Individual reference values, subtotal and applied discount.'
+    : 'Discriminacion formal por servicio. Valores de referencia individuales, subtotal y descuento aplicado.';
+  doc.text(sub, margin, y); y += 16;
 
-  (c.servicios||[]).forEach(function(sid){
-    var s = SERVICIOS.find(function(x){return x.id===sid;});
-    if(!s) return;
-    if(y > ph-90){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
-    doc.setFillColor(77,208,225); doc.circle(margin+3, y-3, 3, 'F');
-    doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(11);
-    doc.text(tl(s.nombre), margin+14, y);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(77,140,80);
-    doc.text('['+s.cat+']', margin+14+doc.getTextWidth(s.nombre)+8, y);
+  // Preparar filas: recolectar servicios con precio (en la moneda del idioma)
+  var servs = (c.servicios||[]).map(function(sid){ return SERVICIOS.find(function(x){return x.id===sid;}); }).filter(Boolean);
+  var isEN = LANG==='en';
+  var loc = isEN ? 'en-US' : 'es-CO';
+  var sfx = isEN ? ' USD' : ' COP';
+  var priceOf = function(usd_cop){ return isEN ? Math.round(usd_cop/TRM) : usd_cop; };
+  var fmtN = function(n){ return '$'+Number(n||0).toLocaleString(loc); };
+
+  // Header de tabla
+  var cols = [
+    {t: isEN?'#':'#',                w:24,  a:'center'},
+    {t: isEN?'Service':'Servicio',   w:180, a:'left'},
+    {t: isEN?'Category':'Categoria', w:80,  a:'left'},
+    {t: isEN?'Hrs':'Hrs',            w:44,  a:'center'},
+    {t: isEN?'Min':'Min',            w:80,  a:'right'},
+    {t: isEN?'Max':'Max',            w:80,  a:'right'}
+  ];
+  var totW = cols.reduce(function(s,c){return s+c.w;},0);
+  doc.setFillColor(48,71,112); doc.rect(margin, y, totW, 20, 'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  var xh = margin;
+  cols.forEach(function(col){
+    if(col.a==='right')  doc.text(col.t, xh+col.w-6, y+13, {align:'right'});
+    else if(col.a==='center') doc.text(col.t, xh+col.w/2, y+13, {align:'center'});
+    else doc.text(col.t, xh+6, y+13);
+    xh += col.w;
+  });
+  y += 20;
+
+  // Filas de servicios
+  var subMin = 0, subMax = 0;
+  servs.forEach(function(s, idx){
+    if(y > ph-140){
+      doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F');
+      doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2);
+      y = 60;
+      // repetir header
+      doc.setFillColor(48,71,112); doc.rect(margin, y, totW, 20, 'F');
+      doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+      var xh2 = margin;
+      cols.forEach(function(col){
+        if(col.a==='right')  doc.text(col.t, xh2+col.w-6, y+13, {align:'right'});
+        else if(col.a==='center') doc.text(col.t, xh2+col.w/2, y+13, {align:'center'});
+        else doc.text(col.t, xh2+6, y+13);
+        xh2 += col.w;
+      });
+      y += 20;
+    }
+    var pMin = priceOf(s.precio_min);
+    var pMax = priceOf(s.precio_max);
+    subMin += pMin; subMax += pMax;
+    var rowH = 22;
+    if(idx%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y, totW, rowH, 'F'); }
+    doc.setTextColor(30,30,45); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    var xx = margin;
+    doc.text(String(idx+1), xx+cols[0].w/2, y+14, {align:'center'}); xx += cols[0].w;
+    // Servicio (nombre con posible truncado)
+    var nom = tl(s.nombre);
+    var lines = doc.splitTextToSize(nom, cols[1].w-10);
+    doc.text(lines.slice(0,2), xx+6, y+12); xx += cols[1].w;
+    doc.setFontSize(8); doc.setTextColor(90,90,110);
+    doc.text(tCat(s.cat), xx+6, y+14); xx += cols[2].w;
+    doc.setFontSize(9); doc.setTextColor(30,30,45);
+    doc.text(s.hmin+'-'+s.hmax, xx+cols[3].w/2, y+14, {align:'center'}); xx += cols[3].w;
+    doc.setFont('helvetica','bold'); doc.setTextColor(16,140,80);
+    doc.text('$'+pMin.toLocaleString(loc), xx+cols[4].w-6, y+14, {align:'right'}); xx += cols[4].w;
+    doc.setTextColor(77,140,80);
+    doc.text('$'+pMax.toLocaleString(loc), xx+cols[5].w-6, y+14, {align:'right'});
+    y += rowH;
+  });
+
+  // Subtotal referencial
+  y += 4;
+  doc.setFillColor(228,232,240); doc.rect(margin, y, totW, 22, 'F');
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text(isEN?'Subtotal (list price)':'Subtotal (valor de lista)', margin+6, y+14);
+  var sx = margin+cols[0].w+cols[1].w+cols[2].w+cols[3].w;
+  doc.text('$'+subMin.toLocaleString(loc), sx+cols[4].w-6, y+14, {align:'right'});
+  doc.text('$'+subMax.toLocaleString(loc), sx+cols[4].w+cols[5].w-6, y+14, {align:'right'});
+  y += 26;
+
+  // Descuento y precio final del combo
+  var precioComboMin = priceOf(c.new_usd);
+  var precioComboMax = priceOf(c.new_usd);
+  var precioListaMin = priceOf(c.old_usd);
+  var precioListaMax = priceOf(c.old_usd);
+  var ahorroLista = precioListaMax - precioComboMax;
+  var pctAhorroCombo = Math.round((ahorroLista/precioListaMax)*100);
+
+  // Fila descuento
+  doc.setFillColor(255,247,235); doc.setDrawColor(245,158,11); doc.setLineWidth(0.5);
+  doc.rect(margin, y, totW, 20, 'FD');
+  doc.setTextColor(200,100,20); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text((isEN?'Bundle discount ':'Descuento combo ')+pctAhorroCombo+'%', margin+6, y+13);
+  doc.text('-$'+ahorroLista.toLocaleString(loc)+sfx, margin+totW-6, y+13, {align:'right'});
+  y += 26;
+
+  // TOTAL COMBO destacado
+  doc.setFillColor(10,10,15); doc.rect(margin, y, totW, 34, 'F');
+  doc.setTextColor(77,208,225); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text(isEN?'BUNDLE TOTAL':'TOTAL COMBO', margin+8, y+15);
+  doc.setTextColor(255,255,255); doc.setFontSize(18);
+  doc.text('$'+precioComboMax.toLocaleString(loc)+sfx, margin+totW-8, y+22, {align:'right'});
+  // moneda alterna secundaria
+  var altAmt = isEN ? Math.round(c.new_usd*TRM) : c.new_usd;
+  var altLoc = isEN ? 'es-CO' : 'en-US';
+  var altSfx = isEN ? ' COP' : ' USD';
+  doc.setTextColor(159,229,238); doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text('~ $'+altAmt.toLocaleString(altLoc)+altSfx, margin+totW-8, y+30, {align:'right'});
+  y += 44;
+
+  // Descripcion detallada por servicio (debajo de la tabla)
+  if(y > ph-100){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
+  doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.text(isEN?'Service descriptions':'Descripcion de servicios', margin, y); y += 16;
+
+  servs.forEach(function(s, idx){
+    if(y > ph-70){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
+    doc.setFillColor(77,208,225); doc.circle(margin+3, y-3, 2.5, 'F');
+    doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+    doc.text((idx+1)+'. '+tl(s.nombre), margin+12, y);
     y += 12;
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,95);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(90,90,110);
     var ls = doc.splitTextToSize(tl(s.desc), pw-margin*2-14);
-    doc.text(ls, margin+14, y); y += ls.length*11 + 8;
+    doc.text(ls.slice(0,3), margin+14, y); y += Math.min(ls.length,3)*10 + 6;
   });
 
   // ================ CONTRAPORTADA NEGRA ================
