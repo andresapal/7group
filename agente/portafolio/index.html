@@ -1257,11 +1257,21 @@ window.generarPDFCombo = function(){
   var comboId = document.getElementById('mccModal').dataset.comboId;
   var c = COMBOS.find(function(x){return x.id===comboId;});
   if(!c || !window.jspdf){ alert('Error cargando'); return; }
-  var cliente = document.getElementById('mccCliente').value.trim() || 'Cliente';
+  var cliente = document.getElementById('mccCliente').value.trim();
   var empresa = document.getElementById('mccEmpresa').value.trim();
   var email = document.getElementById('mccEmail').value.trim();
   var tel = document.getElementById('mccTel').value.trim();
   var notas = document.getElementById('mccNotas').value.trim();
+  // Validacion campos requeridos
+  var faltan = [];
+  if(!cliente) faltan.push(LANG==='en'?'Contact name':'Nombre de contacto');
+  if(!empresa) faltan.push(LANG==='en'?'Company':'Empresa');
+  if(!email)   faltan.push(LANG==='en'?'Email':'Email');
+  if(!tel)     faltan.push(LANG==='en'?'Phone':'Telefono');
+  if(faltan.length){
+    alert((LANG==='en'?'Please complete: ':'Por favor completa: ')+faltan.join(', '));
+    return;
+  }
 
   var jsPDF = window.jspdf.jsPDF;
   var doc = new jsPDF({unit:'pt',format:'letter'});
@@ -1284,9 +1294,9 @@ window.generarPDFCombo = function(){
   doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(30);
   doc.text(t('pdf_propuesta'), pw/2, ph*0.42, {align:'center'});
   doc.setTextColor(159,229,238); doc.setFontSize(16); doc.setFont('helvetica','normal');
-  doc.text(c.titulo, pw/2, ph*0.42+26, {align:'center'});
+  doc.text(tl(c.titulo), pw/2, ph*0.42+26, {align:'center'});
   doc.setTextColor(77,208,225); doc.setFontSize(11); doc.setFont('helvetica','bold');
-  doc.text(c.tag, pw/2, ph*0.42+50, {align:'center'});
+  doc.text(tl(c.tag), pw/2, ph*0.42+50, {align:'center'});
   // Datos cliente en portada
   doc.setTextColor(200,220,225); doc.setFontSize(11); doc.setFont('helvetica','normal');
   doc.text(t('pdf_preparado')+': ' + (empresa ? empresa+' - '+cliente : cliente), pw/2, 240, {align:'center'});
@@ -1309,7 +1319,7 @@ window.generarPDFCombo = function(){
   y += 28;
 
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(80,80,95);
-  var descLines = doc.splitTextToSize(c.desc, pw-margin*2);
+  var descLines = doc.splitTextToSize(tl(c.desc), pw-margin*2);
   doc.text(descLines, margin, y); y += descLines.length*13 + 12;
 
   // Bloque de precio
@@ -1336,7 +1346,7 @@ window.generarPDFCombo = function(){
   doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
   doc.text(t('pdf_incluye_h'), margin, y); y += 20;
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
-  c.entregables.forEach(function(e){
+  (tl(c.entregables)||[]).forEach(function(e){
     if(y > ph-100){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
     doc.setFillColor(77,208,225); doc.circle(margin+3, y-3, 2.5, 'F');
     var lns = doc.splitTextToSize(e, pw-margin*2-14);
@@ -1350,12 +1360,12 @@ window.generarPDFCombo = function(){
   doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
   doc.text(t('pdf_timeline_h'), margin, y); y += 16;
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
-  var tLines = doc.splitTextToSize(c.timeline, pw-margin*2);
+  var tLines = doc.splitTextToSize(tl(c.timeline), pw-margin*2);
   doc.text(tLines, margin, y); y += tLines.length*13 + 14;
   doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(14);
   doc.text(t('pdf_pago_h'), margin, y); y += 16;
   doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,75);
-  var pLines = doc.splitTextToSize(c.condiciones_pago, pw-margin*2);
+  var pLines = doc.splitTextToSize(tl(c.condiciones_pago), pw-margin*2);
   doc.text(pLines, margin, y); y += pLines.length*13 + 14;
 
   if(notas){
@@ -1385,12 +1395,12 @@ window.generarPDFCombo = function(){
     if(y > ph-90){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 60; }
     doc.setFillColor(77,208,225); doc.circle(margin+3, y-3, 3, 'F');
     doc.setTextColor(20,20,30); doc.setFont('helvetica','bold'); doc.setFontSize(11);
-    doc.text(s.nombre, margin+14, y);
+    doc.text(tl(s.nombre), margin+14, y);
     doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(77,140,80);
     doc.text('['+s.cat+']', margin+14+doc.getTextWidth(s.nombre)+8, y);
     y += 12;
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,95);
-    var ls = doc.splitTextToSize(s.desc, pw-margin*2-14);
+    var ls = doc.splitTextToSize(tl(s.desc), pw-margin*2-14);
     doc.text(ls, margin+14, y); y += ls.length*11 + 8;
   });
 
@@ -1438,40 +1448,23 @@ function drawLogo7_(doc, cx, cy, scale){
   doc.line(cx-25*scale, cy+50*scale, cx+25*scale, cy+50*scale);
 }
 
-/* Descarga PDF universal (web / Android / iOS) con opcion de volver a 7group.
-   Estrategia: crear blob URL + intentar descarga via <a download> + fallback
-   abrir en nueva pestaña (el usuario cierra y vuelve a 7group). */
+/* Descarga PDF: iOS abre nueva pestaña, resto descarga directa */
 function guardarPDF_(doc, fname){
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   try{
-    var blob = doc.output('blob');
-    var url = URL.createObjectURL(blob);
-    // Primer intento: descarga directa
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = fname;
-    a.rel = 'noopener';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function(){ document.body.removeChild(a); }, 100);
-
-    // En iOS <a download> no funciona; el navegador ignora y abrimos en nueva pestaña
-    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     if(isIOS){
-      setTimeout(function(){
-        var w = window.open(url, '_blank', 'noopener');
-        if(!w){
-          alert('El navegador bloqueo la ventana. Presiona el boton compartir para guardar el PDF.');
-          location.href = url;
-        }
-      }, 200);
+      // iOS Safari: abrir en nueva pestaña para usar boton Compartir
+      var blob = doc.output('blob');
+      var url = URL.createObjectURL(blob);
+      var w = window.open(url, '_blank');
+      if(!w){ location.href = url; }
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 120000);
+    } else {
+      // Desktop / Android: descarga directa (funciona en todos los navegadores modernos)
+      doc.save(fname);
     }
-    // Limpiar URL despues de 60s
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
   }catch(e){
-    alert('Error generando PDF: '+e.message);
-    // Ultimo fallback: metodo original de jsPDF
-    try{ doc.save(fname); }catch(e2){}
+    alert('Error generando PDF: '+e.message+'\n\nIntenta abrir el portafolio en otro navegador.');
   }
 }
 
@@ -1699,7 +1692,7 @@ window.descargarPropuestaPDF = function(){
     var nomLines = doc.splitTextToSize(s.nombre, colW[0]-8);
     doc.text(nomLines.slice(0,2), xx+5, y); xx += colW[0];
     doc.setFontSize(8); doc.setTextColor(80,80,95);
-    doc.text(s.cat, xx+5, y); xx += colW[1];
+    doc.text(tCat(s.cat), xx+5, y); xx += colW[1];
     doc.setFontSize(9); doc.setTextColor(30,30,45);
     doc.text(s.hmin+'-'+s.hmax, xx+5, y); xx += colW[2];
     doc.setFont('helvetica','bold'); doc.setTextColor(16,140,80);
@@ -1727,9 +1720,9 @@ window.descargarPropuestaPDF = function(){
     if(y > ph - 100){ doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,pw,ph,'F'); doc.setDrawColor(77,208,225); doc.line(0,2,pw,2); doc.line(0,ph-2,pw,ph-2); y = 70; }
     doc.setFillColor(77,208,225); doc.circle(margin+3, y-2, 2.5, 'F');
     doc.setTextColor(30,30,45); doc.setFont('helvetica','bold'); doc.setFontSize(10);
-    doc.text(s.nombre, margin+12, y); y += 12;
+    doc.text(tl(s.nombre), margin+12, y); y += 12;
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,95);
-    var lines = doc.splitTextToSize(s.desc, totalW-12);
+    var lines = doc.splitTextToSize(tl(s.desc), totalW-12);
     doc.text(lines, margin+12, y); y += lines.length*11 + 6;
   });
 
