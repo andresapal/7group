@@ -3907,7 +3907,13 @@ function levenshtein_(a,b){
   }
   return m[b.length][a.length];
 }
-/* Compara identidad titular-PDF vs lead. Devuelve {ok, warn, msg}. */
+/* Compara identidad titular-PDF vs lead. Devuelve {ok, warn, msg}.
+   Reglas (Andres, 2026-08):
+   - Documento es el juez de paz: si coincide, se acepta sin importar el nombre.
+   - Si nombre y apellido coinciden: correcto (aunque falten segundos nombres/apellidos).
+   - Si falta info en el PDF (info incompleta): NO bloquea, solo warn.
+   - Si nombre/apellido difieren del documento: warn (asesor decide).
+   - Si solo aparece la cedula (sin nombre): validar por cedula. */
 function validarIdentidadTitular_(data, lead){
   var titular = data.titular || data.tomador || data.propietario || {};
   var nomPDF = titular.nombre_completo || titular.nombre || '';
@@ -3918,29 +3924,49 @@ function validarIdentidadTitular_(data, lead){
   var docLead = String(lead.documento || '').replace(/\D/g,'');
   var telLead = String(lead.telefono || '').replace(/\D/g,'').slice(-10);
 
-  if(!nomPDF) return {ok:true, warn:true, msg:'No se pudo leer el nombre del titular en el PDF. Verifica manualmente que corresponda a '+nomLead+'.'};
-
-  // 1. Documento: si ambos existen, es el juez de paz
+  // ============ REGLA 1: DOCUMENTO ES EL JUEZ DE PAZ ============
+  // Si ambos tienen documento y coinciden -> correcto, sin importar el nombre.
   if(docLead && docPDF){
     if(docLead === docPDF) return {ok:true, warn:false, msg:''};
-    return {ok:false, warn:false, msg:'Documento NO coincide.\nProspecto: '+docLead+'\nPDF: '+docPDF+'\n\nEsta cotizacion parece ser de otra persona.'};
+    // Documento diferente: alerta (no bloquea, el asesor decide)
+    return {ok:true, warn:true, msg:'Documento diferente.\nProspecto: '+docLead+'\nPDF: '+docPDF+'\n\nRevisa si es la misma persona antes de asociar.'};
   }
 
-  // 2. Nombre por tokens
+  // ============ REGLA 2: PDF SIN NOMBRE (solo cedula o vacio) ============
+  if(!nomPDF){
+    if(docPDF && docLead && docPDF === docLead) return {ok:true, warn:false, msg:''};
+    if(docPDF) return {ok:true, warn:true, msg:'El PDF solo trae documento ('+docPDF+') sin nombre. Verifica manualmente que corresponda a '+nomLead+'.'};
+    return {ok:true, warn:true, msg:'No se pudo leer nombre ni documento del titular en el PDF. Verifica manualmente que corresponda a '+nomLead+'.'};
+  }
+
+  // ============ REGLA 3: COMPARAR PRIMER NOMBRE + PRIMER APELLIDO ============
+  // Estructura tipica CO: [Primer nombre] [Segundo nombre] [Primer apellido] [Segundo apellido]
+  // Los "clave" son el primer y el ultimo token (primer nombre y primer apellido).
+  // Si ambos coinciden: correcto, aunque falten los segundos.
   var tokLead = tokensNombre_(nomLead);
   var tokPDF  = tokensNombre_(nomPDF);
   if(!tokLead.length || !tokPDF.length){
     return {ok:true, warn:true, msg:'Nombre incompleto. Verifica que "'+nomPDF+'" corresponda a "'+nomLead+'".'};
   }
-  var compartidos = tokLead.filter(function(t){return tokPDF.indexOf(t)>=0;}).length;
-  var score = compartidos / Math.max(tokLead.length, tokPDF.length);
 
-  // 3. Buscar tokens "parecidos" pero no identicos (Maria Gomez vs Maria Gamez)
+  var primerL = tokLead[0], apellL = tokLead[tokLead.length-1];
+  var primerP = tokPDF[0],  apellP = tokPDF[tokPDF.length-1];
+
+  var primerOk  = (tokPDF.indexOf(primerL)>=0) || (tokLead.indexOf(primerP)>=0);
+  var apellOk   = (tokPDF.indexOf(apellL)>=0)  || (tokLead.indexOf(apellP)>=0);
+
+  if(primerOk && apellOk) return {ok:true, warn:false, msg:''};
+
+  // ============ REGLA 4: DIFIEREN -> ALERTA ============
+  var detalle = 'Prospecto: '+nomLead+(docLead?' (doc '+docLead+')':'')+
+                '\nTitular PDF: '+nomPDF+(docPDF?' (doc '+docPDF+')':'');
+
+  // Tokens parecidos (posible tipeo: Maria vs Marya)
   var casiIguales = [];
   tokLead.forEach(function(tl){
     if(tokPDF.indexOf(tl)>=0) return;
     tokPDF.forEach(function(tp){
-      if(tokPDF.indexOf(tl)<0 && Math.abs(tl.length-tp.length)<=2){
+      if(Math.abs(tl.length-tp.length)<=2){
         var d = levenshtein_(tl,tp);
         if(d>0 && d<=2 && d < Math.min(tl.length,tp.length)/2){
           casiIguales.push({lead:tl, pdf:tp, dist:d});
@@ -3948,19 +3974,14 @@ function validarIdentidadTitular_(data, lead){
       }
     });
   });
-
-  if(score>=0.99 && !casiIguales.length) return {ok:true, warn:false, msg:''};
-
-  var detalle = 'Prospecto: '+nomLead+(docLead?' (doc '+docLead+')':'')+
-                '\nTitular PDF: '+nomPDF+(docPDF?' (doc '+docPDF+')':'');
   if(casiIguales.length){
-    detalle += '\n\nAtencion: hay tokens muy parecidos pero NO iguales:';
-    casiIguales.forEach(function(c){ detalle += '\n  "'+c.lead+'" vs "'+c.pdf+'" (posible error de tipeo)'; });
+    detalle += '\n\nTokens parecidos (posible error de tipeo):';
+    casiIguales.forEach(function(c){ detalle += '\n  "'+c.lead+'" vs "'+c.pdf+'"'; });
   }
   if(telLead && telPDF && telPDF.indexOf(telLead)>=0) detalle += '\n\n(Telefono si coincide: '+telLead+')';
 
-  if(score>=0.5 || casiIguales.length) return {ok:true, warn:true, msg:detalle};
-  return {ok:false, warn:false, msg:'Los nombres no coinciden.\n\n'+detalle};
+  // Siempre warn (no bloqueamos): asesor decide.
+  return {ok:true, warn:true, msg:'Nombre o apellido difieren:\n\n'+detalle+'\n\nVerifica si es la misma persona.'};
 }
 
 /* ============================================
