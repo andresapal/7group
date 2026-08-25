@@ -1268,7 +1268,17 @@ tbody tr:hover{background:var(--accent-light)}
    GOOGLE AUTH GATE
    ==================================== */
 var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
-var ALLOWED_EMAILS=['aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co','aseguraloseguros@gmail.com','andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+var ALLOWED_EMAILS=[
+  // Admin 7group
+  'andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com',
+  // Fabian (dueno) - varios aliases
+  'aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co',
+  // Asesoras
+  'aseguraloseguros@gmail.com',   // Monica Torres
+  'judithneirarey@hotmail.com',    // Judith Neira
+  'erikapinzonc@hotmail.com',      // Erika Pinzon
+  'sanmarin58@hotmail.com'         // Sandra Marin
+];
 var ADMIN_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
 var GATE_KEY='aseg_erp_auth';
 var GATE_TS_KEY='aseg_erp_ts';
@@ -1418,7 +1428,8 @@ function aplicarPermisosUI_(){
 function setAdminMode(email){
   IS_ADMIN = ADMIN_EMAILS.indexOf(email) !== -1;
   // Modulos: admin 7GROUP + dueno Aseguralo (Fabian, varios emails) pueden gestionar
-  var DUENOS_FABIAN = ['aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co','aseguraloseguros@gmail.com'];
+  // aseguraloseguros@gmail.com se reasigno a Monica Torres (asesora); ya no es dueno.
+  var DUENOS_FABIAN = ['aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co'];
   var esDueno = DUENOS_FABIAN.indexOf(email) >= 0;
   var modBtn = document.getElementById('modConfigBtn');
   if(modBtn) modBtn.style.display = (IS_ADMIN || esDueno) ? '' : 'none';
