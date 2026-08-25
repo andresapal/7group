@@ -4285,6 +4285,25 @@ window.descargarComparativoPDF = async function(leadId){
   var logoB64 = await precargarLogo_();
   var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {};
   var data = COT_PDFS[leadId] || {};
+  // Formatea coberturas para el PDF: una cobertura por linea (mejor legibilidad).
+  //  - Prioriza array structurado coberturas_detalle si existe.
+  //  - Si es texto plano, separa por "." + Mayuscula, ";" o " y " antes de otra cobertura.
+  var _fmt$ = function(n){return '$'+Number(n||0).toLocaleString('es-CO');};
+  function formatearCoberturas_(d){
+    if(Array.isArray(d.coberturasDetalle) && d.coberturasDetalle.length){
+      return d.coberturasDetalle.map(function(cob){
+        var nom = String(cob.nombre||'').trim();
+        var val = Number(cob.valor)||0;
+        return nom + (val>0 ? ' '+_fmt$(val)+'.' : (nom.slice(-1)==='.'?'':'.'));
+      }).join('\n');
+    }
+    var t = String(d.coberturas||'').trim();
+    if(!t) return '-';
+    // Normaliza separadores a newline
+    t = t.replace(/\s*;\s*/g, '\n');
+    t = t.replace(/\.\s+(?=[A-ZÁÉÍÓÚÑ])/g, '.\n');
+    return t;
+  }
   var slotKeys = Object.keys(data).filter(function(k){return k.indexOf('__')!==0;});
   var cots = slotKeys.filter(function(k){return Number(data[k].prima)>0}).map(function(k){
     var d = data[k];
@@ -4292,7 +4311,7 @@ window.descargarComparativoPDF = async function(leadId){
     // para NO comunicar al cliente un monto superior al real cotizado.
     var coberturasSeguras = d.coberturasWarning
       ? 'Coberturas segun cotizacion oficial de '+ (d.aseguradora||'la aseguradora') +'. Consulte el PDF anexo para el detalle exacto y montos por cobertura.'
-      : (d.coberturas||'');
+      : formatearCoberturas_(d);
     return {slot:k, nombre:d.aseguradora||k, prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
             deducible:Number(d.deducible)||0, coberturas:coberturasSeguras, valorAseg:Number(d.valorAsegurado)||0,
             aseguradora:d.aseguradora||k, plan:d.planSeleccionado||'',
@@ -4346,16 +4365,32 @@ window.descargarComparativoPDF = async function(leadId){
   doc.text('Fecha: '+hoy, margin, y); y += 20;
 
   // Datos cliente — bloque distribuido y espaciado, con vigencia de cotizacion a la derecha
-  // Placa: si el lead es de vehiculo, tomarla de la primera cotizacion que la traiga
+  // Placa: si el lead es de vehiculo, busca en TODAS las cotizaciones y en varias rutas
+  // posibles (Gemini a veces la pone anidada, a veces plana).
   var placaCliente = '';
   if((lead.tipo||'').toLowerCase().indexOf('vehic')>=0 || (lead.tipo||'').toLowerCase().indexOf('auto')>=0){
     var _pd = COT_PDFS[leadId] || {};
     Object.keys(_pd).forEach(function(k){
       if(placaCliente || k.indexOf('__')===0) return;
-      var ext = _pd[k] && _pd[k].extraido; if(!ext) return;
-      var pl = (ext.vehiculo && (ext.vehiculo.placa || ext.vehiculo.matricula)) || ext.placa || '';
-      if(pl) placaCliente = String(pl).toUpperCase().trim();
+      var d = _pd[k]; if(!d) return;
+      var ext = d.extraido || {};
+      // Rutas posibles donde Gemini puede haber puesto la placa
+      var candidatas = [
+        ext.vehiculo && ext.vehiculo.placa,
+        ext.vehiculo && ext.vehiculo.matricula,
+        ext.vehiculo && ext.vehiculo.placa_matricula,
+        ext.placa, ext.matricula,
+        ext.datos_vehiculo && ext.datos_vehiculo.placa,
+        ext.bien_asegurado && ext.bien_asegurado.placa,
+        ext.riesgo && ext.riesgo.placa,
+        d.placa
+      ];
+      for(var ci=0; ci<candidatas.length; ci++){
+        var v = candidatas[ci];
+        if(v){ placaCliente = String(v).toUpperCase().replace(/[^A-Z0-9]/g,'').trim(); break; }
+      }
     });
+    if(!placaCliente){ try{ console.log('[PDF] Placa no encontrada. extraidos:', Object.keys(_pd).map(function(k){return _pd[k] && _pd[k].extraido;})); }catch(e){} }
   }
   var clienteBoxH = 92;
   doc.setFillColor(245,247,250); doc.rect(margin, y, pw-margin*2, clienteBoxH, 'F');
