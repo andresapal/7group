@@ -4345,17 +4345,39 @@ window.descargarComparativoPDF = async function(leadId){
   var hoy = new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
   doc.text('Fecha: '+hoy, margin, y); y += 20;
 
-  // Datos cliente
-  doc.setFillColor(245,247,250); doc.rect(margin, y, pw-margin*2, 60, 'F');
+  // Datos cliente — bloque distribuido y espaciado, con vigencia de cotizacion a la derecha
+  // Placa: si el lead es de vehiculo, tomarla de la primera cotizacion que la traiga
+  var placaCliente = '';
+  if((lead.tipo||'').toLowerCase().indexOf('vehic')>=0 || (lead.tipo||'').toLowerCase().indexOf('auto')>=0){
+    var _pd = COT_PDFS[leadId] || {};
+    Object.keys(_pd).forEach(function(k){
+      if(placaCliente || k.indexOf('__')===0) return;
+      var ext = _pd[k] && _pd[k].extraido; if(!ext) return;
+      var pl = (ext.vehiculo && (ext.vehiculo.placa || ext.vehiculo.matricula)) || ext.placa || '';
+      if(pl) placaCliente = String(pl).toUpperCase().trim();
+    });
+  }
+  var clienteBoxH = 92;
+  doc.setFillColor(245,247,250); doc.rect(margin, y, pw-margin*2, clienteBoxH, 'F');
+  var cxL = margin + 14;
+  var cxR = margin + Math.round((pw - margin*2) * 0.55);
   doc.setTextColor(48,71,112); doc.setFontSize(9); doc.setFont('helvetica','bold');
-  doc.text('CLIENTE', margin+12, y+14);
-  doc.setTextColor(0,0,0); doc.setFontSize(12); doc.setFont('helvetica','bold');
-  doc.text(lead.nombre||'', margin+12, y+30);
-  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
-  doc.text('Ramo: '+(lead.tipo||''), margin+12, y+46);
-  doc.text('WhatsApp: '+(lead.telefono||'-'), margin+280, y+30);
-  doc.text('Correo: '+(lead.correo||'-'), margin+280, y+46);
-  y += 80;
+  doc.text('CLIENTE', cxL, y+16);
+  // Columna izquierda: nombre, tipo (+ placa si aplica)
+  doc.setTextColor(0,0,0); doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text(lead.nombre||'', cxL, y+34);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(70,70,70);
+  var tipoLinea = (lead.tipo||'').trim();
+  if(placaCliente) tipoLinea = 'Placa '+placaCliente+' - '+tipoLinea;
+  doc.text(tipoLinea, cxL, y+52);
+  // Columna derecha: WhatsApp / Correo
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50);
+  doc.text('WhatsApp: '+(lead.telefono||'-'), cxR, y+34);
+  doc.text('Correo: '+(lead.correo||'-'), cxR, y+52);
+  // Vigencia cotizacion — pegada al borde derecho, debajo de todo
+  doc.setFontSize(8.5); doc.setFont('helvetica','italic'); doc.setTextColor(110,110,120);
+  doc.text('Vigencia de esta cotizacion: 30 dias', pw - margin - 14, y + clienteBoxH - 10, {align:'right'});
+  y += clienteBoxH + 12;
 
   // Intro
   doc.setTextColor(0,0,0); doc.setFontSize(10);
@@ -4367,11 +4389,11 @@ window.descargarComparativoPDF = async function(leadId){
   doc.text(lines, margin, y); y += lines.length*13 + 12;
 
   // Filas base de la comparacion (comunes a los 2 layouts)
+  // Deducible eliminado por decision comercial (Andres 2026-08)
   var filas = [
     {l:'Prima anual',  get:function(c){return fmt(c.prima);},                                     highlight:true},
     {l:'Vigencia',     get:function(c){return c.desde && c.hasta ? (c.desde+' -> '+c.hasta) : '-';}},
     {l:'Valor aseg.',  get:function(c){return c.valorAseg?fmt(c.valorAseg):'-';}},
-    {l:'Deducible',    get:function(c){return c.deducible?fmt(c.deducible):'-';}},
     {l:'Coberturas',   get:function(c){return c.coberturas||'-';},                                tall:true}
   ];
 
@@ -4405,12 +4427,13 @@ window.descargarComparativoPDF = async function(leadId){
     y += 30;
 
     filas.forEach(function(f,fi){
-      var rowH = f.tall ? Math.max(44, nCols>4?50:44) : 22;
+      // Coberturas necesita mucho mas espacio para no cortarse. Otras filas mas aire.
+      var rowH = f.tall ? (nCols>4 ? 96 : 84) : 26;
       // Bandas
       if(fi%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y, totalW, rowH, 'F'); }
       // Label
       doc.setTextColor(90,90,110); doc.setFontSize(8); doc.setFont('helvetica','bold');
-      doc.text(f.l.toUpperCase(), margin+8, y+13);
+      doc.text(f.l.toUpperCase(), margin+8, y+14);
       // Valores por columna
       cotsPagina.forEach(function(c,i){
         var cx = margin + labelW + i*colW;
@@ -4424,8 +4447,9 @@ window.descargarComparativoPDF = async function(leadId){
           doc.setFontSize(nCols>4?8:9); doc.setFont('helvetica','normal');
         }
         var lns = doc.splitTextToSize(String(val), colW-14);
-        var maxL = f.tall ? (nCols>4?5:4) : 2;
-        doc.text(lns.slice(0,maxL), cx+8, y+ (f.highlight?18:14));
+        // Coberturas: hasta 8 lineas (para no cortar); resto: 2
+        var maxL = f.tall ? (nCols>4?7:8) : 2;
+        doc.text(lns.slice(0,maxL), cx+8, y+ (f.highlight?18:15));
       });
       // Bordes verticales sutiles
       doc.setDrawColor(230,232,238); doc.setLineWidth(0.5);
@@ -4435,12 +4459,14 @@ window.descargarComparativoPDF = async function(leadId){
       }
       y += rowH;
     });
-    // Nota mejor precio abajo del bloque
+    // Nota mejor precio abajo del bloque — con su propio espacio para no montarse sobre Coberturas
     var minPrima = cotsPagina.reduce(function(a,b){return a.prima<b.prima?a:b;});
-    y += 6;
-    doc.setTextColor(120,120,120); doc.setFontSize(8); doc.setFont('helvetica','italic');
-    doc.text('* Recomendada  |  Mejor precio del grupo: '+minPrima.nombre+' ('+fmt(minPrima.prima)+')', margin, y);
     y += 14;
+    doc.setFillColor(250,250,240); doc.setDrawColor(230,225,190); doc.setLineWidth(0.5);
+    doc.rect(margin, y, totalW, 20, 'FD');
+    doc.setTextColor(110,90,20); doc.setFontSize(8.5); doc.setFont('helvetica','italic');
+    doc.text('* Recomendada    |    Mejor precio del grupo: '+minPrima.nombre+' ('+fmt(minPrima.prima)+')', margin + 10, y + 13);
+    y += 26;
   }
 
   // === LAYOUT B: TARJETAS EN GRID 2 COLUMNAS (N >= 7) ===
@@ -4448,7 +4474,7 @@ window.descargarComparativoPDF = async function(leadId){
     var totalW = pw - margin*2;
     var gap = 12;
     var cardW = (totalW - gap) / 2;
-    var cardH = 145;
+    var cardH = 165;
     var x = margin;
     cotsAll.forEach(function(c, i){
       if(i>0 && i%2===0){
@@ -4485,18 +4511,17 @@ window.descargarComparativoPDF = async function(leadId){
       doc.text(fmt(c.prima), x+10, y+56);
       doc.setTextColor(120,120,120); doc.setFontSize(8); doc.setFont('helvetica','normal');
       doc.text('Prima anual', x+10, y+68);
-      // Vigencia / valor / deducible
+      // Vigencia / valor (Deducible eliminado)
       var rowY = y+86;
       doc.setTextColor(60,60,60); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
       var vig = c.desde && c.hasta ? (c.desde+' -> '+c.hasta) : '-';
       doc.text('Vigencia: '+vig, x+10, rowY);
       doc.text('Valor aseg.: '+(c.valorAseg?fmt(c.valorAseg):'-'), x+10, rowY+12);
-      doc.text('Deducible: '+(c.deducible?fmt(c.deducible):'-'), x+10, rowY+24);
-      // Coberturas
+      // Coberturas — mas espacio para no cortar
       if(c.coberturas){
         doc.setTextColor(90,90,110); doc.setFontSize(7.5);
         var cl = doc.splitTextToSize(c.coberturas, cardW-20);
-        doc.text(cl.slice(0,2), x+10, rowY+40);
+        doc.text(cl.slice(0,4), x+10, rowY+28);
       }
     });
     y += cardH + gap;
@@ -4543,7 +4568,7 @@ window.descargarComparativoPDF = async function(leadId){
   doc.setTextColor(48,71,112); doc.setFontSize(10); doc.setFont('helvetica','bold');
   doc.text(firmaNombre, margin, y);
   doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,80);
-  y += 14; doc.text('Aseguralo - Corredor de Seguros', margin, y);
+  y += 14; doc.text('Aseguralo - Agente de Seguros', margin, y);
   y += 12; doc.text('WhatsApp: +57 316 520 6865  -  aseguralo@outlook.com', margin, y);
 
   var fname = 'Propuesta_'+(lead.nombre||'cliente').replace(/\s+/g,'_')+'_'+Date.now()+'.pdf';
