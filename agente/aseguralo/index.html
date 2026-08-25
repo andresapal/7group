@@ -912,6 +912,11 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
         <input type="hidden" id="npTipo">
       </div>
+      <!-- Placa (solo aparece cuando tipo=Vehiculo) -->
+      <div class="form-group" id="npPlacaWrap" style="display:none">
+        <label class="form-label">Placa <span style="color:var(--red)">*</span></label>
+        <input class="form-input mono" id="npPlaca" placeholder="ABC123 o ABC12D" style="text-transform:uppercase;letter-spacing:2px;font-weight:700;max-width:220px" maxlength="7" autocomplete="off">
+      </div>
       <div id="npPreview" style="display:none;margin-top:12px;padding:12px 14px;background:var(--bg3);border-left:3px solid var(--accent);border-radius:6px;font-size:12px;line-height:1.5;color:var(--text);white-space:pre-line;max-height:200px;overflow-y:auto"></div>
     </div>
     <div class="modal-footer">
@@ -2265,6 +2270,14 @@ document.addEventListener('click', function(e){
   chip.classList.add('on');
   var tipo = chip.dataset.tipo;
   document.getElementById('npTipo').value = tipo;
+  // Mostrar/ocultar campo Placa segun tipo
+  var placaWrap = document.getElementById('npPlacaWrap');
+  if(placaWrap){
+    var esVehic = tipo === 'Vehiculo';
+    placaWrap.style.display = esVehic ? '' : 'none';
+    if(esVehic){ setTimeout(function(){var p=document.getElementById('npPlaca'); if(p) p.focus();}, 50); }
+    else { var p=document.getElementById('npPlaca'); if(p) p.value=''; }
+  }
   // Preview del mensaje que se enviara
   var nom = (document.getElementById('npNombre').value||'').trim();
   var preview = fillTpl(tplFor(tipo), {nombre: nom || 'cliente'});
@@ -2296,6 +2309,7 @@ function npCollect_(){
   var correo  = (document.getElementById('npCorreo').value||'').trim();
   var tipo    = document.getElementById('npTipo').value;
   var origen  = document.getElementById('npOrigen').value || 'WhatsApp';
+  var placa   = (document.getElementById('npPlaca').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').trim();
   var intermSel = document.getElementById('npInterm').value;
   var interm = intermSel === '__otro'
     ? (document.getElementById('npIntermOtro').value||'').trim()
@@ -2305,12 +2319,19 @@ function npCollect_(){
   if(!tipo){ alert('Selecciona el tipo de seguro'); return null; }
   if(correo && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)){ alert('El correo no tiene formato valido'); return null; }
   if(!interm){ alert('Selecciona un intermediario (o escribe uno nuevo si elegiste "Otro")'); return null; }
+  if(tipo === 'Vehiculo'){
+    if(!placa){ alert('Escribe la placa del vehiculo'); return null; }
+    if(!/^[A-Z]{3}\d{2,3}[A-Z]?$/.test(placa)){ alert('Placa invalida. Formato esperado: ABC123 o ABC12D'); return null; }
+  }
   // Si es nuevo (opcion Otro), persistir en catalogo
   if(intermSel === '__otro') agregarIntermediario_(interm);
-  return {nombre:nombre, telefono:tel, correo:correo, tipo:tipo, origen:origen, intermediario:interm};
+  return {nombre:nombre, telefono:tel, correo:correo, tipo:tipo, origen:origen, intermediario:interm, placa:placa};
 }
 
 function npSaveLead_(d, cb){
+  // La placa la guardamos en "detalle" con prefijo "Placa: XXX" para no cambiar el esquema del Sheet.
+  // Cuando se lee el lead, extraemos la placa de ese campo.
+  var detalle = d.placa ? ('Placa: '+d.placa) : '';
   var payload = {
     action:'lead',
     fecha: new Date().toISOString(),
@@ -2318,13 +2339,13 @@ function npSaveLead_(d, cb){
     correo: d.correo,
     telefono: d.telefono,
     tipo: d.tipo,
-    detalle: '',
+    detalle: detalle,
     urgencia: '',
     origen: d.origen,
     intermediario: d.intermediario || ''
   };
   // Optimista: agregar local para que aparezca ya en el Inbox
-  LEADS.unshift({fecha:payload.fecha, id:'LD-local-'+Date.now(), nombre:d.nombre, correo:d.correo, telefono:d.telefono, tipo:d.tipo, detalle:'', urgencia:'', origen:d.origen, estado:'Nuevo', notas:'', intermediario:d.intermediario||''});
+  LEADS.unshift({fecha:payload.fecha, id:'LD-local-'+Date.now(), nombre:d.nombre, correo:d.correo, telefono:d.telefono, tipo:d.tipo, detalle:detalle, urgencia:'', origen:d.origen, estado:'Nuevo', notas:'', intermediario:d.intermediario||'', placa:d.placa||''});
   renderLeads();
   fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
     .then(function(){ setTimeout(loadLeadsFromSheet, 1500); if(cb)cb(); })
@@ -4369,16 +4390,28 @@ window.descargarComparativoPDF = async function(leadId){
   doc.text('Fecha: '+hoy, margin, y); y += 20;
 
   // Datos cliente — bloque distribuido y espaciado, con vigencia de cotizacion a la derecha
-  // Placa: si el lead es de vehiculo, busca en TODAS las cotizaciones y en varias rutas
-  // posibles (Gemini a veces la pone anidada, a veces plana).
-  var placaCliente = '';
+  // Placa: prioridad al valor manual del lead (registrado en el modal Nuevo Prospecto).
+  // Si el lead no la trae, barrido profundo en las cotizaciones extraidas por Gemini.
+  var placaCliente = String(lead.placa||'').toUpperCase().trim();
+  function _buscarPlacaEn_(obj, prof){
+    if(!obj || prof>6 || placaCliente) return;
+    if(typeof obj === 'string'){
+      // Placa CO: 3 letras + 3 digitos (viejas) o 3 letras + 2 digitos + 1 letra (nuevas / motos)
+      var m = obj.toUpperCase().match(/\b([A-Z]{3}[- ]?\d{3}|[A-Z]{3}[- ]?\d{2}[A-Z])\b/);
+      if(m){ placaCliente = m[1].replace(/[-\s]/g,''); }
+      return;
+    }
+    if(typeof obj === 'object'){
+      for(var k in obj){ if(Object.prototype.hasOwnProperty.call(obj,k)) _buscarPlacaEn_(obj[k], prof+1); }
+    }
+  }
   if((lead.tipo||'').toLowerCase().indexOf('vehic')>=0 || (lead.tipo||'').toLowerCase().indexOf('auto')>=0){
     var _pd = COT_PDFS[leadId] || {};
     Object.keys(_pd).forEach(function(k){
       if(placaCliente || k.indexOf('__')===0) return;
       var d = _pd[k]; if(!d) return;
+      // 1) Rutas conocidas (rapidas)
       var ext = d.extraido || {};
-      // Rutas posibles donde Gemini puede haber puesto la placa
       var candidatas = [
         ext.vehiculo && ext.vehiculo.placa,
         ext.vehiculo && ext.vehiculo.matricula,
@@ -4393,6 +4426,11 @@ window.descargarComparativoPDF = async function(leadId){
         var v = candidatas[ci];
         if(v){ placaCliente = String(v).toUpperCase().replace(/[^A-Z0-9]/g,'').trim(); break; }
       }
+      // 2) Fallback: barrido profundo por regex de placa CO en todo el extraido
+      if(!placaCliente) _buscarPlacaEn_(d.extraido, 0);
+      // 3) Ultimo recurso: buscar en coberturas / nombreArchivo / campos texto plano
+      if(!placaCliente) _buscarPlacaEn_(d.coberturas, 0);
+      if(!placaCliente) _buscarPlacaEn_(d.nombreArchivo, 0);
     });
     if(!placaCliente){ try{ console.log('[PDF] Placa no encontrada. extraidos:', Object.keys(_pd).map(function(k){return _pd[k] && _pd[k].extraido;})); }catch(e){} }
   }
@@ -5141,6 +5179,10 @@ function loadLeadsFromSheet(){
     .then(function(j){
       if(!j || j.status!=='ok' || !j.rows) return;
       LEADS = j.rows.map(function(r){
+        // La placa la guardamos como "Placa: XXX" dentro de detalle (no rompe esquema Sheet).
+        var placa = '';
+        var m = String(r.detalle||'').match(/Placa[:\s]+([A-Z0-9]{5,7})/i);
+        if(m) placa = m[1].toUpperCase();
         return {
           fecha: r.timestamp || '',
           id: r.id,
@@ -5153,7 +5195,8 @@ function loadLeadsFromSheet(){
           origen: r.origen,
           estado: r.estado || 'Nuevo',
           notas: r.notas,
-          intermediario: r.intermediario || ''
+          intermediario: r.intermediario || '',
+          placa: placa
         };
       });
       renderLeads();
