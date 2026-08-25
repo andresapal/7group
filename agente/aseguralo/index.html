@@ -4299,8 +4299,12 @@ window.descargarComparativoPDF = async function(leadId){
     }
     var t = String(d.coberturas||'').trim();
     if(!t) return '-';
-    // Normaliza separadores a newline
+    // Normaliza separadores a newline (progresivo, en 3 pasos):
+    //  1) "; " -> \n (separador tipico entre coberturas)
     t = t.replace(/\s*;\s*/g, '\n');
+    //  2) "$1.234.567 , Sig..." -> "$1.234.567.\n Sig..."  (monto en pesos + coma es fin de cobertura)
+    t = t.replace(/(\$\s*[\d\.\,]+)\s*,\s+(?=[A-Za-zÁÉÍÓÚÑáéíóúñ])/g, '$1.\n');
+    //  3) "." + espacio + Mayuscula -> ".\n" (por si vienen con punto)
     t = t.replace(/\.\s+(?=[A-ZÁÉÍÓÚÑ])/g, '.\n');
     return t;
   }
