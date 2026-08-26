@@ -157,6 +157,34 @@ tr:hover td{background:var(--accent-light)}
 .toast.show{opacity:1;transform:translateY(0)}
 .toast.success{background:var(--green)}.toast.error{background:var(--red)}.toast.info{background:var(--sky)}
 
+/* WHATSAPP BTN */
+.btn-wa{background:#25D366;color:#fff;border:none;padding:5px 10px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;transition:.2s}
+.btn-wa:hover{background:#1da851}
+.btn-wa svg{width:14px;height:14px;fill:#fff;flex-shrink:0}
+.wa-tpl-list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.wa-tpl{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:.2s;font-size:12px}
+.wa-tpl:hover{border-color:#25D366;background:rgba(37,211,102,.06)}
+.wa-tpl .wa-icon{width:32px;height:32px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wa-tpl .wa-icon svg{width:18px;height:18px;fill:#fff}
+.wa-tpl .wa-info{flex:1}
+.wa-tpl .wa-info strong{display:block;font-size:12px;margin-bottom:2px}
+.wa-tpl .wa-info span{font-size:10px;color:var(--dim)}
+
+/* FLOATING CTA */
+.float-cta{position:fixed;bottom:24px;left:24px;z-index:250;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.float-cta-btn{background:linear-gradient(135deg,var(--highlight),var(--brand));color:#fff;border:none;padding:12px 20px;border-radius:28px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(13,148,136,.35);transition:.3s;display:flex;align-items:center;gap:8px;animation:cta-pulse 3s ease-in-out infinite}
+.float-cta-btn:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(13,148,136,.45)}
+@keyframes cta-pulse{0%,100%{box-shadow:0 4px 20px rgba(13,148,136,.35)}50%{box-shadow:0 4px 28px rgba(13,148,136,.55)}}
+.float-cta-btn svg{width:18px;height:18px;fill:#fff}
+
+/* WA HISTORY */
+.wa-log{margin-top:16px}
+.wa-log-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px}
+.wa-log-item .wa-log-icon{width:28px;height:28px;border-radius:50%;background:rgba(37,211,102,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wa-log-item .wa-log-icon svg{width:14px;height:14px;fill:#25D366}
+.wa-log-item .wa-log-text{flex:1}
+.wa-log-item .wa-log-time{font-size:10px;color:var(--dim)}
+
 /* MOBILE */
 @media(max-width:768px){
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
@@ -172,6 +200,65 @@ tr:hover td{background:var(--accent-light)}
   .kpi-grid{grid-template-columns:1fr 1fr}
   .kpi-val{font-size:20px}
 }
+
+/* FILTERS */
+.filter-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.filter-select{padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;font-family:inherit;cursor:pointer;outline:none}
+.filter-select:focus{border-color:var(--highlight)}
+
+/* SORTABLE */
+th.sortable{cursor:pointer;user-select:none;position:relative;padding-right:20px}
+th.sortable::after{content:'';position:absolute;right:6px;top:50%;transform:translateY(-50%);border:4px solid transparent;border-top-color:var(--muted);transition:.2s}
+th.sortable.asc::after{border-top-color:var(--highlight)}
+th.sortable.desc::after{border-top:none;border-bottom:4px solid var(--highlight)}
+
+/* PDF BTN */
+.btn-pdf{background:var(--sky);color:#fff;border:none;padding:4px 8px;border-radius:4px;font-size:9px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s}
+.btn-pdf:hover{opacity:.8}
+
+/* BAR CHART */
+.bar-chart{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:flex;align-items:center;gap:10px;font-size:12px}
+.bar-label{width:140px;text-align:right;color:var(--dim);font-size:11px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:24px;background:var(--bg3);border-radius:4px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px;transition:width .6s ease;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:#fff;min-width:fit-content}
+.bar-val{font-size:12px;font-weight:700;min-width:80px;text-align:right}
+
+/* GASTOS */
+.gasto-tipo{display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600}
+.gasto-ingreso{background:rgba(13,148,136,.1);color:var(--green)}
+.gasto-egreso{background:var(--red-bg);color:var(--red)}
+
+/* OCR */
+.ocr-drop{border:2px dashed var(--border3);border-radius:var(--radius);padding:40px 20px;text-align:center;cursor:pointer;transition:.3s;background:var(--bg2);margin-bottom:20px}
+.ocr-drop:hover,.ocr-drop.dragover{border-color:var(--highlight);background:var(--accent-light)}
+.ocr-drop svg{width:48px;height:48px;fill:var(--dim);margin-bottom:12px}
+.ocr-drop p{font-size:14px;font-weight:600;margin-bottom:4px}
+.ocr-drop span{font-size:11px;color:var(--dim)}
+.ocr-result{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:none}
+.ocr-result.active{display:block}
+.ocr-header{background:var(--accent-light);padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.ocr-header .ocr-icon{width:40px;height:40px;border-radius:8px;background:var(--highlight);display:flex;align-items:center;justify-content:center}
+.ocr-header .ocr-icon svg{width:20px;height:20px;fill:#fff}
+.ocr-header .ocr-meta{flex:1}
+.ocr-header .ocr-meta strong{display:block;font-size:14px}
+.ocr-header .ocr-meta span{font-size:11px;color:var(--dim)}
+.ocr-fields{padding:20px}
+.ocr-field{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+.ocr-field:last-child{border:none}
+.ocr-field .of-label{color:var(--dim);font-weight:600}
+.ocr-field .of-value{font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px}
+.ocr-confidence{display:inline-flex;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;margin-left:8px}
+.ocr-high{background:var(--green-bg);color:var(--green)}
+.ocr-med{background:var(--orange-bg);color:var(--orange)}
+.ocr-progress{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin:20px 0}
+.ocr-progress-bar{height:100%;background:var(--highlight);border-radius:2px;width:0;transition:width 1.5s ease}
+.ocr-templates{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:20px}
+.ocr-tpl{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;cursor:pointer;transition:.2s;text-align:center}
+.ocr-tpl:hover{border-color:var(--highlight);background:var(--accent-light)}
+.ocr-tpl svg{width:32px;height:32px;fill:var(--highlight);margin-bottom:8px}
+.ocr-tpl strong{display:block;font-size:12px;margin-bottom:2px}
+.ocr-tpl span{font-size:10px;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -198,6 +285,9 @@ tr:hover td{background:var(--accent-light)}
   <a class="mod-link" data-mod="retenciones">Retenciones</a>
   <a class="mod-link" data-mod="inventario">Servicios</a>
   <a class="mod-link" data-mod="cartera">Cartera</a>
+  <a class="mod-link" data-mod="gastos">Mi Contabilidad</a>
+  <a class="mod-link" data-mod="ocr">Lector IA</a>
+  <a class="mod-link" data-mod="reportes">Reportes</a>
 </div>
 
 <!-- MAIN -->
@@ -244,8 +334,11 @@ tr:hover td{background:var(--accent-light)}
 <div class="mod-section" id="mod-clientes">
   <div class="sec-head">
     <div><div class="sec-title">Clientes</div><div class="sec-sub">Gestion de clientes personas naturales</div></div>
-    <div style="display:flex;gap:8px">
+    <div class="filter-bar">
       <input class="search-box" placeholder="Buscar cliente..." id="clientSearch" oninput="renderClientes()">
+      <select class="filter-select" id="clientFilter" onchange="renderClientes()">
+        <option value="">Todos</option><option value="presentada">Presentada</option><option value="en-proceso">En proceso</option><option value="pendiente">Pendiente</option>
+      </select>
       <button class="btn btn-primary" onclick="openModal('newCliente')">+ Nuevo Cliente</button>
     </div>
   </div>
@@ -263,12 +356,17 @@ tr:hover td{background:var(--accent-light)}
 <div class="mod-section" id="mod-facturacion">
   <div class="sec-head">
     <div><div class="sec-title">Facturacion</div><div class="sec-sub">Cuentas de cobro y facturacion electronica</div></div>
-    <button class="btn btn-primary" onclick="openModal('newFactura')">+ Nueva Factura</button>
+    <div class="filter-bar">
+      <select class="filter-select" id="factFilter" onchange="renderFacturas()">
+        <option value="">Todas</option><option value="pagada">Pagada</option><option value="pendiente">Pendiente</option><option value="vencida">Vencida</option>
+      </select>
+      <button class="btn btn-primary" onclick="openModal('newFactura')">+ Nueva Factura</button>
+    </div>
   </div>
   <div class="tbl-wrap"><div class="tbl-scroll">
     <table>
       <thead><tr>
-        <th>No.</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th>Subtotal</th><th>IVA</th><th>Retencion</th><th>Total</th><th>Estado</th>
+        <th>No.</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th>Subtotal</th><th>IVA</th><th>Retencion</th><th>Total</th><th>Estado</th><th>PDF</th>
       </tr></thead>
       <tbody id="facturasTbody"></tbody>
     </table>
@@ -316,7 +414,119 @@ tr:hover td{background:var(--accent-light)}
   </div></div>
 </div>
 
+<!-- ========== MI CONTABILIDAD (GASTOS) ========== -->
+<div class="mod-section" id="mod-gastos">
+  <div class="sec-head">
+    <div><div class="sec-title">Mi Contabilidad</div><div class="sec-sub">Ingresos y gastos de su despacho contable</div></div>
+    <div class="filter-bar">
+      <select class="filter-select" id="gastoFilter" onchange="renderGastos()">
+        <option value="">Todos</option><option value="ingreso">Ingresos</option><option value="egreso">Gastos</option>
+      </select>
+      <button class="btn btn-primary" onclick="openModal('newGasto')">+ Nuevo Registro</button>
+    </div>
+  </div>
+  <div class="kpi-grid" id="gastosKpi"></div>
+  <div class="tbl-wrap" style="margin-top:16px"><div class="tbl-scroll">
+    <table>
+      <thead><tr>
+        <th>Fecha</th><th>Tipo</th><th>Concepto</th><th>Categoria</th><th>Valor</th><th>Saldo Acumulado</th>
+      </tr></thead>
+      <tbody id="gastosTbody"></tbody>
+    </table>
+  </div></div>
+</div>
+
+<!-- ========== LECTOR IA (OCR) ========== -->
+<div class="mod-section" id="mod-ocr">
+  <div class="sec-head">
+    <div><div class="sec-title">Lector IA</div><div class="sec-sub">Lectura inteligente de documentos tributarios con extraccion automatica de datos</div></div>
+  </div>
+  <div class="ocr-templates">
+    <div class="ocr-tpl" onclick="ocrSimulate('rut')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      <strong>RUT</strong>
+      <span>Registro Unico Tributario</span>
+    </div>
+    <div class="ocr-tpl" onclick="ocrSimulate('cert220')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      <strong>Certificado 220</strong>
+      <span>Ingresos y retenciones</span>
+    </div>
+    <div class="ocr-tpl" onclick="ocrSimulate('extracto')">
+      <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+      <strong>Extracto Bancario</strong>
+      <span>Movimientos e intereses</span>
+    </div>
+    <div class="ocr-tpl" onclick="ocrSimulate('factura')">
+      <svg viewBox="0 0 24 24"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2 4.5 3.5 3 2v20l1.5-1.5L6 22l1.5-1.5L9 22l1.5-1.5L12 22l1.5-1.5L15 22l1.5-1.5L18 22l1.5-1.5L21 22V2l-1.5 1.5zM19 19H5V5h14v14zm-7-8h5v2h-5v-2zm0-4h5v2h-5V7zm0 8h5v2h-5v-2zM7 7h3v3H7V7zm0 4h3v3H7v-3zm0 4h3v3H7v-3z"/></svg>
+      <strong>Factura Proveedor</strong>
+      <span>Facturas de compra</span>
+    </div>
+  </div>
+  <div class="ocr-drop" id="ocrDrop" onclick="document.getElementById('ocrFile').click()">
+    <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+    <p>Arrastra un documento o haz clic para seleccionar</p>
+    <span>PDF, JPG, PNG - Certificados, RUT, extractos, facturas</span>
+    <input type="file" id="ocrFile" accept="image/*,.pdf" style="display:none" onchange="ocrSimulate('upload')">
+  </div>
+  <div class="ocr-progress" id="ocrProgress" style="display:none"><div class="ocr-progress-bar" id="ocrBar"></div></div>
+  <div class="ocr-result" id="ocrResult"></div>
+  <div class="tbl-wrap" style="margin-top:16px;padding:16px" id="ocrHistory">
+    <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--highlight)">Documentos Procesados</div>
+    <div id="ocrHistoryList"></div>
+  </div>
+</div>
+
+<!-- ========== REPORTES ========== -->
+<div class="mod-section" id="mod-reportes">
+  <div class="sec-head">
+    <div><div class="sec-title">Reportes</div><div class="sec-sub">Analisis de la operacion contable</div></div>
+    <div class="filter-bar">
+      <select class="filter-select" id="repPeriodo" onchange="renderReportes()">
+        <option value="mes">Este Mes</option><option value="todo">Todo</option>
+      </select>
+      <button class="btn-pdf" onclick="printReporte()" style="padding:6px 14px;font-size:11px">Descargar PDF</button>
+    </div>
+  </div>
+  <div class="kpi-grid" id="repKpi"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+    <div class="tbl-wrap" style="padding:16px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--highlight)">Ingresos por Servicio</div>
+      <div class="bar-chart" id="repBarServicios"></div>
+    </div>
+    <div class="tbl-wrap" style="padding:16px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--highlight)">Estado de Clientes</div>
+      <div class="bar-chart" id="repBarClientes"></div>
+    </div>
+  </div>
+  <div class="tbl-wrap" style="margin-top:16px;padding:16px">
+    <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--highlight)">Top Clientes por Facturacion</div>
+    <div id="repTopClientes"></div>
+  </div>
+</div>
+
 </div><!-- /main -->
+
+<!-- MODAL NUEVO GASTO -->
+<div class="modal" id="modal-newGasto">
+  <div class="modal-box">
+    <div class="modal-title">Nuevo Registro <button class="modal-close" onclick="closeModal('newGasto')">x</button></div>
+    <div class="form-row">
+      <div class="form-group"><label>Tipo</label>
+        <select id="ngTipo"><option value="ingreso">Ingreso</option><option value="egreso">Gasto</option></select>
+      </div>
+      <div class="form-group"><label>Fecha</label><input type="date" id="ngFecha"></div>
+    </div>
+    <div class="form-group"><label>Concepto</label><input id="ngConcepto" placeholder="Ej: Honorarios cliente Martinez"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Valor</label><input type="number" id="ngValor"></div>
+      <div class="form-group"><label>Categoria</label>
+        <select id="ngCat"><option>Honorarios</option><option>Arriendo oficina</option><option>Software</option><option>Papeleria</option><option>Transporte</option><option>Capacitacion</option><option>Impuestos</option><option>Otro</option></select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveGasto()" style="width:100%;justify-content:center;margin-top:8px">Guardar</button>
+  </div>
+</div>
 
 <!-- MODALS -->
 <div class="modal" id="modal-newCliente">
@@ -381,7 +591,36 @@ tr:hover td{background:var(--accent-light)}
 
 <div class="toast" id="toast"></div>
 
+<!-- FLOATING CTA -->
+<div class="float-cta">
+  <button class="float-cta-btn" onclick="openModal('leadCapture')">
+    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    Quiero este sistema
+  </button>
+</div>
+
+<!-- LEAD CAPTURE MODAL -->
+<div class="modal" id="modal-leadCapture">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-title">Solicitar Implementacion <button class="modal-close" onclick="closeModal('leadCapture')">x</button></div>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:16px">Complete sus datos y un asesor de 7Group lo contactara para personalizar Cont IA a la medida de su operacion contable.</p>
+    <div class="form-group"><label>Nombre completo</label><input id="lcNombre" placeholder="Ej: Ana Maria Rodriguez"></div>
+    <div class="form-group"><label>Telefono / WhatsApp</label><input id="lcTel" placeholder="Ej: 3101234567"></div>
+    <div class="form-group"><label>Email</label><input id="lcEmail" placeholder="Ej: ana@contadora.com"></div>
+    <div class="form-group"><label>Empresa o nombre del despacho</label><input id="lcEmpresa" placeholder="Ej: Rodriguez Contadores SAS"></div>
+    <div class="form-group"><label>Cantidad de clientes aprox.</label>
+      <select id="lcClientes"><option>1 - 20</option><option>21 - 50</option><option>51 - 100</option><option>Mas de 100</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="enviarLead()" style="width:100%;justify-content:center;margin-top:8px;padding:12px;font-size:14px">Solicitar Demo Personalizado</button>
+    <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px">Sin compromiso. Respuesta en menos de 24 horas.</p>
+  </div>
+</div>
+
 <script>
+/* ===== WA SVG ===== */
+var WA_SVG='<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+
+
 /* ===== DATA ===== */
 var TODAY=new Date();
 var fmt=function(n){return '$'+Number(n).toLocaleString('es-CO')};
@@ -457,6 +696,21 @@ var DIAN_RENTA=[
   {digitos:'85-86',fecha:'2026-10-10'},{digitos:'87-88',fecha:'2026-10-14'},{digitos:'89-90',fecha:'2026-10-15'},
   {digitos:'91-92',fecha:'2026-10-16'},{digitos:'93-94',fecha:'2026-10-17'},{digitos:'95-96',fecha:'2026-10-20'},
   {digitos:'97-98',fecha:'2026-10-21'},{digitos:'99-00',fecha:'2026-10-22'}
+];
+
+var GASTOS=[
+  {id:1,fecha:'2026-08-01',tipo:'ingreso',concepto:'Honorarios Declaracion Renta - Lopez',cat:'Honorarios',valor:378000},
+  {id:2,fecha:'2026-08-03',tipo:'ingreso',concepto:'Honorarios IVA Bimestral - Herrera',cat:'Honorarios',valor:302400},
+  {id:3,fecha:'2026-08-04',tipo:'egreso',concepto:'Arriendo oficina agosto',cat:'Arriendo oficina',valor:1200000},
+  {id:4,fecha:'2026-08-05',tipo:'ingreso',concepto:'Paquete Completo - Rincon',cat:'Honorarios',valor:1620000},
+  {id:5,fecha:'2026-08-06',tipo:'egreso',concepto:'Licencia software contable',cat:'Software',valor:180000},
+  {id:6,fecha:'2026-08-08',tipo:'egreso',concepto:'Papeleria e impresiones',cat:'Papeleria',valor:85000},
+  {id:7,fecha:'2026-08-10',tipo:'ingreso',concepto:'Retencion Fuente - Castillo',cat:'Honorarios',valor:345600},
+  {id:8,fecha:'2026-08-12',tipo:'egreso',concepto:'Transporte visitas clientes',cat:'Transporte',valor:120000},
+  {id:9,fecha:'2026-08-15',tipo:'egreso',concepto:'Capacitacion normas NIIF',cat:'Capacitacion',valor:350000},
+  {id:10,fecha:'2026-08-18',tipo:'ingreso',concepto:'Asesoria tributaria - Mendez',cat:'Honorarios',valor:648000},
+  {id:11,fecha:'2026-08-20',tipo:'egreso',concepto:'Pago servicios publicos oficina',cat:'Arriendo oficina',valor:95000},
+  {id:12,fecha:'2026-08-22',tipo:'ingreso',concepto:'Certificado ingresos - Vargas',cat:'Honorarios',valor:80000}
 ];
 
 var DOC_LABELS={cert220:'Certificado 220',certLaboral:'Certificado Laboral',medPrep:'Medicina Prepagada',credHip:'Credito Hipotecario',certBancarios:'Certificados Bancarios'};
@@ -635,7 +889,12 @@ function renderCalendario(){
 /* ===== CLIENTES ===== */
 function renderClientes(){
   var q=(document.getElementById('clientSearch').value||'').toLowerCase();
-  var filtered=CLIENTES.filter(function(c){return !q||c.nombre.toLowerCase().indexOf(q)>-1||c.cedula.indexOf(q)>-1});
+  var ef=document.getElementById('clientFilter').value;
+  var filtered=CLIENTES.filter(function(c){
+    if(q&&c.nombre.toLowerCase().indexOf(q)===-1&&c.cedula.indexOf(q)===-1) return false;
+    if(ef&&c.estado!==ef) return false;
+    return true;
+  });
 
   document.getElementById('clientesTbody').innerHTML=filtered.map(function(c){
     var venc=getVencimiento(c.cedula);
@@ -653,7 +912,8 @@ function renderClientes(){
       '<td>'+diasBadge+'</td>'+
       '<td><span class="badge badge-blue">'+docProgress(c.docs)+'</span></td>'+
       '<td>'+estadoBadge(c.estado)+'</td>'+
-      '<td><button class="btn btn-sm btn-outline" onclick="showClienteDetail('+c.id+')">Ver</button></td>'+
+      '<td style="white-space:nowrap"><button class="btn btn-sm btn-outline" onclick="showClienteDetail('+c.id+')">Ver</button> '+
+      '<button class="btn-wa" onclick="waGeneral('+c.id+')">'+WA_SVG+'</button></td>'+
     '</tr>';
   }).join('');
 }
@@ -681,6 +941,19 @@ function showClienteDetail(id){
       '<span class="check">'+(done?'&#10003;':'')+'</span>'+DOC_LABELS[key]+'</li>';
   });
   html+='</ul>';
+
+  // WhatsApp templates
+  var pendDocs=Object.keys(c.docs).filter(function(k){return !c.docs[k]}).length;
+  html+='<div style="font-size:12px;font-weight:700;margin:16px 0 8px;color:#25D366">Notificaciones WhatsApp</div>';
+  html+='<div class="wa-tpl-list">';
+  if(pendDocs>0){
+    html+='<div class="wa-tpl" onclick="waDocumentos('+c.id+')"><div class="wa-icon">'+WA_SVG+'</div><div class="wa-info"><strong>Recordar documentos pendientes</strong><span>'+pendDocs+' documento(s) faltante(s)</span></div></div>';
+  }
+  if(c.estado!=='presentada'){
+    html+='<div class="wa-tpl" onclick="waVencimiento('+c.id+')"><div class="wa-icon">'+WA_SVG+'</div><div class="wa-info"><strong>Alerta de vencimiento DIAN</strong><span>Vence: '+getVencimiento(c.cedula)+'</span></div></div>';
+  }
+  html+='<div class="wa-tpl" onclick="waGeneral('+c.id+')"><div class="wa-icon">'+WA_SVG+'</div><div class="wa-info"><strong>Mensaje libre</strong><span>Abrir chat con '+c.nombre.split(' ')[0]+'</span></div></div>';
+  html+='</div>';
 
   // Facturas del cliente
   var facs=FACTURAS.filter(function(f){return f.clienteId===id});
@@ -728,7 +1001,9 @@ function renderFacturas(){
   sSel.innerHTML=SERVICIOS.map(function(s){return '<option value="'+s.precio+'" data-name="'+s.nombre+'">'+s.nombre+' ('+fmt(s.precio)+')</option>'}).join('');
   document.getElementById('nfFecha').value=TODAY.toISOString().slice(0,10);
 
-  document.getElementById('facturasTbody').innerHTML=FACTURAS.map(function(f){
+  var ff=document.getElementById('factFilter').value;
+  var flist=FACTURAS.filter(function(f){return !ff||f.estado===ff});
+  document.getElementById('facturasTbody').innerHTML=flist.map(function(f){
     var c=getCliente(f.clienteId);
     return '<tr>'+
       '<td class="mono" style="font-weight:600;color:var(--highlight)">'+f.id+'</td>'+
@@ -740,6 +1015,7 @@ function renderFacturas(){
       '<td class="mono">'+fmt(f.ret)+'</td>'+
       '<td class="mono" style="font-weight:700">'+fmt(f.total)+'</td>'+
       '<td>'+estadoBadge(f.estado)+'</td>'+
+      '<td><button class="btn-pdf" onclick="generarPDF(\''+f.id+'\')">PDF</button></td>'+
     '</tr>';
   }).join('');
 }
@@ -864,7 +1140,8 @@ function renderCartera(){
       '<td>'+vencDate.toISOString().slice(0,10)+'</td>'+
       '<td><span class="badge '+cls+'">'+(mora>0?mora+' dias':'Al dia')+'</span></td>'+
       '<td>'+estadoBadge(f.estado)+'</td>'+
-      '<td><button class="btn btn-sm btn-primary" onclick="marcarPagada(\''+f.id+'\')">Pagar</button></td>'+
+      '<td style="white-space:nowrap"><button class="btn btn-sm btn-primary" onclick="marcarPagada(\''+f.id+'\')">Pagar</button> '+
+      '<button class="btn-wa" onclick="waCobroFactura(\''+f.id+'\')">'+WA_SVG+' Cobrar</button></td>'+
     '</tr>';
   }).join('');
 }
@@ -875,7 +1152,389 @@ function marcarPagada(id){
   showToast('Factura '+id+' marcada como pagada');
 }
 
+/* ===== WHATSAPP TEMPLATES ===== */
+var WA_LOG=[];
+
+function openWA(telefono,mensaje){
+  var num='57'+telefono;
+  var url='https://wa.me/'+num+'?text='+encodeURIComponent(mensaje);
+  window.open(url,'_blank');
+  WA_LOG.unshift({telefono:telefono,mensaje:mensaje.substring(0,60)+'...',hora:new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})});
+  showToast('WhatsApp enviado','success');
+}
+
+function waDocumentos(clienteId){
+  var c=getCliente(clienteId);if(!c)return;
+  var pendientes=[];
+  Object.keys(c.docs).forEach(function(k){if(!c.docs[k])pendientes.push(DOC_LABELS[k])});
+  if(!pendientes.length){showToast('Todos los documentos estan completos','info');return}
+  var venc=getVencimiento(c.cedula);
+  var msg='Hola '+c.nombre.split(' ')[0]+', le escribimos desde su contadora para recordarle que aun faltan los siguientes documentos para su declaracion de renta:\n\n';
+  pendientes.forEach(function(d){msg+='- '+d+'\n'});
+  msg+='\nFecha limite: '+venc+'\n\nQuedo atenta. Gracias.';
+  openWA(c.telefono,msg);
+}
+
+function waVencimiento(clienteId){
+  var c=getCliente(clienteId);if(!c)return;
+  var venc=getVencimiento(c.cedula);
+  var dias=diasHasta(venc);
+  var msg='Hola '+c.nombre.split(' ')[0]+', le recordamos que su vencimiento DIAN para declaracion de renta es el '+venc;
+  if(dias<=0) msg+=' (YA VENCIO). Es urgente presentarla para evitar sanciones.';
+  else if(dias<=5) msg+=' (en '+dias+' dias). Es urgente que nos envie los documentos pendientes.';
+  else msg+=' (faltan '+dias+' dias). Le recomendamos ir preparando la documentacion.';
+  msg+='\n\nQuedo atenta a cualquier inquietud.';
+  openWA(c.telefono,msg);
+}
+
+function waCobroFactura(facturaId){
+  var f=FACTURAS.find(function(x){return x.id===facturaId});
+  if(!f)return;
+  var c=getCliente(f.clienteId);if(!c)return;
+  var msg='Hola '+c.nombre.split(' ')[0]+', le recordamos que tiene pendiente la factura '+f.id+' por valor de '+fmt(f.total)+' correspondiente a: '+f.concepto+'.';
+  if(f.estado==='vencida') msg+='\n\nEsta factura ya se encuentra vencida. Le agradecemos realizar el pago a la brevedad.';
+  else msg+='\n\nFecha de emision: '+f.fecha+'. Agradecemos su pronto pago.';
+  msg+='\n\nQuedo atenta. Gracias.';
+  openWA(c.telefono,msg);
+}
+
+function waGeneral(clienteId){
+  var c=getCliente(clienteId);if(!c)return;
+  var msg='Hola '+c.nombre.split(' ')[0]+', le escribimos desde su contadora. ';
+  openWA(c.telefono,msg);
+}
+
+/* ===== PDF CUENTA DE COBRO ===== */
+function generarPDF(facturaId){
+  var f=FACTURAS.find(function(x){return x.id===facturaId});
+  if(!f)return;
+  var c=getCliente(f.clienteId);
+  var w=window.open('','_blank','width=800,height=1000');
+  w.document.write('<!DOCTYPE html><html><head><title>Cuenta de Cobro '+f.id+'</title>'+
+    '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">'+
+    '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:"Plus Jakarta Sans",sans-serif;padding:40px;color:#1a2332;font-size:13px}'+
+    '.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #0d9488}'+
+    '.logo{font-size:24px;font-weight:800;color:#0d9488}.logo span{font-size:10px;display:block;color:#666;font-weight:400;letter-spacing:1px}'+
+    '.doc-info{text-align:right}.doc-info h2{font-size:18px;color:#0d9488;margin-bottom:4px}.doc-info p{font-size:11px;color:#666}'+
+    '.section{margin-bottom:20px}.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0d9488;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e2e7ed}'+
+    '.row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid #f0f2f6}.row .label{color:#666}.row .val{font-weight:600}'+
+    'table{width:100%;border-collapse:collapse;margin-top:8px}th{background:#f6f8fa;padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#666;border-bottom:2px solid #e2e7ed}'+
+    'td{padding:10px 12px;border-bottom:1px solid #f0f2f6;font-size:12px}.total-row td{font-weight:700;font-size:14px;border-top:2px solid #0d9488;padding-top:12px}'+
+    '.footer{margin-top:40px;padding-top:20px;border-top:1px solid #e2e7ed;display:flex;justify-content:space-between;font-size:10px;color:#999}'+
+    '.firma{margin-top:60px;text-align:center}.firma-line{width:200px;border-top:1px solid #333;margin:0 auto 4px;padding-top:4px;font-size:11px}'+
+    '@media print{body{padding:20px}}</style></head><body>'+
+    '<div class="header"><div class="logo">Cont IA<span>ERP CONTABLE</span></div>'+
+    '<div class="doc-info"><h2>CUENTA DE COBRO</h2><p>No. '+f.id+'</p><p>Fecha: '+f.fecha+'</p></div></div>'+
+    '<div class="section"><div class="section-title">Datos del Cliente</div>'+
+    '<div class="row"><span class="label">Nombre</span><span class="val">'+(c?c.nombre:'')+'</span></div>'+
+    '<div class="row"><span class="label">Cedula / NIT</span><span class="val">'+(c?c.cedula:'')+'</span></div>'+
+    '<div class="row"><span class="label">Telefono</span><span class="val">'+(c?c.telefono:'')+'</span></div>'+
+    '<div class="row"><span class="label">Email</span><span class="val">'+(c?c.email:'')+'</span></div></div>'+
+    '<div class="section"><div class="section-title">Detalle del Servicio</div>'+
+    '<table><thead><tr><th>Concepto</th><th style="text-align:right">Subtotal</th><th style="text-align:right">IVA (19%)</th><th style="text-align:right">Retencion (11%)</th><th style="text-align:right">Total</th></tr></thead>'+
+    '<tbody><tr><td>'+f.concepto+'</td><td style="text-align:right">'+fmt(f.subtotal)+'</td><td style="text-align:right">'+fmt(f.iva)+'</td><td style="text-align:right">'+fmt(f.ret)+'</td><td style="text-align:right;font-weight:700">'+fmt(f.total)+'</td></tr>'+
+    '<tr class="total-row"><td colspan="4" style="text-align:right">TOTAL A PAGAR</td><td style="text-align:right;color:#0d9488">'+fmt(f.total)+'</td></tr></tbody></table></div>'+
+    '<div class="section"><div class="section-title">Informacion de Pago</div>'+
+    '<div class="row"><span class="label">Forma de pago</span><span class="val">Transferencia bancaria</span></div>'+
+    '<div class="row"><span class="label">Plazo</span><span class="val">30 dias</span></div>'+
+    '<div class="row"><span class="label">Estado</span><span class="val">'+f.estado.charAt(0).toUpperCase()+f.estado.slice(1)+'</span></div></div>'+
+    '<div class="firma"><div class="firma-line">Firma del Contador</div><p style="font-size:10px;color:#999">T.P. No. XXXXXX-T</p></div>'+
+    '<div class="footer"><span>Documento generado por Cont IA - ERP Contable</span><span>'+new Date().toLocaleDateString('es-CO')+'</span></div>'+
+    '</body></html>');
+  w.document.close();
+  setTimeout(function(){w.print()},500);
+}
+
+/* ===== GASTOS (MI CONTABILIDAD) ===== */
+function renderGastos(){
+  var gf=document.getElementById('gastoFilter').value;
+  var filtered=GASTOS.filter(function(g){return !gf||g.tipo===gf});
+  var ingresos=GASTOS.filter(function(g){return g.tipo==='ingreso'}).reduce(function(s,g){return s+g.valor},0);
+  var egresos=GASTOS.filter(function(g){return g.tipo==='egreso'}).reduce(function(s,g){return s+g.valor},0);
+  var utilidad=ingresos-egresos;
+  var margen=ingresos?Math.round(utilidad/ingresos*100):0;
+
+  document.getElementById('gastosKpi').innerHTML=[
+    {label:'Ingresos',value:fmt(ingresos),color:'c-green'},
+    {label:'Gastos',value:fmt(egresos),color:'c-red'},
+    {label:'Utilidad Neta',value:fmt(utilidad),color:utilidad>=0?'c-accent':'c-red'},
+    {label:'Margen',value:margen+'%',color:margen>=30?'c-green':'c-orange'}
+  ].map(function(k){
+    return '<div class="kpi-card '+k.color+'"><div class="kpi-label">'+k.label+'</div><div class="kpi-val">'+k.value+'</div></div>';
+  }).join('');
+
+  var saldo=0;
+  var sorted=filtered.slice().sort(function(a,b){return a.fecha.localeCompare(b.fecha)});
+  document.getElementById('gastosTbody').innerHTML=sorted.map(function(g){
+    saldo+=g.tipo==='ingreso'?g.valor:-g.valor;
+    return '<tr>'+
+      '<td>'+g.fecha+'</td>'+
+      '<td><span class="gasto-tipo gasto-'+g.tipo+'">'+(g.tipo==='ingreso'?'Ingreso':'Gasto')+'</span></td>'+
+      '<td>'+g.concepto+'</td>'+
+      '<td><span class="badge badge-dim">'+g.cat+'</span></td>'+
+      '<td class="mono" style="font-weight:600;color:'+(g.tipo==='ingreso'?'var(--green)':'var(--red)')+'">'+
+        (g.tipo==='ingreso'?'+':'-')+fmt(g.valor)+'</td>'+
+      '<td class="mono" style="font-weight:700;color:'+(saldo>=0?'var(--green)':'var(--red)')+'">'+fmt(saldo)+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+function saveGasto(){
+  var concepto=document.getElementById('ngConcepto').value.trim();
+  var valor=parseFloat(document.getElementById('ngValor').value)||0;
+  if(!concepto||!valor){showToast('Concepto y valor requeridos','error');return}
+  GASTOS.push({
+    id:GASTOS.length+1,
+    fecha:document.getElementById('ngFecha').value||TODAY.toISOString().slice(0,10),
+    tipo:document.getElementById('ngTipo').value,
+    concepto:concepto,cat:document.getElementById('ngCat').value,valor:valor
+  });
+  closeModal('newGasto');renderGastos();renderReportes();
+  showToast('Registro guardado');
+}
+
+/* ===== REPORTES ===== */
+function renderReportes(){
+  var periodo=document.getElementById('repPeriodo').value;
+  var mesActual=TODAY.getMonth();var anioActual=TODAY.getFullYear();
+  var fFilt=FACTURAS.filter(function(f){
+    if(periodo==='mes'){var d=new Date(f.fecha);return d.getMonth()===mesActual&&d.getFullYear()===anioActual}
+    return true;
+  });
+  var totalFact=fFilt.reduce(function(s,f){return s+f.total},0);
+  var pagadas=fFilt.filter(function(f){return f.estado==='pagada'}).reduce(function(s,f){return s+f.total},0);
+  var pendientes=fFilt.filter(function(f){return f.estado!=='pagada'}).reduce(function(s,f){return s+f.total},0);
+  var numClientes=CLIENTES.length;
+  var retTotal=RETENCIONES.reduce(function(s,r){return s+r.valor},0);
+
+  document.getElementById('repKpi').innerHTML=[
+    {label:'Facturacion Total',value:fmt(totalFact),color:'c-accent'},
+    {label:'Cobrado',value:fmt(pagadas),color:'c-green'},
+    {label:'Por Cobrar',value:fmt(pendientes),color:'c-orange'},
+    {label:'Retenciones',value:fmt(retTotal),color:'c-purple'},
+    {label:'Clientes Activos',value:numClientes,color:'c-teal'},
+    {label:'Tasa Cobro',value:(totalFact?Math.round(pagadas/totalFact*100):0)+'%',color:'c-sky'}
+  ].map(function(k){
+    return '<div class="kpi-card '+k.color+'"><div class="kpi-label">'+k.label+'</div><div class="kpi-val">'+k.value+'</div></div>';
+  }).join('');
+
+  // Bar chart: Ingresos por servicio
+  var svcMap={};
+  fFilt.forEach(function(f){
+    var key=f.concepto.split(' ').slice(0,3).join(' ');
+    svcMap[key]=(svcMap[key]||0)+f.total;
+  });
+  var svcArr=Object.keys(svcMap).map(function(k){return{name:k,val:svcMap[k]}}).sort(function(a,b){return b.val-a.val});
+  var maxSvc=svcArr.length?svcArr[0].val:1;
+  document.getElementById('repBarServicios').innerHTML=svcArr.map(function(s){
+    var pct=Math.round(s.val/maxSvc*100);
+    return '<div class="bar-row"><span class="bar-label">'+s.name+'</span><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:var(--highlight)"></div></div><span class="bar-val">'+fmt(s.val)+'</span></div>';
+  }).join('');
+
+  // Bar chart: Estado clientes
+  var estados=[
+    {name:'Presentada',count:CLIENTES.filter(function(c){return c.estado==='presentada'}).length,color:'var(--green)'},
+    {name:'En Proceso',count:CLIENTES.filter(function(c){return c.estado==='en-proceso'}).length,color:'var(--orange)'},
+    {name:'Pendiente',count:CLIENTES.filter(function(c){return c.estado==='pendiente'}).length,color:'var(--red)'}
+  ];
+  var maxEst=Math.max.apply(null,estados.map(function(e){return e.count}))||1;
+  document.getElementById('repBarClientes').innerHTML=estados.map(function(e){
+    var pct=Math.round(e.count/maxEst*100);
+    return '<div class="bar-row"><span class="bar-label">'+e.name+'</span><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+e.color+'">'+e.count+'</div></div><span class="bar-val">'+e.count+' clientes</span></div>';
+  }).join('');
+
+  // Top clientes
+  var clientFact={};
+  fFilt.forEach(function(f){
+    var c=getCliente(f.clienteId);if(!c)return;
+    clientFact[c.nombre]=(clientFact[c.nombre]||0)+f.total;
+  });
+  var topArr=Object.keys(clientFact).map(function(k){return{name:k,val:clientFact[k]}}).sort(function(a,b){return b.val-a.val}).slice(0,8);
+  var maxTop=topArr.length?topArr[0].val:1;
+  document.getElementById('repTopClientes').innerHTML=topArr.map(function(t,i){
+    var pct=Math.round(t.val/maxTop*100);
+    return '<div class="bar-row"><span class="bar-label">'+(i+1)+'. '+t.name.split(' ').slice(0,3).join(' ')+'</span><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:var(--highlight)"></div></div><span class="bar-val">'+fmt(t.val)+'</span></div>';
+  }).join('');
+}
+
+function printReporte(){
+  var el=document.getElementById('mod-reportes');
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Reporte Cont IA</title>'+
+    '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">'+
+    '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:"Plus Jakarta Sans",sans-serif;padding:30px;color:#1a2332;font-size:13px}'+
+    'h1{font-size:20px;color:#0d9488;margin-bottom:4px}p.sub{font-size:11px;color:#666;margin-bottom:20px}'+
+    '.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border:1px solid #e2e7ed;border-radius:8px;overflow:hidden;margin-bottom:20px}'+
+    '.kpi-card{background:#f6f8fa;padding:16px}.kpi-label{font-size:9px;font-weight:700;text-transform:uppercase;color:#666;margin-bottom:4px;letter-spacing:.5px}.kpi-val{font-size:20px;font-weight:800;color:#0d9488}'+
+    '@media print{body{padding:15px}}</style></head><body>'+
+    '<h1>Reporte General - Cont IA</h1><p class="sub">Generado: '+new Date().toLocaleDateString('es-CO')+' | ERP Contable 7Group</p>'+
+    '<div class="kpi-grid">'+document.getElementById('repKpi').innerHTML+'</div>'+
+    '</body></html>');
+  w.document.close();
+  setTimeout(function(){w.print()},500);
+}
+
+/* ===== OCR LECTOR IA ===== */
+var OCR_HISTORY=[];
+var OCR_DATA={
+  rut:{
+    title:'RUT - Registro Unico Tributario',
+    type:'RUT',
+    fields:[
+      {label:'NIT / Cedula',value:'52.345.678-1',conf:'alta'},
+      {label:'Razon Social',value:'MARIA FERNANDA LOPEZ GUTIERREZ',conf:'alta'},
+      {label:'Tipo Persona',value:'Natural',conf:'alta'},
+      {label:'Actividad Economica',value:'6920 - Actividades de contabilidad',conf:'alta'},
+      {label:'Responsabilidades',value:'IVA, Renta, ICA',conf:'alta'},
+      {label:'Direccion',value:'Cra 15 #82-40 Of 301, Bogota',conf:'media'},
+      {label:'Fecha Expedicion',value:'2024-03-15',conf:'alta'},
+      {label:'Estado',value:'Activo',conf:'alta'}
+    ]
+  },
+  cert220:{
+    title:'Certificado de Ingresos y Retenciones (220)',
+    type:'Certificado 220',
+    fields:[
+      {label:'Ano Gravable',value:'2025',conf:'alta'},
+      {label:'Empleador / Pagador',value:'TECH SOLUTIONS SAS',conf:'alta'},
+      {label:'NIT Pagador',value:'900.456.789-3',conf:'alta'},
+      {label:'Nombre Empleado',value:'CARLOS ANDRES RAMIREZ TORRES',conf:'alta'},
+      {label:'Cedula',value:'80.123.456',conf:'alta'},
+      {label:'Ingresos Brutos',value:'$72.000.000',conf:'alta'},
+      {label:'Aportes Salud',value:'$2.880.000',conf:'alta'},
+      {label:'Aportes Pension',value:'$2.880.000',conf:'alta'},
+      {label:'Retencion en la Fuente',value:'$5.400.000',conf:'alta'},
+      {label:'Fondo Solidaridad',value:'$720.000',conf:'media'},
+      {label:'Total Deducciones',value:'$11.880.000',conf:'alta'},
+      {label:'Ingreso Neto',value:'$60.120.000',conf:'alta'}
+    ]
+  },
+  extracto:{
+    title:'Extracto Bancario - Cuenta de Ahorros',
+    type:'Extracto Bancario',
+    fields:[
+      {label:'Banco',value:'BANCOLOMBIA S.A.',conf:'alta'},
+      {label:'No. Cuenta',value:'***4567',conf:'alta'},
+      {label:'Titular',value:'ANDREA CAROLINA SUAREZ PENA',conf:'alta'},
+      {label:'Periodo',value:'Julio 2026',conf:'alta'},
+      {label:'Saldo Anterior',value:'$8.450.000',conf:'alta'},
+      {label:'Total Creditos',value:'$12.300.000',conf:'alta'},
+      {label:'Total Debitos',value:'$9.870.000',conf:'alta'},
+      {label:'Saldo Final',value:'$10.880.000',conf:'alta'},
+      {label:'Rendimientos',value:'$45.230',conf:'media'},
+      {label:'Retencion Rendimientos',value:'$3.165',conf:'media'},
+      {label:'GMF (4x1000)',value:'$39.480',conf:'alta'}
+    ]
+  },
+  factura:{
+    title:'Factura de Compra - Proveedor',
+    type:'Factura Proveedor',
+    fields:[
+      {label:'Proveedor',value:'PAPELERIA PANAMERICANA SAS',conf:'alta'},
+      {label:'NIT Proveedor',value:'860.002.964-4',conf:'alta'},
+      {label:'No. Factura',value:'FE-28456',conf:'alta'},
+      {label:'Fecha',value:'2026-08-20',conf:'alta'},
+      {label:'Concepto',value:'Insumos de oficina y papeleria',conf:'media'},
+      {label:'Subtotal',value:'$185.000',conf:'alta'},
+      {label:'IVA (19%)',value:'$35.150',conf:'alta'},
+      {label:'Retencion Fuente',value:'$20.350',conf:'alta'},
+      {label:'Total',value:'$199.800',conf:'alta'},
+      {label:'Forma de Pago',value:'Credito 30 dias',conf:'media'}
+    ]
+  },
+  upload:{
+    title:'Documento Cargado',
+    type:'Documento',
+    fields:[
+      {label:'Tipo Detectado',value:'Certificado Tributario',conf:'media'},
+      {label:'Emisor',value:'DIAN - Direccion de Impuestos',conf:'alta'},
+      {label:'Destinatario',value:'ROBERTO ALEJANDRO MENDEZ CRUZ',conf:'alta'},
+      {label:'Cedula',value:'80.567.890',conf:'alta'},
+      {label:'Ano Gravable',value:'2025',conf:'alta'},
+      {label:'Patrimonio Bruto',value:'$145.000.000',conf:'alta'},
+      {label:'Deudas',value:'$32.000.000',conf:'media'},
+      {label:'Patrimonio Liquido',value:'$113.000.000',conf:'alta'},
+      {label:'Renta Liquida',value:'$48.500.000',conf:'alta'},
+      {label:'Impuesto a Cargo',value:'$4.200.000',conf:'alta'}
+    ]
+  }
+};
+
+function ocrSimulate(tipo){
+  var data=OCR_DATA[tipo];if(!data)return;
+  var prog=document.getElementById('ocrProgress');
+  var bar=document.getElementById('ocrBar');
+  var result=document.getElementById('ocrResult');
+  prog.style.display='block';
+  bar.style.width='0%';
+  result.className='ocr-result';
+  result.innerHTML='';
+
+  setTimeout(function(){bar.style.width='30%'},100);
+  setTimeout(function(){bar.style.width='65%'},600);
+  setTimeout(function(){bar.style.width='90%'},1000);
+  setTimeout(function(){
+    bar.style.width='100%';
+    setTimeout(function(){
+      prog.style.display='none';
+      result.className='ocr-result active';
+      var html='<div class="ocr-header"><div class="ocr-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>'+
+        '<div class="ocr-meta"><strong>'+data.title+'</strong><span>Procesado exitosamente - '+data.fields.length+' campos extraidos</span></div></div>';
+      html+='<div class="ocr-fields">';
+      data.fields.forEach(function(f){
+        html+='<div class="ocr-field"><span class="of-label">'+f.label+'</span><span class="of-value">'+f.value+
+          '<span class="ocr-confidence ocr-'+(f.conf==='alta'?'high':'med')+'">'+(f.conf==='alta'?'99%':'87%')+'</span></span></div>';
+      });
+      html+='</div>';
+      html+='<div style="padding:0 20px 16px;display:flex;gap:8px">'+
+        '<button class="btn btn-primary btn-sm" onclick="showToast(\'Datos importados al sistema\')">Importar Datos</button>'+
+        '<button class="btn btn-outline btn-sm" onclick="showToast(\'Guardado en historial\',\'info\')">Guardar</button></div>';
+      result.innerHTML=html;
+
+      OCR_HISTORY.unshift({tipo:data.type,fecha:new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}),campos:data.fields.length});
+      renderOcrHistory();
+      showToast('Documento procesado - '+data.fields.length+' campos extraidos','success');
+    },300);
+  },1400);
+}
+
+function renderOcrHistory(){
+  if(!OCR_HISTORY.length){document.getElementById('ocrHistoryList').innerHTML='<p style="font-size:12px;color:var(--dim)">Sin documentos procesados aun</p>';return}
+  document.getElementById('ocrHistoryList').innerHTML=OCR_HISTORY.map(function(h){
+    return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">'+
+      '<span><span class="badge badge-blue">'+h.tipo+'</span></span>'+
+      '<span>'+h.campos+' campos</span>'+
+      '<span style="color:var(--dim)">'+h.fecha+'</span></div>';
+  }).join('');
+}
+renderOcrHistory();
+
+/* ===== LEAD CAPTURE ===== */
+function enviarLead(){
+  var nombre=document.getElementById('lcNombre').value.trim();
+  var tel=document.getElementById('lcTel').value.trim();
+  var email=document.getElementById('lcEmail').value.trim();
+  var empresa=document.getElementById('lcEmpresa').value.trim();
+  var clientes=document.getElementById('lcClientes').value;
+  if(!nombre||!tel){showToast('Nombre y telefono son requeridos','error');return}
+  var msg='NUEVO LEAD - Cont IA\n\n';
+  msg+='Nombre: '+nombre+'\n';
+  msg+='Tel: '+tel+'\n';
+  msg+='Email: '+(email||'No indicado')+'\n';
+  msg+='Empresa: '+(empresa||'No indicado')+'\n';
+  msg+='Clientes: '+clientes+'\n';
+  msg+='\nSolicita demo personalizado del ERP contable.';
+  window.open('https://wa.me/573143095194?text='+encodeURIComponent(msg),'_blank');
+  closeModal('leadCapture');
+  showToast('Solicitud enviada. Lo contactaremos pronto.','success');
+  document.getElementById('lcNombre').value='';
+  document.getElementById('lcTel').value='';
+  document.getElementById('lcEmail').value='';
+  document.getElementById('lcEmpresa').value='';
+}
+
 /* ===== INIT ===== */
+document.getElementById('ngFecha').value=TODAY.toISOString().slice(0,10);
 renderDashboard();
 renderCalendario();
 renderClientes();
@@ -883,6 +1542,8 @@ renderFacturas();
 renderRetenciones();
 renderServicios();
 renderCartera();
+renderGastos();
+renderReportes();
 </script>
 </body>
 </html>
