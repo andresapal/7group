@@ -3123,6 +3123,7 @@ function syncCotToSheet_(leadId, slot){
       desde:d.desde||'', hasta:d.hasta||'',
       valor_asegurado:d.valorAsegurado||0, deducible:d.deducible||0,
       coberturas:d.coberturas||'', nombre_archivo:d.nombreArchivo||'',
+      drive_url:d.driveUrl||'',
       ganadora: COT_PDFS[leadId].__ganadora===slot
     })}).catch(function(){});
 }
@@ -3894,8 +3895,10 @@ function promptGemini_(tipo){
     'Reglas: Si un campo no aparece en el documento, ponlo como null. Todas las cifras deben ser numeros (sin puntos ni comas ni simbolo $). Devuelve SOLO el JSON, empezando con { y terminando con }. Sin ```json ni ```. Sin texto antes ni despues.';
 }
 
-/* Llama al Apps Script que hace de proxy hacia Gemini (key server-side, oculta) */
-async function llamarGemini_(file, tipo){
+/* Llama al Apps Script que hace de proxy hacia Gemini (key server-side, oculta).
+   Ademas guarda el PDF original en Drive (subcarpeta por nombre del lead) y
+   devuelve {data, drive:{url,...}} para que el slot recuerde el link. */
+async function llamarGemini_(file, tipo, leadNombre){
   var b64 = await fileToBase64_(file);
   var res = await fetch(APPS_SCRIPT_URL, {
     method: 'POST',
@@ -3904,7 +3907,8 @@ async function llamarGemini_(file, tipo){
     body: JSON.stringify({
       action: 'gemini-pdf',
       pdfBase64: b64,
-      prompt: promptGemini_(tipo)
+      prompt: promptGemini_(tipo),
+      leadNombre: leadNombre || ''
     })
   });
   if(!res.ok) throw new Error('Apps Script HTTP '+res.status);
@@ -3912,7 +3916,7 @@ async function llamarGemini_(file, tipo){
   if(j.error){
     throw new Error(j.error + (j.raw?' | '+j.raw.slice(0,150):''));
   }
-  return j.data;
+  return { data: j.data, drive: j.drive || null };
 }
 
 /* ============================================
@@ -4088,7 +4092,9 @@ window.subirPDFCotizacion = async function(inputEl, leadId){
   setStatus('Enviando a Gemini para analizar...','var(--accent)');
   try {
     var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {tipo:'Otro'};
-    var data = await llamarGemini_(file, lead.tipo);
+    var resp = await llamarGemini_(file, lead.tipo, lead.nombre);
+    var data = resp.data;
+    var driveInfo = resp.drive || {};
 
     // Validar tipo
     var tipoEsperado = (lead.tipo||'').toLowerCase();
@@ -4150,6 +4156,8 @@ window.subirPDFCotizacion = async function(inputEl, leadId){
       coberturasMontosProblema: cobCheck.montosProblema || [],
       extraido: data,
       nombreArchivo: file.name,
+      driveUrl: driveInfo.url || '',
+      driveFolderUrl: driveInfo.folderUrl || '',
       ts: Date.now()
     };
     saveCotPdfs_();
@@ -4384,7 +4392,8 @@ window.descargarComparativoPDF = async function(leadId){
     return {slot:k, nombre:d.aseguradora||k, prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
             deducible:Number(d.deducible)||0, coberturas:coberturasSeguras, valorAseg:Number(d.valorAsegurado)||0,
             aseguradora:d.aseguradora||k, plan:d.planSeleccionado||'',
-            coberturasWarning: !!d.coberturasWarning};
+            coberturasWarning: !!d.coberturasWarning,
+            driveUrl: d.driveUrl || ''};
   });
   if(!cots.length){ alert('No hay primas capturadas'); return; }
   var mejor = cots.reduce(function(a,b){return a.prima<=b.prima?a:b;});
@@ -4539,6 +4548,35 @@ window.descargarComparativoPDF = async function(leadId){
       }
       y += rowH;
     });
+    // Fila de enlaces a las cotizaciones oficiales en Drive (una URL por aseguradora)
+    var hayLinks = cotsPagina.some(function(c){return c.driveUrl;});
+    if(hayLinks){
+      var rowH = 22;
+      doc.setFillColor(240,247,255); doc.rect(margin, y, totalW, rowH, 'F');
+      doc.setTextColor(90,90,110); doc.setFontSize(8); doc.setFont('helvetica','bold');
+      doc.text('COTIZACION OFICIAL', margin+8, y+14);
+      cotsPagina.forEach(function(c,i){
+        var cx = margin + labelW + i*colW;
+        if(c.driveUrl){
+          doc.setTextColor(0,90,200); doc.setFontSize(nCols>4?8:9); doc.setFont('helvetica','normal');
+          doc.textWithLink('Ver PDF oficial', cx+8, y+14, {url: c.driveUrl});
+          // subrayado sutil (jsPDF no lo hace solo)
+          var tw = doc.getTextWidth('Ver PDF oficial');
+          doc.setDrawColor(0,90,200); doc.setLineWidth(0.4);
+          doc.line(cx+8, y+16, cx+8+tw, y+16);
+        } else {
+          doc.setTextColor(160,160,160); doc.setFontSize(nCols>4?8:9); doc.setFont('helvetica','italic');
+          doc.text('-', cx+8, y+14);
+        }
+      });
+      // Bordes verticales sutiles
+      doc.setDrawColor(230,232,238); doc.setLineWidth(0.5);
+      for(var vi=1; vi<nCols; vi++){
+        var vx = margin+labelW+vi*colW;
+        doc.line(vx, y, vx, y+rowH);
+      }
+      y += rowH;
+    }
     // Nota mejor precio abajo del bloque — con su propio espacio para no montarse sobre Coberturas
     var minPrima = cotsPagina.reduce(function(a,b){return a.prima<b.prima?a:b;});
     y += 14;
@@ -4601,7 +4639,15 @@ window.descargarComparativoPDF = async function(leadId){
       if(c.coberturas){
         doc.setTextColor(90,90,110); doc.setFontSize(7.5);
         var cl = doc.splitTextToSize(c.coberturas, cardW-20);
-        doc.text(cl.slice(0,4), x+10, rowY+28);
+        doc.text(cl.slice(0,3), x+10, rowY+28);
+      }
+      // Link a cotizacion oficial en Drive (al fondo de la tarjeta)
+      if(c.driveUrl){
+        doc.setTextColor(0,90,200); doc.setFontSize(8); doc.setFont('helvetica','normal');
+        doc.textWithLink('Ver PDF oficial', x+10, y+cardH-10, {url: c.driveUrl});
+        var _tw = doc.getTextWidth('Ver PDF oficial');
+        doc.setDrawColor(0,90,200); doc.setLineWidth(0.4);
+        doc.line(x+10, y+cardH-8, x+10+_tw, y+cardH-8);
       }
     });
     y += cardH + gap;
