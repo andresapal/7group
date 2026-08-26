@@ -290,8 +290,9 @@
       height: 100%;
       object-fit: cover;
       z-index: 0;
-      pointer-events: none;
     }
+    .hero-video.playing { pointer-events: none; }
+    .hero-video.fallback { display: none; }
 
     .hero-overlay {
       position: absolute;
@@ -1410,10 +1411,27 @@
 
   <!-- HERO -->
   <div class="hero-wrapper">
-    <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="ciudad-datos.webp">
+    <video class="hero-video" id="heroVid" autoplay muted loop playsinline preload="auto" poster="ciudad-datos.webp">
       <source src="https://github.com/andresapal/7group/releases/download/v1-assets/hero-bg-opt.mp4" type="video/mp4">
-      <img src="ciudad-datos.webp" alt="7Group AI Solutions" />
     </video>
+    <script>
+    (function(){
+      var v=document.getElementById('heroVid');
+      if(!v)return;
+      var p=v.play();
+      if(p&&p.then){
+        p.then(function(){v.classList.add('playing');})
+         .catch(function(){
+           v.classList.add('fallback');
+           v.parentElement.style.backgroundImage='url(ciudad-datos.webp)';
+           v.parentElement.style.backgroundSize='cover';
+           v.parentElement.style.backgroundPosition='center';
+         });
+      } else {
+        v.classList.add('playing');
+      }
+    })();
+    </script>
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <p class="hero-tag">Applied Artificial Intelligence</p>
