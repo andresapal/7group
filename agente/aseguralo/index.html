@@ -4218,15 +4218,30 @@ window.borrarPDFCotizacion = function(leadId, slot){
 };
 
 /* Extrae la placa del vehiculo desde los PDFs subidos (Gemini) del lead.
-   Barrido profundo por regex de placa CO: ABC123 o ABC12D.
-   Se cachea en window._PLACA_CACHE para evitar recorrer el objeto en cada render. */
+   Prioridad:
+     1) Placa manual guardada por el usuario (localStorage por leadId).
+     2) Rutas conocidas del extraido de Gemini.
+     3) Barrido profundo por regex de placa CO en TODO el extraido / coberturas / nombreArchivo.
+   Solo cachea valores no vacios (asi reintenta cuando llegan mas PDFs). */
 window._PLACA_CACHE = window._PLACA_CACHE || {};
+window._PLACAS_MANUAL = window._PLACAS_MANUAL || {};
+try { window._PLACAS_MANUAL = JSON.parse(localStorage.getItem('aseg_placas_manual')||'{}'); } catch(e){}
+
+function _guardarPlacaManual_(leadId, placa){
+  window._PLACAS_MANUAL[leadId] = placa;
+  try { localStorage.setItem('aseg_placas_manual', JSON.stringify(window._PLACAS_MANUAL)); } catch(e){}
+  invalidarPlacaCache_(leadId);
+}
+
 function getPlacaLead_(leadId){
   if(!leadId) return '';
-  if(window._PLACA_CACHE[leadId] !== undefined) return window._PLACA_CACHE[leadId];
+  // 1) manual
+  if(window._PLACAS_MANUAL[leadId]) return window._PLACAS_MANUAL[leadId];
+  // 2) cache POSITIVO
+  if(window._PLACA_CACHE[leadId]) return window._PLACA_CACHE[leadId];
   var out = '';
   function scan(obj, prof){
-    if(!obj || prof>6 || out) return;
+    if(!obj || prof>8 || out) return;
     if(typeof obj === 'string'){
       var m = obj.toUpperCase().match(/\b([A-Z]{3}[- ]?\d{3}|[A-Z]{3}[- ]?\d{2}[A-Z])\b/);
       if(m) out = m[1].replace(/[-\s]/g,'');
@@ -4240,7 +4255,6 @@ function getPlacaLead_(leadId){
   Object.keys(_pd).forEach(function(k){
     if(out || k.indexOf('__')===0) return;
     var d = _pd[k]; if(!d) return;
-    // Rutas rapidas conocidas
     var ext = d.extraido || {};
     var candidatas = [
       ext.vehiculo && ext.vehiculo.placa,
@@ -4254,15 +4268,25 @@ function getPlacaLead_(leadId){
       var v = candidatas[ci];
       if(v){ out = String(v).toUpperCase().replace(/[^A-Z0-9]/g,'').trim(); break; }
     }
-    if(!out) scan(d.extraido, 0);
-    if(!out) scan(d.coberturas, 0);
-    if(!out) scan(d.nombreArchivo, 0);
+    if(!out) scan(d, 0); // barrido completo del slot entero (incluye extraido, coberturas, nombreArchivo, etc)
   });
-  window._PLACA_CACHE[leadId] = out;
+  if(out) window._PLACA_CACHE[leadId] = out; // solo cachea si encontro
   return out;
 }
 /* Invalida cache cuando se agrega/borra una cotizacion (llamado desde subirPDF/borrarPDF). */
 function invalidarPlacaCache_(leadId){ if(leadId && window._PLACA_CACHE) delete window._PLACA_CACHE[leadId]; }
+
+/* Handler global: prompt para escribir/editar placa manual del lead */
+window.editarPlacaManual = function(leadId){
+  var actual = window._PLACAS_MANUAL[leadId] || getPlacaLead_(leadId) || '';
+  var nueva = prompt('Placa del vehiculo (ABC123 o ABC12D):', actual);
+  if(nueva === null) return;
+  nueva = String(nueva).toUpperCase().replace(/[^A-Z0-9]/g,'').trim();
+  if(!nueva){ alert('Placa vacia.'); return; }
+  if(!/^[A-Z]{3}\d{2,3}[A-Z]?$/.test(nueva)){ alert('Formato invalido. Debe ser ABC123 o ABC12D.'); return; }
+  _guardarPlacaManual_(leadId, nueva);
+  if(typeof renderEnCotizacion==='function') renderEnCotizacion();
+};
 
 window.marcarNoTomada = function(leadId){
   if(!confirm('Marcar este prospecto como NO TOMADO?\nSe cerrara la cotizacion.')) return;
@@ -4398,35 +4422,66 @@ window.descargarComparativoPDF = async function(leadId){
   var data = COT_PDFS[leadId] || {};
   // Formatea coberturas para el PDF: una cobertura por linea (mejor legibilidad).
   //  - Prioriza array structurado coberturas_detalle si existe.
-  //  - Si es texto plano, separa por "." + Mayuscula, ";" o " y " antes de otra cobertura.
   var _fmt$ = function(n){return '$'+Number(n||0).toLocaleString('es-CO');};
-  function formatearCoberturas_(d){
-    if(Array.isArray(d.coberturasDetalle) && d.coberturasDetalle.length){
-      return d.coberturasDetalle.map(function(cob){
-        var nom = String(cob.nombre||'').trim();
-        var val = Number(cob.valor)||0;
-        return nom + (val>0 ? ' '+_fmt$(val)+'.' : (nom.slice(-1)==='.'?'':'.'));
-      }).join('\n');
+
+  // Catalogo oficial de coberturas por aseguradora (VEHICULO) — dado por Fabian.
+  // Formato: {nombreClave: texto multilinea listo para el PDF}.
+  // Al detectar la aseguradora del PDF por match parcial (case insensitive), se pinta el texto fijo.
+  // Para aseguradoras no listadas se usa el fallback generico.
+  var COB_AUTO_FIJAS = {
+    'allianz': [
+      'Responsabilidad Civil $5.000.000.000.',
+      'Perdidas totales por dano o por hurto.',
+      'Perdidas parciales por dano o por hurto.',
+      '',
+      'Asistencias: Conductor Elegido, Carro taller, Asesoria Juridica, Vehiculo de reemplazo, Grua, Otras.',
+      '',
+      'Deducibles:',
+      'Perdidas totales: sin deducible.',
+      'Perdidas parciales: 1 S.M.M.L.V.'
+    ].join('\n'),
+    'seguros del estado': [
+      'Responsabilidad Civil $4.400.000.000.',
+      'Perdidas totales por dano o por hurto.',
+      'Perdidas parciales por dano o por hurto.',
+      '',
+      'Asistencias: Conductor Elegido, Carro taller, Asesoria Juridica, Vehiculo de reemplazo, Grua, Otras.',
+      '',
+      'Deducibles:',
+      'Perdidas totales: sin deducible.',
+      'Perdidas parciales: $1.000.000.'
+    ].join('\n'),
+    'axa colpatria': [
+      'Responsabilidad Civil $4.000.000.000.',
+      'Perdidas totales por dano o por hurto.',
+      'Perdidas parciales por dano o por hurto.',
+      '',
+      'Asistencias: Conductor Elegido, Carro taller, Asesoria Juridica, Vehiculo de reemplazo, Grua, Otras.',
+      '',
+      'Deducibles:',
+      'Perdidas totales: sin deducible.',
+      'Perdidas parciales: 1 S.M.M.L.V.'
+    ].join('\n')
+  };
+  function coberturasFijasPara_(aseguradora, tipoLead){
+    var esVehic = String(tipoLead||'').toLowerCase().indexOf('vehic')>=0 || String(tipoLead||'').toLowerCase().indexOf('auto')>=0;
+    if(!esVehic) return null; // por ahora catalogo solo Vehiculo
+    var a = String(aseguradora||'').toLowerCase().trim();
+    if(!a) return null;
+    var keys = Object.keys(COB_AUTO_FIJAS);
+    for(var i=0;i<keys.length;i++){
+      if(a.indexOf(keys[i]) >= 0 || keys[i].indexOf(a) >= 0) return COB_AUTO_FIJAS[keys[i]];
     }
-    var t = String(d.coberturas||'').trim();
-    if(!t) return '-';
-    // Normaliza separadores a newline (progresivo, en 3 pasos):
-    //  1) "; " -> \n (separador tipico entre coberturas)
-    t = t.replace(/\s*;\s*/g, '\n');
-    //  2) "$1.234.567 , Sig..." -> "$1.234.567.\n Sig..."  (monto en pesos + coma es fin de cobertura)
-    t = t.replace(/(\$\s*[\d\.\,]+)\s*,\s+(?=[A-Za-zÁÉÍÓÚÑáéíóúñ])/g, '$1.\n');
-    //  3) "." + espacio + Mayuscula -> ".\n" (por si vienen con punto)
-    t = t.replace(/\.\s+(?=[A-ZÁÉÍÓÚÑ])/g, '.\n');
-    return t;
+    return null;
   }
   var slotKeys = Object.keys(data).filter(function(k){return k.indexOf('__')!==0;});
   var cots = slotKeys.filter(function(k){return Number(data[k].prima)>0}).map(function(k){
     var d = data[k];
-    // Sanitizacion: si hay warning de coberturas, sustituimos por texto generico seguro
-    // para NO comunicar al cliente un monto superior al real cotizado.
-    var coberturasSeguras = d.coberturasWarning
-      ? 'Coberturas segun cotizacion oficial de '+ (d.aseguradora||'la aseguradora') +'. Consulte el PDF anexo para el detalle exacto y montos por cobertura.'
-      : formatearCoberturas_(d);
+    // Coberturas: usar catalogo fijo si la aseguradora esta listada; si no, fallback generico.
+    var fijas = coberturasFijasPara_(d.aseguradora, lead.tipo);
+    var coberturasSeguras = fijas
+      ? fijas
+      : 'Coberturas segun cotizacion oficial de '+ (d.aseguradora||'la aseguradora') +'. Consulte el PDF anexo para el detalle exacto por cobertura, valor asegurado y deducibles.';
     return {slot:k, nombre:d.aseguradora||k, prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
             deducible:Number(d.deducible)||0, coberturas:coberturasSeguras, valorAseg:Number(d.valorAsegurado)||0,
             aseguradora:d.aseguradora||k, plan:d.planSeleccionado||'',
@@ -4554,8 +4609,8 @@ window.descargarComparativoPDF = async function(leadId){
     y += 30;
 
     filas.forEach(function(f,fi){
-      // Coberturas necesita mucho mas espacio para no cortarse. Otras filas mas aire.
-      var rowH = f.tall ? (nCols>4 ? 96 : 84) : 26;
+      // Coberturas: catalogo fijo de ~10 lineas. Damos altura amplia para que quepa completo.
+      var rowH = f.tall ? (nCols>4 ? 130 : 118) : 26;
       // Bandas
       if(fi%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y, totalW, rowH, 'F'); }
       // Label
@@ -4574,8 +4629,8 @@ window.descargarComparativoPDF = async function(leadId){
           doc.setFontSize(nCols>4?8:9); doc.setFont('helvetica','normal');
         }
         var lns = doc.splitTextToSize(String(val), colW-14);
-        // Coberturas: hasta 8 lineas (para no cortar); resto: 2
-        var maxL = f.tall ? (nCols>4?7:8) : 2;
+        // Coberturas: hasta 12 lineas para que quepan Coberturas + Asistencias + Deducibles del catalogo.
+        var maxL = f.tall ? (nCols>4?11:12) : 2;
         doc.text(lns.slice(0,maxL), cx+8, y+ (f.highlight?18:15));
       });
       // Bordes verticales sutiles
@@ -4808,13 +4863,15 @@ function renderEnCotizacion(){
     var slots = Object.keys(pdfs).filter(function(k){return k.indexOf('__')!==0;});
     var count = slots.length;
     var slotsHTML = slots.map(function(sk){return slotCargadoHTML(l.id, sk, pdfs[sk]);}).join('') + slotAddHTML(l.id);
-    // Placa: se toma automatica de los PDFs subidos (Gemini). Sin edicion manual.
+    // Placa: automatica de los PDFs (Gemini), con fallback a placa manual editable.
     var esVehic = (l.tipo||'').toLowerCase().indexOf('vehic')>=0;
     var placaHTML = '';
     if(esVehic){
       var pla = getPlacaLead_(l.id);
       if(pla){
-        placaHTML = ' <span class="ec-card-placa" style="display:inline-block;margin-left:8px;padding:2px 10px;background:#eef4ff;color:#3059b5;border-radius:6px;font-weight:800;letter-spacing:2px;font-family:monospace;font-size:12px;vertical-align:middle">'+pla+'</span>';
+        placaHTML = ' <span class="ec-card-placa" onclick="editarPlacaManual(\''+l.id+'\')" title="Click para editar" style="cursor:pointer;display:inline-block;margin-left:8px;padding:2px 10px;background:#eef4ff;color:#3059b5;border-radius:6px;font-weight:800;letter-spacing:2px;font-family:monospace;font-size:12px;vertical-align:middle">'+pla+'</span>';
+      } else {
+        placaHTML = ' <button onclick="editarPlacaManual(\''+l.id+'\')" style="margin-left:8px;padding:2px 10px;background:transparent;border:1px dashed var(--muted);color:var(--muted);border-radius:6px;font-size:11px;cursor:pointer">+ placa</button>';
       }
     }
     return '<div class="ec-card">'+
