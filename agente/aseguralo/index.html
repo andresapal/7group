@@ -353,6 +353,13 @@ tbody tr:hover{background:var(--accent-light)}
     <div class="tb-right">
       <div id="syncStatus" style="margin-right:4px"></div>
       <span id="userChip" style="font-size:11px;color:var(--dim);padding:4px 10px;background:var(--bg3);border-radius:12px;font-weight:600"></span>
+      <div id="oficinaMenuWrap" style="display:none;position:relative">
+        <button class="tb-toggle" id="oficinaMenuBtn" onclick="toggleOficinaMenu(event)">&#9776; Oficina: <span id="oficinaActualLbl">Aseguralo</span></button>
+        <div id="oficinaMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);padding:6px 0;min-width:220px;z-index:9999">
+          <div class="oficina-opt" data-of="Aseguralo" onclick="setOficinaActiva('Aseguralo')" style="padding:10px 14px;cursor:pointer">Aseguralo</div>
+          <div class="oficina-opt" data-of="Sandra Marin Seguros" onclick="setOficinaActiva('Sandra Marin Seguros')" style="padding:10px 14px;cursor:pointer;opacity:.55">Sandra Marin Seguros <span style="font-size:10px;color:var(--muted)">(pendiente Sheet)</span></div>
+        </div>
+      </div>
       <button class="tb-toggle" onclick="openModConfig()" id="modConfigBtn" style="display:none">Modulos</button>
       <button class="tb-toggle" onclick="toggleTheme()" id="themeBtn">Claro</button>
       <a class="tb-btn" href="/agente/" id="tb7gBtn" style="display:none">7Group</a>
@@ -1295,6 +1302,32 @@ var IS_ADMIN=false;
 var CURRENT_USER = { email:'', rol:'anonimo', nombre:'', tipo:'', activo:'no',
                      intermediario:'', permisos:{} };
 
+/* Oficina activa (solo admin master la puede cambiar). Persistente en localStorage. */
+var OFICINA_ACTIVA = 'Aseguralo';
+try { OFICINA_ACTIVA = localStorage.getItem('aseg_oficina_activa') || 'Aseguralo'; } catch(e){}
+window.setOficinaActiva = function(of){
+  if(of === 'Sandra Marin Seguros'){
+    alert('Sandra Marin Seguros aun no tiene su propio Sheet configurado. Cuando lo envie, se activa.');
+    return;
+  }
+  OFICINA_ACTIVA = of;
+  try { localStorage.setItem('aseg_oficina_activa', of); } catch(e){}
+  var lbl = document.getElementById('oficinaActualLbl');
+  if(lbl) lbl.textContent = of;
+  document.getElementById('oficinaMenu').style.display = 'none';
+  location.reload();
+};
+window.toggleOficinaMenu = function(ev){
+  if(ev) ev.stopPropagation();
+  var m = document.getElementById('oficinaMenu');
+  if(!m) return;
+  m.style.display = m.style.display === 'block' ? 'none' : 'block';
+};
+document.addEventListener('click', function(){
+  var m = document.getElementById('oficinaMenu');
+  if(m) m.style.display = 'none';
+});
+
 function esAdminODueno_(){ return CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno'; }
 function esAsesor_(){ return CURRENT_USER.rol==='asesor'; }
 function verTodo_(){ return !!(CURRENT_USER.permisos && CURRENT_USER.permisos.verTodo); }
@@ -1427,6 +1460,11 @@ function aplicarPermisosUI_(){
 
 function setAdminMode(email){
   IS_ADMIN = ADMIN_EMAILS.indexOf(email) !== -1;
+  // Selector de oficina solo visible para admin master
+  var ofWrap = document.getElementById('oficinaMenuWrap');
+  if(ofWrap) ofWrap.style.display = IS_ADMIN ? 'inline-block' : 'none';
+  var ofLbl = document.getElementById('oficinaActualLbl');
+  if(ofLbl) ofLbl.textContent = OFICINA_ACTIVA;
   // Modulos: admin 7GROUP + dueno Aseguralo (Fabian, varios emails) pueden gestionar
   // aseguraloseguros@gmail.com se reasigno a Monica Torres (asesora); ya no es dueno.
   var DUENOS_FABIAN = ['aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co'];
