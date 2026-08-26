@@ -1,46 +1,50 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ContaFacil ERP -- 7Group Demo</title>
+<title>Cont IA -- 7Group Demo</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
-body{font-family:'Manrope',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s;font-size:13px}
-h1,h2,h3,h4{font-family:'Manrope',sans-serif;letter-spacing:-.03em}
+body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s;font-size:13px}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
 code,.mono{font-family:'JetBrains Mono',monospace}
 
 :root{
-  --brand:#1B4332;--brand-light:rgba(27,67,50,.08);--brand-mid:rgba(27,67,50,.15);
-  --accent:#2D6A4F;--accent-light:rgba(45,106,79,.1);--accent-mid:rgba(45,106,79,.2);
-  --highlight:#40916C;
-  --bg:#f5f7fa;--bg2:#ffffff;--bg3:#f0f2f6;--bg4:#e4e7ed;
-  --text:#0f172a;--dim:#64748b;--muted:#94a3b8;
-  --green:#15803d;--green-bg:rgba(21,128,61,.08);
-  --orange:#d97706;--orange-bg:rgba(217,119,6,.08);
-  --red:#dc2626;--red-bg:rgba(220,38,38,.08);
+  --brand:#0b7c6f;--brand-light:rgba(13,148,136,.07);--brand-mid:rgba(13,148,136,.14);
+  --accent:#0c8a7d;--accent-light:rgba(13,148,136,.08);--accent-mid:rgba(13,148,136,.18);
+  --highlight:#0d9488;
+  --bg:#f6f8fa;--bg2:#ffffff;--bg3:#eef1f5;--bg4:#e2e7ed;
+  --text:#1a2332;--dim:#5e7186;--muted:#94a3b8;
+  --green:#0d9488;--green-bg:rgba(13,148,136,.07);
+  --orange:#d97706;--orange-bg:rgba(217,119,6,.07);
+  --red:#dc2626;--red-bg:rgba(220,38,38,.07);
   --teal:#0d9488;--purple:#7c3aed;--sky:#0284c7;
-  --border:rgba(15,23,42,.07);--border2:rgba(15,23,42,.12);--border3:rgba(15,23,42,.18);
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-lg:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.10);--border3:rgba(15,23,42,.16);
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.03);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.03);
   --radius:12px;--radius-sm:8px;
-  --topbar-bg:rgba(255,255,255,.92);--topbar-border:rgba(15,23,42,.08);
+  --topbar-bg:rgba(255,255,255,.94);--topbar-border:rgba(15,23,42,.06);
 }
 :root.dark{
-  --bg:#060a12;--bg2:#0c1220;--bg3:#141c2e;--bg4:#1c2640;
-  --text:#e2e8f0;--dim:#64748b;--muted:#334155;
-  --brand-light:rgba(27,67,50,.35);--brand-mid:rgba(27,67,50,.5);
-  --accent-light:rgba(45,106,79,.15);--accent-mid:rgba(45,106,79,.25);
-  --green-bg:rgba(21,128,61,.15);--orange-bg:rgba(217,119,6,.15);--red-bg:rgba(220,38,38,.15);
-  --border:rgba(148,163,184,.06);--border2:rgba(148,163,184,.1);--border3:rgba(148,163,184,.16);
-  --shadow:0 1px 3px rgba(0,0,0,.2);--shadow-lg:0 4px 16px rgba(0,0,0,.3);
-  --topbar-bg:rgba(6,10,18,.92);--topbar-border:rgba(148,163,184,.08);
+  --brand:#7B8FD4;--brand-light:rgba(123,143,212,.12);--brand-mid:rgba(123,143,212,.22);
+  --accent:#6C7FCC;--accent-light:rgba(108,127,204,.10);--accent-mid:rgba(108,127,204,.20);
+  --highlight:#9AACEF;
+  --bg:#0B0E14;--bg2:#12161F;--bg3:#1A1F2B;--bg4:#242A38;
+  --text:#D8DEE9;--dim:#6B7A8D;--muted:#3B4453;
+  --green:#48BB78;--green-bg:rgba(72,187,120,.12);
+  --orange:#ED8936;--orange-bg:rgba(237,137,54,.12);
+  --red:#FC8181;--red-bg:rgba(252,129,129,.12);
+  --teal:#38B2AC;--purple:#B794F4;--sky:#63B3ED;
+  --border:rgba(148,163,184,.06);--border2:rgba(148,163,184,.10);--border3:rgba(148,163,184,.15);
+  --shadow:0 1px 3px rgba(0,0,0,.25);--shadow-lg:0 4px 16px rgba(0,0,0,.35);
+  --topbar-bg:rgba(11,14,20,.94);--topbar-border:rgba(148,163,184,.08);
 }
 
 /* TOPBAR */
@@ -175,12 +179,12 @@ tr:hover td{background:var(--accent-light)}
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="tb-left">
-    <a class="tb-logo" href="#">CONTAFACIL</a>
+    <a class="tb-logo" href="#">Cont IA</a>
     <div class="tb-sep"></div>
     <span class="tb-badge">ERP Contable</span>
   </div>
   <div class="tb-right">
-    <button class="tb-toggle" onclick="toggleTheme()">Claro</button>
+    <button class="tb-toggle" onclick="toggleTheme()">Oscuro</button>
     <a class="tb-btn" href="/agente/">7Group</a>
   </div>
 </div>
@@ -462,6 +466,7 @@ function toggleTheme(){
   var r=document.documentElement;
   r.classList.toggle('dark');
   document.querySelector('.tb-toggle').textContent=r.classList.contains('dark')?'Claro':'Oscuro';
+  localStorage.setItem('contia-theme',r.classList.contains('dark')?'dark':'light');
 }
 
 /* ===== NAV ===== */
