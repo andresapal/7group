@@ -361,12 +361,12 @@ tbody tr:hover{background:var(--accent-light)}
 
   <nav class="mod-nav" id="modNav">
     <a class="mod-link active" data-mod="polizas">Polizas</a>
-    <a class="mod-link" data-mod="cotizador">Cotizador</a>
-    <a class="mod-link" data-mod="dashboard">Dashboard</a>
-    <a class="mod-link" data-mod="comisiones">Comisiones</a>
-    <a class="mod-link" data-mod="facturacion">Facturacion</a>
     <a class="mod-link" data-mod="renovaciones">Renovaciones</a>
-    <a class="mod-link" data-mod="siniestros">Siniestros</a>
+    <a class="mod-link" data-mod="comisiones">Comisiones</a>
+    <a class="mod-link" data-mod="cotizador">Cotizador</a>
+    <a class="mod-link" data-mod="facturacion">Facturacion</a>
+    <a class="mod-link" data-mod="dashboard">KPIs</a>
+    <a class="mod-link" data-mod="siniestros" style="display:none">Siniestros</a>
     <a class="mod-link" data-mod="clientes">Clientes</a>
   </nav>
 
@@ -484,11 +484,11 @@ tbody tr:hover{background:var(--accent-light)}
       </div>
     </section>
 
-    <!-- DASHBOARD -->
+    <!-- KPIs -->
     <section class="mod-section" id="mod-dashboard">
       <div class="sec-header">
         <div>
-          <div class="sec-title">Dashboard General</div>
+          <div class="sec-title">KPIs</div>
           <div class="sec-desc">Resumen operativo -- Agosto 2026</div>
         </div>
       </div>
@@ -2017,7 +2017,7 @@ var NOTIFY={
 var MODULE_DEFS = [
   {id:'polizas',      label:'Polizas',        desc:'Gestion de polizas, estados, busqueda',            essential:true,  on:true},
   {id:'cotizador',    label:'Cotizador',       desc:'Comparacion multi-aseguradora para clientes',      essential:true,  on:true},
-  {id:'dashboard',    label:'Dashboard',       desc:'KPIs, graficos y actividad reciente',              essential:true,  on:true},
+  {id:'dashboard',    label:'KPIs',            desc:'KPIs, graficos y actividad reciente',              essential:true,  on:true},
   {id:'comisiones',   label:'Comisiones',      desc:'Control de comisiones por aseguradora',            essential:true,  on:true},
   {id:'facturacion',  label:'Facturacion',     desc:'Cuentas de cobro, cartera y conciliacion',         essential:true,  on:true},
   {id:'renovaciones', label:'Renovaciones',    desc:'Calendario de vencimientos y alertas',             essential:true,  on:true},
