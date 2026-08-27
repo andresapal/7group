@@ -4539,7 +4539,7 @@ window.descargarComparativoPDF = async function(leadId){
   // Placa: se obtiene del helper unificado que barre los PDFs subidos.
   var esVehic_ = (lead.tipo||'').toLowerCase().indexOf('vehic')>=0 || (lead.tipo||'').toLowerCase().indexOf('auto')>=0;
   var placaCliente = esVehic_ ? getPlacaLead_(leadId) : '';
-  var clienteBoxH = 92;
+  var clienteBoxH = 76;
   doc.setFillColor(245,247,250); doc.rect(margin, y, pw-margin*2, clienteBoxH, 'F');
   var cxL = margin + 14;
   var cxR = margin + Math.round((pw - margin*2) * 0.55);
@@ -4609,8 +4609,8 @@ window.descargarComparativoPDF = async function(leadId){
     y += 30;
 
     filas.forEach(function(f,fi){
-      // Coberturas: catalogo fijo de ~10 lineas. Damos altura amplia para que quepa completo.
-      var rowH = f.tall ? (nCols>4 ? 130 : 118) : 26;
+      // Coberturas: catalogo fijo compactado para caber en 1 hoja carta.
+      var rowH = f.tall ? (nCols>4 ? 110 : 96) : 22;
       // Bandas
       if(fi%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y, totalW, rowH, 'F'); }
       // Label
@@ -4753,42 +4753,36 @@ window.descargarComparativoPDF = async function(leadId){
     pintarTarjetas_(cots);
   }
 
-  // === BLOQUE RECOMENDACION (en pagina nueva si no cabe) ===
-  var recH = 90;
-  if(y + recH > ph - 120){ doc.addPage(); pintarHeader_(); y = 100; }
+  // === BLOQUE RECOMENDACION (compacto, sin salto de pagina) ===
+  var recH = 62;
+  if(y + recH + 90 > ph){ doc.addPage(); pintarHeader_(); y = 100; }
   doc.setFillColor(230,247,239); doc.setDrawColor(16,140,80); doc.setLineWidth(1);
   doc.rect(margin, y, pw-margin*2, recH, 'FD');
   doc.setTextColor(16,140,80); doc.setFontSize(10); doc.setFont('helvetica','bold');
-  doc.text('NUESTRA RECOMENDACION', margin+14, y+18);
-  doc.setTextColor(0,0,0); doc.setFontSize(13); doc.setFont('helvetica','bold');
-  doc.text(ganadora.nombre+(ganadora.plan?' - Plan '+ganadora.plan:'')+' - Prima anual '+fmt(ganadora.prima), margin+14, y+38);
-  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
-  var rec = 'Analizadas las '+N+' alternativa'+(N===1?'':'s')+', '+ganadora.nombre+' ofrece la mejor relacion costo/beneficio para tu perfil. '+
-            'Estamos listos para acompanarte con la emision de la poliza cuando confirmes.';
+  doc.text('NUESTRA RECOMENDACION', margin+14, y+16);
+  doc.setTextColor(0,0,0); doc.setFontSize(12); doc.setFont('helvetica','bold');
+  doc.text(ganadora.nombre+(ganadora.plan?' - Plan '+ganadora.plan:'')+' - Prima anual '+fmt(ganadora.prima), margin+14, y+34);
+  doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
+  var rec = 'Analizadas las '+N+' alternativa'+(N===1?'':'s')+', '+ganadora.nombre+' ofrece la mejor relacion costo/beneficio para tu perfil.';
   var recLines = doc.splitTextToSize(rec, pw-margin*2-28);
-  doc.text(recLines, margin+14, y+56);
-  y += recH + 14;
+  doc.text(recLines, margin+14, y+50);
+  y += recH + 8;
 
-  // === FOOTER ===
-  if(y + 90 > ph - 40){ doc.addPage(); pintarHeader_(); y = 100; }
-  // Nota legal (siempre) — protege comercialmente
+  // === FOOTER (nota legal + firma, compacto) ===
   doc.setFillColor(252,252,245); doc.setDrawColor(230,220,180); doc.setLineWidth(0.5);
-  doc.rect(margin, y, pw-margin*2, 32, 'FD');
-  doc.setTextColor(120,100,40); doc.setFontSize(7.5); doc.setFont('helvetica','italic');
-  var nota = 'Este documento es un resumen comparativo con fines comerciales. Los valores, coberturas, exclusiones y condiciones exactas del plan '+
-             'estan detallados en la cotizacion oficial emitida por la aseguradora, que se adjunta como soporte. En caso de diferencia, prevalece la cotizacion oficial.';
+  doc.rect(margin, y, pw-margin*2, 26, 'FD');
+  doc.setTextColor(120,100,40); doc.setFontSize(7); doc.setFont('helvetica','italic');
+  var nota = 'Este documento es un resumen comparativo con fines comerciales. Los valores, coberturas, exclusiones y condiciones exactas estan detallados en la cotizacion oficial emitida por la aseguradora, que se adjunta como soporte. En caso de diferencia, prevalece la cotizacion oficial.';
   var notaL = doc.splitTextToSize(nota, pw-margin*2-16);
-  doc.text(notaL, margin+8, y+11);
-  y += 40;
+  doc.text(notaL, margin+8, y+10);
+  y += 32;
 
-  doc.setDrawColor(200,200,200); doc.line(margin, y, pw-margin, y); y += 16;
-  // Firma: el intermediario asignado al lead. Si no hay (leads viejos), Fabian por defecto.
+  doc.setDrawColor(200,200,200); doc.line(margin, y, pw-margin, y); y += 12;
   var firmaNombre = String(lead.intermediario||'').trim() || 'Fabian Carrera';
   doc.setTextColor(48,71,112); doc.setFontSize(10); doc.setFont('helvetica','bold');
   doc.text(firmaNombre, margin, y);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(80,80,80);
-  y += 14; doc.text('Aseguralo - Agente de Seguros', margin, y);
-  y += 12; doc.text('WhatsApp: +57 316 520 6865  -  aseguralo@outlook.com', margin, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(80,80,80);
+  y += 11; doc.text('Aseguralo - Agente de Seguros  |  WhatsApp: +57 316 520 6865  |  aseguralo@outlook.com', margin, y);
 
   var fname = 'Propuesta_'+(lead.nombre||'cliente').replace(/\s+/g,'_')+'_'+Date.now()+'.pdf';
   doc.save(fname);
