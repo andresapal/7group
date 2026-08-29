@@ -3737,8 +3737,12 @@ function loadCotizacionesFromSheet_(){
             desde: r.desde, hasta: r.hasta,
             valorAsegurado: r.valor_asegurado, deducible: r.deducible,
             coberturas: r.coberturas, nombreArchivo: r.nombre_archivo,
+            driveUrl: r.drive_url || '',
             ts: sheetTs
           };
+        } else if(local && r.drive_url && !local.driveUrl){
+          // Enriquecer local con drive_url si el Sheet lo tiene y local no
+          local.driveUrl = r.drive_url;
         }
         if(r.ganadora) COT_PDFS[r.lead_id].__ganadora = r.slot;
       });
