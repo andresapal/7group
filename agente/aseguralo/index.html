@@ -4614,8 +4614,8 @@ window.descargarComparativoPDF = async function(leadId){
     y += 30;
 
     filas.forEach(function(f,fi){
-      // Coberturas: catalogo fijo compactado para caber en 1 hoja carta.
-      var rowH = f.tall ? (nCols>4 ? 110 : 96) : 22;
+      // Altura calibrada para que el catalogo fijo (11 lineas) quepa sin ser pisado.
+      var rowH = f.tall ? (nCols>4 ? 118 : 108) : 22;
       // Bandas
       if(fi%2===0){ doc.setFillColor(248,249,251); doc.rect(margin, y, totalW, rowH, 'F'); }
       // Label
@@ -4631,12 +4631,13 @@ window.descargarComparativoPDF = async function(leadId){
           doc.setFontSize(nCols>4?10:12); doc.setFont('helvetica','bold');
         } else {
           doc.setTextColor(30,30,30);
-          doc.setFontSize(nCols>4?8:9); doc.setFont('helvetica','normal');
+          // Coberturas: font mas pequeno para que las 11 lineas del catalogo quepan holgadas
+          var fs = f.tall ? (nCols>4?7.5:8) : (nCols>4?8:9);
+          doc.setFontSize(fs); doc.setFont('helvetica','normal');
         }
         var lns = doc.splitTextToSize(String(val), colW-14);
-        // Coberturas: hasta 12 lineas para que quepan Coberturas + Asistencias + Deducibles del catalogo.
-        var maxL = f.tall ? (nCols>4?11:12) : 2;
-        doc.text(lns.slice(0,maxL), cx+8, y+ (f.highlight?18:15));
+        var maxL = f.tall ? 11 : 2;
+        doc.text(lns.slice(0,maxL), cx+8, y+ (f.highlight?18:14));
       });
       // Bordes verticales sutiles
       doc.setDrawColor(230,232,238); doc.setLineWidth(0.5);
