@@ -4133,6 +4133,11 @@ window.subirPDFCotizacion = async function(inputEl, leadId){
     var resp = await llamarGemini_(file, lead.tipo, lead.nombre);
     var data = resp.data;
     var driveInfo = resp.drive || {};
+    // Diagnostico visible si Drive fallo en el backend
+    if(driveInfo && driveInfo.error){
+      console.warn('[Drive] error al guardar PDF:', driveInfo.error);
+      alert('AVISO: el PDF NO se guardo en Drive.\n\nMotivo backend: ' + driveInfo.error + '\n\nEl OCR y la cotizacion si funcionaron. Copia este mensaje y envialo a Andres para revisar permisos del script.');
+    }
 
     // Validar tipo
     var tipoEsperado = (lead.tipo||'').toLowerCase();
