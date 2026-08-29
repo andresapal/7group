@@ -235,23 +235,27 @@ tbody tr:hover{background:var(--accent-light)}
 @media(max-width:768px){
   .kanban{grid-template-columns:repeat(5,240px)}
   .main{padding:12px}
-  .topbar{padding:0 10px;gap:6px}
-  .tb-right{gap:5px;flex-shrink:0}
+  /* Topbar apilada: logo arriba, botones abajo en su propia fila con scroll horizontal */
+  .topbar{flex-direction:column;height:auto;padding:6px 10px 8px;gap:6px;align-items:stretch}
+  .tb-left{justify-content:flex-start;width:100%}
+  .tb-right{width:100%;justify-content:flex-end;gap:4px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tb-right::-webkit-scrollbar{display:none}
   .tb-right #syncStatus{display:none}
-  .tb-toggle,.tb-btn{padding:5px 8px;font-size:9px}
+  .tb-toggle,.tb-btn{padding:5px 8px;font-size:9px;flex-shrink:0}
   .mod-nav{padding:0 12px;gap:0}
   .mod-nav .mod-link{padding:10px 8px;font-size:11px}
   .sec-header{flex-direction:column;align-items:stretch;gap:12px}
   .tbl-actions{flex-wrap:wrap;gap:6px}
   .tbl-actions .btn{flex:1 1 calc(50% - 6px);min-width:0;font-size:11px;padding:8px 10px;margin-left:0!important}
-  .sub-nav{padding:3px;gap:2px}
-  .sub-tab{min-width:0;padding:8px 6px;font-size:10px;gap:4px}
+  /* Sub-nav: wrap en 2 filas cuando no cabe, mejor que overflow horizontal */
+  .sub-nav{padding:3px;gap:3px;flex-wrap:wrap;overflow-x:visible}
+  .sub-tab{min-width:calc(50% - 4px);flex:1 1 calc(50% - 4px);padding:8px 6px;font-size:10px;gap:4px}
 }
 @media(max-width:480px){
   .tb-left .tb-sep,.tb-left .tb-badge{display:none}
   .tb-logo img{height:22px!important}
-  .topbar{height:44px}
   .kpi-val{font-size:22px}
+  .sub-tab{font-size:9px;padding:7px 4px}
 }
 @media(max-width:360px){
   .kpi-grid{grid-template-columns:1fr!important}
