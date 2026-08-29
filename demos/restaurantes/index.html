@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Delivery Voice IA -- 7Group Demo</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s;font-size:13px}
+h1,h2,h3,h4{font-family:'Inter',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+
+:root{
+  --brand:#c2410c;--brand-light:rgba(194,65,12,.06);--brand-mid:rgba(194,65,12,.14);
+  --accent:#ea580c;--accent-light:rgba(234,88,12,.07);--accent-mid:rgba(234,88,12,.16);
+  --highlight:#f97316;
+  --bg:#faf8f6;--bg2:#ffffff;--bg3:#f3f0ec;--bg4:#e8e4de;
+  --text:#1c1917;--dim:#78716c;--muted:#a8a29e;
+  --green:#16a34a;--green-bg:rgba(22,163,74,.07);
+  --orange:#ea580c;--orange-bg:rgba(234,88,12,.07);
+  --red:#dc2626;--red-bg:rgba(220,38,38,.07);
+  --teal:#0d9488;--purple:#7c3aed;--sky:#0284c7;
+  --yellow:#eab308;--yellow-bg:rgba(234,179,8,.08);
+  --border:rgba(28,25,23,.06);--border2:rgba(28,25,23,.10);--border3:rgba(28,25,23,.16);
+  --shadow:0 1px 3px rgba(0,0,0,.05);--shadow-lg:0 4px 16px rgba(0,0,0,.08);
+  --radius:12px;--radius-sm:8px;
+  --topbar-bg:rgba(250,248,246,.94);--topbar-border:rgba(28,25,23,.06);
+}
+:root.dark{
+  --brand:#fb923c;--brand-light:rgba(251,146,60,.10);--brand-mid:rgba(251,146,60,.20);
+  --accent:#f97316;--accent-light:rgba(249,115,22,.08);--accent-mid:rgba(249,115,22,.18);
+  --highlight:#fdba74;
+  --bg:#0c0a09;--bg2:#1c1917;--bg3:#292524;--bg4:#44403c;
+  --text:#fafaf9;--dim:#a8a29e;--muted:#57534e;
+  --green:#4ade80;--green-bg:rgba(74,222,128,.12);
+  --orange:#fb923c;--orange-bg:rgba(251,146,60,.12);
+  --red:#f87171;--red-bg:rgba(248,113,113,.12);
+  --teal:#5eead4;--purple:#c4b5fd;--sky:#7dd3fc;
+  --yellow:#fde047;--yellow-bg:rgba(253,224,71,.10);
+  --border:rgba(168,162,158,.06);--border2:rgba(168,162,158,.10);--border3:rgba(168,162,158,.15);
+  --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-lg:0 4px 16px rgba(0,0,0,.4);
+  --topbar-bg:rgba(12,10,9,.94);--topbar-border:rgba(168,162,158,.08);
+}
+
+/* TOPBAR */
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border)}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:17px;font-weight:900;color:var(--highlight);letter-spacing:-.02em;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--highlight)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:6px 12px;background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:6px;color:var(--highlight);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:var(--accent);color:#fff}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--highlight);color:var(--highlight)}
+
+/* NAV */
+.mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.mod-nav::-webkit-scrollbar{display:none}
+.mod-link{padding:12px 16px;font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap;cursor:pointer}
+.mod-link:hover{color:var(--text)}.mod-link.active{color:var(--highlight);border-color:var(--highlight)}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:20px}
+.mod-section{display:none}.mod-section.active{display:block}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:2px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+.kpi-card{background:var(--bg2);padding:18px;position:relative}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.kpi-val{font-size:22px;font-weight:900;letter-spacing:-.03em}
+.kpi-sub{font-size:10px;color:var(--dim);margin-top:3px}
+.c-brand .kpi-val{color:var(--highlight)}.c-green .kpi-val{color:var(--green)}.c-orange .kpi-val{color:var(--orange)}.c-red .kpi-val{color:var(--red)}.c-teal .kpi-val{color:var(--teal)}.c-purple .kpi-val{color:var(--purple)}.c-sky .kpi-val{color:var(--sky)}.c-yellow .kpi-val{color:var(--yellow)}
+
+/* SECTION */
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.sec-title{font-size:18px;font-weight:900;letter-spacing:-.03em}
+.sec-sub{font-size:11px;color:var(--dim);margin-top:2px}
+
+/* ORDER BOARD (KDS) */
+.kds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.kds-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:.2s;position:relative}
+.kds-card:hover{box-shadow:var(--shadow-lg)}
+.kds-card.urgente{border-color:var(--red);border-width:2px}
+.kds-card.urgente .kds-top{background:var(--red-bg)}
+.kds-top{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg3)}
+.kds-order-num{font-size:16px;font-weight:900;color:var(--highlight)}
+.kds-time{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px}
+.kds-time.ok{background:var(--green-bg);color:var(--green)}
+.kds-time.warn{background:var(--yellow-bg);color:var(--yellow)}
+.kds-time.late{background:var(--red-bg);color:var(--red)}
+.kds-body{padding:14px 16px}
+.kds-client{font-size:12px;font-weight:700;margin-bottom:2px}
+.kds-channel{font-size:10px;color:var(--dim);margin-bottom:10px;display:flex;align-items:center;gap:4px}
+.kds-channel svg{width:12px;height:12px;fill:var(--dim)}
+.kds-items{list-style:none;display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.kds-items li{font-size:12px;padding:5px 8px;background:var(--bg3);border-radius:5px;display:flex;justify-content:space-between}
+.kds-items li .qty{font-weight:800;color:var(--highlight);margin-right:6px}
+.kds-items li .price{color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:11px}
+.kds-total{display:flex;justify-content:space-between;font-size:13px;font-weight:800;padding-top:8px;border-top:1px solid var(--border)}
+.kds-total .amount{color:var(--highlight)}
+.kds-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.kds-btn{flex:1;padding:8px;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;text-align:center}
+.kds-btn.ready{background:var(--green);color:#fff}.kds-btn.ready:hover{opacity:.85}
+.kds-btn.cancel{background:var(--bg3);color:var(--dim);border:1px solid var(--border)}.kds-btn.cancel:hover{color:var(--red);border-color:var(--red)}
+
+/* VOICE AGENT */
+.voice-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+.voice-header{padding:16px 20px;background:var(--accent-light);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.voice-pulse{width:40px;height:40px;border-radius:50%;background:var(--highlight);display:flex;align-items:center;justify-content:center;position:relative}
+.voice-pulse svg{width:20px;height:20px;fill:#fff;z-index:1;position:relative}
+.voice-pulse::before{content:'';position:absolute;inset:-4px;border-radius:50%;background:var(--highlight);opacity:.3;animation:vpulse 2s ease-in-out infinite}
+@keyframes vpulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.3);opacity:0}}
+.voice-meta{flex:1}
+.voice-meta strong{display:block;font-size:14px}
+.voice-meta span{font-size:11px;color:var(--dim)}
+.voice-status{padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700}
+.voice-status.active{background:var(--green-bg);color:var(--green)}
+.voice-status.idle{background:var(--bg3);color:var(--dim)}
+.voice-transcript{padding:20px;max-height:300px;overflow-y:auto}
+.voice-msg{display:flex;gap:10px;margin-bottom:12px;font-size:12px;line-height:1.5}
+.voice-msg .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;color:#fff}
+.voice-msg.agent .avatar{background:var(--highlight)}
+.voice-msg.client .avatar{background:var(--sky)}
+.voice-msg .bubble{background:var(--bg3);padding:8px 12px;border-radius:10px;max-width:80%}
+.voice-msg.agent .bubble{border-bottom-left-radius:2px}
+.voice-msg.client .bubble{border-bottom-right-radius:2px}
+
+/* TABLE */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 16px;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;white-space:nowrap}
+tr:hover td{background:var(--accent-light)}
+
+/* BADGE */
+.badge{display:inline-flex;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-orange{background:var(--orange-bg);color:var(--orange)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-yellow{background:var(--yellow-bg);color:var(--yellow)}
+.badge-blue{background:rgba(14,165,233,.1);color:#0ea5e9}
+.badge-dim{background:var(--bg3);color:var(--dim)}
+
+/* BTN */
+.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:none;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--highlight);color:#fff}.btn-primary:hover{opacity:.85}
+.btn-sm{padding:4px 10px;font-size:10px;border-radius:5px}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--dim)}.btn-outline:hover{border-color:var(--highlight);color:var(--highlight)}
+
+/* MENU CARDS */
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.menu-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:.2s}
+.menu-card:hover{border-color:var(--accent-mid);box-shadow:var(--shadow)}
+.menu-card .mc-cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--highlight);margin-bottom:6px}
+.menu-card .mc-name{font-size:14px;font-weight:800;margin-bottom:4px}
+.menu-card .mc-desc{font-size:11px;color:var(--dim);margin-bottom:8px}
+.menu-card .mc-price{font-size:16px;font-weight:900;color:var(--highlight)}
+
+/* STATS BAR */
+.stat-bar{display:flex;flex-direction:column;gap:6px}
+.stat-row{display:flex;align-items:center;gap:10px;font-size:12px}
+.stat-label{width:120px;text-align:right;color:var(--dim);font-size:11px;flex-shrink:0}
+.stat-track{flex:1;height:22px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.stat-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:#fff}
+.stat-val{font-size:12px;font-weight:700;min-width:60px;text-align:right}
+
+/* MODAL */
+.modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
+.modal.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;max-width:520px;width:92%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;color:var(--dim);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:10px;font-weight:700;color:var(--dim);margin-bottom:4px;letter-spacing:.3px;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:.2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--highlight)}
+.form-row{display:flex;gap:12px}.form-row .form-group{flex:1}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;opacity:0;transform:translateY(20px);transition:.3s;z-index:300;pointer-events:none;color:#fff}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}.toast.info{background:var(--sky)}
+
+/* FLOATING CTA */
+.float-cta{position:fixed;bottom:24px;left:24px;z-index:250}
+.float-cta-btn{background:linear-gradient(135deg,var(--highlight),var(--brand));color:#fff;border:none;padding:12px 20px;border-radius:28px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(249,115,22,.35);transition:.3s;display:flex;align-items:center;gap:8px;animation:cta-pulse 3s ease-in-out infinite}
+.float-cta-btn:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(249,115,22,.45)}
+@keyframes cta-pulse{0%,100%{box-shadow:0 4px 20px rgba(249,115,22,.35)}50%{box-shadow:0 4px 28px rgba(249,115,22,.55)}}
+
+/* SIM CALL BTN */
+.sim-call-btn{padding:10px 20px;background:var(--green);color:#fff;border:none;border-radius:24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:.2s;box-shadow:0 2px 12px rgba(22,163,74,.3)}
+.sim-call-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(22,163,74,.4)}
+.sim-call-btn svg{width:18px;height:18px;fill:#fff}
+
+/* MOBILE */
+@media(max-width:768px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .kds-grid{grid-template-columns:1fr}
+  .menu-grid{grid-template-columns:1fr}
+  .form-row{flex-direction:column}
+  .sec-head{flex-direction:column;align-items:flex-start}
+  td,th{padding:8px 10px;font-size:11px}
+  .voice-transcript{max-height:200px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <a class="tb-logo" href="#">Delivery Voice IA</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge">Agente de Voz</span>
+  </div>
+  <div class="tb-right">
+    <a class="tb-btn" href="simulator.html" style="background:var(--brand);color:#fff;border-color:var(--brand);font-weight:700">Simulador E2E</a>
+    <button class="tb-toggle" onclick="toggleTheme()">Oscuro</button>
+    <a class="tb-btn" href="/agente/">7Group</a>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="mod-nav" id="modNav">
+  <a class="mod-link active" data-mod="pedidos">Pedidos en Vivo</a>
+  <a class="mod-link" data-mod="agente">Agente de Voz</a>
+  <a class="mod-link" data-mod="historial">Historial</a>
+  <a class="mod-link" data-mod="menu">Menu</a>
+  <a class="mod-link" data-mod="reportes">Reportes</a>
+  <a class="mod-link" href="simulator.html" style="color:var(--brand);font-weight:700">Simulador E2E</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ========== PEDIDOS EN VIVO (KDS) ========== -->
+<div class="mod-section active" id="mod-pedidos">
+  <div class="sec-head">
+    <div><div class="sec-title">Pedidos en Vivo</div><div class="sec-sub">Tablero de cocina - pedidos activos</div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a class="sim-call-btn" href="simulator.html" style="text-decoration:none">
+        <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        Simulador E2E
+      </a>
+      <span class="badge badge-green" id="pedidosCount">0 activos</span>
+    </div>
+  </div>
+  <div class="kpi-grid" id="pedidosKpi"></div>
+  <div class="kds-grid" id="kdsGrid"></div>
+</div>
+
+<!-- ========== AGENTE DE VOZ ========== -->
+<div class="mod-section" id="mod-agente">
+  <div class="sec-head">
+    <div><div class="sec-title">Agente de Voz IA</div><div class="sec-sub">Atiende llamadas, toma pedidos y los registra automaticamente</div></div>
+    <button class="sim-call-btn" onclick="simularLlamada()">
+      <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+      Simular Llamada
+    </button>
+  </div>
+
+  <div class="voice-panel" id="voicePanel">
+    <div class="voice-header">
+      <div class="voice-pulse" id="voicePulse">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      </div>
+      <div class="voice-meta">
+        <strong id="voiceTitle">Agente Delivery Voice IA</strong>
+        <span id="voiceSub">Esperando llamada entrante...</span>
+      </div>
+      <span class="voice-status idle" id="voiceStatus">En espera</span>
+    </div>
+    <div class="voice-transcript" id="voiceTranscript">
+      <div style="text-align:center;padding:40px;color:var(--dim)">
+        <svg viewBox="0 0 24 24" style="width:48px;height:48px;fill:var(--muted);margin-bottom:12px"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+        <p style="font-size:14px;font-weight:600">Presiona "Simular Llamada" para ver al agente en accion</p>
+        <p style="font-size:11px;margin-top:4px">El agente contesta con voz humana, toma el pedido y lo registra</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="tbl-wrap" style="padding:16px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--highlight)">Capacidades del Agente</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:8px;background:var(--bg3);border-radius:6px"><span class="badge badge-green">OK</span> Voz natural en espanol</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:8px;background:var(--bg3);border-radius:6px"><span class="badge badge-green">OK</span> Toma pedidos completos</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:8px;background:var(--bg3);border-radius:6px"><span class="badge badge-green">OK</span> Confirma direccion y pago</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:8px;background:var(--bg3);border-radius:6px"><span class="badge badge-green">OK</span> Sugiere adicionales y combos</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:8px;background:var(--bg3);border-radius:6px"><span class="badge badge-green">OK</span> Integra con su software / POS</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:8px;background:var(--bg3);border-radius:6px"><span class="badge badge-green">OK</span> 24/7 sin descanso</div>
+      </div>
+    </div>
+    <div class="tbl-wrap" style="padding:16px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--highlight)">Llamadas Recientes</div>
+      <div id="callLog">
+        <p style="font-size:12px;color:var(--dim)">Sin llamadas registradas aun</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== HISTORIAL ========== -->
+<div class="mod-section" id="mod-historial">
+  <div class="sec-head">
+    <div><div class="sec-title">Historial de Pedidos</div><div class="sec-sub">Todos los pedidos procesados</div></div>
+  </div>
+  <div class="tbl-wrap"><div class="tbl-scroll">
+    <table>
+      <thead><tr>
+        <th>Pedido</th><th>Hora</th><th>Cliente</th><th>Canal</th><th>Items</th><th>Total</th><th>Tiempo</th><th>Estado</th>
+      </tr></thead>
+      <tbody id="historialTbody"></tbody>
+    </table>
+  </div></div>
+</div>
+
+<!-- ========== MENU ========== -->
+<div class="mod-section" id="mod-menu">
+  <div class="sec-head">
+    <div><div class="sec-title">Menu del Restaurante</div><div class="sec-sub">Productos disponibles para el agente de voz</div></div>
+    <button class="btn btn-primary" onclick="openModal('newItem')">+ Nuevo Producto</button>
+  </div>
+  <div class="menu-grid" id="menuGrid"></div>
+</div>
+
+<!-- ========== REPORTES ========== -->
+<div class="mod-section" id="mod-reportes">
+  <div class="sec-head">
+    <div><div class="sec-title">Reportes</div><div class="sec-sub">Analisis de ventas y rendimiento del agente</div></div>
+  </div>
+  <div class="kpi-grid" id="repKpi"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+    <div class="tbl-wrap" style="padding:16px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--highlight)">Ventas por Producto</div>
+      <div class="stat-bar" id="repProductos"></div>
+    </div>
+    <div class="tbl-wrap" style="padding:16px">
+      <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--highlight)">Pedidos por Hora</div>
+      <div class="stat-bar" id="repHoras"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- MODAL NEW ITEM -->
+<div class="modal" id="modal-newItem">
+  <div class="modal-box">
+    <div class="modal-title">Nuevo Producto <button class="modal-close" onclick="closeModal('newItem')">x</button></div>
+    <div class="form-group"><label>Nombre</label><input id="niNombre" placeholder="Ej: Pizza Pepperoni Grande"></div>
+    <div class="form-group"><label>Descripcion</label><input id="niDesc" placeholder="Ej: Masa artesanal, pepperoni, queso mozzarella"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Precio</label><input type="number" id="niPrecio" placeholder="25000"></div>
+      <div class="form-group"><label>Categoria</label>
+        <select id="niCat"><option>Pizzas</option><option>Hamburguesas</option><option>Bebidas</option><option>Acompanantes</option><option>Postres</option><option>Combos</option></select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveItem()" style="width:100%;justify-content:center;margin-top:8px">Agregar al Menu</button>
+  </div>
+</div>
+
+<!-- FLOATING CTA -->
+<div class="float-cta">
+  <button class="float-cta-btn" onclick="openModal('leadCapture')">
+    <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:#fff"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+    Quiero este agente
+  </button>
+</div>
+
+<!-- LEAD CAPTURE -->
+<div class="modal" id="modal-leadCapture">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-title">Solicitar Delivery Voice IA <button class="modal-close" onclick="closeModal('leadCapture')">x</button></div>
+    <p style="font-size:12px;color:var(--dim);margin-bottom:16px">Un agente de voz IA que atiende las llamadas de su restaurante 24/7. Complete sus datos y lo contactamos.</p>
+    <div class="form-group"><label>Nombre del negocio</label><input id="lcNegocio" placeholder="Ej: Pizzeria Don Mario"></div>
+    <div class="form-group"><label>Su nombre</label><input id="lcNombre" placeholder="Ej: Mario Rodriguez"></div>
+    <div class="form-row">
+      <div class="form-group"><label>WhatsApp</label><input id="lcTel" placeholder="3101234567"></div>
+      <div class="form-group"><label>Ciudad</label><input id="lcCiudad" placeholder="Bogota"></div>
+    </div>
+    <div class="form-group"><label>Tipo de negocio</label>
+      <select id="lcTipo"><option>Pizzeria</option><option>Hamburgueseria</option><option>Comidas rapidas</option><option>Restaurante</option><option>Otro</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="enviarLead()" style="width:100%;justify-content:center;margin-top:8px;padding:12px;font-size:14px">Solicitar Demo</button>
+    <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px">Implementacion en menos de 48 horas.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var TODAY=new Date();
+var fmt=function(n){return '$'+Number(n).toLocaleString('es-CO')};
+var CALL_LOG=[];
+
+/* ===== MENU ===== */
+var MENU=[
+  {id:1,nombre:'Pizza Pepperoni Grande',desc:'Masa artesanal, pepperoni premium, queso mozzarella',precio:32000,cat:'Pizzas'},
+  {id:2,nombre:'Pizza Hawaiana Grande',desc:'Jamon, pina, queso mozzarella',precio:30000,cat:'Pizzas'},
+  {id:3,nombre:'Pizza Margarita',desc:'Tomate fresco, albahaca, mozzarella de bufala',precio:28000,cat:'Pizzas'},
+  {id:4,nombre:'Hamburguesa Clasica',desc:'Carne 200g, lechuga, tomate, cebolla, salsa especial',precio:22000,cat:'Hamburguesas'},
+  {id:5,nombre:'Hamburguesa Doble Queso',desc:'Doble carne 400g, doble queso cheddar, tocineta',precio:32000,cat:'Hamburguesas'},
+  {id:6,nombre:'Hamburguesa BBQ',desc:'Carne 200g, tocineta, cebolla caramelizada, salsa BBQ',precio:26000,cat:'Hamburguesas'},
+  {id:7,nombre:'Papas Grandes',desc:'Papas a la francesa porcion grande',precio:10000,cat:'Acompanantes'},
+  {id:8,nombre:'Aros de Cebolla',desc:'8 aros de cebolla crujientes',precio:12000,cat:'Acompanantes'},
+  {id:9,nombre:'Gaseosa 400ml',desc:'Coca-Cola, Sprite o Colombiana',precio:4000,cat:'Bebidas'},
+  {id:10,nombre:'Malteada',desc:'Chocolate, vainilla o fresa',precio:14000,cat:'Bebidas'},
+  {id:11,nombre:'Combo Personal',desc:'Hamburguesa clasica + papas + gaseosa',precio:32000,cat:'Combos'},
+  {id:12,nombre:'Combo Familiar Pizza',desc:'Pizza grande + papas x2 + gaseosa 1.5L',precio:52000,cat:'Combos'}
+];
+
+/* ===== PEDIDOS ===== */
+var PEDIDOS=[
+  {id:'P-001',hora:'12:15',cliente:'Juan Perez',tel:'3101234567',canal:'Llamada IA',items:[{nombre:'Pizza Pepperoni Grande',qty:1,precio:32000},{nombre:'Gaseosa 400ml',qty:2,precio:4000}],total:40000,dir:'Cra 15 #45-20, Apto 301',pago:'Efectivo',estado:'preparando',minutos:8},
+  {id:'P-002',hora:'12:22',cliente:'Ana Maria Torres',tel:'3209876543',canal:'Llamada IA',items:[{nombre:'Combo Familiar Pizza',qty:1,precio:52000},{nombre:'Aros de Cebolla',qty:1,precio:12000}],total:64000,dir:'Calle 80 #12-45',pago:'Nequi',estado:'preparando',minutos:5},
+  {id:'P-003',hora:'12:28',cliente:'Pedro Gomez',tel:'3156789012',canal:'Llamada IA',items:[{nombre:'Hamburguesa Doble Queso',qty:2,precio:32000},{nombre:'Papas Grandes',qty:2,precio:10000},{nombre:'Malteada',qty:2,precio:14000}],total:112000,dir:'Av 68 #23-10',pago:'Daviplata',estado:'nuevo',minutos:1},
+  {id:'P-004',hora:'12:05',cliente:'Laura Diaz',tel:'3178901234',canal:'Llamada IA',items:[{nombre:'Pizza Hawaiana Grande',qty:1,precio:30000}],total:30000,dir:'Calle 100 #7-20',pago:'Efectivo',estado:'listo',minutos:18},
+  {id:'P-005',hora:'11:45',cliente:'Carlos Mendez',tel:'3145678901',canal:'Llamada IA',items:[{nombre:'Combo Personal',qty:3,precio:32000}],total:96000,dir:'Cra 7 #72-15',pago:'Tarjeta',estado:'entregado',minutos:32}
+];
+
+var HISTORIAL=[
+  {id:'P-098',hora:'11:30',cliente:'Sofia Ruiz',canal:'Llamada IA',items:3,total:58000,tiempo:'14 min',estado:'entregado'},
+  {id:'P-097',hora:'11:15',cliente:'Andres Pena',canal:'Llamada IA',items:2,total:44000,tiempo:'12 min',estado:'entregado'},
+  {id:'P-096',hora:'10:50',cliente:'Valentina Castro',canal:'Llamada IA',items:4,total:78000,tiempo:'18 min',estado:'entregado'},
+  {id:'P-095',hora:'10:20',cliente:'Felipe Lopez',canal:'Llamada IA',items:1,total:32000,tiempo:'10 min',estado:'entregado'},
+  {id:'P-094',hora:'09:45',cliente:'Camila Herrera',canal:'Llamada IA',items:5,total:124000,tiempo:'22 min',estado:'entregado'},
+  {id:'P-093',hora:'09:30',cliente:'Diego Vargas',canal:'Llamada IA',items:2,total:36000,tiempo:'11 min',estado:'cancelado'}
+];
+
+/* ===== THEME ===== */
+function toggleTheme(){
+  var r=document.documentElement;r.classList.toggle('dark');
+  document.querySelector('.tb-toggle').textContent=r.classList.contains('dark')?'Claro':'Oscuro';
+}
+
+/* ===== NAV ===== */
+document.querySelectorAll('.mod-link').forEach(function(l){
+  l.addEventListener('click',function(){
+    document.querySelectorAll('.mod-link').forEach(function(m){m.classList.remove('active')});
+    l.classList.add('active');
+    document.querySelectorAll('.mod-section').forEach(function(s){s.classList.remove('active')});
+    document.getElementById('mod-'+l.dataset.mod).classList.add('active');
+  });
+});
+
+/* ===== MODAL ===== */
+function openModal(id){document.getElementById('modal-'+id).classList.add('open')}
+function closeModal(id){document.getElementById('modal-'+id).classList.remove('open')}
+document.querySelectorAll('.modal').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('open')})});
+
+/* ===== TOAST ===== */
+function showToast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'success');t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2500)}
+
+/* ===== KDS BOARD ===== */
+function renderPedidos(){
+  var activos=PEDIDOS.filter(function(p){return p.estado==='nuevo'||p.estado==='preparando'});
+  document.getElementById('pedidosCount').textContent=activos.length+' activos';
+
+  var totalHoy=PEDIDOS.reduce(function(s,p){return s+p.total},0)+HISTORIAL.reduce(function(s,h){return s+h.total},0);
+  var completados=PEDIDOS.filter(function(p){return p.estado==='entregado'||p.estado==='listo'}).length+HISTORIAL.filter(function(h){return h.estado==='entregado'}).length;
+
+  document.getElementById('pedidosKpi').innerHTML=[
+    {label:'Pedidos Activos',value:activos.length,sub:'En preparacion',color:'c-brand'},
+    {label:'Completados Hoy',value:completados,sub:'Entregados',color:'c-green'},
+    {label:'Ventas del Dia',value:fmt(totalHoy),sub:'Total facturado',color:'c-teal'},
+    {label:'Tiempo Promedio',value:'14 min',sub:'Preparacion',color:'c-sky'},
+    {label:'Llamadas IA',value:PEDIDOS.length+HISTORIAL.length,sub:'Atendidas hoy',color:'c-purple'},
+    {label:'Tasa Conversion',value:'94%',sub:'Llamada a pedido',color:'c-yellow'}
+  ].map(function(k){return '<div class="kpi-card '+k.color+'"><div class="kpi-label">'+k.label+'</div><div class="kpi-val">'+k.value+'</div><div class="kpi-sub">'+k.sub+'</div></div>'}).join('');
+
+  document.getElementById('kdsGrid').innerHTML=activos.concat(PEDIDOS.filter(function(p){return p.estado==='listo'})).map(function(p){
+    var timeCls=p.minutos>15?'late':p.minutos>10?'warn':'ok';
+    var isUrgent=p.minutos>15;
+    return '<div class="kds-card'+(isUrgent?' urgente':'')+'">'+
+      '<div class="kds-top"><span class="kds-order-num">'+p.id+'</span><span class="kds-time '+timeCls+'">'+p.minutos+' min</span></div>'+
+      '<div class="kds-body">'+
+        '<div class="kds-client">'+p.cliente+'</div>'+
+        '<div class="kds-channel"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg> '+p.canal+' - '+p.pago+' - '+p.dir.split(',')[0]+'</div>'+
+        '<ul class="kds-items">'+p.items.map(function(i){return '<li><span><span class="qty">'+i.qty+'x</span>'+i.nombre+'</span><span class="price">'+fmt(i.precio)+'</span></li>'}).join('')+'</ul>'+
+        '<div class="kds-total"><span>Total</span><span class="amount">'+fmt(p.total)+'</span></div>'+
+      '</div>'+
+      '<div class="kds-footer">'+
+        (p.estado==='nuevo'?'<button class="kds-btn ready" onclick="cambiarEstado(\''+p.id+'\',\'preparando\')">Aceptar Pedido</button>':
+         p.estado==='preparando'?'<button class="kds-btn ready" onclick="cambiarEstado(\''+p.id+'\',\'listo\')">Listo para Entrega</button>':
+         '<button class="kds-btn ready" onclick="cambiarEstado(\''+p.id+'\',\'entregado\')">Marcar Entregado</button>')+
+        '<button class="kds-btn cancel" onclick="cambiarEstado(\''+p.id+'\',\'cancelado\')">X</button>'+
+      '</div>'+
+    '</div>';
+  }).join('')||'<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--dim)"><p style="font-size:16px;font-weight:700;margin-bottom:4px">Sin pedidos activos</p><p style="font-size:12px">Los pedidos del agente de voz apareceran aqui</p></div>';
+}
+
+function cambiarEstado(id,nuevoEstado){
+  PEDIDOS.forEach(function(p){
+    if(p.id===id){
+      p.estado=nuevoEstado;
+      if(nuevoEstado==='entregado') showToast('Pedido '+id+' entregado');
+      else if(nuevoEstado==='listo') showToast('Pedido '+id+' listo para entrega');
+      else if(nuevoEstado==='preparando') showToast('Pedido '+id+' en preparacion');
+      else if(nuevoEstado==='cancelado') showToast('Pedido '+id+' cancelado','error');
+    }
+  });
+  renderPedidos();renderHistorial();renderReportes();
+}
+
+/* ===== VOICE AGENT SIMULATION ===== */
+var CALL_SCRIPTS=[
+  {cliente:'Maria Gonzalez',tel:'3167890123',items:[{nombre:'Pizza Pepperoni Grande',qty:2,precio:32000},{nombre:'Papas Grandes',qty:1,precio:10000},{nombre:'Gaseosa 400ml',qty:3,precio:4000}],dir:'Calle 53 #14-28, Apto 502',pago:'Nequi',
+   transcript:[
+    {who:'agent',text:'Buenas tardes, gracias por llamar. Mi nombre es Ana, su asistente virtual. En que le puedo ayudar hoy?'},
+    {who:'client',text:'Hola, quiero hacer un pedido para domicilio'},
+    {who:'agent',text:'Con mucho gusto. Que le gustaria ordenar?'},
+    {who:'client',text:'Quiero dos pizzas de pepperoni grandes, unas papas y tres gaseosas'},
+    {who:'agent',text:'Perfecto. Le confirmo: 2 Pizza Pepperoni Grande por $64.000, 1 Papas Grandes por $10.000 y 3 Gaseosa 400ml por $12.000. Su total seria $86.000. Esta correcto?'},
+    {who:'client',text:'Si, esta bien'},
+    {who:'agent',text:'Excelente. Me puede dar la direccion de entrega por favor?'},
+    {who:'client',text:'Calle 53 numero 14-28, apartamento 502'},
+    {who:'agent',text:'Calle 53 #14-28, Apto 502. Y el metodo de pago seria efectivo, Nequi o Daviplata?'},
+    {who:'client',text:'Por Nequi'},
+    {who:'agent',text:'Perfecto Maria. Su pedido queda registrado. 2 pizzas pepperoni grandes, papas y 3 gaseosas por $86.000, pago por Nequi. Tiempo estimado de entrega: 25 a 30 minutos. Muchas gracias por su pedido!'},
+    {who:'client',text:'Gracias, hasta luego'}
+  ]},
+  {cliente:'Roberto Sanchez',tel:'3134567890',items:[{nombre:'Combo Personal',qty:2,precio:32000},{nombre:'Hamburguesa BBQ',qty:1,precio:26000},{nombre:'Malteada',qty:2,precio:14000}],dir:'Cra 68 #45-12',pago:'Efectivo',
+   transcript:[
+    {who:'agent',text:'Buenas tardes, bienvenido. Soy Ana, su asistente de pedidos. Como le puedo ayudar?'},
+    {who:'client',text:'Buenas, necesito pedir unas hamburguesas'},
+    {who:'agent',text:'Claro que si. Tenemos Hamburguesa Clasica, Doble Queso, BBQ y combos. Que le gustaria?'},
+    {who:'client',text:'Deme dos combos personales y una hamburguesa BBQ, y dos malteadas de chocolate'},
+    {who:'agent',text:'Excelente eleccion. Le confirmo: 2 Combo Personal por $64.000, 1 Hamburguesa BBQ por $26.000 y 2 Malteadas por $28.000. Total: $118.000. Correcto?'},
+    {who:'client',text:'Si senora'},
+    {who:'agent',text:'Cual es la direccion de entrega?'},
+    {who:'client',text:'Carrera 68 numero 45-12'},
+    {who:'agent',text:'Carrera 68 #45-12. Pago en efectivo, Nequi o Daviplata?'},
+    {who:'client',text:'Efectivo, con billete de 200'},
+    {who:'agent',text:'Anotado, llevamos cambio de $200.000. Su pedido esta confirmado Roberto. 2 combos personales, 1 BBQ y 2 malteadas chocolate. Entrega en 20 a 25 minutos. Gracias por su preferencia!'}
+  ]}
+];
+var callIdx=0;
+
+function simularLlamada(){
+  var script=CALL_SCRIPTS[callIdx%CALL_SCRIPTS.length];callIdx++;
+  var panel=document.getElementById('voicePanel');
+  var transcript=document.getElementById('voiceTranscript');
+  var status=document.getElementById('voiceStatus');
+  var title=document.getElementById('voiceTitle');
+  var sub=document.getElementById('voiceSub');
+
+  // Switch to agent tab
+  document.querySelectorAll('.mod-link').forEach(function(m){m.classList.remove('active')});
+  document.querySelector('[data-mod="agente"]').classList.add('active');
+  document.querySelectorAll('.mod-section').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('mod-agente').classList.add('active');
+
+  status.className='voice-status active';status.textContent='En llamada';
+  title.textContent='Llamada entrante';
+  sub.textContent=script.tel+' - Conectada';
+  transcript.innerHTML='';
+
+  var delay=0;
+  script.transcript.forEach(function(msg,i){
+    delay+=1200+Math.random()*800;
+    setTimeout(function(){
+      var div=document.createElement('div');
+      div.className='voice-msg '+msg.who;
+      div.innerHTML='<div class="avatar">'+(msg.who==='agent'?'IA':'CL')+'</div><div class="bubble">'+msg.text+'</div>';
+      transcript.appendChild(div);
+      transcript.scrollTop=transcript.scrollHeight;
+    },delay);
+  });
+
+  // After conversation ends, create the order
+  setTimeout(function(){
+    status.className='voice-status idle';status.textContent='Completada';
+    title.textContent='Llamada finalizada';
+    sub.textContent='Pedido registrado automaticamente';
+
+    var total=script.items.reduce(function(s,i){return s+i.qty*i.precio},0);
+    var newId='P-'+String(PEDIDOS.length+100).padStart(3,'0');
+    PEDIDOS.push({
+      id:newId,hora:TODAY.getHours()+':'+String(TODAY.getMinutes()).padStart(2,'0'),
+      cliente:script.cliente,tel:script.tel,canal:'Llamada IA',
+      items:script.items,total:total,dir:script.dir,pago:script.pago,
+      estado:'nuevo',minutos:0
+    });
+
+    CALL_LOG.unshift({cliente:script.cliente,tel:script.tel,hora:new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}),total:fmt(total)});
+    renderCallLog();
+    renderPedidos();renderReportes();
+    showToast('Nuevo pedido '+newId+' registrado por el agente IA');
+  },delay+1500);
+}
+
+function renderCallLog(){
+  if(!CALL_LOG.length){document.getElementById('callLog').innerHTML='<p style="font-size:12px;color:var(--dim)">Sin llamadas registradas aun</p>';return}
+  document.getElementById('callLog').innerHTML=CALL_LOG.map(function(c){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">'+
+      '<span style="font-weight:600">'+c.cliente+'</span><span style="color:var(--highlight);font-weight:700">'+c.total+'</span><span style="color:var(--dim)">'+c.hora+'</span></div>';
+  }).join('');
+}
+
+/* ===== HISTORIAL ===== */
+function renderHistorial(){
+  var all=PEDIDOS.filter(function(p){return p.estado==='entregado'||p.estado==='cancelado'}).map(function(p){
+    return {id:p.id,hora:p.hora,cliente:p.cliente,canal:p.canal,items:p.items.length,total:p.total,tiempo:p.minutos+' min',estado:p.estado};
+  }).concat(HISTORIAL);
+
+  document.getElementById('historialTbody').innerHTML=all.map(function(h){
+    var eBadge=h.estado==='entregado'?'<span class="badge badge-green">Entregado</span>':'<span class="badge badge-red">Cancelado</span>';
+    return '<tr><td class="mono" style="font-weight:600;color:var(--highlight)">'+h.id+'</td><td>'+h.hora+'</td><td style="font-weight:600">'+h.cliente+'</td>'+
+      '<td><span class="badge badge-blue">'+h.canal+'</span></td><td>'+h.items+' items</td><td class="mono" style="font-weight:700">'+fmt(h.total)+'</td>'+
+      '<td>'+h.tiempo+'</td><td>'+eBadge+'</td></tr>';
+  }).join('');
+}
+
+/* ===== MENU ===== */
+function renderMenu(){
+  var cats={};MENU.forEach(function(m){if(!cats[m.cat])cats[m.cat]=[];cats[m.cat].push(m)});
+  var html='';
+  Object.keys(cats).forEach(function(cat){
+    cats[cat].forEach(function(m){
+      html+='<div class="menu-card"><div class="mc-cat">'+m.cat+'</div><div class="mc-name">'+m.nombre+'</div><div class="mc-desc">'+m.desc+'</div><div class="mc-price">'+fmt(m.precio)+'</div></div>';
+    });
+  });
+  document.getElementById('menuGrid').innerHTML=html;
+}
+
+function saveItem(){
+  var nombre=document.getElementById('niNombre').value.trim();
+  var precio=parseFloat(document.getElementById('niPrecio').value)||0;
+  if(!nombre||!precio){showToast('Nombre y precio requeridos','error');return}
+  MENU.push({id:MENU.length+1,nombre:nombre,desc:document.getElementById('niDesc').value.trim(),precio:precio,cat:document.getElementById('niCat').value});
+  closeModal('newItem');renderMenu();showToast(nombre+' agregado al menu');
+}
+
+/* ===== REPORTES ===== */
+function renderReportes(){
+  var allPedidos=PEDIDOS.concat(HISTORIAL.map(function(h){return{total:h.total,estado:h.estado}}));
+  var totalVentas=allPedidos.filter(function(p){return p.estado!=='cancelado'}).reduce(function(s,p){return s+p.total},0);
+  var totalPedidos=allPedidos.filter(function(p){return p.estado!=='cancelado'}).length;
+  var ticketProm=totalPedidos?Math.round(totalVentas/totalPedidos):0;
+  var cancelados=allPedidos.filter(function(p){return p.estado==='cancelado'}).length;
+
+  document.getElementById('repKpi').innerHTML=[
+    {label:'Ventas Totales',value:fmt(totalVentas),color:'c-brand'},
+    {label:'Pedidos',value:totalPedidos,color:'c-green'},
+    {label:'Ticket Promedio',value:fmt(ticketProm),color:'c-teal'},
+    {label:'Cancelados',value:cancelados,color:'c-red'},
+    {label:'Conversion IA',value:'94%',color:'c-purple'},
+    {label:'Ahorro vs Empleado',value:'$1.8M/mes',color:'c-yellow'}
+  ].map(function(k){return '<div class="kpi-card '+k.color+'"><div class="kpi-label">'+k.label+'</div><div class="kpi-val">'+k.value+'</div></div>'}).join('');
+
+  // Ventas por producto
+  var prodMap={};
+  PEDIDOS.forEach(function(p){if(p.items)p.items.forEach(function(i){prodMap[i.nombre]=(prodMap[i.nombre]||0)+i.qty*i.precio})});
+  var prodArr=Object.keys(prodMap).map(function(k){return{name:k,val:prodMap[k]}}).sort(function(a,b){return b.val-a.val}).slice(0,6);
+  var maxProd=prodArr.length?prodArr[0].val:1;
+  document.getElementById('repProductos').innerHTML=prodArr.map(function(p){
+    var pct=Math.round(p.val/maxProd*100);
+    return '<div class="stat-row"><span class="stat-label">'+p.name.split(' ').slice(0,3).join(' ')+'</span><div class="stat-track"><div class="stat-fill" style="width:'+pct+'%;background:var(--highlight)"></div></div><span class="stat-val">'+fmt(p.val)+'</span></div>';
+  }).join('');
+
+  // Pedidos por hora
+  var horas=['9:00','10:00','11:00','12:00','13:00','14:00'];
+  var horaData=[1,2,3,5,3,1];
+  var maxH=Math.max.apply(null,horaData);
+  document.getElementById('repHoras').innerHTML=horas.map(function(h,i){
+    var pct=Math.round(horaData[i]/maxH*100);
+    return '<div class="stat-row"><span class="stat-label">'+h+'</span><div class="stat-track"><div class="stat-fill" style="width:'+pct+'%;background:var(--highlight)">'+horaData[i]+'</div></div><span class="stat-val">'+horaData[i]+' pedidos</span></div>';
+  }).join('');
+}
+
+/* ===== LEAD ===== */
+function enviarLead(){
+  var negocio=document.getElementById('lcNegocio').value.trim();
+  var nombre=document.getElementById('lcNombre').value.trim();
+  var tel=document.getElementById('lcTel').value.trim();
+  if(!negocio||!tel){showToast('Negocio y WhatsApp requeridos','error');return}
+  var msg='NUEVO LEAD - Delivery Voice IA\n\nNegocio: '+negocio+'\nContacto: '+nombre+'\nTel: '+tel+'\nCiudad: '+(document.getElementById('lcCiudad').value||'No indicada')+'\nTipo: '+document.getElementById('lcTipo').value+'\n\nSolicita agente de voz IA para su restaurante.';
+  window.open('https://wa.me/573143095194?text='+encodeURIComponent(msg),'_blank');
+  closeModal('leadCapture');showToast('Solicitud enviada. Lo contactaremos pronto.');
+}
+
+/* ===== INIT ===== */
+renderPedidos();
+renderHistorial();
+renderMenu();
+renderReportes();
+renderCallLog();
+</script>
+</body>
+</html>

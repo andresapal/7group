@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PedidoIA - Motor Conversacional (FASE 2)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* HEADER */
+    .header {
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ff6b00;
+    }
+    .header .badge {
+      font-size: 11px;
+      background: #333;
+      color: #999;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .header-actions button {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .header-actions button:hover { background: #333; }
+    .header-actions button.primary {
+      background: #ff6b00;
+      border-color: #ff6b00;
+      color: #fff;
+    }
+    .header-actions button.primary:hover { background: #e55f00; }
+
+    /* MAIN LAYOUT */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* CHAT PANEL */
+    .chat-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #333;
+      min-width: 0;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .msg {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .msg.agent {
+      align-self: flex-start;
+      background: #1e1e1e;
+      border: 1px solid #333;
+      color: #e0e0e0;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: #ff6b00;
+      color: #fff;
+    }
+    .msg.system {
+      align-self: center;
+      background: #1a2a1a;
+      border: 1px solid #2a4a2a;
+      color: #7a7;
+      font-size: 12px;
+      max-width: 90%;
+    }
+    .msg.error-msg {
+      align-self: center;
+      background: #2a1a1a;
+      border: 1px solid #4a2a2a;
+      color: #a77;
+      font-size: 12px;
+    }
+
+    /* CHAT INPUT */
+    .chat-input-area {
+      padding: 12px 16px;
+      border-top: 1px solid #333;
+      background: #1a1a1a;
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .chat-input-area input {
+      flex: 1;
+      background: #0f0f0f;
+      border: 1px solid #444;
+      color: #e0e0e0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+    .chat-input-area input:focus { border-color: #ff6b00; }
+    .chat-input-area button {
+      background: #ff6b00;
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+    }
+    .chat-input-area button:hover { background: #e55f00; }
+
+    /* DEBUG PANEL */
+    .debug-panel {
+      width: 380px;
+      background: #111;
+      overflow-y: auto;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .debug-panel.collapsed { width: 0; overflow: hidden; }
+    .debug-section {
+      border-bottom: 1px solid #222;
+      padding: 12px 14px;
+    }
+    .debug-section h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .debug-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 0;
+      font-size: 12px;
+    }
+    .debug-row .label { color: #777; }
+    .debug-row .value { color: #ddd; font-weight: 500; }
+    .debug-row .value.state { color: #5bf; }
+    .debug-row .value.intent { color: #fb5; }
+    .debug-row .value.ok { color: #5b5; }
+    .debug-row .value.error { color: #f55; }
+
+    .debug-items { margin-top: 6px; }
+    .debug-item {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    .debug-item .item-name { color: #ff6b00; font-weight: 600; }
+    .debug-item .item-detail { color: #888; }
+
+    /* LOG PANEL */
+    .log-entries {
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+    }
+    .log-entry {
+      padding: 2px 0;
+      border-bottom: 1px solid #1a1a1a;
+      color: #777;
+    }
+    .log-entry.log-intent { color: #fb5; }
+    .log-entry.log-state { color: #5bf; }
+    .log-entry.log-tool { color: #b5f; }
+    .log-entry.log-error { color: #f55; }
+
+    /* TEST RESULTS */
+    .test-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 100;
+      padding: 40px;
+      overflow-y: auto;
+    }
+    .test-overlay.active { display: block; }
+    .test-overlay h2 {
+      color: #ff6b00;
+      margin-bottom: 20px;
+    }
+    .test-overlay .close-btn {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .test-suite {
+      margin-bottom: 16px;
+    }
+    .test-suite h4 {
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .test-case {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 13px;
+    }
+    .test-case .icon { width: 18px; flex-shrink: 0; }
+    .test-pass .icon { color: #5b5; }
+    .test-fail .icon { color: #f55; }
+    .test-fail .error-detail {
+      color: #a66;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+    .test-summary {
+      font-size: 18px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+    }
+    .test-summary.all-pass { background: #1a2a1a; color: #5b5; }
+    .test-summary.has-fail { background: #2a1a1a; color: #f55; }
+
+    /* Quick scenarios */
+    .quick-scenarios {
+      padding: 8px 16px;
+      background: #141414;
+      border-top: 1px solid #222;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .quick-scenarios button {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      color: #aaa;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .quick-scenarios button:hover { background: #2a2a2a; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <h1>PedidoIA</h1>
+      <span class="badge">FASE 2 — Motor Conversacional</span>
+    </div>
+    <div class="header-actions">
+      <button onclick="resetConversation()">Nueva Conversacion</button>
+      <button onclick="resetConversation('3101234567')">Cliente Conocido</button>
+      <button onclick="toggleDebug()">Debug</button>
+      <button class="primary" onclick="runTests()">Ejecutar Tests</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- CHAT -->
+    <div class="chat-panel">
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="quick-scenarios">
+        <button onclick="quickSend('Quiero una pizza hawaiana')">Pizza hawaiana</button>
+        <button onclick="quickSend('Dame dos hamburguesas clasicas')">2 hamburguesas</button>
+        <button onclick="quickSend('¿Que tienen?')">Ver menu</button>
+        <button onclick="quickSend('¿Cuanto cuesta la hawaiana?')">Precio</button>
+        <button onclick="quickSend('No, eso es todo')">Nada mas</button>
+        <button onclick="quickSend('A domicilio')">Domicilio</button>
+        <button onclick="quickSend('Para recoger')">Recoger</button>
+        <button onclick="quickSend('Efectivo')">Efectivo</button>
+        <button onclick="quickSend('Si, confirmo')">Confirmar</button>
+        <button onclick="quickSend('Cancela todo')">Cancelar</button>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="Escribe un mensaje..." autocomplete="off">
+        <button onclick="sendMessage()">Enviar</button>
+      </div>
+    </div>
+
+    <!-- DEBUG -->
+    <div class="debug-panel" id="debugPanel">
+      <div class="debug-section">
+        <h3>Estado</h3>
+        <div class="debug-row">
+          <span class="label">State</span>
+          <span class="value state" id="dbState">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Intent</span>
+          <span class="value intent" id="dbIntent">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Turn</span>
+          <span class="value" id="dbTurn">0</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Pending Q</span>
+          <span class="value" id="dbPending">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Misunderst.</span>
+          <span class="value" id="dbMisunderstand">0</span>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h3>Cliente</h3>
+        <div class="debug-row">
+          <span class="label">Nombre</span>
+          <span class="value" id="dbCustName">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Telefono</span>
+          <span class="value" id="dbCustPhone">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Nuevo</span>
+          <span class="value" id="dbCustNew">—</span>
+        </div>
+      </div>
+
+      <div class="debug-section">
+        <h3>Pedido</h3>
+        <div class="debug-row">
+          <span class="label">Status</span>
+          <span class="value" id="dbDraftStatus">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Delivery</span>
+          <span class="value" id="dbDelivery">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Pago</span>
+          <span class="value" id="dbPayment">—</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Total</span>
+          <span class="value" id="dbTotal">—</span>
+        </div>
+        <div class="debug-items" id="dbItems"></div>
+      </div>
+
+      <div class="debug-section">
+        <h3>Log</h3>
+        <div class="log-entries" id="dbLog"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST OVERLAY -->
+  <div class="test-overlay" id="testOverlay">
+    <button class="close-btn" onclick="closeTests()">X</button>
+    <h2>Test Results</h2>
+    <div id="testResults"></div>
+  </div>
+
+  <script type="module">
+    import { createConversation, getGreeting, processMessage } from './conversation-manager.js';
+    import * as Logger from './logger.js';
+    import { runAllTests, getTestReport } from './tests.js';
+
+    let conv = null;
+
+    // Expose to window for onclick handlers
+    window.resetConversation = function(phone) {
+      Logger.clearLogs();
+      conv = createConversation('rest_01', phone || null);
+
+      // Subscribe to logs
+      Logger.subscribe(entry => {
+        addLogEntry(entry);
+      });
+
+      document.getElementById('chatMessages').innerHTML = '';
+      const greeting = getGreeting(conv);
+      addMessage('agent', greeting);
+      updateDebug(conv);
+    };
+
+    window.sendMessage = function() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text || !conv) return;
+
+      input.value = '';
+      addMessage('user', text);
+
+      try {
+        const result = processMessage(conv, text);
+        addMessage('agent', result.response);
+        updateDebug(conv, result);
+      } catch (err) {
+        addMessage('error', 'Error: ' + err.message);
+        console.error(err);
+      }
+    };
+
+    window.quickSend = function(text) {
+      if (!conv) window.resetConversation();
+      document.getElementById('chatInput').value = text;
+      window.sendMessage();
+    };
+
+    window.toggleDebug = function() {
+      document.getElementById('debugPanel').classList.toggle('collapsed');
+    };
+
+    window.runTests = function() {
+      const results = runAllTests();
+      const overlay = document.getElementById('testOverlay');
+      const container = document.getElementById('testResults');
+      overlay.classList.add('active');
+
+      const passed = results.filter(r => r.passed).length;
+      const failed = results.filter(r => !r.passed).length;
+      const total = results.length;
+
+      let html = `<div class="test-summary ${failed === 0 ? 'all-pass' : 'has-fail'}">`;
+      html += `${passed}/${total} passed`;
+      if (failed > 0) html += ` | ${failed} failed`;
+      html += `</div>`;
+
+      // Group by suite
+      const suites = {};
+      for (const r of results) {
+        if (!suites[r.suite]) suites[r.suite] = [];
+        suites[r.suite].push(r);
+      }
+
+      for (const [suite, tests] of Object.entries(suites)) {
+        const sp = tests.filter(t => t.passed).length;
+        html += `<div class="test-suite">`;
+        html += `<h4>${suite} (${sp}/${tests.length})</h4>`;
+        for (const t of tests) {
+          const cls = t.passed ? 'test-pass' : 'test-fail';
+          html += `<div class="test-case ${cls}">`;
+          html += `<span class="icon">${t.passed ? 'OK' : 'X'}</span>`;
+          html += `<div>`;
+          html += `<div>${t.name}</div>`;
+          if (!t.passed) html += `<div class="error-detail">${t.error}</div>`;
+          html += `</div></div>`;
+        }
+        html += `</div>`;
+      }
+
+      container.innerHTML = html;
+
+      // Also log to console
+      console.log(getTestReport(results));
+    };
+
+    window.closeTests = function() {
+      document.getElementById('testOverlay').classList.remove('active');
+    };
+
+    // --- UI HELPERS ---
+
+    function addMessage(type, text) {
+      const el = document.createElement('div');
+      el.className = `msg ${type === 'error' ? 'error-msg' : type}`;
+      el.textContent = text;
+      document.getElementById('chatMessages').appendChild(el);
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function addLogEntry(entry) {
+      const el = document.createElement('div');
+      let cls = 'log-entry';
+      if (entry.type === 'intent') cls += ' log-intent';
+      if (entry.type === 'state_change') cls += ' log-state';
+      if (entry.type === 'tool_call' || entry.type === 'tool_result') cls += ' log-tool';
+      if (entry.type === 'error') cls += ' log-error';
+
+      el.className = cls;
+      el.textContent = `[${entry.type}] ${entry.message}`;
+      const logContainer = document.getElementById('dbLog');
+      logContainer.appendChild(el);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function updateDebug(conv, result) {
+      if (!conv) return;
+      const s = conv.state;
+      const d = conv.draft;
+
+      document.getElementById('dbState').textContent = s.currentState;
+      document.getElementById('dbIntent').textContent = s.currentIntent || '—';
+      document.getElementById('dbTurn').textContent = s.turnCount;
+      document.getElementById('dbPending').textContent = s.pendingQuestion || '—';
+      document.getElementById('dbMisunderstand').textContent = s.misunderstandingCount;
+
+      document.getElementById('dbCustName').textContent = s.customer.name || '—';
+      document.getElementById('dbCustPhone').textContent = s.customer.phone || '—';
+      document.getElementById('dbCustNew').textContent = s.customer.isNew ? 'Si' : 'No';
+
+      document.getElementById('dbDraftStatus').textContent = d.confirmationStatus;
+      document.getElementById('dbDelivery').textContent = d.deliveryType || '—';
+      document.getElementById('dbPayment').textContent = d.paymentMethod || '—';
+
+      const total = d.total !== null ? '$' + Number(d.total).toLocaleString('es-CO') : '—';
+      document.getElementById('dbTotal').textContent = total;
+
+      // Items
+      let itemsHtml = '';
+      for (const item of d.items) {
+        let mods = '';
+        if (item.modifications.length > 0) {
+          mods = item.modifications.map(m =>
+            m.type === 'remove' ? `sin ${m.item}` : `+${m.item}`
+          ).join(', ');
+        }
+        itemsHtml += `<div class="debug-item">
+          <span class="item-name">${item.quantity}x ${item.productName}</span>
+          <span class="item-detail"> — $${Number(item.unitPrice).toLocaleString('es-CO')}</span>
+          ${mods ? `<div class="item-detail">${mods}</div>` : ''}
+        </div>`;
+      }
+      document.getElementById('dbItems').innerHTML = itemsHtml;
+    }
+
+    // --- KEYBOARD ---
+    document.getElementById('chatInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') window.sendMessage();
+    });
+
+    // Auto-start
+    window.resetConversation();
+  </script>
+</body>
+</html>
