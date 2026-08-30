@@ -690,6 +690,56 @@ function enviarLead(){
   closeModal('leadCapture');showToast('Solicitud enviada. Lo contactaremos pronto.');
 }
 
+/* ===== KDS BRIDGE — Receive orders from Voice Agent ===== */
+(function(){
+  try{
+    var channel=new BroadcastChannel('pedidoia_orders');
+    channel.onmessage=function(e){
+      if(e.data&&e.data.type==='new_order'&&e.data.order){
+        var o=e.data.order;
+        // Avoid duplicates
+        var exists=PEDIDOS.some(function(p){return p.id===o.id});
+        if(exists) return;
+
+        PEDIDOS.push(o);
+
+        // Update call log
+        CALL_LOG.unshift({
+          cliente:o.cliente,
+          tel:o.tel,
+          hora:o.hora,
+          total:fmt(o.total)
+        });
+
+        // Audio alert
+        try{
+          var ctx=new(window.AudioContext||window.webkitAudioContext)();
+          var osc=ctx.createOscillator();var gain=ctx.createGain();
+          osc.connect(gain);gain.connect(ctx.destination);
+          osc.frequency.value=880;gain.gain.value=0.15;
+          osc.start();osc.stop(ctx.currentTime+0.15);
+          setTimeout(function(){
+            var osc2=ctx.createOscillator();var g2=ctx.createGain();
+            osc2.connect(g2);g2.connect(ctx.destination);
+            osc2.frequency.value=1100;g2.gain.value=0.15;
+            osc2.start();osc2.stop(ctx.currentTime+0.15);
+          },180);
+        }catch(ae){}
+
+        // Re-render
+        renderPedidos();renderCallLog();renderReportes();
+        showToast('Nuevo pedido '+o.id+' del agente de voz IA');
+
+        // Switch to KDS tab if not already there
+        document.querySelectorAll('.mod-link').forEach(function(m){m.classList.remove('active')});
+        document.querySelector('[data-mod="pedidos"]').classList.add('active');
+        document.querySelectorAll('.mod-section').forEach(function(s){s.classList.remove('active')});
+        document.getElementById('mod-pedidos').classList.add('active');
+      }
+    };
+  }catch(err){}
+})();
+
 /* ===== INIT ===== */
 renderPedidos();
 renderHistorial();
