@@ -22,6 +22,10 @@ const _orderStore = new Map();   // idempotency_key → order
 const _orderById = new Map();    // order_id → order
 let _orderSequence = 1847;       // next order number
 
+// --- KDS Bridge: Broadcast orders to dashboard ---
+let _kdsChannel = null;
+try { _kdsChannel = new BroadcastChannel('pedidoia_orders'); } catch (_e) { /* SSR/Node safe */ }
+
 /**
  * Normalize text for comparison (strip accents, lowercase)
  */
@@ -662,6 +666,28 @@ export function create_order({ items, customer_name, customer_phone, delivery_ty
     _orderStore.set(idempotency_key, order);
   }
   _orderById.set(orderId, order);
+
+  // KDS Bridge: Broadcast to dashboard
+  if (_kdsChannel) {
+    try {
+      _kdsChannel.postMessage({
+        type: 'new_order',
+        order: {
+          id: orderId,
+          hora: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
+          cliente: order.customer_name,
+          tel: order.customer_phone || '',
+          canal: 'Llamada IA',
+          items: validatedItems.map(vi => ({ nombre: vi.name, qty: vi.quantity, precio: vi.unit_price })),
+          total: backendTotal,
+          dir: order.delivery_address || 'Recoger en local',
+          pago: payment_method.charAt(0).toUpperCase() + payment_method.slice(1),
+          estado: 'nuevo',
+          minutos: 0
+        }
+      });
+    } catch (_e) { /* broadcast failed, non-critical */ }
+  }
 
   // Return only customer-facing info
   return {
