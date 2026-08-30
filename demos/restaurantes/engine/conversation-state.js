@@ -75,11 +75,13 @@ export const ALLOWED_TRANSITIONS = {
 /**
  * Create a fresh conversation state
  */
-export function createConversationState(restaurantId, callerPhone) {
+export function createConversationState(restaurantId, callerPhone, tenantId, agentId) {
   return {
     // Call identification
     conversationId: _generateId(),
     restaurantId: restaurantId || 'rest_demo_001',
+    tenantId: tenantId || null,       // FASE 9: tenant isolation
+    agentId: agentId || null,         // FASE 9: agent identity
     startedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
 

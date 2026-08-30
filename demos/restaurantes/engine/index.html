@@ -311,6 +311,7 @@
       <button onclick="resetConversation('3101234567')">Cliente Conocido</button>
       <button onclick="toggleDebug()">Debug</button>
       <button class="primary" onclick="runTests()">Ejecutar Tests</button>
+      <button class="primary" onclick="runTenantTests()">Tenant Tests</button>
     </div>
   </div>
 
@@ -418,6 +419,7 @@
     import { createConversation, getGreeting, processMessage } from './conversation-manager.js';
     import * as Logger from './logger.js';
     import { runAllTests, getTestReport } from './tests.js';
+    import { runTenantTests as _runTenantTests } from './tenant-tests.js';
 
     let conv = null;
 
@@ -507,6 +509,32 @@
 
       // Also log to console
       console.log(getTestReport(results));
+    };
+
+    window.runTenantTests = function() {
+      const report = _runTenantTests();
+      const overlay = document.getElementById('testOverlay');
+      const container = document.getElementById('testResults');
+      overlay.classList.add('active');
+
+      const { passed, failed, total, results } = report;
+
+      let html = `<div class="test-summary ${failed === 0 ? 'all-pass' : 'has-fail'}">`;
+      html += `TENANT TESTS: ${passed}/${total} passed`;
+      if (failed > 0) html += ` | ${failed} failed`;
+      html += `</div>`;
+
+      html += `<div class="test-suite"><h4>FASE 9 — Multi-Tenant Isolation (${passed}/${total})</h4>`;
+      for (const t of results) {
+        const cls = t.pass ? 'test-pass' : 'test-fail';
+        html += `<div class="test-case ${cls}">`;
+        html += `<span class="icon">${t.pass ? 'OK' : 'X'}</span>`;
+        html += `<div><div>${t.name}</div></div></div>`;
+      }
+      html += `</div>`;
+
+      container.innerHTML = html;
+      console.log('[TENANT TESTS]', `${passed}/${total} passed`);
     };
 
     window.closeTests = function() {

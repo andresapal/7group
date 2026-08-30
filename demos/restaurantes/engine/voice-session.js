@@ -66,6 +66,8 @@ export class VoiceSession {
     this.voice = config.voice || 'shimmer';
     this.model = config.model || DEFAULT_MODEL;
     this.restaurantId = config.restaurantId || 'rest_demo_001';
+    this.tenantId = config.tenantId || null;     // FASE 9
+    this.agentId = config.agentId || null;       // FASE 9
     this.phone = config.phone || null;
     this.vadThreshold = config.vadThreshold || 0.5;
     this.silenceDurationMs = config.silenceDurationMs || 800;
@@ -134,7 +136,7 @@ export class VoiceSession {
       _resetOrderStore();
       clearAuditLog();
       Logger.clearLogs();
-      this.conv = createConversation(this.restaurantId, this.phone);
+      this.conv = createConversation(this.restaurantId, this.phone, this.tenantId, this.agentId);
       this._emit('engine_ready', { conversationId: this.conv.state.conversationId });
 
       // 3. Connect WebSocket

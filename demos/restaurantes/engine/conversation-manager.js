@@ -17,18 +17,21 @@ import * as Logger from './logger.js';
 
 /**
  * Create a new conversation engine instance
+ *
+ * FASE 9: Accepts tenantId and agentId for multi-tenant isolation.
+ * All tool calls use the conversation state's tenantId to scope data.
  */
-export function createConversation(restaurantId, callerPhone) {
-  const state = createConversationState(restaurantId, callerPhone);
+export function createConversation(restaurantId, callerPhone, tenantId, agentId) {
+  const state = createConversationState(restaurantId, callerPhone, tenantId, agentId);
   const draft = createOrderDraft();
 
-  // Load restaurant config
-  const configResult = executeTool('get_restaurant_config', {}, {});
+  // Load restaurant config (scoped to tenant via state.tenantId)
+  const configResult = executeTool('get_restaurant_config', {}, { conversationState: state });
   const config = configResult.success ? configResult.data : {};
 
-  // Try to find existing customer
+  // Try to find existing customer (within this tenant's customers)
   if (callerPhone) {
-    const custResult = executeTool('find_customer', { phone: callerPhone }, {});
+    const custResult = executeTool('find_customer', { phone: callerPhone }, { conversationState: state });
     if (custResult.success && custResult.data.found) {
       state.customer.id = custResult.data.customer.id;
       state.customer.name = custResult.data.customer.name;

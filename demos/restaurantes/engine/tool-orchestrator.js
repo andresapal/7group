@@ -224,7 +224,9 @@ export function executeTool(toolName, args, context) {
 
   try {
     const tool = TOOL_REGISTRY[toolName];
-    const fnResult = tool.fn(args);
+    // FASE 9: Pass tenant context to every tool function
+    const tenantCtx = { tenant_id: context?.conversationState?.tenantId || null };
+    const fnResult = tool.fn(args, tenantCtx);
 
     // Post-validation
     const postErrors = _postValidate(toolName, fnResult);
