@@ -841,7 +841,7 @@ export function runAllTests() {
       order_id: createResult.data.order_id
     }, {});
     assert(statusResult.success, 'Should find order');
-    assert(statusResult.data.status === 'nuevo', 'Status should be nuevo');
+    assert(statusResult.data.status === 'confirmado', 'Status should be confirmado');
   });
 
   test('Can cancel a new order', () => {

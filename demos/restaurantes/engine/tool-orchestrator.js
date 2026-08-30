@@ -156,6 +156,41 @@ const TOOL_REGISTRY = {
     argTypes: { order_id: 'string' },
     description: 'Cancelar pedido',
     permission: PERMISSION.TRANSACCIONAL
+  },
+
+  // --- FASE 8: Order lifecycle and audit ---
+  set_order_audit: {
+    fn: MockTools.set_order_audit,
+    requiredArgs: ['order_id'],
+    argTypes: { order_id: 'string' },
+    description: 'Registrar auditoria de pedido',
+    permission: PERMISSION.TRANSACCIONAL
+  },
+  advance_order_status: {
+    fn: MockTools.advance_order_status,
+    requiredArgs: ['order_id', 'new_status'],
+    argTypes: { order_id: 'string', new_status: 'string' },
+    description: 'Avanzar estado de pedido',
+    permission: PERMISSION.TRANSACCIONAL
+  },
+  verify_order: {
+    fn: MockTools.verify_order,
+    requiredArgs: [],
+    description: 'Verificar si un pedido existe (recovery)',
+    permission: PERMISSION.CONSULTA
+  },
+  get_active_orders: {
+    fn: MockTools.get_active_orders,
+    requiredArgs: [],
+    description: 'Obtener pedidos activos para KDS',
+    permission: PERMISSION.CONSULTA
+  },
+  get_order_full: {
+    fn: MockTools.get_order_full,
+    requiredArgs: ['order_id'],
+    argTypes: { order_id: 'string' },
+    description: 'Obtener pedido completo con auditoria',
+    permission: PERMISSION.CONSULTA
   }
 };
 

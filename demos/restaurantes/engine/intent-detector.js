@@ -26,6 +26,8 @@ export function detectIntent(message, state, orderDraft) {
   if (currentState === 'WAITING_CONFIRMATION') {
     if (_isConfirmation(text)) return _result(INTENTS.CONFIRM_YES, 0.95);
     if (_isNegation(text)) return _result(INTENTS.CONFIRM_NO, 0.90, { negationType: _classifyNegation(text) });
+    // FASE 8: Ambiguous confirmation — needs explicit yes/no
+    if (_isAmbiguousConfirmation(text)) return _result(INTENTS.CONFIRM_NO, 0.50, { negationType: 'ambiguous' });
   }
 
   // --- Priority 2: Human request (always check) ---
@@ -511,6 +513,11 @@ function _isConfirmation(text) {
 
 function _isNegation(text) {
   return /^(no|nel|nop|nah|para nada|espera|corrige|cambia|no esa no|mejor no|todavia no|aun no|no estoy seguro|no se)\.?/i.test(text.trim());
+}
+
+// FASE 8: Detect ambiguous confirmations that need explicit yes/no
+function _isAmbiguousConfirmation(text) {
+  return /^(bueno|aja|mmm|hmm|pues|creo|creo que si|puede ser|supongo|tal vez|como quieras|lo que sea|sera|pues si|bueno si|bueno pues|no se|esta bien creo|me parece)\.?$/i.test(text.trim());
 }
 
 function _isNothingMore(text) {

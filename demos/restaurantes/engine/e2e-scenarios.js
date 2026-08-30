@@ -704,6 +704,130 @@ export const SCENARIOS = [
     steps: [
       { input: 'Quiero una gaseosa', expect: {} }
     ]
+  },
+
+  // ==================== FASE 8: CONFIRMACION AMBIGUA ====================
+  {
+    id: 'S61',
+    name: 'Confirmacion ambigua — "bueno" pide confirmacion clara',
+    category: 'confirmation',
+    steps: [
+      { input: 'Quiero una pizza hawaiana', expect: { draftItems: 1 } },
+      { input: 'Para recoger', expect: {} },
+      { input: 'Efectivo', expect: {} },
+      { input: 'Nada mas', expect: { state: 'WAITING_CONFIRMATION' } },
+      { input: 'Bueno', expect: { includes: ['confirmacion clara', 'si o no'], state: 'WAITING_CONFIRMATION' } }
+    ]
+  },
+  {
+    id: 'S62',
+    name: 'Confirmacion ambigua — "creo que si" pide confirmacion clara',
+    category: 'confirmation',
+    steps: [
+      { input: 'Dame una hamburguesa clasica', expect: { draftItems: 1 } },
+      { input: 'Recoger', expect: {} },
+      { input: 'Efectivo', expect: {} },
+      { input: 'Eso es todo', expect: { state: 'WAITING_CONFIRMATION' } },
+      { input: 'Creo que si', expect: { includes: ['confirmacion clara'], state: 'WAITING_CONFIRMATION' } }
+    ]
+  },
+  {
+    id: 'S63',
+    name: 'Confirmacion ambigua luego explicita — pedido se crea',
+    category: 'confirmation',
+    steps: [
+      { input: 'Quiero una pizza hawaiana', expect: { draftItems: 1 } },
+      { input: 'Para recoger', expect: {} },
+      { input: 'Efectivo', expect: {} },
+      { input: 'Nada mas', expect: { state: 'WAITING_CONFIRMATION' } },
+      { input: 'Puede ser', expect: { includes: ['confirmacion clara'], state: 'WAITING_CONFIRMATION' } },
+      { input: 'Si confirmo', expect: { includes: ['confirmado'], state: 'COMPLETED', confirmationStatus: 'order_created' } }
+    ]
+  },
+
+  // ==================== FASE 8: AUDITORIA ====================
+  {
+    id: 'S64',
+    name: 'Pedido creado tiene numero y total del backend',
+    category: 'audit',
+    steps: [
+      { input: 'Dame una pizza hawaiana', expect: { draftItems: 1 } },
+      { input: 'Para recoger', expect: {} },
+      { input: 'Efectivo', expect: {} },
+      { input: 'Nada mas', expect: { state: 'WAITING_CONFIRMATION' } },
+      { input: 'Si', expect: {
+        includes: ['pedido numero', 'confirmado'],
+        state: 'COMPLETED',
+        confirmationStatus: 'order_created',
+        custom: (result, conv) => {
+          return conv.draft.orderId && conv.draft.orderNumber && conv.draft.auditTrail;
+        }
+      }}
+    ]
+  },
+  {
+    id: 'S65',
+    name: 'Pedido usa total del backend, no del draft',
+    category: 'audit',
+    steps: [
+      { input: 'Quiero dos hamburguesas clasicas', expect: { draftItems: 1 } },
+      { input: 'Recoger', expect: {} },
+      { input: 'Efectivo', expect: {} },
+      { input: 'Eso es todo', expect: { state: 'WAITING_CONFIRMATION' } },
+      { input: 'Confirmo', expect: {
+        includes: ['$'],
+        state: 'COMPLETED',
+        custom: (result, conv) => {
+          // Response must include a price that came from the backend
+          return /\$[\d.,]+/.test(result.response);
+        }
+      }}
+    ]
+  },
+
+  // ==================== FASE 8: ERROR RECOVERY ====================
+  {
+    id: 'S66',
+    name: 'Confirmacion explicita "dale" crea pedido',
+    category: 'confirmation',
+    steps: [
+      { input: 'Quiero una pizza pepperoni', expect: { draftItems: 1 } },
+      { input: 'Recoger', expect: {} },
+      { input: 'Efectivo', expect: {} },
+      { input: 'Nada mas', expect: { state: 'WAITING_CONFIRMATION' } },
+      { input: 'Dale', expect: { state: 'COMPLETED', confirmationStatus: 'order_created' } }
+    ]
+  },
+  {
+    id: 'S67',
+    name: 'Confirmacion "aja" es ambigua — no crea pedido',
+    category: 'confirmation',
+    steps: [
+      { input: 'Quiero una pizza hawaiana', expect: { draftItems: 1 } },
+      { input: 'Recoger', expect: {} },
+      { input: 'Efectivo', expect: {} },
+      { input: 'Nada mas', expect: { state: 'WAITING_CONFIRMATION' } },
+      { input: 'Aja', expect: { state: 'WAITING_CONFIRMATION', confirmationStatus: 'reviewing' } }
+    ]
+  },
+
+  // ==================== FASE 8: ORDEN ESTADOS ====================
+  {
+    id: 'S68',
+    name: 'Orden creada tiene status confirmado',
+    category: 'audit',
+    steps: [
+      { input: 'Quiero una pizza hawaiana', expect: { draftItems: 1 } },
+      { input: 'Recoger', expect: {} },
+      { input: 'Efectivo', expect: {} },
+      { input: 'Eso es todo', expect: { state: 'WAITING_CONFIRMATION' } },
+      { input: 'Si', expect: {
+        state: 'COMPLETED',
+        custom: (result, conv) => {
+          return conv.draft.confirmationStatus === 'order_created';
+        }
+      }}
+    ]
   }
 ];
 

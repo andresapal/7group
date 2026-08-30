@@ -632,7 +632,7 @@ export function create_order({ items, customer_name, customer_phone, delivery_ty
   const order = {
     order_id: orderId,
     order_number: orderNumber,
-    status: 'nuevo',
+    status: 'confirmado',
     items: validatedItems,
     subtotal: backendSubtotal,
     delivery_fee: deliveryFee,
@@ -645,7 +645,16 @@ export function create_order({ items, customer_name, customer_phone, delivery_ty
     estimated_time: estimatedTime,
     created_at: now,
     updated_at: now,
-    idempotency_key: idempotency_key || null
+    idempotency_key: idempotency_key || null,
+    // FASE 8: Audit trail
+    call_id: null,            // set by caller via set_order_audit
+    conversation_id: null,    // set by caller via set_order_audit
+    confirmation_id: idempotency_key || null,
+    source: 'voice_agent',
+    // FASE 8: Order lifecycle history
+    status_history: [
+      { status: 'confirmado', timestamp: now, actor: 'voice_agent' }
+    ]
   };
 
   // Store for idempotency and future lookups
@@ -658,7 +667,7 @@ export function create_order({ items, customer_name, customer_phone, delivery_ty
   return {
     order_id: orderId,
     order_number: orderNumber,
-    status: 'nuevo',
+    status: 'confirmado',
     total: backendTotal,
     estimated_time: estimatedTime,
     created_at: now,
@@ -719,8 +728,8 @@ export function update_order({ order_id, changes }) {
   const order = _orderById.get(order_id);
   if (!order) return { error: 'ORDER_NOT_FOUND', message: 'Pedido no encontrado' };
 
-  // Only allow updates in 'nuevo' status (before preparation)
-  if (order.status !== 'nuevo') {
+  // Only allow updates in 'confirmado' status (before preparation)
+  if (order.status !== 'confirmado') {
     return {
       error: 'ORDER_NOT_MODIFIABLE',
       message: `No se puede modificar un pedido en estado "${order.status}"`,
@@ -755,12 +764,12 @@ export function cancel_order({ order_id, reason }) {
   const order = _orderById.get(order_id);
   if (!order) return { error: 'ORDER_NOT_FOUND', message: 'Pedido no encontrado' };
 
-  // Only allow cancellation in certain states
-  const cancellableStates = ['nuevo', 'aceptado'];
+  // Only allow cancellation in certain states (FASE 8: confirmado or en_preparacion)
+  const cancellableStates = ['confirmado', 'en_preparacion'];
   if (!cancellableStates.includes(order.status)) {
     return {
       error: 'ORDER_NOT_CANCELLABLE',
-      message: `No se puede cancelar un pedido en estado "${order.status}". Solo se puede cancelar antes de que entre en preparación.`,
+      message: `No se puede cancelar un pedido en estado "${order.status}". Solo se puede cancelar antes de que salga a despacho.`,
       current_status: order.status
     };
   }
@@ -769,6 +778,9 @@ export function cancel_order({ order_id, reason }) {
   order.cancel_reason = reason || 'Cancelado por cliente';
   order.cancelled_at = new Date().toISOString();
   order.updated_at = order.cancelled_at;
+  if (order.status_history) {
+    order.status_history.push({ status: 'cancelado', timestamp: order.cancelled_at, actor: 'cliente', reason: order.cancel_reason });
+  }
 
   return {
     success: true,
@@ -785,6 +797,132 @@ export function _resetOrderStore() {
   _orderStore.clear();
   _orderById.clear();
   _orderSequence = 1847;
+}
+
+// ── FASE 8: Order lifecycle and audit ──────────────────
+
+/**
+ * Valid order states and transitions
+ */
+const ORDER_STATES = {
+  confirmado:      { next: ['en_preparacion', 'cancelado'] },
+  en_preparacion:  { next: ['listo', 'cancelado'] },
+  listo:           { next: ['despachado'] },
+  despachado:      { next: ['entregado'] },
+  entregado:       { next: [] },
+  cancelado:       { next: [] }
+};
+
+/**
+ * Set audit info on a created order
+ */
+export function set_order_audit({ order_id, call_id, conversation_id }) {
+  const order = _orderById.get(order_id);
+  if (!order) return { error: 'ORDER_NOT_FOUND' };
+  if (call_id) order.call_id = call_id;
+  if (conversation_id) order.conversation_id = conversation_id;
+  return { success: true };
+}
+
+/**
+ * Advance order status (for KDS / operations)
+ */
+export function advance_order_status({ order_id, new_status, actor }) {
+  const order = _orderById.get(order_id);
+  if (!order) return { error: 'ORDER_NOT_FOUND', message: 'Pedido no encontrado' };
+
+  const currentConfig = ORDER_STATES[order.status];
+  if (!currentConfig || !currentConfig.next.includes(new_status)) {
+    return {
+      error: 'INVALID_TRANSITION',
+      message: `No se puede cambiar de "${order.status}" a "${new_status}"`,
+      current_status: order.status,
+      allowed: currentConfig?.next || []
+    };
+  }
+
+  order.status = new_status;
+  order.updated_at = new Date().toISOString();
+  order.status_history.push({
+    status: new_status,
+    timestamp: order.updated_at,
+    actor: actor || 'system'
+  });
+
+  return {
+    success: true,
+    order_id: order.order_id,
+    status: order.status,
+    updated_at: order.updated_at
+  };
+}
+
+/**
+ * Verify if an order exists (for uncertain state recovery)
+ */
+export function verify_order({ idempotency_key, order_id }) {
+  // Check by idempotency key first (most reliable)
+  if (idempotency_key && _orderStore.has(idempotency_key)) {
+    const order = _orderStore.get(idempotency_key);
+    return {
+      exists: true,
+      order_id: order.order_id,
+      order_number: order.order_number,
+      status: order.status,
+      total: order.total,
+      created_at: order.created_at
+    };
+  }
+
+  // Check by order_id
+  if (order_id && _orderById.has(order_id)) {
+    const order = _orderById.get(order_id);
+    return {
+      exists: true,
+      order_id: order.order_id,
+      order_number: order.order_number,
+      status: order.status,
+      total: order.total,
+      created_at: order.created_at
+    };
+  }
+
+  return { exists: false };
+}
+
+/**
+ * Get all active orders (for KDS dashboard)
+ */
+export function get_active_orders() {
+  const active = [];
+  for (const [, order] of _orderById) {
+    if (!['cancelado', 'entregado'].includes(order.status)) {
+      active.push({
+        order_id: order.order_id,
+        order_number: order.order_number,
+        status: order.status,
+        items: order.items,
+        total: order.total,
+        delivery_type: order.delivery_type,
+        delivery_address: order.delivery_address,
+        customer_name: order.customer_name,
+        payment_method: order.payment_method,
+        estimated_time: order.estimated_time,
+        created_at: order.created_at,
+        source: order.source
+      });
+    }
+  }
+  return { orders: active, count: active.length };
+}
+
+/**
+ * Get full order with audit trail (for monitoring)
+ */
+export function get_order_full({ order_id }) {
+  const order = _orderById.get(order_id);
+  if (!order) return { error: 'ORDER_NOT_FOUND' };
+  return { ...order };
 }
 
 /**

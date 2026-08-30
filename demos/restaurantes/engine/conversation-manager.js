@@ -844,32 +844,45 @@ function _handleConfirmYes(conv) {
     Logger.logToolResult(state.conversationId, 'create_order', createResult, createResult.latencyMs);
 
     if (!createResult.success) {
-      // Backend rejected — roll back to collecting
+      // FASE 8: Backend rejected — distinguish failure types
       draft.confirmationStatus = 'reviewing';
       transitionState(state, STATES.COLLECTING_ORDER);
       recordError(state, 'create_order', createResult.error, true);
 
-      // User-friendly error
+      // FASE 8: Never say "confirmed" when it failed
       const errorMap = {
-        'PRODUCT_UNAVAILABLE': 'Uno de los productos ya no está disponible. ¿Quieres revisar el pedido?',
-        'ZONE_NOT_COVERED': 'La dirección quedó fuera de cobertura. ¿Quieres dar otra dirección?',
-        'TOTAL_MISMATCH': 'Hubo un cambio en los precios. Déjame recalcular.',
-        'MISSING_PAYMENT': '¿Cómo vas a pagar?',
-        'MISSING_ADDRESS': '¿Cuál es tu dirección?'
+        'PRODUCT_UNAVAILABLE': 'Uno de los productos ya no esta disponible. ¿Quieres revisar el pedido?',
+        'ZONE_NOT_COVERED': 'La direccion quedo fuera de cobertura. ¿Quieres dar otra direccion?',
+        'TOTAL_MISMATCH': 'Hubo un cambio en los precios. Dejame recalcular.',
+        'MISSING_PAYMENT': '¿Como vas a pagar?',
+        'MISSING_ADDRESS': '¿Cual es tu direccion?',
+        'MISSING_CUSTOMER': 'Necesito tu nombre para el domicilio. ¿Como te llamas?',
+        'NO_ITEMS': 'El pedido quedo sin productos. ¿Que quieres pedir?',
+        'INVALID_QUANTITY': 'Hay un problema con las cantidades. ¿Quieres revisar?',
+        'CONFIRMATION_REQUIRED': 'Necesito tu confirmacion. ¿Confirmamos el pedido?'
       };
-      return errorMap[createResult.error] || 'Tuve un problema creando el pedido. ¿Me repites?';
+      return errorMap[createResult.error] || 'Tu pedido esta listo para confirmarse, pero estoy teniendo un problema con el sistema. No quiero decirte que quedo registrado sin comprobarlo.';
     }
 
-    // Order created successfully
+    // FASE 8: Order created — use BACKEND values as source of truth, not draft
     draft.confirmationStatus = 'order_created';
     draft.orderId = createResult.data.order_id;
     draft.orderNumber = createResult.data.order_number;
+    draft.auditTrail = {
+      call_id: state.callId || null,
+      conversation_id: state.conversationId,
+      confirmation_id: idempotencyKey,
+      created_at: createResult.data.created_at
+    };
     transitionState(state, STATES.COMPLETED);
     state.pendingQuestion = null;
 
+    // Use backend total (source of truth), not draft total
+    const backendTotal = createResult.data.total;
     const time = createResult.data.estimated_time || draft.estimatedTime || '25-35 min';
     const orderNum = createResult.data.order_number || createResult.data.order_id;
-    return `Perfecto, pedido ${orderNum} confirmado. Tiempo estimado: ${time}. ¡Buen provecho!`;
+    const totalStr = '$' + Number(backendTotal || draft.total).toLocaleString('es-CO');
+    return `Perfecto, pedido numero ${orderNum} confirmado por ${totalStr}. Tiempo estimado: ${time}. ¡Buen provecho!`;
   }
 
   if (state.pendingQuestion === 'confirm_address') {
@@ -895,6 +908,11 @@ function _handleConfirmYes(conv) {
 
 function _handleConfirmNo(conv, entities) {
   const { state, draft } = conv;
+
+  // FASE 8: Ambiguous confirmation — ask for explicit yes/no
+  if (entities?.negationType === 'ambiguous' && state.currentState === STATES.WAITING_CONFIRMATION) {
+    return 'Necesito una confirmacion clara. ¿Confirmas el pedido, si o no?';
+  }
 
   if (state.currentState === STATES.WAITING_CONFIRMATION) {
     const negType = entities.negationType || 'generic_no';
