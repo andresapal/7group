@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>7Group — Billing Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: #111;
+      border-bottom: 1px solid #222;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #ff6b00;
+    }
+    .topbar .badge {
+      font-size: 10px;
+      background: #1a1a2e;
+      color: #7c7cff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-right .role {
+      font-size: 11px;
+      color: #666;
+    }
+    .topbar-right button {
+      background: #222;
+      border: 1px solid #333;
+      color: #ccc;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .topbar-right button:hover { background: #333; }
+
+    /* MAIN */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* KPI CARDS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .kpi-card {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .kpi-card .label {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .kpi-card .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .kpi-card .sub {
+      font-size: 12px;
+      color: #555;
+      margin-top: 4px;
+    }
+    .kpi-card.revenue .value { color: #4caf50; }
+    .kpi-card.warning .value { color: #ff9800; }
+    .kpi-card.danger .value { color: #f44336; }
+
+    /* SECTIONS */
+    .section {
+      margin-bottom: 32px;
+    }
+    .section h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ccc;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #222;
+    }
+
+    /* TABLE */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 13px;
+      border-bottom: 1px solid #1a1a1a;
+      white-space: nowrap;
+    }
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+      font-weight: 600;
+    }
+    td { color: #bbb; }
+
+    /* STATUS PILLS */
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .pill.trial { background: #1a2a40; color: #64b5f6; }
+    .pill.active { background: #1a3a1a; color: #66bb6a; }
+    .pill.past-due { background: #3a2a1a; color: #ff9800; }
+    .pill.suspended { background: #3a1a1a; color: #f44336; }
+    .pill.cancelled { background: #2a2a2a; color: #888; }
+
+    /* BARS */
+    .usage-bar {
+      height: 6px;
+      background: #222;
+      border-radius: 3px;
+      overflow: hidden;
+      width: 120px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .usage-bar .fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+    .usage-bar .fill.ok { background: #4caf50; }
+    .usage-bar .fill.warn { background: #ff9800; }
+    .usage-bar .fill.over { background: #f44336; }
+
+    /* ACTIONS */
+    .btn-sm {
+      background: #222;
+      border: 1px solid #333;
+      color: #aaa;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-sm:hover { background: #333; color: #fff; }
+    .btn-sm.danger { border-color: #a33; color: #f66; }
+    .btn-sm.danger:hover { background: #3a1a1a; }
+
+    /* DETAIL MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 60px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #141414;
+      border: 1px solid #333;
+      border-radius: 12px;
+      width: 600px;
+      max-width: 95vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    .modal h3 {
+      font-size: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal .close {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .modal .close:hover { color: #fff; }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .detail-item {
+      background: #1a1a1a;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .detail-item .label {
+      font-size: 10px;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .detail-item .value {
+      font-size: 14px;
+      color: #fff;
+    }
+
+    /* EMPTY STATE */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #555;
+    }
+    .empty h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #777;
+    }
+    .empty p { font-size: 13px; }
+    .empty button {
+      margin-top: 16px;
+      background: #ff6b00;
+      border: none;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+    }
+    .empty button:hover { background: #e55f00; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>7Group Billing</h1>
+      <span class="badge">FASE 10</span>
+    </div>
+    <div class="topbar-right">
+      <span class="role">SEVEN_GROUP_ADMIN</span>
+      <button onclick="loadDemoData()">Cargar Demo Data</button>
+      <button onclick="location.href='index.html'">Motor</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="container" id="mainContainer">
+    <div class="empty" id="emptyState">
+      <h3>Sin datos de billing</h3>
+      <p>Carga datos demo para ver el panel de administracion.</p>
+      <button onclick="loadDemoData()">Cargar Demo Data</button>
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <script type="module">
+    import {
+      getPlan, listPlans,
+      createBillingClient, getBillingClient, getBillingClientByTenant, listBillingClients,
+      createSubscription, getSubscription, getSubscriptionByClient, listSubscriptions,
+      transitionSubscription, getTrialStatus, cancelSubscription, SUB_STATES,
+      recordUsage, getUsageSummary, calculateOverage, USAGE_TYPES,
+      generateInvoice, getInvoice, listInvoices, markInvoicePaid, INVOICE_STATES,
+      recordPayment, listPayments, PAYMENT_STATES,
+      handleWebhookEvent,
+      getServiceStatus,
+      getAdminDashboard, getClientDetail,
+      _resetBilling
+    } from './billing.js';
+
+    let dashboardData = null;
+
+    /**
+     * Load demo data to simulate billing state
+     */
+    window.loadDemoData = function() {
+      _resetBilling();
+
+      // Client 1: Don Mario — Active, usage 320 min
+      const c1 = createBillingClient({
+        tenantId: 'tenant_donmario',
+        businessName: 'Pizzeria Don Mario',
+        contactName: 'Mario Gonzalez',
+        contactEmail: 'mario@donmario.com',
+        contactPhone: '3209001001',
+        taxId: '900123456-1'
+      });
+      const s1 = createSubscription({ clientId: c1.id, planId: 'plan_pro', startAsTrial: false });
+      // Simulate 320 min of usage
+      for (let i = 0; i < 320; i++) {
+        recordUsage({ tenantId: 'tenant_donmario', type: USAGE_TYPES.CALL, durationSeconds: 60 });
+      }
+      for (let i = 0; i < 85; i++) {
+        recordUsage({ tenantId: 'tenant_donmario', type: USAGE_TYPES.ORDER, metadata: { orderId: `P-DON-${2000+i}` } });
+      }
+      // Generate and pay invoice
+      const inv1 = generateInvoice(s1.id);
+      handleWebhookEvent({
+        id: 'evt_demo_1',
+        type: 'payment_success',
+        data: { subscriptionId: s1.id, invoiceId: inv1.id, amount: inv1.total, cardLast4: '8834' }
+      });
+
+      // Client 2: Wok & Roll — Trial, light usage
+      const c2 = createBillingClient({
+        tenantId: 'tenant_wokroll',
+        businessName: 'Wok & Roll',
+        contactName: 'Carlos Chen',
+        contactEmail: 'carlos@wokroll.com',
+        contactPhone: '3209002002'
+      });
+      const s2 = createSubscription({ clientId: c2.id, planId: 'plan_starter' });
+      // Simulate 45 min trial usage
+      for (let i = 0; i < 45; i++) {
+        recordUsage({ tenantId: 'tenant_wokroll', type: USAGE_TYPES.CALL, durationSeconds: 60 });
+      }
+      for (let i = 0; i < 12; i++) {
+        recordUsage({ tenantId: 'tenant_wokroll', type: USAGE_TYPES.ORDER, metadata: { orderId: `P-WOK-${3000+i}` } });
+      }
+
+      // Client 3: Burger Express — Past Due
+      const c3 = createBillingClient({
+        tenantId: 'tenant_burger',
+        businessName: 'Burger Express',
+        contactName: 'Juan Lopez',
+        contactEmail: 'juan@burgerexpress.co',
+        contactPhone: '3201234567'
+      });
+      const s3 = createSubscription({ clientId: c3.id, planId: 'plan_starter', startAsTrial: false });
+      handleWebhookEvent({
+        id: 'evt_demo_3',
+        type: 'payment_failed',
+        data: { subscriptionId: s3.id, reason: 'insufficient_funds' }
+      });
+
+      renderDashboard();
+    };
+
+    window.closeModal = function() {
+      document.getElementById('modalOverlay').classList.remove('active');
+    };
+
+    window.showClientDetail = function(clientId) {
+      const detail = getClientDetail(clientId);
+      if (!detail) return;
+
+      const modal = document.getElementById('modalContent');
+      const statusPill = detail.subscription ? makePill(detail.subscription.status) : '<span class="pill cancelled">SIN SUB</span>';
+      const plan = detail.plan;
+
+      let usagePercent = 0;
+      let usageClass = 'ok';
+      if (detail.usage && plan) {
+        usagePercent = Math.min(100, (detail.usage.totalMinutes / plan.minutesIncluded) * 100);
+        if (usagePercent > 90) usageClass = 'over';
+        else if (usagePercent > 70) usageClass = 'warn';
+      }
+
+      let html = `
+        <h3>
+          ${detail.client.businessName}
+          <button class="close" onclick="closeModal()">X</button>
+        </h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="label">Plan</div>
+            <div class="value">${plan ? plan.name : '—'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Estado</div>
+            <div class="value">${statusPill}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Contacto</div>
+            <div class="value">${detail.client.contactName}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Email</div>
+            <div class="value">${detail.client.contactEmail}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">Telefono</div>
+            <div class="value">${detail.client.contactPhone}</div>
+          </div>
+          <div class="detail-item">
+            <div class="label">NIT</div>
+            <div class="value">${detail.client.taxId || '—'}</div>
+          </div>
+        </div>`;
+
+      // Usage
+      if (detail.usage && plan) {
+        html += `
+          <div class="section">
+            <h2>Consumo del Periodo</h2>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="label">Minutos usados</div>
+                <div class="value">${detail.usage.totalMinutes} / ${plan.minutesIncluded}
+                  <div class="usage-bar" style="margin-top:4px">
+                    <div class="fill ${usageClass}" style="width:${usagePercent}%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="label">Min restantes</div>
+                <div class="value">${detail.usage.minutesRemaining}</div>
+              </div>
+              <div class="detail-item">
+                <div class="label">Llamadas</div>
+                <div class="value">${detail.usage.totalCalls}</div>
+              </div>
+              <div class="detail-item">
+                <div class="label">Ordenes</div>
+                <div class="value">${detail.usage.totalOrders}</div>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      // Trial
+      if (detail.trial && detail.trial.status === 'active') {
+        html += `
+          <div class="section">
+            <h2>Trial</h2>
+            <p style="font-size:13px;color:#64b5f6">${detail.trial.daysLeft} dias restantes (vence ${new Date(detail.trial.trialEnd).toLocaleDateString('es-CO')})</p>
+          </div>`;
+      }
+
+      // Invoices
+      if (detail.invoices.length > 0) {
+        html += `<div class="section"><h2>Facturas</h2><div class="table-wrap"><table>
+          <tr><th>Numero</th><th>Total</th><th>Estado</th><th>Fecha</th></tr>`;
+        for (const inv of detail.invoices) {
+          const invPill = inv.status === 'PAID' ? '<span class="pill active">PAGADA</span>' :
+                          inv.status === 'FAILED' ? '<span class="pill suspended">FALLIDA</span>' :
+                          '<span class="pill trial">PENDIENTE</span>';
+          html += `<tr>
+            <td>${inv.invoiceNumber}</td>
+            <td>$${inv.total.toLocaleString('es-CO')}</td>
+            <td>${invPill}</td>
+            <td>${new Date(inv.issuedAt).toLocaleDateString('es-CO')}</td>
+          </tr>`;
+        }
+        html += `</table></div></div>`;
+      }
+
+      // Service status
+      const svc = detail.service;
+      html += `<div class="section"><h2>Estado del Servicio</h2>
+        <p style="font-size:13px;color:${svc.allowed ? '#4caf50' : '#f44336'}">
+          ${svc.allowed ? 'ACTIVO' : 'BLOQUEADO'} — ${svc.reason}
+          ${svc.warning ? '<br><span style="color:#ff9800">' + svc.warning + '</span>' : ''}
+        </p>
+      </div>`;
+
+      modal.innerHTML = html;
+      document.getElementById('modalOverlay').classList.add('active');
+    };
+
+    function makePill(status) {
+      const map = {
+        TRIAL: 'trial',
+        ACTIVE: 'active',
+        PAST_DUE: 'past-due',
+        SUSPENDED: 'suspended',
+        CANCELLED: 'cancelled'
+      };
+      return `<span class="pill ${map[status] || ''}">${status}</span>`;
+    }
+
+    function renderDashboard() {
+      const dash = getAdminDashboard();
+      const clients = listBillingClients();
+      const container = document.getElementById('mainContainer');
+
+      // KPIs
+      let html = `<div class="kpi-grid">
+        <div class="kpi-card revenue">
+          <div class="label">Ingreso Total</div>
+          <div class="value">${dash.revenue.formatted}</div>
+          <div class="sub">${dash.payments.successful} pagos exitosos</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Clientes</div>
+          <div class="value">${dash.clients.total}</div>
+          <div class="sub">${dash.subscriptions.active} activos, ${dash.subscriptions.trial} en trial</div>
+        </div>
+        <div class="kpi-card warning">
+          <div class="label">Past Due</div>
+          <div class="value">${dash.subscriptions.pastDue}</div>
+          <div class="sub">Pagos pendientes</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Facturas</div>
+          <div class="value">${dash.invoices.total}</div>
+          <div class="sub">${dash.invoices.paid} pagadas, ${dash.invoices.pending} pendientes</div>
+        </div>
+      </div>`;
+
+      // Client table
+      html += `<div class="section"><h2>Clientes</h2><div class="table-wrap"><table>
+        <tr>
+          <th>Negocio</th>
+          <th>Plan</th>
+          <th>Estado</th>
+          <th>Consumo</th>
+          <th>Servicio</th>
+          <th>Acciones</th>
+        </tr>`;
+
+      for (const client of clients) {
+        const sub = getSubscriptionByClient(client.id);
+        const plan = sub ? getPlan(sub.planId) : null;
+        const svc = getServiceStatus(client.tenantId);
+
+        let usageBar = '';
+        if (sub && plan) {
+          const usage = getUsageSummary(client.tenantId, sub.currentPeriodStart, sub.currentPeriodEnd);
+          const pct = Math.min(100, (usage.totalMinutes / plan.minutesIncluded) * 100);
+          const cls = pct > 90 ? 'over' : pct > 70 ? 'warn' : 'ok';
+          usageBar = `${usage.totalMinutes}/${plan.minutesIncluded} min
+            <div class="usage-bar"><div class="fill ${cls}" style="width:${pct}%"></div></div>`;
+        }
+
+        const svcIcon = svc.allowed
+          ? '<span style="color:#4caf50">ON</span>'
+          : '<span style="color:#f44336">OFF</span>';
+
+        html += `<tr>
+          <td><strong>${client.businessName}</strong><br><span style="font-size:11px;color:#666">${client.contactEmail}</span></td>
+          <td>${plan ? plan.name : '—'}</td>
+          <td>${sub ? makePill(sub.status) : '—'}</td>
+          <td>${usageBar || '—'}</td>
+          <td>${svcIcon}</td>
+          <td>
+            <button class="btn-sm" onclick="showClientDetail('${client.id}')">Ver</button>
+          </td>
+        </tr>`;
+      }
+
+      html += `</table></div></div>`;
+
+      // Plans section
+      const plans = listPlans();
+      html += `<div class="section"><h2>Planes</h2><div class="table-wrap"><table>
+        <tr><th>Plan</th><th>Precio/mes</th><th>Min incluidos</th><th>Agents</th><th>Setup</th><th>Excedente/min</th><th>Trial</th></tr>`;
+
+      for (const p of plans) {
+        html += `<tr>
+          <td><strong>${p.name}</strong></td>
+          <td>$${p.priceMonthly.toLocaleString('es-CO')}</td>
+          <td>${p.minutesIncluded.toLocaleString()}</td>
+          <td>${p.agentsIncluded}</td>
+          <td>$${p.setupFee.toLocaleString('es-CO')}</td>
+          <td>$${p.overagePerMinute.toLocaleString('es-CO')}</td>
+          <td>${p.trialDays} dias</td>
+        </tr>`;
+      }
+
+      html += `</table></div></div>`;
+
+      container.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

@@ -312,6 +312,7 @@
       <button onclick="toggleDebug()">Debug</button>
       <button class="primary" onclick="runTests()">Ejecutar Tests</button>
       <button class="primary" onclick="runTenantTests()">Tenant Tests</button>
+      <button class="primary" onclick="runBillingTests()">Billing Tests</button>
     </div>
   </div>
 
@@ -420,6 +421,7 @@
     import * as Logger from './logger.js';
     import { runAllTests, getTestReport } from './tests.js';
     import { runTenantTests as _runTenantTests } from './tenant-tests.js';
+    import { runBillingTests as _runBillingTests } from './billing-tests.js';
 
     let conv = null;
 
@@ -535,6 +537,36 @@
 
       container.innerHTML = html;
       console.log('[TENANT TESTS]', `${passed}/${total} passed`);
+    };
+
+    window.runBillingTests = async function() {
+      const results = await _runBillingTests();
+      const overlay = document.getElementById('testOverlay');
+      const container = document.getElementById('testResults');
+      overlay.classList.add('active');
+
+      const passed = results.filter(r => r.pass).length;
+      const failed = results.filter(r => !r.pass).length;
+      const total = results.length;
+
+      let html = `<div class="test-summary ${failed === 0 ? 'all-pass' : 'has-fail'}">`;
+      html += `BILLING TESTS: ${passed}/${total} passed`;
+      if (failed > 0) html += ` | ${failed} failed`;
+      html += `</div>`;
+
+      html += `<div class="test-suite"><h4>FASE 10 — Subscription, Trial & Billing (${passed}/${total})</h4>`;
+      for (const t of results) {
+        const cls = t.pass ? 'test-pass' : 'test-fail';
+        html += `<div class="test-case ${cls}">`;
+        html += `<span class="icon">${t.pass ? 'OK' : 'X'}</span>`;
+        html += `<div><div>${t.name}</div>`;
+        if (!t.pass && t.error) html += `<div class="error-detail">${t.error}</div>`;
+        html += `</div></div>`;
+      }
+      html += `</div>`;
+
+      container.innerHTML = html;
+      console.log('[BILLING TESTS]', `${passed}/${total} passed`);
     };
 
     window.closeTests = function() {
