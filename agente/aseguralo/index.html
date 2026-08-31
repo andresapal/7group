@@ -2451,25 +2451,68 @@ function renderPorEmitir(){
     var primaTxt = ganadora ? fmt(Number(ganadora.prima)||0) : '—';
     var asegTxt  = ganadora ? ganadora.aseguradora : '—';
     var vigTxt   = ganadora && ganadora.desde ? ganadora.desde+' → '+ganadora.hasta : '';
+    var fnacTxt = l.fnac ? (' &middot; F.Nac: '+l.fnac) : '';
     return '<div class="emitir-card">'+
       '<div class="info">'+
-        '<div class="cli">'+l.nombre+' &middot; '+l.tipo+'</div>'+
+        '<div class="cli">'+l.nombre+' &middot; '+l.tipo+fnacTxt+'</div>'+
         '<div class="meta"><strong>'+asegTxt+'</strong> &middot; Prima aceptada: <strong style="color:var(--green)">'+primaTxt+'</strong></div>'+
         (vigTxt?'<div class="meta" style="margin-top:4px">Vigencia: '+vigTxt+'</div>':'')+
         '<div class="meta" style="margin-top:4px">Telefono: '+(l.telefono||'—')+' &middot; Correo: '+(l.correo||'—')+'</div>'+
+        '<div class="meta" id="emit-status-'+l.id+'" style="margin-top:6px;font-size:11px;color:var(--dim)"></div>'+
       '</div>'+
       '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
         (tel?'<a class="btn btn-sm btn-wa-solid" href="https://wa.me/57'+tel+'" target="_blank">WA cliente</a>':'')+
         '<button class="btn btn-sm" onclick="descargarComparativoPDF(\''+l.id+'\')">PDF propuesta</button>'+
-        '<button class="btn btn-sm btn-primary" onclick="emitirPoliza(\''+l.id+'\')">Emitir poliza</button>'+
+        '<label class="btn btn-sm btn-primary" style="cursor:pointer">'+
+          '<input type="file" accept="application/pdf" onchange="subirPDFPolizaEmitida(this,\''+l.id+'\')" style="display:none">'+
+          '+ Cliente nuevo'+
+        '</label>'+
       '</div>'+
     '</div>';
   }).join('');
 }
 
-/* Placeholder: en fase 3 abre el flujo OCR (cedula + tarjeta propiedad) */
-window.emitirPoliza=function(cotId){
-  alert('Fase 3: OCR sobre cedula / tarjeta de propiedad para armar la poliza.\n\nCotizacion: '+cotId+'\n\nPor ahora se puede cargar manual desde el modal "+ Nueva Poliza" en el modulo Polizas.');
+/* Flujo emision: Fabian sube PDF de la poliza oficial → OCR → alimenta POLRES + Drive */
+window.subirPDFPolizaEmitida = async function(inputEl, leadId){
+  var file = inputEl.files[0]; if(!file) return;
+  var statusEl = document.getElementById('emit-status-'+leadId);
+  var setStatus = function(msg,color){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=color||'var(--dim)'; } };
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0];
+  if(!lead){ alert('Lead no encontrado'); return; }
+  setStatus('Enviando PDF a Gemini para leer la poliza...','var(--accent)');
+  try {
+    var b64 = await fileToBase64_(file);
+    var res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST', redirect:'follow',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({
+        action: 'poliza-emitida-pdf',
+        pdfBase64: b64,
+        lead_id: leadId,
+        cliente_nombre: lead.nombre || '',
+        cliente_telefono: lead.telefono || '',
+        tipo: lead.tipo || '',
+        intermediario: lead.intermediario || '',
+        fnac: lead.fnac || ''
+      })
+    });
+    if(!res.ok) throw new Error('Apps Script HTTP '+res.status);
+    var j = await res.json();
+    if(j.error) throw new Error(j.error);
+    setStatus('Poliza '+(j.poliza||'')+' creada en POLRES. PDF en Drive.', 'var(--green)');
+    // Cambiar estado del lead a Convertido y notificar
+    lead.estado = 'Convertido';
+    fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'lead-update', id:leadId, estado:'Convertido'})}).catch(function(){});
+    alert('Poliza '+(j.poliza||'sin numero')+' creada correctamente.\n\nSe agrego a POLRES y se guardo copia en Drive.\nEl prospecto pasa a Convertido.');
+    renderLeads();
+    renderPorEmitir();
+    if(typeof renderPolizas==='function') renderPolizas();
+  } catch(err){
+    setStatus('Error: '+err.message, 'var(--red)');
+    console.error('Emision poliza:', err);
+    alert('Error al procesar el PDF de la poliza:\n\n'+err.message);
+  }
 };
 
 /* ====================================
