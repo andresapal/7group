@@ -268,7 +268,7 @@ const phoneHint = document.getElementById('phoneHint');
 const bars = waveform.querySelectorAll('.bar');
 
 // ── Init conversation ─────────────────────────────────────────────
-function initConversation() {
+function initConversation(shouldSpeak = true) {
   _resetOrderStore();
   clearAuditLog();
 
@@ -280,22 +280,36 @@ function initConversation() {
   const restId = currentTenantId === 'tenant_donmario' ? 'rest_donmario' : 'rest_wokroll';
   conv = createConversation(restId, null, currentTenantId, currentAgentId);
 
+  // Agent identity
+  const agentDisplayName = currentTenantId === 'tenant_donmario' ? 'Ana Martinez' : 'Carlos Chen';
+  const restaurantDisplayName = currentTenantId === 'tenant_donmario' ? 'Pizzeria Don Mario' : 'Wok & Roll';
+
   // Update UI
-  if (currentTenantId === 'tenant_donmario') {
-    document.getElementById('restaurantName').textContent = 'Pizzeria Don Mario';
-    document.getElementById('agentName').textContent = 'Agente: Ana';
-  } else {
-    document.getElementById('restaurantName').textContent = 'Wok & Roll';
-    document.getElementById('agentName').textContent = 'Agente: Carlos';
-  }
+  document.getElementById('restaurantName').textContent = restaurantDisplayName;
+  document.getElementById('agentName').textContent = 'Agente IA: ' + agentDisplayName;
 
   transcriptEl.innerHTML = '';
   updateDebug();
 
-  // Greeting
-  const greeting = getGreeting(conv);
+  // Custom greeting that identifies as AI agent
+  const greeting = `Hola, buenas tardes. Soy ${agentDisplayName}, agente de inteligencia artificial de ${restaurantDisplayName}. ¿En que te puedo ayudar hoy?`;
   addMessage('agent', greeting);
-  speak(greeting);
+  if (shouldSpeak) speak(greeting);
+}
+
+// ── Auto-init on load ────────────────────────────────────────────
+// Wait for voices to load, then greet
+if (window.speechSynthesis) {
+  const initOnVoices = () => { initConversation(true); };
+  if (window.speechSynthesis.getVoices().length > 0) {
+    initOnVoices();
+  } else {
+    window.speechSynthesis.onvoiceschanged = initOnVoices;
+    // Fallback: if voices never fire (some mobile browsers)
+    setTimeout(() => { if (!conv) initConversation(true); }, 1000);
+  }
+} else {
+  initConversation(false);
 }
 
 // ── Speech Recognition (STT) ─────────────────────────────────────
@@ -391,20 +405,23 @@ function speak(text) {
 
 // ── Process user text through engine ──────────────────────────────
 function processUserInput(text) {
-  if (!conv) initConversation();
+  if (!conv) initConversation(false);
 
   try {
     const result = processMessage(conv, text);
-    addMessage('agent', result.response);
-    updateDebug(result);
-    speak(result.response);
+    if (result && result.response) {
+      addMessage('agent', result.response);
+      updateDebug(result);
+      speak(result.response);
 
-    // Check if order completed
-    if (conv.state.currentState === 'COMPLETED') {
-      addMessage('system', 'Pedido completado');
+      // Check if order completed
+      if (conv.state.currentState === 'COMPLETED') {
+        addMessage('system', 'Pedido completado');
+      }
     }
   } catch (err) {
     addMessage('error', 'Error: ' + err.message);
+    console.error('[VoiceDemo]', err);
     setMicState('idle');
   }
 }
@@ -505,7 +522,7 @@ window.toggleMic = function() {
   }
 
   if (!conv) {
-    initConversation();
+    initConversation(true);
     return;
   }
 
@@ -522,10 +539,11 @@ window.sendText = function() {
   if (!text) return;
   input.value = '';
 
-  if (!conv) initConversation();
+  // Ensure conversation exists without resetting if already there
+  if (!conv) initConversation(false);
 
   addMessage('user', text);
-  processUserInput(text);
+  setTimeout(() => processUserInput(text), 50);
 };
 
 window.changeTenant = function() {
