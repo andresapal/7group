@@ -2522,7 +2522,7 @@ function renderSarlaft(){
   var box = document.getElementById('sarlaftBox'); if(!box) return;
   var lista = LEADS.filter(function(l){return l.estado==='Aceptada'});
   if(!lista.length){
-    box.innerHTML = '<div class="emitir-empty">No hay SARLAFT pendientes. Cuando marques una cotizacion aceptada, aparece aqui para enviar el formulario.</div>';
+    box.innerHTML = '<div class="emitir-empty">No hay SARLAFT pendientes. Cuando marques una cotizacion aceptada, aparece aqui para enviar el/los formulario(s).</div>';
     return;
   }
   box.innerHTML = lista.map(function(l){
@@ -2530,78 +2530,111 @@ function renderSarlaft(){
     var slug = _aseguradoraSlug_(aseg);
     var tel  = (l.telefono||'').replace(/[^0-9]/g,'');
     var esAllianz = (slug === 'Allianz');
-    var acciones;
-    if(esAllianz){
-      // Allianz: WA con mensaje solicitando datos (Ocupacion, Ingresos, Egresos, Activos, Pasivos, Patrimonio)
-      acciones =
-        (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarSarlaftAllianz(\''+l.id+'\')">Solicitar datos SARLAFT (WA)</button>':'')+
-        '<button class="btn btn-sm btn-primary" onclick="marcarSarlaftOK(\''+l.id+'\')" style="background:var(--green);border:none">SARLAFT completado &#10003;</button>';
-    } else {
-      // Otras: dropdown de PDFs disponibles + boton enviar (copia y abre WA)
-      acciones =
-        '<select class="form-input" id="sarlaftSel-'+l.id+'" style="max-width:220px;font-size:12px;padding:6px 8px" onmousedown="cargarSarlaftPDFs_(\''+l.id+'\',\''+slug+'\')"><option>Cargando PDFs...</option></select>'+
-        (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarSarlaftPDF(\''+l.id+'\',\''+slug+'\')">Enviar SARLAFT (WA)</button>':'')+
-        '<button class="btn btn-sm btn-primary" onclick="marcarSarlaftOK(\''+l.id+'\')" style="background:var(--green);border:none">SARLAFT completado &#10003;</button>';
-    }
-    return '<div class="emitir-card">'+
-      '<div class="info">'+
+    var esVida  = (l.tipo||'').toLowerCase().indexOf('vida')>=0;
+    var esSalud = (l.tipo||'').toLowerCase().indexOf('salud')>=0;
+    var nota = 'SARLAFT obligatorio. ';
+    if(esVida) nota += 'Ademas: Declaracion Vida. ';
+    if(esSalud) nota += 'Ademas: Declaracion Salud Vida. ';
+    if(esAllianz) nota += '(Allianz: SARLAFT se registra en su web, aqui solo pedimos datos por WA.)';
+
+    var accionesAllianz =
+      (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarSarlaftAllianz(\''+l.id+'\')">Solicitar datos SARLAFT (WA)</button>':'')+
+      '<button class="btn btn-sm btn-primary" onclick="marcarSarlaftOK(\''+l.id+'\')" style="background:var(--green);border:none">SARLAFT completado &#10003;</button>';
+    var accionesPDF =
+      (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarSarlaftPDFs(\''+l.id+'\',\''+slug+'\')">Enviar formularios (WA)</button>':'')+
+      '<button class="btn btn-sm btn-primary" onclick="marcarSarlaftOK(\''+l.id+'\')" style="background:var(--green);border:none">SARLAFT completado &#10003;</button>';
+
+    // Contenedor de la lista de checkboxes que se carga async
+    var listaPDFs = esAllianz ? '' :
+      '<div id="sarlaftListWrap-'+l.id+'" style="margin-top:8px">'+
+        '<div style="font-size:11px;color:var(--dim);margin-bottom:4px">Cargando PDFs disponibles...</div>'+
+      '</div>';
+
+    return '<div class="emitir-card" style="align-items:flex-start">'+
+      '<div class="info" style="width:100%">'+
         '<div class="cli">'+l.nombre+' &middot; '+l.tipo+' &middot; <strong style="color:var(--accent)">'+aseg+'</strong></div>'+
         '<div class="meta">Telefono: '+(l.telefono||'—')+' &middot; Correo: '+(l.correo||'—')+'</div>'+
-        (esAllianz
-          ? '<div class="meta" style="margin-top:6px;font-size:11px;color:var(--dim)">Allianz: SARLAFT se registra en su web. Solicita los datos por WA al cliente.</div>'
-          : '<div class="meta" style="margin-top:6px;font-size:11px;color:var(--dim)">Elige el PDF SARLAFT correspondiente y envialo al cliente por WA.</div>')+
+        '<div class="meta" style="margin-top:6px;font-size:11px;color:var(--dim)">'+nota+'</div>'+
+        listaPDFs+
         '<div class="meta" id="sarlaft-status-'+l.id+'" style="margin-top:6px;font-size:11px;color:var(--dim)"></div>'+
       '</div>'+
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center">'+acciones+'</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center">'+
+        (esAllianz ? accionesAllianz : accionesPDF)+
+      '</div>'+
     '</div>';
   }).join('');
+
+  // Cargar PDFs (checkboxes) para cada card no-Allianz
+  lista.forEach(function(l){
+    var aseg = _asegDeLead_(l);
+    var slug = _aseguradoraSlug_(aseg);
+    if(slug === 'Allianz') return;
+    cargarListaSarlaft_(l.id, slug, l.tipo);
+  });
 }
 
-/* Carga PDFs disponibles para la aseguradora (dropdown) */
-window.cargarSarlaftPDFs_ = async function(leadId, slug){
-  var sel = document.getElementById('sarlaftSel-'+leadId); if(!sel) return;
-  if(sel.dataset.loaded === '1') return;
+/* Carga los formularios CONDICIONADOS por tipo de poliza (backend hace el filtro).
+   No hay eleccion manual: el sistema muestra solo lo que aplica y esos son los que se envian. */
+async function cargarListaSarlaft_(leadId, slug, tipoLead){
+  var wrap = document.getElementById('sarlaftListWrap-'+leadId); if(!wrap) return;
   try {
-    var res = await fetch(APPS_SCRIPT_URL+'?action=sarlaft-pdfs&aseguradora='+encodeURIComponent(slug), {redirect:'follow'});
+    var res = await fetch(APPS_SCRIPT_URL+
+      '?action=sarlaft-pdfs&aseguradora='+encodeURIComponent(slug)+
+      '&tipo='+encodeURIComponent(tipoLead||''),
+      {redirect:'follow'});
     var j = await res.json();
     if(!j.ok || !j.pdfs || !j.pdfs.length){
-      sel.innerHTML = '<option value="">(sin PDFs en '+slug+')</option>';
-    } else {
-      sel.innerHTML = j.pdfs.map(function(p){ return '<option value="'+p.id+'">'+p.nombre+'</option>'; }).join('');
+      wrap.innerHTML = '<div style="font-size:11px;color:var(--red)">No se encontro plantilla SARLAFT valida para '+slug+' (tipo '+tipoLead+'). Revisa la carpeta Formularios/'+slug+'/.</div>';
+      wrap.dataset.fileIds = '';
+      return;
     }
-    sel.dataset.loaded = '1';
+    // Guardar los IDs para el envio (todos los que el backend devolvio son los que aplican)
+    wrap.dataset.fileIds = j.pdfs.map(function(p){return p.id;}).join(',');
+    // Pintar como chips (solo lectura)
+    var html = '<div style="font-size:11px;color:var(--dim);margin-bottom:6px">Se enviaran:</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
+      j.pdfs.map(function(p){
+        return '<span style="display:inline-block;padding:4px 10px;background:var(--accent-light);color:var(--accent);border-radius:6px;font-size:11px;font-weight:600">'+
+          (p.tipo||'PDF')+': '+p.nombre+
+        '</span>';
+      }).join('') +
+    '</div>';
+    wrap.innerHTML = html;
   } catch(err){
-    sel.innerHTML = '<option value="">Error: '+err.message+'</option>';
+    wrap.innerHTML = '<div style="font-size:11px;color:var(--red)">Error: '+err.message+'</div>';
+    wrap.dataset.fileIds = '';
   }
-};
+}
 
-/* Envia SARLAFT (no-Allianz): copia el PDF plantilla y abre WA con link + mensaje cordial */
-window.enviarSarlaftPDF = async function(leadId, slug){
+/* Envia SARLAFT (no-Allianz): usa los IDs pre-cargados (los del backend segun tipo), copia y abre WA */
+window.enviarSarlaftPDFs = async function(leadId, slug){
   var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
-  var sel = document.getElementById('sarlaftSel-'+leadId);
-  var fileId = sel && sel.value;
-  if(!fileId){ alert('Elige primero el PDF SARLAFT del dropdown.'); return; }
+  var wrap = document.getElementById('sarlaftListWrap-'+leadId);
+  var idsStr = wrap && wrap.dataset && wrap.dataset.fileIds;
+  if(!idsStr){ alert('No hay formularios cargados. Revisa la carpeta Formularios/'+slug+'/.'); return; }
+  var fileIds = idsStr.split(',').filter(Boolean);
+  if(!fileIds.length){ alert('No hay formularios para enviar.'); return; }
   var statusEl = document.getElementById('sarlaft-status-'+leadId);
   var setStatus = function(msg,color){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=color||'var(--dim)'; } };
-  setStatus('Preparando copia del formulario para el cliente...', 'var(--accent)');
+  setStatus('Preparando '+fileIds.length+' formulario(s) para el cliente...', 'var(--accent)');
   try {
     var res = await fetch(APPS_SCRIPT_URL, {
       method:'POST', redirect:'follow',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({action:'sarlaft-copiar', file_id:fileId, aseguradora:slug, cliente_nombre:lead.nombre})
+      body: JSON.stringify({action:'sarlaft-copiar', file_ids:fileIds, aseguradora:slug, cliente_nombre:lead.nombre})
     });
     if(!res.ok) throw new Error('Apps Script HTTP '+res.status);
     var j = await res.json();
     if(j.error) throw new Error(j.error);
-    setStatus('Formulario listo: '+j.nombre, 'var(--green)');
-    // Mensaje cordial + link
+    setStatus(fileIds.length+' formulario(s) listos en Drive del cliente.', 'var(--green)');
+    // Mensaje cordial + enumeracion de links
     var nomCorto = (lead.nombre||'').split(' ')[0] || 'cliente';
+    var enumeracion = j.copias.map(function(c,i){ return (i+1)+'. '+c.plantilla+':\n'+c.url; }).join('\n\n');
     var msg =
       'Hola '+nomCorto+', un cordial saludo.\n\n'+
-      'Para poder emitir tu poliza necesitamos que diligencies el formulario SARLAFT requerido por la aseguradora '+slug+'.\n\n'+
-      'Aqui esta el enlace al formulario:\n'+
-      j.url+'\n\n'+
-      'Por favor completalo y me confirmas por este medio cuando este listo. Cualquier duda con gusto te ayudo.\n'+
+      'Para poder emitir tu poliza con '+slug+' necesitamos que diligencies el/los siguiente(s) formulario(s):\n\n'+
+      enumeracion+'\n\n'+
+      'Por favor completalos y me confirmas por este medio cuando esten listos. Cualquier duda con gusto te ayudo.\n'+
       'Gracias por tu confianza.';
     var tel = (lead.telefono||'').replace(/[^0-9]/g,'');
     var url = 'https://wa.me/57'+tel+'?text='+encodeURIComponent(msg);
