@@ -433,7 +433,7 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
-      <!-- Sub-navegacion tipo pipeline -->
+      <!-- Sub-navegacion tipo pipeline: Inbox → Cotizacion → SARLAFT → Por emitir -->
       <div class="sub-nav" id="cotSubNav">
         <a class="sub-tab active" data-sub="inbox" onclick="switchSub('inbox')">
           <span class="sub-lbl">Inbox</span>
@@ -442,6 +442,10 @@ tbody tr:hover{background:var(--accent-light)}
         <a class="sub-tab" data-sub="curso" onclick="switchSub('curso')">
           <span class="sub-lbl">En cotizacion</span>
           <span class="sub-count" id="cntCurso">0</span>
+        </a>
+        <a class="sub-tab" data-sub="sarlaft" onclick="switchSub('sarlaft')">
+          <span class="sub-lbl">SARLAFT</span>
+          <span class="sub-count" id="cntSarlaft">0</span>
         </a>
         <a class="sub-tab" data-sub="emitir" onclick="switchSub('emitir')">
           <span class="sub-lbl">Por emitir</span>
@@ -488,9 +492,15 @@ tbody tr:hover{background:var(--accent-light)}
         <div id="enCotizacionCards"></div>
       </div>
 
-      <!-- Sub-seccion: POR EMITIR (cotizaciones aceptadas sin poliza) -->
+      <!-- Sub-seccion: SARLAFT (obligatorio entre aceptar y emitir) -->
+      <div class="sub-section" id="sub-sarlaft">
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">SARLAFT es obligatorio antes de emitir cualquier poliza. Envia al cliente el formulario (o los datos solicitados si es Allianz) y marca como recibido para pasar a Por emitir.</div>
+        <div id="sarlaftBox"></div>
+      </div>
+
+      <!-- Sub-seccion: POR EMITIR (SARLAFT OK, listo para emitir poliza) -->
       <div class="sub-section" id="sub-emitir">
-        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Cotizaciones aceptadas por el cliente. Siguiente paso: emitir la poliza (OCR sobre cedula / tarjeta propiedad).</div>
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">SARLAFT completado. Sube el PDF de la poliza emitida por la aseguradora — el sistema extrae datos y alimenta POLRES.</div>
         <div id="porEmitirBox"></div>
       </div>
     </section>
@@ -2400,7 +2410,7 @@ window.switchComSub=function(sub){
   if(sub==='sevengroup')  { if(typeof renderLiquidaciones==='function') renderLiquidaciones(); }
 };
 
-/* Sub-navegacion dentro de Cotizador: inbox / curso / emitir */
+/* Sub-navegacion dentro de Cotizador: inbox / curso / sarlaft / emitir */
 window.switchSub=function(subId){
   document.querySelectorAll('#cotSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
   var tab=document.querySelector('#cotSubNav .sub-tab[data-sub="'+subId+'"]');
@@ -2408,27 +2418,33 @@ window.switchSub=function(subId){
   document.querySelectorAll('#mod-cotizador .sub-section').forEach(function(s){s.classList.remove('active')});
   var sec=document.getElementById('sub-'+subId);
   if(sec) sec.classList.add('active');
-  if(subId==='emitir') renderPorEmitir();
+  if(subId==='sarlaft') renderSarlaft();
+  if(subId==='emitir')  renderPorEmitir();
 };
 
-/* Actualiza los contadores de las 3 sub-pestañas */
+/* Actualiza los contadores del pipeline (4 tabs) */
 function updateSubCounts(){
   var elIn=document.getElementById('cntInbox');
   var elCu=document.getElementById('cntCurso');
+  var elSa=document.getElementById('cntSarlaft');
   var elEm=document.getElementById('cntEmitir');
-  var nIn=LEADS.filter(function(l){return l.estado==='Nuevo'||l.estado==='Contactado'}).length;
-  var nCu=typeof COTIZACIONES!=='undefined' ? COTIZACIONES.filter(function(c){return c.estado==='enviada'}).length : 0;
-  var nEm=typeof COTIZACIONES!=='undefined' ? COTIZACIONES.filter(function(c){return c.estado==='aceptada' && !c.poliza}).length : 0;
+  var nIn = LEADS.filter(function(l){return l.estado==='Nuevo'||l.estado==='Contactado'}).length;
+  // En cotizacion: activos que aun no han pasado a Sarlaft/Aceptada/etc
+  var estadosCerrados = {'Convertido':1,'Perdido':1,'Descartado':1,'No tomado':1,'Aceptada':1,'SarlaftOK':1};
+  var nCu = LEADS.filter(function(l){ return !estadosCerrados[l.estado||'Nuevo'] && l.estado!=='Nuevo' && l.estado!=='Contactado'; }).length;
+  var nSa = LEADS.filter(function(l){return l.estado==='Aceptada'}).length;   // SARLAFT pendiente
+  var nEm = LEADS.filter(function(l){return l.estado==='SarlaftOK'}).length;  // Por emitir
   if(elIn) elIn.textContent=nIn;
   if(elCu) elCu.textContent=nCu;
+  if(elSa) elSa.textContent=nSa;
   if(elEm) elEm.textContent=nEm;
 }
 
-/* Sub-seccion POR EMITIR: cotizaciones aceptadas sin poliza */
+/* Sub-seccion POR EMITIR: leads que ya pasaron SARLAFT y estan listos para emitir poliza */
 function renderPorEmitir(){
   var box=document.getElementById('porEmitirBox'); if(!box) return;
-  // Leads con estado 'Aceptada' — tienen su cotizacion ganadora en COT_PDFS.__ganadora
-  var lista = LEADS.filter(function(l){return l.estado==='Aceptada'});
+  // Estado 'SarlaftOK' = SARLAFT confirmado por Fabian, listo para subir poliza emitida
+  var lista = LEADS.filter(function(l){return l.estado==='SarlaftOK'});
   if(!lista.length){
     box.innerHTML='<div class="emitir-empty">No hay cotizaciones por emitir. Cuando marques una cotizacion como aceptada, aparece aqui para emitir la poliza.</div>';
     return;
@@ -2477,6 +2493,156 @@ function renderPorEmitir(){
     '</div>';
   }).join('');
 }
+
+/* ============================================
+   SARLAFT — sub-pipeline entre EN COTIZACION y POR EMITIR
+   Reglas:
+     - Se activa cuando el lead pasa a estado 'Aceptada' (cotizacion ganadora marcada).
+     - Fabian debe: enviar el formulario correspondiente al cliente por WA + marcar completado.
+     - Allianz NO requiere PDF (Fabian lo hace en la web de Allianz). Solo mensaje solicitando datos.
+     - Otras aseguradoras (Axa/SdE/BMI): sistema copia la plantilla, envia link.
+     - Al marcar completado -> estado 'SarlaftOK' -> aparece en POR EMITIR.
+   ============================================ */
+function _asegDeLead_(lead){
+  var d = COT_PDFS[lead.id] || {};
+  var g = d.__ganadora ? d[d.__ganadora] : null;
+  return (g && g.aseguradora) || '';
+}
+function _aseguradoraSlug_(aseg){
+  // Normaliza para mapear a la carpeta Drive: "AXA COLPATRIA" -> "Axa", "SEGUROS DEL ESTADO" -> "Seguros del Estado"
+  var a = String(aseg||'').toLowerCase();
+  if(a.indexOf('allianz')>=0) return 'Allianz';
+  if(a.indexOf('axa')>=0)     return 'Axa';
+  if(a.indexOf('bmi')>=0)     return 'BMI';
+  if(a.indexOf('estado')>=0)  return 'Seguros del Estado';
+  return aseg || '';
+}
+
+function renderSarlaft(){
+  var box = document.getElementById('sarlaftBox'); if(!box) return;
+  var lista = LEADS.filter(function(l){return l.estado==='Aceptada'});
+  if(!lista.length){
+    box.innerHTML = '<div class="emitir-empty">No hay SARLAFT pendientes. Cuando marques una cotizacion aceptada, aparece aqui para enviar el formulario.</div>';
+    return;
+  }
+  box.innerHTML = lista.map(function(l){
+    var aseg = _asegDeLead_(l);
+    var slug = _aseguradoraSlug_(aseg);
+    var tel  = (l.telefono||'').replace(/[^0-9]/g,'');
+    var esAllianz = (slug === 'Allianz');
+    var acciones;
+    if(esAllianz){
+      // Allianz: WA con mensaje solicitando datos (Ocupacion, Ingresos, Egresos, Activos, Pasivos, Patrimonio)
+      acciones =
+        (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarSarlaftAllianz(\''+l.id+'\')">Solicitar datos SARLAFT (WA)</button>':'')+
+        '<button class="btn btn-sm btn-primary" onclick="marcarSarlaftOK(\''+l.id+'\')" style="background:var(--green);border:none">SARLAFT completado &#10003;</button>';
+    } else {
+      // Otras: dropdown de PDFs disponibles + boton enviar (copia y abre WA)
+      acciones =
+        '<select class="form-input" id="sarlaftSel-'+l.id+'" style="max-width:220px;font-size:12px;padding:6px 8px" onmousedown="cargarSarlaftPDFs_(\''+l.id+'\',\''+slug+'\')"><option>Cargando PDFs...</option></select>'+
+        (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarSarlaftPDF(\''+l.id+'\',\''+slug+'\')">Enviar SARLAFT (WA)</button>':'')+
+        '<button class="btn btn-sm btn-primary" onclick="marcarSarlaftOK(\''+l.id+'\')" style="background:var(--green);border:none">SARLAFT completado &#10003;</button>';
+    }
+    return '<div class="emitir-card">'+
+      '<div class="info">'+
+        '<div class="cli">'+l.nombre+' &middot; '+l.tipo+' &middot; <strong style="color:var(--accent)">'+aseg+'</strong></div>'+
+        '<div class="meta">Telefono: '+(l.telefono||'—')+' &middot; Correo: '+(l.correo||'—')+'</div>'+
+        (esAllianz
+          ? '<div class="meta" style="margin-top:6px;font-size:11px;color:var(--dim)">Allianz: SARLAFT se registra en su web. Solicita los datos por WA al cliente.</div>'
+          : '<div class="meta" style="margin-top:6px;font-size:11px;color:var(--dim)">Elige el PDF SARLAFT correspondiente y envialo al cliente por WA.</div>')+
+        '<div class="meta" id="sarlaft-status-'+l.id+'" style="margin-top:6px;font-size:11px;color:var(--dim)"></div>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center">'+acciones+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+/* Carga PDFs disponibles para la aseguradora (dropdown) */
+window.cargarSarlaftPDFs_ = async function(leadId, slug){
+  var sel = document.getElementById('sarlaftSel-'+leadId); if(!sel) return;
+  if(sel.dataset.loaded === '1') return;
+  try {
+    var res = await fetch(APPS_SCRIPT_URL+'?action=sarlaft-pdfs&aseguradora='+encodeURIComponent(slug), {redirect:'follow'});
+    var j = await res.json();
+    if(!j.ok || !j.pdfs || !j.pdfs.length){
+      sel.innerHTML = '<option value="">(sin PDFs en '+slug+')</option>';
+    } else {
+      sel.innerHTML = j.pdfs.map(function(p){ return '<option value="'+p.id+'">'+p.nombre+'</option>'; }).join('');
+    }
+    sel.dataset.loaded = '1';
+  } catch(err){
+    sel.innerHTML = '<option value="">Error: '+err.message+'</option>';
+  }
+};
+
+/* Envia SARLAFT (no-Allianz): copia el PDF plantilla y abre WA con link + mensaje cordial */
+window.enviarSarlaftPDF = async function(leadId, slug){
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
+  var sel = document.getElementById('sarlaftSel-'+leadId);
+  var fileId = sel && sel.value;
+  if(!fileId){ alert('Elige primero el PDF SARLAFT del dropdown.'); return; }
+  var statusEl = document.getElementById('sarlaft-status-'+leadId);
+  var setStatus = function(msg,color){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=color||'var(--dim)'; } };
+  setStatus('Preparando copia del formulario para el cliente...', 'var(--accent)');
+  try {
+    var res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST', redirect:'follow',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'sarlaft-copiar', file_id:fileId, aseguradora:slug, cliente_nombre:lead.nombre})
+    });
+    if(!res.ok) throw new Error('Apps Script HTTP '+res.status);
+    var j = await res.json();
+    if(j.error) throw new Error(j.error);
+    setStatus('Formulario listo: '+j.nombre, 'var(--green)');
+    // Mensaje cordial + link
+    var nomCorto = (lead.nombre||'').split(' ')[0] || 'cliente';
+    var msg =
+      'Hola '+nomCorto+', un cordial saludo.\n\n'+
+      'Para poder emitir tu poliza necesitamos que diligencies el formulario SARLAFT requerido por la aseguradora '+slug+'.\n\n'+
+      'Aqui esta el enlace al formulario:\n'+
+      j.url+'\n\n'+
+      'Por favor completalo y me confirmas por este medio cuando este listo. Cualquier duda con gusto te ayudo.\n'+
+      'Gracias por tu confianza.';
+    var tel = (lead.telefono||'').replace(/[^0-9]/g,'');
+    var url = 'https://wa.me/57'+tel+'?text='+encodeURIComponent(msg);
+    window.open(url, '_blank');
+  } catch(err){
+    setStatus('Error: '+err.message, 'var(--red)');
+    console.error('SARLAFT:', err);
+    alert('Error preparando SARLAFT:\n\n'+err.message);
+  }
+};
+
+/* Envia SARLAFT Allianz: mensaje solicitando datos (sin PDF, Fabian los registra en la web Allianz) */
+window.enviarSarlaftAllianz = function(leadId){
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
+  var tel = (lead.telefono||'').replace(/[^0-9]/g,''); if(!tel) return;
+  var nomCorto = (lead.nombre||'').split(' ')[0] || 'cliente';
+  var msg =
+    'Hola '+nomCorto+', un cordial saludo.\n\n'+
+    'Para poder emitir tu poliza con Allianz necesitamos completar el registro SARLAFT. Por favor comparteme los siguientes datos por este medio:\n\n'+
+    '- Ocupacion:\n'+
+    '- Ingresos mensuales:\n'+
+    '- Egresos mensuales:\n'+
+    '- Activos totales:\n'+
+    '- Pasivos totales:\n'+
+    '- Patrimonio:\n\n'+
+    'Con esta informacion realizo el registro directamente en la plataforma de Allianz. Cualquier duda con gusto te ayudo.\n'+
+    'Gracias por tu confianza.';
+  var url = 'https://wa.me/57'+tel+'?text='+encodeURIComponent(msg);
+  window.open(url, '_blank');
+};
+
+/* Marca SARLAFT completado -> lead pasa a estado 'SarlaftOK' y aparece en POR EMITIR */
+window.marcarSarlaftOK = function(leadId){
+  if(!confirm('Marcar SARLAFT como COMPLETADO?\n\nEl prospecto pasa a Por Emitir.')) return;
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
+  lead.estado = 'SarlaftOK';
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'lead-update', id:leadId, estado:'SarlaftOK'})}).catch(function(){});
+  renderSarlaft(); renderPorEmitir(); if(typeof renderLeads==='function') renderLeads();
+  if(typeof updateSubCounts==='function') updateSubCounts();
+};
 
 /* Flujo emision (paso 1): Fabian sube PDF de la poliza oficial → OCR → alimenta POLRES + Drive.
    NO cambia el estado del lead todavia. El lead sigue en POR EMITIR con nuevos botones. */
