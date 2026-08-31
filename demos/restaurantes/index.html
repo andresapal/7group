@@ -55,10 +55,21 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .tb-sep{width:1px;height:18px;background:var(--border3)}
 .tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--highlight)}
 .tb-right{display:flex;align-items:center;gap:8px}
-.tb-btn{padding:6px 12px;background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:6px;color:var(--highlight);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn{padding:6px 12px;background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:6px;color:var(--highlight);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none;white-space:nowrap}
 .tb-btn:hover{background:var(--accent);color:#fff}
-.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px;white-space:nowrap}
 .tb-toggle:hover{border-color:var(--highlight);color:var(--highlight)}
+/* Mobile nav bar */
+.tb-nav-mobile{display:none}
+@media(max-width:768px){
+  .topbar{height:auto;flex-wrap:wrap;padding:8px 12px;gap:8px}
+  .tb-right{display:none}
+  .tb-nav-mobile{display:flex;width:100%;overflow-x:auto;gap:6px;padding:4px 0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tb-nav-mobile::-webkit-scrollbar{display:none}
+  .tb-nav-mobile a,.tb-nav-mobile button{padding:6px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--dim);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;white-space:nowrap;flex-shrink:0}
+  .tb-nav-mobile a:hover,.tb-nav-mobile button:hover{color:var(--highlight);border-color:var(--highlight)}
+  .tb-nav-mobile .accent{background:var(--accent-light);border-color:var(--accent-mid);color:var(--highlight)}
+}
 
 /* NAV */
 .mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
@@ -228,6 +239,14 @@ tr:hover td{background:var(--accent-light)}
     <a class="tb-btn" href="engine/billing-admin.html">Billing</a>
     <button class="tb-toggle" onclick="toggleTheme()">Oscuro</button>
     <a class="tb-btn" href="/agente/">7Group</a>
+  </div>
+  <div class="tb-nav-mobile">
+    <a href="voice.html" class="accent">Voz en Vivo</a>
+    <a href="voice-demo.html">Demo Gratis</a>
+    <a href="simulator.html" class="accent">Simulador E2E</a>
+    <a href="engine/billing-admin.html">Billing</a>
+    <button onclick="toggleTheme()">Oscuro</button>
+    <a href="/agente/">7Group</a>
   </div>
 </div>
 
