@@ -892,11 +892,15 @@ tbody tr:hover{background:var(--accent-light)}
       </div>
       <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group"><label class="form-label">Correo <span style="color:var(--dim);font-weight:400;text-transform:none">(opcional al inicio)</span></label><input class="form-input" id="npCorreo" type="email" placeholder="cliente@correo.com"></div>
+        <div class="form-group"><label class="form-label">Fecha de nacimiento <span style="color:var(--red)">*</span></label><input class="form-input" id="npFnac" type="date" max=""></div>
+      </div>
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group"><label class="form-label">Origen</label>
           <select class="form-input" id="npOrigen">
             <option>WhatsApp</option><option>Llamada</option><option>Referido</option><option>Instagram</option><option>Presencial</option><option>Otro</option>
           </select>
         </div>
+        <div class="form-group"></div>
       </div>
       <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group">
@@ -2280,8 +2284,10 @@ window.nuevoProspecto=function(){
   switchSub('inbox');
   openModal('nuevoProspecto');
   // reset campos
-  ['npNombre','npTel','npCorreo','npTipo','npIntermOtro'].forEach(function(id){var e=document.getElementById(id); if(e) e.value='';});
+  ['npNombre','npTel','npCorreo','npTipo','npIntermOtro','npFnac'].forEach(function(id){var e=document.getElementById(id); if(e) e.value='';});
   var o=document.getElementById('npOrigen'); if(o) o.selectedIndex=0;
+  // Fecha maxima hoy (no permitir fechas futuras)
+  var fnac = document.getElementById('npFnac'); if(fnac) fnac.max = new Date().toISOString().slice(0,10);
   poblarSelectInterm_(document.getElementById('npInterm'));
   document.getElementById('npIntermOtroWrap').style.display='none';
   document.getElementById('npPreview').style.display='none';
@@ -2349,6 +2355,7 @@ function npCollect_(){
   var correo  = (document.getElementById('npCorreo').value||'').trim();
   var tipo    = document.getElementById('npTipo').value;
   var origen  = document.getElementById('npOrigen').value || 'WhatsApp';
+  var fnac    = (document.getElementById('npFnac').value||'').trim();
   var intermSel = document.getElementById('npInterm').value;
   var interm = intermSel === '__otro'
     ? (document.getElementById('npIntermOtro').value||'').trim()
@@ -2357,10 +2364,14 @@ function npCollect_(){
   if(tel.length<7){ alert('Escribe el telefono (minimo 7 digitos)'); return null; }
   if(!tipo){ alert('Selecciona el tipo de seguro'); return null; }
   if(correo && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)){ alert('El correo no tiene formato valido'); return null; }
+  if(!fnac){ alert('Selecciona la fecha de nacimiento del prospecto'); return null; }
+  // Validar edad razonable: 5-100 anos
+  var edad = (Date.now() - new Date(fnac).getTime()) / (365.25*24*3600*1000);
+  if(edad < 5 || edad > 100){ alert('Fecha de nacimiento fuera de rango (esperado 5-100 anos)'); return null; }
   if(!interm){ alert('Selecciona un intermediario (o escribe uno nuevo si elegiste "Otro")'); return null; }
   // Si es nuevo (opcion Otro), persistir en catalogo
   if(intermSel === '__otro') agregarIntermediario_(interm);
-  return {nombre:nombre, telefono:tel, correo:correo, tipo:tipo, origen:origen, intermediario:interm};
+  return {nombre:nombre, telefono:tel, correo:correo, tipo:tipo, origen:origen, intermediario:interm, fnac:fnac};
 }
 
 function npSaveLead_(d, cb){
@@ -2371,13 +2382,13 @@ function npSaveLead_(d, cb){
     correo: d.correo,
     telefono: d.telefono,
     tipo: d.tipo,
-    detalle: '',
+    detalle: d.fnac ? ('FNAC:'+d.fnac) : '',
     urgencia: '',
     origen: d.origen,
     intermediario: d.intermediario || ''
   };
   // Optimista: agregar local para que aparezca ya en el Inbox
-  LEADS.unshift({fecha:payload.fecha, id:'LD-local-'+Date.now(), nombre:d.nombre, correo:d.correo, telefono:d.telefono, tipo:d.tipo, detalle:'', urgencia:'', origen:d.origen, estado:'Nuevo', notas:'', intermediario:d.intermediario||''});
+  LEADS.unshift({fecha:payload.fecha, id:'LD-local-'+Date.now(), nombre:d.nombre, correo:d.correo, telefono:d.telefono, tipo:d.tipo, detalle:payload.detalle, urgencia:'', origen:d.origen, estado:'Nuevo', notas:'', intermediario:d.intermediario||'', fnac:d.fnac||''});
   renderLeads();
   fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
     .then(function(){ setTimeout(loadLeadsFromSheet, 1500); if(cb)cb(); })
@@ -5340,10 +5351,16 @@ function loadLeadsFromSheet(){
     .then(function(j){
       if(!j || j.status!=='ok' || !j.rows) return;
       LEADS = j.rows.map(function(r){
-        // La placa la guardamos como "Placa: XXX" dentro de detalle (no rompe esquema Sheet).
+        // Guardamos metadatos dentro de detalle sin romper esquema Sheet:
+        //   Placa: ABC123    (solo Vehiculo)
+        //   FNAC:1990-05-15  (todos)
+        var det = String(r.detalle||'');
         var placa = '';
-        var m = String(r.detalle||'').match(/Placa[:\s]+([A-Z0-9]{5,7})/i);
-        if(m) placa = m[1].toUpperCase();
+        var mp = det.match(/Placa[:\s]+([A-Z0-9]{5,7})/i);
+        if(mp) placa = mp[1].toUpperCase();
+        var fnac = '';
+        var mf = det.match(/FNAC[:\s]+(\d{4}-\d{2}-\d{2})/i);
+        if(mf) fnac = mf[1];
         return {
           fecha: r.timestamp || '',
           id: r.id,
@@ -5351,13 +5368,14 @@ function loadLeadsFromSheet(){
           correo: r.correo,
           telefono: (r.telefono||'').replace(/[^0-9]/g,''),
           tipo: r.tipo,
-          detalle: r.detalle,
+          detalle: det,
           urgencia: r.urgencia,
           origen: r.origen,
           estado: r.estado || 'Nuevo',
           notas: r.notas,
           intermediario: r.intermediario || '',
-          placa: placa
+          placa: placa,
+          fnac: fnac
         };
       });
       renderLeads();
