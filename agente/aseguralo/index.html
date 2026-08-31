@@ -2433,6 +2433,9 @@ function renderPorEmitir(){
     box.innerHTML='<div class="emitir-empty">No hay cotizaciones por emitir. Cuando marques una cotizacion como aceptada, aparece aqui para emitir la poliza.</div>';
     return;
   }
+  // Cache de polizas emitidas (post OCR) por lead. Sobrevive a re-renders del panel.
+  window._POL_EMITIDAS = window._POL_EMITIDAS || {};
+  try { window._POL_EMITIDAS = JSON.parse(localStorage.getItem('aseg_pol_emitidas')||'{}'); } catch(e){}
   box.innerHTML=lista.map(function(l){
     var data = COT_PDFS[l.id] || {};
     var ganadora = data.__ganadora ? data[data.__ganadora] : null;
@@ -2440,28 +2443,43 @@ function renderPorEmitir(){
     var primaTxt = ganadora ? fmt(Number(ganadora.prima)||0) : '—';
     var asegTxt  = ganadora ? ganadora.aseguradora : '—';
     var vigTxt   = ganadora && ganadora.desde ? ganadora.desde+' → '+ganadora.hasta : '';
-    var fnacTxt = l.fnac ? (' &middot; F.Nac: '+l.fnac) : '';
-    return '<div class="emitir-card">'+
-      '<div class="info">'+
-        '<div class="cli">'+l.nombre+' &middot; '+l.tipo+fnacTxt+'</div>'+
-        '<div class="meta"><strong>'+asegTxt+'</strong> &middot; Prima aceptada: <strong style="color:var(--green)">'+primaTxt+'</strong></div>'+
-        (vigTxt?'<div class="meta" style="margin-top:4px">Vigencia: '+vigTxt+'</div>':'')+
-        '<div class="meta" style="margin-top:4px">Telefono: '+(l.telefono||'—')+' &middot; Correo: '+(l.correo||'—')+'</div>'+
-        '<div class="meta" id="emit-status-'+l.id+'" style="margin-top:6px;font-size:11px;color:var(--dim)"></div>'+
-      '</div>'+
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
+    var emitida  = window._POL_EMITIDAS[l.id]; // {poliza, driveUrl, aseguradora, prima}
+    // Botones cambian segun etapa: SIN poliza subida vs CON poliza subida
+    var botones;
+    if(!emitida){
+      // Etapa 1: aun sin PDF de poliza
+      botones =
         (tel?'<a class="btn btn-sm btn-wa-solid" href="https://wa.me/57'+tel+'" target="_blank">WA cliente</a>':'')+
         '<button class="btn btn-sm" onclick="descargarComparativoPDF(\''+l.id+'\')">PDF propuesta</button>'+
         '<label class="btn btn-sm btn-primary" style="cursor:pointer">'+
           '<input type="file" accept="application/pdf" onchange="subirPDFPolizaEmitida(this,\''+l.id+'\')" style="display:none">'+
-          '+ Cliente nuevo'+
-        '</label>'+
+          '+ Subir poliza'+
+        '</label>';
+    } else {
+      // Etapa 2: PDF ya cargado, POLRES alimentado. Fabian envia al cliente y marca enviada.
+      botones =
+        '<a class="btn btn-sm" href="'+emitida.driveUrl+'" target="_blank">Ver PDF poliza</a>'+
+        (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarPolizaWA(\''+l.id+'\')">Enviar por WA al cliente</button>':'')+
+        '<button class="btn btn-sm btn-primary" onclick="marcarEnviada(\''+l.id+'\')" style="background:var(--green);border:none">Marcar enviada &#10003;</button>';
+    }
+    var estadoLine = emitida
+      ? '<div class="meta" style="margin-top:6px;font-size:11px;color:var(--green)">Poliza '+emitida.poliza+' emitida &middot; en POLRES &middot; PDF en Drive</div>'
+      : '<div class="meta" id="emit-status-'+l.id+'" style="margin-top:6px;font-size:11px;color:var(--dim)"></div>';
+    return '<div class="emitir-card">'+
+      '<div class="info">'+
+        '<div class="cli">'+l.nombre+' &middot; '+l.tipo+'</div>'+
+        '<div class="meta"><strong>'+asegTxt+'</strong> &middot; Prima aceptada: <strong style="color:var(--green)">'+primaTxt+'</strong></div>'+
+        (vigTxt?'<div class="meta" style="margin-top:4px">Vigencia: '+vigTxt+'</div>':'')+
+        '<div class="meta" style="margin-top:4px">Telefono: '+(l.telefono||'—')+' &middot; Correo: '+(l.correo||'—')+'</div>'+
+        estadoLine+
       '</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+botones+'</div>'+
     '</div>';
   }).join('');
 }
 
-/* Flujo emision: Fabian sube PDF de la poliza oficial → OCR → alimenta POLRES + Drive */
+/* Flujo emision (paso 1): Fabian sube PDF de la poliza oficial → OCR → alimenta POLRES + Drive.
+   NO cambia el estado del lead todavia. El lead sigue en POR EMITIR con nuevos botones. */
 window.subirPDFPolizaEmitida = async function(inputEl, leadId){
   var file = inputEl.files[0]; if(!file) return;
   var statusEl = document.getElementById('emit-status-'+leadId);
@@ -2488,20 +2506,57 @@ window.subirPDFPolizaEmitida = async function(inputEl, leadId){
     if(!res.ok) throw new Error('Apps Script HTTP '+res.status);
     var j = await res.json();
     if(j.error) throw new Error(j.error);
-    setStatus('Poliza '+(j.poliza||'')+' creada en POLRES. PDF en Drive.', 'var(--green)');
-    // Cambiar estado del lead a Convertido y notificar
-    lead.estado = 'Convertido';
-    fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'lead-update', id:leadId, estado:'Convertido'})}).catch(function(){});
-    alert('Poliza '+(j.poliza||'sin numero')+' creada correctamente.\n\nSe agrego a POLRES y se guardo copia en Drive.\nEl prospecto pasa a Convertido.');
-    renderLeads();
-    renderPorEmitir();
-    if(typeof renderPolizas==='function') renderPolizas();
+    // Guardar info emitida para mostrar botones "Enviar WA" y "Marcar enviada"
+    window._POL_EMITIDAS[leadId] = {
+      poliza: j.poliza || 'sin numero',
+      driveUrl: (j.drive && j.drive.url) || '',
+      aseguradora: (j.data && j.data.aseguradora) || '',
+      prima: (j.data && j.data.prima_anual) || 0
+    };
+    try { localStorage.setItem('aseg_pol_emitidas', JSON.stringify(window._POL_EMITIDAS)); } catch(e){}
+    setStatus('Poliza '+j.poliza+' emitida. Ahora envia al cliente.', 'var(--green)');
+    renderPorEmitir(); // repinta con botones etapa 2
   } catch(err){
     setStatus('Error: '+err.message, 'var(--red)');
     console.error('Emision poliza:', err);
     alert('Error al procesar el PDF de la poliza:\n\n'+err.message);
   }
+};
+
+/* Flujo emision (paso 2): abre WhatsApp con mensaje pre-llenado + link al PDF Drive.
+   El cliente puede abrir el link para ver la poliza. Fabian tambien puede adjuntar el PDF
+   descargado si prefiere enviarlo como archivo. */
+window.enviarPolizaWA = function(leadId){
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
+  var emit = (window._POL_EMITIDAS||{})[leadId]; if(!emit){ alert('No hay poliza emitida'); return; }
+  var tel = (lead.telefono||'').replace(/[^0-9]/g,''); if(!tel) return;
+  var nomCorto = (lead.nombre||'').split(' ')[0] || 'cliente';
+  var msg =
+    'Hola '+nomCorto+', un cordial saludo.\n\n'+
+    'Me da mucho gusto compartirte que tu poliza '+(emit.aseguradora||'')+
+      (emit.poliza && emit.poliza!=='sin numero' ? ' No. '+emit.poliza : '')+' ya fue emitida.\n\n'+
+    'Puedes verla y descargarla desde este enlace:\n'+
+    (emit.driveUrl||'(enlace no disponible)')+'\n\n'+
+    'Cualquier duda con gusto te atiendo por este mismo medio.\n'+
+    'Gracias por tu confianza. Que tengas un excelente dia.';
+  var url = 'https://wa.me/57'+tel+'?text='+encodeURIComponent(msg);
+  window.open(url, '_blank');
+};
+
+/* Flujo emision (paso 3): marcar como enviada → lead pasa a Convertido y sale de POR EMITIR. */
+window.marcarEnviada = function(leadId){
+  if(!confirm('Marcar esta poliza como YA ENVIADA al cliente?\n\nEl prospecto pasa a Convertido y sale de POR EMITIR.')) return;
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
+  lead.estado = 'Convertido';
+  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'lead-update', id:leadId, estado:'Convertido'})}).catch(function(){});
+  // Limpiar cache local (ya no aparece en POR EMITIR)
+  if(window._POL_EMITIDAS && window._POL_EMITIDAS[leadId]){
+    delete window._POL_EMITIDAS[leadId];
+    try { localStorage.setItem('aseg_pol_emitidas', JSON.stringify(window._POL_EMITIDAS)); } catch(e){}
+  }
+  renderLeads(); renderPorEmitir();
+  if(typeof renderPolizas==='function') renderPolizas();
 };
 
 /* ====================================
