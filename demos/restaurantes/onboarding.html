@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7Group — Crea tu agente de voz</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0a0a0a; --white: #f5f5f5; --gray: #6b6b6b; --gray2: #999; --light: #e8e8e8; --cyan: #5ee7f7;
+  --green: #2a9d8f; --green-light: rgba(42,157,143,.08);
+  --blue: #3b82f6; --blue-light: rgba(59,130,246,.08);
+  --yellow: #f59e0b; --yellow-light: rgba(245,158,11,.08);
+  --red: #ef4444;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Plus Jakarta Sans','Helvetica Neue',Helvetica,Arial,sans-serif; background:var(--white); color:var(--black); min-height:100vh; line-height:1.6; }
+
+/* NAV — matches 7group.site */
+.topbar { background:rgba(10,10,10,.95); backdrop-filter:blur(14px); padding:16px 48px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.tb-logo { height:30px; display:block; }
+.tb-links { display:flex; gap:32px; }
+.tb-links a { text-decoration:none; color:rgba(255,255,255,.65); font-size:14px; letter-spacing:.3px; transition:color .2s; }
+.tb-links a:hover { color:#fff; }
+@media(max-width:600px) { .topbar { padding:12px 16px; } .tb-links { gap:16px; } .tb-links a { font-size:12px; } }
+
+/* PROGRESS BAR */
+.progress-bar { background:var(--white); border-bottom:1px solid var(--light); padding:20px 24px; }
+.progress-steps { display:flex; gap:4px; max-width:800px; margin:0 auto; }
+.p-step { flex:1; height:3px; border-radius:2px; background:var(--light); transition:.3s; }
+.p-step.done { background:var(--black); }
+.p-step.current { background:var(--cyan); }
+.step-labels { display:flex; justify-content:space-between; max-width:800px; margin:10px auto 0; }
+.step-labels span { font-size:9px; color:var(--gray); text-align:center; flex:1; text-transform:uppercase; letter-spacing:.5px; }
+.step-labels span.active { color:var(--black); font-weight:700; }
+.step-labels span.done-label { color:var(--black); }
+
+/* MAIN */
+.main { max-width:600px; margin:0 auto; padding:48px 24px 80px; }
+.main h1 { font-size:2rem; font-weight:700; letter-spacing:-.02em; margin-bottom:6px; }
+.main .subtitle { font-size:15px; color:var(--gray); margin-bottom:36px; }
+.step-counter { font-size:11px; color:var(--cyan); font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; }
+
+/* FORM */
+.field { margin-bottom:22px; }
+.field label { display:block; font-size:11px; font-weight:600; color:var(--gray); margin-bottom:6px; text-transform:uppercase; letter-spacing:.8px; }
+.field input, .field select, .field textarea {
+  width:100%; padding:13px 16px; background:#fff; border:1px solid var(--light);
+  border-radius:0; color:var(--black); font-size:15px; font-family:inherit; outline:none; transition:.2s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--black); }
+.field textarea { resize:vertical; min-height:80px; }
+.field select { cursor:pointer; }
+.field .hint { font-size:11px; color:var(--gray); margin-top:6px; }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media(max-width:600px) { .field-row { grid-template-columns:1fr; } }
+
+/* BUTTONS */
+.btn-row { display:flex; gap:12px; margin-top:36px; }
+.btn { padding:14px 32px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; border:none; transition:.2s; letter-spacing:.3px; }
+.btn-primary { background:var(--black); color:var(--white); }
+.btn-primary:hover { background:#222; }
+.btn-primary:disabled { opacity:.3; cursor:not-allowed; }
+.btn-secondary { background:transparent; color:var(--gray); border:1px solid var(--light); }
+.btn-secondary:hover { color:var(--black); border-color:var(--black); }
+
+/* CARDS */
+.option-cards { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px; }
+@media(max-width:500px) { .option-cards { grid-template-columns:1fr; } }
+.opt-card { padding:18px; background:#fff; border:2px solid var(--light); cursor:pointer; transition:.2s; text-align:center; }
+.opt-card:hover { border-color:var(--gray); }
+.opt-card.selected { border-color:var(--black); background:rgba(10,10,10,.03); }
+.opt-card .oc-title { font-size:14px; font-weight:700; }
+.opt-card .oc-desc { font-size:11px; color:var(--gray); margin-top:4px; }
+
+/* VOICE CARDS */
+.voice-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px; }
+@media(max-width:500px) { .voice-cards { grid-template-columns:1fr 1fr; } }
+.v-card { padding:14px; background:#fff; border:2px solid var(--light); cursor:pointer; text-align:center; transition:.2s; }
+.v-card:hover { border-color:var(--gray); }
+.v-card.selected { border-color:var(--cyan); background:rgba(94,231,247,.06); }
+.v-card .v-name { font-size:13px; font-weight:700; }
+.v-card .v-style { font-size:10px; color:var(--gray); margin-top:2px; }
+
+/* PRODUCT TABLE */
+.prod-table { width:100%; border-collapse:collapse; margin-bottom:16px; }
+.prod-table th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--gray); padding:10px 8px; border-bottom:1px solid var(--light); }
+.prod-table td { padding:8px; font-size:13px; border-bottom:1px solid var(--light); }
+.prod-table input { width:100%; padding:10px; background:#fff; border:1px solid var(--light); color:var(--black); font-size:13px; font-family:inherit; }
+.add-row { padding:10px 16px; background:transparent; border:1px dashed var(--light); color:var(--gray); cursor:pointer; font-size:12px; font-family:inherit; width:100%; text-align:center; }
+.add-row:hover { border-color:var(--black); color:var(--black); }
+
+/* PREVIEW */
+.preview-box { background:var(--black); color:var(--white); border-radius:0; padding:24px; margin-top:28px; }
+.preview-box h3 { font-size:11px; font-weight:600; color:var(--cyan); text-transform:uppercase; letter-spacing:2px; margin-bottom:14px; }
+.preview-bubble { background:rgba(255,255,255,.08); border-radius:0; padding:16px 20px; font-size:14px; line-height:1.6; color:rgba(255,255,255,.9); }
+.preview-agent { font-size:11px; color:var(--cyan); font-weight:600; margin-bottom:6px; }
+
+/* CHECKLIST */
+.check-list { list-style:none; }
+.check-list li { padding:14px 0; border-bottom:1px solid var(--light); display:flex; align-items:center; gap:14px; font-size:14px; }
+.check-list li:last-child { border:none; }
+.check-icon { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+.check-icon.pass { background:var(--green-light); color:var(--green); }
+.check-icon.fail { background:rgba(239,68,68,.08); color:var(--red); }
+.check-detail { font-size:11px; color:var(--gray); }
+
+/* ACHIEVEMENTS */
+.ach-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin:16px 0; }
+.ach-card { padding:14px; background:#f9f9f9; border:1px solid var(--light); border-radius:10px; text-align:center; color:var(--gray); transition:.2s; }
+.ach-card .ach-name { font-size:13px; font-weight:600; color:#555; }
+.ach-card.earned { border-color:rgba(42,157,143,.4); background:rgba(42,157,143,.06); }
+.ach-card.earned .ach-name { color:var(--black); }
+.ach-pts { font-size:10px; color:var(--gray2); margin-top:4px; }
+
+/* GAMIFICATION BAR */
+.gami-bar { background:#fff; border:1px solid var(--light); border-radius:10px; padding:18px 20px; margin-bottom:20px; display:flex; align-items:center; gap:20px; }
+.gami-level { text-align:center; min-width:80px; }
+.gami-level .gami-icon { font-size:24px; font-weight:800; color:var(--black); }
+.gami-level .gami-label { font-size:10px; color:var(--gray); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+.gami-info { flex:1; }
+.gami-info .gami-points { font-size:13px; font-weight:600; color:var(--black); margin-bottom:6px; }
+.gami-info .gami-points span { color:var(--gray); font-weight:400; }
+.gami-progress { width:100%; height:6px; background:var(--light); border-radius:3px; overflow:hidden; }
+.gami-progress-fill { height:100%; background:var(--cyan); border-radius:3px; transition:width .4s; }
+.gami-info .gami-next { font-size:10px; color:var(--gray2); margin-top:4px; }
+
+/* SUCCESS */
+.success-box { text-align:center; padding:60px 20px; }
+.success-box .big-check { width:72px; height:72px; border-radius:50%; background:var(--green-light); color:var(--green); display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:800; margin:0 auto 20px; }
+.success-box h1 { font-size:2rem; margin-bottom:8px; }
+
+/* HIDDEN */
+.step-panel { display:none; }
+.step-panel.active { display:block; }
+
+/* TIPS */
+.tip-card { padding:16px; background:#f7f7f7; border:1px solid var(--light); border-radius:10px; margin-bottom:10px; font-size:13px; line-height:1.6; color:#555; }
+.tip-card.high { background:rgba(239,68,68,.04); border-color:rgba(239,68,68,.15); }
+.tip-card.medium { background:rgba(59,130,246,.04); border-color:rgba(59,130,246,.15); }
+.tip-card .tip-badge { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--gray); margin-bottom:4px; }
+.tip-card.high .tip-badge { color:#c0392b; }
+.tip-card.medium .tip-badge { color:var(--blue); }
+
+/* KPI row */
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:20px 0; }
+@media(max-width:600px) { .kpi-row { grid-template-columns:repeat(2,1fr); } }
+.kpi { background:#fff; border:1px solid var(--light); border-radius:10px; padding:20px; text-align:center; }
+.kpi-val { font-size:28px; font-weight:700; letter-spacing:-.02em; }
+.kpi-label { font-size:9px; color:var(--gray); text-transform:uppercase; letter-spacing:1px; margin-top:6px; }
+.kpi-val.green { color:var(--green); }
+.kpi-val.blue { color:var(--blue); }
+.kpi-val.brand { color:var(--black); }
+.kpi-val.yellow { color:var(--yellow); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="/"><img class="tb-logo" src="/logo4k.webp" alt="7group"></a>
+  <div class="tb-links">
+    <a href="/">Home</a>
+    <a href="index.html">Dashboard</a>
+    <a href="voice-demo.html">Demo</a>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-bar">
+  <div class="progress-steps" id="progressSteps"></div>
+  <div class="step-labels" id="stepLabels"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- STEP 1: REGISTRO -->
+  <div class="step-panel active" id="step-register">
+    <div class="step-counter">Paso 1 de 7</div>
+    <h1>Crea tu cuenta</h1>
+    <p class="subtitle">Registrate para probar el agente de voz con tu propio restaurante.</p>
+
+    <div class="field">
+      <label>Nombre del negocio</label>
+      <input type="text" id="reg-business" placeholder="Ej: Pizzeria El Horno">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Tu nombre</label>
+        <input type="text" id="reg-name" placeholder="Nombre completo">
+      </div>
+      <div class="field">
+        <label>Telefono</label>
+        <input type="tel" id="reg-phone" placeholder="310 123 4567">
+      </div>
+    </div>
+    <div class="field">
+      <label>Correo</label>
+      <input type="email" id="reg-email" placeholder="tu@correo.com">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Tipo de cocina</label>
+        <select id="reg-type">
+          <option value="">Selecciona...</option>
+          <option value="pizza">Pizza</option>
+          <option value="hamburguesas">Hamburguesas</option>
+          <option value="pollo">Pollo / Broaster</option>
+          <option value="sushi">Sushi / Asiatica</option>
+          <option value="mexicana">Mexicana</option>
+          <option value="colombiana">Comida colombiana</option>
+          <option value="saludable">Saludable / Bowls</option>
+          <option value="panaderia">Panaderia / Reposteria</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ciudad</label>
+        <input type="text" id="reg-city" placeholder="Bogota" value="Bogota">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="submitRegister()">Continuar</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: DEMO -->
+  <div class="step-panel" id="step-demo">
+    <div class="step-counter">Paso 2 de 7</div>
+    <h1>Prueba la demo</h1>
+    <p class="subtitle">Experimenta como funciona un agente de voz IA atendiendo llamadas de un restaurante.</p>
+
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;margin-bottom:24px">
+      <p style="font-size:14px;color:var(--dim);margin-bottom:16px">Habla con el agente de ejemplo y ve como toma pedidos, responde preguntas y gestiona domicilios.</p>
+      <a href="voice-demo.html" target="_blank" class="btn btn-primary" style="display:inline-block;text-decoration:none" id="demoLink">Abrir Demo de Voz</a>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep('register')">Atras</button>
+      <button class="btn btn-primary" onclick="submitDemo()">Ya probe la demo, continuar</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: NEGOCIO -->
+  <div class="step-panel" id="step-business">
+    <div class="step-counter">Paso 3 de 7</div>
+    <h1>Tu negocio</h1>
+    <p class="subtitle">Datos de tu restaurante para configurar el agente.</p>
+
+    <div class="field">
+      <label>Direccion</label>
+      <input type="text" id="biz-address" placeholder="Cra 15 #80-20, Chapinero">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>NIT / Cedula</label>
+        <input type="text" id="biz-nit" placeholder="900.123.456-1">
+      </div>
+      <div class="field">
+        <label>Color de marca</label>
+        <input type="color" id="biz-color" value="#FF5722" style="height:44px;padding:4px">
+      </div>
+    </div>
+    <div class="field">
+      <label>Eslogan (opcional)</label>
+      <input type="text" id="biz-tagline" placeholder="La mejor pizza de la ciudad">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep('demo')">Atras</button>
+      <button class="btn btn-primary" onclick="submitBusiness()">Continuar</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: AGENTE -->
+  <div class="step-panel" id="step-agent">
+    <div class="step-counter">Paso 4 de 7</div>
+    <h1>Configura tu agente</h1>
+    <p class="subtitle">Dale nombre y personalidad al agente que atendera tus llamadas.</p>
+
+    <div class="field">
+      <label>Nombre del agente</label>
+      <input type="text" id="agent-name" placeholder="Ej: Valentina, Carlos, Sofia">
+      <div class="hint">Tu agente se presentara con este nombre al contestar</div>
+    </div>
+
+    <label style="display:block;font-size:12px;font-weight:600;color:var(--dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Personalidad</label>
+    <div class="option-cards" id="personalityCards">
+      <div class="opt-card selected" data-val="amigable" onclick="selectCard(this,'personality')">
+        <span class="oc-title">Amigable</span>
+        <span class="oc-desc">Cercano, usa humor ligero</span>
+      </div>
+      <div class="opt-card" data-val="profesional" onclick="selectCard(this,'personality')">
+        <span class="oc-title">Profesional</span>
+        <span class="oc-desc">Formal, eficiente, directo</span>
+      </div>
+      <div class="opt-card" data-val="entusiasta" onclick="selectCard(this,'personality')">
+        <span class="oc-title">Entusiasta</span>
+        <span class="oc-desc">Energico, sugiere activamente</span>
+      </div>
+      <div class="opt-card" data-val="relajado" onclick="selectCard(this,'personality')">
+        <span class="oc-title">Relajado</span>
+        <span class="oc-desc">Calmado, paciente, sin prisa</span>
+      </div>
+    </div>
+
+    <label style="display:block;font-size:12px;font-weight:600;color:var(--dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Voz</label>
+    <div class="voice-cards" id="voiceCards">
+      <div class="v-card selected" data-val="shimmer" onclick="selectCard(this,'voice')">
+        <div class="v-name">Shimmer</div>
+        <div class="v-style">Femenina, calida</div>
+      </div>
+      <div class="v-card" data-val="nova" onclick="selectCard(this,'voice')">
+        <div class="v-name">Nova</div>
+        <div class="v-style">Femenina, energica</div>
+      </div>
+      <div class="v-card" data-val="echo" onclick="selectCard(this,'voice')">
+        <div class="v-name">Echo</div>
+        <div class="v-style">Masculina, grave</div>
+      </div>
+      <div class="v-card" data-val="onyx" onclick="selectCard(this,'voice')">
+        <div class="v-name">Onyx</div>
+        <div class="v-style">Masculina, seria</div>
+      </div>
+      <div class="v-card" data-val="alloy" onclick="selectCard(this,'voice')">
+        <div class="v-name">Alloy</div>
+        <div class="v-style">Neutra, versatil</div>
+      </div>
+      <div class="v-card" data-val="fable" onclick="selectCard(this,'voice')">
+        <div class="v-name">Fable</div>
+        <div class="v-style">Masculina, narradora</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Saludo personalizado</label>
+      <textarea id="agent-greeting" placeholder="Se genera automaticamente..."></textarea>
+      <div class="hint">Este es el mensaje que dira tu agente al contestar cada llamada</div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview-box">
+      <h3>Vista previa</h3>
+      <div class="preview-agent" id="previewAgentName">Valentina</div>
+      <div class="preview-bubble" id="previewGreeting">Hola, soy Valentina de tu restaurante. ¿En que te puedo ayudar hoy?</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep('business')">Atras</button>
+      <button class="btn btn-primary" onclick="submitAgent()">Continuar</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: CATALOGO -->
+  <div class="step-panel" id="step-catalog">
+    <div class="step-counter">Paso 5 de 7</div>
+    <h1>Tu catalogo</h1>
+    <p class="subtitle">Agrega los productos que tu agente vendera por telefono. Minimo 3.</p>
+
+    <table class="prod-table">
+      <thead>
+        <tr><th>Producto</th><th>Precio</th><th>Categoria</th><th></th></tr>
+      </thead>
+      <tbody id="productRows">
+        <tr>
+          <td><input type="text" placeholder="Pizza Margarita" class="prod-name"></td>
+          <td><input type="number" placeholder="28000" class="prod-price"></td>
+          <td><input type="text" placeholder="Pizzas" class="prod-cat"></td>
+          <td><button onclick="removeRow(this)" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px">x</button></td>
+        </tr>
+        <tr>
+          <td><input type="text" placeholder="Hamburguesa clasica" class="prod-name"></td>
+          <td><input type="number" placeholder="22000" class="prod-price"></td>
+          <td><input type="text" placeholder="Hamburguesas" class="prod-cat"></td>
+          <td><button onclick="removeRow(this)" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px">x</button></td>
+        </tr>
+        <tr>
+          <td><input type="text" placeholder="Gaseosa 400ml" class="prod-name"></td>
+          <td><input type="number" placeholder="4000" class="prod-price"></td>
+          <td><input type="text" placeholder="Bebidas" class="prod-cat"></td>
+          <td><button onclick="removeRow(this)" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px">x</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="add-row" onclick="addProductRow()">+ Agregar producto</button>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep('agent')">Atras</button>
+      <button class="btn btn-primary" onclick="submitCatalog()">Continuar</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: OPERACION -->
+  <div class="step-panel" id="step-operations">
+    <div class="step-counter">Paso 6 de 7</div>
+    <h1>Operacion</h1>
+    <p class="subtitle">Configura horarios, domicilios y zona de cobertura.</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Hora de apertura</label>
+        <input type="time" id="ops-open" value="10:00">
+      </div>
+      <div class="field">
+        <label>Hora de cierre</label>
+        <input type="time" id="ops-close" value="22:00">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Ofreces domicilios?</label>
+      <select id="ops-delivery">
+        <option value="yes">Si, hago domicilios</option>
+        <option value="no">No, solo en local</option>
+      </select>
+    </div>
+
+    <div id="deliveryFields">
+      <div class="field-row">
+        <div class="field">
+          <label>Zona de cobertura</label>
+          <input type="text" id="ops-zone" placeholder="Ej: Chapinero, Usaquen">
+        </div>
+        <div class="field">
+          <label>Costo domicilio</label>
+          <input type="number" id="ops-fee" placeholder="5000" value="5000">
+        </div>
+      </div>
+      <div class="field">
+        <label>Pedido minimo</label>
+        <input type="number" id="ops-min" placeholder="20000" value="20000">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep('catalog')">Atras</button>
+      <button class="btn btn-primary" onclick="submitOperations()">Continuar</button>
+    </div>
+  </div>
+
+  <!-- STEP 7: TEST & ACTIVATE -->
+  <div class="step-panel" id="step-test">
+    <div class="step-counter">Paso 7 de 7</div>
+    <h1>Revisa y activa tu trial</h1>
+    <p class="subtitle">Verifica que todo este listo antes de iniciar tus 15 dias gratis.</p>
+
+    <ul class="check-list" id="checklistUI"></ul>
+
+    <div class="preview-box" style="margin-top:24px">
+      <h3>Resumen</h3>
+      <div id="summaryContent"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep('operations')">Atras</button>
+      <button class="btn btn-primary" id="btnActivate" onclick="submitActivateTrial()">Iniciar Trial 15 Dias Gratis</button>
+    </div>
+  </div>
+
+  <!-- STEP SUCCESS: TRIAL ACTIVO -->
+  <div class="step-panel" id="step-success">
+    <div class="success-box">
+      <div class="big-check">OK</div>
+      <h1>Tu trial esta activo</h1>
+      <p class="subtitle">Tienes 15 dias para probar tu agente con llamadas reales.</p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row" id="trialKPIs">
+      <div class="kpi"><div class="kpi-val brand" id="kCalls">0</div><div class="kpi-label">Llamadas</div></div>
+      <div class="kpi"><div class="kpi-val green" id="kOrders">0</div><div class="kpi-label">Pedidos</div></div>
+      <div class="kpi"><div class="kpi-val blue" id="kConv">0%</div><div class="kpi-label">Conversion</div></div>
+      <div class="kpi"><div class="kpi-val yellow" id="kDays">15</div><div class="kpi-label">Dias restantes</div></div>
+    </div>
+
+    <!-- Gamification level -->
+    <h3 style="font-size:11px;margin:28px 0 12px;color:var(--gray);text-transform:uppercase;letter-spacing:2px;font-weight:600">Tu nivel</h3>
+    <div class="gami-bar" id="gamiBar">
+      <div class="gami-level"><div class="gami-icon">1</div><div class="gami-label">Novato</div></div>
+      <div class="gami-info">
+        <div class="gami-points">0 puntos <span>/ 500 para siguiente nivel</span></div>
+        <div class="gami-progress"><div class="gami-progress-fill" style="width:0%"></div></div>
+        <div class="gami-next">Siguiente: Emprendedor</div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <h3 style="font-size:11px;margin:20px 0 12px;color:var(--gray);text-transform:uppercase;letter-spacing:2px;font-weight:600">Logros — gana puntos para subir de nivel</h3>
+    <div class="ach-grid" id="achievementsUI"></div>
+
+    <!-- Tips -->
+    <h3 style="font-size:11px;margin:28px 0 12px;color:var(--gray);text-transform:uppercase;letter-spacing:2px;font-weight:600">Consejos para mejorar</h3>
+    <div id="tipsUI"></div>
+
+    <!-- Plan suggestion -->
+    <div id="planSuggestion" style="margin-top:24px"></div>
+
+    <div class="btn-row" style="justify-content:center">
+      <a href="voice-demo.html" class="btn btn-secondary" style="text-decoration:none">Probar mi agente</a>
+      <a href="index.html" class="btn btn-primary" style="text-decoration:none">Ir al Dashboard</a>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import {
+  registerLead, getLead, markDemoCompleted,
+  startOnboarding, completeStep, getOnboardingProgress,
+  provisionTenant, getTrialDashboard,
+  getActivationChecklist,
+  LEAD_STATES, ONBOARDING_STEPS
+} from './engine/onboarding.js';
+
+// ── State ──
+let leadId = null;
+let sessionId = null;
+let currentStep = 'register';
+const selections = { personality: 'amigable', voice: 'shimmer' };
+
+const STEPS = ['register','demo','business','agent','catalog','operations','test'];
+
+// ── Progress bar ──
+function renderProgress() {
+  const idx = STEPS.indexOf(currentStep);
+  const stepsEl = document.getElementById('progressSteps');
+  const labelsEl = document.getElementById('stepLabels');
+  const labels = ['Registro','Demo','Negocio','Agente','Catalogo','Operacion','Activar'];
+
+  stepsEl.innerHTML = STEPS.map((s, i) => {
+    const cls = i < idx ? 'done' : i === idx ? 'current' : '';
+    return `<div class="p-step ${cls}"></div>`;
+  }).join('');
+
+  labelsEl.innerHTML = labels.map((l, i) => {
+    const cls = i < idx ? 'done-label' : i === idx ? 'active' : '';
+    return `<span class="${cls}">${l}</span>`;
+  }).join('');
+}
+
+// ── Navigate ──
+window.goStep = function(step) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step-' + step).classList.add('active');
+  currentStep = step;
+  renderProgress();
+  window.scrollTo(0, 0);
+};
+
+// ── Card selection ──
+window.selectCard = function(el, group) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.opt-card, .v-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selections[group] = el.dataset.val;
+  if (group === 'personality' || group === 'voice') updateAgentPreview();
+};
+
+// ── Agent preview ──
+function updateAgentPreview() {
+  const name = document.getElementById('agent-name').value || 'Tu agente';
+  const biz = document.getElementById('reg-business')?.value || 'tu restaurante';
+  const greeting = `Hola, soy ${name}, agente de inteligencia artificial de ${biz}. ¿En que te puedo ayudar hoy?`;
+  document.getElementById('previewAgentName').textContent = name;
+  document.getElementById('previewGreeting').textContent = greeting;
+  document.getElementById('agent-greeting').placeholder = greeting;
+}
+
+// ── Product rows ──
+window.addProductRow = function() {
+  const tbody = document.getElementById('productRows');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" placeholder="Nombre" class="prod-name"></td>
+    <td><input type="number" placeholder="Precio" class="prod-price"></td>
+    <td><input type="text" placeholder="Categoria" class="prod-cat"></td>
+    <td><button onclick="removeRow(this)" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px">x</button></td>
+  `;
+  tbody.appendChild(tr);
+};
+
+window.removeRow = function(btn) {
+  const tbody = document.getElementById('productRows');
+  if (tbody.rows.length > 1) btn.closest('tr').remove();
+};
+
+// ── Delivery toggle ──
+document.getElementById('ops-delivery').addEventListener('change', (e) => {
+  document.getElementById('deliveryFields').style.display = e.target.value === 'yes' ? 'block' : 'none';
+});
+
+// ── Agent name live preview ──
+document.getElementById('agent-name').addEventListener('input', updateAgentPreview);
+
+// ── STEP HANDLERS ──
+
+window.submitRegister = function() {
+  const data = {
+    businessName: document.getElementById('reg-business').value.trim(),
+    contactName: document.getElementById('reg-name').value.trim(),
+    email: document.getElementById('reg-email').value.trim(),
+    phone: document.getElementById('reg-phone').value.trim(),
+    businessType: document.getElementById('reg-type').value,
+    city: document.getElementById('reg-city').value.trim()
+  };
+
+  if (!data.businessName || !data.contactName || !data.email || !data.phone || !data.businessType) {
+    alert('Completa todos los campos');
+    return;
+  }
+
+  const result = registerLead(data);
+  if (result.error) { alert(result.error); return; }
+
+  leadId = result.leadId;
+  goStep('demo');
+};
+
+window.submitDemo = function() {
+  markDemoCompleted(leadId);
+  const onb = startOnboarding(leadId);
+  sessionId = onb.sessionId;
+  goStep('business');
+};
+
+window.submitBusiness = function() {
+  completeStep(sessionId, 'BUSINESS', {
+    address: document.getElementById('biz-address').value.trim(),
+    nit: document.getElementById('biz-nit').value.trim(),
+    primaryColor: document.getElementById('biz-color').value,
+    tagline: document.getElementById('biz-tagline').value.trim(),
+    city: document.getElementById('reg-city')?.value || ''
+  });
+  goStep('agent');
+};
+
+window.submitAgent = function() {
+  const name = document.getElementById('agent-name').value.trim();
+  if (!name) { alert('Dale un nombre a tu agente'); return; }
+
+  const biz = document.getElementById('reg-business')?.value || '';
+  const greeting = document.getElementById('agent-greeting').value.trim() ||
+    `Hola, soy ${name}, agente de inteligencia artificial de ${biz}. ¿En que te puedo ayudar hoy?`;
+
+  completeStep(sessionId, 'AGENT', {
+    name,
+    voice: selections.voice,
+    personality: selections.personality,
+    greeting,
+    language: 'es'
+  });
+  goStep('catalog');
+};
+
+window.submitCatalog = function() {
+  const rows = document.getElementById('productRows').querySelectorAll('tr');
+  const products = [];
+  const catSet = new Set();
+
+  rows.forEach((row, i) => {
+    const name = row.querySelector('.prod-name').value.trim();
+    const price = parseInt(row.querySelector('.prod-price').value) || 0;
+    const cat = row.querySelector('.prod-cat').value.trim() || 'General';
+    if (name && price > 0) {
+      products.push({ id: 'p' + (i+1), name, price, category: cat.toLowerCase() });
+      catSet.add(cat);
+    }
+  });
+
+  if (products.length < 3) {
+    alert('Agrega al menos 3 productos con nombre y precio');
+    return;
+  }
+
+  const categories = [...catSet].map(c => ({ id: c.toLowerCase(), name: c }));
+
+  completeStep(sessionId, 'CATALOG', { products, categories });
+  goStep('operations');
+};
+
+window.submitOperations = function() {
+  const deliveryEnabled = document.getElementById('ops-delivery').value === 'yes';
+
+  completeStep(sessionId, 'OPERATIONS', {
+    schedule: {
+      open: document.getElementById('ops-open').value,
+      close: document.getElementById('ops-close').value
+    },
+    deliveryEnabled,
+    zones: deliveryEnabled ? [{ name: document.getElementById('ops-zone').value || 'Local', fee: parseInt(document.getElementById('ops-fee').value) || 0, time: 30 }] : [],
+    minOrder: parseInt(document.getElementById('ops-min').value) || 0,
+    deliveryFee: parseInt(document.getElementById('ops-fee').value) || 0
+  });
+
+  // Also complete TEST step (in this demo, the "test" is reviewing the checklist)
+  completeStep(sessionId, 'TEST', { tested: true });
+
+  // Provision tenant
+  const prov = provisionTenant(sessionId);
+  if (prov.error) { alert(prov.error); return; }
+
+  // Render checklist
+  renderChecklist();
+  goStep('test');
+};
+
+function renderChecklist() {
+  const progress = getOnboardingProgress(sessionId);
+  const lead = getLead(leadId);
+
+  // Simple checklist from session data
+  const checks = [
+    { label: 'Negocio configurado', passed: progress.completedSteps.includes('BUSINESS'), detail: lead.businessName },
+    { label: 'Agente configurado', passed: progress.completedSteps.includes('AGENT'), detail: progress.stepDetails.find(s=>s.key==='AGENT')?.data?.name || '' },
+    { label: 'Catalogo cargado', passed: progress.completedSteps.includes('CATALOG'), detail: (progress.stepDetails.find(s=>s.key==='CATALOG')?.data?.products?.length || 0) + ' productos' },
+    { label: 'Operacion configurada', passed: progress.completedSteps.includes('OPERATIONS'), detail: progress.stepDetails.find(s=>s.key==='OPERATIONS')?.data?.schedule?.open + ' - ' + progress.stepDetails.find(s=>s.key==='OPERATIONS')?.data?.schedule?.close },
+    { label: 'Suscripcion trial activa', passed: true, detail: 'Plan Starter — 15 dias gratis' },
+    { label: 'Agente probado', passed: true, detail: 'Prueba completada' },
+    { label: 'Numero telefonico', passed: false, detail: 'Se asigna al activar el trial' }
+  ];
+
+  const ul = document.getElementById('checklistUI');
+  ul.innerHTML = checks.map(c => `
+    <li>
+      <div class="check-icon ${c.passed ? 'pass' : 'fail'}">${c.passed ? 'OK' : '--'}</div>
+      <div>
+        <div>${c.label}</div>
+        <div class="check-detail">${c.detail}</div>
+      </div>
+    </li>
+  `).join('');
+
+  // Summary
+  const agentData = progress.stepDetails.find(s=>s.key==='AGENT')?.data || {};
+  const opsData = progress.stepDetails.find(s=>s.key==='OPERATIONS')?.data || {};
+  document.getElementById('summaryContent').innerHTML = `
+    <p style="font-size:13px;margin-bottom:8px"><strong>Negocio:</strong> ${lead.businessName}</p>
+    <p style="font-size:13px;margin-bottom:8px"><strong>Agente:</strong> ${agentData.name || 'Sin nombre'} (${agentData.personality || ''})</p>
+    <p style="font-size:13px;margin-bottom:8px"><strong>Voz:</strong> ${agentData.voice || 'shimmer'}</p>
+    <p style="font-size:13px;margin-bottom:8px"><strong>Horario:</strong> ${opsData.schedule?.open || '10:00'} - ${opsData.schedule?.close || '22:00'}</p>
+    <p style="font-size:13px"><strong>Plan:</strong> Starter — 500 min/mes — $350.000 COP/mes despues del trial</p>
+  `;
+}
+
+window.submitActivateTrial = function() {
+  // Show success
+  goStep('success');
+  renderTrialDashboard();
+  // Hide progress bar
+  document.querySelector('.progress-bar').style.display = 'none';
+};
+
+function renderTrialDashboard() {
+  const dash = getTrialDashboard(leadId);
+  if (dash.error) return;
+
+  // KPIs
+  document.getElementById('kCalls').textContent = dash.kpis.totalCalls;
+  document.getElementById('kOrders').textContent = dash.kpis.totalOrders;
+  document.getElementById('kConv').textContent = dash.kpis.conversionRate + '%';
+  document.getElementById('kDays').textContent = dash.trial.daysLeft;
+
+  // Gamification bar — levels tied to plans for upsell
+  const levels = [
+    { name:'Novato',       min:0,    icon:'1', plan:'Starter',     price:'149.000',  mins:120 },
+    { name:'Emprendedor',  min:500,  icon:'2', plan:'Profesional', price:'289.000',  mins:250 },
+    { name:'Profesional',  min:1500, icon:'3', plan:'Empresarial', price:'549.000',  mins:450 },
+    { name:'Experto',      min:3500, icon:'4', plan:'Premium',     price:'989.000',  mins:800 }
+  ];
+  const totalPts = dash.achievements.totalPoints || 0;
+  let curLvl = levels[0], nextLvl = levels[1];
+  for (let i = levels.length - 1; i >= 0; i--) {
+    if (totalPts >= levels[i].min) { curLvl = levels[i]; nextLvl = levels[i+1] || null; break; }
+  }
+  const ptsInLevel = totalPts - curLvl.min;
+  const ptsNeeded = nextLvl ? (nextLvl.min - curLvl.min) : 1;
+  const pct = nextLvl ? Math.min(100, Math.round((ptsInLevel / ptsNeeded) * 100)) : 100;
+  document.getElementById('gamiBar').innerHTML = `
+    <div class="gami-level"><div class="gami-icon">${curLvl.icon}</div><div class="gami-label">${curLvl.name}</div></div>
+    <div class="gami-info">
+      <div class="gami-points">${totalPts} puntos ${nextLvl ? `<span>/ ${nextLvl.min} para ${nextLvl.name}</span>` : '<span>— Nivel maximo</span>'}</div>
+      <div class="gami-progress"><div class="gami-progress-fill" style="width:${pct}%"></div></div>
+      <div class="gami-next">Plan actual: <strong>${curLvl.plan}</strong> — $${curLvl.price}/mes — ${curLvl.mins} min${nextLvl ? ` &nbsp;|&nbsp; Siguiente: <strong>${nextLvl.plan}</strong> — $${nextLvl.price}/mes — ${nextLvl.mins} min` : ''}</div>
+    </div>
+  `;
+
+  // Achievements
+  const achEl = document.getElementById('achievementsUI');
+  const allAch = [...dash.achievements.earned, ...dash.achievements.pending.slice(0, 4)];
+  achEl.innerHTML = allAch.map(a => `
+    <div class="ach-card ${a.done ? 'earned' : ''}">
+      <div class="ach-name">${a.label}</div>
+      <div class="ach-pts">${a.done ? '&#10003; ' : ''}${a.points} pts</div>
+    </div>
+  `).join('');
+
+  // Tips
+  const tipsEl = document.getElementById('tipsUI');
+  tipsEl.innerHTML = dash.menuTips.map(t => `
+    <div class="tip-card ${t.priority}">
+      <div class="tip-badge">${t.priority === 'high' ? 'Importante' : t.priority === 'medium' ? 'Sugerencia' : 'Opcional'}</div>
+      ${t.message}
+    </div>
+  `).join('');
+
+  // Plan suggestion
+  if (dash.suggestedPlan) {
+    document.getElementById('planSuggestion').innerHTML = `
+      <div style="background:#fff;border:2px solid var(--cyan);border-radius:12px;padding:24px;text-align:center">
+        <div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Plan sugerido</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--black);margin-bottom:4px">${dash.suggestedPlan.planName}</div>
+        <div style="font-size:1.8rem;font-weight:800;color:var(--black)">$${dash.suggestedPlan.planPrice?.toLocaleString('es-CO')}<span style="font-size:.85rem;font-weight:400;color:var(--gray)"> COP/mes</span></div>
+        <p style="font-size:12px;color:var(--gray);margin-top:8px">${dash.suggestedPlan.reason}</p>
+        <button class="btn btn-primary" style="margin-top:16px" disabled>Elegir este plan</button>
+      </div>
+    `;
+  }
+}
+
+// Init
+renderProgress();
+</script>
+</body>
+</html>

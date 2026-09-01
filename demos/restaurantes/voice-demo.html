@@ -572,6 +572,48 @@ if (window.speechSynthesis) {
 
 // Auto-init conversation on load
 initConversation();
+
+// ── Post-demo hook: show CTA after user interacts ──────────────────
+(function(){
+  let turns = 0;
+  const orig = window.toggleMic;
+  window.toggleMic = function() {
+    orig();
+    turns++;
+    if (turns >= 3 && !document.getElementById('demoHook')) {
+      const hook = document.createElement('div');
+      hook.id = 'demoHook';
+      hook.innerHTML = `
+        <div style="
+          position:fixed; bottom:0; left:0; right:0; z-index:200;
+          background:rgba(10,10,10,.95); backdrop-filter:blur(14px);
+          border-top:1px solid rgba(94,231,247,.3);
+          padding:16px 24px; display:flex; align-items:center;
+          justify-content:center; gap:16px; animation:slideUp .4s ease;
+        ">
+          <span style="color:rgba(255,255,255,.8);font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;">
+            Te gusto? Configura tu propio agente en 5 minutos
+          </span>
+          <a href="onboarding.html" style="
+            background:#5ee7f7; color:#0a0a0a; padding:8px 20px;
+            font-size:13px; font-weight:700; text-decoration:none;
+            font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:.3px;
+            white-space:nowrap; border-radius:4px;
+          ">Crear mi agente gratis →</a>
+          <button onclick="this.parentElement.parentElement.remove()" style="
+            position:absolute; right:12px; background:none; border:none;
+            color:rgba(255,255,255,.4); font-size:16px; cursor:pointer;
+          ">&#10005;</button>
+        </div>
+      `;
+      document.body.appendChild(hook);
+    }
+  };
+  // Add animation
+  const style = document.createElement('style');
+  style.textContent = '@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}';
+  document.head.appendChild(style);
+})();
 </script>
 </body>
 </html>
