@@ -352,51 +352,69 @@ export function provisionTenant(sessionId) {
  * These are NEVER shown to the client
  */
 const COST_MODEL = {
-  aiPerMinute: 350,           // COP — costo IA por minuto (OpenAI/Anthropic)
-  telephonyPerMinute: 180,    // COP — Twilio/proveedor SIP
-  infraPerMinute: 70,         // COP — servidores, bandwidth
-  totalPerMinute: 600,        // COP — costo total 7group por minuto
-  marginTarget: 0.45,         // 45% margen MINIMO directo a 7group
-  marginIdeal: 1.0,           // 100% — objetivo ideal de margen
-  setupCostInternal: 150000   // COP — costo interno de onboarding
+  // ── Modelo real unificado (scope session) ──────────────────
+  // Base: costo por LLAMADA (Vapi + Twilio + WhatsApp)
+  costPerCall: 2150,            // COP — costo real stack completo por llamada
+  fixedPerClient: 4200,         // COP/mes — infra fija por cliente activo
+  avgCallMinutes: 3.5,          // minutos promedio por llamada
+
+  // Derivados (backward compat con funciones que usan por-minuto)
+  totalPerMinute: 614,          // COP — $2,150 / 3.5 min = ~$614/min
+  aiPerMinute: 350,             // COP — componente IA
+  telephonyPerMinute: 194,      // COP — Twilio + WhatsApp ($180 + $14 WA)
+  infraPerMinute: 70,           // COP — servidores, bandwidth
+
+  // Margenes objetivo
+  marginTarget: 0.45,           // 45% margen MINIMO directo a 7group
+  marginIdeal: 1.0,             // 100% — objetivo ideal de margen
+
+  // Setup
+  setupCostInternal: 150000,    // COP — costo interno de onboarding
+
+  // Formula scope: calls × $2,150 × 1.3 + $4,200 = precio minimo
+  markupMultiplier: 1.3         // overhead ops/soporte sobre costo variable
 };
 
 // ──────────────────────────────────────────────────────
 // Plans by market — Colombia vs USA
-// Costo 7Group por minuto es el mismo ($600 COP / ~$0.15 USD)
-// En USA el pricing se multiplica x4-6 porque el mercado lo soporta
-// RESULTADO: margen en USA es 70-85% vs Colombia 48-52%
+// Costo real: $2,150 COP/call + $4,200 fijo/mes
+// calls = mins / 3.5 (promedio)
+// cost7g = calls × $2,150 + $4,200
+// SOLO planes viables (margen >= 45%)
 // ──────────────────────────────────────────────────────
 
 const LEVEL_PLANS = {
   CO: [
-    // Colombia — COP — margen 48-52% (minimo viable)
-    { level: 'Novato',      plan: 'Starter',     price: 149000,  currency: 'COP', mins: 120,  cost7g: 72000,   marginPct: 52 },
-    { level: 'Emprendedor', plan: 'Profesional',  price: 289000,  currency: 'COP', mins: 250,  cost7g: 150000,  marginPct: 48 },
-    { level: 'Profesional', plan: 'Empresarial',  price: 549000,  currency: 'COP', mins: 450,  cost7g: 270000,  marginPct: 51 },
-    { level: 'Experto',     plan: 'Premium',      price: 989000,  currency: 'COP', mins: 800,  cost7g: 480000,  marginPct: 51 }
+    // Colombia — COP — costo real por llamada
+    // Starter: 34 calls × $2,150 + $4,200 = $77,300 → margen 48%
+    { level: 'Novato',      plan: 'Starter',     price: 149000,  currency: 'COP', mins: 120,  calls: 34,  cost7g: 77300,   marginPct: 48 },
+    // Profesional: 71 calls × $2,150 + $4,200 = $156,850 → margen 46%
+    { level: 'Emprendedor', plan: 'Profesional',  price: 289000,  currency: 'COP', mins: 250,  calls: 71,  cost7g: 156850,  marginPct: 46 },
+    // Empresarial: 129 calls × $2,150 + $4,200 = $281,550 → margen 49%
+    { level: 'Profesional', plan: 'Empresarial',  price: 549000,  currency: 'COP', mins: 450,  calls: 129, cost7g: 281550,  marginPct: 49 },
+    // Premium: 229 calls × $2,150 + $4,200 = $496,550 → margen 50%
+    { level: 'Experto',     plan: 'Premium',      price: 989000,  currency: 'COP', mins: 800,  calls: 229, cost7g: 496550,  marginPct: 50 }
   ],
   US: [
-    // USA — USD — margen 70-85% (mercado premium)
-    // Costo: 120 min × $0.15 = $18 USD → precio $49 → margen 63%
-    { level: 'Novato',      plan: 'Starter',     price: 49,    currency: 'USD', mins: 120,  cost7g: 18,   marginPct: 63 },
-    { level: 'Emprendedor', plan: 'Professional', price: 99,    currency: 'USD', mins: 250,  cost7g: 37.5, marginPct: 62 },
-    { level: 'Profesional', plan: 'Business',     price: 199,   currency: 'USD', mins: 450,  cost7g: 67.5, marginPct: 66 },
-    { level: 'Experto',     plan: 'Enterprise',   price: 399,   currency: 'USD', mins: 800,  cost7g: 120,  marginPct: 70 }
+    // USA — USD — mismo costo base, mercado premium
+    // Costo en USD: $2,150 COP ≈ $0.51 USD/call + $4,200 COP ≈ $1 USD fijo
+    { level: 'Novato',      plan: 'Starter',     price: 49,    currency: 'USD', mins: 120,  calls: 34,  cost7g: 18.3,  marginPct: 63 },
+    { level: 'Emprendedor', plan: 'Professional', price: 99,    currency: 'USD', mins: 250,  calls: 71,  cost7g: 37.2,  marginPct: 62 },
+    { level: 'Profesional', plan: 'Business',     price: 199,   currency: 'USD', mins: 450,  calls: 129, cost7g: 66.8,  marginPct: 66 },
+    { level: 'Experto',     plan: 'Enterprise',   price: 399,   currency: 'USD', mins: 800,  calls: 229, cost7g: 117.8, marginPct: 70 }
   ]
 };
-// COMPARACION DE MERCADOS:
-// ┌─────────────┬──────────────┬───────────────┬────────────┬────────────┐
-// │ Nivel       │ CO precio    │ US precio     │ CO margen  │ US margen  │
-// ├─────────────┼──────────────┼───────────────┼────────────┼────────────┤
-// │ Starter     │ $149K COP    │ $49 USD       │ 52%        │ 63%        │
-// │ Profesional │ $289K COP    │ $99 USD       │ 48%        │ 62%        │
-// │ Empresarial │ $549K COP    │ $199 USD      │ 51%        │ 66%        │
-// │ Premium     │ $989K COP    │ $399 USD      │ 51%        │ 70%        │
-// └─────────────┴──────────────┴───────────────┴────────────┴────────────┘
-// El costo real de 7Group es el MISMO en ambos mercados (~$600 COP/min)
-// pero USA paga 4-6x mas → margen ideal se acerca al 100% con volumen
-// Estrategia: Colombia valida producto, USA escala ganancia
+// COMPARACION — MODELO REAL POR LLAMADA:
+// ┌─────────────┬──────────┬────────┬───────────┬────────────┬────────────┐
+// │ Plan        │ Precio   │ Calls  │ Costo 7G  │ CO margen  │ US margen  │
+// ├─────────────┼──────────┼────────┼───────────┼────────────┼────────────┤
+// │ Starter     │ $149K    │ 34     │ $77K      │ 48%        │ 63%        │
+// │ Profesional │ $289K    │ 71     │ $157K     │ 46%        │ 62%        │
+// │ Empresarial │ $549K    │ 129    │ $282K     │ 49%        │ 66%        │
+// │ Premium     │ $989K    │ 229    │ $497K     │ 50%        │ 70%        │
+// └─────────────┴──────────┴────────┴───────────┴────────────┴────────────┘
+// ALTO VOLUMEN (300+ calls) NO es viable a precio de mercado CO (19%)
+// → Queda fuera. Solo long-tail + USA para escalar margen.
 
 /**
  * Get trial dashboard for a lead
@@ -660,18 +678,23 @@ export function get7GroupCostAnalysis(leadId) {
   const plan = getPlan(sub.planId);
   const usage = getUsageSummary(lead.tenantId, sub.trialStart || sub.currentPeriodStart, new Date().toISOString());
 
-  // Costs
+  // Costs — modelo real por llamada
   const totalMinutes = usage.totalMinutes || 0;
-  const aiCost = totalMinutes * COST_MODEL.aiPerMinute;
-  const telephonyCost = totalMinutes * COST_MODEL.telephonyPerMinute;
-  const infraCost = totalMinutes * COST_MODEL.infraPerMinute;
-  const totalCost = totalMinutes * COST_MODEL.totalPerMinute;
+  const totalCalls = usage.totalCalls || 0;
+
+  // Costo real: calls × $2,150 + fijo $4,200
+  const variableCost = totalCalls * COST_MODEL.costPerCall;
+  const fixedCost = COST_MODEL.fixedPerClient;
+  const totalCost = variableCost + fixedCost;
   const setupCost = COST_MODEL.setupCostInternal;
   const totalInvestment = totalCost + setupCost;
 
   // Revenue if client converts
   const monthlyRevenue = plan.priceMonthly;
-  const monthlyCost = (totalMinutes > 0 ? totalMinutes : plan.minutesIncluded * 0.6) * COST_MODEL.totalPerMinute;
+  const estimatedCalls = totalCalls > 0
+    ? totalCalls
+    : Math.round((plan.minutesIncluded * 0.6) / COST_MODEL.avgCallMinutes);
+  const monthlyCost = estimatedCalls * COST_MODEL.costPerCall + COST_MODEL.fixedPerClient;
   const monthlyMargin = monthlyRevenue - monthlyCost;
   const marginPercent = monthlyRevenue > 0 ? Math.round((monthlyMargin / monthlyRevenue) * 100) : 0;
 
@@ -689,22 +712,24 @@ export function get7GroupCostAnalysis(leadId) {
   const meetsMinMargin = marginPercent >= COST_MODEL.marginTarget * 100;
   const meetsIdealMargin = marginPercent >= COST_MODEL.marginIdeal * 100;
 
-  // Suggested prices for both targets
-  const suggestedMinPrice = Math.round(projected30DayCost / (1 - COST_MODEL.marginTarget));     // 45% min
-  const suggestedIdealPrice = Math.round(projected30DayCost * (1 + COST_MODEL.marginIdeal));    // 100% ideal
+  // Formula scope: calls × $2,150 × 1.3 + $4,200 = precio minimo
+  const suggestedMinPrice = Math.round(
+    estimatedCalls * COST_MODEL.costPerCall * COST_MODEL.markupMultiplier + COST_MODEL.fixedPerClient
+  );
+  const suggestedIdealPrice = Math.round(monthlyCost / (1 - COST_MODEL.marginTarget));
 
   return {
     lead: { id: lead.id, businessName: lead.businessName },
     consumption: {
       totalMinutes,
-      totalCalls: usage.totalCalls,
+      totalCalls,
       totalOrders: usage.totalOrders,
-      daysUsed
+      daysUsed,
+      costPerCall: COST_MODEL.costPerCall
     },
     costs: {
-      ai: aiCost,
-      telephony: telephonyCost,
-      infra: infraCost,
+      variable: variableCost,
+      fixed: fixedCost,
       totalOperating: totalCost,
       setup: setupCost,
       totalInvestment
@@ -718,15 +743,15 @@ export function get7GroupCostAnalysis(leadId) {
       marginPercent,
       meetsMinMargin,          // >= 45%
       meetsIdealMargin,        // >= 100%
-      suggestedMinPrice,       // precio para 45% margen
-      suggestedIdealPrice,     // precio para 100% margen (objetivo)
+      suggestedMinPrice,       // scope formula: calls × 2150 × 1.3 + 4200
+      suggestedIdealPrice,     // precio para 45% margen
       paybackMonths
     },
     recommendation: meetsIdealMargin
       ? `Margen ${marginPercent}% supera objetivo ideal (100%). Plan ${plan.name} altamente rentable.`
       : meetsMinMargin
         ? `Margen ${marginPercent}% cumple minimo (45%+) pero debajo del ideal (100%). Plan ${plan.name} viable, buscar upsell.`
-        : `Margen ${marginPercent}% bajo minimo (45%). Precio minimo: $${suggestedMinPrice.toLocaleString('es-CO')} COP. Ideal: $${suggestedIdealPrice.toLocaleString('es-CO')} COP.`
+        : `Margen ${marginPercent}% bajo minimo (45%). Precio minimo scope: $${suggestedMinPrice.toLocaleString('es-CO')} COP. Para 45%: $${suggestedIdealPrice.toLocaleString('es-CO')} COP.`
   };
 }
 
