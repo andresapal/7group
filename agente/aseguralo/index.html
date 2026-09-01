@@ -2573,8 +2573,10 @@ function renderSarlaft(){
   });
 }
 
-/* Carga los formularios CONDICIONADOS por tipo de poliza (backend hace el filtro).
-   No hay eleccion manual: el sistema muestra solo lo que aplica y esos son los que se envian. */
+/* Cache global de formularios por lead (para armar UI + envio). */
+window._SARLAFT_DATA = window._SARLAFT_DATA || {};
+
+/* Carga formularios clasificados por categoria y arma UI segun tipo de poliza. */
 async function cargarListaSarlaft_(leadId, slug, tipoLead){
   var wrap = document.getElementById('sarlaftListWrap-'+leadId); if(!wrap) return;
   try {
@@ -2583,37 +2585,103 @@ async function cargarListaSarlaft_(leadId, slug, tipoLead){
       '&tipo='+encodeURIComponent(tipoLead||''),
       {redirect:'follow'});
     var j = await res.json();
-    if(!j.ok || !j.pdfs || !j.pdfs.length){
-      wrap.innerHTML = '<div style="font-size:11px;color:var(--red)">No se encontro plantilla SARLAFT valida para '+slug+' (tipo '+tipoLead+'). Revisa la carpeta Formularios/'+slug+'/.</div>';
-      wrap.dataset.fileIds = '';
+    if(!j.ok || !j.formularios){
+      wrap.innerHTML = '<div style="font-size:11px;color:var(--red)">Error consultando formularios de '+slug+'.</div>';
       return;
     }
-    // Guardar los IDs para el envio (todos los que el backend devolvio son los que aplican)
-    wrap.dataset.fileIds = j.pdfs.map(function(p){return p.id;}).join(',');
-    // Pintar como chips (solo lectura)
-    var html = '<div style="font-size:11px;color:var(--dim);margin-bottom:6px">Se enviaran:</div>';
-    html += '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
-      j.pdfs.map(function(p){
-        return '<span style="display:inline-block;padding:4px 10px;background:var(--accent-light);color:var(--accent);border-radius:6px;font-size:11px;font-weight:600">'+
-          (p.tipo||'PDF')+': '+p.nombre+
-        '</span>';
-      }).join('') +
-    '</div>';
-    wrap.innerHTML = html;
+    window._SARLAFT_DATA[leadId] = {slug:slug, tipo:tipoLead, forms:j.formularios};
+    pintarUISarlaft_(leadId);
   } catch(err){
     wrap.innerHTML = '<div style="font-size:11px;color:var(--red)">Error: '+err.message+'</div>';
-    wrap.dataset.fileIds = '';
   }
 }
 
-/* Envia SARLAFT (no-Allianz): usa los IDs pre-cargados (los del backend segun tipo), copia y abre WA */
+/* Pinta la UI del SARLAFT segun tipo de poliza.
+   Vehiculo: dropdown PN/PJ + requisitos (SARLAFT + cedula + tarjeta propiedad).
+   Salud   : SARLAFT + Declaracion Salud (si hay) + EPS (si hay) + cedula.
+   Vida    : SARLAFT + Declaracion Vida (si hay) + cedula.
+   Otros   : SARLAFT + cedula. */
+function pintarUISarlaft_(leadId){
+  var wrap = document.getElementById('sarlaftListWrap-'+leadId); if(!wrap) return;
+  var d = window._SARLAFT_DATA[leadId]; if(!d) return;
+  var forms = d.forms || {};
+  var tipo = String(d.tipo||'').toLowerCase();
+  var esVehic = tipo.indexOf('vehic')>=0 || tipo.indexOf('auto')>=0;
+  var esSalud = tipo.indexOf('salud')>=0;
+  var esVida  = tipo.indexOf('vida')>=0;
+
+  var html = '';
+  // Dropdown Persona Natural / Juridica cuando hay SARLAFT separado por tipo (vehiculo tipico)
+  var hayPN = forms.sarlaftPN && forms.sarlaftPN.length;
+  var hayPJ = forms.sarlaftPJ && forms.sarlaftPJ.length;
+  var mostrarSelectorPersona = hayPN && hayPJ;
+  if(mostrarSelectorPersona){
+    var selKey = 'sarlaftPersona-'+leadId;
+    var actual = window._SARLAFT_DATA[leadId].personaTipo || 'PN';
+    html += '<div style="margin-bottom:8px;display:flex;align-items:center;gap:8px">'+
+      '<label style="font-size:11px;color:var(--dim)">Tipo persona:</label>'+
+      '<select id="'+selKey+'" class="form-input" style="max-width:180px;font-size:12px;padding:4px 8px" onchange="cambiarPersonaSarlaft_(\''+leadId+'\',this.value)">'+
+        '<option value="PN"'+(actual==='PN'?' selected':'')+'>Persona Natural</option>'+
+        '<option value="PJ"'+(actual==='PJ'?' selected':'')+'>Persona Juridica</option>'+
+      '</select>'+
+    '</div>';
+  }
+
+  // Decidir qué formularios se enviarán
+  var envio = [];
+  if(mostrarSelectorPersona){
+    var p = window._SARLAFT_DATA[leadId].personaTipo || 'PN';
+    var arr = (p==='PJ') ? forms.sarlaftPJ : forms.sarlaftPN;
+    if(arr && arr.length) envio.push({tipo:'SARLAFT '+(p==='PJ'?'Persona Juridica':'Persona Natural'), item:arr[0]});
+  } else {
+    var pnOnly = forms.sarlaftPN && forms.sarlaftPN[0];
+    if(pnOnly) envio.push({tipo:'SARLAFT', item:pnOnly});
+  }
+  if(esVida && forms.decVida && forms.decVida.length){
+    envio.push({tipo:'Declaracion Vida', item:forms.decVida[0]});
+  }
+  if(esSalud && forms.decSalud && forms.decSalud.length){
+    envio.push({tipo:'Declaracion Salud', item:forms.decSalud[0]});
+  }
+  if(esSalud && forms.eps && forms.eps.length){
+    envio.push({tipo:'Afiliacion EPS', item:forms.eps[0]});
+  }
+  window._SARLAFT_DATA[leadId].envio = envio;
+
+  // Chips de lo que se enviara
+  if(!envio.length){
+    html += '<div style="font-size:11px;color:var(--red)">No hay plantillas para enviar en '+d.slug+'.</div>';
+  } else {
+    html += '<div style="font-size:11px;color:var(--dim);margin-bottom:6px">Formularios a enviar:</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
+      envio.map(function(e){
+        return '<span style="display:inline-block;padding:4px 10px;background:var(--accent-light);color:var(--accent);border-radius:6px;font-size:11px;font-weight:600">'+e.tipo+'</span>';
+      }).join('') +
+    '</div>';
+  }
+
+  // Requisitos adicionales que el cliente debe enviar (no van como PDF, solo en el mensaje WA)
+  var extras = ['copia de cedula'];
+  if(esVehic) extras.push('copia de tarjeta de propiedad');
+  if(esSalud) extras.push('afiliacion actual a EPS');
+  html += '<div style="font-size:11px;color:var(--dim);margin-top:8px">El cliente debe responder con: '+extras.join(', ')+'.</div>';
+
+  wrap.innerHTML = html;
+}
+
+/* Cambia PN/PJ y repinta UI */
+window.cambiarPersonaSarlaft_ = function(leadId, val){
+  if(!window._SARLAFT_DATA[leadId]) return;
+  window._SARLAFT_DATA[leadId].personaTipo = val;
+  pintarUISarlaft_(leadId);
+};
+
+/* Envia SARLAFT (no-Allianz): copia PDFs seleccionados + arma mensaje WA personalizado por tipo */
 window.enviarSarlaftPDFs = async function(leadId, slug){
   var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
-  var wrap = document.getElementById('sarlaftListWrap-'+leadId);
-  var idsStr = wrap && wrap.dataset && wrap.dataset.fileIds;
-  if(!idsStr){ alert('No hay formularios cargados. Revisa la carpeta Formularios/'+slug+'/.'); return; }
-  var fileIds = idsStr.split(',').filter(Boolean);
-  if(!fileIds.length){ alert('No hay formularios para enviar.'); return; }
+  var d = window._SARLAFT_DATA[leadId];
+  if(!d || !d.envio || !d.envio.length){ alert('No hay formularios cargados para enviar.'); return; }
+  var fileIds = d.envio.map(function(e){return e.item.id;});
   var statusEl = document.getElementById('sarlaft-status-'+leadId);
   var setStatus = function(msg,color){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=color||'var(--dim)'; } };
   setStatus('Preparando '+fileIds.length+' formulario(s) para el cliente...', 'var(--accent)');
@@ -2627,14 +2695,25 @@ window.enviarSarlaftPDFs = async function(leadId, slug){
     var j = await res.json();
     if(j.error) throw new Error(j.error);
     setStatus(fileIds.length+' formulario(s) listos en Drive del cliente.', 'var(--green)');
-    // Mensaje cordial + enumeracion de links
+    // Mensaje cordial personalizado por tipo de poliza
     var nomCorto = (lead.nombre||'').split(' ')[0] || 'cliente';
     var enumeracion = j.copias.map(function(c,i){ return (i+1)+'. '+c.plantilla+':\n'+c.url; }).join('\n\n');
+    var tipo = String(lead.tipo||'').toLowerCase();
+    var esVehic = tipo.indexOf('vehic')>=0 || tipo.indexOf('auto')>=0;
+    var esSalud = tipo.indexOf('salud')>=0;
+    var esVida  = tipo.indexOf('vida')>=0;
+    // Requisitos adicionales que el cliente debe responder
+    var extras = ['- Copia de la cedula'];
+    if(esVehic) extras.push('- Copia de la tarjeta de propiedad');
+    if(esSalud) extras.push('- Copia de la afiliacion actual a EPS');
     var msg =
       'Hola '+nomCorto+', un cordial saludo.\n\n'+
-      'Para poder emitir tu poliza con '+slug+' necesitamos que diligencies el/los siguiente(s) formulario(s):\n\n'+
+      'Para poder emitir tu poliza con '+slug+' necesitamos completar los siguientes documentos:\n\n'+
+      'FORMULARIO(S) A DILIGENCIAR:\n'+
       enumeracion+'\n\n'+
-      'Por favor completalos y me confirmas por este medio cuando esten listos. Cualquier duda con gusto te ayudo.\n'+
+      'DOCUMENTOS QUE DEBES ENVIARME POR ESTE MISMO MEDIO:\n'+
+      extras.join('\n')+'\n\n'+
+      'Por favor completalos y respondeme cuando esten listos. Cualquier duda con gusto te ayudo.\n'+
       'Gracias por tu confianza.';
     var tel = (lead.telefono||'').replace(/[^0-9]/g,'');
     var url = 'https://wa.me/57'+tel+'?text='+encodeURIComponent(msg);
@@ -4670,7 +4749,7 @@ function renderComparativoModal_(leadId){
   document.getElementById('comparativoFooter').innerHTML =
     '<button class="btn" onclick="closeModal(\'comparativo\')">Cerrar</button>'+
     '<button class="btn" onclick="descargarComparativoPDF(\''+leadId+'\')">Descargar PDF comercial</button>'+
-    '<button class="btn btn-primary" onclick="aceptarGanadora(\''+leadId+'\')" style="background:var(--green);border:none">Marcar aceptada &rarr; Por emitir</button>';
+    '<button class="btn btn-primary" onclick="aceptarGanadora(\''+leadId+'\')" style="background:var(--green);border:none">Marcar aceptada &rarr; SARLAFT</button>';
 }
 
 window.marcarGanadora = function(leadId, slot){
@@ -4688,7 +4767,7 @@ window.aceptarGanadora = function(leadId){
   var g = data[ganadora]; if(!g){ alert('No se encontro la cotizacion ganadora'); return; }
   var lead = LEADS.filter(function(x){return x.id===leadId})[0];
   if(!lead) return;
-  if(!confirm('Marcar '+g.aseguradora+' ($'+Number(g.prima).toLocaleString('es-CO')+') como aceptada?\n\nEl prospecto pasara a "Por emitir" y se notificara por correo/Telegram.')) return;
+  if(!confirm('Marcar '+g.aseguradora+' ($'+Number(g.prima).toLocaleString('es-CO')+') como aceptada?\n\nEl prospecto pasara a SARLAFT (paso previo obligatorio a la emision).')) return;
   lead.estado = 'Aceptada';
   fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify({action:'lead-update', id:leadId, estado:'Aceptada'})}).catch(function(){});
@@ -4697,9 +4776,10 @@ window.aceptarGanadora = function(leadId){
   closeModal('comparativo');
   renderLeads();
   renderEnCotizacion();
-  switchSub('emitir');
-  if(typeof renderPorEmitir==='function') renderPorEmitir();
-  alert('Marcada como aceptada. Movida a la sub-pestana "Por emitir".');
+  switchSub('sarlaft');
+  if(typeof renderSarlaft==='function') renderSarlaft();
+  if(typeof updateSubCounts==='function') updateSubCounts();
+  alert('Cotizacion aceptada. Ahora envia el SARLAFT al cliente desde la sub-pestana SARLAFT.');
 };
 
 /* Precarga logo Aseguralo local (mismo origen, sin CORS) para embeber en PDFs */
