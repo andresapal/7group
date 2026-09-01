@@ -2745,15 +2745,17 @@ window.enviarSarlaftAllianz = function(leadId){
   window.open(url, '_blank');
 };
 
-/* Marca SARLAFT completado -> lead pasa a estado 'SarlaftOK' y aparece en POR EMITIR */
+/* Marca SARLAFT completado -> lead pasa AUTOMATICO a POR EMITIR (sin confirms ni alerts) */
 window.marcarSarlaftOK = function(leadId){
-  if(!confirm('Marcar SARLAFT como COMPLETADO?\n\nEl prospecto pasa a Por Emitir.')) return;
   var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
   lead.estado = 'SarlaftOK';
   fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify({action:'lead-update', id:leadId, estado:'SarlaftOK'})}).catch(function(){});
-  renderSarlaft(); renderPorEmitir(); if(typeof renderLeads==='function') renderLeads();
+  renderSarlaft();
+  renderPorEmitir();
+  if(typeof renderLeads==='function') renderLeads();
   if(typeof updateSubCounts==='function') updateSubCounts();
+  switchSub('emitir');
 };
 
 /* Flujo emision (paso 1): Fabian sube PDF de la poliza oficial → OCR → alimenta POLRES + Drive.
