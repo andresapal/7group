@@ -144,6 +144,13 @@ tbody td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--accent-light)}
 .tbl-overflow{overflow-x:auto}
+/* Scroll horizontal DUPLICADO arriba de tablas anchas.
+   Aparece automaticamente cuando la tabla es mas ancha que su contenedor. */
+.tbl-scrolltop{overflow-x:auto;overflow-y:hidden;height:14px;background:var(--bg2);border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0}
+.tbl-scrolltop-inner{height:1px}
+.tbl-scrolltop::-webkit-scrollbar{height:12px}
+.tbl-scrolltop::-webkit-scrollbar-thumb{background:var(--accent);border-radius:6px}
+.tbl-scrolltop::-webkit-scrollbar-track{background:var(--bg3)}
 
 /* BADGES */
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.3px}
@@ -2212,7 +2219,7 @@ function _initAppReal(){
     initCharts();
 
     // Wire up sortable columns (after data is loaded)
-    makeSortHeaders('polizasTable',['id','cliente','tipo','aseguradora','intermediario','prima','desde','estado',null],function(){return POLIZAS;},function(){renderPolizas()});
+    makeSortHeaders('polizasTable',['id','cliente','tipo','aseguradora','intermediario','prima','desde','estado','fechaCreacion',null],function(){return POLIZAS;},function(){renderPolizas()});
     makeSortHeaders('comisionesTable',['aseguradora','poliza','cliente','prima','pctComision','valorComision','estadoPago','fecha'],function(){return COMISIONES;},function(){renderComisiones()});
     makeSortHeaders('facturaTable',['id','fecha','aseguradora','concepto','polizas','subtotal','iva','total','estado','vence'],function(){return FACTURAS;},function(){renderFacturacion()});
     makeSortHeaders('renovacionesTable',['cliente','poliza','tipo','aseguradora','vence','dias',null,null],function(){return RENOV_DATA;},function(){renderRenovTable()});
@@ -4810,6 +4817,56 @@ function precargarLogo_(){
   });
 }
 setTimeout(function(){ if(document.readyState==='complete') precargarLogo_(); else window.addEventListener('load', precargarLogo_); }, 500);
+
+/* ============================================
+   SCROLLBAR ESPEJO ARRIBA de tablas anchas
+   Auto-monta un scroller arriba de cada .tbl-overflow cuya tabla desborde.
+   Se sincroniza en ambos sentidos. Corre al cargar y cada vez que cambia el DOM (MutationObserver).
+   ============================================ */
+(function(){
+  function setupMirror(el){
+    if(!el || el._mirrorDone) return;
+    // Solo montar si REALMENTE hay overflow horizontal
+    if(el.scrollWidth <= el.clientWidth + 2) return;
+    var top = document.createElement('div');
+    top.className = 'tbl-scrolltop';
+    var inner = document.createElement('div');
+    inner.className = 'tbl-scrolltop-inner';
+    inner.style.width = el.scrollWidth + 'px';
+    top.appendChild(inner);
+    el.parentNode.insertBefore(top, el);
+    // sync
+    var syncing = false;
+    top.addEventListener('scroll', function(){
+      if(syncing) return; syncing = true; el.scrollLeft = top.scrollLeft; syncing = false;
+    });
+    el.addEventListener('scroll', function(){
+      if(syncing) return; syncing = true; top.scrollLeft = el.scrollLeft; syncing = false;
+    });
+    el._mirrorDone = true;
+    el._mirrorTop = top;
+    el._mirrorInner = inner;
+  }
+  function refreshAll(){
+    document.querySelectorAll('.tbl-overflow').forEach(function(el){
+      if(el._mirrorDone && el._mirrorInner){
+        // Actualiza el ancho por si la tabla cambio
+        el._mirrorInner.style.width = el.scrollWidth + 'px';
+      } else {
+        setupMirror(el);
+      }
+    });
+  }
+  window.addEventListener('load', refreshAll);
+  window.addEventListener('resize', function(){ setTimeout(refreshAll, 100); });
+  // MutationObserver: cuando cambien las filas de una tabla, ajustar
+  if(window.MutationObserver){
+    var obs = new MutationObserver(function(){ clearTimeout(window._mirrorTid); window._mirrorTid = setTimeout(refreshAll, 200); });
+    setTimeout(function(){
+      document.querySelectorAll('.tbl-overflow').forEach(function(el){ obs.observe(el, {childList:true, subtree:true}); });
+    }, 800);
+  }
+})();
 
 /* ---- Genera PDF comercial de Aseguralo con las 3 cotizaciones y recomendacion ---- */
 window.descargarComparativoPDF = async function(leadId){
