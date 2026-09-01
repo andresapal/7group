@@ -82,6 +82,49 @@
       overflow-x: hidden;
     }
 
+    /* STICKY PROMO BAR */
+    .promo-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 110;
+      background: #0a0a0a;
+      border-bottom: 1px solid rgba(94,231,247,.2);
+      padding: 9px 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,.8);
+      letter-spacing: .3px;
+      transition: transform .3s;
+    }
+    .promo-bar.hidden { transform: translateY(-100%); }
+    .promo-bar a {
+      color: #5ee7f7;
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .promo-bar a:hover { color: #fff; }
+    .promo-close {
+      position: absolute;
+      right: 16px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,.4);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .promo-close:hover { color: #fff; }
+    body.has-promo nav { top: 37px; }
+    body.has-promo .hero-wrapper { margin-top: 37px; }
+    @media(max-width:600px) {
+      .promo-bar { font-size: 11px; gap: 8px; padding: 8px 40px 8px 16px; }
+      .promo-bar span.promo-hide-mobile { display: none; }
+    }
+
     /* NAV */
     nav {
       position: fixed;
@@ -1371,6 +1414,18 @@
 
 </head>
 <body>
+
+  <!-- PROMO BAR -->
+  <div class="promo-bar" id="promoBar">
+    <span>AI Voice Agent for restaurants</span>
+    <span class="promo-hide-mobile">—</span>
+    <a href="/demos/restaurantes/onboarding.html">Try free for 15 days →</a>
+    <button class="promo-close" onclick="document.getElementById('promoBar').classList.add('hidden');document.body.classList.remove('has-promo');sessionStorage.setItem('promoHidden','1')" aria-label="Close">&#10005;</button>
+  </div>
+  <script>
+    if(!sessionStorage.getItem('promoHidden')){document.body.classList.add('has-promo')}
+    else{document.getElementById('promoBar').classList.add('hidden')}
+  </script>
 
   <!-- NAV -->
   <nav id="nav">
