@@ -3538,19 +3538,18 @@ function renderLiquidaciones(){
     return;
   }
   var estMap = {'pendiente':'badge-por-renovar','cobrado':'badge-activa','pagado':'badge-activa','no-aplica':'badge-cancelada','vencido':'badge-vencida'};
-  // Regla por ramo (mismo mapeo que backend _reglaComisionRamo_).
-  // Devuelve el % IVA que aplica al ramo (0 = sin IVA, ej Vida).
-  var pctIvaPorRamo = function(tipo){
+  // Prioridad: usar el snapshot inmutable persistido al momento de emitir.
+  // Solo si es null (liquidacion vieja pre-snapshot) recalculamos con el % actual (heuristica).
+  var pctIvaPorRamoAhora = function(tipo){
     var t = String(tipo||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     if(t.indexOf('vida')>=0)  return 0;
     if(t.indexOf('salud')>=0) return 5;
-    return 19; // vehiculo, hogar, arrendamiento, cumplimiento, PYME, etc.
+    return 19;
   };
   var primaAntesIvaDe = function(l){
-    var pctIva = pctIvaPorRamo(l.tipo);
-    return pctIva > 0
-      ? Math.round((Number(l.prima)||0) / (1 + pctIva/100))
-      : (Number(l.prima)||0);
+    if(l.prima_antes_iva != null) return Number(l.prima_antes_iva);  // snapshot congelado
+    var pctIva = pctIvaPorRamoAhora(l.tipo);
+    return pctIva > 0 ? Math.round((Number(l.prima)||0) / (1 + pctIva/100)) : (Number(l.prima)||0);
   };
   tb.innerHTML = LIQ_VIEW.map(function(l){
     var badgeAseg = estMap[l.estado_pago_aseguralo]||'badge-por-renovar';
