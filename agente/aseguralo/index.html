@@ -652,7 +652,10 @@ tbody tr:hover{background:var(--accent-light)}
 
       <!-- Sub: Asesores / distribucion editable -->
       <div class="sub-section" id="sub-com-asesores">
-        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">Distribucion de comision entre asesor y Fabian por intermediario. Editable en linea, guarda a Sheet automatico.</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+          <div style="font-size:13px;color:var(--dim);flex:1">Distribucion de comision entre asesor y Fabian por intermediario. Editable en linea, guarda a Sheet automatico.</div>
+          <button class="btn btn-primary" onclick="abrirNuevoIntermediario_()" style="font-size:12px;padding:8px 16px">+ Nuevo intermediario</button>
+        </div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;font-size:12px;line-height:1.65;color:var(--text)">
           <strong>Reglas de reparto:</strong><br>
           &bull; <strong>Split asesor/Fabian queda fijo ano tras ano</strong> (Erika siempre 70/30, en cualquier renovacion). No degrada.<br>
@@ -3695,6 +3698,52 @@ function renderAsesores(){
     pinta();
   }
 }
+
+/* Modal simple para crear nuevo intermediario. Usa prompt() encadenado para no
+   requerir HTML modal (Fabian tiene admin y Andres tambien). */
+window.abrirNuevoIntermediario_ = function(){
+  var nombre = prompt('Nombre COMPLETO del nuevo intermediario:\n(ej: Juan Perez Gomez)');
+  if(nombre===null) return;
+  nombre = nombre.trim();
+  if(!nombre){ alert('Nombre requerido'); return; }
+  var tipos = 'a=Asesor  |  d=Administrador (Dueno)  |  r=Referido 7GROUP';
+  var tipoLetra = prompt('Tipo:\n\n'+tipos+'\n\nEscribe a / d / r:', 'a');
+  if(tipoLetra===null) return;
+  var tipo = ({a:'asesor', d:'dueno', r:'referido_admin'})[String(tipoLetra).toLowerCase().trim()] || 'asesor';
+  var pctA = prompt('% Asesor (0-100). Ej para Erika: 70', '100');
+  if(pctA===null) return;
+  var pctF = prompt('% Fabian (0-100). Debe sumar con % asesor = 100.\nEj para Erika: 30', '0');
+  if(pctF===null) return;
+  var pctAsesor = Number(pctA)||0;
+  var pctFabian = Number(pctF)||0;
+  if(pctAsesor+pctFabian > 100){ alert('Los % suman '+ (pctAsesor+pctFabian) +'. No puede pasar 100.'); return; }
+  var email = prompt('Email de login (opcional, se puede agregar despues):', '');
+  if(email===null) return;
+  email = String(email).toLowerCase().trim();
+
+  var meEmail = (window.CURRENT_USER && CURRENT_USER.email) ||
+                (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
+                localStorage.getItem('aseg_erp_auth') || '';
+  if(!meEmail){ alert('No hay sesion. Recarga y entra otra vez.'); return; }
+
+  var payload = {
+    action:'intermediario-add',
+    requester_email: meEmail,
+    nombre: nombre, tipo: tipo,
+    pctAsesor: pctAsesor, pctFabian: pctFabian,
+    email_login: email, activo: 'si'
+  };
+  fetch(APPS_SCRIPT_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j && j.error) throw new Error(j.error);
+      alert('Intermediario "'+nombre+'" creado.');
+      // Refrescar catalogo y panel
+      if(typeof loadIntermediariosFull_==='function') loadIntermediariosFull_().then(function(){ renderAsesores(); });
+      else renderAsesores();
+    })
+    .catch(function(err){ alert('Error creando intermediario:\n\n'+(err.message||err)); });
+};
 
 window.guardarAsesor_ = function(btn){
   var tr = btn.closest('tr'); if(!tr) return;
