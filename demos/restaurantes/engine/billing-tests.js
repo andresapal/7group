@@ -70,10 +70,11 @@ export async function runBillingTests() {
   // ─── B1: PLANES CONFIGURABLES ──────────────────────────
   test('B1: Planes configurables — lista, crea, modifica', () => {
     const plans = listPlans();
-    assert(plans.length === 3, 'Debe haber 3 planes activos');
+    assert(plans.length === 4, 'Debe haber 4 planes activos');
     assert(plans[0].id === 'plan_starter', 'Primer plan es Starter');
-    assert(plans[1].id === 'plan_pro', 'Segundo plan es Pro');
-    assert(plans[2].id === 'plan_business', 'Tercer plan es Business');
+    assert(plans[1].id === 'plan_profesional', 'Segundo plan es Profesional');
+    assert(plans[2].id === 'plan_empresarial', 'Tercer plan es Empresarial');
+    assert(plans[3].id === 'plan_premium', 'Cuarto plan es Premium');
 
     // Crear plan custom
     const custom = createPlan({
@@ -90,12 +91,12 @@ export async function runBillingTests() {
       sortOrder: 4
     });
     assert(custom.id === 'plan_custom', 'Plan custom creado');
-    assert(listPlans().length === 4, '4 planes activos');
+    assert(listPlans().length === 5, '5 planes activos');
 
     // Deprecar plan
     updatePlan('plan_custom', { status: PLAN_STATES.DEPRECATED });
-    assert(listPlans().length === 3, '3 planes activos tras deprecar');
-    assert(listPlans(true).length === 4, '4 planes incluyendo inactivos');
+    assert(listPlans().length === 4, '4 planes activos tras deprecar');
+    assert(listPlans(true).length === 5, '5 planes incluyendo inactivos');
   });
 
   // ─── B2: SUSCRIPCIONES — CICLO DE ESTADOS ──────────────
@@ -293,16 +294,16 @@ export async function runBillingTests() {
 
   // ─── B10: EXCEDENTES ───────────────────────────────────
   test('B10: Overage calculation — minutos sobre el plan', () => {
-    const { client, sub } = setupClientWithSub('plan_starter');  // 500 min included
+    const { client, sub } = setupClientWithSub('plan_starter');  // 120 min included
 
-    // Record 520 minutes of calls (over by 20)
-    for (let i = 0; i < 520; i++) {
+    // Record 140 minutes of calls (over by 20)
+    for (let i = 0; i < 140; i++) {
       recordUsage({ tenantId: 'tenant_donmario', type: USAGE_TYPES.CALL, durationSeconds: 60 });
     }
 
     const overage = calculateOverage(sub.id);
-    assert(overage.minutesIncluded === 500, 'Plan incluye 500 min');
-    assert(overage.minutesUsed === 520, '520 min usados');
+    assert(overage.minutesIncluded === 120, 'Plan incluye 120 min');
+    assert(overage.minutesUsed === 140, '140 min usados');
     assert(overage.minutesOver === 20, '20 min excedente');
 
     const plan = getPlan('plan_starter');
@@ -313,8 +314,8 @@ export async function runBillingTests() {
   test('B11: Factura generada con plan + excedente + IVA', () => {
     const { client, sub } = setupClientWithSub('plan_starter');
 
-    // Record 510 min of usage
-    for (let i = 0; i < 510; i++) {
+    // Record 130 min of usage (10 over the 120 min Starter plan)
+    for (let i = 0; i < 130; i++) {
       recordUsage({ tenantId: 'tenant_donmario', type: USAGE_TYPES.CALL, durationSeconds: 60 });
     }
 
@@ -374,11 +375,11 @@ export async function runBillingTests() {
     transitionSubscription(sub.id, SUB_STATES.ACTIVE);
 
     // Upgrade
-    const upgrade = changePlan(sub.id, 'plan_pro');
+    const upgrade = changePlan(sub.id, 'plan_profesional');
     assert(upgrade.changeType === 'upgrade', 'Detecta upgrade');
     assert(upgrade.oldPlanId === 'plan_starter', 'Plan anterior correcto');
-    assert(upgrade.newPlanId === 'plan_pro', 'Plan nuevo correcto');
-    assert(getSubscription(sub.id).planId === 'plan_pro', 'Plan actualizado en sub');
+    assert(upgrade.newPlanId === 'plan_profesional', 'Plan nuevo correcto');
+    assert(getSubscription(sub.id).planId === 'plan_profesional', 'Plan actualizado en sub');
 
     // Downgrade
     const downgrade = changePlan(sub.id, 'plan_starter');
@@ -415,7 +416,7 @@ export async function runBillingTests() {
     const c1 = createBillingClient({ tenantId: 'tenant_a', businessName: 'A' });
     const c2 = createBillingClient({ tenantId: 'tenant_b', businessName: 'B' });
     const s1 = createSubscription({ clientId: c1.id, planId: 'plan_starter' });
-    const s2 = createSubscription({ clientId: c2.id, planId: 'plan_pro' });
+    const s2 = createSubscription({ clientId: c2.id, planId: 'plan_profesional' });
 
     // Activate s1
     transitionSubscription(s1.id, SUB_STATES.ACTIVE);
@@ -456,7 +457,7 @@ export async function runBillingTests() {
     assert(detail.usage.totalCalls === 1, '1 llamada');
     assert(detail.usage.totalMinutes === 5, '5 min');
     assert(detail.usage.totalOrders === 1, '1 orden');
-    assert(detail.usage.minutesRemaining === 495, '495 min restantes');
+    assert(detail.usage.minutesRemaining === 115, '115 min restantes');
     assert(detail.invoices.length === 1, '1 factura');
   });
 

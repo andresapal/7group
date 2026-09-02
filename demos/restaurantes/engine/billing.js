@@ -33,55 +33,76 @@ const _plans = new Map();
 function _initPlans() {
   _plans.clear();
 
+  // ── Planes alineados con LEVEL_PLANS (modelo real por llamada) ──
+  // Costo real: calls × $2,150 + $4,200 fijo/mes
+  // Margen minimo 45% en todos los planes CO
+
   _plans.set('plan_starter', {
     id: 'plan_starter',
     name: 'Starter',
     description: 'Para negocios que empiezan con IA',
-    priceMonthly: 350000,          // COP
+    priceMonthly: 169000,          // COP — margen 54% (34 calls)
     currency: 'COP',
-    minutesIncluded: 500,
-    callsIncluded: null,           // null = unlimited within minutes
+    minutesIncluded: 120,
+    callsIncluded: 34,
     agentsIncluded: 1,
     features: ['voice_agent', 'kds', 'menu_setup', 'basic_reports'],
     overagePerMinute: 1500,        // COP per extra minute
     trialDays: 15,
-    setupFee: 450000,
+    setupFee: 0,
     status: PLAN_STATES.ACTIVE,
     sortOrder: 1
   });
 
-  _plans.set('plan_pro', {
-    id: 'plan_pro',
-    name: 'Pro',
-    description: 'Para restaurantes con volumen medio',
-    priceMonthly: 590000,
+  _plans.set('plan_profesional', {
+    id: 'plan_profesional',
+    name: 'Profesional',
+    description: 'Para negocios con volumen medio',
+    priceMonthly: 339000,          // COP — margen 54% (71 calls)
     currency: 'COP',
-    minutesIncluded: 1000,
-    callsIncluded: null,
+    minutesIncluded: 250,
+    callsIncluded: 71,
     agentsIncluded: 2,
     features: ['voice_agent', 'kds', 'menu_setup', 'advanced_reports', 'priority_support', 'multi_agent'],
     overagePerMinute: 1200,
     trialDays: 15,
-    setupFee: 450000,
+    setupFee: 0,
     status: PLAN_STATES.ACTIVE,
     sortOrder: 2
   });
 
-  _plans.set('plan_business', {
-    id: 'plan_business',
-    name: 'Business',
-    description: 'Para cadenas y alto volumen',
-    priceMonthly: 950000,
+  _plans.set('plan_empresarial', {
+    id: 'plan_empresarial',
+    name: 'Empresarial',
+    description: 'Para negocios con alto volumen',
+    priceMonthly: 599000,          // COP — margen 53% (129 calls)
     currency: 'COP',
-    minutesIncluded: 2000,
-    callsIncluded: null,
-    agentsIncluded: 5,
-    features: ['voice_agent', 'kds', 'menu_setup', 'advanced_reports', 'priority_support', 'multi_agent', 'api_access', 'custom_voice', 'dedicated_number'],
+    minutesIncluded: 450,
+    callsIncluded: 129,
+    agentsIncluded: 3,
+    features: ['voice_agent', 'kds', 'menu_setup', 'advanced_reports', 'priority_support', 'multi_agent', 'api_access'],
     overagePerMinute: 1000,
-    trialDays: 30,
+    trialDays: 15,
     setupFee: 0,
     status: PLAN_STATES.ACTIVE,
     sortOrder: 3
+  });
+
+  _plans.set('plan_premium', {
+    id: 'plan_premium',
+    name: 'Premium',
+    description: 'Para cadenas y operaciones grandes',
+    priceMonthly: 1049000,         // COP — margen 53% (229 calls)
+    currency: 'COP',
+    minutesIncluded: 800,
+    callsIncluded: 229,
+    agentsIncluded: 5,
+    features: ['voice_agent', 'kds', 'menu_setup', 'advanced_reports', 'priority_support', 'multi_agent', 'api_access', 'custom_voice', 'dedicated_number'],
+    overagePerMinute: 800,
+    trialDays: 30,
+    setupFee: 0,
+    status: PLAN_STATES.ACTIVE,
+    sortOrder: 4
   });
 }
 

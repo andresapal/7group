@@ -352,8 +352,9 @@ export function provisionTenant(sessionId) {
  * These are NEVER shown to the client
  */
 const COST_MODEL = {
-  // ── Modelo real unificado (scope session) ──────────────────
+  // ── Modelo real unificado ─────────────────────────────────
   // Base: costo por LLAMADA (Vapi + Twilio + WhatsApp)
+  // LLC en Florida — costos en COP, facturacion US en USD
   costPerCall: 2150,            // COP — costo real stack completo por llamada
   fixedPerClient: 4200,         // COP/mes — infra fija por cliente activo
   avgCallMinutes: 3.5,          // minutos promedio por llamada
@@ -363,6 +364,11 @@ const COST_MODEL = {
   aiPerMinute: 350,             // COP — componente IA
   telephonyPerMinute: 194,      // COP — Twilio + WhatsApp ($180 + $14 WA)
   infraPerMinute: 70,           // COP — servidores, bandwidth
+
+  // TRM — se actualiza semanalmente via fetchTRM()
+  trm: 3100,                    // COP/USD — TRM semana 2026-09-01
+  trmUpdatedAt: '2026-09-01',   // fecha ultima actualizacion
+  trmSource: 'manual',          // 'manual' | 'api' (auto-fetch)
 
   // Margenes objetivo
   marginTarget: 0.45,           // 45% margen MINIMO directo a 7group
@@ -375,46 +381,97 @@ const COST_MODEL = {
   markupMultiplier: 1.3         // overhead ops/soporte sobre costo variable
 };
 
+// ── TRM auto-update (semanal) ───────────────────────────────
+// Fetch TRM from Banco de la Republica / exchangerate API
+// Se llama al iniciar y cada 7 dias
+export async function fetchTRM() {
+  try {
+    // Primary: exchangerate.host (free, no key)
+    const res = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=COP');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.rates?.COP) {
+        COST_MODEL.trm = Math.round(data.rates.COP);
+        COST_MODEL.trmUpdatedAt = new Date().toISOString().slice(0, 10);
+        COST_MODEL.trmSource = 'api';
+        _recalcUSPlans();
+        return { trm: COST_MODEL.trm, source: 'api' };
+      }
+    }
+  } catch (e) { /* fallback to manual */ }
+  return { trm: COST_MODEL.trm, source: 'manual' };
+}
+
+// Recalcula costos US basado en TRM actual
+function _recalcUSPlans() {
+  const trm = COST_MODEL.trm;
+  const costPerCallUSD = COST_MODEL.costPerCall / trm;
+  const fixedUSD = COST_MODEL.fixedPerClient / trm;
+
+  LEVEL_PLANS.US.forEach(p => {
+    const costUSD = Math.round((p.calls * costPerCallUSD + fixedUSD) * 100) / 100;
+    p.cost7g = costUSD;
+    p.marginPct = Math.round((1 - costUSD / p.price) * 100);
+  });
+}
+
+export function getTRM() {
+  return {
+    trm: COST_MODEL.trm,
+    updatedAt: COST_MODEL.trmUpdatedAt,
+    source: COST_MODEL.trmSource
+  };
+}
+
+export function setTRM(trm) {
+  if (trm < 1000 || trm > 10000) return { error: 'TRM fuera de rango (1000-10000)' };
+  COST_MODEL.trm = Math.round(trm);
+  COST_MODEL.trmUpdatedAt = new Date().toISOString().slice(0, 10);
+  COST_MODEL.trmSource = 'manual';
+  _recalcUSPlans();
+  return { trm: COST_MODEL.trm, source: 'manual' };
+}
+
 // ──────────────────────────────────────────────────────
 // Plans by market — Colombia vs USA
 // Costo real: $2,150 COP/call + $4,200 fijo/mes
 // calls = mins / 3.5 (promedio)
-// cost7g = calls × $2,150 + $4,200
+// cost7g CO = calls × $2,150 + $4,200
+// cost7g US = cost7g CO / TRM (auto-recalculado)
 // SOLO planes viables (margen >= 45%)
 // ──────────────────────────────────────────────────────
 
 const LEVEL_PLANS = {
   CO: [
-    // Colombia — COP — costo real por llamada
-    // Starter: 34 calls × $2,150 + $4,200 = $77,300 → margen 48%
-    { level: 'Novato',      plan: 'Starter',     price: 149000,  currency: 'COP', mins: 120,  calls: 34,  cost7g: 77300,   marginPct: 48 },
-    // Profesional: 71 calls × $2,150 + $4,200 = $156,850 → margen 46%
-    { level: 'Emprendedor', plan: 'Profesional',  price: 289000,  currency: 'COP', mins: 250,  calls: 71,  cost7g: 156850,  marginPct: 46 },
-    // Empresarial: 129 calls × $2,150 + $4,200 = $281,550 → margen 49%
-    { level: 'Profesional', plan: 'Empresarial',  price: 549000,  currency: 'COP', mins: 450,  calls: 129, cost7g: 281550,  marginPct: 49 },
-    // Premium: 229 calls × $2,150 + $4,200 = $496,550 → margen 50%
-    { level: 'Experto',     plan: 'Premium',      price: 989000,  currency: 'COP', mins: 800,  calls: 229, cost7g: 496550,  marginPct: 50 }
+    // Colombia — COP — markup 100%+ (margen ≥50%)
+    { level: 'Novato',      plan: 'Starter',     price: 169000,  currency: 'COP', mins: 120,  calls: 34,  cost7g: 77300,   marginPct: 54 },
+    { level: 'Emprendedor', plan: 'Profesional',  price: 339000,  currency: 'COP', mins: 250,  calls: 71,  cost7g: 156850,  marginPct: 54 },
+    { level: 'Profesional', plan: 'Empresarial',  price: 599000,  currency: 'COP', mins: 450,  calls: 129, cost7g: 281550,  marginPct: 53 },
+    { level: 'Experto',     plan: 'Premium',      price: 1049000, currency: 'COP', mins: 800,  calls: 229, cost7g: 496550,  marginPct: 53 }
   ],
   US: [
-    // USA — USD — mismo costo base, mercado premium
-    // Costo en USD: $2,150 COP ≈ $0.51 USD/call + $4,200 COP ≈ $1 USD fijo
-    { level: 'Novato',      plan: 'Starter',     price: 49,    currency: 'USD', mins: 120,  calls: 34,  cost7g: 18.3,  marginPct: 63 },
-    { level: 'Emprendedor', plan: 'Professional', price: 99,    currency: 'USD', mins: 250,  calls: 71,  cost7g: 37.2,  marginPct: 62 },
-    { level: 'Profesional', plan: 'Business',     price: 199,   currency: 'USD', mins: 450,  calls: 129, cost7g: 66.8,  marginPct: 66 },
-    { level: 'Experto',     plan: 'Enterprise',   price: 399,   currency: 'USD', mins: 800,  calls: 229, cost7g: 117.8, marginPct: 70 }
+    // USA — USD — precios de mercado — cost7g se recalcula con TRM
+    // TRM $3,100: costPerCall = $2,150/3,100 = $0.6935 USD/call
+    { level: 'Novato',      plan: 'Starter',     price: 99,    currency: 'USD', mins: 120,  calls: 34,  cost7g: 24.93,  marginPct: 75 },
+    { level: 'Emprendedor', plan: 'Professional', price: 199,   currency: 'USD', mins: 250,  calls: 71,  cost7g: 50.59,  marginPct: 75 },
+    { level: 'Profesional', plan: 'Business',     price: 349,   currency: 'USD', mins: 450,  calls: 129, cost7g: 90.82,  marginPct: 74 },
+    { level: 'Experto',     plan: 'Enterprise',   price: 499,   currency: 'USD', mins: 800,  calls: 229, cost7g: 160.19, marginPct: 68 }
   ]
 };
-// COMPARACION — MODELO REAL POR LLAMADA:
+
+// Recalcular al cargar (por si TRM cambio)
+_recalcUSPlans();
+
+// COMPARACION — TRM $3,100 (semana 2026-09-01):
 // ┌─────────────┬──────────┬────────┬───────────┬────────────┬────────────┐
-// │ Plan        │ Precio   │ Calls  │ Costo 7G  │ CO margen  │ US margen  │
+// │ Plan        │ CO Precio│ Calls  │ Cost COP  │ CO margen  │ US margen  │
 // ├─────────────┼──────────┼────────┼───────────┼────────────┼────────────┤
-// │ Starter     │ $149K    │ 34     │ $77K      │ 48%        │ 63%        │
-// │ Profesional │ $289K    │ 71     │ $157K     │ 46%        │ 62%        │
-// │ Empresarial │ $549K    │ 129    │ $282K     │ 49%        │ 66%        │
-// │ Premium     │ $989K    │ 229    │ $497K     │ 50%        │ 70%        │
+// │ Starter     │ $169K    │ 34     │ $77K      │ 54%        │ 75%        │
+// │ Profesional │ $339K    │ 71     │ $157K     │ 54%        │ 75%        │
+// │ Empresarial │ $599K    │ 129    │ $282K     │ 53%        │ 74%        │
+// │ Premium     │ $1,049K  │ 229    │ $497K     │ 53%        │ 68%        │
 // └─────────────┴──────────┴────────┴───────────┴────────────┴────────────┘
-// ALTO VOLUMEN (300+ calls) NO es viable a precio de mercado CO (19%)
-// → Queda fuera. Solo long-tail + USA para escalar margen.
+// CO: margen fijo (COP). US: margen fluctua con TRM (recalculo semanal).
 
 /**
  * Get trial dashboard for a lead
@@ -653,9 +710,11 @@ function _suggestPlan(usage, totalTrialDays, daysUsed) {
     projectedOrders: projectedMonthlyOrders,
     projectedRevenue: projectedMonthlyOrders * 35000,
     minutesFit: projectedMonthlyMinutes <= suggested.minutesIncluded,
-    reason: projectedMonthlyMinutes <= suggested.minutesIncluded
-      ? `Con tu ritmo actual, ${suggested.name} cubre tus ${projectedMonthlyMinutes} minutos proyectados.`
-      : `Tu consumo proyectado (${projectedMonthlyMinutes} min) supera lo incluido. Considera el plan superior.`
+    reason: projectedMonthlyMinutes === 0
+      ? `${suggested.name} es ideal para comenzar. Incluye ${suggested.minutesIncluded} minutos al mes.`
+      : projectedMonthlyMinutes <= suggested.minutesIncluded
+        ? `Con tu ritmo actual, ${suggested.name} cubre tus ${projectedMonthlyMinutes} minutos proyectados.`
+        : `Tu consumo proyectado (${projectedMonthlyMinutes} min) supera lo incluido. Considera el plan superior.`
   };
 }
 
