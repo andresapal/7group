@@ -2337,7 +2337,8 @@ window.switchComSub=function(sub){
   var esAdmin  = (typeof CURRENT_USER!=='undefined') && CURRENT_USER.rol === 'admin';
   var libre    = (typeof esAdminODueno_==='function' && esAdminODueno_()) ||
                  (typeof esUsuarioSinRestriccion_==='function' && esUsuarioSinRestriccion_());
-  if(sub==='asesores' && !esAdmin){ alert('Solo el ADMIN (7GROUP) puede modificar la distribucion.'); return; }
+  // Admin y dueño (Fabian) pueden VER el tab Asesores. Solo admin puede MODIFICAR (control en el render).
+  if(sub==='asesores' && !libre){ alert('Solo admin/dueno.'); return; }
   if(sub==='netoFabian' && !libre){ alert('Solo admin/dueno.'); return; }
   document.querySelectorAll('#comSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
   var tab=document.querySelector('#comSubNav .sub-tab[data-sub="'+sub+'"]'); if(tab) tab.classList.add('active');
@@ -3592,40 +3593,39 @@ function loadIntermediariosFull_(){
 
 function renderAsesores(){
   var tb = document.getElementById('asesoresTable'); if(!tb) return;
-  // SOLO admin (7GROUP) puede modificar la distribucion. Dueno (Fabian) NO.
-  var esAdminEstricto = (typeof CURRENT_USER!=='undefined') && CURRENT_USER.rol === 'admin';
-  if(!esAdminEstricto){
-    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Solo el ADMIN (7GROUP) puede modificar la distribucion de intermediarios.</td></tr>';
-    return;
-  }
+  // Admin (7GROUP) y dueño (Fabian de Aseguralo) pueden VER y EDITAR.
+  var puedeEditar = (typeof CURRENT_USER!=='undefined') && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
   var pinta = function(){
     if(!INTERMED_FULL.length){
       tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Cargando catalogo...</td></tr>';
       return;
     }
+    var dis = puedeEditar ? '' : 'disabled';
     tb.innerHTML = INTERMED_FULL.map(function(x,idx){
       var isDueno = x.tipo==='dueno';
       var isRefAdmin = x.tipo==='referido_admin';
       var tipoLbl = isDueno?'Administrador':(isRefAdmin?'Referido 7GROUP':'Asesor');
-      // Badge de acceso segun activo + email presente
       var accesoLbl = x.activo==='si'
         ? (x.email ? '<span style="font-size:9px;background:rgba(16,185,129,.15);color:var(--green);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">ACCESO</span>' : '<span style="font-size:9px;background:rgba(255,180,0,.15);color:var(--orange);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">falta email</span>')
         : '<span style="font-size:9px;background:rgba(239,68,68,.15);color:var(--red);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">BLOQUEADO</span>';
       return '<tr data-nombre="'+x.nombre+'">'+
         '<td><strong>'+x.nombre+'</strong>'+accesoLbl+'</td>'+
-        '<td><select class="form-input" data-f="tipo" style="font-size:12px;padding:4px 6px">'+
+        '<td><select class="form-input" data-f="tipo" style="font-size:12px;padding:4px 6px" '+dis+'>'+
           ['dueno','asesor','referido_admin'].map(function(t){
             var lbl = t==='dueno'?'Administrador':(t==='referido_admin'?'Referido 7GROUP':'Asesor');
             return '<option value="'+t+'" '+(x.tipo===t?'selected':'')+'>'+lbl+'</option>';
           }).join('')+
         '</select></td>'+
-        '<td><input type="number" class="form-input mono" data-f="pctAsesor" min="0" max="100" step="1" value="'+x.pctAsesor+'" style="width:70px;text-align:right"></td>'+
-        '<td><input type="number" class="form-input mono" data-f="pctFabian" min="0" max="100" step="1" value="'+x.pctFabian+'" style="width:70px;text-align:right"></td>'+
-        '<td><select class="form-input" data-f="activo" style="font-size:12px;padding:4px 6px;width:70px">'+
+        '<td><input type="number" class="form-input mono" data-f="pctAsesor" min="0" max="100" step="1" value="'+x.pctAsesor+'" style="width:70px;text-align:right" '+dis+'></td>'+
+        '<td><input type="number" class="form-input mono" data-f="pctFabian" min="0" max="100" step="1" value="'+x.pctFabian+'" style="width:70px;text-align:right" '+dis+'></td>'+
+        '<td><select class="form-input" data-f="activo" style="font-size:12px;padding:4px 6px;width:70px" '+dis+'>'+
           ['si','no'].map(function(v){return '<option '+(x.activo===v?'selected':'')+'>'+v+'</option>';}).join('')+
         '</select></td>'+
-        '<td><input class="form-input" data-f="email" value="'+(x.email||'')+'" style="font-size:12px" placeholder="correo@dominio.com"></td>'+
-        '<td><button class="btn btn-sm btn-primary" onclick="guardarAsesor_(this)">Guardar</button><span class="save-status" style="display:block;font-size:10px;color:var(--muted);margin-top:2px"></span></td>'+
+        '<td><input class="form-input" data-f="email" value="'+(x.email||'')+'" style="font-size:12px" placeholder="correo@dominio.com" '+dis+'></td>'+
+        '<td>'+ (puedeEditar
+          ? '<button class="btn btn-sm btn-primary" onclick="guardarAsesor_(this)">Guardar</button><span class="save-status" style="display:block;font-size:10px;color:var(--muted);margin-top:2px"></span>'
+          : '<span style="font-size:10px;color:var(--muted)">sin permiso</span>'
+        )+'</td>'+
       '</tr>';
     }).join('');
   };
@@ -3643,7 +3643,8 @@ function renderAsesores(){
 window._REGLAS_RAMOS_CACHE = [];
 function renderReglasRamos_(){
   var tb = document.getElementById('reglasRamosTable'); if(!tb) return;
-  var esAdmin = (typeof CURRENT_USER!=='undefined') && CURRENT_USER.rol === 'admin';
+  // Admin (7GROUP) y dueño (Fabian de Aseguralo) pueden editar reglas.
+  var esAdmin = (typeof CURRENT_USER!=='undefined') && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
   if(!window._REGLAS_RAMOS_CACHE.length){
     tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Cargando reglas...</td></tr>';
     fetch(APPS_SCRIPT_URL+'?action=reglas-ramos', {redirect:'follow'})
@@ -3665,7 +3666,7 @@ function renderReglasRamos_(){
       '<td><input type="number" class="form-input mono" data-f="pctImp" min="0" max="50" step="0.01" value="'+r.pctImp+'" style="width:70px;text-align:right" '+dis+'></td>'+
       '<td>'+ (esAdmin
         ? '<button class="btn btn-sm btn-primary" onclick="guardarReglaRamo_(this)">Guardar</button><span class="save-status" style="display:block;font-size:10px;color:var(--muted);margin-top:2px"></span>'
-        : '<span style="font-size:10px;color:var(--muted)">solo admin</span>'
+        : '<span style="font-size:10px;color:var(--muted)">sin permiso</span>'
       )+'</td>'+
     '</tr>';
   }).join('');
