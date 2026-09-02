@@ -3699,13 +3699,22 @@ function renderAsesores(){
 window.guardarAsesor_ = function(btn){
   var tr = btn.closest('tr'); if(!tr) return;
   var nombre = tr.dataset.nombre;
-  var payload = {action:'intermediario-update', nombre:nombre};
+  // Forzamos email del usuario actual para que el authGate del backend lo reconozca
+  var meEmail = (window.CURRENT_USER && CURRENT_USER.email) ||
+                (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
+                localStorage.getItem('aseg_erp_auth') || '';
+  var payload = {action:'intermediario-update', nombre:nombre, email:meEmail};
   tr.querySelectorAll('[data-f]').forEach(function(el){
     var f = el.dataset.f;
     var v = el.value;
     if(f==='pctAsesor'||f==='pctFabian') v = Number(v)||0;
     payload[f] = v;
   });
+  if(!meEmail){
+    alert('No hay sesion activa (email vacio). Cierra sesion y vuelve a entrar.');
+    return;
+  }
+  console.log('[guardarAsesor_] payload:', payload);
   // Validar suma <= 100
   if((payload.pctAsesor||0) + (payload.pctFabian||0) > 100){
     alert('La suma de % Asesor + % Fabian no puede pasar 100'); return;
