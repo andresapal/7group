@@ -587,17 +587,17 @@ tbody tr:hover{background:var(--accent-light)}
       <!-- Sub-navegacion -->
       <div class="sub-nav" id="comSubNav">
         <a class="sub-tab active" data-sub="aseguralo" onclick="switchComSub('aseguralo')">
-          <span class="sub-lbl">Aseguradoras &rarr; Aseguralo</span>
+          <span class="sub-lbl">Historial</span>
         </a>
         <a class="sub-tab" data-sub="sevengroup" onclick="switchComSub('sevengroup')">
-          <span class="sub-lbl">Aseguralo &rarr; 7GROUP</span>
+          <span class="sub-lbl">Pagos comisiones</span>
           <span class="sub-count" id="cntLiqs">0</span>
         </a>
         <a class="sub-tab" data-sub="asesores" onclick="switchComSub('asesores')">
-          <span class="sub-lbl">Asesores (distribucion)</span>
+          <span class="sub-lbl">Asesores</span>
         </a>
         <a class="sub-tab" data-sub="netoFabian" onclick="switchComSub('netoFabian')">
-          <span class="sub-lbl">Aseguralo · Neto Fabian</span>
+          <span class="sub-lbl">Mis finanzas</span>
         </a>
       </div>
 
@@ -637,7 +637,7 @@ tbody tr:hover{background:var(--accent-light)}
             <table>
               <thead>
                 <tr>
-                  <th>ID</th><th>Fecha venta</th><th>Cliente</th><th>Intermediario</th><th>Tipo</th>
+                  <th>ID</th><th>Mes</th><th>Cliente</th><th>Intermediario</th><th>Tipo</th>
                   <th>Aseguradora</th><th>Prima antes de IVA</th>
                   <th>Com. total</th><th>Com. asesor</th><th>Com. Fabian bruta</th><th>Com. 7GROUP</th>
                   <th>Origen</th><th>Pago Aseg.</th><th>Pago 7G</th><th>PAGOS</th>
@@ -3556,7 +3556,7 @@ function renderLiquidaciones(){
     var badge7G   = estMap[l.estado_pago_7group]||'badge-por-renovar';
     return '<tr>'+
       '<td class="mono" style="font-size:10px;color:var(--dim)">'+l.id+'</td>'+
-      '<td style="font-size:11px">'+(l.fecha_venta||'').slice(0,10)+'</td>'+
+      '<td style="font-size:11px">'+(l.fecha_venta||'').slice(0,7)+'</td>'+
       '<td><strong>'+l.cliente+'</strong></td>'+
       '<td style="font-size:11px">'+(l.intermediario||'-')+'</td>'+
       '<td>'+l.tipo+'</td>'+
