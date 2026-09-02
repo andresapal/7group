@@ -537,7 +537,7 @@ export function getTrialDashboard(leadId) {
       totalRevenue,
       avgOrderValue,
       manuallySaved,
-      roi: manuallySaved > 0 ? Math.round((manuallySaved / (plan.priceMonthly || 350000)) * 100) : 0
+      roi: manuallySaved > 0 ? Math.round((manuallySaved / (plan.priceMonthly || 169000)) * 100) : 0
     },
 
     achievements,

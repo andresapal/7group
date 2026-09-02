@@ -119,12 +119,13 @@ Capa comercial completa para 7Group VoiceOrder: planes configurables, suscripcio
 {
   id: 'plan_starter',
   name: 'Starter',
-  priceMonthly: 350000,      // COP
-  minutesIncluded: 500,
+  priceMonthly: 169000,      // COP — margen 54%
+  minutesIncluded: 120,
+  callsIncluded: 34,
   agentsIncluded: 1,
   overagePerMinute: 1500,
   trialDays: 15,
-  setupFee: 450000,
+  setupFee: 0,
   features: ['voice_agent', 'kds', 'menu_setup', 'basic_reports']
 }
 ```
@@ -231,7 +232,7 @@ getWebhookLog()
 
 ### 14. Cambio de plan ✅
 ```javascript
-changePlan(subId, 'plan_pro')
+changePlan(subId, 'plan_profesional')
 // → { changeType: 'upgrade'|'downgrade', oldPlanId, newPlanId }
 ```
 

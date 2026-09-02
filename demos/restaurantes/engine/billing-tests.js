@@ -468,7 +468,7 @@ export async function runBillingTests() {
     const pay = recordPayment({
       invoiceId: null,
       clientId: client.id,
-      amount: 350000,
+      amount: 169000,
       status: PAYMENT_STATES.SUCCESS,
       cardLast4: '4242',
       stripePaymentIntentId: 'pi_test'

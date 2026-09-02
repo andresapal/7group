@@ -338,7 +338,7 @@
         contactPhone: '3209001001',
         taxId: '900123456-1'
       });
-      const s1 = createSubscription({ clientId: c1.id, planId: 'plan_pro', startAsTrial: false });
+      const s1 = createSubscription({ clientId: c1.id, planId: 'plan_profesional', startAsTrial: false });
       // Simulate 320 min of usage
       for (let i = 0; i < 320; i++) {
         recordUsage({ tenantId: 'tenant_donmario', type: USAGE_TYPES.CALL, durationSeconds: 60 });
