@@ -3666,7 +3666,7 @@ function renderAsesores(){
     tb.innerHTML = INTERMED_FULL.map(function(x,idx){
       var isDueno = x.tipo==='dueno';
       var isRefAdmin = x.tipo==='referido_admin';
-      var tipoLbl = isDueno?'Dueno':(isRefAdmin?'Referido 7GROUP':'Asesor');
+      var tipoLbl = isDueno?'Administrador':(isRefAdmin?'Referido 7GROUP':'Asesor');
       // Badge de acceso segun activo + email presente
       var accesoLbl = x.activo==='si'
         ? (x.email ? '<span style="font-size:9px;background:rgba(16,185,129,.15);color:var(--green);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">ACCESO</span>' : '<span style="font-size:9px;background:rgba(255,180,0,.15);color:var(--orange);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">falta email</span>')
@@ -3675,7 +3675,7 @@ function renderAsesores(){
         '<td><strong>'+x.nombre+'</strong>'+accesoLbl+'</td>'+
         '<td><select class="form-input" data-f="tipo" style="font-size:12px;padding:4px 6px">'+
           ['dueno','asesor','referido_admin'].map(function(t){
-            var lbl = t==='dueno'?'Dueno':(t==='referido_admin'?'Referido 7GROUP':'Asesor');
+            var lbl = t==='dueno'?'Administrador':(t==='referido_admin'?'Referido 7GROUP':'Asesor');
             return '<option value="'+t+'" '+(x.tipo===t?'selected':'')+'>'+lbl+'</option>';
           }).join('')+
         '</select></td>'+
@@ -3712,8 +3712,11 @@ window.guardarAsesor_ = function(btn){
   }
   var status = tr.querySelector('.save-status');
   if(status){ status.textContent = 'guardando...'; status.style.color='var(--accent)'; }
-  fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
-    .then(function(){
+  // Sin no-cors: asi el frontend detecta si el backend rechazo (ej: authGate, SOLO_ADMIN)
+  fetch(APPS_SCRIPT_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j && j.error) throw new Error(j.error);
       // Actualizar cache local
       var idx = INTERMED_FULL.findIndex(function(x){return x.nombre===nombre;});
       if(idx>=0){
@@ -3724,7 +3727,10 @@ window.guardarAsesor_ = function(btn){
         INTERMED_FULL[idx].email = payload.email;
       }
       if(status){ status.textContent = 'guardado'; status.style.color='var(--green)'; setTimeout(function(){status.textContent='';},2000); }
-    }).catch(function(){ if(status){ status.textContent='error'; status.style.color='var(--red)'; } });
+    }).catch(function(err){
+      if(status){ status.textContent = 'error: '+(err.message||err); status.style.color='var(--red)'; }
+      console.error('guardarAsesor_ falló:', err);
+    });
 };
 
 /* ============================================
