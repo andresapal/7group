@@ -2408,11 +2408,13 @@ function npSaveLead_(d, cb){
 
 /* Sub-navegacion dentro de Comisiones: aseguralo / 7group */
 window.switchComSub=function(sub){
-  // Guard por rol
+  // Guard por rol. admin/dueno siempre pasan (aunque el flag no este seteado).
   var p = (typeof CURRENT_USER!=='undefined' && CURRENT_USER.permisos) || {};
-  if(sub==='asesores' && !p.editarPctIntermediarios){ alert('Solo admin/dueno.'); return; }
-  if(sub==='netoFabian' && !p.verSostenimiento){ alert('Solo admin/dueno.'); return; }
-  if(sub==='sevengroup' && !p.verLiquidacionesTodas && !esAdminODueno_()){ /* asesor puede ver las suyas */ }
+  var libre = (typeof esAdminODueno_==='function' && esAdminODueno_()) ||
+              (typeof esUsuarioSinRestriccion_==='function' && esUsuarioSinRestriccion_());
+  if(sub==='asesores'    && !libre && !p.editarPctIntermediarios){ alert('Solo admin/dueno.'); return; }
+  if(sub==='netoFabian'  && !libre && !p.verSostenimiento){ alert('Solo admin/dueno.'); return; }
+  if(sub==='sevengroup'  && !libre && !p.verLiquidacionesTodas){ /* asesor puede ver las suyas */ }
   document.querySelectorAll('#comSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
   var tab=document.querySelector('#comSubNav .sub-tab[data-sub="'+sub+'"]'); if(tab) tab.classList.add('active');
   document.querySelectorAll('#mod-comisiones .sub-section').forEach(function(s){s.classList.remove('active')});
