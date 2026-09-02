@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
 <meta charset="UTF-8">
@@ -654,6 +654,24 @@ tbody tr:hover{background:var(--accent-light)}
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
           <div style="font-size:13px;color:var(--dim);flex:1">Distribucion de comision entre asesor y Fabian por intermediario. Editable en linea, guarda a Sheet automatico.</div>
           <button class="btn btn-primary" onclick="abrirNuevoIntermediario_()" style="font-size:12px;padding:8px 16px">+ Nuevo intermediario</button>
+        </div>
+
+        <!-- PANEL REGLAS POR RAMO (IVA / % Comision / % Impuesto). Solo admin. -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text)">Condiciones por tipo de poliza</div>
+              <div style="font-size:11px;color:var(--dim);margin-top:2px">% IVA sobre prima, % Comision sobre prima antes de IVA, % Impuesto sobre la comision. Editable solo por ADMIN. Se aplica a polizas NUEVAS.</div>
+            </div>
+          </div>
+          <div class="tbl-wrap"><div class="tbl-overflow"><table><thead>
+            <tr>
+              <th>Ramo</th><th>Palabras clave (match)</th>
+              <th>% IVA</th><th>% Comision</th><th>% Impuesto</th><th>Guardar</th>
+            </tr>
+          </thead>
+          <tbody id="reglasRamosTable"></tbody>
+          </table></div></div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;font-size:12px;line-height:1.65;color:var(--text)">
           <strong>Reglas de reparto:</strong><br>
@@ -1669,110 +1687,14 @@ var FEED=[];
 
 /* ---- Datos reales: Google Sheet "Base de datos Aseguralo" (POLRES) ---- */
 /* [nombre, poliza, telefono, desde, hasta, anulacion, tipo, prima, cobertura] */
-var POLIZAS_RAW=[
-["Carlos Alfonso Pineda Chillan","021509469","3165284399","2014-04-01","2015-04-01","2025-04-01","Salud",43054075,"Protesis"],
-["Lida Elizabeth Bravo Cruz","021666317","3138331232","2014-12-01","2015-12-01","","Salud",22725156,"Urgencias"],
-["Rosillo Xiomara Reyes","021970622","3114773795","2016-08-31","2017-09-01","2025-09-01","Salud",10937787,"Protesis"],
-["Jessica Andrea Pulido Guerrero","022175861","3002752562","2017-11-09","2018-11-09","2024-11-09","Vida",2179262,"Fallecimiento"],
-["Jessica Andrea Pulido Guerrero","022175878","3002752562","2017-10-30","2018-10-30","2024-10-30","Vida",1365619,"Fallecimiento"],
-["Magda Mile Salcedo Jimenez","022432946","3202109150","2019-04-01","2020-04-01","2025-04-01","Salud",22058300,"Urgencias"],
-["Ronald Steve Cepeda Gutierrez","022455469","3003085741","2019-05-01","2020-05-01","2025-05-01","Salud",4969283,"Urgencias"],
-["Vela Jacobo Buitrago","022558568","3106198956","2019-11-01","2020-11-01","2024-11-01","Auto",1406490,"RCE+AJPP"],
-["Ligia Hortua Plazas","022565927","3103080213","2019-11-01","2020-11-01","2025-03-11","Auto",1416833,"RCE+AJPP"],
-["Miguel Ignacio Arrazola Montes","022643539","3002090101","2020-05-01","2020-05-01","2025-05-01","Auto",2139651,"RCE+AJPP"],
-["Raquel Zuleta Sanchez","022695782","3125701258","2020-08-01","2020-08-01","2025-08-01","Auto",1227874,"RCE+AJPP"],
-["Ilsa Cecilia Molina Portilla","022726364","3108743654","2020-06-01","2021-06-01","","Salud",11343997,"Urgencias"],
-["Julian Alberto Rico Bravo","022739168","3124812719","2020-08-26","2021-08-26","2024-08-26","Auto",1960525,"RCE+AJPP"],
-["Yudi Milena Rodriguez Mojica","022784736","3108608309","2021-01-01","2021-01-01","2025-01-01","Auto",1469354,"RCE+AJPP"],
-["Javier Enrique Pabon Moreno","022804772","3112511509","2021-02-01","2021-02-01","2024-12-13","Auto",1037509,"RCE+AJPP"],
-["Astrid Lorena Lopez Achury","022811930","3174098712","2020-12-28","2021-12-28","","Auto",1990881,"RCE+AJPP"],
-["Jose Luis Briceo Suarez","022863322","3204407615","2021-03-29","2022-03-29","2025-03-29","Auto",1418807,"RCE+AJPP"],
-["Construction And Advanced Consulting S A S","022867368","3184173959","2021-04-01","2022-04-01","2025-04-01","Salud",24023491,"Protesis"],
-["Magda Mile Salcedo Jimenez","022905018","3202109150","2021-06-01","2022-06-01","2025-06-01","Salud",13685087,"Urgencias"],
-["Lida Elizabeth Bravo Cruz","022942633","3138331232","2021-10-01","2021-10-01","","Hogar",2578137,"Incendio"],
-["Pavel Arciniegas Hernandez","022977668","3175243858","2021-09-24","2022-09-24","2024-09-24","Auto",2754652,"RCE+AJPP"],
-["Luis Eduardo Sanchez Mongui","022981244","3112050102","2021-09-30","2022-09-30","2025-03-13","Auto",2710322,"RCE+AJPP"],
-["Leidy Viviana Diaz Munoz","022988694","3229423989","2021-10-14","2022-10-14","2024-10-16","Auto",1927381,"RCE+AJPP"],
-["Noris Yolanda Garzon Otalora","023002254","3212294274","2021-09-29","2022-09-29","2024-09-29","Auto",1351700,"RCE+AJPP"],
-["Julian Alberto Rico Bravo","023059959","3124812719","2022-03-10","2023-03-10","","Hogar",494854,"Incendio"],
-["Luis Guillermo Correa Gutierrez","023079789","3105596471","2022-04-27","2023-04-27","2025-04-27","Auto",2164312,"RCE+AJPP"],
-["Juan Sebastian Sandino Ariza","023102842","3003286681","2022-06-04","2023-06-04","2024-08-05","Auto",1510811,"RCE+AJPP"],
-["Aymer Augusto Guzman Rivera","023140774","3202573741","2022-08-24","2023-08-24","2024-09-06","Auto",2609379,"RCE+AJPP"],
-["Julieth Castillo Carrillo","023178495","3002673411","2022-11-19","2023-11-19","2025-02-19","Auto",1589678,"RCE+AJPP"],
-["Pedro Jose Santamaria Higuera","023224237","3166914718","2023-03-09","2024-03-09","2025-03-09","Auto",2570512,"RCE+AJPP"],
-["Erika Sugey Pinzon Cardenas","023233549","3006609706","2023-03-31","2024-03-31","2025-03-31","Vida",1013034,"Fallecimiento"],
-["Construction And Advanced Consulting S A S","023265489","3184173959","2023-06-05","2024-06-05","2025-06-05","Auto",6192191,"RCE+AJPP"],
-["Celso Fabian Carrera Amaya","023291042","3165206865","2023-07-31","2024-07-31","2024-07-31","Vida",1013521,"Fallecimiento"],
-["Ramon Rangel Ospina","023305779","3173783321","2023-08-25","2024-08-25","2024-08-25","Hogar",374571,"Incendio"],
-["Juan Sebastian Sandino Ariza","023320559","3003286681","2023-09-29","2024-09-29","2025-03-01","Vida",355560,"Fallecimiento"],
-["Diana Alexandra Rodriguez Medina","023343826","3188288303","2023-10-01","2024-10-01","2024-08-02","Auto",1537454,"RCE+AJPP"],
-["Yazmin Perez Cortes","023348395","3107854961","2023-11-24","2024-11-24","2025-06-04","Auto",2912852,"RCE+AJPP"],
-["Luis Alberto Torres Martinez","023361098","3177258758","2023-12-29","2025-01-01","2025-01-01","Salud",16364202,"Protesis"],
-["Heidy Johanna Bernal Guerrero","023380614","3112229913","2024-02-04","2025-02-04","2025-02-04","Auto",2242151,"RCE+AJPP"],
-["Luis Eduardo Sanchez Mongui","023426584","3112050102","2024-05-09","2025-05-09","2025-05-09","Otros",2418472,"RCEH Decr.4299/"],
-["Annina Schlatter","023428326","3146149399","2024-05-01","2025-05-01","2025-05-01","Salud",14535063,"Protesis"],
-["Edgar Andres Camacho Cortes","023432418","3112633391","2024-05-18","2025-05-18","2025-05-18","Auto",2264764,"RCE+AJPP"],
-["Daniel Becerra Garzon","023432477","3144115279","2024-05-18","2025-05-18","2024-12-24","Auto",1300001,"RCE+AJPP"],
-["Hernan Trujillo Serrato","023442965","3002917954","2024-07-01","2025-07-01","2025-07-01","Auto",1649223,"RCE+AJPP"],
-["Carolina Diaz Carrera","023451991","3118535759","2024-06-27","2025-06-27","2025-02-27","Hogar",479055,"Incendio"],
-["Carlos Arturo Calderon","023452483","3184173959","2024-06-23","2025-06-23","2024-07-17","Auto",3781642,"RCE+AJPP"],
-["Sandra Patricia Garcia Caceres","023459770","3134021588","2024-07-19","2025-07-19","2025-03-19","Auto",3009298,"RCE+AJPP"],
-["Pablo Enrique Ramon Uribe Lenis","023462872","3002672078","2024-08-12","2025-08-12","","Auto",942242,"RCE+AJPP"],
-["Pavel Arciniegas Hernandez","023466680","3175243858","2024-09-24","2025-09-24","","Auto",2989824,"RCE+AJPP"],
-["Julian Alberto Rico Bravo","023487886","3124812719","2024-08-26","2025-08-26","","Auto",1849901,"RCE+AJPP"],
-["Franklin Arias Carrillo","023488394","3158999799","2024-09-06","2025-09-06","2024-09-06","Auto",0,"RCE+AJPP"],
-["Luz Amparo Chacon Babativa","023492760","3157816814","2024-10-01","2025-10-01","","Salud",25329964,"Hospitalizacion"],
-["Miguel Alberto Ocampo Gomez","023500973","3006100029","2024-10-01","2025-10-01","","Hogar",855653,"Incendio"],
-["Jose Fredy Gonzalez Ruiz","023501265","3202255515","2024-10-01","2025-10-01","","Auto",2096993,"RCE+AJPP"],
-["Miguel Alberto Ocampo Gomez","023501686","3006100029","2024-10-03","2025-10-03","","Auto",1678327,"RCE+AJPP"],
-["Jessica Andrea Pulido Guerrero","023502231","3002752562","2024-10-03","2025-10-03","2025-06-03","Auto",1714233,"RCE+AJPP"],
-["Angela Judith Carreno Perez","023507774","3002242217","2024-10-16","2025-10-16","","Auto",5933241,"RCE+AJPP"],
-["Smarty Pants Colombia Sas","023517780","3002672081","2024-11-05","2025-11-05","2025-06-30","Hogar",710672,"Incendio"],
-["El Ciguenal Medina Jara S.a.","023526599","3105581310","2024-11-23","2025-11-23","","Auto",10383270,"RCE+AJPP"],
-["Diego Andres Castiblanco Betancourt","023529236","3213953086","2024-11-29","2025-11-29","","Auto",2843253,"RCE+AJPP"],
-["Eduardo Andres Gutierrez Barriga","023531027","3212055938","2024-11-29","2025-11-29","","Auto",1496111,"RCE+AJPP"],
-["Andrea Pinzon Vargas","023534030","3134522531","2024-12-07","2025-12-07","","Auto",2586301,"RCE+AJPP"],
-["Noris Yolanda Garzon Otalora","023542697","3212294274","2024-12-18","2025-12-18","","Auto",1318688,"RCE+AJPP"],
-["Jennifer Maria Urrego Barragan","023543253","3156168398","2024-12-20","2025-12-20","","Auto",1330831,"RCE+AJPP"],
-["Luis Alberto Torres Martinez","023544978","3177258758","2025-01-01","2026-01-01","","Salud",17895961,"Hospitalizacion"],
-["Javier Enrique Pabon Moreno","023549038","3112511509","2024-12-27","2025-12-27","","Auto",2181651,"RCE+AJPP"],
-["Heidy Johanna Bernal Guerrero","023565449","3112229913","2025-02-04","2026-02-04","","Auto",2017922,"RCE+AJPP"],
-["Ramon Bernal Arevalo","023567880","3105513869","2025-02-14","2026-02-14","2025-05-20","Auto",1951143,"RCE+AJPP"],
-["Martha Lucia De Plaza Buritica","023573318","3002672081","2025-02-19","2026-02-19","","Auto",1077041,"RCE+AJPP"],
-["Karen Andrea Rodriguez Nungo","023576848","3204285601","2025-02-19","2026-02-19","","Auto",2208482,"RCE+AJPP"],
-["Miller Alonso Alvarez Chavarro","023582959","3182231625","2025-02-27","2026-02-27","","Auto",2815232,"RCE+AJPP"],
-["Carlos Alfonso Pineda Chillan","023587546","3165284399","2025-04-01","2026-04-01","","Salud",46089343,"Hospitalizacion"],
-["Construction And Advanced Consulting S A S","023588515","3184173959","2025-04-01","2026-04-01","","Salud",26930869,"Hospitalizacion"],
-["Magda Mile Salcedo Jimenez","023589086","3202109150","2025-04-01","2026-04-01","","Salud",23845753,"Hospitalizacion"],
-["Ronald Steve Cepeda Gutierrez","023600497","3003085741","2025-05-01","2026-05-01","","Salud",5042968,"Hospitalizacion"],
-["Jose Dario Cabezas Belalcazar","023601948","3103343557","2025-04-11","2026-04-11","","Auto",1163374,"RCE+AJPP"],
-["Jose Dario Cabezas Belalcazar","023601964","3103343557","2025-03-28","2026-03-28","2025-03-28","Auto",1118052,"RCE+AJPP"],
-["David Alfonso Cruz Gallo","023602094","3213245825","2025-03-28","2026-03-28","","Auto",2303257,"RCE+AJPP"],
-["Annina Schlatter","023604725","3146149399","2025-05-01","2026-05-01","","Salud",15585678,"Hospitalizacion"],
-["Luis Eduardo Sanchez Mongui","023605364","3112050102","2025-04-03","2026-04-03","","Auto",1763136,"RCE+AJPP"],
-["German Alexander Aranguren Amaya","023605594","3106987397","2025-04-04","2026-04-04","","Auto",2512695,"RCE+AJPP"],
-["Julieth Castillo Carrillo","023613764","3002673411","2025-04-16","2026-04-16","","Auto",1587286,"RCE+AJPP"],
-["Magda Mile Salcedo Jimenez","023616780","3202109150","2025-06-01","2026-06-01","","Salud",14703632,"Hospitalizacion"],
-["Jose Dario Cabezas Belalcazar","023619858","3103343557","2025-04-29","2026-04-29","","Auto",1342015,"RCE+AJPP"],
-["Luis Eduardo Sanchez Mongui","023622337","3112050102","2025-05-09","2026-05-09","","Otros",2648227,"RCEH Decr.4299/"],
-["Edgar Andres Camacho Cortes","023627816","3112633391","2025-05-18","2026-05-18","","Auto",2038408,"RCE+AJPP"],
-["Sandra Patricia Garcia Caceres","023628177","3134021588","2025-06-09","2026-06-09","","Auto",1217486,"RCE+AJPP"],
-["Maby Marcela Monroy Medina","023629384","3164451371","2025-05-16","2026-05-16","","Auto",1625775,"RCE+AJPP"],
-["Sonia Cubillos Cobos","023630595","3144685046","2025-05-17","2026-05-17","2025-05-17","Auto",1353102,"RCE+AJPP"],
-["Miguel Ignacio Arrazola Montes","023633839","3002090101","2025-05-01","2026-05-01","","Auto",1925781,"RCE+AJPP"],
-["Construction And Advanced Consulting S A S","023637157","3184173959","2025-06-05","2026-06-05","","Auto",5573059,"RCE+AJPP"],
-["Jessica Andrea Pulido Guerrero","023643921","3002752562","2025-06-09","2026-06-09","","Hogar",529203,"Incendio"],
-["Yazmin Perez Cortes","023648290","3107854961","2025-06-16","2026-06-16","","Auto",1466704,"RCE+AJPP"],
-["Carolina Diaz Carrera","023650756","3118535759","2025-06-27","2026-06-27","","Hogar",493437,"Incendio"],
-["Angela Viviana Quintero Quiceno","023657810","3113014138","2025-06-01","2026-06-01","","Auto",2528807,"RCE+AJPP"],
-["Hernan Trujillo Serrato","023659737","3002917954","2025-07-01","2026-07-01","","Auto",1484284,"RCE+AJPP"]
-];
+/* Datos demo removidos: la app SOLO usa datos reales del Sheet Base de datos Aseguralo (POLRES). */
+var POLIZAS_RAW=[];
 
 /* Document numbers (cedula/NIT del tomador) — real data from POLRES */
-var DOCS_MAP={'021509469':'17116410','021666317':'41606205','021970622':'52501373','022175861':'52718171','022175878':'52718171','022432946':'103053976','022455469':'79879358','022558568':'19151881','022565927':'41678155','022643539':'79956667','022695782':'36183272','022726364':'52225436','022739168':'80019246','022784736':'52783481','022804772':'19332565','022811930':'102081190','022863322':'418516','022867368':'900603948','022905018':'103053976','022942633':'41606205','022977668':'103052726','022981244':'79471670','022988694':'101900311','023002254':'35515081','023059959':'80019246','023079789':'111749712','023102842':'80180445','023140774':'80064589','023178495':'53071025','023224237':'19107528','023233549':'52379460','023265489':'900603948','023291042':'79914033','023305779':'91534639','023320559':'80180445','023343826':'29117836','023348395':'65738826','023361098':'94542937','023380614':'52200531','023426584':'79471670','023428326':'1201016','023432418':'80417610','023432477':'80094356','023442965':'73073641','023451991':'52694461','023452483':'9534412','023459770':'52849661','023462872':'70129506','023466680':'103052726','023487886':'80019246','023488394':'101905270','023492760':'52587781','023500973':'10023605','023501265':'80724912','023501686':'10023605','023502231':'52718171','023507774':'40045284','023517780':'901847860','023526599':'800107810','023529236':'110470342','023531027':'86067566','023534030':'52702712','023542697':'35515081','023543253':'107587156','023544978':'94542937','023549038':'19332565','023565449':'52200531','023567880':'3226634','023573318':'21395509','023576848':'123351290','023582959':'80820266','023587546':'17116410','023588515':'900603948','023589086':'103053976','023600497':'79879358','023601948':'79346722','023601964':'79346722','023602094':'102393710','023604725':'1201016','023605364':'79471670','023605594':'74369856','023613764':'53071025','023616780':'103053976','023619858':'79346722','023622337':'79471670','023627816':'80417610','023628177':'52849661','023629384':'53167040','023630595':'52695168','023633839':'79956667','023637157':'900603948','023643921':'52718171','023648290':'65738826','023650756':'52694461','023657810':'43978770','023659737':'73073641'};
+var DOCS_MAP={};
 
 /* Vehicle plates for Auto policies */
-var PLACAS_MAP={'022558568':'NVR427','022565927':'HKS394','022643539':'HVM022','022695782':'MFT932','022739168':'JEP917','022784736':'JEZ213','022804772':'RNQ796','022811930':'NDY482','022863322':'MPT554','022977668':'JXS845','022981244':'JXW238','022988694':'EIY218','023002254':'EOL133','023079789':'KNX205','023102842':'DZT684','023140774':'GCQ059','023178495':'HJL450','023224237':'KYM864','023265489':'LOM010','023343826':'GLN578','023348395':'GWY420','023380614':'JCT965','023432418':'LON800','023432477':'IEL395','023442965':'DVM956','023452483':'FZN891','023459770':'FZO297','023462872':'JMW049','023466680':'JXS845','023487886':'JEP917','023488394':'RML982','023501265':'FZR380','023501686':'MPU348','023502231':'GCQ059','023507774':'LOZ409','023526599':'PHU573','023529236':'ZZS071','023531027':'INU818','023534030':'LTU904','023542697':'EOL133','023543253':'EBQ337','023549038':'PBU741','023565449':'JCT965','023567880':'REZ200','023573318':'FNZ265','023576848':'GFK404','023582959':'DHK835','023601948':'BES024','023601964':'BBE853','023602094':'PCZ929','023605364':'PCZ983','023605594':'IIP405','023613764':'HJL450','023619858':'BBE853','023627816':'LON800','023628177':'FZO297','023629384':'DZV411','023630595':'HDU823','023633839':'HVM022','023637157':'LOM010','023648290':'PRQ752','023657810':'JBS515','023659737':'DVM956'};
+var PLACAS_MAP={};
 
 /* ---- Build POLIZAS from hardcoded data ---- */
 function buildPolizasFromRaw(){
@@ -2024,11 +1946,12 @@ function loadFromSheet(callback){
 }
 
 function useFallback(callback){
-  POLIZAS=buildPolizasFromRaw();
+  // Sin datos demo: solo lo que venga del Sheet real. Si no conecta, mostrar vacio.
+  POLIZAS=[];
   generateDerivedData();
   SHEET_LOADED=true;
-  updateSyncStatus(false,'Sin conexion — datos locales ('+POLIZAS.length+')');
-  if(callback)callback(true);
+  updateSyncStatus(false,'Sin conexion al Sheet — sin datos');
+  if(callback)callback(false);
 }
 
 /* ---- Write back to Sheet via POST ---- */
@@ -2420,7 +2343,7 @@ window.switchComSub=function(sub){
   var tab=document.querySelector('#comSubNav .sub-tab[data-sub="'+sub+'"]'); if(tab) tab.classList.add('active');
   document.querySelectorAll('#mod-comisiones .sub-section').forEach(function(s){s.classList.remove('active')});
   var sec=document.getElementById('sub-com-'+sub); if(sec) sec.classList.add('active');
-  if(sub==='asesores')    renderAsesores();
+  if(sub==='asesores'){ renderAsesores(); renderReglasRamos_(); }
   if(sub==='netoFabian')  renderNetoFabian();
   if(sub==='sevengroup')  { if(typeof renderLiquidaciones==='function') renderLiquidaciones(); }
 };
@@ -3615,11 +3538,19 @@ function renderLiquidaciones(){
     return;
   }
   var estMap = {'pendiente':'badge-por-renovar','cobrado':'badge-activa','pagado':'badge-activa','no-aplica':'badge-cancelada','vencido':'badge-vencida'};
-  // Regla Vehiculo: si es Vehiculo/Auto, la prima que se muestra es "Prima antes de IVA" = prima_total / 1.19
+  // Regla por ramo (mismo mapeo que backend _reglaComisionRamo_).
+  // Devuelve el % IVA que aplica al ramo (0 = sin IVA, ej Vida).
+  var pctIvaPorRamo = function(tipo){
+    var t = String(tipo||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    if(t.indexOf('vida')>=0)  return 0;
+    if(t.indexOf('salud')>=0) return 5;
+    return 19; // vehiculo, hogar, arrendamiento, cumplimiento, PYME, etc.
+  };
   var primaAntesIvaDe = function(l){
-    var t = String(l.tipo||'').toLowerCase();
-    var esVehic = t.indexOf('vehic')>=0 || t.indexOf('auto')>=0;
-    return esVehic ? Math.round((Number(l.prima)||0) / 1.19) : (Number(l.prima)||0);
+    var pctIva = pctIvaPorRamo(l.tipo);
+    return pctIva > 0
+      ? Math.round((Number(l.prima)||0) / (1 + pctIva/100))
+      : (Number(l.prima)||0);
   };
   tb.innerHTML = LIQ_VIEW.map(function(l){
     var badgeAseg = estMap[l.estado_pago_aseguralo]||'badge-por-renovar';
@@ -3705,6 +3636,76 @@ function renderAsesores(){
     pinta();
   }
 }
+
+/* ============================================
+   REGLAS POR RAMO (panel editable en Comisiones → Asesores distribucion)
+   Solo ADMIN puede editar. Se guarda en tab CONFIG del Sheet.
+   ============================================ */
+window._REGLAS_RAMOS_CACHE = [];
+function renderReglasRamos_(){
+  var tb = document.getElementById('reglasRamosTable'); if(!tb) return;
+  var esAdmin = (typeof CURRENT_USER!=='undefined') && CURRENT_USER.rol === 'admin';
+  if(!window._REGLAS_RAMOS_CACHE.length){
+    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Cargando reglas...</td></tr>';
+    fetch(APPS_SCRIPT_URL+'?action=reglas-ramos', {redirect:'follow'})
+      .then(function(r){return r.json();})
+      .then(function(j){
+        if(!j.ok){ tb.innerHTML='<tr><td colspan="6" style="color:var(--red);padding:12px">Error: '+j.error+'</td></tr>'; return; }
+        window._REGLAS_RAMOS_CACHE = j.reglas;
+        renderReglasRamos_();
+      });
+    return;
+  }
+  tb.innerHTML = window._REGLAS_RAMOS_CACHE.map(function(r,idx){
+    var dis = esAdmin ? '' : 'disabled';
+    return '<tr data-slug="'+r.slug+'">'+
+      '<td><strong>'+r.label+'</strong></td>'+
+      '<td style="font-size:11px;color:var(--dim)">'+ (r.keys||'(default)') +'</td>'+
+      '<td><input type="number" class="form-input mono" data-f="pctIva" min="0" max="50" step="0.01" value="'+r.pctIva+'" style="width:70px;text-align:right" '+dis+'></td>'+
+      '<td><input type="number" class="form-input mono" data-f="pctCom" min="0" max="100" step="0.01" value="'+r.pctCom+'" style="width:70px;text-align:right" '+dis+'></td>'+
+      '<td><input type="number" class="form-input mono" data-f="pctImp" min="0" max="50" step="0.01" value="'+r.pctImp+'" style="width:70px;text-align:right" '+dis+'></td>'+
+      '<td>'+ (esAdmin
+        ? '<button class="btn btn-sm btn-primary" onclick="guardarReglaRamo_(this)">Guardar</button><span class="save-status" style="display:block;font-size:10px;color:var(--muted);margin-top:2px"></span>'
+        : '<span style="font-size:10px;color:var(--muted)">solo admin</span>'
+      )+'</td>'+
+    '</tr>';
+  }).join('');
+}
+window.guardarReglaRamo_ = function(btn){
+  var tr = btn.closest('tr'); if(!tr) return;
+  var slug = tr.dataset.slug;
+  var vals = {};
+  tr.querySelectorAll('[data-f]').forEach(function(el){ vals[el.dataset.f] = Number(el.value)||0; });
+  var meEmail = (window.CURRENT_USER && CURRENT_USER.email) || '';
+  var status = tr.querySelector('.save-status');
+  if(status){ status.textContent='guardando...'; status.style.color='var(--accent)'; }
+  // 3 llamadas config-set (una por %)
+  var claves = [
+    ['ramo_'+slug+'_iva', vals.pctIva],
+    ['ramo_'+slug+'_com', vals.pctCom],
+    ['ramo_'+slug+'_imp', vals.pctImp]
+  ];
+  Promise.all(claves.map(function(par){
+    return fetch(APPS_SCRIPT_URL, {method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'config-set', requester_email:meEmail, clave:par[0], valor:String(par[1])})
+    }).then(function(r){return r.json();});
+  }))
+  .then(function(resps){
+    var err = resps.find(function(r){return r && r.error;});
+    if(err) throw new Error(err.error);
+    // Actualizar cache local
+    var idx = window._REGLAS_RAMOS_CACHE.findIndex(function(r){return r.slug===slug;});
+    if(idx>=0){
+      window._REGLAS_RAMOS_CACHE[idx].pctIva = vals.pctIva;
+      window._REGLAS_RAMOS_CACHE[idx].pctCom = vals.pctCom;
+      window._REGLAS_RAMOS_CACHE[idx].pctImp = vals.pctImp;
+    }
+    if(status){ status.textContent='guardado'; status.style.color='var(--green)'; setTimeout(function(){status.textContent='';},2000); }
+  })
+  .catch(function(err){
+    if(status){ status.textContent='error: '+(err.message||err); status.style.color='var(--red)'; }
+  });
+};
 
 /* Modal simple para crear nuevo intermediario. Usa prompt() encadenado para no
    requerir HTML modal (Fabian tiene admin y Andres tambien). */
