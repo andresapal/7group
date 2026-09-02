@@ -638,10 +638,9 @@ tbody tr:hover{background:var(--accent-light)}
               <thead>
                 <tr>
                   <th>ID</th><th>Fecha venta</th><th>Cliente</th><th>Intermediario</th><th>Tipo</th>
-                  <th>Aseguradora</th><th>Prima</th>
+                  <th>Aseguradora</th><th>Prima antes de IVA</th>
                   <th>Com. total</th><th>Com. asesor</th><th>Com. Fabian bruta</th><th>Com. 7GROUP</th>
-                  <th>Fabian neta</th><th>Sostenim.</th><th>Neto Fabian</th>
-                  <th>Origen</th><th>Pago Aseg.</th><th>Pago 7G</th><th>Acc.</th>
+                  <th>Origen</th><th>Pago Aseg.</th><th>Pago 7G</th><th>PAGOS</th>
                 </tr>
               </thead>
               <tbody id="liqsTable"></tbody>
@@ -2408,13 +2407,15 @@ function npSaveLead_(d, cb){
 
 /* Sub-navegacion dentro de Comisiones: aseguralo / 7group */
 window.switchComSub=function(sub){
-  // Guard por rol. admin/dueno siempre pasan (aunque el flag no este seteado).
-  var p = (typeof CURRENT_USER!=='undefined' && CURRENT_USER.permisos) || {};
-  var libre = (typeof esAdminODueno_==='function' && esAdminODueno_()) ||
-              (typeof esUsuarioSinRestriccion_==='function' && esUsuarioSinRestriccion_());
-  if(sub==='asesores'    && !libre && !p.editarPctIntermediarios){ alert('Solo admin/dueno.'); return; }
-  if(sub==='netoFabian'  && !libre && !p.verSostenimiento){ alert('Solo admin/dueno.'); return; }
-  if(sub==='sevengroup'  && !libre && !p.verLiquidacionesTodas){ /* asesor puede ver las suyas */ }
+  // Guards por rol.
+  //  - asesores (distribucion): SOLO admin (7GROUP). Fabian NO puede.
+  //  - netoFabian: admin y dueno pueden.
+  //  - sevengroup: admin/dueno ven todo; asesor ve las suyas.
+  var esAdmin  = (typeof CURRENT_USER!=='undefined') && CURRENT_USER.rol === 'admin';
+  var libre    = (typeof esAdminODueno_==='function' && esAdminODueno_()) ||
+                 (typeof esUsuarioSinRestriccion_==='function' && esUsuarioSinRestriccion_());
+  if(sub==='asesores' && !esAdmin){ alert('Solo el ADMIN (7GROUP) puede modificar la distribucion.'); return; }
+  if(sub==='netoFabian' && !libre){ alert('Solo admin/dueno.'); return; }
   document.querySelectorAll('#comSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
   var tab=document.querySelector('#comSubNav .sub-tab[data-sub="'+sub+'"]'); if(tab) tab.classList.add('active');
   document.querySelectorAll('#mod-comisiones .sub-section').forEach(function(s){s.classList.remove('active')});
@@ -3610,10 +3611,16 @@ function renderLiquidaciones(){
 
   var tb = document.getElementById('liqsTable'); if(!tb) return;
   if(!LIQ_VIEW.length){
-    tb.innerHTML = '<tr><td colspan="18" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay liquidaciones para tu usuario.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Aun no hay liquidaciones para tu usuario.</td></tr>';
     return;
   }
   var estMap = {'pendiente':'badge-por-renovar','cobrado':'badge-activa','pagado':'badge-activa','no-aplica':'badge-cancelada','vencido':'badge-vencida'};
+  // Regla Vehiculo: si es Vehiculo/Auto, la prima que se muestra es "Prima antes de IVA" = prima_total / 1.19
+  var primaAntesIvaDe = function(l){
+    var t = String(l.tipo||'').toLowerCase();
+    var esVehic = t.indexOf('vehic')>=0 || t.indexOf('auto')>=0;
+    return esVehic ? Math.round((Number(l.prima)||0) / 1.19) : (Number(l.prima)||0);
+  };
   tb.innerHTML = LIQ_VIEW.map(function(l){
     var badgeAseg = estMap[l.estado_pago_aseguralo]||'badge-por-renovar';
     var badge7G   = estMap[l.estado_pago_7group]||'badge-por-renovar';
@@ -3624,14 +3631,11 @@ function renderLiquidaciones(){
       '<td style="font-size:11px">'+(l.intermediario||'-')+'</td>'+
       '<td>'+l.tipo+'</td>'+
       '<td style="font-size:12px">'+l.aseguradora+'</td>'+
-      '<td class="mono" style="font-weight:700">'+fmt(l.prima)+'</td>'+
+      '<td class="mono" style="font-weight:700">'+fmt(primaAntesIvaDe(l))+'</td>'+
       '<td class="mono" style="font-size:12px">'+fmt(l.com_aseguralo)+' <span style="color:var(--dim);font-size:10px">('+l.pct_aseguralo+'%)</span></td>'+
       '<td class="mono" style="font-size:12px">'+fmt(l.com_asesor||0)+' <span style="color:var(--dim);font-size:10px">('+(l.pct_asesor||0)+'%)</span></td>'+
       '<td class="mono" style="font-size:12px">'+fmt(l.com_fabian_bruta||0)+' <span style="color:var(--dim);font-size:10px">('+(l.pct_fabian||0)+'%)</span></td>'+
       '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(l.com_7group)+' <span style="color:var(--dim);font-size:10px">('+l.pct_7group+'% · '+(l.renovacion===1?'año 1':'reno '+l.renovacion)+')</span></td>'+
-      '<td class="mono">'+fmt(l.com_fabian_neta||0)+'</td>'+
-      '<td class="mono" style="color:var(--orange)">'+fmt(l.sostenimiento_valor||0)+' <span style="color:var(--dim);font-size:10px">('+(l.sostenimiento_pct||0)+'%)</span></td>'+
-      '<td class="mono" style="font-weight:800;color:var(--green)">'+fmt(l.neto_fabian||0)+'</td>'+
       '<td style="font-size:10px;color:var(--dim)">'+(l.origen||'')+'</td>'+
       '<td><span class="badge '+badgeAseg+'">'+l.estado_pago_aseguralo+'</span>'+(l.fecha_pago_aseguralo?'<div style="font-size:9px;color:var(--dim);margin-top:2px">'+l.fecha_pago_aseguralo+'</div>':'')+'</td>'+
       '<td><span class="badge '+badge7G+'">'+l.estado_pago_7group+'</span>'+(l.fecha_pago_7group?'<div style="font-size:9px;color:var(--dim);margin-top:2px">'+l.fecha_pago_7group+'</div>':'')+'</td>'+
@@ -3658,9 +3662,10 @@ function loadIntermediariosFull_(){
 
 function renderAsesores(){
   var tb = document.getElementById('asesoresTable'); if(!tb) return;
-  // Solo admin/dueno pueden ver/editar. Los demas ven un mensaje.
-  if(!esAdminODueno_()){
-    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Solo el administrador y Fabian pueden gestionar la distribucion de intermediarios.</td></tr>';
+  // SOLO admin (7GROUP) puede modificar la distribucion. Dueno (Fabian) NO.
+  var esAdminEstricto = (typeof CURRENT_USER!=='undefined') && CURRENT_USER.rol === 'admin';
+  if(!esAdminEstricto){
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Solo el ADMIN (7GROUP) puede modificar la distribucion de intermediarios.</td></tr>';
     return;
   }
   var pinta = function(){
