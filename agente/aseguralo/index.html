@@ -3703,7 +3703,9 @@ window.guardarAsesor_ = function(btn){
   var meEmail = (window.CURRENT_USER && CURRENT_USER.email) ||
                 (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
                 localStorage.getItem('aseg_erp_auth') || '';
-  var payload = {action:'intermediario-update', nombre:nombre, email:meEmail};
+  // requester_email = email del usuario que hace la peticion (para authGate)
+  // email = campo del intermediario (email_login del asesor) — NO se sobreescribe con requester_email
+  var payload = {action:'intermediario-update', nombre:nombre, requester_email:meEmail};
   tr.querySelectorAll('[data-f]').forEach(function(el){
     var f = el.dataset.f;
     var v = el.value;
@@ -3714,7 +3716,6 @@ window.guardarAsesor_ = function(btn){
     alert('No hay sesion activa (email vacio). Cierra sesion y vuelve a entrar.');
     return;
   }
-  console.log('[guardarAsesor_] payload:', payload);
   // Validar suma <= 100
   if((payload.pctAsesor||0) + (payload.pctFabian||0) > 100){
     alert('La suma de % Asesor + % Fabian no puede pasar 100'); return;
