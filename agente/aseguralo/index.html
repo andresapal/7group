@@ -1896,53 +1896,78 @@ function transformApiRows(rows){
   }).filter(function(p){return p.id;});
 }
 
-/* ---- Load data: live API via fetch (follows redirects), fallback to local ---- */
+/* ---- Load data: live API via fetch + cache resiliente + reintento automatico ----
+   Estrategia:
+     1. Muestra CACHE local INMEDIATO (aunque haya expirado) para que el usuario
+        siempre vea datos si los ha visto antes.
+     2. En paralelo intenta sync con timeout 8s.
+     3. Si falla, reintenta UNA vez a los 3s.
+     4. Si ambos intentos fallan, mantiene el cache viejo con banner "Sin conexion
+        - datos de hace X min - [Reintentar]".
+   ============================================ */
+function _minutosDesde(ts){ return Math.round((Date.now()-ts)/60000); }
 function loadFromSheet(callback){
   updateSyncStatus(null,'Conectando con Sheet...');
 
-  // Check cache first
-  var cached=null;
+  // 1. Mostrar cache INMEDIATO (aunque haya expirado). Mejor viejo que nada.
+  var cached=null, cachedTs=0;
   try{
-    var ts=parseInt(localStorage.getItem(SHEET_CACHE_TS)||'0');
-    if(Date.now()-ts < SHEET_CACHE_HOURS*3600000){
-      cached=JSON.parse(localStorage.getItem(SHEET_CACHE_KEY));
-    }
+    cachedTs=parseInt(localStorage.getItem(SHEET_CACHE_TS)||'0');
+    cached=JSON.parse(localStorage.getItem(SHEET_CACHE_KEY));
   }catch(e){}
-
   if(cached&&cached.rows&&cached.rows.length>0){
     POLIZAS=transformApiRows(cached.rows);
     generateDerivedData();
     SHEET_LOADED=true;
-    updateSyncStatus(true,'Cache ('+POLIZAS.length+' polizas) — recargando...');
+    var mins=_minutosDesde(cachedTs);
+    updateSyncStatus(null,'Cache ('+POLIZAS.length+' polizas · '+mins+'min) recargando...');
     if(callback)callback(true);
   }
 
-  // Fetch via fetch API (follows Google redirects automatically)
-  var controller=new AbortController();
-  var timeout=setTimeout(function(){ controller.abort(); },12000);
-
-  fetch(APPS_SCRIPT_URL,{redirect:'follow',signal:controller.signal})
-    .then(function(res){ return res.json(); })
-    .then(function(data){
-      clearTimeout(timeout);
-      if(data&&data.status==='ok'&&data.rows&&data.rows.length>0){
-        try{
-          localStorage.setItem(SHEET_CACHE_KEY,JSON.stringify(data));
-          localStorage.setItem(SHEET_CACHE_TS,String(Date.now()));
-        }catch(e){}
-        POLIZAS=transformApiRows(data.rows);
-        generateDerivedData();
-        SHEET_LOADED=true;
-        updateSyncStatus(true,'Sincronizado ('+POLIZAS.length+' polizas)');
-        if(callback)callback(true);
-      } else if(!SHEET_LOADED){
-        useFallback(callback);
-      }
-    })
-    .catch(function(){
-      clearTimeout(timeout);
-      if(!SHEET_LOADED) useFallback(callback);
-    });
+  // 2. Intento con timeout 8s + 1 reintento
+  var intentos = 0, MAX_INTENTOS = 2, TIMEOUT_MS = 8000, REINTENTO_MS = 3000;
+  function intentarSync(){
+    intentos++;
+    var controller=new AbortController();
+    var to=setTimeout(function(){ controller.abort(); }, TIMEOUT_MS);
+    fetch(APPS_SCRIPT_URL,{redirect:'follow',signal:controller.signal})
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        clearTimeout(to);
+        if(data&&data.status==='ok'&&data.rows){
+          try{
+            localStorage.setItem(SHEET_CACHE_KEY,JSON.stringify(data));
+            localStorage.setItem(SHEET_CACHE_TS,String(Date.now()));
+          }catch(e){}
+          POLIZAS=transformApiRows(data.rows);
+          generateDerivedData();
+          SHEET_LOADED=true;
+          updateSyncStatus(true,'Sincronizado ('+POLIZAS.length+' polizas)');
+          if(callback)callback(true);
+        } else if(!SHEET_LOADED){
+          manejarFalloSync();
+        }
+      })
+      .catch(function(){
+        clearTimeout(to);
+        if(intentos < MAX_INTENTOS){
+          setTimeout(intentarSync, REINTENTO_MS);
+        } else {
+          manejarFalloSync();
+        }
+      });
+  }
+  function manejarFalloSync(){
+    if(cached&&cached.rows&&cached.rows.length>0){
+      // Mantener cache viejo, mostrar banner con boton reintentar
+      var mins=_minutosDesde(cachedTs);
+      updateSyncStatus(false,'Sin conexion — datos de hace '+mins+'min · <a href="#" onclick="loadFromSheet();return false;" style="color:var(--accent);text-decoration:underline">Reintentar</a>');
+      if(callback)callback(true);
+    } else {
+      useFallback(callback);
+    }
+  }
+  intentarSync();
 }
 
 function useFallback(callback){
