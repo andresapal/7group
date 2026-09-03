@@ -596,6 +596,9 @@ tbody tr:hover{background:var(--accent-light)}
         <a class="sub-tab" data-sub="asesores" onclick="switchComSub('asesores')">
           <span class="sub-lbl">Asesores</span>
         </a>
+        <a class="sub-tab" data-sub="condiciones" onclick="switchComSub('condiciones')">
+          <span class="sub-lbl">Condiciones</span>
+        </a>
         <a class="sub-tab" data-sub="netoFabian" onclick="switchComSub('netoFabian')">
           <span class="sub-lbl">Mis finanzas</span>
         </a>
@@ -649,29 +652,24 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
-      <!-- Sub: Asesores / distribucion editable -->
+      <!-- Sub: CONDICIONES por tipo de poliza (IVA / % Comision / % Impuesto) -->
+      <div class="sub-section" id="sub-com-condiciones">
+        <div style="font-size:13px;color:var(--dim);margin-bottom:12px">% IVA sobre prima, % Comision sobre prima antes de IVA, % Impuesto sobre la comision. Editable por admin/dueño. Se aplica a polizas NUEVAS — las emitidas antes conservan sus valores.</div>
+        <div class="tbl-wrap"><div class="tbl-overflow"><table><thead>
+          <tr>
+            <th>Ramo</th><th>Palabras clave (match)</th>
+            <th>% IVA</th><th>% Comision</th><th>% Impuesto</th><th>Guardar</th>
+          </tr>
+        </thead>
+        <tbody id="reglasRamosTable"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- Sub: Asesores / distribucion editable (limpio, solo intermediarios) -->
       <div class="sub-section" id="sub-com-asesores">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
           <div style="font-size:13px;color:var(--dim);flex:1">Distribucion de comision entre asesor y Fabian por intermediario. Editable en linea, guarda a Sheet automatico.</div>
           <button class="btn btn-primary" onclick="abrirNuevoIntermediario_()" style="font-size:12px;padding:8px 16px">+ Nuevo intermediario</button>
-        </div>
-
-        <!-- PANEL REGLAS POR RAMO (IVA / % Comision / % Impuesto). Solo admin. -->
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div>
-              <div style="font-size:14px;font-weight:700;color:var(--text)">Condiciones por tipo de poliza</div>
-              <div style="font-size:11px;color:var(--dim);margin-top:2px">% IVA sobre prima, % Comision sobre prima antes de IVA, % Impuesto sobre la comision. Editable solo por ADMIN. Se aplica a polizas NUEVAS.</div>
-            </div>
-          </div>
-          <div class="tbl-wrap"><div class="tbl-overflow"><table><thead>
-            <tr>
-              <th>Ramo</th><th>Palabras clave (match)</th>
-              <th>% IVA</th><th>% Comision</th><th>% Impuesto</th><th>Guardar</th>
-            </tr>
-          </thead>
-          <tbody id="reglasRamosTable"></tbody>
-          </table></div></div>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;font-size:12px;line-height:1.65;color:var(--text)">
           <strong>Reglas de reparto:</strong><br>
@@ -2369,7 +2367,8 @@ window.switchComSub=function(sub){
   var tab=document.querySelector('#comSubNav .sub-tab[data-sub="'+sub+'"]'); if(tab) tab.classList.add('active');
   document.querySelectorAll('#mod-comisiones .sub-section').forEach(function(s){s.classList.remove('active')});
   var sec=document.getElementById('sub-com-'+sub); if(sec) sec.classList.add('active');
-  if(sub==='asesores'){ renderAsesores(); renderReglasRamos_(); }
+  if(sub==='asesores')    renderAsesores();
+  if(sub==='condiciones') renderReglasRamos_();
   if(sub==='netoFabian')  renderNetoFabian();
   if(sub==='sevengroup')  { if(typeof renderLiquidaciones==='function') renderLiquidaciones(); }
 };
