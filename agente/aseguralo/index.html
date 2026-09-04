@@ -327,6 +327,20 @@ tbody tr:hover{background:var(--accent-light)}
 </head>
 <body>
 
+<!-- SPLASH INTRO ASEGURALO (~2.5s. Solo el logo oficial sobre fondo blanco, sin textos extra) -->
+<div id="asegSplash" onclick="this.style.opacity='0';setTimeout(function(){document.getElementById('asegSplash').style.display='none';},300)" style="position:fixed;inset:0;z-index:99999;background:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .4s ease">
+  <img src="/logo-aseguralo.png" alt="Aseguralo" style="max-width:min(60vw,420px);height:auto;opacity:0;transform:scale(.9);animation:asegLogoIn .9s .1s cubic-bezier(.2,.9,.3,1.2) forwards">
+</div>
+<style>
+  @keyframes asegLogoIn    { to { opacity:1; transform:scale(1); } }
+  @keyframes asegSplashOut { to { opacity:0; visibility:hidden; } }
+  #asegSplash { animation: asegSplashOut .45s 2.1s ease forwards; }
+</style>
+<script>
+  // Fallback: quitar del DOM al terminar animacion de salida (por si un click no dispara el handler).
+  setTimeout(function(){ var s=document.getElementById('asegSplash'); if(s) s.style.display='none'; }, 2700);
+</script>
+
 <!-- AUTH GATE -->
 <div class="email-gate" id="emailGate">
   <div class="email-box">
@@ -3625,28 +3639,35 @@ function renderAsesores(){
       return;
     }
     var dis = puedeEditar ? '' : 'disabled';
+    var soyAdmin7g = (typeof CURRENT_USER!=='undefined') && CURRENT_USER.rol==='admin';
     tb.innerHTML = INTERMED_FULL.map(function(x,idx){
       var isDueno = x.tipo==='dueno';
       var isRefAdmin = x.tipo==='referido_admin';
       var tipoLbl = isDueno?'Administrador':(isRefAdmin?'Referido 7GROUP':'Asesor');
+      // Fila de admin 7group NO editable por dueños de Aseguralo
+      var protegida = isRefAdmin || String(x.nombre||'').toLowerCase()==='andres aparicio';
+      var disFila = (protegida && !soyAdmin7g) ? 'disabled' : dis;
+      var lockLbl = (protegida && !soyAdmin7g)
+        ? '<span title="Admin 7GROUP - solo editable por 7GROUP" style="font-size:9px;background:rgba(48,71,112,.15);color:var(--accent);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">7GROUP</span>'
+        : '';
       var accesoLbl = x.activo==='si'
         ? (x.email ? '<span style="font-size:9px;background:rgba(16,185,129,.15);color:var(--green);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">ACCESO</span>' : '<span style="font-size:9px;background:rgba(255,180,0,.15);color:var(--orange);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">falta email</span>')
         : '<span style="font-size:9px;background:rgba(239,68,68,.15);color:var(--red);padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px">BLOQUEADO</span>';
       return '<tr data-nombre="'+x.nombre+'">'+
-        '<td><strong>'+x.nombre+'</strong>'+accesoLbl+'</td>'+
-        '<td><select class="form-input" data-f="tipo" style="font-size:12px;padding:4px 6px" '+dis+'>'+
+        '<td><strong>'+x.nombre+'</strong>'+lockLbl+accesoLbl+'</td>'+
+        '<td><select class="form-input" data-f="tipo" style="font-size:12px;padding:4px 6px" '+disFila+'>'+
           ['dueno','asesor','referido_admin'].map(function(t){
             var lbl = t==='dueno'?'Administrador':(t==='referido_admin'?'Referido 7GROUP':'Asesor');
             return '<option value="'+t+'" '+(x.tipo===t?'selected':'')+'>'+lbl+'</option>';
           }).join('')+
         '</select></td>'+
-        '<td><input type="number" class="form-input mono" data-f="pctAsesor" min="0" max="100" step="1" value="'+x.pctAsesor+'" style="width:70px;text-align:right" '+dis+'></td>'+
-        '<td><input type="number" class="form-input mono" data-f="pctFabian" min="0" max="100" step="1" value="'+x.pctFabian+'" style="width:70px;text-align:right" '+dis+'></td>'+
-        '<td><select class="form-input" data-f="activo" style="font-size:12px;padding:4px 6px;width:70px" '+dis+'>'+
+        '<td><input type="number" class="form-input mono" data-f="pctAsesor" min="0" max="100" step="1" value="'+x.pctAsesor+'" style="width:70px;text-align:right" '+disFila+'></td>'+
+        '<td><input type="number" class="form-input mono" data-f="pctFabian" min="0" max="100" step="1" value="'+x.pctFabian+'" style="width:70px;text-align:right" '+disFila+'></td>'+
+        '<td><select class="form-input" data-f="activo" style="font-size:12px;padding:4px 6px;width:70px" '+disFila+'>'+
           ['si','no'].map(function(v){return '<option '+(x.activo===v?'selected':'')+'>'+v+'</option>';}).join('')+
         '</select></td>'+
-        '<td><input class="form-input" data-f="email" value="'+(x.email||'')+'" style="font-size:12px" placeholder="correo@dominio.com" '+dis+'></td>'+
-        '<td>'+ (puedeEditar
+        '<td><input class="form-input" data-f="email" value="'+(x.email||'')+'" style="font-size:12px" placeholder="correo@dominio.com" '+disFila+'></td>'+
+        '<td>'+ (puedeEditar && !(protegida && !soyAdmin7g)
           ? '<button class="btn btn-sm btn-primary" onclick="guardarAsesor_(this)">Guardar</button><span class="save-status" style="display:block;font-size:10px;color:var(--muted);margin-top:2px"></span>'
           : '<span style="font-size:10px;color:var(--muted)">sin permiso</span>'
         )+'</td>'+
