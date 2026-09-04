@@ -238,10 +238,58 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;height:100v
   </div>
 </div>
 
+<script>
+(function(){
+  var L = new URLSearchParams(location.search).get('lang') || 'es';
+  window.LANG = L;
+  document.documentElement.lang = L === 'en' ? 'en' : 'es';
+  if (L !== 'en') return;
+
+  var q = function(s){return document.querySelector(s);};
+  var qa = function(s){return document.querySelectorAll(s);};
+
+  // Topbar
+  q('.tb-badge').textContent = 'Free Demo';
+  qa('.tb-btn').forEach(function(b){
+    if(b.textContent.trim()==='Reiniciar') b.textContent='Reset';
+  });
+
+  // Unsupported message
+  var u=document.getElementById('unsupported');
+  if(u) u.textContent='Your browser does not support speech recognition. Use Chrome on desktop or Android.';
+
+  // Phone
+  document.getElementById('callStatus').textContent='Tap to call';
+  document.getElementById('phoneHint').textContent='Tap the microphone to start the call';
+
+  // Tenant selector
+  q('.tenant-select label').textContent='Restaurant';
+
+  // Transcript
+  q('.transcript-header h3').textContent='Transcript';
+  document.getElementById('textInput').placeholder='Or type here if you don\'t have a mic...';
+  q('.text-input-area button').textContent='Send';
+
+  // Debug sidebar
+  qa('.dbg-sec h4').forEach(function(h){
+    if(h.textContent==='Estado') h.textContent='State';
+    if(h.textContent==='Pedido') h.textContent='Order';
+    if(h.textContent==='Voz') h.textContent='Voice';
+  });
+  qa('.dbg-row').forEach(function(r){
+    var k=r.querySelector('.k');
+    if(k&&k.textContent==='Costo'){k.textContent='Cost';var v=r.querySelector('.v');if(v)v.textContent='$0 (Free)';}
+  });
+})();
+</script>
+
 <script type="module">
 import { createConversation, getGreeting, processMessage } from './engine/conversation-manager.js';
 import { _resetOrderStore } from './engine/mock-tools.js';
 import { clearAuditLog } from './engine/tool-orchestrator.js';
+
+// ── Lang ──
+const LANG = window.LANG || 'es';
 
 // ── State ─────────────────────────────────────────────────────────
 let conv = null;
@@ -286,7 +334,7 @@ function initConversation(shouldSpeak = true) {
 
   // Update UI
   document.getElementById('restaurantName').textContent = restaurantDisplayName;
-  document.getElementById('agentName').textContent = 'Agente IA: ' + agentDisplayName;
+  document.getElementById('agentName').textContent = (LANG === 'en' ? 'AI Agent: ' : 'Agente IA: ') + agentDisplayName;
 
   transcriptEl.innerHTML = '';
   updateDebug();
@@ -342,7 +390,7 @@ function startListening() {
       return;
     }
     if (event.error === 'not-allowed') {
-      addMessage('error', 'Permiso de microfono denegado. Habilita el microfono en la configuracion del navegador.');
+      addMessage('error', LANG === 'en' ? 'Microphone permission denied. Enable it in browser settings.' : 'Permiso de microfono denegado. Habilita el microfono en la configuracion del navegador.');
     }
     setMicState('idle');
   };
@@ -416,7 +464,7 @@ function processUserInput(text) {
 
       // Check if order completed
       if (conv.state.currentState === 'COMPLETED') {
-        addMessage('system', 'Pedido completado');
+        addMessage('system', LANG === 'en' ? 'Order completed' : 'Pedido completado');
       }
     }
   } catch (err) {
@@ -437,22 +485,26 @@ function setMicState(state) {
 
   switch (state) {
     case 'idle':
-      statusEl.textContent = conv ? 'Toca para hablar' : 'Toca para llamar';
-      phoneHint.textContent = conv ? 'Mantente cerca del microfono' : 'Toca el microfono para iniciar la llamada';
+      statusEl.textContent = conv
+        ? (LANG === 'en' ? 'Tap to talk' : 'Toca para hablar')
+        : (LANG === 'en' ? 'Tap to call' : 'Toca para llamar');
+      phoneHint.textContent = conv
+        ? (LANG === 'en' ? 'Stay close to the microphone' : 'Mantente cerca del microfono')
+        : (LANG === 'en' ? 'Tap the microphone to start the call' : 'Toca el microfono para iniciar la llamada');
       stopWaveAnimation();
       break;
     case 'listening':
-      statusEl.textContent = 'Escuchando...';
-      phoneHint.textContent = 'Habla ahora';
+      statusEl.textContent = LANG === 'en' ? 'Listening...' : 'Escuchando...';
+      phoneHint.textContent = LANG === 'en' ? 'Speak now' : 'Habla ahora';
       startWaveAnimation('listening');
       break;
     case 'processing':
-      statusEl.textContent = 'Procesando...';
+      statusEl.textContent = LANG === 'en' ? 'Processing...' : 'Procesando...';
       phoneHint.textContent = '';
       stopWaveAnimation();
       break;
     case 'speaking':
-      statusEl.textContent = 'Hablando...';
+      statusEl.textContent = LANG === 'en' ? 'Speaking...' : 'Hablando...';
       phoneHint.textContent = '';
       startWaveAnimation('speaking');
       break;
@@ -468,7 +520,7 @@ function addMessage(type, text) {
   if (type === 'agent' || type === 'user') {
     const label = document.createElement('div');
     label.className = 'label';
-    label.textContent = type === 'agent' ? (currentTenantId === 'tenant_donmario' ? 'Ana' : 'Carlos') : 'Tu';
+    label.textContent = type === 'agent' ? (currentTenantId === 'tenant_donmario' ? 'Ana' : 'Carlos') : (LANG === 'en' ? 'You' : 'Tu');
     div.appendChild(label);
   }
 
@@ -592,14 +644,14 @@ initConversation();
           justify-content:center; gap:16px; animation:slideUp .4s ease;
         ">
           <span style="color:rgba(255,255,255,.8);font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;">
-            Te gusto? Configura tu propio agente en 5 minutos
+            ${LANG === 'en' ? 'Like it? Set up your own agent in 5 minutes' : 'Te gusto? Configura tu propio agente en 5 minutos'}
           </span>
-          <a href="onboarding.html?lang=es&src=demo" style="
+          <a href="onboarding.html?lang=${LANG}&src=demo" style="
             background:#5ee7f7; color:#0a0a0a; padding:8px 20px;
             font-size:13px; font-weight:700; text-decoration:none;
             font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:.3px;
             white-space:nowrap; border-radius:4px;
-          ">Crear mi agente gratis →</a>
+          ">${LANG === 'en' ? 'Create my agent free →' : 'Crear mi agente gratis →'}</a>
           <button onclick="this.parentElement.parentElement.remove()" style="
             position:absolute; right:12px; background:none; border:none;
             color:rgba(255,255,255,.4); font-size:16px; cursor:pointer;

@@ -505,6 +505,138 @@ body { font-family:'Plus Jakarta Sans','Helvetica Neue',Helvetica,Arial,sans-ser
 
 </div>
 
+<script>
+(function(){
+  var L = new URLSearchParams(location.search).get('lang') || 'es';
+  window.LANG = L;
+  document.documentElement.lang = L === 'en' ? 'en' : 'es';
+  if (L !== 'en') return;
+
+  document.title = '7Group — Create your voice agent';
+  var q = function(s,c){return(c||document).querySelector(s);};
+  var qa = function(s,c){return(c||document).querySelectorAll(s);};
+
+  var s1=document.getElementById('step-register'),s2=document.getElementById('step-demo'),
+      s3=document.getElementById('step-business'),s4=document.getElementById('step-agent'),
+      s5=document.getElementById('step-catalog'),s6=document.getElementById('step-operations'),
+      s7=document.getElementById('step-test'),ss=document.getElementById('step-success');
+
+  function setStep(p,c,t,sub){q('.step-counter',p).textContent=c;q('h1',p).textContent=t;var s=q('.subtitle',p);if(s)s.textContent=sub;}
+
+  setStep(s1,'Step 1 of 7','Create your account','Sign up to try the voice agent with your own restaurant.');
+  setStep(s2,'Step 2 of 7','Try the demo','Experience how an AI voice agent handles restaurant calls.');
+  setStep(s3,'Step 3 of 7','Your business','Your restaurant\'s details to configure the agent.');
+  setStep(s4,'Step 4 of 7','Configure your agent','Give your agent a name and personality for handling calls.');
+  setStep(s5,'Step 5 of 7','Your menu','Add the products your agent will sell by phone. Minimum 3.');
+  setStep(s6,'Step 6 of 7','Operations','Set up hours, delivery, and coverage area.');
+  setStep(s7,'Step 7 of 7','Review and activate','Verify everything is ready before starting your 15-day free trial.');
+  q('h1',ss).textContent='Your trial is active';
+  q('.subtitle',ss).textContent='You have 15 days to test your agent with real calls.';
+
+  // Labels by input ID
+  var lm={'reg-business':'Business name','reg-name':'Your name','reg-phone':'Phone','reg-email':'Email',
+    'reg-type':'Cuisine type','reg-city':'City','biz-address':'Address','biz-nit':'Tax ID',
+    'biz-color':'Brand color','biz-tagline':'Tagline (optional)','agent-name':'Agent name',
+    'agent-greeting':'Custom greeting','ops-open':'Opening time','ops-close':'Closing time',
+    'ops-delivery':'Do you offer delivery?','ops-zone':'Coverage area','ops-fee':'Delivery fee','ops-min':'Minimum order'};
+  for(var id in lm){var el=document.getElementById(id);if(el){var f=el.closest('.field');if(f){var lb=q('label',f);if(lb)lb.textContent=lm[id];}}}
+
+  // Standalone labels (personality, voice)
+  qa('label[style]',s4).forEach(function(lb){
+    if(lb.textContent.trim()==='Personalidad')lb.textContent='Personality';
+    if(lb.textContent.trim()==='Voz')lb.textContent='Voice';
+  });
+
+  // Placeholders
+  var pm={'reg-business':"e.g. Joe's Pizza",'reg-name':'Full name','reg-phone':'305 123 4567',
+    'reg-email':'you@email.com','reg-city':'Miami','biz-address':'123 Main St, Downtown',
+    'biz-nit':'12-3456789','biz-tagline':'The best pizza in town',
+    'agent-name':'e.g. Valentina, Carlos, Sofia','agent-greeting':'Generated automatically...',
+    'ops-zone':'e.g. Downtown, Midtown'};
+  for(var id in pm){var el=document.getElementById(id);if(el)el.placeholder=pm[id];}
+
+  // City default
+  var ci=document.getElementById('reg-city');if(ci&&ci.value==='Bogota')ci.value='Miami';
+
+  // Hints
+  qa('.hint').forEach(function(h){
+    if(h.textContent.includes('presentara'))h.textContent='Your agent will introduce itself with this name';
+    if(h.textContent.includes('mensaje que dira'))h.textContent='This is the message your agent will say when answering each call';
+  });
+
+  // Select: cuisine type
+  var rt=document.getElementById('reg-type');
+  if(rt){var o=['Select...','Pizza','Burgers','Chicken / Broaster','Sushi / Asian','Mexican','Colombian','Healthy / Bowls','Bakery / Pastry','Other'];
+    qa('option',rt).forEach(function(op,i){if(o[i])op.textContent=o[i];});}
+
+  // Select: delivery
+  var od=document.getElementById('ops-delivery');
+  if(od)qa('option',od).forEach(function(op){
+    if(op.value==='yes')op.textContent='Yes, I offer delivery';
+    if(op.value==='no')op.textContent='No, dine-in only';
+  });
+
+  // Buttons
+  qa('button, a.btn').forEach(function(b){
+    var t=b.textContent.trim();
+    if(t==='Continuar')b.textContent='Continue';
+    if(t==='Atras')b.textContent='Back';
+    if(t==='Iniciar Trial 15 Dias Gratis')b.textContent='Start Free 15-Day Trial';
+    if(t==='Abrir Demo de Voz')b.textContent='Open Voice Demo';
+    if(t==='Ya probe la demo, continuar')b.textContent="I've tried the demo, continue";
+    if(t==='Probar mi agente')b.textContent='Test my agent';
+    if(t==='Ir al Dashboard')b.textContent='Go to Dashboard';
+    if(t==='+ Agregar producto')b.textContent='+ Add product';
+  });
+
+  // Personality cards
+  var pc=document.getElementById('personalityCards');
+  if(pc){var m={'amigable':['Friendly','Warm, uses light humor'],'profesional':['Professional','Formal, efficient, direct'],
+    'entusiasta':['Enthusiastic','Energetic, actively suggests'],'relajado':['Relaxed','Calm, patient, no rush']};
+    qa('.opt-card',pc).forEach(function(c){var v=c.dataset.val;if(m[v]){q('.oc-title',c).textContent=m[v][0];q('.oc-desc',c).textContent=m[v][1];}});}
+
+  // Voice descriptions
+  var vc=document.getElementById('voiceCards');
+  if(vc){var vm={'shimmer':'Female, warm','nova':'Female, energetic','echo':'Male, deep',
+    'onyx':'Male, serious','alloy':'Neutral, versatile','fable':'Male, narrator'};
+    qa('.v-card',vc).forEach(function(c){var v=c.dataset.val;if(vm[v])q('.v-style',c).textContent=vm[v];});}
+
+  // Preview box
+  var pb=q('#step-agent .preview-box h3');if(pb)pb.textContent='Preview';
+  q('#previewGreeting').textContent="Hi, I'm Valentina from your restaurant. How can I help you today?";
+
+  // Demo description + link
+  qa('#step-demo p').forEach(function(p){
+    if(p.textContent.includes('Habla con el agente'))p.textContent='Talk to the sample agent and see how it takes orders, answers questions, and manages deliveries.';
+  });
+  var dl=document.getElementById('demoLink');if(dl)dl.href='voice-demo.html?lang=en&src=onboarding';
+  qa('#step-success a.btn').forEach(function(a){if(a.href&&a.href.includes('voice-demo'))a.href='voice-demo.html?lang=en';});
+
+  // Product table
+  var th=qa('.prod-table th');if(th.length>=3){th[0].textContent='Product';th[1].textContent='Price';th[2].textContent='Category';}
+  qa('.prod-name').forEach(function(e,i){var n=['Margherita Pizza','Classic Burger','Soda 400ml'];if(n[i])e.placeholder=n[i];});
+  qa('.prod-cat').forEach(function(e,i){var c=['Pizzas','Burgers','Beverages'];if(c[i])e.placeholder=c[i];});
+
+  // KPI labels
+  qa('.kpi-label').forEach(function(e){var t=e.textContent.trim();
+    if(t==='Llamadas')e.textContent='Calls';if(t==='Pedidos')e.textContent='Orders';if(t==='Dias restantes')e.textContent='Days left';});
+
+  // Section headers
+  qa('h3').forEach(function(e){var t=e.textContent.trim();
+    if(t==='Tu nivel')e.textContent='Your level';
+    if(t.startsWith('Logros'))e.textContent='Achievements — earn points to level up';
+    if(t==='Consejos para mejorar')e.textContent='Tips to improve';
+    if(t==='Resumen')e.textContent='Summary';
+    if(t==='Vista previa')e.textContent='Preview';
+  });
+
+  // Gamification defaults
+  var gl=q('.gami-label');if(gl)gl.textContent='Beginner';
+  var gp=q('.gami-points');if(gp)gp.innerHTML='0 points <span>/ 500 for next level</span>';
+  var gn=q('.gami-next');if(gn)gn.textContent='Next: Entrepreneur';
+})();
+</script>
+
 <script type="module">
 import {
   registerLead, getLead, markDemoCompleted,
@@ -513,6 +645,9 @@ import {
   getActivationChecklist,
   LEAD_STATES, ONBOARDING_STEPS
 } from './engine/onboarding.js';
+
+// ── Lang ──
+const LANG = window.LANG || 'es';
 
 // ── State ──
 let leadId = null;
@@ -527,7 +662,9 @@ function renderProgress() {
   const idx = STEPS.indexOf(currentStep);
   const stepsEl = document.getElementById('progressSteps');
   const labelsEl = document.getElementById('stepLabels');
-  const labels = ['Registro','Demo','Negocio','Agente','Catalogo','Operacion','Activar'];
+  const labels = LANG === 'en'
+    ? ['Register','Demo','Business','Agent','Menu','Operations','Activate']
+    : ['Registro','Demo','Negocio','Agente','Catalogo','Operacion','Activar'];
 
   stepsEl.innerHTML = STEPS.map((s, i) => {
     const cls = i < idx ? 'done' : i === idx ? 'current' : '';
@@ -560,9 +697,11 @@ window.selectCard = function(el, group) {
 
 // ── Agent preview ──
 function updateAgentPreview() {
-  const name = document.getElementById('agent-name').value || 'Tu agente';
-  const biz = document.getElementById('reg-business')?.value || 'tu restaurante';
-  const greeting = `Hola, soy ${name}, agente de inteligencia artificial de ${biz}. ¿En que te puedo ayudar hoy?`;
+  const name = document.getElementById('agent-name').value || (LANG === 'en' ? 'Your agent' : 'Tu agente');
+  const biz = document.getElementById('reg-business')?.value || (LANG === 'en' ? 'your restaurant' : 'tu restaurante');
+  const greeting = LANG === 'en'
+    ? `Hi, I'm ${name}, AI agent for ${biz}. How can I help you today?`
+    : `Hola, soy ${name}, agente de inteligencia artificial de ${biz}. ¿En que te puedo ayudar hoy?`;
   document.getElementById('previewAgentName').textContent = name;
   document.getElementById('previewGreeting').textContent = greeting;
   document.getElementById('agent-greeting').placeholder = greeting;
@@ -573,9 +712,9 @@ window.addProductRow = function() {
   const tbody = document.getElementById('productRows');
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td><input type="text" placeholder="Nombre" class="prod-name"></td>
-    <td><input type="number" placeholder="Precio" class="prod-price"></td>
-    <td><input type="text" placeholder="Categoria" class="prod-cat"></td>
+    <td><input type="text" placeholder="${LANG === 'en' ? 'Name' : 'Nombre'}" class="prod-name"></td>
+    <td><input type="number" placeholder="${LANG === 'en' ? 'Price' : 'Precio'}" class="prod-price"></td>
+    <td><input type="text" placeholder="${LANG === 'en' ? 'Category' : 'Categoria'}" class="prod-cat"></td>
     <td><button onclick="removeRow(this)" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px">x</button></td>
   `;
   tbody.appendChild(tr);
@@ -607,7 +746,7 @@ window.submitRegister = function() {
   };
 
   if (!data.businessName || !data.contactName || !data.email || !data.phone || !data.businessType) {
-    alert('Completa todos los campos');
+    alert(LANG === 'en' ? 'Please fill in all fields' : 'Completa todos los campos');
     return;
   }
 
@@ -638,18 +777,20 @@ window.submitBusiness = function() {
 
 window.submitAgent = function() {
   const name = document.getElementById('agent-name').value.trim();
-  if (!name) { alert('Dale un nombre a tu agente'); return; }
+  if (!name) { alert(LANG === 'en' ? 'Give your agent a name' : 'Dale un nombre a tu agente'); return; }
 
   const biz = document.getElementById('reg-business')?.value || '';
   const greeting = document.getElementById('agent-greeting').value.trim() ||
-    `Hola, soy ${name}, agente de inteligencia artificial de ${biz}. ¿En que te puedo ayudar hoy?`;
+    (LANG === 'en'
+      ? `Hi, I'm ${name}, AI agent for ${biz}. How can I help you today?`
+      : `Hola, soy ${name}, agente de inteligencia artificial de ${biz}. ¿En que te puedo ayudar hoy?`);
 
   completeStep(sessionId, 'AGENT', {
     name,
     voice: selections.voice,
     personality: selections.personality,
     greeting,
-    language: 'es'
+    language: LANG
   });
   goStep('catalog');
 };
@@ -670,7 +811,7 @@ window.submitCatalog = function() {
   });
 
   if (products.length < 3) {
-    alert('Agrega al menos 3 productos con nombre y precio');
+    alert(LANG === 'en' ? 'Add at least 3 products with name and price' : 'Agrega al menos 3 productos con nombre y precio');
     return;
   }
 
@@ -711,11 +852,22 @@ function renderChecklist() {
   const lead = getLead(leadId);
 
   // Simple checklist from session data
-  const checks = [
+  const prodCount = (progress.stepDetails.find(s=>s.key==='CATALOG')?.data?.products?.length || 0);
+  const schedOpen = progress.stepDetails.find(s=>s.key==='OPERATIONS')?.data?.schedule?.open;
+  const schedClose = progress.stepDetails.find(s=>s.key==='OPERATIONS')?.data?.schedule?.close;
+  const checks = LANG === 'en' ? [
+    { label: 'Business configured', passed: progress.completedSteps.includes('BUSINESS'), detail: lead.businessName },
+    { label: 'Agent configured', passed: progress.completedSteps.includes('AGENT'), detail: progress.stepDetails.find(s=>s.key==='AGENT')?.data?.name || '' },
+    { label: 'Menu uploaded', passed: progress.completedSteps.includes('CATALOG'), detail: prodCount + ' products' },
+    { label: 'Operations configured', passed: progress.completedSteps.includes('OPERATIONS'), detail: schedOpen + ' - ' + schedClose },
+    { label: 'Trial subscription active', passed: true, detail: 'Starter Plan — 15 days free' },
+    { label: 'Agent tested', passed: true, detail: 'Test completed' },
+    { label: 'Phone number', passed: false, detail: 'Assigned when trial activates' }
+  ] : [
     { label: 'Negocio configurado', passed: progress.completedSteps.includes('BUSINESS'), detail: lead.businessName },
     { label: 'Agente configurado', passed: progress.completedSteps.includes('AGENT'), detail: progress.stepDetails.find(s=>s.key==='AGENT')?.data?.name || '' },
-    { label: 'Catalogo cargado', passed: progress.completedSteps.includes('CATALOG'), detail: (progress.stepDetails.find(s=>s.key==='CATALOG')?.data?.products?.length || 0) + ' productos' },
-    { label: 'Operacion configurada', passed: progress.completedSteps.includes('OPERATIONS'), detail: progress.stepDetails.find(s=>s.key==='OPERATIONS')?.data?.schedule?.open + ' - ' + progress.stepDetails.find(s=>s.key==='OPERATIONS')?.data?.schedule?.close },
+    { label: 'Catalogo cargado', passed: progress.completedSteps.includes('CATALOG'), detail: prodCount + ' productos' },
+    { label: 'Operacion configurada', passed: progress.completedSteps.includes('OPERATIONS'), detail: schedOpen + ' - ' + schedClose },
     { label: 'Suscripcion trial activa', passed: true, detail: 'Plan Starter — 15 dias gratis' },
     { label: 'Agente probado', passed: true, detail: 'Prueba completada' },
     { label: 'Numero telefonico', passed: false, detail: 'Se asigna al activar el trial' }
@@ -735,7 +887,13 @@ function renderChecklist() {
   // Summary
   const agentData = progress.stepDetails.find(s=>s.key==='AGENT')?.data || {};
   const opsData = progress.stepDetails.find(s=>s.key==='OPERATIONS')?.data || {};
-  document.getElementById('summaryContent').innerHTML = `
+  document.getElementById('summaryContent').innerHTML = LANG === 'en' ? `
+    <p style="font-size:13px;margin-bottom:8px"><strong>Business:</strong> ${lead.businessName}</p>
+    <p style="font-size:13px;margin-bottom:8px"><strong>Agent:</strong> ${agentData.name || 'No name'} (${agentData.personality || ''})</p>
+    <p style="font-size:13px;margin-bottom:8px"><strong>Voice:</strong> ${agentData.voice || 'shimmer'}</p>
+    <p style="font-size:13px;margin-bottom:8px"><strong>Hours:</strong> ${opsData.schedule?.open || '10:00'} - ${opsData.schedule?.close || '22:00'}</p>
+    <p style="font-size:13px"><strong>Plan:</strong> Starter — 120 min/mo — $99 USD/mo after trial</p>
+  ` : `
     <p style="font-size:13px;margin-bottom:8px"><strong>Negocio:</strong> ${lead.businessName}</p>
     <p style="font-size:13px;margin-bottom:8px"><strong>Agente:</strong> ${agentData.name || 'Sin nombre'} (${agentData.personality || ''})</p>
     <p style="font-size:13px;margin-bottom:8px"><strong>Voz:</strong> ${agentData.voice || 'shimmer'}</p>
@@ -763,11 +921,16 @@ function renderTrialDashboard() {
   document.getElementById('kDays').textContent = dash.trial.daysLeft;
 
   // Gamification bar — levels tied to plans for upsell
-  const levels = [
-    { name:'Novato',       min:0,    icon:'1', plan:'Starter',     price:'169.000',  mins:120 },
-    { name:'Emprendedor',  min:500,  icon:'2', plan:'Profesional', price:'339.000',  mins:250 },
-    { name:'Profesional',  min:1500, icon:'3', plan:'Empresarial', price:'599.000',  mins:450 },
-    { name:'Experto',      min:3500, icon:'4', plan:'Premium',     price:'1.049.000', mins:800 }
+  const levels = LANG === 'en' ? [
+    { name:'Beginner',      min:0,    icon:'1', plan:'Starter',      price:'99',   mins:120, unit:'mo' },
+    { name:'Entrepreneur',  min:500,  icon:'2', plan:'Professional', price:'199',  mins:250, unit:'mo' },
+    { name:'Professional',  min:1500, icon:'3', plan:'Business',     price:'349',  mins:450, unit:'mo' },
+    { name:'Expert',        min:3500, icon:'4', plan:'Enterprise',   price:'499',  mins:800, unit:'mo' }
+  ] : [
+    { name:'Novato',       min:0,    icon:'1', plan:'Starter',     price:'169.000',  mins:120, unit:'mes' },
+    { name:'Emprendedor',  min:500,  icon:'2', plan:'Profesional', price:'339.000',  mins:250, unit:'mes' },
+    { name:'Profesional',  min:1500, icon:'3', plan:'Empresarial', price:'599.000',  mins:450, unit:'mes' },
+    { name:'Experto',      min:3500, icon:'4', plan:'Premium',     price:'1.049.000', mins:800, unit:'mes' }
   ];
   const totalPts = dash.achievements.totalPoints || 0;
   let curLvl = levels[0], nextLvl = levels[1];
@@ -777,12 +940,18 @@ function renderTrialDashboard() {
   const ptsInLevel = totalPts - curLvl.min;
   const ptsNeeded = nextLvl ? (nextLvl.min - curLvl.min) : 1;
   const pct = nextLvl ? Math.min(100, Math.round((ptsInLevel / ptsNeeded) * 100)) : 100;
+  const _pts = LANG === 'en' ? 'points' : 'puntos';
+  const _for = LANG === 'en' ? 'for' : 'para';
+  const _max = LANG === 'en' ? 'Max level' : 'Nivel maximo';
+  const _cur = LANG === 'en' ? 'Current plan' : 'Plan actual';
+  const _nxt = LANG === 'en' ? 'Next' : 'Siguiente';
+  const _u = curLvl.unit || 'mes';
   document.getElementById('gamiBar').innerHTML = `
     <div class="gami-level"><div class="gami-icon">${curLvl.icon}</div><div class="gami-label">${curLvl.name}</div></div>
     <div class="gami-info">
-      <div class="gami-points">${totalPts} puntos ${nextLvl ? `<span>/ ${nextLvl.min} para ${nextLvl.name}</span>` : '<span>— Nivel maximo</span>'}</div>
+      <div class="gami-points">${totalPts} ${_pts} ${nextLvl ? `<span>/ ${nextLvl.min} ${_for} ${nextLvl.name}</span>` : `<span>— ${_max}</span>`}</div>
       <div class="gami-progress"><div class="gami-progress-fill" style="width:${pct}%"></div></div>
-      <div class="gami-next">Plan actual: <strong>${curLvl.plan}</strong> — $${curLvl.price}/mes — ${curLvl.mins} min${nextLvl ? ` &nbsp;|&nbsp; Siguiente: <strong>${nextLvl.plan}</strong> — $${nextLvl.price}/mes — ${nextLvl.mins} min` : ''}</div>
+      <div class="gami-next">${_cur}: <strong>${curLvl.plan}</strong> — $${curLvl.price}/${_u} — ${curLvl.mins} min${nextLvl ? ` &nbsp;|&nbsp; ${_nxt}: <strong>${nextLvl.plan}</strong> — $${nextLvl.price}/${nextLvl.unit || _u} — ${nextLvl.mins} min` : ''}</div>
     </div>
   `;
 
@@ -800,7 +969,7 @@ function renderTrialDashboard() {
   const tipsEl = document.getElementById('tipsUI');
   tipsEl.innerHTML = dash.menuTips.map(t => `
     <div class="tip-card ${t.priority}">
-      <div class="tip-badge">${t.priority === 'high' ? 'Importante' : t.priority === 'medium' ? 'Sugerencia' : 'Opcional'}</div>
+      <div class="tip-badge">${t.priority === 'high' ? (LANG==='en'?'Important':'Importante') : t.priority === 'medium' ? (LANG==='en'?'Suggestion':'Sugerencia') : (LANG==='en'?'Optional':'Opcional')}</div>
       ${t.message}
     </div>
   `).join('');
@@ -809,11 +978,11 @@ function renderTrialDashboard() {
   if (dash.suggestedPlan) {
     document.getElementById('planSuggestion').innerHTML = `
       <div style="background:#fff;border:2px solid var(--cyan);border-radius:12px;padding:24px;text-align:center">
-        <div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Plan sugerido</div>
+        <div style="font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">${LANG==='en'?'Suggested plan':'Plan sugerido'}</div>
         <div style="font-size:1.4rem;font-weight:700;color:var(--black);margin-bottom:4px">${dash.suggestedPlan.planName}</div>
         <div style="font-size:1.8rem;font-weight:800;color:var(--black)">$${dash.suggestedPlan.planPrice?.toLocaleString('es-CO')}<span style="font-size:.85rem;font-weight:400;color:var(--gray)"> COP/mes</span></div>
         <p style="font-size:12px;color:var(--gray);margin-top:8px">${dash.suggestedPlan.reason}</p>
-        <button class="btn btn-primary" style="margin-top:16px" disabled>Elegir este plan</button>
+        <button class="btn btn-primary" style="margin-top:16px" disabled>${LANG==='en'?'Choose this plan':'Elegir este plan'}</button>
       </div>
     `;
   }
