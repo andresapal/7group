@@ -327,18 +327,77 @@ tbody tr:hover{background:var(--accent-light)}
 </head>
 <body>
 
-<!-- SPLASH INTRO ASEGURALO (~2.5s. Solo el logo oficial sobre fondo blanco, sin textos extra) -->
-<div id="asegSplash" onclick="this.style.opacity='0';setTimeout(function(){document.getElementById('asegSplash').style.display='none';},300)" style="position:fixed;inset:0;z-index:99999;background:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .4s ease">
-  <img src="/logo-aseguralo.png" alt="Aseguralo" style="max-width:min(60vw,420px);height:auto;opacity:0;transform:scale(.9);animation:asegLogoIn .9s .1s cubic-bezier(.2,.9,.3,1.2) forwards">
+<!-- SPLASH INTRO ASEGURALO (~3.2s. Fondo oscuro brand + logo HD + sonido intro tipo streaming) -->
+<div id="asegSplash" onclick="asegSplashOut()" style="position:fixed;inset:0;z-index:99999;background:radial-gradient(ellipse at center, #17233b 0%, #0a1424 70%, #050b17 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .5s ease;overflow:hidden">
+  <div id="asegHalo" style="position:absolute;width:900px;height:900px;border-radius:50%;background:radial-gradient(circle, rgba(69,170,255,.22) 0%, rgba(69,170,255,.06) 40%, transparent 70%);opacity:0;animation:asegHaloIn 1.4s .1s ease-out forwards"></div>
+  <img src="/logo-aseguralo.png" alt="Aseguralo" style="position:relative;max-width:min(72vw,720px);width:100%;height:auto;opacity:0;transform:scale(.88);filter:drop-shadow(0 8px 40px rgba(69,170,255,.35));image-rendering:-webkit-optimize-contrast;image-rendering:crisp-edges;animation:asegLogoIn 1.1s .2s cubic-bezier(.2,.9,.3,1.15) forwards">
 </div>
 <style>
-  @keyframes asegLogoIn    { to { opacity:1; transform:scale(1); } }
+  @keyframes asegHaloIn    { 0%{opacity:0;transform:scale(.6)} 60%{opacity:1} 100%{opacity:.85;transform:scale(1.05)} }
+  @keyframes asegLogoIn    { 0%{opacity:0;transform:scale(.88)} 100%{opacity:1;transform:scale(1)} }
   @keyframes asegSplashOut { to { opacity:0; visibility:hidden; } }
-  #asegSplash { animation: asegSplashOut .45s 2.1s ease forwards; }
+  #asegSplash.out { animation: asegSplashOut .55s ease forwards; }
 </style>
 <script>
-  // Fallback: quitar del DOM al terminar animacion de salida (por si un click no dispara el handler).
-  setTimeout(function(){ var s=document.getElementById('asegSplash'); if(s) s.style.display='none'; }, 2700);
+  // Sonido intro estilo Apple TV / Disney+: sub-bajo con sweep ascendente + campana suave (Web Audio, sin archivos externos)
+  (function(){
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      var ctx = new AC();
+      var play = function(){
+        try{
+          var now = ctx.currentTime;
+          // 1) Sub-bajo con sweep 55Hz -> 110Hz (frecuencia baja, sensacion cinematica)
+          var sub = ctx.createOscillator(); sub.type='sine';
+          sub.frequency.setValueAtTime(55, now);
+          sub.frequency.exponentialRampToValueAtTime(110, now+1.6);
+          var subGain = ctx.createGain();
+          subGain.gain.setValueAtTime(.0001, now);
+          subGain.gain.exponentialRampToValueAtTime(.35, now+.35);
+          subGain.gain.exponentialRampToValueAtTime(.0001, now+2.2);
+          sub.connect(subGain).connect(ctx.destination);
+          sub.start(now); sub.stop(now+2.3);
+          // 2) Pad armonico (220Hz) suave para calidez
+          var pad = ctx.createOscillator(); pad.type='triangle';
+          pad.frequency.setValueAtTime(220, now+.15);
+          var padGain = ctx.createGain();
+          padGain.gain.setValueAtTime(.0001, now+.15);
+          padGain.gain.exponentialRampToValueAtTime(.12, now+.7);
+          padGain.gain.exponentialRampToValueAtTime(.0001, now+2.2);
+          pad.connect(padGain).connect(ctx.destination);
+          pad.start(now+.15); pad.stop(now+2.3);
+          // 3) Campana breve (880Hz) que aparece al final del sweep — remate elegante
+          var bell = ctx.createOscillator(); bell.type='sine';
+          bell.frequency.setValueAtTime(880, now+1.1);
+          var bellGain = ctx.createGain();
+          bellGain.gain.setValueAtTime(.0001, now+1.1);
+          bellGain.gain.exponentialRampToValueAtTime(.18, now+1.25);
+          bellGain.gain.exponentialRampToValueAtTime(.0001, now+2.1);
+          bell.connect(bellGain).connect(ctx.destination);
+          bell.start(now+1.1); bell.stop(now+2.15);
+        }catch(e){}
+      };
+      // Muchos navegadores requieren interaccion; si esta suspendido, se dispara al primer click.
+      if(ctx.state === 'suspended'){
+        var resume = function(){ ctx.resume().then(play); document.removeEventListener('click', resume); document.removeEventListener('keydown', resume); };
+        document.addEventListener('click', resume, {once:true});
+        document.addEventListener('keydown', resume, {once:true});
+        // Intento adicional inmediato (Chrome desktop suele permitirlo)
+        ctx.resume().then(play).catch(function(){});
+      } else {
+        play();
+      }
+    }catch(e){}
+  })();
+  // Salida del splash
+  function asegSplashOut(){
+    var s = document.getElementById('asegSplash');
+    if(!s) return;
+    s.classList.add('out');
+    setTimeout(function(){ if(s) s.style.display='none'; }, 600);
+  }
+  setTimeout(asegSplashOut, 3000);
 </script>
 
 <!-- AUTH GATE -->
