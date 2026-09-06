@@ -125,7 +125,8 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:
 </div>
 
 <script type="module">
-import VapiSDK from 'https://cdn.jsdelivr.net/npm/@vapi-ai/web@2/+esm';
+import VapiModule from 'https://cdn.jsdelivr.net/npm/@vapi-ai/web@2/+esm';
+const VapiSDK = VapiModule.default || VapiModule;
 
 const VAPI_PUBLIC_KEY = 'ea0f9238-a03f-476a-9628-a47cac9b31cd';
 
