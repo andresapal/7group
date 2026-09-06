@@ -162,7 +162,7 @@ body { font-family:'Plus Jakarta Sans','Helvetica Neue',Helvetica,Arial,sans-ser
   <div class="tb-links">
     <a href="/">Home</a>
     <a href="index.html">Dashboard</a>
-    <a href="voice-demo.html">Demo</a>
+    <a href="../vapi-call.html?agent=don-mario">Demo</a>
   </div>
 </div>
 
@@ -234,7 +234,7 @@ body { font-family:'Plus Jakarta Sans','Helvetica Neue',Helvetica,Arial,sans-ser
 
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;margin-bottom:24px">
       <p style="font-size:14px;color:var(--dim);margin-bottom:16px">Habla con el agente de ejemplo y ve como toma pedidos, responde preguntas y gestiona domicilios.</p>
-      <a href="voice-demo.html" target="_blank" class="btn btn-primary" style="display:inline-block;text-decoration:none" id="demoLink">Abrir Demo de Voz</a>
+      <a href="../vapi-call.html?agent=don-mario" target="_blank" class="btn btn-primary" style="display:inline-block;text-decoration:none" id="demoLink">Abrir Demo de Voz</a>
     </div>
 
     <div class="btn-row">
@@ -501,7 +501,7 @@ body { font-family:'Plus Jakarta Sans','Helvetica Neue',Helvetica,Arial,sans-ser
     <div id="voiceDemoSection" style="display:none"></div>
 
     <div class="btn-row" style="justify-content:center">
-      <a href="voice-demo.html" class="btn btn-secondary" style="text-decoration:none">Probar mi agente</a>
+      <a href="../vapi-call.html?agent=don-mario" class="btn btn-secondary" style="text-decoration:none">Probar mi agente</a>
       <a href="index.html" class="btn btn-primary" style="text-decoration:none">Ir al Dashboard</a>
     </div>
   </div>
@@ -612,8 +612,8 @@ body { font-family:'Plus Jakarta Sans','Helvetica Neue',Helvetica,Arial,sans-ser
   qa('#step-demo p').forEach(function(p){
     if(p.textContent.includes('Habla con el agente'))p.textContent='Talk to the sample agent and see how it takes orders, answers questions, and manages deliveries.';
   });
-  var dl=document.getElementById('demoLink');if(dl)dl.href='voice-demo.html?lang=en&src=onboarding';
-  qa('#step-success a.btn').forEach(function(a){if(a.href&&a.href.includes('voice-demo'))a.href='voice-demo.html?lang=en';});
+  var dl=document.getElementById('demoLink');if(dl)dl.href='../vapi-call.html?agent=don-mario&lang=en';
+  qa('#step-success a.btn').forEach(function(a){if(a.href&&a.href.includes('vapi-call'))a.href='../vapi-call.html?agent=don-mario&lang=en';});
 
   // Product table
   var th=qa('.prod-table th');if(th.length>=3){th[0].textContent='Product';th[1].textContent='Price';th[2].textContent='Category';}
