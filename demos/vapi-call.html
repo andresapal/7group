@@ -124,8 +124,9 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@2/dist/vapi.min.js"></script>
-<script>
+<script type="module">
+import VapiSDK from 'https://cdn.jsdelivr.net/npm/@vapi-ai/web@2/+esm';
+
 const VAPI_PUBLIC_KEY = 'ea0f9238-a03f-476a-9628-a47cac9b31cd';
 
 // Agent registry
@@ -153,7 +154,7 @@ const AGENTS = {
 // Parse URL params
 const params = new URLSearchParams(window.location.search);
 const agentSlug = params.get('agent') || 'don-mario';
-const customId = params.get('id'); // direct assistant ID
+const customId = params.get('id');
 const lang = params.get('lang') || 'es';
 
 let assistantId, businessName, agentInfo;
@@ -187,11 +188,7 @@ let callStartTime = null;
 let timerInterval = null;
 
 try {
-  if (typeof Vapi !== 'undefined') {
-    vapi = new Vapi(VAPI_PUBLIC_KEY);
-  } else if (typeof window.Vapi !== 'undefined') {
-    vapi = new window.Vapi(VAPI_PUBLIC_KEY);
-  }
+  vapi = new VapiSDK(VAPI_PUBLIC_KEY);
 } catch(e) {
   console.error('Vapi SDK init error:', e);
 }
@@ -257,7 +254,7 @@ if (vapi) {
   });
 }
 
-function toggleCall() {
+window.toggleCall = function() {
   if (!vapi) {
     document.getElementById('errorMsg').textContent = 'SDK no cargado. Recarga la pagina.';
     document.getElementById('errorMsg').style.display = 'block';
@@ -275,7 +272,7 @@ function toggleCall() {
     setCallState('connecting');
     vapi.start(assistantId);
   }
-}
+};
 
 function setCallState(state) {
   const btn = document.getElementById('callBtn');
