@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Voice Agent Demo — 7Group</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;-webkit-font-smoothing:antialiased;overflow:hidden}
+
+:root{
+  --cyan:#5ee7f7;--cyan-dim:rgba(94,231,247,.12);
+  --green:#22c55e;--green-bg:rgba(34,197,94,.12);
+  --red:#ef4444;--red-bg:rgba(239,68,68,.12);
+  --bg0:#0a0a0a;--bg1:#111;--bg2:#1a1a1a;--bg3:#222;
+  --text:#e8e8e8;--dim:#888;--muted:#555;
+  --border:#1e1e1e;--border2:#333;
+}
+
+.container{width:100%;max-width:420px;padding:24px;text-align:center}
+
+/* Header */
+.header{margin-bottom:32px}
+.logo{font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.business-name{font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:4px}
+.agent-info{font-size:13px;color:var(--dim)}
+
+/* Call circle */
+.call-area{display:flex;flex-direction:column;align-items:center;gap:20px;margin:40px 0}
+
+.pulse-container{position:relative;width:160px;height:160px;display:flex;align-items:center;justify-content:center}
+
+.pulse-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--border2);transition:.4s}
+.pulse-ring.active{border-color:var(--green);animation:pulseRing 1.5s ease-out infinite}
+.pulse-ring.listening{border-color:var(--red);animation:pulseRing 1s ease-out infinite}
+
+@keyframes pulseRing{
+  0%{transform:scale(1);opacity:1}
+  100%{transform:scale(1.4);opacity:0}
+}
+
+.call-btn{width:120px;height:120px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.3s;position:relative;z-index:1;outline:none}
+.call-btn.idle{background:var(--cyan);color:#0a0a0a}
+.call-btn.idle:hover{transform:scale(1.05);box-shadow:0 0 40px rgba(94,231,247,.3)}
+.call-btn.active{background:var(--red);color:#fff;animation:btnPulse 2s infinite}
+.call-btn.connecting{background:var(--bg3);color:var(--dim);pointer-events:none}
+.call-btn:disabled{opacity:.5;cursor:not-allowed}
+
+@keyframes btnPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}
+  50%{box-shadow:0 0 0 20px rgba(239,68,68,0)}
+}
+
+.call-btn svg{width:48px;height:48px;fill:currentColor}
+
+.call-status{font-size:14px;font-weight:600;color:var(--dim);min-height:22px;transition:.3s}
+.call-status.active{color:var(--green)}
+.call-status.listening{color:var(--red)}
+
+/* Volume meter */
+.volume-bar{width:200px;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:8px}
+.volume-fill{height:100%;background:var(--cyan);border-radius:2px;width:0%;transition:width .1s}
+.volume-fill.speaking{background:var(--green)}
+
+/* Transcript */
+.transcript{width:100%;max-height:200px;overflow-y:auto;margin-top:32px;text-align:left;padding:0 8px}
+.transcript::-webkit-scrollbar{width:3px}
+.transcript::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+.msg{padding:8px 12px;margin-bottom:6px;border-radius:10px;font-size:13px;line-height:1.5;max-width:85%}
+.msg.agent{background:var(--bg2);color:var(--text);border:1px solid var(--border2)}
+.msg.user{background:var(--cyan-dim);color:var(--cyan);margin-left:auto;text-align:right}
+.msg.system{background:none;color:var(--muted);font-size:11px;text-align:center;max-width:100%}
+
+/* Footer */
+.footer{margin-top:32px;font-size:11px;color:var(--muted)}
+.footer a{color:var(--cyan);text-decoration:none}
+
+/* Timer */
+.timer{font-size:24px;font-weight:300;color:var(--dim);font-variant-numeric:tabular-nums;min-height:30px}
+
+/* Error */
+.error-msg{background:var(--red-bg);color:var(--red);padding:12px 16px;border-radius:8px;font-size:13px;margin-top:16px;display:none}
+
+@media(max-width:480px){
+  .container{padding:16px}
+  .business-name{font-size:1.3rem}
+  .call-area{margin:28px 0}
+  .pulse-container{width:140px;height:140px}
+  .call-btn{width:100px;height:100px}
+  .call-btn svg{width:40px;height:40px}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="logo">7Group Voice AI</div>
+    <div class="business-name" id="businessName">—</div>
+    <div class="agent-info" id="agentInfo">Agente IA</div>
+  </div>
+
+  <div class="call-area">
+    <div class="timer" id="timer"></div>
+    <div class="pulse-container">
+      <div class="pulse-ring" id="pulseRing"></div>
+      <button class="call-btn idle" id="callBtn" onclick="toggleCall()">
+        <svg id="iconMic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+        <svg id="iconStop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
+      </button>
+    </div>
+    <div class="call-status" id="callStatus">Toca para llamar</div>
+    <div class="volume-bar"><div class="volume-fill" id="volumeFill"></div></div>
+  </div>
+
+  <div class="transcript" id="transcript"></div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="footer">
+    Powered by <a href="https://7group.site" target="_blank">7Group</a> Voice AI
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@2/dist/vapi.min.js"></script>
+<script>
+const VAPI_PUBLIC_KEY = 'ea0f9238-a03f-476a-9628-a47cac9b31cd';
+
+// Agent registry
+const AGENTS = {
+  'trasteos-ya': {
+    id: '9c8fc0c8-225d-4b77-baa8-be2682377d24',
+    business: 'Trasteos Ya',
+    agent: 'Sofia — Asistente de Mudanzas',
+    vertical: 'mudanzas'
+  },
+  'don-mario': {
+    id: 'd320dc31-5aee-4499-b74b-e94384cbf54d',
+    business: 'Pizzeria Don Mario',
+    agent: 'Ana — Agente de Pedidos',
+    vertical: 'restaurant'
+  },
+  'wok-roll': {
+    id: '56471f68-6805-4546-9654-cca5482c1105',
+    business: 'Wok & Roll',
+    agent: 'Carlos — Agente de Pedidos',
+    vertical: 'restaurant'
+  }
+};
+
+// Parse URL params
+const params = new URLSearchParams(window.location.search);
+const agentSlug = params.get('agent') || 'don-mario';
+const customId = params.get('id'); // direct assistant ID
+const lang = params.get('lang') || 'es';
+
+let assistantId, businessName, agentInfo;
+
+if (customId) {
+  assistantId = customId;
+  businessName = params.get('name') || 'Demo';
+  agentInfo = params.get('agentName') || 'Agente IA';
+} else if (AGENTS[agentSlug]) {
+  const a = AGENTS[agentSlug];
+  assistantId = a.id;
+  businessName = a.business;
+  agentInfo = a.agent;
+} else {
+  assistantId = null;
+  businessName = 'Error';
+  agentInfo = 'Agente no encontrado';
+}
+
+document.getElementById('businessName').textContent = businessName;
+document.getElementById('agentInfo').textContent = agentInfo;
+
+if (lang === 'en') {
+  document.getElementById('callStatus').textContent = 'Tap to call';
+}
+
+// Vapi setup
+let vapi = null;
+let isCallActive = false;
+let callStartTime = null;
+let timerInterval = null;
+
+try {
+  if (typeof Vapi !== 'undefined') {
+    vapi = new Vapi(VAPI_PUBLIC_KEY);
+  } else if (typeof window.Vapi !== 'undefined') {
+    vapi = new window.Vapi(VAPI_PUBLIC_KEY);
+  }
+} catch(e) {
+  console.error('Vapi SDK init error:', e);
+}
+
+if (vapi) {
+  vapi.on('call-start', () => {
+    isCallActive = true;
+    setCallState('active');
+    addMessage('system', lang === 'en' ? 'Connected' : 'Conectado');
+    callStartTime = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+  });
+
+  vapi.on('call-end', () => {
+    isCallActive = false;
+    setCallState('idle');
+    addMessage('system', lang === 'en' ? 'Call ended' : 'Llamada finalizada');
+    clearInterval(timerInterval);
+    timerInterval = null;
+  });
+
+  vapi.on('speech-start', () => {
+    document.getElementById('pulseRing').className = 'pulse-ring active';
+    document.getElementById('callStatus').textContent = lang === 'en' ? 'Agent speaking...' : 'Agente hablando...';
+    document.getElementById('callStatus').className = 'call-status active';
+    document.getElementById('volumeFill').className = 'volume-fill speaking';
+  });
+
+  vapi.on('speech-end', () => {
+    document.getElementById('pulseRing').className = 'pulse-ring listening';
+    document.getElementById('callStatus').textContent = lang === 'en' ? 'Listening...' : 'Escuchando...';
+    document.getElementById('callStatus').className = 'call-status listening';
+    document.getElementById('volumeFill').className = 'volume-fill';
+  });
+
+  vapi.on('volume-level', (level) => {
+    document.getElementById('volumeFill').style.width = Math.min(100, level * 100) + '%';
+  });
+
+  vapi.on('message', (msg) => {
+    if (msg.type === 'transcript') {
+      if (msg.transcriptType === 'final') {
+        if (msg.role === 'assistant') {
+          addMessage('agent', msg.transcript);
+        } else if (msg.role === 'user') {
+          addMessage('user', msg.transcript);
+        }
+      }
+    }
+  });
+
+  vapi.on('error', (err) => {
+    console.error('Vapi error:', err);
+    const errorEl = document.getElementById('errorMsg');
+    errorEl.textContent = lang === 'en'
+      ? 'Connection error. Check your microphone and try again.'
+      : 'Error de conexion. Revisa tu microfono e intenta de nuevo.';
+    errorEl.style.display = 'block';
+    setTimeout(() => { errorEl.style.display = 'none'; }, 5000);
+    isCallActive = false;
+    setCallState('idle');
+    clearInterval(timerInterval);
+  });
+}
+
+function toggleCall() {
+  if (!vapi) {
+    document.getElementById('errorMsg').textContent = 'SDK no cargado. Recarga la pagina.';
+    document.getElementById('errorMsg').style.display = 'block';
+    return;
+  }
+  if (!assistantId) {
+    document.getElementById('errorMsg').textContent = 'Agente no configurado.';
+    document.getElementById('errorMsg').style.display = 'block';
+    return;
+  }
+
+  if (isCallActive) {
+    vapi.stop();
+  } else {
+    setCallState('connecting');
+    vapi.start(assistantId);
+  }
+}
+
+function setCallState(state) {
+  const btn = document.getElementById('callBtn');
+  const ring = document.getElementById('pulseRing');
+  const status = document.getElementById('callStatus');
+  const iconMic = document.getElementById('iconMic');
+  const iconStop = document.getElementById('iconStop');
+
+  btn.className = 'call-btn ' + state;
+
+  switch (state) {
+    case 'idle':
+      ring.className = 'pulse-ring';
+      status.textContent = lang === 'en' ? 'Tap to call' : 'Toca para llamar';
+      status.className = 'call-status';
+      iconMic.style.display = '';
+      iconStop.style.display = 'none';
+      document.getElementById('volumeFill').style.width = '0%';
+      document.getElementById('timer').textContent = '';
+      break;
+    case 'connecting':
+      ring.className = 'pulse-ring';
+      status.textContent = lang === 'en' ? 'Connecting...' : 'Conectando...';
+      status.className = 'call-status';
+      iconMic.style.display = '';
+      iconStop.style.display = 'none';
+      break;
+    case 'active':
+      ring.className = 'pulse-ring listening';
+      status.textContent = lang === 'en' ? 'Listening...' : 'Escuchando...';
+      status.className = 'call-status listening';
+      iconMic.style.display = 'none';
+      iconStop.style.display = '';
+      break;
+  }
+}
+
+function updateTimer() {
+  if (!callStartTime) return;
+  const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+  const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+  const secs = (elapsed % 60).toString().padStart(2, '0');
+  document.getElementById('timer').textContent = mins + ':' + secs;
+}
+
+function addMessage(type, text) {
+  const el = document.getElementById('transcript');
+  const div = document.createElement('div');
+  div.className = 'msg ' + type;
+  div.textContent = text;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+</script>
+</body>
+</html>
