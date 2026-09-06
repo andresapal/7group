@@ -100,6 +100,10 @@ body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:
     <div class="logo">7Group Voice AI</div>
     <div class="business-name" id="businessName">—</div>
     <div class="agent-info" id="agentInfo">Agente IA</div>
+    <div class="agent-selector" id="agentSelector" style="display:none;margin-top:12px">
+      <select id="agentSelect" onchange="switchAgent(this.value)" style="background:#1a1a1a;color:#e8e8e8;border:1px solid #333;padding:8px 16px;border-radius:8px;font-size:13px;font-family:inherit;cursor:pointer;outline:none;min-width:200px">
+      </select>
+    </div>
   </div>
 
   <div class="call-area">
@@ -133,19 +137,19 @@ const VAPI_PUBLIC_KEY = 'ea0f9238-a03f-476a-9628-a47cac9b31cd';
 // Agent registry
 const AGENTS = {
   'trasteos-ya': {
-    id: '9c8fc0c8-225d-4b77-baa8-be2682377d24',
+    id: 'b0977cea-118b-44b4-919d-4c9c416b2953',
     business: 'Trasteos Ya',
     agent: 'Sofia — Asistente de Mudanzas',
     vertical: 'mudanzas'
   },
   'don-mario': {
-    id: 'd320dc31-5aee-4499-b74b-e94384cbf54d',
+    id: '3b0fda1c-5dbb-4570-80f5-11a3f83c300f',
     business: 'Pizzeria Don Mario',
     agent: 'Ana — Agente de Pedidos',
     vertical: 'restaurant'
   },
   'wok-roll': {
-    id: '56471f68-6805-4546-9654-cca5482c1105',
+    id: '64a98b32-fe5a-415b-b652-f96c6fa283c4',
     business: 'Wok & Roll',
     agent: 'Carlos — Agente de Pedidos',
     vertical: 'restaurant'
@@ -177,6 +181,32 @@ if (customId) {
 
 document.getElementById('businessName').textContent = businessName;
 document.getElementById('agentInfo').textContent = agentInfo;
+
+// Show agent selector when viewing restaurant vertical (multiple options)
+if (!customId) {
+  const currentAgent = AGENTS[agentSlug];
+  if (currentAgent) {
+    const sameVertical = Object.entries(AGENTS).filter(([k, v]) => v.vertical === currentAgent.vertical);
+    if (sameVertical.length > 1) {
+      const selector = document.getElementById('agentSelector');
+      const select = document.getElementById('agentSelect');
+      sameVertical.forEach(([slug, a]) => {
+        const opt = document.createElement('option');
+        opt.value = slug;
+        opt.textContent = a.business + ' (' + a.agent.split(' — ')[0] + ')';
+        if (slug === agentSlug) opt.selected = true;
+        select.appendChild(opt);
+      });
+      selector.style.display = '';
+    }
+  }
+}
+
+window.switchAgent = function(slug) {
+  const url = new URL(window.location);
+  url.searchParams.set('agent', slug);
+  window.location.href = url.toString();
+};
 
 if (lang === 'en') {
   document.getElementById('callStatus').textContent = 'Tap to call';
