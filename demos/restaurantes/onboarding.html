@@ -497,6 +497,9 @@ body { font-family:'Plus Jakarta Sans','Helvetica Neue',Helvetica,Arial,sans-ser
     <!-- Plan suggestion -->
     <div id="planSuggestion" style="margin-top:24px"></div>
 
+    <!-- Vapi voice demo -->
+    <div id="voiceDemoSection" style="display:none"></div>
+
     <div class="btn-row" style="justify-content:center">
       <a href="voice-demo.html" class="btn btn-secondary" style="text-decoration:none">Probar mi agente</a>
       <a href="index.html" class="btn btn-primary" style="text-decoration:none">Ir al Dashboard</a>
@@ -902,11 +905,66 @@ function renderChecklist() {
   `;
 }
 
-window.submitActivateTrial = function() {
-  // Show success
+window.submitActivateTrial = async function() {
+  const btn = document.getElementById('btnActivate');
+  btn.disabled = true;
+  btn.textContent = LANG === 'en' ? 'Creating your agent...' : 'Creando tu agente...';
+
+  // Gather all onboarding data
+  const progress = getOnboardingProgress(sessionId);
+  const lead = getLead(leadId);
+  const agentData = progress.stepDetails.find(s => s.key === 'AGENT')?.data || {};
+  const catalogData = progress.stepDetails.find(s => s.key === 'CATALOG')?.data || {};
+  const opsData = progress.stepDetails.find(s => s.key === 'OPERATIONS')?.data || {};
+
+  const payload = {
+    businessName: lead.businessName || '',
+    agentName: agentData.name || 'Ana',
+    personality: agentData.personality || 'casual_warm',
+    voiceGender: (agentData.voice === 'echo' || agentData.voice === 'onyx') ? 'male' : 'female',
+    menu: (catalogData.products || []).map(p => ({
+      name: p.name,
+      price: p.price,
+      category: p.category || 'General',
+      description: ''
+    })),
+    hours: (opsData.schedule?.open || '10:00') + ' - ' + (opsData.schedule?.close || '22:00'),
+    delivery: {
+      available: opsData.deliveryEnabled || false,
+      fee: opsData.deliveryFee || 5000,
+      freeAbove: 80000,
+      timeMin: 20,
+      timeMax: 35,
+      maxKm: 8,
+      minOrder: opsData.minOrder || 20000
+    },
+    paymentMethods: ['efectivo', 'nequi', 'daviplata', 'tarjeta']
+  };
+
+  try {
+    const res = await fetch('https://nhdkhoheqrmoqmpvzoeh.supabase.co/functions/v1/create-vapi-agent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-7g-key': '7gandresapal'
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.success && result.assistantId) {
+      window._vapiAssistantId = result.assistantId;
+      window._vapiWebCallUrl = result.webCallUrl;
+    } else {
+      console.warn('Vapi agent creation failed:', result);
+    }
+  } catch (err) {
+    console.warn('Vapi connection error (demo continues):', err);
+  }
+
+  btn.disabled = false;
+  btn.textContent = LANG === 'en' ? 'Start 15-Day Free Trial' : 'Iniciar Trial 15 Dias Gratis';
   goStep('success');
   renderTrialDashboard();
-  // Hide progress bar
   document.querySelector('.progress-bar').style.display = 'none';
 };
 
@@ -983,6 +1041,32 @@ function renderTrialDashboard() {
         <div style="font-size:1.8rem;font-weight:800;color:var(--black)">$${dash.suggestedPlan.planPrice?.toLocaleString('es-CO')}<span style="font-size:.85rem;font-weight:400;color:var(--gray)"> COP/mes</span></div>
         <p style="font-size:12px;color:var(--gray);margin-top:8px">${dash.suggestedPlan.reason}</p>
         <button class="btn btn-primary" style="margin-top:16px" disabled>${LANG==='en'?'Choose this plan':'Elegir este plan'}</button>
+      </div>
+    `;
+  }
+
+  // Vapi voice demo button
+  const voiceDemoEl = document.getElementById('voiceDemoSection');
+  if (voiceDemoEl && window._vapiAssistantId) {
+    voiceDemoEl.style.display = 'block';
+    voiceDemoEl.innerHTML = `
+      <div style="background:linear-gradient(135deg,#0a0a0a,#1a1a2e);border-radius:16px;padding:32px;text-align:center;color:#fff;margin-top:24px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--cyan);margin-bottom:12px">
+          ${LANG==='en'?'Your AI Agent is Ready':'Tu Agente IA esta Listo'}
+        </div>
+        <div style="font-size:1.3rem;font-weight:700;margin-bottom:8px">
+          ${LANG==='en'?'Test your voice agent now':'Prueba tu agente de voz ahora'}
+        </div>
+        <p style="font-size:13px;color:#999;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto">
+          ${LANG==='en'
+            ?'Click the button below to start a voice conversation with your AI agent. Speak naturally — it understands your menu, prices, and delivery rules.'
+            :'Haz clic en el boton para iniciar una conversacion de voz con tu agente IA. Habla naturalmente — conoce tu menu, precios y reglas de delivery.'}
+        </p>
+        <button onclick="window.open('${window._vapiWebCallUrl || '#'}','_blank')" class="btn" style="background:var(--cyan);color:#000;font-weight:700;font-size:1rem;padding:14px 32px;border-radius:50px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          ${LANG==='en'?'Start Voice Demo':'Iniciar Demo de Voz'}
+        </button>
+        <div style="font-size:11px;color:#666;margin-top:12px">${LANG==='en'?'Free trial — 3 minutes per call':'Prueba gratuita — 3 minutos por llamada'}</div>
       </div>
     `;
   }
