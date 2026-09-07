@@ -501,29 +501,73 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
-      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="polizasKpi"></div>
+      <!-- Sub-navegacion: Lista polizas | Siniestros -->
+      <div class="sub-nav" id="polSubNav" style="margin-bottom:12px">
+        <a class="sub-tab active" data-sub="lista" onclick="switchPolSub('lista')">
+          <span class="sub-lbl">Polizas</span>
+        </a>
+        <a class="sub-tab" data-sub="siniestros" onclick="switchPolSub('siniestros')">
+          <span class="sub-lbl">Siniestros</span>
+          <span class="sub-count" id="cntSin">0</span>
+          <span class="sub-count" id="cntSinAlert" style="display:none;background:var(--red);color:#fff;margin-left:4px">0</span>
+        </a>
+      </div>
 
-      <div id="polFiltroAlerta"></div>
+      <!-- Sub: Lista de polizas -->
+      <div class="sub-section active" id="sub-pol-lista">
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="polizasKpi"></div>
 
-      <div class="tbl-wrap">
-        <div class="tbl-overflow">
-          <table>
-            <thead>
-              <tr>
-                <th>No. Poliza</th>
-                <th>Cliente</th>
-                <th>Tipo</th>
-                <th>Aseguradora</th>
-                <th>Intermediario</th>
-                <th>Prima</th>
-                <th>Vigencia</th>
-                <th>Estado</th>
-                <th>Creada</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="polizasTable"></tbody>
-          </table>
+        <div id="polFiltroAlerta"></div>
+
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th>No. Poliza</th>
+                  <th>Cliente</th>
+                  <th>Tipo</th>
+                  <th>Aseguradora</th>
+                  <th>Intermediario</th>
+                  <th>Prima</th>
+                  <th>Vigencia</th>
+                  <th>Estado</th>
+                  <th>Creada</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="polizasTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub: Siniestros -->
+      <div class="sub-section" id="sub-pol-siniestros">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--dim)">Siniestros reportados. Se dispara desde el boton "Reportar siniestro" en cada poliza. Envia WA calido al tomador con datos de la aseguradora.</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-sm" onclick="_abrirPanelAsegInfo_()">Datos aseguradoras</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Poliza</th>
+                  <th>Tomador</th>
+                  <th>Ramo</th>
+                  <th>Aseguradora</th>
+                  <th>Descripcion</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="siniestrosTable"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -2453,6 +2497,8 @@ function _initAppReal(){
     if(typeof loadConfigFromSheet_==='function')        loadConfigFromSheet_();
     if(typeof loadCarteraFromSheet_==='function')       loadCarteraFromSheet_();
     if(typeof loadCuentasCobroHist_==='function')       loadCuentasCobroHist_();
+    if(typeof loadSiniestros_==='function')             loadSiniestros_();
+    if(typeof loadAseguradorasInfo_==='function')       loadAseguradorasInfo_();
     renderPolizas();
     renderCotizador();
     renderDashboard();
@@ -3318,9 +3364,10 @@ function renderPolizaRow(p,idx){
     '</td>'+
     '<td><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></td>'+
     '<td style="font-size:11px;color:var(--dim)">'+(p.fechaCreacion||'—')+'</td>'+
-    '<td><div style="display:flex;gap:4px" onclick="event.stopPropagation()">'+
+    '<td><div style="display:flex;gap:4px;flex-wrap:wrap" onclick="event.stopPropagation()">'+
       '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+p.telefono+'\',\''+p.cliente+'\',\''+p.tipo+'\')">WA</button>'+
       (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+p.id+'\')">Renovar</button>':'')+
+      '<button class="btn btn-sm" onclick="_abrirModalSiniestro_(\''+p.id+'\')" style="background:rgba(255,71,71,.12);color:var(--red);border:1px solid rgba(255,71,71,.3);font-size:10px" title="Reportar siniestro">Siniestro</button>'+
     '</div></td>'+
   '</tr>'+
   '<tr id="'+detailId+'" class="pol-detail-row" style="display:none">'+
@@ -4060,21 +4107,13 @@ window.filterPolizas=function(){
   renderPolizas(v||null);
 };
 
+/* Renovar poliza — abre modal decisor con 3 rutas (limpia / recotizar / cambios).
+   Backend crea nuevo lead con datos heredados y salta al estado correcto del pipeline. */
 window.renovarPoliza=function(id){
   var p = POLIZAS.filter(function(x){return x.id===id})[0];
   if(!p) return;
-  var confirmMsg =
-    '¿Confirmas renovar esta poliza?\n\n'+
-    'No: ' + id + '\n'+
-    'Cliente: ' + p.cliente + '\n'+
-    'Tipo: ' + p.tipo + '\n\n'+
-    'Al confirmar:\n'+
-    '• La vigencia pasa de ' + p.desde + ' → ' + p.hasta + '\n'+
-    '  a ' + p.hasta + ' → (+1 año)\n'+
-    '• El estado pasa a "Activa"\n'+
-    '• Se sincroniza al Sheet (Excel de Fabian)\n'+
-    '• Se notifica por Telegram al admin';
-  if(!confirm(confirmMsg)) return;
+  _abrirModalRenovacion_(p);
+  return; // no seguir con el flujo viejo
 
   p.estado='activa';
   var d=new Date(p.hasta+'T12:00:00');
@@ -4102,6 +4141,408 @@ window.renovarPoliza=function(id){
     // Recargar liquidaciones tras 2 seg
     setTimeout(function(){ if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet(); }, 2000);
   }
+};
+
+/* ============================================================
+   RENOVACION — modal decisor con 3 rutas (Fase 5)
+   ============================================================ */
+function _abrirModalRenovacion_(p){
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  // Overlay
+  var overlay = document.createElement('div');
+  overlay.id = 'renovModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML =
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;max-width:560px;width:100%;padding:24px;max-height:90vh;overflow-y:auto">'+
+      '<div style="font-size:11px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px">Renovacion</div>'+
+      '<div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:16px">¿Como renovamos esta poliza?</div>'+
+      '<div id="renovInfoBox" style="background:var(--bg);padding:14px;border-radius:8px;border-left:3px solid var(--accent);font-size:12px;color:var(--dim);margin-bottom:16px">Cargando datos del cliente...</div>'+
+      '<div style="display:flex;flex-direction:column;gap:10px" id="renovOpciones"></div>'+
+      '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px">'+
+        '<button class="btn" onclick="_cerrarModalRenovacion_()" style="background:transparent;border:1px solid var(--border)">Cancelar</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) _cerrarModalRenovacion_(); });
+
+  // Fetch info del backend
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action:'renovar-info', email:emailAuth, poliza_id:p.id})
+  })
+  .then(function(r){return r.json();})
+  .then(function(j){
+    if(!j || j.error){ _renovPintarInfo_(p, null, j&&j.error||'no se pudo cargar info'); return; }
+    _renovPintarInfo_(p, j, null);
+  })
+  .catch(function(err){
+    _renovPintarInfo_(p, null, 'red: '+err.message);
+  });
+}
+
+function _renovPintarInfo_(p, info, errMsg){
+  var box = document.getElementById('renovInfoBox');
+  var opts = document.getElementById('renovOpciones');
+  if(!box || !opts) return;
+  if(errMsg){
+    box.innerHTML = '<div style="color:var(--red);font-weight:600">'+errMsg+'</div>';
+    opts.innerHTML = '<button class="btn" onclick="_cerrarModalRenovacion_()" style="background:var(--brand);color:#fff">Cerrar</button>';
+    return;
+  }
+  var sarlaftLbl = info.sarlaft && info.sarlaft.vigente
+    ? '<span style="color:var(--green);font-weight:700">vigente ('+info.sarlaft.ts+')</span>'
+    : '<span style="color:var(--orange);font-weight:700">no vigente / desconocido</span>';
+  var siniestrosLbl = info.siniestros_ultimo_ano > 0
+    ? '<span style="color:var(--red);font-weight:700">'+info.siniestros_ultimo_ano+' siniestro(s)</span>'
+    : '<span style="color:var(--green);font-weight:700">0</span>';
+  var pctPrev = (info.pct_asesor_previo !== null)
+    ? info.pct_asesor_previo+'% asesor / '+info.pct_fabian_previo+'% Fabian'
+    : 'sin liquidacion previa';
+  box.innerHTML =
+    '<div><strong style="color:var(--text)">'+p.cliente+'</strong> · C.C. '+(info.poliza.documento||'—')+'</div>'+
+    '<div style="margin-top:4px">Poliza previa: <strong>'+p.id+'</strong> · '+p.tipo+' · '+p.aseguradora+'</div>'+
+    '<div style="margin-top:4px">Renovacion año: <strong>'+info.renovacion_nueva+'</strong> · Comisiones previas: <strong>'+pctPrev+'</strong></div>'+
+    '<div style="margin-top:4px">Siniestros ultimo año: '+siniestrosLbl+' · SARLAFT: '+sarlaftLbl+'</div>';
+
+  var puedeRenovLimpia = info.pct_asesor_previo !== null; // requiere liquidacion previa para heredar pcts
+  opts.innerHTML =
+    '<div class="renov-opt" style="border:1px solid var(--border);border-radius:10px;padding:14px;cursor:'+(puedeRenovLimpia?'pointer':'not-allowed')+';opacity:'+(puedeRenovLimpia?'1':'.5')+';transition:.15s" '+
+      (puedeRenovLimpia?'onclick="_ejecutarRenovacion_(\''+p.id+'\', \'limpia\')" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'"':'')+'>'+
+      '<div style="font-weight:700;color:var(--accent);font-size:13px;margin-bottom:4px">Renovacion limpia'+(puedeRenovLimpia?'':' (sin datos previos)')+'</div>'+
+      '<div style="font-size:11px;color:var(--dim);line-height:1.5">Misma aseguradora, mismas condiciones, sin recotizar. Salta directo a <strong>POR EMITIR</strong>. Comisiones al pct heredado. SARLAFT reutilizado.</div>'+
+    '</div>'+
+    '<div class="renov-opt" style="border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:.15s" '+
+      'onclick="_ejecutarRenovacion_(\''+p.id+'\', \'recotizar\')" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'+
+      '<div style="font-weight:700;color:var(--accent);font-size:13px;margin-bottom:4px">Recotizar</div>'+
+      '<div style="font-size:11px;color:var(--dim);line-height:1.5">Buscar mejor prima en el mercado. Va al <strong>COTIZADOR</strong> con datos pre-llenos. SARLAFT reutilizado si <12 meses.</div>'+
+    '</div>'+
+    '<div class="renov-opt" style="border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:.15s" '+
+      'onclick="_ejecutarRenovacion_(\''+p.id+'\', \'cambios\')" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'+
+      '<div style="font-weight:700;color:var(--accent);font-size:13px;margin-bottom:4px">Renovacion con cambios</div>'+
+      '<div style="font-size:11px;color:var(--dim);line-height:1.5">Cambio de ramo o cobertura distinta. Va a <strong>INBOX</strong> como nuevo lead. SARLAFT obligatorio nuevo.</div>'+
+    '</div>';
+}
+
+window._cerrarModalRenovacion_ = function(){
+  var el = document.getElementById('renovModal');
+  if(el) el.remove();
+};
+
+window._ejecutarRenovacion_ = function(polizaId, ruta){
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  var action = ruta === 'limpia' ? 'renovar-limpia'
+             : ruta === 'recotizar' ? 'renovar-recotizar'
+             : 'renovar-recotizar'; // 'cambios' usa mismo endpoint pero sin reutilizar_sarlaft
+  var payload = {
+    action: action,
+    email: emailAuth,
+    poliza_id: polizaId
+  };
+  if(ruta === 'recotizar') payload.reutilizar_sarlaft = true;
+  if(ruta === 'cambios')   payload.reutilizar_sarlaft = false;
+
+  var opts = document.getElementById('renovOpciones');
+  if(opts) opts.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dim);font-size:13px">Creando renovacion...</div>';
+
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){return r.json();})
+  .then(function(j){
+    if(j && j.status === 'ok'){
+      _cerrarModalRenovacion_();
+      var destino = ruta === 'limpia' ? 'POR EMITIR' : (ruta === 'recotizar' ? 'EN COTIZACION' : 'INBOX');
+      alert('Renovacion creada ('+ruta+'). Lead: '+j.lead_id+'\n\nDestino: COTIZADOR → '+destino+'\n\nRefrescando pipeline...');
+      // Refrescar leads y saltar a COTIZADOR al sub-tab correcto
+      if(typeof loadLeadsFromSheet==='function') loadLeadsFromSheet();
+      if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
+      setTimeout(function(){
+        switchMod('cotizador');
+        if(ruta === 'limpia') switchSub('emitir');
+        else if(ruta === 'recotizar') switchSub('curso');
+        else switchSub('inbox');
+      }, 1200);
+    } else {
+      var opts2 = document.getElementById('renovOpciones');
+      if(opts2) opts2.innerHTML = '<div style="color:var(--red);font-weight:600;padding:14px">Error: '+(j&&j.error||'no se pudo crear la renovacion')+'</div>'+
+        '<button class="btn" onclick="_cerrarModalRenovacion_()" style="background:var(--brand);color:#fff">Cerrar</button>';
+    }
+  })
+  .catch(function(err){
+    var opts2 = document.getElementById('renovOpciones');
+    if(opts2) opts2.innerHTML = '<div style="color:var(--red);font-weight:600;padding:14px">Error de red: '+err.message+'</div>'+
+      '<button class="btn" onclick="_cerrarModalRenovacion_()" style="background:var(--brand);color:#fff">Cerrar</button>';
+  });
+};
+
+/* ============================================================
+   SINIESTROS — sub-tab en POLIZAS (Fase 5)
+   ============================================================ */
+var SINIESTROS_LIST = [];
+var ASEG_INFO_LIST  = [];
+
+window.switchPolSub = function(sub){
+  document.querySelectorAll('#polSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
+  var tab = document.querySelector('#polSubNav .sub-tab[data-sub="'+sub+'"]');
+  if(tab) tab.classList.add('active');
+  document.querySelectorAll('#mod-polizas .sub-section').forEach(function(s){s.classList.remove('active')});
+  var sec = document.getElementById('sub-pol-'+sub); if(sec) sec.classList.add('active');
+  if(sub === 'siniestros'){ loadSiniestros_(); loadAseguradorasInfo_(); }
+};
+
+function loadSiniestros_(){
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  fetch(APPS_SCRIPT_URL + '?action=siniestros&email=' + encodeURIComponent(emailAuth), {redirect:'follow'})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j && j.status==='ok'){
+        SINIESTROS_LIST = j.rows||[];
+        renderSiniestrosTab_();
+      }
+    }).catch(function(){});
+}
+function loadAseguradorasInfo_(){
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  fetch(APPS_SCRIPT_URL + '?action=aseguradoras-info&email=' + encodeURIComponent(emailAuth), {redirect:'follow'})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j && j.status==='ok') ASEG_INFO_LIST = j.rows||[];
+    }).catch(function(){});
+}
+function _asegInfoDe_(nombreAseg){
+  var norm = String(nombreAseg||'').toLowerCase().trim();
+  return (ASEG_INFO_LIST||[]).filter(function(a){
+    return String(a.aseguradora||'').toLowerCase().trim() === norm;
+  })[0] || null;
+}
+
+function renderSiniestrosTab_(){
+  var tb = document.getElementById('siniestrosTable'); if(!tb) return;
+  var puedeGestionar = typeof CURRENT_USER!=='undefined' && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
+  var lista = SINIESTROS_LIST.slice().sort(function(a,b){
+    // activos primero, luego por fecha desc
+    var pa = a.estado==='solucionado' ? 1 : 0;
+    var pb = b.estado==='solucionado' ? 1 : 0;
+    if(pa !== pb) return pa - pb;
+    return (b.fecha_hecho||'').localeCompare(a.fecha_hecho||'');
+  });
+  var activos = lista.filter(function(s){return s.estado !== 'solucionado' && s.estado !== 'cancelado'}).length;
+  var cntEl = document.getElementById('cntSin'); if(cntEl) cntEl.textContent = SINIESTROS_LIST.length;
+  var alertEl = document.getElementById('cntSinAlert');
+  if(alertEl){
+    if(activos > 0){ alertEl.textContent = activos; alertEl.style.display=''; alertEl.title = activos+' siniestro(s) activo(s)'; }
+    else { alertEl.style.display='none'; }
+  }
+  if(!lista.length){
+    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--dim);font-size:13px">Sin siniestros reportados.</td></tr>';
+    return;
+  }
+  var badges = {
+    reportado:   'background:rgba(255,71,71,.15);color:var(--red)',
+    en_proceso:  'background:rgba(255,140,66,.18);color:#ff8c42',
+    solucionado: 'background:rgba(52,168,83,.15);color:var(--green)',
+    cancelado:   'background:rgba(148,163,184,.15);color:var(--dim)'
+  };
+  tb.innerHTML = lista.map(function(s){
+    var badgeCss = badges[s.estado] || badges.reportado;
+    var acciones = '';
+    if(puedeGestionar && s.estado === 'reportado'){
+      acciones = '<button class="btn btn-sm" onclick="_cambiarEstadoSiniestro_(\''+s.id+'\',\'en_proceso\')" style="font-size:10px">En proceso</button> ';
+    }
+    if(puedeGestionar && (s.estado === 'reportado' || s.estado === 'en_proceso')){
+      acciones += '<button class="btn btn-sm btn-primary" onclick="_cambiarEstadoSiniestro_(\''+s.id+'\',\'solucionado\')" style="background:var(--green);border:none;font-size:10px">Solucionado</button>';
+    }
+    if(s.estado === 'solucionado'){
+      acciones = '<span style="font-size:10px;color:var(--dim)">Solucionado '+(s.fecha_solucion||'')+'</span>';
+    }
+    return '<tr>'+
+      '<td style="font-size:11px">'+(s.fecha_hecho||'—')+'</td>'+
+      '<td class="mono" style="font-size:11px">'+(s.poliza||'—')+'</td>'+
+      '<td>'+(s.tomador||'—')+'</td>'+
+      '<td style="font-size:11px">'+(s.ramo_siniestro||'—')+'</td>'+
+      '<td style="font-size:11px">'+(s.aseguradora||'—')+'</td>'+
+      '<td style="font-size:11px;color:var(--dim)">'+(s.descripcion||'—')+'</td>'+
+      '<td><span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;'+badgeCss+'">'+s.estado+'</span></td>'+
+      '<td>'+acciones+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+window._cambiarEstadoSiniestro_ = function(id, estado){
+  if(!confirm('Cambiar estado del siniestro a "'+estado+'"?')) return;
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action:'siniestro-actualizar', email:emailAuth, id:id, estado:estado})
+  }).catch(function(){});
+  // Optimista
+  var s = SINIESTROS_LIST.filter(function(x){return x.id===id})[0];
+  if(s){ s.estado = estado; if(estado==='solucionado') s.fecha_solucion = new Date().toISOString().slice(0,10); renderSiniestrosTab_(); }
+  setTimeout(loadSiniestros_, 1500);
+};
+
+window._abrirModalSiniestro_ = function(polizaId){
+  var p = POLIZAS.filter(function(x){return x.id===polizaId})[0];
+  if(!p){ alert('Poliza no encontrada: '+polizaId); return; }
+  // Asegurar catalogo aseguradoras cargado
+  if(!ASEG_INFO_LIST.length) loadAseguradorasInfo_();
+  var info = _asegInfoDe_(p.aseguradora);
+  var overlay = document.createElement('div');
+  overlay.id = 'sinModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+  var ramos = ['auto','hogar','salud','vida','otro'];
+  var ramoDefault = (p.tipo||'').toLowerCase();
+  var ramoSel = ramos.indexOf(ramoDefault)>=0 ? ramoDefault : 'otro';
+  var infoAlert = info && (info.tel_siniestros || info.email_siniestros)
+    ? '<div style="background:rgba(52,168,83,.1);color:var(--green);padding:8px 12px;border-radius:6px;font-size:11px;margin-bottom:12px">Datos de '+p.aseguradora+' cargados. Se incluiran automatico en el WA.</div>'
+    : '<div style="background:rgba(255,140,66,.1);color:#ff8c42;padding:8px 12px;border-radius:6px;font-size:11px;margin-bottom:12px">Datos de '+p.aseguradora+' incompletos. Ve a <em>Datos aseguradoras</em> para llenarlos primero.</div>';
+  overlay.innerHTML =
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;max-width:520px;width:100%;padding:24px;max-height:90vh;overflow-y:auto">'+
+      '<div style="font-size:11px;color:var(--red);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px">Reportar siniestro</div>'+
+      '<div style="font-size:20px;font-weight:800;margin-bottom:16px">'+p.cliente+'</div>'+
+      '<div style="font-size:12px;color:var(--dim);margin-bottom:12px">Poliza <strong>'+p.id+'</strong> · '+p.tipo+' · '+p.aseguradora+'</div>'+
+      infoAlert+
+      '<div style="margin-bottom:10px"><label style="font-size:11px;color:var(--dim);font-weight:600;display:block;margin-bottom:4px">Fecha del hecho</label>'+
+        '<input type="date" id="sinFecha" class="form-input" value="'+new Date().toISOString().slice(0,10)+'" style="width:100%"></div>'+
+      '<div style="margin-bottom:10px"><label style="font-size:11px;color:var(--dim);font-weight:600;display:block;margin-bottom:4px">Ramo del siniestro</label>'+
+        '<select id="sinRamo" class="form-input" style="width:100%">'+
+          ramos.map(function(r){return '<option value="'+r+'" '+(r===ramoSel?'selected':'')+'>'+r.charAt(0).toUpperCase()+r.slice(1)+'</option>';}).join('')+
+        '</select></div>'+
+      '<div style="margin-bottom:16px"><label style="font-size:11px;color:var(--dim);font-weight:600;display:block;margin-bottom:4px">Descripcion breve (opcional)</label>'+
+        '<textarea id="sinDesc" class="form-input" rows="3" placeholder="Ej: choque en la 26, sin heridos" style="width:100%;resize:vertical"></textarea></div>'+
+      '<div style="display:flex;justify-content:flex-end;gap:8px">'+
+        '<button class="btn" onclick="_cerrarModalSiniestro_()" style="background:transparent;border:1px solid var(--border)">Cancelar</button>'+
+        '<button class="btn btn-primary" onclick="_confirmarSiniestro_(\''+polizaId+'\')" style="background:var(--red);color:#fff;border:none">Reportar y enviar WA</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) _cerrarModalSiniestro_(); });
+};
+window._cerrarModalSiniestro_ = function(){ var el=document.getElementById('sinModal'); if(el) el.remove(); };
+
+window._confirmarSiniestro_ = function(polizaId){
+  var p = POLIZAS.filter(function(x){return x.id===polizaId})[0];
+  if(!p) return;
+  var fecha = document.getElementById('sinFecha').value;
+  var ramo  = document.getElementById('sinRamo').value;
+  var desc  = document.getElementById('sinDesc').value.trim();
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  // 1. Guardar en backend
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({
+      action:'siniestro-crear', email:emailAuth,
+      poliza: polizaId, ramo_siniestro: ramo,
+      fecha_hecho: fecha, descripcion: desc
+    })
+  }).catch(function(){});
+  // 2. Generar WA calido y abrirlo
+  var info = _asegInfoDe_(p.aseguradora);
+  var msg = _generarMensajeSiniestroWA_(p, ramo, info);
+  var tel = (p.telefono||'').replace(/[^0-9]/g,'');
+  var waHref = tel ? 'https://wa.me/57'+tel+'?text='+encodeURIComponent(msg)
+                   : 'https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(waHref, '_blank');
+  _cerrarModalSiniestro_();
+  setTimeout(function(){ loadSiniestros_(); switchPolSub('siniestros'); }, 1200);
+};
+
+function _generarMensajeSiniestroWA_(p, ramo, info){
+  var soyMonica = (window.CURRENT_USER && (String(CURRENT_USER.nombre||CURRENT_USER.email).toLowerCase().indexOf('monica')>=0));
+  var quien = soyMonica ? 'Monica' : ((window.CURRENT_USER && CURRENT_USER.nombre) || 'tu asesor de Aseguralo');
+  var partes = [];
+  partes.push('Hola '+p.cliente+', soy '+quien+' de Aseguralo.');
+  partes.push('');
+  partes.push('Se que este momento es dificil, pero estamos contigo y tu seguro esta para exactamente esto. Vamos a acompanarte paso a paso.');
+  partes.push('');
+  partes.push('CONTACTOS DIRECTOS '+p.aseguradora.toUpperCase()+':');
+  if(info && info.tel_siniestros)   partes.push('- Linea siniestros: '+info.tel_siniestros);
+  if(info && info.email_siniestros) partes.push('- Email: '+info.email_siniestros);
+  if(info && info.portal)           partes.push('- Portal: '+info.portal);
+  if(!info || (!info.tel_siniestros && !info.email_siniestros)){
+    partes.push('(datos de la aseguradora se te enviaran en el proximo mensaje)');
+  }
+  partes.push('');
+  var instr = '';
+  if(info){
+    if(ramo==='auto')  instr = info.instrucciones_auto;
+    if(ramo==='hogar') instr = info.instrucciones_hogar;
+    if(ramo==='salud') instr = info.instrucciones_salud;
+    if(ramo==='vida')  instr = info.instrucciones_vida;
+  }
+  if(!instr){
+    if(ramo==='auto')  instr = 'No muevas el vehiculo si es choque. Toma fotos de placas, danos, entorno. No firmes nada sin llamarnos primero.';
+    else if(ramo==='hogar') instr = 'Aisla el area si es agua o fuego. Toma fotos de todos los danos ANTES de mover algo. Guarda facturas de reparaciones urgentes.';
+    else if(ramo==='salud') instr = 'Guarda TODAS las facturas, ordenes medicas y epicrisis. Solicita la copia de la historia clinica.';
+    else if(ramo==='vida')  instr = 'Cuando estes lista, te acompano con la documentacion. Tomate el tiempo que necesites.';
+  }
+  if(instr){
+    partes.push('QUE HACER AHORA:');
+    partes.push(instr);
+    partes.push('');
+  }
+  partes.push('Estoy aqui, cualquier cosa me llamas. No estas sola/o en esto.');
+  return partes.join('\n');
+}
+
+window._abrirPanelAsegInfo_ = function(){
+  if(!ASEG_INFO_LIST.length) loadAseguradorasInfo_();
+  var overlay = document.createElement('div');
+  overlay.id = 'asegInfoModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+  var listado = (ASEG_INFO_LIST||[]).map(function(a){
+    return '<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px">'+
+      '<div style="font-weight:700;color:var(--accent);font-size:13px;margin-bottom:6px">'+a.aseguradora+'</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px">'+
+        '<div><label style="color:var(--dim);display:block">Tel siniestros</label><input class="form-input" style="width:100%;font-size:11px" data-aseg="'+a.aseguradora+'" data-f="tel_siniestros" value="'+(a.tel_siniestros||'')+'"></div>'+
+        '<div><label style="color:var(--dim);display:block">Email</label><input class="form-input" style="width:100%;font-size:11px" data-aseg="'+a.aseguradora+'" data-f="email_siniestros" value="'+(a.email_siniestros||'')+'"></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Portal (URL)</label><input class="form-input" style="width:100%;font-size:11px" data-aseg="'+a.aseguradora+'" data-f="portal" value="'+(a.portal||'')+'"></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Auto</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+a.aseguradora+'" data-f="instrucciones_auto">'+(a.instrucciones_auto||'')+'</textarea></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Hogar</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+a.aseguradora+'" data-f="instrucciones_hogar">'+(a.instrucciones_hogar||'')+'</textarea></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Salud</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+a.aseguradora+'" data-f="instrucciones_salud">'+(a.instrucciones_salud||'')+'</textarea></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Vida</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+a.aseguradora+'" data-f="instrucciones_vida">'+(a.instrucciones_vida||'')+'</textarea></div>'+
+      '</div>'+
+      '<div style="text-align:right;margin-top:8px"><button class="btn btn-sm btn-primary" onclick="_guardarAsegInfo_(\''+a.aseguradora+'\')">Guardar '+a.aseguradora+'</button></div>'+
+    '</div>';
+  }).join('');
+  overlay.innerHTML =
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;max-width:720px;width:100%;padding:24px;max-height:90vh;overflow-y:auto">'+
+      '<div style="font-size:11px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px">Datos aseguradoras — lineas de siniestros</div>'+
+      '<div style="font-size:18px;font-weight:800;margin-bottom:16px">Info para mensajes calidos a clientes</div>'+
+      (listado || '<div style="color:var(--dim);text-align:center;padding:20px">Cargando...</div>')+
+      '<div style="text-align:right;margin-top:16px"><button class="btn" onclick="_cerrarPanelAsegInfo_()">Cerrar</button></div>'+
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) _cerrarPanelAsegInfo_(); });
+};
+window._cerrarPanelAsegInfo_ = function(){ var el=document.getElementById('asegInfoModal'); if(el) el.remove(); };
+window._guardarAsegInfo_ = function(aseg){
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  var payload = {action:'aseguradora-info-set', email:emailAuth, aseguradora:aseg};
+  document.querySelectorAll('[data-aseg="'+aseg+'"]').forEach(function(el){
+    payload[el.dataset.f] = el.value;
+  });
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  }).catch(function(){});
+  // Actualiza cache local
+  var a = ASEG_INFO_LIST.filter(function(x){return x.aseguradora===aseg})[0];
+  if(a){ Object.keys(payload).forEach(function(k){ if(k!=='action'&&k!=='email'&&k!=='aseguradora') a[k]=payload[k]; }); }
+  alert('Datos de '+aseg+' guardados.');
 };
 
 window.savePoliza=function(){
