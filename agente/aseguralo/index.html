@@ -329,9 +329,7 @@ tbody tr:hover{background:var(--accent-light)}
 
 <!-- SPLASH INTRO ASEGURALO (~3.2s. Fondo oscuro brand + logo HD + sonido intro tipo streaming) -->
 <div id="asegSplash" onclick="asegSplashOut()" style="position:fixed;inset:0;z-index:99999;background:radial-gradient(ellipse at center, #17233b 0%, #0a1424 70%, #050b17 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .5s ease;overflow:hidden">
-  <div style="position:relative;background:#fff;padding:36px 56px;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05);opacity:0;transform:scale(.92);animation:asegLogoIn 1.1s .2s cubic-bezier(.2,.9,.3,1.15) forwards">
-    <img src="/logo-aseguralo.png" alt="Aseguralo" style="display:block;max-width:min(60vw,420px);height:auto;image-rendering:-webkit-optimize-contrast">
-  </div>
+  <img src="/logo-aseguralo.png" alt="Aseguralo" style="position:relative;max-width:min(60vw,420px);height:auto;opacity:0;transform:scale(.92);image-rendering:-webkit-optimize-contrast;animation:asegLogoIn 1.1s .2s cubic-bezier(.2,.9,.3,1.15) forwards">
 </div>
 <style>
   @keyframes asegLogoIn    { 0%{opacity:0;transform:scale(.92)} 100%{opacity:1;transform:scale(1)} }
