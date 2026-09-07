@@ -3190,6 +3190,8 @@ function _registrarEnCartera_(lead, emitida){
    HELPERS
    ==================================== */
 function fmt(n){return '$'+n.toLocaleString('es-CO')}
+/* Escape para strings dentro de onclick="fn('...')" — previene ruptura por comilla o backslash */
+function _jsq(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
 /* ====== INTERMEDIARIO HELPERS ====== */
 function toggleOtroIntermediario(prefix){
@@ -3366,8 +3368,8 @@ function renderPolizaRow(p,idx){
     '<td style="font-size:11px;color:var(--dim)">'+(p.fechaCreacion||'—')+'</td>'+
     '<td><div style="display:flex;gap:4px;flex-wrap:wrap" onclick="event.stopPropagation()">'+
       '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+p.telefono+'\',\''+p.cliente+'\',\''+p.tipo+'\')">WA</button>'+
-      (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+p.id+'\')">Renovar</button>':'')+
-      '<button class="btn btn-sm" onclick="_abrirModalSiniestro_(\''+p.id+'\')" style="background:rgba(255,71,71,.12);color:var(--red);border:1px solid rgba(255,71,71,.3);font-size:10px" title="Reportar siniestro">Siniestro</button>'+
+      (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+_jsq(p.id)+'\')">Renovar</button>':'')+
+      '<button class="btn btn-sm" onclick="_abrirModalSiniestro_(\''+_jsq(p.id)+'\')" style="background:rgba(255,71,71,.12);color:var(--red);border:1px solid rgba(255,71,71,.3);font-size:10px" title="Reportar siniestro">Siniestro</button>'+
     '</div></td>'+
   '</tr>'+
   '<tr id="'+detailId+'" class="pol-detail-row" style="display:none">'+
@@ -4230,7 +4232,7 @@ window._cerrarModalRenovacion_ = function(){
   if(el) el.remove();
 };
 
-window._ejecutarRenovacion_ = function(polizaId, ruta){
+window._ejecutarRenovacion_ = function(polizaId, ruta, force){
   var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
                   (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
   var action = ruta === 'limpia' ? 'renovar-limpia'
@@ -4243,6 +4245,7 @@ window._ejecutarRenovacion_ = function(polizaId, ruta){
   };
   if(ruta === 'recotizar') payload.reutilizar_sarlaft = true;
   if(ruta === 'cambios')   payload.reutilizar_sarlaft = false;
+  if(force) payload.force = true;
 
   var opts = document.getElementById('renovOpciones');
   if(opts) opts.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dim);font-size:13px">Creando renovacion...</div>';
@@ -4258,7 +4261,6 @@ window._ejecutarRenovacion_ = function(polizaId, ruta){
       _cerrarModalRenovacion_();
       var destino = ruta === 'limpia' ? 'POR EMITIR' : (ruta === 'recotizar' ? 'EN COTIZACION' : 'INBOX');
       alert('Renovacion creada ('+ruta+'). Lead: '+j.lead_id+'\n\nDestino: COTIZADOR → '+destino+'\n\nRefrescando pipeline...');
-      // Refrescar leads y saltar a COTIZADOR al sub-tab correcto
       if(typeof loadLeadsFromSheet==='function') loadLeadsFromSheet();
       if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
       setTimeout(function(){
@@ -4267,15 +4269,27 @@ window._ejecutarRenovacion_ = function(polizaId, ruta){
         else if(ruta === 'recotizar') switchSub('curso');
         else switchSub('inbox');
       }, 1200);
-    } else {
+    } else if(j && j.duplicado){
+      // Blindaje dedupe: la poliza ya se renovo. Ofrecer ver el lead o forzar duplicado.
       var opts2 = document.getElementById('renovOpciones');
-      if(opts2) opts2.innerHTML = '<div style="color:var(--red);font-weight:600;padding:14px">Error: '+(j&&j.error||'no se pudo crear la renovacion')+'</div>'+
+      if(opts2) opts2.innerHTML =
+        '<div style="background:rgba(255,140,66,.12);color:#ff8c42;padding:12px;border-radius:8px;font-weight:600;margin-bottom:12px;font-size:12px">'+
+          'Esta poliza ya fue renovada el '+j.ts_existente+' (lead <strong>'+j.lead_id_existente+'</strong>, estado: '+j.estado_existente+').'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+          '<button class="btn btn-primary" onclick="_cerrarModalRenovacion_();switchMod(\'cotizador\');switchSub(\'emitir\')" style="background:var(--brand);color:#fff">Ver lead existente</button>'+
+          '<button class="btn" onclick="if(confirm(\'Crear renovacion duplicada de todos modos?\')) _ejecutarRenovacion_(\''+polizaId+'\', \''+ruta+'\', true)" style="background:transparent;border:1px solid var(--red);color:var(--red)">Forzar duplicado</button>'+
+          '<button class="btn" onclick="_cerrarModalRenovacion_()" style="background:transparent;border:1px solid var(--border)">Cancelar</button>'+
+        '</div>';
+    } else {
+      var opts2b = document.getElementById('renovOpciones');
+      if(opts2b) opts2b.innerHTML = '<div style="color:var(--red);font-weight:600;padding:14px">Error: '+(j&&j.error||'no se pudo crear la renovacion')+'</div>'+
         '<button class="btn" onclick="_cerrarModalRenovacion_()" style="background:var(--brand);color:#fff">Cerrar</button>';
     }
   })
   .catch(function(err){
-    var opts2 = document.getElementById('renovOpciones');
-    if(opts2) opts2.innerHTML = '<div style="color:var(--red);font-weight:600;padding:14px">Error de red: '+err.message+'</div>'+
+    var opts2c = document.getElementById('renovOpciones');
+    if(opts2c) opts2c.innerHTML = '<div style="color:var(--red);font-weight:600;padding:14px">Error de red: '+err.message+'</div>'+
       '<button class="btn" onclick="_cerrarModalRenovacion_()" style="background:var(--brand);color:#fff">Cerrar</button>';
   });
 };
@@ -4437,25 +4451,41 @@ window._confirmarSiniestro_ = function(polizaId){
   var desc  = document.getElementById('sinDesc').value.trim();
   var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
                   (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
-  // 1. Guardar en backend
+  // Preparar mensaje WA (se abre despues de confirmar exito del backend)
+  var info = _asegInfoDe_(p.aseguradora);
+  var msg = _generarMensajeSiniestroWA_(p, ramo, info);
+  var tel = (p.telefono||'').replace(/[^0-9]/g,'');
+  var waHref = tel ? 'https://wa.me/57'+tel+'?text='+encodeURIComponent(msg)
+                   : 'https://wa.me/?text='+encodeURIComponent(msg);
+  // 1. Guardar en backend con cors para verificar respuesta (evita abrir WA sin registro)
   fetch(APPS_SCRIPT_URL, {
-    method:'POST', mode:'no-cors',
+    method:'POST', redirect:'follow',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body: JSON.stringify({
       action:'siniestro-crear', email:emailAuth,
       poliza: polizaId, ramo_siniestro: ramo,
       fecha_hecho: fecha, descripcion: desc
     })
-  }).catch(function(){});
-  // 2. Generar WA calido y abrirlo
-  var info = _asegInfoDe_(p.aseguradora);
-  var msg = _generarMensajeSiniestroWA_(p, ramo, info);
-  var tel = (p.telefono||'').replace(/[^0-9]/g,'');
-  var waHref = tel ? 'https://wa.me/57'+tel+'?text='+encodeURIComponent(msg)
-                   : 'https://wa.me/?text='+encodeURIComponent(msg);
-  window.open(waHref, '_blank');
-  _cerrarModalSiniestro_();
-  setTimeout(function(){ loadSiniestros_(); switchPolSub('siniestros'); }, 1200);
+  })
+  .then(function(r){return r.json();})
+  .then(function(j){
+    if(j && j.status === 'ok'){
+      window.open(waHref, '_blank');
+      _cerrarModalSiniestro_();
+      setTimeout(function(){ loadSiniestros_(); switchPolSub('siniestros'); }, 1200);
+    } else {
+      var err = (j && j.error) || 'error desconocido';
+      if(confirm('El siniestro NO se guardo en el sistema:\n'+err+'\n\n¿Abrir WhatsApp con el cliente de todos modos?')){
+        window.open(waHref, '_blank');
+      }
+    }
+  })
+  .catch(function(e){
+    // Red caida: preguntar si abrir WA igual
+    if(confirm('No se pudo contactar el servidor (red). El registro del siniestro NO quedo guardado.\n\n¿Abrir WhatsApp con el cliente de todos modos?')){
+      window.open(waHref, '_blank');
+    }
+  });
 };
 
 function _generarMensajeSiniestroWA_(p, ramo, info){
@@ -4501,19 +4531,21 @@ window._abrirPanelAsegInfo_ = function(){
   var overlay = document.createElement('div');
   overlay.id = 'asegInfoModal';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+  var esc = function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
   var listado = (ASEG_INFO_LIST||[]).map(function(a){
+    var an = esc(a.aseguradora);
     return '<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px">'+
-      '<div style="font-weight:700;color:var(--accent);font-size:13px;margin-bottom:6px">'+a.aseguradora+'</div>'+
+      '<div style="font-weight:700;color:var(--accent);font-size:13px;margin-bottom:6px">'+an+'</div>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px">'+
-        '<div><label style="color:var(--dim);display:block">Tel siniestros</label><input class="form-input" style="width:100%;font-size:11px" data-aseg="'+a.aseguradora+'" data-f="tel_siniestros" value="'+(a.tel_siniestros||'')+'"></div>'+
-        '<div><label style="color:var(--dim);display:block">Email</label><input class="form-input" style="width:100%;font-size:11px" data-aseg="'+a.aseguradora+'" data-f="email_siniestros" value="'+(a.email_siniestros||'')+'"></div>'+
-        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Portal (URL)</label><input class="form-input" style="width:100%;font-size:11px" data-aseg="'+a.aseguradora+'" data-f="portal" value="'+(a.portal||'')+'"></div>'+
-        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Auto</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+a.aseguradora+'" data-f="instrucciones_auto">'+(a.instrucciones_auto||'')+'</textarea></div>'+
-        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Hogar</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+a.aseguradora+'" data-f="instrucciones_hogar">'+(a.instrucciones_hogar||'')+'</textarea></div>'+
-        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Salud</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+a.aseguradora+'" data-f="instrucciones_salud">'+(a.instrucciones_salud||'')+'</textarea></div>'+
-        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Vida</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+a.aseguradora+'" data-f="instrucciones_vida">'+(a.instrucciones_vida||'')+'</textarea></div>'+
+        '<div><label style="color:var(--dim);display:block">Tel siniestros</label><input class="form-input" style="width:100%;font-size:11px" data-aseg="'+an+'" data-f="tel_siniestros" value="'+esc(a.tel_siniestros)+'"></div>'+
+        '<div><label style="color:var(--dim);display:block">Email</label><input class="form-input" style="width:100%;font-size:11px" data-aseg="'+an+'" data-f="email_siniestros" value="'+esc(a.email_siniestros)+'"></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Portal (URL)</label><input class="form-input" style="width:100%;font-size:11px" data-aseg="'+an+'" data-f="portal" value="'+esc(a.portal)+'"></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Auto</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+an+'" data-f="instrucciones_auto">'+esc(a.instrucciones_auto)+'</textarea></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Hogar</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+an+'" data-f="instrucciones_hogar">'+esc(a.instrucciones_hogar)+'</textarea></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Salud</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+an+'" data-f="instrucciones_salud">'+esc(a.instrucciones_salud)+'</textarea></div>'+
+        '<div style="grid-column:1/3"><label style="color:var(--dim);display:block">Instrucciones Vida</label><textarea class="form-input" style="width:100%;font-size:11px" rows="2" data-aseg="'+an+'" data-f="instrucciones_vida">'+esc(a.instrucciones_vida)+'</textarea></div>'+
       '</div>'+
-      '<div style="text-align:right;margin-top:8px"><button class="btn btn-sm btn-primary" onclick="_guardarAsegInfo_(\''+a.aseguradora+'\')">Guardar '+a.aseguradora+'</button></div>'+
+      '<div style="text-align:right;margin-top:8px"><button class="btn btn-sm btn-primary" onclick="_guardarAsegInfo_(\''+an.replace(/'/g,"\\\'")+'\')">Guardar '+an+'</button></div>'+
     '</div>';
   }).join('');
   overlay.innerHTML =
