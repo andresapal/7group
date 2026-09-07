@@ -735,6 +735,12 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
+      <!-- Banner alerta 5 dias para liquidar -->
+      <div id="comBanner5d" style="display:none;background:rgba(255,71,71,.08);border:1px solid rgba(255,71,71,.3);border-left:3px solid var(--red);padding:10px 14px;border-radius:8px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="font-size:12px;color:var(--red);font-weight:600" id="comBanner5dTxt"></div>
+        <button class="btn btn-sm" style="background:var(--red);color:#fff;border:none;font-weight:600" onclick="switchComSub('liquidar')">Ir a liquidar &rsaquo;</button>
+      </div>
+
       <!-- Sub-navegacion -->
       <div class="sub-nav" id="comSubNav">
         <a class="sub-tab active" data-sub="aseguralo" onclick="switchComSub('aseguralo')">
@@ -743,6 +749,11 @@ tbody tr:hover{background:var(--accent-light)}
         <a class="sub-tab" data-sub="sevengroup" onclick="switchComSub('sevengroup')">
           <span class="sub-lbl">Pagos comisiones</span>
           <span class="sub-count" id="cntLiqs">0</span>
+        </a>
+        <a class="sub-tab" data-sub="liquidar" onclick="switchComSub('liquidar')">
+          <span class="sub-lbl">Liquidar</span>
+          <span class="sub-count" id="cntCC">0</span>
+          <span class="sub-count" id="cntCCAlert" style="display:none;background:var(--red);color:#fff;margin-left:4px">0</span>
         </a>
         <a class="sub-tab" data-sub="asesores" onclick="switchComSub('asesores')">
           <span class="sub-lbl">Asesores</span>
@@ -803,6 +814,56 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
+      <!-- Sub: LIQUIDAR (generar cuenta de cobro por intermediario) -->
+      <div class="sub-section" id="sub-com-liquidar">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+          <div style="font-size:13px;color:var(--dim)">Generar cuenta de cobro por intermediario. Selecciona periodo y asesor, marca las polizas a incluir y genera el PDF. Sube automatico a Drive.</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <label style="font-size:11px;color:var(--dim);font-weight:600">Intermediario:</label>
+            <select id="ccIntermediario" class="form-input" style="width:180px;font-size:12px;padding:4px 8px" onchange="renderLiquidar()"></select>
+            <label style="font-size:11px;color:var(--dim);font-weight:600">Mes:</label>
+            <input type="month" id="ccMes" class="form-input" style="width:150px;font-size:12px;padding:4px 8px" onchange="renderLiquidar()">
+          </div>
+        </div>
+
+        <div id="ccResumen" style="margin-bottom:14px"></div>
+
+        <div class="tbl-wrap">
+          <div class="tbl-overflow">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:36px"><input type="checkbox" id="ccChkAll" onchange="toggleCcAll(this)"></th>
+                  <th>Aseguradora</th>
+                  <th>Fecha Pago</th>
+                  <th>Dias</th>
+                  <th>Ramo</th>
+                  <th>Tomador</th>
+                  <th>Poliza</th>
+                  <th>Prima</th>
+                  <th>% Pactado</th>
+                  <th>Comision neta</th>
+                </tr>
+              </thead>
+              <tbody id="liquidarTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="ccTotales" style="margin-top:14px"></div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="generarCuentaCobro()" style="background:var(--accent);color:#fff;border:none;padding:10px 20px;font-weight:600">Generar cuenta de cobro</button>
+        </div>
+
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--dim);font-weight:600;margin-bottom:8px">CUENTAS DE COBRO GENERADAS</div>
+          <div class="tbl-wrap"><div class="tbl-overflow"><table>
+            <thead><tr><th>Consecutivo</th><th>Intermediario</th><th>Periodo</th><th>Total pagado</th><th>Estado</th><th>PDF</th><th>WhatsApp</th></tr></thead>
+            <tbody id="ccHistTable"></tbody>
+          </table></div></div>
+        </div>
+      </div>
+
       <!-- Sub: CONDICIONES por tipo de poliza (IVA / % Comision / % Impuesto) -->
       <div class="sub-section" id="sub-com-condiciones">
         <div style="font-size:13px;color:var(--dim);margin-bottom:12px">% IVA sobre prima, % Comision sobre prima antes de IVA, % Impuesto sobre la comision. Editable por admin/dueño. Se aplica a polizas NUEVAS — las emitidas antes conservan sus valores.</div>
@@ -838,7 +899,7 @@ tbody tr:hover{background:var(--accent-light)}
             <table>
               <thead>
                 <tr>
-                  <th>Intermediario</th><th>Tipo</th><th>% Asesor</th><th>% Fabian</th><th>Activo</th><th>Email login</th><th>Guardar</th>
+                  <th>Intermediario</th><th>Tipo</th><th>% Asesor</th><th>% Fabian</th><th>Activo</th><th>Email login</th><th>Cedula</th><th>Regimen</th><th>Telefono WA</th><th>Guardar</th>
                 </tr>
               </thead>
               <tbody id="asesoresTable"></tbody>
@@ -2339,6 +2400,7 @@ function _initAppReal(){
     if(typeof loadIntermediariosFull_==='function')     loadIntermediariosFull_();
     if(typeof loadConfigFromSheet_==='function')        loadConfigFromSheet_();
     if(typeof loadCarteraFromSheet_==='function')       loadCarteraFromSheet_();
+    if(typeof loadCuentasCobroHist_==='function')       loadCuentasCobroHist_();
     renderPolizas();
     renderCotizador();
     renderDashboard();
@@ -2546,6 +2608,7 @@ window.switchComSub=function(sub){
   // Admin y dueño (Fabian) pueden VER el tab Asesores. Solo admin puede MODIFICAR (control en el render).
   if(sub==='asesores' && !libre){ alert('Solo admin/dueno.'); return; }
   if(sub==='netoFabian' && !libre){ alert('Solo admin/dueno.'); return; }
+  if(sub==='liquidar' && !libre){ alert('Solo admin/dueno.'); return; }
   document.querySelectorAll('#comSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
   var tab=document.querySelector('#comSubNav .sub-tab[data-sub="'+sub+'"]'); if(tab) tab.classList.add('active');
   document.querySelectorAll('#mod-comisiones .sub-section').forEach(function(s){s.classList.remove('active')});
@@ -2554,6 +2617,10 @@ window.switchComSub=function(sub){
   if(sub==='condiciones') renderReglasRamos_();
   if(sub==='netoFabian')  renderNetoFabian();
   if(sub==='sevengroup')  { if(typeof renderLiquidaciones==='function') renderLiquidaciones(); }
+  if(sub==='liquidar'){
+    if(typeof renderLiquidar==='function') renderLiquidar();
+    if(typeof loadCuentasCobroHist_==='function') loadCuentasCobroHist_();
+  }
 };
 
 /* Sub-navegacion dentro de Cotizador: inbox / curso / sarlaft / emitir */
@@ -2998,22 +3065,27 @@ window.marcarEnviada = function(leadId){
 
 /* Registra la poliza en CARTERA. Envia al backend (action 'cartera-create') y refresca. */
 function _registrarEnCartera_(lead, emitida){
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
+                  localStorage.getItem('aseg_erp_auth') || '';
   var payload = {
     action: 'cartera-create',
+    email: emailAuth,
     poliza: emitida.poliza||'',
     tomador: lead.nombre||'',
     aseguradora: emitida.aseguradora||'',
     prima: Number(emitida.prima)||0,
     fecha_emision: new Date().toISOString().slice(0,10),
-    lead_id: lead.id
+    lead_id: lead.id,
+    intermediario: lead.intermediario||'' // explicito, evita busqueda extra en el backend
   };
   fetch(APPS_SCRIPT_URL, {
     method:'POST', mode:'no-cors',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body: JSON.stringify(payload)
   }).catch(function(){});
-  // Refresca cartera local para reflejar el cambio de inmediato
-  setTimeout(function(){ if(typeof loadCarteraFromSheet_==='function') loadCarteraFromSheet_(); }, 800);
+  // Refresca cartera local para reflejar el cambio (dar tiempo al backend)
+  setTimeout(function(){ if(typeof loadCarteraFromSheet_==='function') loadCarteraFromSheet_(); }, 1500);
 }
 
 /* ====================================
@@ -3254,8 +3326,21 @@ function calcularAlertasHome_(POL_VIEW){
     vencidas: { total:0, p5d:0, hoy:0, monto:0 },
     renovar:  { total:0, m30:0, m15:0, hoy:0, monto:0 },
     cartera:  { total:0, monto:0, vencidas:0, x_vencer:0 },
-    autoriz:  { total:0, sarlaft:0, x_emitir:0 }
+    autoriz:  { total:0, sarlaft:0, x_emitir:0 },
+    porLiquidar: { total:0, vencidas5d:0, monto:0 }  // Fase 4: comisiones cobradas sin liquidar
   };
+  // Comisiones cobradas sin liquidar (5 dias limite)
+  if(typeof LIQUIDACIONES !== 'undefined' && LIQUIDACIONES && LIQUIDACIONES.length){
+    var LIQ_VIEW = filtrarPorPermiso_(LIQUIDACIONES, 'intermediario');
+    LIQ_VIEW.forEach(function(l){
+      if(l.estado_pago_aseguralo !== 'cobrado') return;
+      if(String(l.liquidada||'no').toLowerCase() === 'si') return;
+      var diasCobrado = _diasDesde(l.fecha_pago_aseguralo);
+      a.porLiquidar.total++;
+      a.porLiquidar.monto += Number(l.com_asesor)||0;
+      if(diasCobrado > 5) a.porLiquidar.vencidas5d++;
+    });
+  }
   POL_VIEW.forEach(function(p){
     var d = _diasParaVencer(p.hasta);
     if(d === null) return;
@@ -3475,6 +3560,9 @@ window.marcarPagadaCartera_ = function(id){
   var c = CARTERA.filter(function(x){return x.id===id})[0];
   if(!c) return;
   if(!confirm('Marcar poliza '+c.poliza+' ('+c.tomador+') como PAGADA?\n\nEsto la mueve de Pendientes → Pagadas y alimenta COMISIONES.')) return;
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
+                  localStorage.getItem('aseg_erp_auth') || '';
   // Optimista: actualiza local, envia al backend
   c.estado = 'Pagada';
   c.fecha_pago = new Date().toISOString().slice(0,10);
@@ -3482,13 +3570,295 @@ window.marcarPagadaCartera_ = function(id){
   fetch(APPS_SCRIPT_URL, {
     method:'POST', mode:'no-cors',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify({action:'cartera-update', id:id, estado:'Pagada'})
+    body: JSON.stringify({action:'cartera-update', email:emailAuth, id:id, estado:'Pagada'})
   }).catch(function(){});
   // Refresca cache
   try{ localStorage.setItem(CARTERA_CACHE_KEY, JSON.stringify({rows:CARTERA})); }catch(e){}
   // Refresca card del home POLIZAS
   if(typeof renderPolizas === 'function') renderPolizas();
 };
+
+/* ============================================================
+   LIQUIDAR — generacion de cuenta de cobro por intermediario (Fase 3)
+   Usa LIQUIDACIONES filtradas por intermediario + mes.
+   Genera PDF via backend, sube a Drive, opcion enviar por WhatsApp.
+   ============================================================ */
+var CUENTAS_COBRO_HIST = [];
+var LIQUIDAR_SELECCION = {}; // id-liq -> true si esta marcada
+
+function loadCuentasCobroHist_(){
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  fetch(APPS_SCRIPT_URL + '?action=cuentas-cobro&email=' + encodeURIComponent(emailAuth), {redirect:'follow'})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j && j.status==='ok'){
+        CUENTAS_COBRO_HIST = j.rows||[];
+        renderCcHist();
+        var cnt = document.getElementById('cntCC'); if(cnt) cnt.textContent = CUENTAS_COBRO_HIST.length;
+        _actualizarBadgeLiquidar_();
+      }
+    }).catch(function(){});
+}
+
+/* Actualiza badge rojo sub-tab Liquidar + banner alerta comisiones cobradas
+   sin liquidar (>5 dias = alerta). Se llama cuando cambian LIQUIDACIONES o CC. */
+function _actualizarBadgeLiquidar_(){
+  var alertBadge = document.getElementById('cntCCAlert');
+  var banner = document.getElementById('comBanner5d');
+  var bannerTxt = document.getElementById('comBanner5dTxt');
+  var libre = (typeof CURRENT_USER!=='undefined') && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
+  if(!libre){ // asesor no ve alerta de liquidar
+    if(alertBadge) alertBadge.style.display='none';
+    if(banner) banner.style.display='none';
+    return;
+  }
+  if(typeof LIQUIDACIONES === 'undefined' || !LIQUIDACIONES){
+    if(alertBadge) alertBadge.style.display='none';
+    if(banner) banner.style.display='none';
+    return;
+  }
+  var LIQ_VIEW = filtrarPorPermiso_(LIQUIDACIONES, 'intermediario');
+  var vencidas5d = 0, montoVencido = 0;
+  LIQ_VIEW.forEach(function(l){
+    if(l.estado_pago_aseguralo !== 'cobrado') return;
+    if(String(l.liquidada||'no').toLowerCase() === 'si') return;
+    var d = _diasDesde(l.fecha_pago_aseguralo);
+    if(d > 5){ vencidas5d++; montoVencido += Number(l.com_asesor)||0; }
+  });
+  if(alertBadge){
+    if(vencidas5d > 0){
+      alertBadge.textContent = vencidas5d;
+      alertBadge.style.display = '';
+      alertBadge.title = vencidas5d+' comision(es) cobrada(s) hace mas de 5 dias sin liquidar';
+    } else {
+      alertBadge.style.display = 'none';
+    }
+  }
+  if(banner && bannerTxt){
+    if(vencidas5d > 0){
+      bannerTxt.innerHTML = '<strong>'+vencidas5d+' comision(es) vencen el plazo de 5 dias para liquidar</strong> · '+fmt(montoVencido)+' pendientes de generar cuenta de cobro';
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+}
+
+function _liquidacionesElegibles_(intermed, yyyymm){
+  // Elegibles: aseguradora pago (estado 'cobrado') Y no marcada como liquidada.
+  return (LIQUIDACIONES||[]).filter(function(l){
+    if(String(l.intermediario||'').toLowerCase() !== String(intermed||'').toLowerCase()) return false;
+    if(l.estado_pago_aseguralo !== 'cobrado') return false;
+    if(String(l.liquidada||'no').toLowerCase() === 'si') return false; // ya incluida en una CC anterior
+    if(!yyyymm) return true;
+    var f = String(l.fecha_pago_aseguralo||l.fecha_venta||'');
+    return f.slice(0,7) === yyyymm;
+  });
+}
+
+function _poblarCcIntermediarios_(){
+  var sel = document.getElementById('ccIntermediario'); if(!sel) return;
+  var current = sel.value;
+  var opts = ['<option value="">— Selecciona intermediario —</option>'];
+  (INTERMED_FULL||[]).filter(function(x){return x.activo!=='no'}).forEach(function(x){
+    opts.push('<option value="'+x.nombre+'">'+x.nombre+(x.cedula?' (C.C. '+x.cedula+')':' (sin cedula)')+'</option>');
+  });
+  sel.innerHTML = opts.join('');
+  if(current) sel.value = current;
+}
+
+function _setMesDefault_(){
+  var inp = document.getElementById('ccMes'); if(!inp || inp.value) return;
+  var d = new Date();
+  inp.value = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+
+function renderLiquidar(){
+  _poblarCcIntermediarios_();
+  _setMesDefault_();
+  var intermed = document.getElementById('ccIntermediario').value;
+  var mes = document.getElementById('ccMes').value;
+  var tb = document.getElementById('liquidarTable'); if(!tb) return;
+  var resumenEl = document.getElementById('ccResumen');
+  var totalesEl = document.getElementById('ccTotales');
+  LIQUIDAR_SELECCION = {};
+
+  if(!intermed){
+    tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--dim);font-size:13px">Selecciona un intermediario para ver sus comisiones a liquidar.</td></tr>';
+    if(resumenEl) resumenEl.innerHTML = '';
+    if(totalesEl) totalesEl.innerHTML = '';
+    return;
+  }
+  var inter = (INTERMED_FULL||[]).filter(function(x){return x.nombre===intermed})[0];
+  var lista = _liquidacionesElegibles_(intermed, mes);
+
+  // Resumen del intermediario
+  if(resumenEl && inter){
+    var advCedula = inter.cedula ? '' : '<div style="color:var(--red);font-size:11px;font-weight:600;margin-top:4px">Falta cedula. Registrala en pestaña Asesores antes de generar.</div>';
+    var regimenLbl = {no_declarante:'No declarante (ReteFuente 4%)', declarante:'Declarante (ReteFuente 11%)', no_aplica:'No sujeto a retencion'}[inter.regimen||'no_declarante'];
+    resumenEl.innerHTML =
+      '<div style="background:var(--bg2);padding:12px 16px;border-radius:8px;border-left:3px solid var(--accent);font-size:12px">'+
+        '<strong>'+(inter.nombreFormal||inter.nombre)+'</strong> · C.C. '+(inter.cedula||'—')+' · <span style="color:var(--dim)">'+regimenLbl+'</span>'+
+        advCedula+
+      '</div>';
+  }
+
+  if(!lista.length){
+    tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--dim);font-size:13px">Sin comisiones cobradas para este intermediario en el periodo seleccionado.</td></tr>';
+    if(totalesEl) totalesEl.innerHTML = '';
+    return;
+  }
+  tb.innerHTML = lista.map(function(l){
+    LIQUIDAR_SELECCION[l.id] = true; // por defecto todas marcadas
+    var dias = _diasDesde(l.fecha_pago_aseguralo);
+    var diasColor = dias > 5 ? 'var(--red)' : (dias > 3 ? 'var(--orange)' : 'var(--dim)');
+    var diasWeight = dias > 5 ? '700' : '500';
+    var diasBadge = dias > 5
+      ? '<span style="background:rgba(255,71,71,.15);color:var(--red);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">Vencido '+dias+'d</span>'
+      : '<span style="color:'+diasColor+';font-weight:'+diasWeight+'">'+dias+'d</span>';
+    return '<tr>'+
+      '<td><input type="checkbox" class="cc-chk" data-id="'+l.id+'" checked onchange="_recalcCcTotales_()"></td>'+
+      '<td style="font-size:11px">'+(l.aseguradora||'—')+'</td>'+
+      '<td style="font-size:11px">'+(l.fecha_pago_aseguralo||l.fecha_venta||'').slice(0,10)+'</td>'+
+      '<td style="font-size:11px">'+diasBadge+'</td>'+
+      '<td style="font-size:11px">'+(l.tipo||'—')+'</td>'+
+      '<td>'+(l.cliente||'—')+'</td>'+
+      '<td class="mono" style="font-size:11px">'+(l.poliza||'—')+'</td>'+
+      '<td class="mono">'+fmt(Number(l.prima)||0)+'</td>'+
+      '<td class="mono" style="font-size:11px">'+(l.pct_asesor||0)+'%</td>'+
+      '<td class="mono" style="font-weight:700;color:var(--accent)">'+fmt(Number(l.com_asesor)||0)+'</td>'+
+    '</tr>';
+  }).join('');
+  _recalcCcTotales_();
+}
+
+window._recalcCcTotales_ = function(){
+  var chks = document.querySelectorAll('.cc-chk');
+  var subtotal = 0, n = 0;
+  chks.forEach(function(c){
+    LIQUIDAR_SELECCION[c.dataset.id] = c.checked;
+    if(c.checked){
+      var l = (LIQUIDACIONES||[]).filter(function(x){return x.id===c.dataset.id})[0];
+      if(l){ subtotal += Number(l.com_asesor)||0; n++; }
+    }
+  });
+  var intermed = document.getElementById('ccIntermediario').value;
+  var inter = (INTERMED_FULL||[]).filter(function(x){return x.nombre===intermed})[0];
+  var regimen = (inter && inter.regimen) || 'no_declarante';
+  // Preview retenciones (mismo calculo que backend)
+  var rf = 0, ri = 0;
+  if(subtotal >= 200000){
+    if(regimen === 'declarante')        rf = Math.round(subtotal * 0.11);
+    else if(regimen === 'no_declarante') rf = Math.round(subtotal * 0.04);
+  }
+  if(regimen !== 'no_aplica') ri = Math.round(subtotal * 0.00966);
+  var total = subtotal - rf - ri;
+  var el = document.getElementById('ccTotales'); if(!el) return;
+  el.innerHTML =
+    '<div style="background:var(--bg2);padding:12px 16px;border-radius:8px;font-size:12px">'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Polizas seleccionadas:</span> <strong>'+n+'</strong></div>'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Subtotal comisiones:</span> <strong>'+fmt(subtotal)+'</strong></div>'+
+      (rf>0?'<div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--red)"><span>ReteFuente:</span> <strong>-'+fmt(rf)+'</strong></div>':'')+
+      (ri>0?'<div style="display:flex;justify-content:space-between;margin-bottom:4px;color:var(--red)"><span>ReteICA Bogota (9.66‰):</span> <strong>-'+fmt(ri)+'</strong></div>':'')+
+      (rf===0&&ri===0?'<div style="font-size:11px;color:var(--dim);font-style:italic;margin-bottom:4px">Sin retenciones (regimen o subtotal bajo umbral)</div>':'')+
+      '<div style="display:flex;justify-content:space-between;padding-top:8px;margin-top:6px;border-top:1px solid var(--border);color:var(--accent);font-size:14px"><span>Total a pagar:</span> <strong>'+fmt(total)+'</strong></div>'+
+    '</div>';
+};
+
+window.toggleCcAll = function(chk){
+  document.querySelectorAll('.cc-chk').forEach(function(c){ c.checked = chk.checked; });
+  _recalcCcTotales_();
+};
+
+window.generarCuentaCobro = function(){
+  var intermed = document.getElementById('ccIntermediario').value;
+  var mes = document.getElementById('ccMes').value;
+  if(!intermed) return alert('Selecciona un intermediario.');
+  var inter = (INTERMED_FULL||[]).filter(function(x){return x.nombre===intermed})[0];
+  if(!inter || !inter.cedula) return alert('El intermediario no tiene cedula registrada. Ve a pestaña Asesores y completala.');
+
+  var seleccionadas = (LIQUIDACIONES||[]).filter(function(l){ return LIQUIDAR_SELECCION[l.id]; });
+  if(!seleccionadas.length) return alert('Marca al menos una poliza para incluir.');
+
+  var lineas = seleccionadas.map(function(l){
+    return {
+      concepto: 'COMISION '+(l.tipo||'')+' - '+(l.poliza||'')+' - '+(l.cliente||''),
+      monto: Number(l.com_asesor)||0
+    };
+  });
+  var liqIds = seleccionadas.map(function(l){ return l.id; });
+  var periodo = '';
+  if(mes){
+    var mm = parseInt(mes.slice(5,7),10);
+    var meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+    periodo = meses[mm-1]+' '+mes.slice(0,4);
+  }
+  var btn = event && event.target; if(btn){ btn.disabled=true; btn.textContent='Generando PDF...'; }
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  // Aqui SI usamos mode:'cors' porque necesitamos leer la respuesta con el URL del PDF.
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({
+      action:'cuenta-cobro-generar',
+      email: emailAuth,
+      intermediario: intermed,
+      periodo: periodo,
+      lineas: lineas,
+      liq_ids: liqIds
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(j){
+    if(btn){ btn.disabled=false; btn.textContent='Generar cuenta de cobro'; }
+    if(j && j.status==='ok'){
+      alert('Cuenta de cobro '+j.consecutivo+' generada.\nTotal a pagar: '+fmt(j.totalPagar)+'\n\nEl PDF esta en Drive.');
+      // Refrescar tanto historial CC como LIQUIDACIONES (las marcadas ya no reaparecen)
+      loadCuentasCobroHist_();
+      if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
+      setTimeout(function(){ renderLiquidar(); }, 1500);
+    } else {
+      alert('Error: '+(j.error||'no se pudo generar la cuenta de cobro'));
+    }
+  })
+  .catch(function(err){
+    if(btn){ btn.disabled=false; btn.textContent='Generar cuenta de cobro'; }
+    alert('Error de red: '+err.message);
+  });
+};
+
+function renderCcHist(){
+  var tb = document.getElementById('ccHistTable'); if(!tb) return;
+  if(!CUENTAS_COBRO_HIST.length){
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim);font-size:12px">Sin cuentas de cobro generadas.</td></tr>';
+    return;
+  }
+  tb.innerHTML = CUENTAS_COBRO_HIST.slice().reverse().map(function(cc){
+    var inter = (INTERMED_FULL||[]).filter(function(x){return x.nombre===cc.intermediario})[0];
+    var tel = inter && inter.telefono ? String(inter.telefono).replace(/[^0-9]/g,'') : '';
+    var msg = encodeURIComponent(
+      'Hola '+(cc.intermediario||'')+', adjunto tu cuenta de cobro '+cc.consecutivo+
+      ' por comisiones del periodo '+cc.periodo+'.\n\nTotal a pagar: $'+cc.totalPagar.toLocaleString('es-CO')+
+      '\n\nPDF: '+cc.pdf_url
+    );
+    // Si tenemos telefono → wa.me/57xxx directo. Si no → wa.me/?text=... para que Fabian escoja contacto
+    var waHref = tel
+      ? 'https://wa.me/57'+tel+'?text='+msg
+      : 'https://wa.me/?text='+msg;
+    var waLbl = tel ? 'WA directo' : 'WA (elegir)';
+    return '<tr>'+
+      '<td class="mono"><strong>'+cc.consecutivo+'</strong></td>'+
+      '<td>'+cc.intermediario+'</td>'+
+      '<td>'+cc.periodo+'</td>'+
+      '<td class="mono" style="color:var(--accent);font-weight:700">'+fmt(cc.totalPagar)+'</td>'+
+      '<td><span class="badge badge-activa" style="font-size:10px">'+cc.estado+'</span></td>'+
+      '<td><a href="'+cc.pdf_url+'" target="_blank" class="btn btn-sm" style="font-size:10px">Ver PDF</a></td>'+
+      '<td><a href="'+waHref+'" target="_blank" class="btn btn-sm btn-wa-solid" style="font-size:10px">'+waLbl+'</a></td>'+
+    '</tr>';
+  }).join('');
+}
 
 function renderPolizas(filter){
   // Filtro por rol: asesor solo ve sus polizas
@@ -4058,6 +4428,7 @@ function loadLiquidacionesFromSheet(){
       LIQUIDACIONES = j.rows||[];
       renderLiquidaciones();
       if(typeof renderComisionesMes==='function') renderComisionesMes();
+      if(typeof _actualizarBadgeLiquidar_==='function') _actualizarBadgeLiquidar_();
     }).catch(function(){});
 }
 
@@ -4142,7 +4513,7 @@ function renderAsesores(){
   var puedeEditar = (typeof CURRENT_USER!=='undefined') && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
   var pinta = function(){
     if(!INTERMED_FULL.length){
-      tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Cargando catalogo...</td></tr>';
+      tb.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:32px;color:var(--muted);font-size:13px">Cargando catalogo...</td></tr>';
       return;
     }
     var dis = puedeEditar ? '' : 'disabled';
@@ -4174,6 +4545,15 @@ function renderAsesores(){
           ['si','no'].map(function(v){return '<option '+(x.activo===v?'selected':'')+'>'+v+'</option>';}).join('')+
         '</select></td>'+
         '<td><input class="form-input" data-f="email" value="'+(x.email||'')+'" style="font-size:12px" placeholder="correo@dominio.com" '+disFila+'></td>'+
+        '<td><input class="form-input mono" data-f="cedula" value="'+(x.cedula||'')+'" style="font-size:11px;width:100px" placeholder="79.914.033" '+disFila+'></td>'+
+        '<td><select class="form-input" data-f="regimen" style="font-size:11px;padding:4px 6px;width:110px" '+disFila+'>'+
+          [
+            {v:'no_declarante',l:'No declarante'},
+            {v:'declarante',l:'Declarante'},
+            {v:'no_aplica',l:'No aplica'}
+          ].map(function(o){return '<option value="'+o.v+'" '+((x.regimen||'no_declarante')===o.v?'selected':'')+'>'+o.l+'</option>'}).join('')+
+        '</select></td>'+
+        '<td><input class="form-input mono" data-f="telefono" value="'+(x.telefono||'')+'" style="font-size:11px;width:110px" placeholder="3143095194" '+disFila+'></td>'+
         '<td>'+ (puedeEditar && !(protegida && !soyAdmin7g)
           ? '<button class="btn btn-sm btn-primary" onclick="guardarAsesor_(this)">Guardar</button><span class="save-status" style="display:block;font-size:10px;color:var(--muted);margin-top:2px"></span>'
           : '<span style="font-size:10px;color:var(--muted)">sin permiso</span>'
@@ -4344,6 +4724,9 @@ window.guardarAsesor_ = function(btn){
         INTERMED_FULL[idx].activo = payload.activo;
         INTERMED_FULL[idx].tipo = payload.tipo;
         INTERMED_FULL[idx].email = payload.email;
+        if(payload.cedula   !== undefined) INTERMED_FULL[idx].cedula   = payload.cedula;
+        if(payload.regimen  !== undefined) INTERMED_FULL[idx].regimen  = payload.regimen;
+        if(payload.telefono !== undefined) INTERMED_FULL[idx].telefono = payload.telefono;
       }
       if(status){ status.textContent = 'guardado'; status.style.color='var(--green)'; setTimeout(function(){status.textContent='';},2000); }
     }).catch(function(err){
