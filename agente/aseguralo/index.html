@@ -328,13 +328,11 @@ tbody tr:hover{background:var(--accent-light)}
 <body>
 
 <!-- SPLASH INTRO ASEGURALO (~3.2s. Fondo oscuro brand + logo HD + sonido intro tipo streaming) -->
-<div id="asegSplash" onclick="asegSplashOut()" style="position:fixed;inset:0;z-index:99999;background:radial-gradient(ellipse at center, #17233b 0%, #0a1424 70%, #050b17 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .5s ease;overflow:hidden">
-  <div id="asegHalo" style="position:absolute;width:900px;height:900px;border-radius:50%;background:radial-gradient(circle, rgba(69,170,255,.22) 0%, rgba(69,170,255,.06) 40%, transparent 70%);opacity:0;animation:asegHaloIn 1.4s .1s ease-out forwards"></div>
-  <img src="/logo-aseguralo.png" alt="Aseguralo" style="position:relative;max-width:min(72vw,720px);width:100%;height:auto;opacity:0;transform:scale(.88);filter:drop-shadow(0 8px 40px rgba(69,170,255,.35));image-rendering:-webkit-optimize-contrast;image-rendering:crisp-edges;animation:asegLogoIn 1.1s .2s cubic-bezier(.2,.9,.3,1.15) forwards">
+<div id="asegSplash" onclick="asegSplashOut()" style="position:fixed;inset:0;z-index:99999;background:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .5s ease;overflow:hidden">
+  <img src="/logo-aseguralo.png" alt="Aseguralo" style="position:relative;max-width:min(60vw,420px);height:auto;opacity:0;transform:scale(.92);image-rendering:-webkit-optimize-contrast;animation:asegLogoIn 1.1s .2s cubic-bezier(.2,.9,.3,1.15) forwards">
 </div>
 <style>
-  @keyframes asegHaloIn    { 0%{opacity:0;transform:scale(.6)} 60%{opacity:1} 100%{opacity:.85;transform:scale(1.05)} }
-  @keyframes asegLogoIn    { 0%{opacity:0;transform:scale(.88)} 100%{opacity:1;transform:scale(1)} }
+  @keyframes asegLogoIn    { 0%{opacity:0;transform:scale(.92)} 100%{opacity:1;transform:scale(1)} }
   @keyframes asegSplashOut { to { opacity:0; visibility:hidden; } }
   #asegSplash.out { animation: asegSplashOut .55s ease forwards; }
 </style>
@@ -378,13 +376,23 @@ tbody tr:hover{background:var(--accent-light)}
           bell.start(now+1.1); bell.stop(now+2.15);
         }catch(e){}
       };
-      // Muchos navegadores requieren interaccion; si esta suspendido, se dispara al primer click.
+      // Muchos navegadores requieren interaccion; movil bloquea hasta touchstart/pointerdown.
       if(ctx.state === 'suspended'){
-        var resume = function(){ ctx.resume().then(play); document.removeEventListener('click', resume); document.removeEventListener('keydown', resume); };
-        document.addEventListener('click', resume, {once:true});
-        document.addEventListener('keydown', resume, {once:true});
+        var yaSono = false;
+        var resume = function(){
+          if(yaSono) return; yaSono = true;
+          ctx.resume().then(play).catch(function(){});
+          document.removeEventListener('click', resume);
+          document.removeEventListener('touchstart', resume);
+          document.removeEventListener('pointerdown', resume);
+          document.removeEventListener('keydown', resume);
+        };
+        document.addEventListener('click', resume, {passive:true});
+        document.addEventListener('touchstart', resume, {passive:true});
+        document.addEventListener('pointerdown', resume, {passive:true});
+        document.addEventListener('keydown', resume);
         // Intento adicional inmediato (Chrome desktop suele permitirlo)
-        ctx.resume().then(play).catch(function(){});
+        ctx.resume().then(function(){ if(!yaSono){ yaSono = true; play(); } }).catch(function(){});
       } else {
         play();
       }
@@ -1995,16 +2003,23 @@ function loadFromSheet(callback){
     if(callback)callback(true);
   }
 
-  // 2. Intento con timeout 8s + 1 reintento
-  var intentos = 0, MAX_INTENTOS = 2, TIMEOUT_MS = 8000, REINTENTO_MS = 3000;
+  // 2. Intento con timeout 12s + 1 reintento
+  var intentos = 0, MAX_INTENTOS = 2, TIMEOUT_MS = 12000, REINTENTO_MS = 3000;
   function intentarSync(){
     intentos++;
     var controller=new AbortController();
     var to=setTimeout(function(){ controller.abort(); }, TIMEOUT_MS);
-    fetch(APPS_SCRIPT_URL,{redirect:'follow',signal:controller.signal})
+    // BLINDAJE: inyectar email directo aqui, sin depender del interceptor global.
+    var _emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                     (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
+                     localStorage.getItem('aseg_erp_auth') || '';
+    var _url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.indexOf('?')>=0?'&':'?') + 'email=' + encodeURIComponent(_emailAuth);
+    fetch(_url,{redirect:'follow',signal:controller.signal})
       .then(function(res){ return res.json(); })
       .then(function(data){
         clearTimeout(to);
+        // Log defensivo si backend rechaza por auth
+        if(data && data.error){ console.warn('[loadFromSheet] backend error:', data.error, 'email usado:', _emailAuth); }
         if(data&&data.status==='ok'&&data.rows){
           try{
             localStorage.setItem(SHEET_CACHE_KEY,JSON.stringify(data));
