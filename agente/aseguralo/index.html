@@ -117,6 +117,24 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .kpi-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
 .kpi-val{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
 .kpi-sub{font-size:11px;color:var(--dim);margin-top:6px;display:flex;align-items:center;gap:4px}
+/* HUB de alertas — desglose interno del KPI card */
+.kpi-card.alert{cursor:default}
+.kpi-card.alert .kpi-val{font-size:22px;margin-bottom:8px}
+.kpi-drill{display:flex;flex-direction:column;gap:4px;margin-top:6px;padding-top:8px;border-top:1px dashed var(--border)}
+.kpi-drill-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px;border-radius:4px;font-size:11px;cursor:pointer;transition:background .12s}
+.kpi-drill-item:hover{background:var(--brand-light)}
+.kpi-drill-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.kpi-drill-item .lbl{color:var(--text);font-weight:500;flex:1}
+.kpi-drill-item .cnt{color:var(--text);font-weight:700;font-size:12px}
+.kpi-drill-item .arrow{color:var(--dim);font-size:10px;opacity:0;transition:opacity .12s}
+.kpi-drill-item:hover .arrow{opacity:1}
+.kpi-drill-item.zero{opacity:.45;cursor:default}
+.kpi-drill-item.zero:hover{background:transparent}
+.dot.g{background:var(--green)}.dot.y{background:var(--orange)}.dot.o{background:#ff8c42}.dot.r{background:var(--red)}
+.kpi-alert-hint{font-size:10px;color:var(--dim);margin-top:8px;text-align:center;font-style:italic}
+/* Chip filtro activo arriba de tabla polizas */
+.pol-filter-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:20px;font-size:11px;font-weight:600;color:var(--accent);margin-bottom:12px}
+.pol-filter-chip .x{cursor:pointer;padding:0 4px;font-weight:700}
 .kpi-up{color:var(--green)}.kpi-down{color:var(--red)}
 
 /* CHARTS */
@@ -461,12 +479,13 @@ tbody tr:hover{background:var(--accent-light)}
   <nav class="mod-nav" id="modNav">
     <a class="mod-link active" data-mod="polizas">Polizas</a>
     <a class="mod-link" data-mod="cotizador">Cotizador</a>
-    <a class="mod-link" data-mod="dashboard">KPIs</a>
+    <a class="mod-link" data-mod="cartera">Cartera</a>
     <a class="mod-link" data-mod="comisiones">Comisiones</a>
-    <a class="mod-link" data-mod="facturacion">Facturacion</a>
     <a class="mod-link" data-mod="renovaciones">Renovaciones</a>
+    <a class="mod-link" data-mod="dashboard">KPIs</a>
+    <a class="mod-link" data-mod="facturacion" style="display:none">Facturacion</a>
     <a class="mod-link" data-mod="siniestros" style="display:none">Siniestros</a>
-    <a class="mod-link" data-mod="clientes">Clientes</a>
+    <a class="mod-link" data-mod="clientes" style="display:none">Clientes</a>
   </nav>
 
   <div class="main">
@@ -484,6 +503,8 @@ tbody tr:hover{background:var(--accent-light)}
       </div>
 
       <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="polizasKpi"></div>
+
+      <div id="polFiltroAlerta"></div>
 
       <div class="tbl-wrap">
         <div class="tbl-overflow">
@@ -653,6 +674,56 @@ tbody tr:hover{background:var(--accent-light)}
           <div class="tbl-title">Actividad Reciente</div>
         </div>
         <div class="feed" id="feedList"></div>
+      </div>
+    </section>
+
+    <!-- CARTERA — Recibe polizas emitidas en COTIZADOR/emitir. Alerta 25d si tomador no ha pagado. -->
+    <section class="mod-section" id="mod-cartera">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Cartera</div>
+          <div class="sec-sub">Polizas emitidas por cobrar. Alerta a los 25 dias calendario si el tomador no ha pagado.</div>
+        </div>
+        <div class="hdr-actions">
+          <input class="tbl-search" placeholder="Buscar poliza o tomador..." id="searchCartera" oninput="filterCartera()">
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="carteraKpi"></div>
+
+      <div class="sub-nav" id="carteraSubNav" style="margin-bottom:12px">
+        <a class="sub-tab active" data-sub="pendientes" onclick="switchCarSub('pendientes')">
+          <span class="sub-lbl">Pendientes</span>
+          <span class="sub-count" id="carPendCount">0</span>
+        </a>
+        <a class="sub-tab" data-sub="pagadas" onclick="switchCarSub('pagadas')">
+          <span class="sub-lbl">Pagadas</span>
+          <span class="sub-count" id="carPagCount">0</span>
+        </a>
+      </div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>No. Poliza</th>
+                <th>Tomador</th>
+                <th>Aseguradora</th>
+                <th>Prima</th>
+                <th>Emitida</th>
+                <th>Dias transcurridos</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="carteraTable">
+              <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--dim);font-size:13px">
+                Modulo en construccion. En la proxima fase se conecta con el backend y se llena automaticamente cuando confirmes emisiones desde COTIZADOR/emitir.
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -1478,7 +1549,7 @@ function filtrarPorPermiso_(arr, campo){
 function puedeVerModulo_(mod){
   if(esUsuarioSinRestriccion_()) return true;
   // Para asesor: solo estos modulos
-  var permitidos = {dashboard:1, cotizador:1, polizas:1, comisiones:1, renovaciones:1, siniestros:1, clientes:1};
+  var permitidos = {dashboard:1, cotizador:1, polizas:1, cartera:1, comisiones:1, renovaciones:1, siniestros:1, clientes:1};
   return !!permitidos[mod];
 }
 
@@ -2883,11 +2954,20 @@ window.enviarPolizaWA = function(leadId){
 
 /* Flujo emision (paso 3): marcar como enviada → lead pasa a Convertido y sale de POR EMITIR. */
 window.marcarEnviada = function(leadId){
-  if(!confirm('Marcar esta poliza como YA ENVIADA al cliente?\n\nEl prospecto pasa a Convertido y sale de POR EMITIR.')) return;
   var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
+  var emitida = (window._POL_EMITIDAS||{})[leadId] || {};
+  var msg = 'Confirmar que la POLIZA ha sido EMITIDA:\n\n'+
+            '  Cliente: '+lead.nombre+'\n'+
+            '  Poliza: '+(emitida.poliza||'—')+'\n'+
+            '  Aseguradora: '+(emitida.aseguradora||'—')+'\n'+
+            '  Prima: '+fmt(Number(emitida.prima)||0)+'\n\n'+
+            'Al aceptar, esta poliza pasa a CARTERA para seguimiento de pago (alerta a los 25 dias).';
+  if(!confirm(msg)) return;
   lead.estado = 'Convertido';
   fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify({action:'lead-update', id:leadId, estado:'Convertido'})}).catch(function(){});
+  // Fase 1: registro local. Fase 2: se envia al backend action 'cartera-create'.
+  _registrarEnCartera_(lead, emitida);
   // Limpiar cache local (ya no aparece en POR EMITIR)
   if(window._POL_EMITIDAS && window._POL_EMITIDAS[leadId]){
     delete window._POL_EMITIDAS[leadId];
@@ -2896,6 +2976,23 @@ window.marcarEnviada = function(leadId){
   renderLeads(); renderPorEmitir();
   if(typeof renderPolizas==='function') renderPolizas();
 };
+
+/* Stub: registra la poliza en CARTERA. Fase 2 lo conecta con action 'cartera-create'. */
+function _registrarEnCartera_(lead, emitida){
+  try{
+    var arr = JSON.parse(localStorage.getItem('aseg_cartera_local')||'[]');
+    arr.push({
+      poliza: emitida.poliza||'',
+      tomador: lead.nombre||'',
+      aseguradora: emitida.aseguradora||'',
+      prima: Number(emitida.prima)||0,
+      fecha_emision: new Date().toISOString().slice(0,10),
+      estado: 'Pendiente',
+      lead_id: lead.id
+    });
+    localStorage.setItem('aseg_cartera_local', JSON.stringify(arr));
+  }catch(e){}
+}
 
 /* ====================================
    HELPERS
@@ -3116,9 +3213,107 @@ function renderPolizaRow(p,idx){
   '</tr>';
 }
 
+/* ============================================================
+   HUB de alertas del home POLIZAS (Opcion A confirmada 2026-09-07)
+   Ciclo renovacion: -30 verde, -15 amarillo, 0 naranja, +5 rojo (>+5 cae a Vencidas)
+   ============================================================ */
+var POL_ALERTA_FILTRO = null; // {tipo, label, filterFn}
+
+function _diasParaVencer(hastaStr){
+  if(!hastaStr) return null;
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  var v = new Date(hastaStr+'T00:00:00');
+  if(isNaN(v.getTime())) return null;
+  return Math.round((v - hoy)/86400000);
+}
+function calcularAlertasHome_(POL_VIEW){
+  var LEADS_VIEW = (typeof LEADS!=='undefined' && LEADS) ? filtrarPorPermiso_(LEADS,'asesor') : [];
+  var a = {
+    vencidas: { total:0, p5d:0, hoy:0, monto:0 },
+    renovar:  { total:0, m30:0, m15:0, hoy:0, monto:0 },
+    cartera:  { total:0, monto:0, vencidas:0, x_vencer:0 },
+    autoriz:  { total:0, sarlaft:0, x_emitir:0 }
+  };
+  POL_VIEW.forEach(function(p){
+    var d = _diasParaVencer(p.hasta);
+    if(d === null) return;
+    // Vencidas: cualquier d<0 cuenta como vencida operativa
+    if(d < 0){
+      a.vencidas.total++;
+      a.vencidas.monto += (p.prima||0);
+      if(d >= -5) a.vencidas.p5d++;
+      // cartera pendiente = primas de vencidas por cobrar
+      a.cartera.vencidas++;
+      a.cartera.monto += (p.prima||0);
+      a.cartera.total++;
+    }
+    // Renovar: d entre 0 y 30 (inclusive)
+    if(d >= 0 && d <= 30){
+      a.renovar.total++;
+      a.renovar.monto += (p.prima||0);
+      if(d === 0){ a.renovar.hoy++; a.vencidas.hoy++; }
+      else if(d <= 15) a.renovar.m15++;
+      else a.renovar.m30++;
+      // cartera x vencer (menos de 15 dias)
+      if(d <= 15){ a.cartera.x_vencer++; a.cartera.total++; }
+    }
+  });
+  // Autorizaciones desde LEADS
+  LEADS_VIEW.forEach(function(l){
+    if(l.estado === 'Aceptada'){ a.autoriz.sarlaft++; a.autoriz.total++; }
+    else if(l.estado === 'SarlaftOK'){ a.autoriz.x_emitir++; a.autoriz.total++; }
+  });
+  return a;
+}
+window.filtrarPolizasAlerta_ = function(tipo){
+  var filters = {
+    'venc-p5':  { label:'Vencidas +5 dias',    fn:function(p){var d=_diasParaVencer(p.hasta);return d<0 && d>=-5;} },
+    'venc-all': { label:'Todas las vencidas',  fn:function(p){var d=_diasParaVencer(p.hasta);return d<0;} },
+    'renov-30': { label:'Renovacion -30 dias', fn:function(p){var d=_diasParaVencer(p.hasta);return d>15 && d<=30;} },
+    'renov-15': { label:'Renovacion -15 dias', fn:function(p){var d=_diasParaVencer(p.hasta);return d>0 && d<=15;} },
+    'renov-0':  { label:'Vence hoy',           fn:function(p){var d=_diasParaVencer(p.hasta);return d===0;} },
+    'cart-venc':{ label:'Cartera vencida',     fn:function(p){var d=_diasParaVencer(p.hasta);return d<0;} },
+    'cart-xv':  { label:'Cartera por vencer',  fn:function(p){var d=_diasParaVencer(p.hasta);return d>=0 && d<=15;} }
+  };
+  var f = filters[tipo];
+  if(!f) return;
+  POL_ALERTA_FILTRO = { tipo:tipo, label:f.label, filterFn:f.fn };
+  document.getElementById('searchPolizas').value = '';
+  renderPolizas();
+  // scroll a la tabla
+  var t = document.getElementById('polizasTable');
+  if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+};
+window.limpiarFiltroAlerta_ = function(){
+  POL_ALERTA_FILTRO = null;
+  renderPolizas();
+};
+window.irAAutorizaciones_ = function(sub){
+  // Cambia a modulo COTIZADOR y va al sub-tab correspondiente ('sarlaft' | 'emitir')
+  if(typeof switchMod === 'function') switchMod('cotizador');
+  else { var link = document.querySelector('.mod-link[data-mod="cotizador"]'); if(link) link.click(); }
+  setTimeout(function(){
+    if(typeof switchSub === 'function') switchSub(sub);
+    else { var subBtn = document.querySelector('#cotSubNav .sub-tab[data-sub="'+sub+'"]'); if(subBtn) subBtn.click(); }
+  }, 120);
+};
+
+/* ============================================================
+   STUBS modulo CARTERA — Fase 1 solo placeholder. La logica real
+   (sheet CARTERA, alerta 25d, marcar Pagada) llega en Fase 2.
+   ============================================================ */
+window.filterCartera = function(){ /* stub - filtrado real en Fase 2 */ };
+window.switchCarSub = function(sub){
+  document.querySelectorAll('#carteraSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
+  var el = document.querySelector('#carteraSubNav .sub-tab[data-sub="'+sub+'"]');
+  if(el) el.classList.add('active');
+};
+
 function renderPolizas(filter){
   // Filtro por rol: asesor solo ve sus polizas
   var POL_VIEW = filtrarPorPermiso_(POLIZAS, 'intermediario');
+  // Filtro adicional por alerta clickeada
+  if(POL_ALERTA_FILTRO){ POL_VIEW = POL_VIEW.filter(POL_ALERTA_FILTRO.filterFn); }
   // Si el usuario NO ha hecho click en un header, ordenamos por urgencia (default).
   var userSorted = Object.keys(sortState).some(function(k){return k.indexOf('polizasTable')===0});
   var base;
@@ -3137,17 +3332,69 @@ function renderPolizas(filter){
 
   if(!filter) polizasShown=POLIZAS_PAGE_SIZE;
 
-  var vencidas=POL_VIEW.filter(function(p){return p.estado==='vencida'}).length;
-  var porRenovar=POL_VIEW.filter(function(p){return p.estado==='por-renovar'}).length;
-  var activas=POL_VIEW.filter(function(p){return p.estado==='activa'}).length;
-  var totalAsegurado=POL_VIEW.filter(function(p){return p.estado==='activa'||p.estado==='por-renovar'}).reduce(function(s,p){return s+p.valorAsegurado},0);
+  // HUB de alertas — reemplaza los 4 KPI cards planos por cards accionables con desglose
+  var A = calcularAlertasHome_(POL_VIEW);
+  var activasCount = POL_VIEW.filter(function(p){return p.estado==='activa'}).length;
+  var activasMonto = POL_VIEW.filter(function(p){return p.estado==='activa'}).reduce(function(s,p){return s+(p.valorAsegurado||0)},0);
+  var drill = function(items){
+    return '<div class="kpi-drill">'+items.map(function(it){
+      var cls = it.n>0 ? '' : 'zero';
+      var onclick = it.n>0 ? (' onclick="'+it.action+'"') : '';
+      return '<div class="kpi-drill-item '+cls+'"'+onclick+'>'+
+        '<span class="dot '+it.color+'"></span>'+
+        '<span class="lbl">'+it.label+'</span>'+
+        '<span class="cnt">'+it.n+'</span>'+
+        '<span class="arrow">&rsaquo;</span>'+
+      '</div>';
+    }).join('')+'</div>';
+  };
+  var cards = [
+    {
+      c:'c-red', l:'Vencidas (accion urgente)', v:A.vencidas.total,
+      drill: drill([
+        {color:'r', label:'Ultimos 5 dias', n:A.vencidas.p5d, action:"filtrarPolizasAlerta_('venc-p5')"},
+        {color:'r', label:'Ver todas',      n:A.vencidas.total, action:"filtrarPolizasAlerta_('venc-all')"}
+      ])
+    },
+    {
+      c:'c-orange', l:'Por Renovar (<30 dias)', v:A.renovar.total,
+      drill: drill([
+        {color:'g', label:'-30 dias', n:A.renovar.m30, action:"filtrarPolizasAlerta_('renov-30')"},
+        {color:'y', label:'-15 dias', n:A.renovar.m15, action:"filtrarPolizasAlerta_('renov-15')"},
+        {color:'o', label:'Vence hoy', n:A.renovar.hoy, action:"filtrarPolizasAlerta_('renov-0')"}
+      ])
+    },
+    {
+      c:'c-green', l:'Activas', v:activasCount,
+      drill: drill([
+        {color:'g', label:'Valor asegurado', n:fmt(activasMonto), action:"switchMod('polizas')"}
+      ])
+    },
+    {
+      c:'c-accent', l:'Cartera pendiente', v:fmt(A.cartera.monto),
+      drill: drill([
+        {color:'r', label:'Vencido (>25d)', n:A.cartera.vencidas, action:"switchMod('cartera')"},
+        {color:'y', label:'Por vencer (<25d)', n:A.cartera.x_vencer, action:"switchMod('cartera')"}
+      ])
+    }
+  ];
+  document.getElementById('polizasKpi').innerHTML = cards.map(function(k){
+    return '<div class="kpi-card alert '+k.c+'">'+
+      '<div class="kpi-label">'+k.l+'</div>'+
+      '<div class="kpi-val">'+k.v+'</div>'+
+      k.drill+
+    '</div>';
+  }).join('');
 
-  document.getElementById('polizasKpi').innerHTML=[
-    {l:'Vencidas (accion urgente)',v:vencidas,c:'c-red'},
-    {l:'Por Renovar (<30 dias)',v:porRenovar,c:'c-orange'},
-    {l:'Activas',v:activas,c:'c-green'},
-    {l:'Valor Asegurado Total',v:fmt(totalAsegurado),c:'c-accent'}
-  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+  // Chip filtro activo por alerta
+  var chipEl = document.getElementById('polFiltroAlerta');
+  if(chipEl){
+    if(POL_ALERTA_FILTRO){
+      chipEl.innerHTML = '<div class="pol-filter-chip">Filtrando por: '+POL_ALERTA_FILTRO.label+' <span class="x" onclick="limpiarFiltroAlerta_()" title="Quitar filtro">&#10005;</span></div>';
+    } else {
+      chipEl.innerHTML = '';
+    }
+  }
 
   var visible=filter?data:data.slice(0,polizasShown);
   var total=data.length;
