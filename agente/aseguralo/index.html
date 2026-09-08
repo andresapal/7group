@@ -135,6 +135,10 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 /* Chip filtro activo arriba de tabla polizas */
 .pol-filter-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:20px;font-size:11px;font-weight:600;color:var(--accent);margin-bottom:12px}
 .pol-filter-chip .x{cursor:pointer;padding:0 4px;font-weight:700}
+/* Dropdown de acciones en tabla POLIZAS */
+.pol-menu-item:hover{background:var(--brand-light)}
+.pol-actions-dropdown{animation:polMenuIn .12s ease-out}
+@keyframes polMenuIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .kpi-up{color:var(--green)}.kpi-down{color:var(--red)}
 
 /* CHARTS */
@@ -476,12 +480,12 @@ tbody tr:hover{background:var(--accent-light)}
 
   <nav class="mod-nav" id="modNav">
     <a class="mod-link active" data-mod="polizas">Polizas</a>
+    <a class="mod-link" data-mod="siniestros">Siniestros <span class="mod-badge" id="modSinBadge" style="display:none;background:var(--red);color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:4px;font-weight:700">0</span></a>
     <a class="mod-link" data-mod="cotizador">Cotizador</a>
     <a class="mod-link" data-mod="cartera">Cartera</a>
     <a class="mod-link" data-mod="comisiones">Comisiones</a>
     <a class="mod-link" data-mod="renovaciones">Renovaciones</a>
     <a class="mod-link" data-mod="dashboard">KPIs</a>
-    <a class="mod-link" data-mod="siniestros" style="display:none">Siniestros</a>
     <a class="mod-link" data-mod="clientes" style="display:none">Clientes</a>
   </nav>
 
@@ -499,73 +503,78 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
 
-      <!-- Sub-navegacion: Lista polizas | Siniestros -->
-      <div class="sub-nav" id="polSubNav" style="margin-bottom:12px">
-        <a class="sub-tab active" data-sub="lista" onclick="switchPolSub('lista')">
-          <span class="sub-lbl">Polizas</span>
-        </a>
-        <a class="sub-tab" data-sub="siniestros" onclick="switchPolSub('siniestros')">
-          <span class="sub-lbl">Siniestros</span>
-          <span class="sub-count" id="cntSin">0</span>
-          <span class="sub-count" id="cntSinAlert" style="display:none;background:var(--red);color:#fff;margin-left:4px">0</span>
-        </a>
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="polizasKpi"></div>
+
+      <div id="polFiltroAlerta"></div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>No. Poliza</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Aseguradora</th>
+                <th>Intermediario</th>
+                <th>Prima</th>
+                <th>Vigencia</th>
+                <th>Estado</th>
+                <th>Creada</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="polizasTable"></tbody>
+          </table>
+        </div>
       </div>
+    </section>
 
-      <!-- Sub: Lista de polizas -->
-      <div class="sub-section active" id="sub-pol-lista">
-        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="polizasKpi"></div>
-
-        <div id="polFiltroAlerta"></div>
-
-        <div class="tbl-wrap">
-          <div class="tbl-overflow">
-            <table>
-              <thead>
-                <tr>
-                  <th>No. Poliza</th>
-                  <th>Cliente</th>
-                  <th>Tipo</th>
-                  <th>Aseguradora</th>
-                  <th>Intermediario</th>
-                  <th>Prima</th>
-                  <th>Vigencia</th>
-                  <th>Estado</th>
-                  <th>Creada</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="polizasTable"></tbody>
-            </table>
-          </div>
+    <!-- SINIESTROS — modulo principal, al lado de Polizas -->
+    <section class="mod-section" id="mod-siniestros">
+      <div class="sec-header">
+        <div>
+          <div class="sec-title">Siniestros</div>
+          <div class="sec-desc">Reportados por el intermediario. Cada uno dispara WA calido al tomador con datos de la aseguradora. Ciclo: reportado → en proceso → solucionado.</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm" onclick="_abrirPanelAsegInfo_()">Datos aseguradoras</button>
         </div>
       </div>
 
-      <!-- Sub: Siniestros -->
-      <div class="sub-section" id="sub-pol-siniestros">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-          <div style="font-size:12px;color:var(--dim)">Siniestros reportados. Se dispara desde el boton "Reportar siniestro" en cada poliza. Envia WA calido al tomador con datos de la aseguradora.</div>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-sm" onclick="_abrirPanelAsegInfo_()">Datos aseguradoras</button>
-          </div>
-        </div>
-        <div class="tbl-wrap">
-          <div class="tbl-overflow">
-            <table>
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Poliza</th>
-                  <th>Tomador</th>
-                  <th>Ramo</th>
-                  <th>Aseguradora</th>
-                  <th>Descripcion</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="siniestrosTable"></tbody>
-            </table>
-          </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="siniestrosKpi"></div>
+
+      <div class="sub-nav" id="sinSubNav" style="margin-bottom:12px">
+        <a class="sub-tab active" data-sub="activos" onclick="switchSinSub('activos')">
+          <span class="sub-lbl">Activos</span>
+          <span class="sub-count" id="cntSinActivos">0</span>
+        </a>
+        <a class="sub-tab" data-sub="solucionados" onclick="switchSinSub('solucionados')">
+          <span class="sub-lbl">Solucionados</span>
+          <span class="sub-count" id="cntSinSolu">0</span>
+        </a>
+        <a class="sub-tab" data-sub="todos" onclick="switchSinSub('todos')">
+          <span class="sub-lbl">Todos</span>
+        </a>
+      </div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-overflow">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Poliza</th>
+                <th>Tomador</th>
+                <th>Ramo</th>
+                <th>Aseguradora</th>
+                <th>Descripcion</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="siniestrosTable"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -3350,11 +3359,17 @@ function renderPolizaRow(p,idx){
     '</td>'+
     '<td><span class="badge '+statusMap[p.estado]+'">'+statusLabel[p.estado]+'</span></td>'+
     '<td style="font-size:11px;color:var(--dim)">'+(p.fechaCreacion||'—')+'</td>'+
-    '<td><div style="display:flex;gap:4px;flex-wrap:wrap" onclick="event.stopPropagation()">'+
-      '<button class="btn btn-sm btn-wa" onclick="sendWA(\''+p.telefono+'\',\''+p.cliente+'\',\''+p.tipo+'\')">WA</button>'+
-      (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="btn btn-sm btn-renew" onclick="renovarPoliza(\''+_jsq(p.id)+'\')">Renovar</button>':'')+
-      '<button class="btn btn-sm" onclick="_abrirModalSiniestro_(\''+_jsq(p.id)+'\')" style="background:rgba(255,71,71,.12);color:var(--red);border:1px solid rgba(255,71,71,.3);font-size:10px" title="Reportar siniestro">Siniestro</button>'+
-    '</div></td>'+
+    '<td onclick="event.stopPropagation()">'+
+      '<div class="pol-actions-menu" style="position:relative;display:inline-block">'+
+        '<button class="btn btn-sm" onclick="_togglePolMenu_(\''+_jsq(p.id)+'\',event)" style="background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);padding:4px 10px;font-size:11px;font-weight:600">Acciones &#9662;</button>'+
+        '<div id="polMenu-'+_jsq(p.id)+'" class="pol-actions-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);z-index:100;min-width:170px;overflow:hidden">'+
+          '<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'wa\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:#25d366"></span>WhatsApp</button>'+
+          (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'renovar\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:var(--orange)"></span>Renovar</button>':'')+
+          '<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'siniestro\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:var(--red)"></span>Reportar siniestro</button>'+
+          (p.estado!=='cancelada'?'<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'anular\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer;border-top:1px solid var(--border)"><span style="width:8px;height:8px;border-radius:50%;background:var(--dim)"></span>Anular poliza</button>':'')+
+        '</div>'+
+      '</div>'+
+    '</td>'+
   '</tr>'+
   '<tr id="'+detailId+'" class="pol-detail-row" style="display:none">'+
     '<td colspan="10" style="padding:0;border:none">'+
@@ -4093,6 +4108,97 @@ window.filterPolizas=function(){
   renderPolizas(v||null);
 };
 
+/* ============================================================
+   MENU ACCIONES en tabla POLIZAS (dropdown consolidado)
+   ============================================================ */
+window._togglePolMenu_ = function(id, ev){
+  if(ev) ev.stopPropagation();
+  var abierto = document.getElementById('polMenu-'+id);
+  // Cerrar todos los otros menus
+  document.querySelectorAll('.pol-actions-dropdown').forEach(function(m){
+    if(m.id !== 'polMenu-'+id) m.style.display='none';
+  });
+  if(abierto) abierto.style.display = (abierto.style.display==='none' ? '' : 'none');
+};
+// Cerrar al clickear fuera del menu
+document.addEventListener('click', function(){
+  document.querySelectorAll('.pol-actions-dropdown').forEach(function(m){ m.style.display='none'; });
+});
+window._menuAccion_ = function(polizaId, accion){
+  // Cerrar el menu abierto
+  document.querySelectorAll('.pol-actions-dropdown').forEach(function(m){ m.style.display='none'; });
+  var p = POLIZAS.filter(function(x){return x.id===polizaId})[0];
+  if(!p) return;
+  if(accion === 'wa'){ sendWA(p.telefono, p.cliente, p.tipo); return; }
+  if(accion === 'renovar'){ renovarPoliza(polizaId); return; }
+  if(accion === 'siniestro'){ _abrirModalSiniestro_(polizaId); return; }
+  if(accion === 'anular'){ _abrirModalAnular_(polizaId); return; }
+};
+
+window._abrirModalAnular_ = function(polizaId){
+  var p = POLIZAS.filter(function(x){return x.id===polizaId})[0];
+  if(!p){ alert('Poliza no encontrada'); return; }
+  var puedeAnular = typeof CURRENT_USER!=='undefined' && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
+  if(!puedeAnular){ alert('Solo admin/dueño puede anular polizas.'); return; }
+  var overlay = document.createElement('div');
+  overlay.id = 'anularModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML =
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;max-width:480px;width:100%;padding:24px">'+
+      '<div style="font-size:11px;color:var(--red);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:6px">Anular poliza</div>'+
+      '<div style="font-size:18px;font-weight:800;margin-bottom:8px">'+p.cliente+'</div>'+
+      '<div style="font-size:12px;color:var(--dim);margin-bottom:16px">Poliza <strong>'+p.id+'</strong> · '+p.tipo+' · '+p.aseguradora+'</div>'+
+      '<div style="background:rgba(255,71,71,.08);padding:10px 12px;border-radius:6px;font-size:11px;color:var(--red);margin-bottom:14px;border-left:3px solid var(--red)">Al anular, la póliza queda con fecha de anulación de hoy y estado cancelada. No aparecerá más en vencimientos ni renovaciones.</div>'+
+      '<div style="margin-bottom:10px"><label style="font-size:11px;color:var(--dim);font-weight:600;display:block;margin-bottom:4px">Fecha de anulacion</label>'+
+        '<input type="date" id="anulFecha" class="form-input" value="'+new Date().toISOString().slice(0,10)+'" style="width:100%"></div>'+
+      '<div style="margin-bottom:14px"><label style="font-size:11px;color:var(--dim);font-weight:600;display:block;margin-bottom:4px">Motivo (opcional)</label>'+
+        '<textarea id="anulMotivo" class="form-input" rows="2" placeholder="Ej: cliente cambio a otra aseguradora" style="width:100%;resize:vertical"></textarea></div>'+
+      '<div style="margin-bottom:16px"><label style="font-size:11px;color:var(--dim);font-weight:600;display:block;margin-bottom:4px">Escribe el numero de la poliza para confirmar:</label>'+
+        '<input type="text" id="anulConfirm" class="form-input" placeholder="'+p.id+'" style="width:100%;font-family:monospace"></div>'+
+      '<div style="display:flex;justify-content:flex-end;gap:8px">'+
+        '<button class="btn" onclick="_cerrarModalAnular_()" style="background:transparent;border:1px solid var(--border)">Cancelar</button>'+
+        '<button class="btn btn-primary" onclick="_confirmarAnulacion_(\''+_jsq(polizaId)+'\')" style="background:var(--red);color:#fff;border:none">Anular definitivamente</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) _cerrarModalAnular_(); });
+};
+window._cerrarModalAnular_ = function(){ var el=document.getElementById('anularModal'); if(el) el.remove(); };
+window._confirmarAnulacion_ = function(polizaId){
+  var p = POLIZAS.filter(function(x){return x.id===polizaId})[0]; if(!p) return;
+  var conf = document.getElementById('anulConfirm').value.trim();
+  if(conf !== String(polizaId).trim()){
+    alert('El numero de poliza no coincide. Escribelo tal cual: '+polizaId);
+    return;
+  }
+  var fecha = document.getElementById('anulFecha').value;
+  var motivo = document.getElementById('anulMotivo').value.trim();
+  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action:'poliza-anular', email:emailAuth, poliza_id:polizaId, fecha_anulacion:fecha, motivo:motivo})
+  })
+  .then(function(r){return r.json();})
+  .then(function(j){
+    if(j && j.status === 'ok'){
+      // Optimista local: marca cancelada en POLIZAS
+      p.estado = 'cancelada';
+      if(typeof renderPolizas === 'function') renderPolizas();
+      _cerrarModalAnular_();
+      alert('Poliza '+polizaId+' anulada.');
+      // Refresh completo desde backend
+      setTimeout(function(){ if(typeof loadFromSheet==='function') loadFromSheet(); }, 800);
+    } else {
+      alert('Error al anular: '+(j&&j.error||'sin detalle'));
+    }
+  })
+  .catch(function(err){
+    alert('Error de red al anular: '+err.message);
+  });
+};
+
 /* Renovar poliza — abre modal decisor con 3 rutas (limpia / recotizar / cambios).
    Backend crea nuevo lead con datos heredados y salta al estado correcto del pipeline. */
 window.renovarPoliza=function(id){
@@ -4283,14 +4389,14 @@ window._ejecutarRenovacion_ = function(polizaId, ruta, force){
    ============================================================ */
 var SINIESTROS_LIST = [];
 var ASEG_INFO_LIST  = [];
+var SIN_SUB = 'activos';
 
-window.switchPolSub = function(sub){
-  document.querySelectorAll('#polSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
-  var tab = document.querySelector('#polSubNav .sub-tab[data-sub="'+sub+'"]');
+window.switchSinSub = function(sub){
+  SIN_SUB = sub;
+  document.querySelectorAll('#sinSubNav .sub-tab').forEach(function(t){t.classList.remove('active')});
+  var tab = document.querySelector('#sinSubNav .sub-tab[data-sub="'+sub+'"]');
   if(tab) tab.classList.add('active');
-  document.querySelectorAll('#mod-polizas .sub-section').forEach(function(s){s.classList.remove('active')});
-  var sec = document.getElementById('sub-pol-'+sub); if(sec) sec.classList.add('active');
-  if(sub === 'siniestros'){ loadSiniestros_(); loadAseguradorasInfo_(); }
+  renderSiniestrosTab_();
 };
 
 function loadSiniestros_(){
@@ -4324,22 +4430,38 @@ function _asegInfoDe_(nombreAseg){
 function renderSiniestrosTab_(){
   var tb = document.getElementById('siniestrosTable'); if(!tb) return;
   var puedeGestionar = typeof CURRENT_USER!=='undefined' && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
-  var lista = SINIESTROS_LIST.slice().sort(function(a,b){
-    // activos primero, luego por fecha desc
-    var pa = a.estado==='solucionado' ? 1 : 0;
-    var pb = b.estado==='solucionado' ? 1 : 0;
-    if(pa !== pb) return pa - pb;
-    return (b.fecha_hecho||'').localeCompare(a.fecha_hecho||'');
-  });
-  var activos = lista.filter(function(s){return s.estado !== 'solucionado' && s.estado !== 'cancelado'}).length;
-  var cntEl = document.getElementById('cntSin'); if(cntEl) cntEl.textContent = SINIESTROS_LIST.length;
-  var alertEl = document.getElementById('cntSinAlert');
-  if(alertEl){
-    if(activos > 0){ alertEl.textContent = activos; alertEl.style.display=''; alertEl.title = activos+' siniestro(s) activo(s)'; }
-    else { alertEl.style.display='none'; }
+  var todos = SINIESTROS_LIST.slice();
+  var activos = todos.filter(function(s){return s.estado !== 'solucionado' && s.estado !== 'cancelado'});
+  var solucionados = todos.filter(function(s){return s.estado === 'solucionado'});
+  // Contadores sub-tab
+  var elA = document.getElementById('cntSinActivos'); if(elA) elA.textContent = activos.length;
+  var elS = document.getElementById('cntSinSolu');    if(elS) elS.textContent = solucionados.length;
+  // Badge nav principal (rojo si activos)
+  var navBadge = document.getElementById('modSinBadge');
+  if(navBadge){
+    if(activos.length > 0){ navBadge.textContent = activos.length; navBadge.style.display=''; }
+    else { navBadge.style.display='none'; }
   }
+  // KPIs del modulo
+  var porRamo = {};
+  activos.forEach(function(s){ var k=s.ramo_siniestro||'otro'; porRamo[k]=(porRamo[k]||0)+1; });
+  var kpiHtml = [
+    {l:'Activos',v:activos.length,c:'c-red'},
+    {l:'En proceso',v:activos.filter(function(s){return s.estado==='en_proceso'}).length,c:'c-orange'},
+    {l:'Solucionados (total)',v:solucionados.length,c:'c-green'},
+    {l:'Total historico',v:todos.length,c:'c-accent'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+  var kEl = document.getElementById('siniestrosKpi'); if(kEl) kEl.innerHTML = kpiHtml;
+
+  // Filtro por sub-tab
+  var lista;
+  if(SIN_SUB === 'activos') lista = activos;
+  else if(SIN_SUB === 'solucionados') lista = solucionados;
+  else lista = todos;
+  lista.sort(function(a,b){ return (b.fecha_hecho||'').localeCompare(a.fecha_hecho||''); });
+
   if(!lista.length){
-    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--dim);font-size:13px">Sin siniestros reportados.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--dim);font-size:13px">Sin siniestros en esta vista.</td></tr>';
     return;
   }
   var badges = {
@@ -4456,7 +4578,7 @@ window._confirmarSiniestro_ = function(polizaId){
     if(j && j.status === 'ok'){
       window.open(waHref, '_blank');
       _cerrarModalSiniestro_();
-      setTimeout(function(){ loadSiniestros_(); switchPolSub('siniestros'); }, 1200);
+      setTimeout(function(){ loadSiniestros_(); switchMod('siniestros'); }, 1200);
     } else {
       var err = (j && j.error) || 'error desconocido';
       if(confirm('El siniestro NO se guardo en el sistema:\n'+err+'\n\n¿Abrir WhatsApp con el cliente de todos modos?')){
