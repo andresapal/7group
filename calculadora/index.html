@@ -105,6 +105,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .metric-val{font-size:15px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;color:var(--white);letter-spacing:-.02em}
 .metric-val.positive{color:var(--cyan)}
 .metric-val.highlight{color:#5ee7f7;font-size:17px}
+.metric-val.negative{color:#ff6b6b}
 
 .savings-block{margin:0 24px 20px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.2);border-radius:12px;padding:16px}
 .savings-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
@@ -405,7 +406,7 @@ const T = {
     quotesDay: 'Cotizaciones por día', quotesHint: 'Promedio diario, todos los días hábiles',
     minsLabel: 'Minutos por cotización', minsHint: 'Desde que entra la solicitud hasta que sale la cotización',
     errorsTitle: 'Errores y retrabajos', errorsDesc: 'Cotizaciones incorrectas, pedidos mal registrados, correcciones',
-    errorsLabel: 'Errores por semana', errorsHint: 'Correcciones, clientes molestos, pedidos rehechos',
+    errorsLabel: 'Errores por semana (por persona)', errorsHint: 'Correcciones, clientes molestos, pedidos rehechos',
     teamTitle: 'Tu equipo', teamDesc: 'Las personas que atienden estos procesos manualmente',
     teamLabel: 'Personas en el proceso', teamHint: 'Comercial, operaciones, atención al cliente',
     salaryLabel: 'Salario mensual promedio',
@@ -415,7 +416,7 @@ const T = {
     how3Title: 'Habla con nosotros', how3Desc: '30 minutos para mostrarte cómo recuperar ese dinero',
     lossLabel: 'Estás perdiendo cada mes', lossPeriod: 'en tiempo, errores y oportunidades',
     metricHours: 'Horas perdidas al mes', metricManual: 'Costo procesos manuales',
-    metricErrors: 'Costo de errores', metricRoi: 'ROI estimado a 12 meses',
+    metricErrors: 'Costo de errores', metricRoi: 'Ahorro neto (12 meses)',
     savingsLabel: 'Ahorro potencial con 7Group',
     beLabel: 'Cobertura del plan vs. ahorro', beDefault: 'Mueve los sliders para ver tu análisis',
     beCover: (m) => `El ahorro cubre <strong>${m}x el costo del plan</strong>`,
@@ -457,7 +458,7 @@ Quiero agendar los 30 minutos de análisis gratuito.`
     quotesDay: 'Quotes per day', quotesHint: 'Daily average, all business days',
     minsLabel: 'Minutes per quote', minsHint: 'From request received to quote sent',
     errorsTitle: 'Errors & rework', errorsDesc: 'Wrong quotes, mislogged orders, corrections',
-    errorsLabel: 'Errors per week', errorsHint: 'Corrections, upset clients, remade orders',
+    errorsLabel: 'Errors per week (per person)', errorsHint: 'Corrections, upset clients, remade orders',
     teamTitle: 'Your team', teamDesc: 'People handling these processes manually',
     teamLabel: 'People in the process', teamHint: 'Sales, operations, customer service',
     salaryLabel: 'Average monthly salary',
@@ -467,7 +468,7 @@ Quiero agendar los 30 minutos de análisis gratuito.`
     how3Title: 'Talk to us', how3Desc: '30 minutes to show you how to recover that money',
     lossLabel: 'You are losing every month', lossPeriod: 'in time, errors, and missed opportunities',
     metricHours: 'Hours lost per month', metricManual: 'Manual process cost',
-    metricErrors: 'Error cost', metricRoi: 'Estimated 12-month ROI',
+    metricErrors: 'Error cost', metricRoi: 'Net savings (12 months)',
     savingsLabel: 'Potential savings with 7Group',
     beLabel: 'Plan coverage vs. savings', beDefault: 'Move the sliders to see your analysis',
     beCover: (m) => `Savings cover <strong>${m}x the plan cost</strong>`,
@@ -595,12 +596,14 @@ function setCurrency(c) {
 
 /* ---- FORMAT ---- */
 function fmt(n) {
+  const sign = n < 0 ? '-' : '';
+  n = Math.abs(n);
   if (currency === 'COP') {
-    if (n >= 1000000) return '$ ' + (n/1000000).toFixed(1).replace('.0','') + 'M';
-    return '$ ' + n.toLocaleString('es-CO');
+    if (n >= 1000000) return sign + '$ ' + (n/1000000).toFixed(1).replace('.0','') + 'M';
+    return sign + '$ ' + n.toLocaleString('es-CO');
   } else {
-    if (n >= 1000) return '$ ' + (n/1000).toFixed(1).replace('.0','') + 'K';
-    return '$ ' + n.toLocaleString('en-US');
+    if (n >= 1000) return sign + '$ ' + (n/1000).toFixed(1).replace('.0','') + 'K';
+    return sign + '$ ' + n.toLocaleString('en-US');
   }
 }
 function fmtFull(n) {
@@ -626,7 +629,7 @@ function calculate() {
   const costoManual = quoteFraction * team * salary;
 
   const errorsPerMonth = errors * 4.3;
-  const costoErrores = errorsPerMonth * ERROR_FIX_HRS * hourlyRate;
+  const costoErrores = errorsPerMonth * ERROR_FIX_HRS * hourlyRate * team;
 
   const totalLoss  = costoManual + costoErrores;
   const ahorro     = totalLoss * AUTOMATION_RECOVERY;
@@ -668,7 +671,10 @@ function update() {
   document.getElementById('mHoras').textContent = Math.round(r.horasQuotes) + ' h';
   document.getElementById('mCostoManual').textContent = fmt(r.costoManual);
   document.getElementById('mCostoErrores').textContent = fmt(r.costoErrores);
-  document.getElementById('mRoi12').textContent = r.roi12 > 0 ? fmt(r.roi12) : '—';
+  const roiEl = document.getElementById('mRoi12');
+  roiEl.textContent = fmt(r.roi12);
+  roiEl.classList.toggle('highlight', r.roi12 >= 0);
+  roiEl.classList.toggle('negative', r.roi12 < 0);
 
   document.getElementById('mAhorro').textContent = fmt(r.ahorro);
   const beMonthsText = t.beMonths(r.breakeven);

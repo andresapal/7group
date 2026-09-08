@@ -58,7 +58,14 @@
     .lang-toggle span { font-size: 12px; color: var(--gray); cursor: pointer; transition: color .2s; letter-spacing: 1px; }
     .lang-toggle span:hover { color: var(--black); }
     .lang-toggle span.active { color: var(--black); font-weight: 700; }
-    @media (max-width: 600px) { nav { padding: 0 20px; } .nav-back { display: none; } }
+    @media (max-width: 600px) {
+      nav { padding: 0 16px; }
+      .nav-back { display: none; }
+      .nav-cta { font-size: 11px; padding: 6px 12px; }
+      .lang-toggle { gap: 6px; }
+      .lang-toggle span { font-size: 11px; padding: 4px 8px; border: 1px solid var(--light); border-radius: 4px; }
+      .lang-toggle span.active { background: var(--black); color: var(--white); border-color: var(--black); }
+    }
 
     main { flex: 1; }
 
@@ -299,6 +306,7 @@
     .roi-metric-name { font-size: 13px; color: var(--gray); }
     .roi-metric-val { font-size: 15px; font-weight: 700; letter-spacing: -.3px; }
     .roi-metric-val.highlight { color: var(--cyan); font-size: 17px; }
+    .roi-metric-val.negative { color: var(--red); }
 
     .roi-savings {
       margin: 0 24px 16px;
@@ -979,7 +987,7 @@ var T = {
     quotesTitle:'Cotizaciones', quotesDesc:'Cuantas cotizaciones genera tu equipo y cuanto tarda cada una',
     quotesDay:'Cotizaciones por dia', minsLabel:'Minutos por cotizacion',
     errorsTitle:'Errores y retrabajos', errorsDesc:'Cotizaciones incorrectas, pedidos mal registrados, correcciones',
-    errorsLabel:'Errores por semana',
+    errorsLabel:'Errores por semana (por persona)',
     teamTitle:'Tu equipo', teamDesc:'Las personas que atienden estos procesos manualmente',
     teamLabel:'Personas en el proceso', salaryLabel:'Salario mensual promedio',
     salaryHintCOP:'COP por empleado / mes', salaryHintUSD:'USD por empleado / mes',
@@ -988,7 +996,7 @@ var T = {
     how3:'Agenda una reunion', how3D:'30 minutos para mostrarte como recuperar ese dinero',
     lossLabel:'Estas perdiendo cada mes', lossPeriod:'en tiempo, errores y oportunidades',
     metricHours:'Horas perdidas al mes', metricManual:'Costo procesos manuales',
-    metricErrors:'Costo de errores', metricRoi:'ROI estimado a 12 meses',
+    metricErrors:'Costo de errores', metricRoi:'Ahorro neto (12 meses)',
     savingsLabel:'Ahorro potencial con 7Group',
     beLabel:'Cobertura del plan vs. ahorro',
     beDefault:'Mueve los sliders para ver tu analisis',
@@ -1059,7 +1067,7 @@ var T = {
     quotesTitle:'Quotes', quotesDesc:'How many quotes your team generates and how long each one takes',
     quotesDay:'Quotes per day', minsLabel:'Minutes per quote',
     errorsTitle:'Errors & rework', errorsDesc:'Wrong quotes, mislogged orders, corrections',
-    errorsLabel:'Errors per week',
+    errorsLabel:'Errors per week (per person)',
     teamTitle:'Your team', teamDesc:'People handling these processes manually',
     teamLabel:'People in the process', salaryLabel:'Average monthly salary',
     salaryHintCOP:'COP per employee / month', salaryHintUSD:'USD per employee / month',
@@ -1068,7 +1076,7 @@ var T = {
     how3:'Schedule a meeting', how3D:'30 minutes to show you how to recover that money',
     lossLabel:'You are losing every month', lossPeriod:'in time, errors, and missed opportunities',
     metricHours:'Hours lost per month', metricManual:'Manual process cost',
-    metricErrors:'Error cost', metricRoi:'Estimated 12-month ROI',
+    metricErrors:'Error cost', metricRoi:'Net savings (12 months)',
     savingsLabel:'Potential savings with 7Group',
     beLabel:'Plan coverage vs. savings',
     beDefault:'Move the sliders to see your analysis',
@@ -1129,8 +1137,9 @@ function getSalary(){
 }
 
 function fmt(n){
-  if(currency==='COP'){return n>=1000000?'$ '+(n/1000000).toFixed(1).replace('.0','')+'M':'$ '+Math.round(n).toLocaleString('es-CO');}
-  return n>=1000?'$ '+(n/1000).toFixed(1).replace('.0','')+'K':'$ '+Math.round(n).toLocaleString('en-US');
+  var sign=n<0?'-':'';n=Math.abs(n);
+  if(currency==='COP'){return sign+(n>=1000000?'$ '+(n/1000000).toFixed(1).replace('.0','')+'M':'$ '+Math.round(n).toLocaleString('es-CO'));}
+  return sign+(n>=1000?'$ '+(n/1000).toFixed(1).replace('.0','')+'K':'$ '+Math.round(n).toLocaleString('en-US'));
 }
 
 function roiCalc(){
@@ -1145,7 +1154,7 @@ function roiCalc(){
   var totalTeamHours=team*WORK_DAYS*WORK_HOURS;
   var quoteFraction=Math.min(horasQuotes/totalTeamHours,1);
   var costoManual=quoteFraction*team*salary;
-  var costoErrores=errors*4.3*ERROR_FIX_HRS*hourlyRate;
+  var costoErrores=errors*team*4.3*ERROR_FIX_HRS*hourlyRate;
   var totalLoss=costoManual+costoErrores;
   var ahorro=totalLoss*AUTOMATION_RECOVERY;
   var roi12=(ahorro-planCost)*12;
@@ -1169,7 +1178,10 @@ window.roiUpdate=function(){
   document.getElementById('mHoras').textContent=Math.round(r.horasQuotes)+' h';
   document.getElementById('mCostoManual').textContent=fmt(r.costoManual);
   document.getElementById('mCostoErrores').textContent=fmt(r.costoErrores);
-  document.getElementById('mRoi12').textContent=r.roi12>0?fmt(r.roi12):'—';
+  var roiEl=document.getElementById('mRoi12');
+  roiEl.textContent=fmt(r.roi12);
+  roiEl.classList.toggle('highlight',r.roi12>=0);
+  roiEl.classList.toggle('negative',r.roi12<0);
   document.getElementById('mAhorro').textContent=fmt(r.ahorro);
   var beMonths=t.beMonths(r.breakeven);
   document.getElementById('mAhorroSub').textContent=t.savingsSub(beMonths);
@@ -1254,7 +1266,7 @@ applyLang();
 var TG_BOT='8702380144:AAFT81YvzaEA1Orq1eROs-j0dD7Jn8y0F9I';
 var TG_CHAT='1081707115';
 var W3F_KEY='1746964c-fa0e-418e-8d93-93b6dfb02f37';
-var CRM_URL=''; // Set after deploying Apps Script
+var CRM_URL='https://script.google.com/macros/s/AKfycbz7pIV8GjeXZTDf7bkTC3t5ObQLNWlgOG6kqzcnKpzYCAn_N0HPkazo3Ftbel4k_x0g/exec';
 var actPlan=0;
 
 window.openAct=function(plan){
