@@ -480,11 +480,11 @@ tbody tr:hover{background:var(--accent-light)}
 
   <nav class="mod-nav" id="modNav">
     <a class="mod-link active" data-mod="polizas">Polizas</a>
-    <a class="mod-link" data-mod="siniestros">Siniestros <span class="mod-badge" id="modSinBadge" style="display:none;background:var(--red);color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:4px;font-weight:700">0</span></a>
     <a class="mod-link" data-mod="cotizador">Cotizador</a>
     <a class="mod-link" data-mod="cartera">Cartera</a>
     <a class="mod-link" data-mod="comisiones">Comisiones</a>
     <a class="mod-link" data-mod="renovaciones">Renovaciones</a>
+    <a class="mod-link" data-mod="siniestros">Siniestros <span class="mod-badge" id="modSinBadge" style="display:none;background:var(--red);color:#fff;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:4px;font-weight:700">0</span></a>
     <a class="mod-link" data-mod="dashboard">KPIs</a>
     <a class="mod-link" data-mod="clientes" style="display:none">Clientes</a>
   </nav>
@@ -2137,7 +2137,8 @@ function transformApiRows(rows){
       sarlaft:'pendiente',
       pdfUrl:'',
       observaciones:r.observaciones||'',
-      fechaCreacion:r.fecha_creacion||''
+      fechaCreacion:r.fecha_creacion||'',
+      fnac:r.fnac||''
     };
   }).filter(function(p){return p.id;});
 }
@@ -2356,11 +2357,11 @@ var NOTIFY={
    ==================================== */
 var MODULE_DEFS = [
   {id:'polizas',      label:'Polizas',        desc:'Gestion de polizas, estados, busqueda',            essential:true,  on:true},
-  {id:'siniestros',   label:'Siniestros',      desc:'Pipeline de gestion de reclamaciones (WA calido)', essential:true,  on:true},
   {id:'cotizador',    label:'Cotizador',       desc:'Comparacion multi-aseguradora para clientes',      essential:true,  on:true},
   {id:'cartera',      label:'Cartera',         desc:'Polizas emitidas por cobrar (alerta 25d)',         essential:true,  on:true},
   {id:'comisiones',   label:'Comisiones',      desc:'Control de comisiones por aseguradora',            essential:true,  on:true},
   {id:'renovaciones', label:'Renovaciones',    desc:'Calendario de vencimientos y alertas',             essential:true,  on:true},
+  {id:'siniestros',   label:'Siniestros',      desc:'Pipeline de gestion de reclamaciones (WA calido)', essential:true,  on:true},
   {id:'dashboard',    label:'KPIs',            desc:'KPIs, graficos y actividad reciente',              essential:true,  on:true},
   {id:'facturacion',  label:'Facturacion',     desc:'(oculto, reemplazado por Cartera)',                essential:false, on:false},
   {id:'clientes',     label:'Clientes',        desc:'Base de datos de asegurados',                     essential:false, on:false}
@@ -3423,6 +3424,22 @@ function _diasParaVencer(hastaStr){
   if(isNaN(v.getTime())) return null;
   return Math.round((v - hoy)/86400000);
 }
+/* Dias hasta el proximo cumpleaños (0 = hoy, 365 = ya paso este año). Acepta formatos:
+   'yyyy-mm-dd', 'mm/dd/yyyy', 'dd/mm/yyyy'. Retorna null si no parsea. */
+function _diasParaCumple(fnac){
+  if(!fnac) return null;
+  var s = String(fnac).trim();
+  var mm=null, dd=null;
+  var m1 = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);           // yyyy-mm-dd
+  var m2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);         // mm/dd/yyyy (formato POLRES)
+  if(m1){ mm = parseInt(m1[2],10); dd = parseInt(m1[3],10); }
+  else if(m2){ mm = parseInt(m2[1],10); dd = parseInt(m2[2],10); }
+  if(!mm || !dd) return null;
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  var proximo = new Date(hoy.getFullYear(), mm-1, dd);
+  if(proximo < hoy) proximo = new Date(hoy.getFullYear()+1, mm-1, dd);
+  return Math.round((proximo - hoy)/86400000);
+}
 function calcularAlertasHome_(POL_VIEW){
   var LEADS_VIEW = (typeof LEADS!=='undefined' && LEADS) ? filtrarPorPermiso_(LEADS,'asesor') : [];
   var a = {
@@ -3430,8 +3447,44 @@ function calcularAlertasHome_(POL_VIEW){
     renovar:  { total:0, m30:0, m15:0, hoy:0, monto:0 },
     cartera:  { total:0, monto:0, vencidas:0, x_vencer:0 },
     autoriz:  { total:0, sarlaft:0, x_emitir:0 },
-    porLiquidar: { total:0, vencidas5d:0, monto:0 }  // Fase 4: comisiones cobradas sin liquidar
+    porLiquidar: { total:0, vencidas5d:0, monto:0 },
+    // Fase 5+ cards
+    siniestros:   { total:0, activos:0, en_proceso:0, reportados_hoy:0 },
+    cancelaciones:{ total:0, este_mes:0, este_ano:0 },
+    cumples:      { total:0, esta_semana:0, este_mes:0 }
   };
+  // Siniestros activos (de la lista cargada)
+  if(typeof SINIESTROS_LIST !== 'undefined' && SINIESTROS_LIST && SINIESTROS_LIST.length){
+    var SIN_VIEW = filtrarPorPermiso_(SINIESTROS_LIST, 'intermediario');
+    var hoyIso = new Date().toISOString().slice(0,10);
+    SIN_VIEW.forEach(function(s){
+      a.siniestros.total++;
+      if(s.estado !== 'solucionado' && s.estado !== 'cancelado') a.siniestros.activos++;
+      if(s.estado === 'en_proceso') a.siniestros.en_proceso++;
+      if((s.fecha_hecho||'').slice(0,10) === hoyIso) a.siniestros.reportados_hoy++;
+    });
+  }
+  // Cancelaciones (POLIZAS con estado 'cancelada')
+  var hoy = new Date();
+  var mm = hoy.getMonth(), yy = hoy.getFullYear();
+  POL_VIEW.forEach(function(p){
+    if(p.estado === 'cancelada'){
+      a.cancelaciones.total++;
+      var fCrea = p.fechaCreacion || '';
+      var d = fCrea ? new Date(fCrea+'T00:00:00') : null;
+      if(d && !isNaN(d.getTime())){
+        if(d.getFullYear() === yy) a.cancelaciones.este_ano++;
+        if(d.getFullYear() === yy && d.getMonth() === mm) a.cancelaciones.este_mes++;
+      }
+    }
+    // Cumpleaños proximos
+    var diasCumple = _diasParaCumple(p.fnac);
+    if(diasCumple !== null && diasCumple <= 30 && p.estado !== 'cancelada'){
+      a.cumples.total++;
+      if(diasCumple <= 7) a.cumples.esta_semana++;
+      else a.cumples.este_mes++;
+    }
+  });
   // Comisiones cobradas sin liquidar (5 dias limite)
   if(typeof LIQUIDACIONES !== 'undefined' && LIQUIDACIONES && LIQUIDACIONES.length){
     var LIQ_VIEW = filtrarPorPermiso_(LIQUIDACIONES, 'intermediario');
@@ -3482,13 +3535,16 @@ function calcularAlertasHome_(POL_VIEW){
 }
 window.filtrarPolizasAlerta_ = function(tipo){
   var filters = {
-    'venc-p5':  { label:'Vencidas +5 dias',    fn:function(p){var d=_diasParaVencer(p.hasta);return d<0 && d>=-5;} },
-    'venc-all': { label:'Todas las vencidas',  fn:function(p){var d=_diasParaVencer(p.hasta);return d<0;} },
-    'renov-30': { label:'Renovacion -30 dias', fn:function(p){var d=_diasParaVencer(p.hasta);return d>15 && d<=30;} },
-    'renov-15': { label:'Renovacion -15 dias', fn:function(p){var d=_diasParaVencer(p.hasta);return d>0 && d<=15;} },
-    'renov-0':  { label:'Vence hoy',           fn:function(p){var d=_diasParaVencer(p.hasta);return d===0;} },
-    'cart-venc':{ label:'Cartera vencida',     fn:function(p){var d=_diasParaVencer(p.hasta);return d<0;} },
-    'cart-xv':  { label:'Cartera por vencer',  fn:function(p){var d=_diasParaVencer(p.hasta);return d>=0 && d<=15;} }
+    'venc-p5':    { label:'Vencidas +5 dias',       fn:function(p){var d=_diasParaVencer(p.hasta);return d<0 && d>=-5;} },
+    'venc-all':   { label:'Todas las vencidas',     fn:function(p){var d=_diasParaVencer(p.hasta);return d<0;} },
+    'renov-30':   { label:'Renovacion -30 dias',    fn:function(p){var d=_diasParaVencer(p.hasta);return d>15 && d<=30;} },
+    'renov-15':   { label:'Renovacion -15 dias',    fn:function(p){var d=_diasParaVencer(p.hasta);return d>0 && d<=15;} },
+    'renov-0':    { label:'Vence hoy',              fn:function(p){var d=_diasParaVencer(p.hasta);return d===0;} },
+    'cart-venc':  { label:'Cartera vencida',        fn:function(p){var d=_diasParaVencer(p.hasta);return d<0;} },
+    'cart-xv':    { label:'Cartera por vencer',     fn:function(p){var d=_diasParaVencer(p.hasta);return d>=0 && d<=15;} },
+    'canceladas': { label:'Polizas canceladas',     fn:function(p){return p.estado==='cancelada';} },
+    'cumple-7':   { label:'Cumpleaños esta semana', fn:function(p){var d=_diasParaCumple(p.fnac);return d!==null && d<=7;} },
+    'cumple-30':  { label:'Cumpleaños en 30 dias',  fn:function(p){var d=_diasParaCumple(p.fnac);return d!==null && d<=30;} }
   };
   var f = filters[tipo];
   if(!f) return;
@@ -4038,6 +4094,28 @@ function renderPolizas(filter){
       drill: drill([
         {color:'r', label:'En alerta (>25d)', n:A.cartera.vencidas, action:"switchMod('cartera');switchCarSub('pendientes')"},
         {color:'y', label:'Por cobrar (<25d)', n:A.cartera.x_vencer, action:"switchMod('cartera');switchCarSub('pendientes')"}
+      ])
+    },
+    {
+      c:'c-red', l:'Siniestros', v:A.siniestros.activos,
+      drill: drill([
+        {color:'r', label:'Reportados hoy', n:A.siniestros.reportados_hoy, action:"switchMod('siniestros');switchSinSub('activos')"},
+        {color:'o', label:'En proceso', n:A.siniestros.en_proceso, action:"switchMod('siniestros');switchSinSub('activos')"},
+        {color:'g', label:'Ver todos', n:A.siniestros.total, action:"switchMod('siniestros');switchSinSub('todos')"}
+      ])
+    },
+    {
+      c:'c-purple', l:'Cancelaciones', v:A.cancelaciones.total,
+      drill: drill([
+        {color:'r', label:'Este mes', n:A.cancelaciones.este_mes, action:"filtrarPolizasAlerta_('canceladas')"},
+        {color:'y', label:'Este año', n:A.cancelaciones.este_ano, action:"filtrarPolizasAlerta_('canceladas')"}
+      ])
+    },
+    {
+      c:'c-teal', l:'Cumpleaños proximos', v:A.cumples.total,
+      drill: drill([
+        {color:'o', label:'Esta semana', n:A.cumples.esta_semana, action:"filtrarPolizasAlerta_('cumple-7')"},
+        {color:'g', label:'En 30 dias', n:A.cumples.este_mes, action:"filtrarPolizasAlerta_('cumple-30')"}
       ])
     }
   ];
