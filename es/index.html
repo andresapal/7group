@@ -118,8 +118,8 @@
       padding: 4px 8px;
     }
     .promo-close:hover { color: #fff; }
-    body.has-promo nav { top: 37px; }
-    body.has-promo .hero-wrapper { margin-top: 37px; }
+    body.has-promo nav { top: var(--promo-h, 37px); }
+    body.has-promo .hero-wrapper { margin-top: var(--promo-h, 37px); }
     @media(max-width:600px) {
       .promo-bar { font-size: 11px; gap: 8px; padding: 8px 40px 8px 16px; }
       .promo-bar span.promo-hide-mobile { display: none; }
@@ -1578,7 +1578,7 @@
         </div>
         <div class="roi-result">
           <div class="roi-result-val roi" id="roiYear">$0</div>
-          <div class="roi-result-label">ROI a 12 meses</div>
+          <div class="roi-result-label">Ahorro neto (12 meses)</div>
         </div>
       </div>
     </div>
@@ -1732,6 +1732,20 @@
       nav.classList.toggle('scrolled', window.scrollY > 60);
     });
 
+    // Promo bar height sync (bug #1)
+    (function(){
+      var bar = document.getElementById('promoBar');
+      if (!bar) return;
+      function sync(){
+        if (document.body.classList.contains('has-promo')) {
+          var h = bar.getBoundingClientRect().height;
+          document.documentElement.style.setProperty('--promo-h', h + 'px');
+        }
+      }
+      sync();
+      window.addEventListener('resize', sync);
+    })();
+
     // Mobile menu
     const menuToggle = document.getElementById('menuToggle');
     const mobileDrawer = document.getElementById('mobileDrawer');
@@ -1855,10 +1869,12 @@
     var savings = totalLoss * 0.78;
     var planCost = 3000000;
     var roi12 = (savings - planCost) * 12;
-    function f(n) { return n >= 1000000 ? '$' + (n/1000000).toFixed(1).replace('.0','') + 'M' : '$' + Math.round(n).toLocaleString('es-CO'); }
+    function f(n) { var sign = n < 0 ? '-' : ''; n = Math.abs(n); return sign + (n >= 1000000 ? '$' + (n/1000000).toFixed(1).replace('.0','') + 'M' : '$' + Math.round(n).toLocaleString('es-CO')); }
     document.getElementById('roiLoss').textContent = f(totalLoss);
     document.getElementById('roiSave').textContent = f(savings);
-    document.getElementById('roiYear').textContent = roi12 > 0 ? f(roi12) : '--';
+    var yearEl = document.getElementById('roiYear');
+    yearEl.textContent = f(roi12);
+    yearEl.className = 'roi-result-val ' + (roi12 < 0 ? 'loss' : 'roi');
   }
   calcROI();
   </script>
