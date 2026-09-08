@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
 <meta charset="UTF-8">
@@ -441,9 +441,7 @@ tbody tr:hover{background:var(--accent-light)}
     <div class="gate-error" id="gateBlocked" style="color:var(--red)">Cuenta bloqueada por intentos fallidos. Intente mas tarde.</div>
 
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border2)">
-      <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase">Google no carga? Entra con tu correo autorizado</div>
-      <input id="fallbackEmail" type="email" placeholder="tu-correo@dominio.com" style="width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);outline:none;margin-bottom:8px" autocomplete="email">
-      <button onclick="entrarConCorreo()" style="width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">Entrar</button>
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase">Acceso solo con cuenta Google verificada</div>
       <div id="fallbackError" style="display:none;margin-top:8px;font-size:11px;color:var(--red);text-align:center"></div>
     </div>
 
@@ -1585,6 +1583,7 @@ var ALLOWED_EMAILS=[
 var ADMIN_EMAILS=['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
 var GATE_KEY='aseg_erp_auth';
 var GATE_TS_KEY='aseg_erp_ts';
+var GATE_TOKEN_KEY='aseg_erp_token';
 var GATE_FAIL_KEY='aseg_erp_fails';
 var GATE_BLOCK_KEY='aseg_erp_block';
 var SESSION_HOURS=24*30; // 30 dias, para que Fabian no tenga que loguear cada día en el celular
@@ -1666,22 +1665,19 @@ function puedeVerModulo_(mod){
   var _origFetch = window.fetch;
   window.fetch = function(url, opts){
     try{
-      // Fallback a localStorage si CURRENT_USER aun no cargo el perfil
-      var email = (window.CURRENT_USER && CURRENT_USER.email) ||
-                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
-                  localStorage.getItem('aseg_erp_auth') || '';
-      // Solo interceptar si es al Apps Script y hay email de sesion
-      if(email && typeof url === 'string' && url.indexOf(APPS_SCRIPT_URL) === 0){
-        // GET (o sin body): inyectar &email=... si no viene
+      // Token de sesion (emitido por el backend tras verificar Google). Sustituye al email crudo.
+      var token = (typeof GATE_TOKEN_KEY!=='undefined' && localStorage.getItem(GATE_TOKEN_KEY)) || '';
+      if(token && typeof url === 'string' && url.indexOf(APPS_SCRIPT_URL) === 0){
+        // GET (o sin body): inyectar &token=... si no viene
         if(!opts || !opts.body){
-          if(url.indexOf('email=') < 0){
-            url += (url.indexOf('?')>=0 ? '&' : '?') + 'email=' + encodeURIComponent(email);
+          if(url.indexOf('token=') < 0){
+            url += (url.indexOf('?')>=0 ? '&' : '?') + 'token=' + encodeURIComponent(token);
           }
         } else if(opts.method === 'POST' && typeof opts.body === 'string'){
-          // POST: parsear body JSON, inyectar email si no viene
+          // POST: parsear body JSON, inyectar token si no viene
           try{
             var b = JSON.parse(opts.body);
-            if(!b.email){ b.email = email; opts = Object.assign({}, opts, {body: JSON.stringify(b)}); }
+            if(!b.token){ b.token = token; opts = Object.assign({}, opts, {body: JSON.stringify(b)}); }
           }catch(e){}
         }
       }
@@ -1691,8 +1687,10 @@ function puedeVerModulo_(mod){
 })();
 
 function loadCurrentUser_(email){
-  if(!email){ CURRENT_USER = { email:'', rol:'anonimo', permisos:{} }; return Promise.resolve(); }
-  return fetch(APPS_SCRIPT_URL+'?action=me&email='+encodeURIComponent(email), {redirect:'follow'})
+  var token=''; try{ token=localStorage.getItem(GATE_TOKEN_KEY)||''; }catch(e){}
+  if(!email && !token){ CURRENT_USER = { email:'', rol:'anonimo', permisos:{} }; return Promise.resolve(); }
+  var q = token ? ('token='+encodeURIComponent(token)) : ('email='+encodeURIComponent(email));
+  return fetch(APPS_SCRIPT_URL+'?action=me&'+q, {redirect:'follow'})
     .then(function(r){return r.json();})
     .then(function(j){
       if(j && j.status==='ok' && j.perfil){
@@ -1803,12 +1801,14 @@ function addFailedAttempt(){
 function isSessionValid(){
   try{
     var stored=localStorage.getItem(GATE_KEY)||'';
+    var token=localStorage.getItem(GATE_TOKEN_KEY)||'';
     var ts=parseInt(localStorage.getItem(GATE_TS_KEY)||'0');
-    if(!stored || !ts) return false;
+    if(!stored || !token || !ts) return false;
     if(ALLOWED_EMAILS.indexOf(stored)===-1) return false;
     var elapsed=(Date.now()-ts)/(1000*60*60);
     if(elapsed>SESSION_HOURS){
       localStorage.removeItem(GATE_KEY);
+      localStorage.removeItem(GATE_TOKEN_KEY);
       localStorage.removeItem(GATE_TS_KEY);
       return false;
     }
@@ -1836,43 +1836,38 @@ function enterApp(){
 }
 
 window.entrarConCorreo=function(){
-  var email = (document.getElementById('fallbackEmail').value||'').trim().toLowerCase();
-  var errBox = document.getElementById('fallbackError');
-  errBox.style.display='none';
-  if(isBlocked()){
-    errBox.style.display='block';
-    errBox.textContent='Cuenta bloqueada por intentos fallidos.';
-    return;
-  }
-  if(ALLOWED_EMAILS.indexOf(email)!==-1){
-    localStorage.setItem(GATE_KEY,email);
-    localStorage.setItem(GATE_TS_KEY,Date.now().toString());
-    localStorage.removeItem(GATE_FAIL_KEY);
-    localStorage.removeItem(GATE_BLOCK_KEY);
-    setAdminMode(email);
-    enterApp();
-  } else {
-    errBox.style.display='block';
-    errBox.textContent='Correo no autorizado.';
-    addFailedAttempt();
-  }
+  // ELIMINADO (blindaje 2.5): el acceso es SOLO con la cuenta Google verificada en el backend.
+  // Si alguien del equipo dependia de este fallback, avisar al administrador.
+  document.getElementById('fallbackError').style.display='block';
+  document.getElementById('fallbackError').textContent='Usa el boton de Google para entrar con tu correo autorizado.';
 };
 
 function handleGoogleResponse(r){
   if(isBlocked()){document.getElementById('gateBlocked').style.display='block';return;}
+  var idToken = r && r.credential;
+  if(!idToken){ addFailedAttempt(); return; }
   try{
-    var payload=JSON.parse(atob(r.credential.split('.')[1]));
+    var payload=JSON.parse(atob(idToken.split('.')[1]));
     var email=(payload.email||'').toLowerCase();
-    if(ALLOWED_EMAILS.indexOf(email)!==-1){
-      localStorage.setItem(GATE_KEY,email);
-      localStorage.setItem(GATE_TS_KEY,Date.now().toString());
-      localStorage.removeItem(GATE_FAIL_KEY);
-      localStorage.removeItem(GATE_BLOCK_KEY);
-      setAdminMode(email);
-      enterApp();
-    } else {
-      addFailedAttempt();
-    }
+    if(ALLOWED_EMAILS.indexOf(email)===-1){ addFailedAttempt(); return; }
+    // Verificar en el backend (tokeninfo Google: audiencia, email, expiracion) y obtener token de sesion
+    fetch(APPS_SCRIPT_URL,{
+      method:'POST', redirect:'follow',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'login', credential:idToken})
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if(j && j.status==='ok' && j.token){
+        localStorage.setItem(GATE_TOKEN_KEY, j.token);
+        localStorage.setItem(GATE_KEY, j.email || email);
+        localStorage.setItem(GATE_TS_KEY, Date.now().toString());
+        localStorage.removeItem(GATE_FAIL_KEY);
+        localStorage.removeItem(GATE_BLOCK_KEY);
+        setAdminMode(j.email || email);
+        enterApp();
+      } else {
+        addFailedAttempt();
+      }
+    }).catch(function(){ addFailedAttempt(); });
   }catch(e){addFailedAttempt();}
 }
 
@@ -1883,18 +1878,6 @@ function initGoogleSignIn(){
 }
 
 function autoEnter(){
-  // BYPASS DEV: localhost, 127.0.0.1, file:// o ?dev=1 saltan el login de Google.
-  // Esto solo aplica al probar en local — en 7group.site el login funciona normal.
-  var h = location.hostname;
-  var isDev = h==='localhost' || h==='127.0.0.1' || h==='' || location.search.indexOf('dev=1')>=0;
-  if(isDev){
-    try{
-      localStorage.setItem(GATE_KEY, ALLOWED_EMAILS[0] || 'dev@local');
-      localStorage.setItem(GATE_TS_KEY, String(Date.now()));
-    }catch(e){}
-    enterApp();
-    return;
-  }
   if(isBlocked()){
     document.getElementById('gateBlocked').style.display='block';
     var btn=document.getElementById('g_id_signin');
@@ -2597,12 +2580,13 @@ window.nuevoProspecto=function(){
   document.getElementById('npPreview').style.display='none';
   document.querySelectorAll('#npTipoChips .np-chip').forEach(function(c){c.classList.remove('on')});
 
-  // Regla de rol (Andres 2026-08):
-  //  - admin/dueno pueden elegir intermediario (Fabian asigna a cualquier agente).
+  // Regla de rol (Andres 2026-08 + 2026-09):
+  //  - admin/dueno y MONICA pueden elegir intermediario (asignar a cualquier agente).
   //  - asesor: intermediario forzado a su propio nombre (Erika, Judith, etc), sin poder cambiarlo.
   var esAsesor = (typeof CURRENT_USER!=='undefined') && CURRENT_USER.rol==='asesor';
+  var puedeAsignarInterm = (typeof CURRENT_USER!=='undefined') && (esAdminODueno_() || String(CURRENT_USER.email||'').toLowerCase()==='aseguraloseguros@gmail.com');
   var intermGrp = document.getElementById('npInterm') && document.getElementById('npInterm').closest('.form-row');
-  if(esAsesor){
+  if(esAsesor && !puedeAsignarInterm){
     // Ocultar el bloque de intermediario y forzar valor
     var miNombre = (CURRENT_USER.intermediario || CURRENT_USER.nombre || '').trim();
     var sel = document.getElementById('npInterm');
