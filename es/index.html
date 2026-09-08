@@ -171,27 +171,6 @@
 
     nav a:hover { color: #fff; }
 
-    /* NAV DROPDOWN */
-    .has-dropdown { position: relative; }
-    .nav-dropdown {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: -12px;
-      background: rgba(10,10,10,0.95);
-      backdrop-filter: blur(14px);
-      padding: 6px 0;
-      min-width: 160px;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .has-dropdown:hover .nav-dropdown { display: block; }
-    .nav-dropdown a {
-      display: block;
-      padding: 10px 20px;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
     /* ROI MINI CALCULATOR */
     .roi-calc { border: 1px solid var(--light); padding: 40px 48px; margin-bottom: 64px; }
     .roi-calc-title { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); margin-bottom: 8px; }
@@ -573,86 +552,6 @@
       max-width: 560px;
     }
 
-    .clients-carousel {
-      overflow: hidden;
-      position: relative;
-    }
-
-    .clients-carousel::before,
-    .clients-carousel::after {
-      content: '';
-      position: absolute;
-      top: 0; bottom: 0;
-      width: 120px;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .clients-carousel::before {
-      left: 0;
-      background: linear-gradient(to right, var(--white), transparent);
-    }
-
-    .clients-carousel::after {
-      right: 0;
-      background: linear-gradient(to left, var(--white), transparent);
-    }
-
-    .clients-track {
-      display: flex;
-      animation: scroll-clients 36s linear infinite;
-      width: max-content;
-    }
-
-    .clients-track.paused { animation-play-state: paused; }
-
-    @keyframes scroll-clients {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-
-    .client-item {
-      background: var(--white);
-      border-right: 1px solid var(--light);
-      padding: 48px 52px;
-      width: 440px;
-      flex-shrink: 0;
-      cursor: default;
-      transition: background 0.3s, opacity 0.3s;
-    }
-
-    .client-item.highlighted { background: #efefef; }
-
-    .client-item.dimmed { opacity: 0.35; }
-
-    .client-logo {
-      height: 44px;
-      width: auto;
-      max-width: 190px;
-      object-fit: contain;
-      filter: grayscale(100%) brightness(0.45);
-      margin-bottom: 28px;
-      display: block;
-      transition: filter 0.3s;
-    }
-
-    .client-item.highlighted .client-logo { filter: grayscale(100%) brightness(0.25); }
-
-    .client-item h4 {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--black);
-      margin-bottom: 10px;
-    }
-
-    .client-item p {
-      font-size: 14px;
-      color: var(--gray);
-      line-height: 1.75;
-    }
-
     .client-tag {
       display: inline-block;
       margin-top: 18px;
@@ -666,7 +565,6 @@
 
     @media (max-width: 768px) {
       .clients-header { padding: 0 24px; }
-      .client-item { width: 300px; padding: 36px 28px; }
     }
 
     /* CTA FINAL */
@@ -755,7 +653,7 @@
       display:flex;gap:16px;padding-top:24px;margin-top:auto;
     }
     .mobile-drawer .mob-lang a{
-      font-size:14px;letter-spacing:1px;border:none;padding:8px 16px;
+      font-size:14px;letter-spacing:1px;padding:8px 16px;
       border:1px solid rgba(255,255,255,.12);border-radius:6px;
     }
     .mobile-drawer .mob-lang a.active{color:#fff;font-weight:600;border-color:rgba(255,255,255,.3)}
@@ -1153,11 +1051,13 @@
     <span>Delivery Voice AI</span>
     <span class="promo-hide-mobile">—</span>
     <a href="/demos/restaurantes/onboarding.html?lang=es">Prueba gratis 15 dias →</a>
-    <button class="promo-close" onclick="document.getElementById('promoBar').classList.add('hidden');document.body.classList.remove('has-promo');sessionStorage.setItem('promoHidden','1')" aria-label="Cerrar">&#10005;</button>
+    <button class="promo-close" onclick="document.getElementById('promoBar').classList.add('hidden');document.body.classList.remove('has-promo');try{sessionStorage.setItem('promoHidden','1')}catch(e){}" aria-label="Cerrar">&#10005;</button>
   </div>
   <script>
-    if(!sessionStorage.getItem('promoHidden')){document.body.classList.add('has-promo')}
-    else{document.getElementById('promoBar').classList.add('hidden')}
+    try{
+      if(!sessionStorage.getItem('promoHidden')){document.body.classList.add('has-promo')}
+      else{document.getElementById('promoBar').classList.add('hidden')}
+    }catch(e){document.body.classList.add('has-promo')}
   </script>
 
   <!-- NAV -->
