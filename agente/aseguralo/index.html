@@ -2356,12 +2356,13 @@ var NOTIFY={
    ==================================== */
 var MODULE_DEFS = [
   {id:'polizas',      label:'Polizas',        desc:'Gestion de polizas, estados, busqueda',            essential:true,  on:true},
+  {id:'siniestros',   label:'Siniestros',      desc:'Pipeline de gestion de reclamaciones (WA calido)', essential:true,  on:true},
   {id:'cotizador',    label:'Cotizador',       desc:'Comparacion multi-aseguradora para clientes',      essential:true,  on:true},
-  {id:'dashboard',    label:'KPIs',            desc:'KPIs, graficos y actividad reciente',              essential:true,  on:true},
+  {id:'cartera',      label:'Cartera',         desc:'Polizas emitidas por cobrar (alerta 25d)',         essential:true,  on:true},
   {id:'comisiones',   label:'Comisiones',      desc:'Control de comisiones por aseguradora',            essential:true,  on:true},
-  {id:'facturacion',  label:'Facturacion',     desc:'Cuentas de cobro, cartera y conciliacion',         essential:true,  on:true},
   {id:'renovaciones', label:'Renovaciones',    desc:'Calendario de vencimientos y alertas',             essential:true,  on:true},
-  {id:'siniestros',   label:'Siniestros',      desc:'Pipeline de gestion de reclamaciones',             essential:false, on:false},
+  {id:'dashboard',    label:'KPIs',            desc:'KPIs, graficos y actividad reciente',              essential:true,  on:true},
+  {id:'facturacion',  label:'Facturacion',     desc:'(oculto, reemplazado por Cartera)',                essential:false, on:false},
   {id:'clientes',     label:'Clientes',        desc:'Base de datos de asegurados',                     essential:false, on:false}
 ];
 var MOD_STORAGE_KEY = 'aseg_erp_modules';
@@ -2375,6 +2376,8 @@ function loadModuleState(){
       });
     }
   } catch(e){}
+  // BLINDAJE: modulos essential:true SIEMPRE on:true (ignora cache viejo del navegador)
+  MODULE_DEFS.forEach(function(m){ if(m.essential) m.on = true; });
 }
 
 function saveModuleLocal(){
