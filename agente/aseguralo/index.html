@@ -3671,12 +3671,15 @@ function _diasDesde(iso){
   return Math.max(0, Math.round((hoy - d)/86400000));
 }
 
+/* CARTERA = VISTA derivada de POLIZAS + sheet CARTERA.
+   Regla Andres: cartera muestra polizas de POLRES que el cliente aun no ha pagado.
+   Cruce:
+     - POLIZAS no canceladas → base de vista
+     - Sheet CARTERA con estado='Pagada' → EXCLUYE de "Pendientes" y aparece en "Pagadas"
+     - Sheet CARTERA con estado='Pendiente' → sobrescribe/completa datos si existe
+     - Poliza sin registro en sheet CARTERA → Pendiente por default */
 function loadCarteraFromSheet_(){
-  // Cache inmediato
-  try{
-    var cached = JSON.parse(localStorage.getItem(CARTERA_CACHE_KEY)||'null');
-    if(cached && cached.rows){ CARTERA = cached.rows; renderCartera(); }
-  }catch(e){}
+  // Traigo sheet CARTERA para saber pagos ya registrados
   var url = APPS_SCRIPT_URL + '?action=cartera&' + _apiAuthQuery_();
   var ctrl = new AbortController();
   var to = setTimeout(function(){ctrl.abort();}, 12000);
@@ -3684,18 +3687,70 @@ function loadCarteraFromSheet_(){
     .then(function(r){return r.json();})
     .then(function(data){
       clearTimeout(to);
-      if(data && data.status === 'ok' && data.rows){
-        CARTERA = data.rows;
-        try{
-          localStorage.setItem(CARTERA_CACHE_KEY, JSON.stringify({rows:data.rows}));
-          localStorage.setItem(CARTERA_CACHE_TS, String(Date.now()));
-        }catch(e){}
-        renderCartera();
-        // Refresca card del home POLIZAS con datos reales
-        if(typeof renderPolizas === 'function') renderPolizas();
-      }
+      var carteraSheet = (data && data.status === 'ok' && data.rows) ? data.rows : [];
+      _construirCartera_(carteraSheet);
+      try{
+        localStorage.setItem(CARTERA_CACHE_KEY, JSON.stringify({rows:carteraSheet}));
+        localStorage.setItem(CARTERA_CACHE_TS, String(Date.now()));
+      }catch(e){}
+      if(typeof renderPolizas === 'function') renderPolizas();
     })
-    .catch(function(){ clearTimeout(to); });
+    .catch(function(){
+      clearTimeout(to);
+      // Sin backend: usa cache
+      try{
+        var cached = JSON.parse(localStorage.getItem(CARTERA_CACHE_KEY)||'null');
+        _construirCartera_(cached && cached.rows || []);
+      }catch(e){ _construirCartera_([]); }
+    });
+}
+
+/* Construye la vista CARTERA cruzando POLIZAS (base) con el sheet CARTERA (marcadores de pago). */
+function _construirCartera_(carteraSheet){
+  var porPoliza = {};
+  (carteraSheet||[]).forEach(function(c){
+    var k = String(c.poliza||'').trim();
+    if(k) porPoliza[k] = c;
+  });
+  var vista = [];
+  (POLIZAS||[]).forEach(function(p){
+    if(p.estado === 'cancelada') return;
+    var pid = String(p.id||'').trim();
+    var reg = porPoliza[pid];
+    if(reg){
+      // Existe registro (Pagada o Pendiente): usa datos del sheet + refuerza con POLIZAS
+      vista.push({
+        id: reg.id,
+        poliza: reg.poliza || pid,
+        tomador: reg.tomador || p.cliente,
+        aseguradora: reg.aseguradora || p.aseguradora,
+        prima: Number(reg.prima)||Number(p.prima)||0,
+        fecha_emision: reg.fecha_emision || p.desde || '',
+        estado: reg.estado || 'Pendiente',
+        fecha_pago: reg.fecha_pago || '',
+        lead_id: reg.lead_id || '',
+        intermediario: reg.intermediario || p.intermediario || '',
+        _virtual: false
+      });
+    } else {
+      // No registrada: aparece como Pendiente derivada de POLRES
+      vista.push({
+        id: 'V-'+pid,
+        poliza: pid,
+        tomador: p.cliente,
+        aseguradora: p.aseguradora,
+        prima: Number(p.prima)||0,
+        fecha_emision: p.desde || p.fecha_creacion || '',
+        estado: 'Pendiente',
+        fecha_pago: '',
+        lead_id: '',
+        intermediario: p.intermediario || '',
+        _virtual: true // no existe fila en sheet CARTERA todavia
+      });
+    }
+  });
+  CARTERA = vista;
+  renderCartera();
 }
 
 function _carteraAlertaChip(estado, dias){
@@ -3899,21 +3954,52 @@ window.marcarPagadaCartera_ = function(id){
   var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
                   (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
                   localStorage.getItem('aseg_erp_auth') || '';
-  // Optimista: actualiza local, envia al backend
+  // Optimista: actualiza local
   c.estado = 'Pagada';
   c.fecha_pago = new Date().toISOString().slice(0,10);
   renderCartera();
-  fetch(APPS_SCRIPT_URL, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify({action:'cartera-update', email:emailAuth, id:id, estado:'Pagada'})
-  }).catch(function(){});
-  // Refresca cache
-  try{ localStorage.setItem(CARTERA_CACHE_KEY, JSON.stringify({rows:CARTERA})); }catch(e){}
+  // Backend: si es fila virtual (derivada de POLRES sin registro previo en sheet CARTERA), CREAR;
+  // si ya existe registro, ACTUALIZAR estado.
+  var payload;
+  if(c._virtual){
+    payload = {
+      action: 'cartera-create',
+      poliza: c.poliza,
+      tomador: c.tomador,
+      aseguradora: c.aseguradora,
+      prima: c.prima,
+      fecha_emision: c.fecha_emision,
+      intermediario: c.intermediario,
+      email: emailAuth
+    };
+    // Segundo POST tras crear: marcarla pagada. Backend hace cartera-create idempotente por poliza.
+    fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    }).catch(function(){});
+    // Sync a estado Pagada (usa poliza como identificador via update inteligente)
+    setTimeout(function(){
+      fetch(APPS_SCRIPT_URL, {
+        method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({action:'cartera-update-by-poliza', email:emailAuth, poliza:c.poliza, estado:'Pagada'})
+      }).catch(function(){});
+    }, 800);
+  } else {
+    fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'cartera-update', email:emailAuth, id:id, estado:'Pagada'})
+    }).catch(function(){});
+  }
   // Refresca card del home POLIZAS
   if(typeof renderPolizas === 'function') renderPolizas();
-  // Refresca LIQUIDACIONES para que la comision aparezca en Liquidar (backend sincroniza al marcar Pagada)
-  setTimeout(function(){ if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet(); }, 1500);
+  // Refresca CARTERA + LIQUIDACIONES tras 2s para reflejar el estado real desde backend
+  setTimeout(function(){
+    if(typeof loadCarteraFromSheet_==='function') loadCarteraFromSheet_();
+    if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
+  }, 2000);
 };
 
 /* ============================================================
