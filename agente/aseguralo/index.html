@@ -759,10 +759,10 @@ tbody tr:hover{background:var(--accent-light)}
                 <th>No. Poliza</th>
                 <th>Tomador</th>
                 <th>Aseguradora</th>
-                <th>Prima</th>
-                <th>Emitida</th>
-                <th>Dias transcurridos</th>
-                <th>Estado</th>
+                <th>Prima total</th>
+                <th>Forma de pago</th>
+                <th>Cuota</th>
+                <th>Vencimiento</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -2783,6 +2783,7 @@ function renderPorEmitir(){
       // Aqui solo queda enviar al cliente. El "Marcar enviada" queda como opcion manual redundante (idempotente).
       botones =
         '<a class="btn btn-sm" href="'+emitida.driveUrl+'" target="_blank">Ver PDF poliza</a>'+
+        (tel?'<button class="btn btn-sm btn-wa-solid" onclick="_waBienvenida_(\''+l.id+'\')">WA bienvenida</button>':'')+
         (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarPolizaWA(\''+l.id+'\')">Enviar por WA al cliente</button>':'')+
         '<span style="font-size:10px;color:var(--green);font-weight:700;background:rgba(52,168,83,.15);padding:4px 10px;border-radius:6px">En CARTERA &#10003;</span>';
     }
@@ -2847,9 +2848,11 @@ function renderSarlaft(){
 
     var accionesAllianz =
       (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarSarlaftAllianz(\''+l.id+'\')">Solicitar datos SARLAFT (WA)</button>':'')+
+      (tel?'<button class="btn btn-sm btn-wa-solid" onclick="_waDocumentos_(\''+l.id+'\')">WA documentos</button>':'')+
       '<button class="btn btn-sm btn-primary" onclick="marcarSarlaftOK(\''+l.id+'\')" style="background:var(--green);border:none">SARLAFT completado &#10003;</button>';
     var accionesPDF =
       (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarSarlaftPDFs(\''+l.id+'\',\''+slug+'\')">Enviar formularios (WA)</button>':'')+
+      (tel?'<button class="btn btn-sm btn-wa-solid" onclick="_waDocumentos_(\''+l.id+'\')">WA documentos</button>':'')+
       '<button class="btn btn-sm btn-primary" onclick="marcarSarlaftOK(\''+l.id+'\')" style="background:var(--green);border:none">SARLAFT completado &#10003;</button>';
 
     // Contenedor de la lista de checkboxes que se carga async
@@ -3403,6 +3406,8 @@ function renderPolizaRow(p,idx){
         '<div id="polMenu-'+_jsq(p.id)+'" class="pol-actions-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);z-index:100;min-width:170px;overflow:hidden">'+
           '<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'wa\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:#25d366"></span>WhatsApp</button>'+
           (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'renovar\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:var(--orange)"></span>Renovar</button>':'')+
+          (p.estado==='por-renovar'||p.estado==='vencida'?'<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'waRenovar\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:#25d366"></span>WA renovacion</button>':'')+
+          (p.estado==='activa'?'<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'waReferidos\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:#25d366"></span>WA referidos</button>':'')+
           '<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'siniestro\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:var(--red)"></span>Reportar siniestro</button>'+
           (p.estado!=='cancelada'?'<button class="pol-menu-item" onclick="_menuAccion_(\''+_jsq(p.id)+'\',\'anular\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer;border-top:1px solid var(--border)"><span style="width:8px;height:8px;border-radius:50%;background:var(--dim)"></span>Anular poliza</button>':'')+
         '</div>'+
@@ -3666,13 +3671,57 @@ function _carteraAlertaChip(estado, dias){
   return '<span style="display:inline-block;padding:3px 10px;border-radius:12px;background:rgba(255,193,7,.15);color:var(--orange);font-size:11px;font-weight:700">Pendiente '+dias+'d</span>';
 }
 
+/* ============================================
+   CARTERA — organizacion por forma de pago (Fabian 2026-09)
+   La forma de pago se deriva de POLRES (observaciones 'Forma pago: X').
+   Reglas: mensual vence 30d (alerta 7d) · trimestral 90d (alerta 15d)
+           · semestral 180d (alerta 15d) · anual 25d (alerta 25d).
+   ============================================ */
+function _formaPagoCartera_(c){
+  var fp = '';
+  var pol = (POLIZAS||[]).filter(function(p){return p.id===c.poliza})[0];
+  if(pol){
+    var m = /forma\s*pago\s*[:：]\s*([a-záéíóú]+)/i.exec(String(pol.observaciones||''));
+    if(m) fp = m[1].toLowerCase();
+  }
+  if(fp.indexOf('mensual')>=0)    return {label:'Mensual',    div:12, alerta:7,  ventana:30};
+  if(fp.indexOf('trimestral')>=0) return {label:'Trimestral', div:4,  alerta:15, ventana:90};
+  if(fp.indexOf('semestral')>=0)  return {label:'Semestral',  div:2,  alerta:15, ventana:180};
+  return {label:'Anual', div:1, alerta:25, ventana:25};
+}
+/* Vencimiento del pago segun forma de pago: {cuota, dias}. dias<0 = vencido */
+function _vencimientoCartera_(c, fp){
+  var cuota = (Number(c.prima)||0)/fp.div;
+  var emi = c.fecha_emision ? new Date(c.fecha_emision+'T12:00:00') : null;
+  if(!emi || isNaN(emi.getTime())) return {cuota:cuota, dias:null, fp:fp};
+  var vence = new Date(emi.getTime()); vence.setDate(vence.getDate()+fp.ventana);
+  var hoy = new Date(); hoy.setHours(0,0,0,0); vence.setHours(0,0,0,0);
+  var dias = Math.round((vence - hoy)/86400000);
+  return {cuota:cuota, dias:dias, fp:fp};
+}
+/* Chip visual del vencimiento */
+function _vencChipCartera_(v){
+  if(!v || v.dias === null) return '<span style="color:var(--dim);font-size:11px">—</span>';
+  if(v.dias > 0){
+    var css = v.dias <= v.fp.alerta
+      ? 'background:rgba(255,193,7,.15);color:var(--orange)'
+      : 'background:rgba(52,168,83,.15);color:var(--green)';
+    return '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;'+css+'">Vence en '+v.dias+' d</span>';
+  }
+  var diasV = Math.abs(v.dias);
+  var masMes = diasV > 30 ? ' <strong>(más de un mes)</strong>' : '';
+  return '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(255,71,71,.15);color:var(--red)">'+diasV+' días vencido'+masMes+'</span>';
+}
+
 function renderCartera(){
   var tbody = document.getElementById('carteraTable'); if(!tbody) return;
   var puedeEditar = typeof CURRENT_USER!=='undefined' && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
   // Cada fila calcula sus dias transcurridos en runtime (no persiste, siempre actualizado)
   var enriched = (CARTERA||[]).map(function(c){
     var dias = _diasDesde(c.fecha_emision);
-    return Object.assign({}, c, {dias:dias});
+    var fp = _formaPagoCartera_(c);
+    var venc = _vencimientoCartera_(c, fp);
+    return Object.assign({}, c, {dias:dias, fp:fp, venc:venc});
   });
   // Filtro por sub-tab
   var filtered = enriched.filter(function(c){
@@ -3687,11 +3736,14 @@ function renderCartera(){
       return (c.poliza||'').toLowerCase().indexOf(f)>=0 || (c.tomador||'').toLowerCase().indexOf(f)>=0;
     });
   }
-  // Orden: alertas primero (mas dias primero), pagadas al final
+  // Orden: pendientes por urgencia (mas vencido primero, luego lo que vence antes), pagadas al final
   filtered.sort(function(a,b){
     if(a.estado==='Pagada' && b.estado!=='Pagada') return 1;
     if(a.estado!=='Pagada' && b.estado==='Pagada') return -1;
-    return b.dias - a.dias;
+    if(a.estado==='Pagada') return (b.fecha_pago||'').localeCompare(a.fecha_pago||'');
+    var da = (a.venc && a.venc.dias !== null) ? a.venc.dias : 9999;
+    var db = (b.venc && b.venc.dias !== null) ? b.venc.dias : 9999;
+    return da - db;
   });
 
   // Contadores sub-tab
@@ -3703,8 +3755,8 @@ function renderCartera(){
 
   // KPIs del modulo
   var totalPrima = enriched.filter(function(c){return c.estado !== 'Pagada'}).reduce(function(s,c){return s+(c.prima||0)},0);
-  var nAlerta = enriched.filter(function(c){return c.estado !== 'Pagada' && c.dias > 25}).length;
-  var nPorVencer = enriched.filter(function(c){return c.estado !== 'Pagada' && c.dias <= 25}).length;
+  var nVencidas = enriched.filter(function(c){return c.estado !== 'Pagada' && c.venc && c.venc.dias !== null && c.venc.dias <= 0}).length;
+  var nPorVencer = enriched.filter(function(c){return c.estado !== 'Pagada' && c.venc && c.venc.dias !== null && c.venc.dias > 0}).length;
   var cobradasMes = enriched.filter(function(c){
     if(c.estado !== 'Pagada' || !c.fecha_pago) return false;
     var d = new Date(c.fecha_pago+'T00:00:00'); var h = new Date();
@@ -3712,7 +3764,7 @@ function renderCartera(){
   }).reduce(function(s,c){return s+(c.prima||0)},0);
   var kpiHtml = [
     {l:'Pendientes',v:nPend,c:'c-orange'},
-    {l:'En alerta (>25d)',v:nAlerta,c:'c-red'},
+    {l:'Vencidas',v:nVencidas,c:'c-red'},
     {l:'Prima por cobrar',v:fmt(totalPrima),c:'c-accent'},
     {l:'Cobradas este mes',v:fmt(cobradasMes),c:'c-green'}
   ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
@@ -3729,18 +3781,31 @@ function renderCartera(){
         '<button class="btn btn-sm btn-wa-solid" onclick="_waRecordatorioCartera_(\''+c.id+'\')" style="font-size:10px" title="Enviar recordatorio formal por WhatsApp">Recordatorio WA</button> '+
         '<button class="btn btn-sm btn-primary" onclick="marcarPagadaCartera_(\''+c.id+'\')" style="background:var(--green);border:none">Marcar Pagada &#10003;</button>';
     } else if(c.estado === 'Pagada'){
-      acciones = '<span style="font-size:11px;color:var(--dim)">Pagada '+(c.fecha_pago||'')+'</span>';
+      acciones = '<button class="btn btn-sm btn-wa-solid" onclick="_waCierreCartera_(\''+c.id+'\')" style="font-size:10px">WA cierre</button> '+
+                 '<span style="font-size:11px;color:var(--dim)">Pagada '+(c.fecha_pago||'')+'</span>';
     } else {
       acciones = '<span style="font-size:11px;color:var(--dim)">sin permiso</span>';
+    }
+    if(c.estado === 'Pagada'){
+      return '<tr>'+
+        '<td><strong>'+(c.poliza||'—')+'</strong></td>'+
+        '<td>'+(c.tomador||'—')+'</td>'+
+        '<td>'+(c.aseguradora||'—')+'</td>'+
+        '<td>'+fmt(c.prima||0)+'</td>'+
+        '<td><span style="font-size:11px;color:var(--dim)">'+(c.fp?c.fp.label:'—')+'</span></td>'+
+        '<td><span style="font-size:11px;color:var(--dim)">'+(c.venc?fmt(c.venc.cuota):'—')+'</span></td>'+
+        '<td><span style="font-size:11px;color:var(--green);font-weight:700">Pagada '+(c.fecha_pago||'')+'</span></td>'+
+        '<td>'+acciones+'</td>'+
+      '</tr>';
     }
     return '<tr>'+
       '<td><strong>'+(c.poliza||'—')+'</strong></td>'+
       '<td>'+(c.tomador||'—')+'</td>'+
       '<td>'+(c.aseguradora||'—')+'</td>'+
       '<td>'+fmt(c.prima||0)+'</td>'+
-      '<td>'+(c.fecha_emision||'—')+'</td>'+
-      '<td><strong>'+c.dias+' d</strong></td>'+
-      '<td>'+_carteraAlertaChip(c.estado, c.dias)+'</td>'+
+      '<td><span style="font-size:11px;font-weight:700;color:var(--accent)">'+c.fp.label+'</span></td>'+
+      '<td><strong>'+fmt(c.venc.cuota)+'</strong></td>'+
+      '<td>'+_vencChipCartera_(c.venc)+'</td>'+
       '<td>'+acciones+'</td>'+
     '</tr>';
   }).join('');
@@ -3770,32 +3835,19 @@ window._waRecordatorioCartera_ = function(id){
     var lead = LEADS.filter(function(l){return l.id===c.lead_id})[0];
     if(lead) tel = (lead.telefono||'').replace(/[^0-9]/g,'');
   }
-  var dias = _diasDesde(c.fecha_emision);
-  var soyMonica = (window.CURRENT_USER && String(CURRENT_USER.nombre||CURRENT_USER.email||'').toLowerCase().indexOf('monica')>=0);
-  var quien = soyMonica ? 'Monica' : ((window.CURRENT_USER && CURRENT_USER.nombre) || 'Aseguralo');
-  var partes = [];
-  partes.push('Buenos dias '+c.tomador+',');
-  partes.push('');
-  partes.push('Le habla '+quien+' de Aseguralo. Le escribo con relacion a su poliza '+c.poliza+' con '+c.aseguradora+', emitida hace '+dias+' dia'+(dias===1?'':'s')+'.');
-  partes.push('');
-  if(c.prima){
-    partes.push('Valor pendiente: $'+Number(c.prima).toLocaleString('es-CO'));
-    partes.push('');
-  }
-  if(dias > 25){
-    partes.push('Le recuerdo cordialmente que el plazo maximo de pago con la aseguradora ya se cumplio. Le solicitamos por favor efectuar el pago lo antes posible para mantener activa su cobertura.');
-  } else {
-    partes.push('Le recordamos que el pago debe efectuarse dentro de los primeros 25 dias posteriores a la emision para mantener la vigencia de su poliza.');
-  }
-  partes.push('');
-  partes.push('Una vez realizado el pago, por favor envienos el comprobante para actualizar sus registros.');
-  partes.push('');
-  partes.push('Quedamos atentos a cualquier consulta.');
-  partes.push('');
-  partes.push('Aseguralo · Agente de Seguros · Bogota');
-  var url = tel ? 'https://wa.me/57'+tel+'?text='+encodeURIComponent(partes.join('\n'))
-                : 'https://wa.me/?text='+encodeURIComponent(partes.join('\n'));
-  window.open(url, '_blank');
+  // PLANTILLA OFICIAL (Etapa 2): recordatorio de pago. Fecha limite = emision + 25 dias.
+  var fechaLimite = '';
+  try{
+    var dEm = new Date(c.fecha_emision+'T12:00:00');
+    if(!isNaN(dEm)){ dEm.setDate(dEm.getDate()+25); fechaLimite = dEm.toISOString().slice(0,10).split('-').reverse().join('/'); }
+  }catch(e){}
+  var datos = _datosAsesorWA_();
+  datos.nombre = c.tomador || 'cliente';
+  datos.tipo = (pol && pol.tipo) || '';
+  datos.aseguradora = c.aseguradora || '';
+  datos.poliza = c.poliza || '';
+  datos.fecha = fechaLimite;
+  _abrirWA_(tel, _fillWA('WA Recordatorio Pago', datos));
 };
 
 window.marcarPagadaCartera_ = function(id){
@@ -4345,6 +4397,8 @@ window._menuAccion_ = function(polizaId, accion){
   var p = POLIZAS.filter(function(x){return x.id===polizaId})[0];
   if(!p) return;
   if(accion === 'wa'){ sendWA(p.telefono, p.cliente, p.tipo); return; }
+  if(accion === 'waRenovar'){ _waRenovacion_(polizaId); return; }
+  if(accion === 'waReferidos'){ _waReferidos_(polizaId); return; }
   if(accion === 'renovar'){ renovarPoliza(polizaId); return; }
   if(accion === 'siniestro'){ _abrirModalSiniestro_(polizaId); return; }
   if(accion === 'anular'){ _abrirModalAnular_(polizaId); return; }
@@ -4440,6 +4494,108 @@ window._waRecordatorioPorEmitir_ = function(leadId){
   var url = tel ? 'https://wa.me/57'+tel+'?text='+encodeURIComponent(partes.join('\n'))
                 : 'https://wa.me/?text='+encodeURIComponent(partes.join('\n'));
   window.open(url, '_blank');
+};
+
+/* ---- ETAPA 1: WA Bienvenida (oficial, variante por aseguradora) — card etapa 2 de POR EMITIR ---- */
+window._waBienvenida_ = function(leadId){
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
+  var emit = (window._POL_EMITIDAS||{})[leadId] || {};
+  var aseg = emit.aseguradora || _asegDeLead_(lead) || '';
+  var datos = _datosAsesorWA_();
+  datos.nombre = lead.nombre || 'cliente';
+  datos.tipo = lead.tipo || '';
+  datos.aseguradora = aseg;
+  datos.poliza = (emit.poliza && emit.poliza!=='sin numero') ? emit.poliza : '';
+  _abrirWA_(lead.telefono, _fillWA(_bienvenidaKey_(aseg), datos));
+};
+
+/* ---- ETAPA 3: WA Renovacion — dropdown de POLIZAS (vencidas/por renovar) ---- */
+window._waRenovacion_ = function(polizaId){
+  var p = POLIZAS.filter(function(x){return x.id===polizaId})[0]; if(!p) return;
+  var datos = _datosAsesorWA_();
+  datos.nombre = p.cliente || 'cliente';
+  datos.tipo = p.tipo || '';
+  datos.aseguradora = p.aseguradora || '';
+  datos.poliza = polizaId;
+  datos.fecha = p.hasta || '';
+  _abrirWA_(p.telefono, _fillWA('WA Renovacion', datos));
+};
+
+/* ---- ETAPA 6: WA Referidos — dropdown de POLIZAS (activas) ---- */
+window._waReferidos_ = function(polizaId){
+  var p = POLIZAS.filter(function(x){return x.id===polizaId})[0]; if(!p) return;
+  var datos = _datosAsesorWA_();
+  datos.nombre = p.cliente || 'cliente';
+  _abrirWA_(p.telefono, _fillWA('WA Referidos', datos));
+};
+
+/* ---- ETAPA 4: WA Documentos — cards SARLAFT ---- */
+window._waDocumentos_ = function(leadId){
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
+  var aseg = _asegDeLead_(lead);
+  var slug = _aseguradoraSlug_(aseg);
+  var tipo = String(lead.tipo||'').toLowerCase();
+  var esVida  = tipo.indexOf('vida')>=0;
+  var esSalud = tipo.indexOf('salud')>=0;
+  var esVehic = tipo.indexOf('vehic')>=0 || tipo.indexOf('auto')>=0;
+  var docs = [];
+  docs.push('Formulario SARLAFT'+(slug==='Allianz'?' (lo diligenciamos contigo por la web de Allianz)':''));
+  if(esVida)  docs.push('Declaracion de Vida');
+  if(esSalud) docs.push('Declaracion Salud/Vida');
+  docs.push('Copia de la cedula'+(esVehic?' y de la tarjeta de propiedad':''));
+  var datos = _datosAsesorWA_();
+  datos.nombre = lead.nombre || 'cliente';
+  datos.aseguradora = aseg;
+  datos.proceso = 'expedicion';
+  datos.documentos = docs.map(function(d){return '\u2022 '+d;}).join('\n');
+  datos.correo = 'aseguralo@outlook.com';
+  _abrirWA_(lead.telefono, _fillWA('WA Documentos', datos));
+};
+
+/* ---- ETAPA 5: WA Seguimiento — cards EN COTIZACION ---- */
+window._waSeguimiento_ = function(leadId){
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0]; if(!lead) return;
+  var pdfs = COT_PDFS[leadId] || {};
+  var aseg = '';
+  if(pdfs.__ganadora){ var g = pdfs[pdfs.__ganadora]; if(g) aseg = g.aseguradora || ''; }
+  if(!aseg){
+    Object.keys(pdfs).forEach(function(k){
+      if(k.indexOf('__')!==0 && !aseg){ var d = pdfs[k]; if(d && d.aseguradora) aseg = d.aseguradora; }
+    });
+  }
+  var datos = _datosAsesorWA_();
+  datos.nombre = lead.nombre || 'cliente';
+  datos.tipo = lead.tipo || '';
+  datos.aseguradora = aseg;
+  _abrirWA_(lead.telefono, _fillWA('WA Seguimiento', datos));
+};
+
+/* ---- ETAPA 8: WA Cierre — Cartera Pagada ---- */
+window._waCierreCartera_ = function(id){
+  var c = CARTERA.filter(function(x){return x.id===id})[0]; if(!c) return;
+  var tel = _telefonoDePoliza_(c.poliza);
+  if(!tel && c.lead_id){
+    var lead = LEADS.filter(function(l){return l.id===c.lead_id})[0];
+    if(lead) tel = (lead.telefono||'').replace(/[^0-9]/g,'');
+  }
+  var datos = _datosAsesorWA_();
+  datos.nombre = c.tomador || 'cliente';
+  datos.aseguradora = c.aseguradora || '';
+  datos.poliza = c.poliza || '';
+  datos.tema = 'el pago de tu poliza '+(c.poliza||'')+(c.aseguradora?' con '+c.aseguradora:'');
+  _abrirWA_(tel, _fillWA('WA Cierre', datos));
+};
+
+/* ---- ETAPA 8: WA Cierre — Siniestros Solucionado ---- */
+window._waCierreSiniestro_ = function(id){
+  var s = SINIESTROS_LIST.filter(function(x){return x.id===id})[0]; if(!s) return;
+  var tel = _telefonoDePoliza_(s.poliza);
+  var datos = _datosAsesorWA_();
+  datos.nombre = s.tomador || 'cliente';
+  datos.aseguradora = s.aseguradora || '';
+  datos.poliza = s.poliza || '';
+  datos.tema = 'tu reclamacion de siniestro de la poliza '+(s.poliza||'')+(s.aseguradora?' con '+s.aseguradora:'');
+  _abrirWA_(tel, _fillWA('WA Cierre', datos));
 };
 
 /* Renovar poliza — abre modal decisor con 3 rutas (limpia / recotizar / cambios).
@@ -4723,7 +4879,8 @@ function renderSiniestrosTab_(){
       acciones += '<button class="btn btn-sm btn-primary" onclick="_cambiarEstadoSiniestro_(\''+s.id+'\',\'solucionado\')" style="background:var(--green);border:none;font-size:10px">Solucionado</button>';
     }
     if(s.estado === 'solucionado'){
-      acciones = '<span style="font-size:10px;color:var(--dim)">Solucionado '+(s.fecha_solucion||'')+'</span>';
+      acciones = '<button class="btn btn-sm btn-wa-solid" onclick="_waCierreSiniestro_(\''+s.id+'\')" style="font-size:10px">WA cierre</button> '+
+                 '<span style="font-size:10px;color:var(--dim)">Solucionado '+(s.fecha_solucion||'')+'</span>';
     }
     return '<tr>'+
       '<td style="font-size:11px">'+(s.fecha_hecho||'—')+'</td>'+
@@ -4838,21 +4995,23 @@ window._confirmarSiniestro_ = function(polizaId){
 };
 
 function _generarMensajeSiniestroWA_(p, ramo, info){
-  var soyMonica = (window.CURRENT_USER && (String(CURRENT_USER.nombre||CURRENT_USER.email).toLowerCase().indexOf('monica')>=0));
-  var quien = soyMonica ? 'Monica' : ((window.CURRENT_USER && CURRENT_USER.nombre) || 'tu asesor de Aseguralo');
+  // PLANTILLA OFICIAL (Etapa 7) + lineas de asistencia de la aseguradora
+  var datos = _datosAsesorWA_();
+  datos.nombre = p.cliente || 'cliente';
+  datos.aseguradora = p.aseguradora || '';
+  datos.documentos = _instrSiniestro_(ramo, info);
   var partes = [];
-  partes.push('Hola '+p.cliente+', soy '+quien+' de Aseguralo.');
-  partes.push('');
-  partes.push('Se que este momento es dificil, pero estamos contigo y tu seguro esta para exactamente esto. Vamos a acompanarte paso a paso.');
-  partes.push('');
-  partes.push('CONTACTOS DIRECTOS '+p.aseguradora.toUpperCase()+':');
-  if(info && info.tel_siniestros)   partes.push('- Linea siniestros: '+info.tel_siniestros);
-  if(info && info.email_siniestros) partes.push('- Email: '+info.email_siniestros);
-  if(info && info.portal)           partes.push('- Portal: '+info.portal);
-  if(!info || (!info.tel_siniestros && !info.email_siniestros)){
-    partes.push('(datos de la aseguradora se te enviaran en el proximo mensaje)');
+  partes.push(_fillWA('WA Siniestro', datos));
+  if(info && (info.tel_siniestros || info.email_siniestros || info.portal)){
+    partes.push('');
+    partes.push('CONTACTOS DIRECTOS '+String(p.aseguradora||'').toUpperCase()+':');
+    if(info.tel_siniestros)   partes.push('- Linea siniestros: '+info.tel_siniestros);
+    if(info.email_siniestros) partes.push('- Email: '+info.email_siniestros);
+    if(info.portal)           partes.push('- Portal: '+info.portal);
   }
-  partes.push('');
+  return partes.join('\n');
+}
+function _instrSiniestro_(ramo, info){
   var instr = '';
   if(info){
     if(ramo==='auto')  instr = info.instrucciones_auto;
@@ -4861,18 +5020,12 @@ function _generarMensajeSiniestroWA_(p, ramo, info){
     if(ramo==='vida')  instr = info.instrucciones_vida;
   }
   if(!instr){
-    if(ramo==='auto')  instr = 'No muevas el vehiculo si es choque. Toma fotos de placas, danos, entorno. No firmes nada sin llamarnos primero.';
-    else if(ramo==='hogar') instr = 'Aisla el area si es agua o fuego. Toma fotos de todos los danos ANTES de mover algo. Guarda facturas de reparaciones urgentes.';
-    else if(ramo==='salud') instr = 'Guarda TODAS las facturas, ordenes medicas y epicrisis. Solicita la copia de la historia clinica.';
-    else if(ramo==='vida')  instr = 'Cuando estes lista, te acompano con la documentacion. Tomate el tiempo que necesites.';
+    if(ramo==='auto')  instr = 'Fotos de placas, danos y entorno; no mover el vehiculo si es choque.';
+    else if(ramo==='hogar') instr = 'Fotos de los danos antes de mover algo y facturas de reparaciones urgentes.';
+    else if(ramo==='salud') instr = 'Facturas, ordenes medicas y epicrisis.';
+    else if(ramo==='vida')  instr = 'Los documentos que te iremos indicando segun el caso.';
   }
-  if(instr){
-    partes.push('QUE HACER AHORA:');
-    partes.push(instr);
-    partes.push('');
-  }
-  partes.push('Estoy aqui, cualquier cosa me llamas. No estas sola/o en esto.');
-  return partes.join('\n');
+  return instr;
 }
 
 window._abrirPanelAsegInfo_ = function(){
@@ -7241,6 +7394,7 @@ function renderEnCotizacion(){
       '<div class="ec-slots">'+ slotsHTML +'</div>'+
       '<div class="ec-actions">'+
         '<button class="btn" onclick="marcarNoTomada(\''+l.id+'\')">No toma la poliza</button>'+
+        '<button class="btn btn-wa" onclick="_waSeguimiento_(\''+l.id+'\')">WA seguimiento</button>'+
         '<button class="btn" onclick="_borrarLeadUnico_(\''+_jsq(l.id)+'\',\''+_jsq(l.nombre)+'\')" style="background:transparent;border:1px solid var(--red);color:var(--red)" title="Eliminar prospecto y todas sus cotizaciones">Borrar</button>'+
         '<button class="btn btn-primary" onclick="continuarComparativo(\''+l.id+'\')">Continuar &rarr; comparativo</button>'+
       '</div>'+
@@ -7634,7 +7788,93 @@ var PLANTILLAS_DEFAULT = {
 
   'Otro':
 'Hola {nombre}, soy Fabian Carrera de Aseguralo. Recibi tu solicitud, cuentame que necesitas asegurar y con gusto te oriento.\n\n'+
-'Puedes tambien diligenciarlo aqui: https://7group.site/agente/aseguralo/lead/'
+'Puedes tambien diligenciarlo aqui: https://7group.site/agente/aseguralo/lead/',
+
+  /* ============================================
+     PLANTILLAS OFICIALES DE ATENCION (Fabian 2026-09)
+     8 etapas del ciclo de atencion al cliente.
+     Editables desde el modal "Plantillas".
+     ============================================ */
+  'WA Bienvenida Allianz':
+'Hola, {nombre}.\n\n'+
+'Nos complace confirmarte que tu poliza de {tipo} con Allianz ya se encuentra activa.\n\n'+
+'Gracias por confiar en nosotros para protegerte a ti y a tu familia. Recuerda que, si necesitas asistencia, puedes comunicarte desde tu celular marcando #265.\n\n'+
+'Estaremos atentos para acompanarte y resolver cualquier inquietud relacionada con tu seguro.\n\n'+
+'Un cordial saludo,\n{asesor}\n{agencia}',
+
+  'WA Bienvenida AXA Colpatria':
+'Hola, {nombre}.\n\n'+
+'Nos alegra confirmarte que tu poliza de {tipo} con AXA COLPATRIA ya se encuentra activa.\n\n'+
+'Agradecemos la confianza que has depositado en nosotros. En caso de requerir asistencia o reportar una urgencia desde tu celular, puedes marcar #247 y seleccionar la opcion 1-1.\n\n'+
+'Recuerda que estamos disponibles para acompanarte durante toda la vigencia de tu poliza.\n\n'+
+'{asesor}\n{agencia}',
+
+  'WA Bienvenida Seguros del Estado':
+'Hola, {nombre}.\n\n'+
+'Te confirmamos que tu poliza de {tipo} con Seguros del Estado ya se encuentra activa.\n\n'+
+'Muchas gracias por confiar en nosotros. Para solicitar asistencia desde tu celular puedes marcar #388. Tambien puedes comunicarte a la linea nacional 018000123010 o, desde Bogota, al (601)7443900.\n\n'+
+'Quedamos atentos para ayudarte en todo lo relacionado con tu seguro.\n\n'+
+'{asesor}\n{agencia}',
+
+  'WA Bienvenida BMI':
+'Hola, {nombre}.\n\n'+
+'Nos complace confirmarte que tu poliza de {tipo} con BMI Colombia ya se encuentra activa.\n\n'+
+'Gracias por confiar en nosotros para acompanarte en la proteccion de tu salud y la de tu familia. Para orientacion o atencion medica en Colombia, puedes comunicarte en Bogota al (601)5143099 o desde cualquier parte del pais al 018000978625.\n\n'+
+'Estamos atentos para apoyarte cuando lo necesites.\n\n'+
+'{asesor}\n{agencia}',
+
+  'WA Bienvenida General':
+'Hola, {nombre}.\n\n'+
+'Nos complace confirmarte que tu poliza de {tipo} con {aseguradora} ya se encuentra activa.\n\n'+
+'Gracias por confiar en nosotros para protegerte. Si necesitas asistencia o tienes alguna inquietud sobre tu seguro, estamos atentos por este medio para ayudarte.\n\n'+
+'Un cordial saludo,\n{asesor}\n{agencia}',
+
+  'WA Recordatorio Pago':
+'Hola, {nombre}. Espero que te encuentres muy bien.\n\n'+
+'Queremos recordarte amablemente que el pago correspondiente a tu poliza de {tipo} con {aseguradora} tiene como fecha limite el {fecha}.\n\n'+
+'Mantener tus pagos al dia permite conservar activa tu proteccion y acceder oportunamente a los beneficios contratados.\n\n'+
+'Si ya realizaste el pago, puedes hacer caso omiso a este mensaje. Si necesitas orientacion sobre el proceso, con gusto estamos atentos para ayudarte.\n\n'+
+'Muchas gracias por tu atencion y por continuar confiando en nosotros.',
+
+  'WA Renovacion':
+'Hola, {nombre}.\n\n'+
+'Esperamos que te encuentres muy bien. Queremos informarte que la vigencia de tu poliza de {tipo} con {aseguradora} finaliza el proximo {fecha}.\n\n'+
+'Para nosotros es importante que mantengas tu proteccion sin interrupciones. Por eso, queremos acompanarte oportunamente en el proceso de renovacion.\n\n'+
+'Podemos revisar las condiciones actuales, las coberturas y cualquier ajuste que pueda ser conveniente para tus necesidades.\n\n'+
+'Quedamos atentos para ayudarte.',
+
+  'WA Documentos':
+'Hola, {nombre}. Espero que estes muy bien.\n\n'+
+'Para continuar con el proceso de {proceso} de tu poliza con {aseguradora}, nos hace falta recibir los siguientes documentos:\n{documentos}\n\n'+
+'Puedes enviarlos por este medio o al correo {correo}. La informacion sera manejada con la debida confidencialidad.\n\n'+
+'Muchas gracias por tu colaboracion. Quedamos atentos para ayudarte en lo que necesites.',
+
+  'WA Seguimiento':
+'Hola, {nombre}.\n\n'+
+'Espero que te encuentres muy bien. Queria saber si tuviste la oportunidad de revisar la cotizacion de {tipo} que te enviamos de {aseguradora}.\n\n'+
+'Si tienes alguna pregunta, deseas comparar alternativas o necesitas ajustar las coberturas, con mucho gusto podemos revisarlo juntos.\n\n'+
+'La idea es encontrar una opcion que se adapte realmente a tus necesidades y presupuesto. No hay ningun inconveniente si todavia estas analizando la propuesta; estamos para orientarte sin compromiso.\n\n'+
+'Quedo atento para ayudarte.',
+
+  'WA Referidos':
+'Hola, {nombre}.\n\n'+
+'Queremos agradecerte nuevamente por la confianza que has depositado en nosotros y por permitirnos acompanarte en la proteccion de tus bienes, tu salud y tu familia.\n\n'+
+'Si conoces a algun familiar, amigo o colega que este buscando asesoria en seguros, agradeceriamos mucho que le compartieras nuestro contacto.\n\n'+
+'Nos comprometemos a brindarle una atencion cercana, clara y profesional, igual que la que queremos ofrecerte siempre a ti.\n\n'+
+'Muchas gracias por recomendarnos.',
+
+  'WA Siniestro':
+'Hola, {nombre}.\n\n'+
+'Lamentamos mucho la situacion que estas enfrentando. Queremos que sepas que cuentas con nuestro acompanamiento durante todo el proceso de reclamacion ante {aseguradora}.\n\n'+
+'Te ayudaremos a revisar la documentacion necesaria y haremos seguimiento a tu caso para que el proceso sea lo mas claro y agil posible.\n\n'+
+'Por favor, envianos la informacion que tengas disponible: {documentos}. Si todavia no cuentas con todo, no te preocupes; iremos revisando cada paso contigo.\n\n'+
+'Estamos atentos para apoyarte.',
+
+  'WA Cierre':
+'Hola, {nombre}.\n\n'+
+'Queremos confirmar que tu solicitud relacionada con {tema} fue atendida satisfactoriamente.\n\n'+
+'Ha sido un gusto poder ayudarte. Recuerda que puedes contactarnos cuando necesites orientacion sobre tu poliza con {aseguradora}, sus coberturas o los servicios de asistencia disponibles.\n\n'+
+'Gracias por confiar en nosotros. Seguimos atentos para acompanarte siempre.'
 };
 var PLANTILLAS = null;
 function loadPlantillas(){
@@ -7658,6 +7898,51 @@ function fillTpl(tpl, lead){
   return tpl.replace(/\{nombre\}/g, nom);
 }
 
+/* ============================================
+   PLANTILLAS OFICIALES WA — helpers de relleno y envio
+   ============================================ */
+function _tplWA(key){
+  return (PLANTILLAS && PLANTILLAS[key]) || (PLANTILLAS_DEFAULT && PLANTILLAS_DEFAULT[key]) || '';
+}
+function _fillWA(key, data){
+  var s = _tplWA(key);
+  Object.keys(data||{}).forEach(function(k){
+    s = s.split('{'+k+'}').join(String(data[k]!==undefined && data[k]!==null ? data[k] : ''));
+  });
+  return s;
+}
+/* Nombre del asesor logueado + agencia + telefono desde el catalogo de intermediarios */
+function _datosAsesorWA_(){
+  var nombre = (window.CURRENT_USER && (CURRENT_USER.nombre || CURRENT_USER.intermediario)) || 'tu asesor de Aseguralo';
+  var tel = '';
+  try{
+    var full = window.INTERMED_FULL || [];
+    var mi = String((window.CURRENT_USER && CURRENT_USER.intermediario)||'').toLowerCase().trim();
+    for(var i=0;i<full.length;i++){
+      if(String(full[i].nombre||'').toLowerCase().trim()===mi){ tel = String(full[i].telefono||''); break; }
+    }
+  }catch(e){}
+  return {asesor:nombre, agencia:'Aseguralo', tel_asesor:tel};
+}
+function _abrirWA_(tel, msg){
+  var url = tel ? ('https://wa.me/57'+String(tel).replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(msg))
+                : ('https://wa.me/?text='+encodeURIComponent(msg));
+  window.open(url, '_blank');
+}
+function _telefonoDePoliza_(polizaId){
+  var pol = (POLIZAS||[]).filter(function(p){return p.id===polizaId})[0];
+  if(pol) return (pol.telefono||'').replace(/[^0-9]/g,'');
+  return '';
+}
+function _bienvenidaKey_(aseg){
+  var a = String(aseg||'').toLowerCase();
+  if(a.indexOf('allianz')>=0) return 'WA Bienvenida Allianz';
+  if(a.indexOf('axa')>=0)     return 'WA Bienvenida AXA Colpatria';
+  if(a.indexOf('bmi')>=0)     return 'WA Bienvenida BMI';
+  if(a.indexOf('estado')>=0)  return 'WA Bienvenida Seguros del Estado';
+  return 'WA Bienvenida General';
+}
+
 /* Enviar WA a lead con la plantilla del tipo correspondiente */
 window.enviarWALead = function(id){
   var l = LEADS.filter(function(x){return x.id===id})[0];
@@ -7678,7 +7963,7 @@ window.renderPlantillasModal = function(){
   if(!box) return;
   var keys = Object.keys(PLANTILLAS_DEFAULT);
   box.innerHTML = keys.map(function(k){
-    var val = (PLANTILLAS[k]||'').replace(/</g,'&lt;');
+    var val = (PLANTILLAS[k]!==undefined ? PLANTILLAS[k] : (PLANTILLAS_DEFAULT[k]||'')).replace(/</g,'&lt;');
     return '<div style="margin-bottom:16px">'+
       '<div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">'+k+'</div>'+
       '<textarea class="form-input" data-tpl="'+k+'" rows="8" style="font-family:inherit;font-size:12px;line-height:1.5">'+val+'</textarea>'+
