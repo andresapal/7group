@@ -4210,15 +4210,38 @@ window.filterPolizas=function(){
    ============================================================ */
 window._togglePolMenu_ = function(id, ev){
   if(ev) ev.stopPropagation();
-  var abierto = document.getElementById('polMenu-'+id);
+  var menuId = 'polMenu-'+id;
+  var abierto = document.getElementById(menuId);
+  if(!abierto) return;
   // Cerrar todos los otros menus
   document.querySelectorAll('.pol-actions-dropdown').forEach(function(m){
-    if(m.id !== 'polMenu-'+id) m.style.display='none';
+    if(m.id !== menuId) m.style.display='none';
   });
-  if(abierto) abierto.style.display = (abierto.style.display==='none' ? '' : 'none');
+  var yaAbierto = abierto.style.display !== 'none' && abierto.style.display !== '';
+  if(yaAbierto){ abierto.style.display='none'; return; }
+  // Portal al body con position:fixed calculada desde el boton (evita overflow del contenedor tabla)
+  if(abierto.parentNode !== document.body) document.body.appendChild(abierto);
+  var btn = ev && ev.currentTarget ? ev.currentTarget : (ev && ev.target ? ev.target.closest('button') : null);
+  if(!btn){ abierto.style.display=''; return; }
+  var r = btn.getBoundingClientRect();
+  var menuW = 190;
+  var left = Math.min(r.right - menuW, window.innerWidth - menuW - 8);
+  if(left < 8) left = 8;
+  abierto.style.position = 'fixed';
+  abierto.style.top = (r.bottom + 4) + 'px';
+  abierto.style.left = left + 'px';
+  abierto.style.right = 'auto';
+  abierto.style.zIndex = 9999;
+  abierto.style.display = '';
 };
-// Cerrar al clickear fuera del menu
+// Cerrar al clickear fuera del menu o al hacer scroll
 document.addEventListener('click', function(){
+  document.querySelectorAll('.pol-actions-dropdown').forEach(function(m){ m.style.display='none'; });
+});
+window.addEventListener('scroll', function(){
+  document.querySelectorAll('.pol-actions-dropdown').forEach(function(m){ m.style.display='none'; });
+}, true);
+window.addEventListener('resize', function(){
   document.querySelectorAll('.pol-actions-dropdown').forEach(function(m){ m.style.display='none'; });
 });
 window._menuAccion_ = function(polizaId, accion){
