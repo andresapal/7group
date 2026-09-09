@@ -7709,6 +7709,17 @@ function mostrarBotonLimpieza_(){
   bar.style.display = (esAdminODueno_() || verTodo_()) ? 'flex' : 'none';
 }
 
+/* Formatea timestamp ISO a "yyyy-mm-dd HH:MM" en hora local (para distinguir leads duplicados del mismo dia). */
+function _fmtFechaHora(iso){
+  if(!iso) return '';
+  try{
+    var d = new Date(iso);
+    if(isNaN(d.getTime())) return String(iso).slice(0,10);
+    var p = function(n){return n<10?'0'+n:''+n;};
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+  }catch(e){ return String(iso).slice(0,10); }
+}
+
 function renderLeads(filter){
   mostrarBotonLimpieza_();
   // Filtro por rol
@@ -7736,7 +7747,8 @@ function renderLeads(filter){
     return;
   }
   tb.innerHTML = data.map(function(l,idx){
-    var fecha = (l.fecha||'').slice(0,10);
+    var fechaHora = _fmtFechaHora(l.fecha||'');
+    var fecha = fechaHora || (l.fecha||'').slice(0,10);
     var tel = l.telefono||'';
     var badge = estMap[l.estado] || 'badge-por-renovar';
     var detailId = 'lead-detail-'+idx;
