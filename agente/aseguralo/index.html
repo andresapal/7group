@@ -3689,10 +3689,18 @@ function _formaPagoCartera_(c){
   if(fp.indexOf('semestral')>=0)  return {label:'Semestral',  div:2,  alerta:15, ventana:180};
   return {label:'Anual', div:1, alerta:25, ventana:25};
 }
+/* Fecha base de cartera: la de la fila CARTERA o, si falta, la FH EMISION del POLRES (col T). */
+function _fechaEmisionCartera_(c){
+  if(c.fecha_emision) return c.fecha_emision;
+  var pol = (POLIZAS||[]).filter(function(p){return p.id===c.poliza})[0];
+  if(pol) return pol.fh_emision || pol.desde || pol.fecha_creacion || '';
+  return '';
+}
 /* Vencimiento del pago segun forma de pago: {cuota, dias}. dias<0 = vencido */
 function _vencimientoCartera_(c, fp){
   var cuota = (Number(c.prima)||0)/fp.div;
-  var emi = c.fecha_emision ? new Date(c.fecha_emision+'T12:00:00') : null;
+  var emi = _fechaEmisionCartera_(c);
+  emi = emi ? new Date(emi+'T12:00:00') : null;
   if(!emi || isNaN(emi.getTime())) return {cuota:cuota, dias:null, fp:fp};
   var vence = new Date(emi.getTime()); vence.setDate(vence.getDate()+fp.ventana);
   var hoy = new Date(); hoy.setHours(0,0,0,0); vence.setHours(0,0,0,0);
