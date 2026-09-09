@@ -7079,11 +7079,34 @@ function renderEnCotizacion(){
       '<div class="ec-slots">'+ slotsHTML +'</div>'+
       '<div class="ec-actions">'+
         '<button class="btn" onclick="marcarNoTomada(\''+l.id+'\')">No toma la poliza</button>'+
+        (esAdminODueno_() || verTodo_() ? '<button class="btn" onclick="_borrarLeadUnico_(\''+_jsq(l.id)+'\',\''+_jsq(l.nombre)+'\')" style="background:transparent;border:1px solid var(--red);color:var(--red)" title="Eliminar prospecto y todas sus cotizaciones">Borrar</button>' : '')+
         '<button class="btn btn-primary" onclick="continuarComparativo(\''+l.id+'\')">Continuar &rarr; comparativo</button>'+
       '</div>'+
     '</div>';
   }).join('');
 }
+
+/* Borra un lead individual (con sus cotizaciones y liquidaciones asociadas). Solo admin/dueno. */
+window._borrarLeadUnico_ = function(leadId, nombre){
+  if(!esAdminODueno_() && !verTodo_()){ alert('Solo admin/dueño'); return; }
+  var msg = 'Borrar el prospecto "'+nombre+'"?\n\n'+
+            'Se eliminan tambien:\n'+
+            ' - Cotizaciones subidas\n'+
+            ' - Liquidaciones vinculadas\n\n'+
+            'Esta accion NO se puede deshacer.';
+  if(!confirm(msg)) return;
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action:'admin-delete-leads', ids:[leadId]})
+  }).catch(function(){});
+  // Optimista local
+  LEADS = LEADS.filter(function(l){ return l.id !== leadId; });
+  if(COT_PDFS && COT_PDFS[leadId]) delete COT_PDFS[leadId];
+  if(typeof renderLeads==='function') renderLeads();
+  if(typeof renderEnCotizacion==='function') renderEnCotizacion();
+  setTimeout(function(){ if(typeof loadLeadsFromSheet==='function') loadLeadsFromSheet(); }, 1500);
+};
 
 function renderCotizador(){
   renderEnCotizacion();
