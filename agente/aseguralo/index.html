@@ -7123,7 +7123,7 @@ function renderEnCotizacion(){
       '<div class="ec-slots">'+ slotsHTML +'</div>'+
       '<div class="ec-actions">'+
         '<button class="btn" onclick="marcarNoTomada(\''+l.id+'\')">No toma la poliza</button>'+
-        (esAdminODueno_() || verTodo_() ? '<button class="btn" onclick="_borrarLeadUnico_(\''+_jsq(l.id)+'\',\''+_jsq(l.nombre)+'\')" style="background:transparent;border:1px solid var(--red);color:var(--red)" title="Eliminar prospecto y todas sus cotizaciones">Borrar</button>' : '')+
+        '<button class="btn" onclick="_borrarLeadUnico_(\''+_jsq(l.id)+'\',\''+_jsq(l.nombre)+'\')" style="background:transparent;border:1px solid var(--red);color:var(--red)" title="Eliminar prospecto y todas sus cotizaciones">Borrar</button>'+
         '<button class="btn btn-primary" onclick="continuarComparativo(\''+l.id+'\')">Continuar &rarr; comparativo</button>'+
       '</div>'+
     '</div>';
