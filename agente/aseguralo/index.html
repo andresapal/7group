@@ -1694,6 +1694,37 @@ function puedeVerModulo_(mod){
   };
 })();
 
+/* Aviso claro cuando la sesion expira o el token es rechazado por el backend.
+   Limpia tokens locales y muestra banner rojo con boton "Iniciar sesion". Idempotente (una sola vez). */
+var _SESION_EXP_AVISADO = false;
+function _sesionExpiradaAviso_(){
+  if(_SESION_EXP_AVISADO) return;
+  _SESION_EXP_AVISADO = true;
+  try{
+    localStorage.removeItem(GATE_TOKEN_KEY);
+    localStorage.removeItem(GATE_TS_KEY);
+  }catch(e){}
+  var el = document.getElementById('sesionExpBanner');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'sesionExpBanner';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;padding:14px 20px;text-align:center;z-index:99999;font-weight:600;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3)';
+    el.innerHTML = 'Tu sesión expiró o fue invalidada. Recarga la página e inicia sesión con Google nuevamente. '+
+      '<button onclick="location.reload()" style="margin-left:12px;padding:6px 16px;background:#fff;color:var(--red);border:none;border-radius:6px;font-weight:700;cursor:pointer">Recargar</button>';
+    document.body.appendChild(el);
+  }
+}
+
+/* Helper global: retorna query string 'token=X' (preferido) o 'email=Y' (fallback).
+   Usado por todos los fetches nuevos (CARTERA, SINIESTROS, CUENTAS_COBRO, ASEGURADORAS_INFO, loadFromSheet). */
+function _apiAuthQuery_(){
+  var token=''; try{ token=localStorage.getItem(GATE_TOKEN_KEY)||''; }catch(e){}
+  if(token) return 'token='+encodeURIComponent(token);
+  var email = (window.CURRENT_USER && CURRENT_USER.email) ||
+              (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
+              localStorage.getItem('aseg_erp_auth') || '';
+  return email ? 'email='+encodeURIComponent(email) : '';
+}
 function loadCurrentUser_(email){
   var token=''; try{ token=localStorage.getItem(GATE_TOKEN_KEY)||''; }catch(e){}
   if(!email && !token){ CURRENT_USER = { email:'', rol:'anonimo', permisos:{} }; return Promise.resolve(); }
@@ -2194,18 +2225,23 @@ function loadFromSheet(callback){
     var timeoutMs = TIMEOUTS[Math.min(idx, TIMEOUTS.length-1)];
     var controller=new AbortController();
     var to=setTimeout(function(){ controller.abort(); }, timeoutMs);
-    var _emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
-                     (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) ||
-                     localStorage.getItem('aseg_erp_auth') || '';
-    // Cache-buster para evitar respuestas antiguas de proxies/CDN
+    // Auth: prefiere token de sesion, cae a email. Backend requiere token desde v43+.
+    var _authQ = _apiAuthQuery_();
     var _url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.indexOf('?')>=0?'&':'?') +
-               'email=' + encodeURIComponent(_emailAuth) +
-               '&_t=' + Date.now();
+               _authQ + '&_t=' + Date.now();
     fetch(_url,{redirect:'follow',signal:controller.signal,cache:'no-store'})
       .then(function(res){ return res.json(); })
       .then(function(data){
         clearTimeout(to);
-        if(data && data.error){ console.warn('[loadFromSheet] backend error:', data.error, 'email:', _emailAuth, 'intento:', intentos); }
+        if(data && data.error){
+          console.warn('[loadFromSheet] backend error:', data.error, 'auth:', _authQ.slice(0,20), 'intento:', intentos);
+          // Detectar sesion expirada: limpia tokens y avisa una sola vez para re-login.
+          if(String(data.error).indexOf('token') >= 0 || String(data.error).indexOf('no autorizado') >= 0){
+            _sesionExpiradaAviso_();
+            _SYNC_EN_CURSO = false;
+            return;
+          }
+        }
         if(data&&data.status==='ok'&&data.rows){
           try{
             localStorage.setItem(SHEET_CACHE_KEY,JSON.stringify(data));
@@ -3641,9 +3677,7 @@ function loadCarteraFromSheet_(){
     var cached = JSON.parse(localStorage.getItem(CARTERA_CACHE_KEY)||'null');
     if(cached && cached.rows){ CARTERA = cached.rows; renderCartera(); }
   }catch(e){}
-  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
-                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
-  var url = APPS_SCRIPT_URL + '?action=cartera&email=' + encodeURIComponent(emailAuth);
+  var url = APPS_SCRIPT_URL + '?action=cartera&' + _apiAuthQuery_();
   var ctrl = new AbortController();
   var to = setTimeout(function(){ctrl.abort();}, 12000);
   fetch(url, {redirect:'follow', signal:ctrl.signal})
@@ -3891,9 +3925,7 @@ var CUENTAS_COBRO_HIST = [];
 var LIQUIDAR_SELECCION = {}; // id-liq -> true si esta marcada
 
 function loadCuentasCobroHist_(){
-  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
-                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
-  fetch(APPS_SCRIPT_URL + '?action=cuentas-cobro&email=' + encodeURIComponent(emailAuth), {redirect:'follow'})
+  fetch(APPS_SCRIPT_URL + '?action=cuentas-cobro&' + _apiAuthQuery_(), {redirect:'follow'})
     .then(function(r){return r.json();})
     .then(function(j){
       if(j && j.status==='ok'){
@@ -4807,9 +4839,7 @@ window.switchSinSub = function(sub){
 };
 
 function loadSiniestros_(){
-  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
-                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
-  fetch(APPS_SCRIPT_URL + '?action=siniestros&email=' + encodeURIComponent(emailAuth), {redirect:'follow'})
+  fetch(APPS_SCRIPT_URL + '?action=siniestros&' + _apiAuthQuery_(), {redirect:'follow'})
     .then(function(r){return r.json();})
     .then(function(j){
       if(j && j.status==='ok'){
@@ -4819,9 +4849,7 @@ function loadSiniestros_(){
     }).catch(function(){});
 }
 function loadAseguradorasInfo_(){
-  var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
-                  (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
-  fetch(APPS_SCRIPT_URL + '?action=aseguradoras-info&email=' + encodeURIComponent(emailAuth), {redirect:'follow'})
+  fetch(APPS_SCRIPT_URL + '?action=aseguradoras-info&' + _apiAuthQuery_(), {redirect:'follow'})
     .then(function(r){return r.json();})
     .then(function(j){
       if(j && j.status==='ok') ASEG_INFO_LIST = j.rows||[];
