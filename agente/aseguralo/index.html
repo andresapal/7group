@@ -2770,14 +2770,14 @@ function renderPorEmitir(){
     // Botones cambian segun etapa: SIN poliza subida vs CON poliza subida
     var botones;
     if(!emitida){
-      // Etapa 1: aun sin PDF de poliza
+      // Etapa 1: aun sin PDF de poliza. Orden: PDF propuesta → Subir poliza → WA recordatorio formal.
       botones =
-        (tel?'<a class="btn btn-sm btn-wa-solid" href="https://wa.me/57'+tel+'" target="_blank">WA cliente</a>':'')+
         '<button class="btn btn-sm" onclick="descargarComparativoPDF(\''+l.id+'\')">PDF propuesta</button>'+
         '<label class="btn btn-sm btn-primary" style="cursor:pointer">'+
           '<input type="file" accept="application/pdf" onchange="subirPDFPolizaEmitida(this,\''+l.id+'\')" style="display:none">'+
           '+ Subir poliza'+
-        '</label>';
+        '</label>'+
+        (tel?'<button class="btn btn-sm btn-wa-solid" onclick="_waRecordatorioPorEmitir_(\''+_jsq(l.id)+'\')">WA cliente</button>':'');
     } else {
       // Etapa 2: PDF ya cargado, POLRES alimentado. Fabian envia al cliente y marca enviada.
       botones =
@@ -3700,7 +3700,9 @@ function renderCartera(){
   tbody.innerHTML = filtered.map(function(c){
     var acciones = '';
     if(c.estado !== 'Pagada' && puedeEditar){
-      acciones = '<button class="btn btn-sm btn-primary" onclick="marcarPagadaCartera_(\''+c.id+'\')" style="background:var(--green);border:none">Marcar Pagada &#10003;</button>';
+      acciones =
+        '<button class="btn btn-sm btn-wa-solid" onclick="_waRecordatorioCartera_(\''+c.id+'\')" style="font-size:10px" title="Enviar recordatorio formal por WhatsApp">Recordatorio WA</button> '+
+        '<button class="btn btn-sm btn-primary" onclick="marcarPagadaCartera_(\''+c.id+'\')" style="background:var(--green);border:none">Marcar Pagada &#10003;</button>';
     } else if(c.estado === 'Pagada'){
       acciones = '<span style="font-size:11px;color:var(--dim)">Pagada '+(c.fecha_pago||'')+'</span>';
     } else {
@@ -3731,6 +3733,46 @@ window.switchCarSub = function(sub){
   if(el) el.classList.add('active');
   renderCartera();
 };
+/* Mensaje WA formal de recordatorio de pago para clientes en CARTERA pendiente. */
+window._waRecordatorioCartera_ = function(id){
+  var c = CARTERA.filter(function(x){return x.id===id})[0];
+  if(!c){ alert('No encontrado'); return; }
+  // Buscar telefono del tomador en POLIZAS (por numero de poliza) o en LEADS
+  var tel = '';
+  var pol = POLIZAS.filter(function(p){return p.id===c.poliza})[0];
+  if(pol) tel = (pol.telefono||'').replace(/[^0-9]/g,'');
+  if(!tel && c.lead_id){
+    var lead = LEADS.filter(function(l){return l.id===c.lead_id})[0];
+    if(lead) tel = (lead.telefono||'').replace(/[^0-9]/g,'');
+  }
+  var dias = _diasDesde(c.fecha_emision);
+  var soyMonica = (window.CURRENT_USER && String(CURRENT_USER.nombre||CURRENT_USER.email||'').toLowerCase().indexOf('monica')>=0);
+  var quien = soyMonica ? 'Monica' : ((window.CURRENT_USER && CURRENT_USER.nombre) || 'Aseguralo');
+  var partes = [];
+  partes.push('Buenos dias '+c.tomador+',');
+  partes.push('');
+  partes.push('Le habla '+quien+' de Aseguralo. Le escribo con relacion a su poliza '+c.poliza+' con '+c.aseguradora+', emitida hace '+dias+' dia'+(dias===1?'':'s')+'.');
+  partes.push('');
+  if(c.prima){
+    partes.push('Valor pendiente: $'+Number(c.prima).toLocaleString('es-CO'));
+    partes.push('');
+  }
+  if(dias > 25){
+    partes.push('Le recuerdo cordialmente que el plazo maximo de pago con la aseguradora ya se cumplio. Le solicitamos por favor efectuar el pago lo antes posible para mantener activa su cobertura.');
+  } else {
+    partes.push('Le recordamos que el pago debe efectuarse dentro de los primeros 25 dias posteriores a la emision para mantener la vigencia de su poliza.');
+  }
+  partes.push('');
+  partes.push('Una vez realizado el pago, por favor envienos el comprobante para actualizar sus registros.');
+  partes.push('');
+  partes.push('Quedamos atentos a cualquier consulta.');
+  partes.push('');
+  partes.push('Aseguralo · Agente de Seguros · Bogota');
+  var url = tel ? 'https://wa.me/57'+tel+'?text='+encodeURIComponent(partes.join('\n'))
+                : 'https://wa.me/?text='+encodeURIComponent(partes.join('\n'));
+  window.open(url, '_blank');
+};
+
 window.marcarPagadaCartera_ = function(id){
   var c = CARTERA.filter(function(x){return x.id===id})[0];
   if(!c) return;
@@ -4340,6 +4382,34 @@ window._confirmarAnulacion_ = function(polizaId){
   });
 };
 
+/* Mensaje WA formal de recordatorio para leads en POR EMITIR (esperando emision aseguradora). */
+window._waRecordatorioPorEmitir_ = function(leadId){
+  var lead = LEADS.filter(function(x){return x.id===leadId})[0];
+  if(!lead) return;
+  var data = (COT_PDFS && COT_PDFS[leadId]) || {};
+  var ganadora = data.__ganadora ? data[data.__ganadora] : null;
+  var aseg = ganadora ? ganadora.aseguradora : '';
+  var prima = ganadora ? Number(ganadora.prima)||0 : 0;
+  var tel = (lead.telefono||'').replace(/[^0-9]/g,'');
+  var soyMonica = (window.CURRENT_USER && String(CURRENT_USER.nombre||CURRENT_USER.email||'').toLowerCase().indexOf('monica')>=0);
+  var quien = soyMonica ? 'Monica' : ((window.CURRENT_USER && CURRENT_USER.nombre) || 'Aseguralo');
+  var partes = [];
+  partes.push('Buenos dias '+lead.nombre+',');
+  partes.push('');
+  partes.push('Le habla '+quien+' de Aseguralo. Le escribo para confirmar el proceso de emision de su poliza '+(lead.tipo?'de '+lead.tipo:'')+(aseg?' con '+aseg:'')+'.');
+  if(prima) partes.push('Prima aceptada: $'+prima.toLocaleString('es-CO'));
+  partes.push('');
+  partes.push('En el momento estamos en gestion con la aseguradora para la emision de la poliza. Le confirmo con el numero definitivo y el PDF cuando este listo.');
+  partes.push('');
+  partes.push('Si tiene alguna duda o desea ampliar informacion, estamos atentos por este mismo medio.');
+  partes.push('');
+  partes.push('Gracias por confiar en nosotros.');
+  partes.push('Aseguralo · Agente de Seguros · Bogota');
+  var url = tel ? 'https://wa.me/57'+tel+'?text='+encodeURIComponent(partes.join('\n'))
+                : 'https://wa.me/?text='+encodeURIComponent(partes.join('\n'));
+  window.open(url, '_blank');
+};
+
 /* Renovar poliza — abre modal decisor con 3 rutas (limpia / recotizar / cambios).
    Backend crea nuevo lead con datos heredados y salta al estado correcto del pipeline. */
 window.renovarPoliza=function(id){
@@ -4912,6 +4982,21 @@ function renderComisiones(){
   // Filtro por rol
   var COM_VIEW = filtrarPorPermiso_(COMISIONES, 'intermediario');
 
+  // BLINDAJE: excluir polizas cuya aseguradora AUN NO HA PAGADO (LIQUIDACION pendiente).
+  // Regla Fabian: mientras aseguradora no paga, no es comision.
+  // Se muestra solo cuando pasa a 'cobrado' desde CARTERA.
+  var pendientesSet = {};
+  if(typeof LIQUIDACIONES !== 'undefined' && LIQUIDACIONES){
+    LIQUIDACIONES.forEach(function(l){
+      if(l.estado_pago_aseguralo === 'pendiente' && l.poliza){
+        pendientesSet[String(l.poliza).trim()] = true;
+      }
+    });
+  }
+  COM_VIEW = COM_VIEW.filter(function(c){
+    return !pendientesSet[String(c.poliza||'').trim()];
+  });
+
   // Filtro por mes (opcional)
   var mesInput = document.getElementById('comisionesMesFiltro');
   var mesSel = mesInput ? mesInput.value : ''; // formato "YYYY-MM"
@@ -5210,6 +5295,7 @@ function loadLiquidacionesFromSheet(){
       renderLiquidaciones();
       if(typeof renderComisionesMes==='function') renderComisionesMes();
       if(typeof _actualizarBadgeLiquidar_==='function') _actualizarBadgeLiquidar_();
+      if(typeof renderComisiones==='function') renderComisiones();
     }).catch(function(){});
 }
 
