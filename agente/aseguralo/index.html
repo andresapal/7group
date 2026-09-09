@@ -2779,11 +2779,12 @@ function renderPorEmitir(){
         '</label>'+
         (tel?'<button class="btn btn-sm btn-wa-solid" onclick="_waRecordatorioPorEmitir_(\''+_jsq(l.id)+'\')">WA cliente</button>':'');
     } else {
-      // Etapa 2: PDF ya cargado, POLRES alimentado. Fabian envia al cliente y marca enviada.
+      // Etapa 2: PDF cargado + ya paso a POLRES + CARTERA + lead 'Convertido' (automatico al subir PDF).
+      // Aqui solo queda enviar al cliente. El "Marcar enviada" queda como opcion manual redundante (idempotente).
       botones =
         '<a class="btn btn-sm" href="'+emitida.driveUrl+'" target="_blank">Ver PDF poliza</a>'+
         (tel?'<button class="btn btn-sm btn-wa-solid" onclick="enviarPolizaWA(\''+l.id+'\')">Enviar por WA al cliente</button>':'')+
-        '<button class="btn btn-sm btn-primary" onclick="marcarEnviada(\''+l.id+'\')" style="background:var(--green);border:none">Marcar enviada &#10003;</button>';
+        '<span style="font-size:10px;color:var(--green);font-weight:700;background:rgba(52,168,83,.15);padding:4px 10px;border-radius:6px">En CARTERA &#10003;</span>';
     }
     var estadoLine = emitida
       ? '<div class="meta" style="margin-top:6px;font-size:11px;color:var(--green)">Poliza '+emitida.poliza+' emitida &middot; en POLRES &middot; PDF en Drive</div>'
@@ -3094,15 +3095,32 @@ window.subirPDFPolizaEmitida = async function(inputEl, leadId){
     var j = await res.json();
     if(j.error) throw new Error(j.error);
     // Guardar info emitida para mostrar botones "Enviar WA" y "Marcar enviada"
-    window._POL_EMITIDAS[leadId] = {
+    var emitidaObj = {
       poliza: j.poliza || 'sin numero',
       driveUrl: (j.drive && j.drive.url) || '',
       aseguradora: (j.data && j.data.aseguradora) || '',
       prima: (j.data && j.data.prima_anual) || 0
     };
+    window._POL_EMITIDAS[leadId] = emitidaObj;
     try { localStorage.setItem('aseg_pol_emitidas', JSON.stringify(window._POL_EMITIDAS)); } catch(e){}
-    setStatus('Poliza '+j.poliza+' emitida. Ahora envia al cliente.', 'var(--green)');
-    renderPorEmitir(); // repinta con botones etapa 2
+    // AUTOMATICO: al subir el PDF, la poliza pasa directo a CARTERA (Pendiente) y el lead a 'Convertido'.
+    // Fabian ya NO tiene que hacer clic "Marcar enviada" — el flujo cierra solo.
+    try {
+      if(typeof _registrarEnCartera_ === 'function'){
+        _registrarEnCartera_(lead, emitidaObj);
+      }
+      // Marcar lead como Convertido (mismo comportamiento que marcarEnviada)
+      lead.estado = 'Convertido';
+      var emailAuth = (window.CURRENT_USER && CURRENT_USER.email) ||
+                      (typeof GATE_KEY!=='undefined' && localStorage.getItem(GATE_KEY)) || '';
+      fetch(APPS_SCRIPT_URL, {method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({action:'lead-update', email:emailAuth, id:leadId, estado:'Convertido'})
+      }).catch(function(){});
+    } catch(e){ console.warn('Auto-registro en cartera fallo:', e); }
+    setStatus('Poliza '+j.poliza+' emitida y en CARTERA. Envia al cliente cuando quieras.', 'var(--green)');
+    renderPorEmitir(); // repinta con botones etapa 2 (Ver PDF + Enviar WA)
+    if(typeof renderLeads==='function') renderLeads();
     // Recarga POLIZAS del Sheet para que la nueva fila aparezca de una en el modulo Polizas
     if(typeof loadFromSheet==='function') loadFromSheet(function(){ if(typeof renderPolizas==='function') renderPolizas(); });
   } catch(err){
