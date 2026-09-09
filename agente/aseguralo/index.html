@@ -3467,8 +3467,15 @@ function calcularAlertasHome_(POL_VIEW){
     // Fase 5+ cards
     siniestros:   { total:0, activos:0, en_proceso:0, reportados_hoy:0 },
     cancelaciones:{ total:0, este_mes:0, este_ano:0 },
-    cumples:      { total:0, esta_semana:0, este_mes:0 }
+    cumples:      { total:0, esta_semana:0, este_mes:0 },
+    porEmitir:    { total:0, sarlaft:0, emisor:0 }
   };
+  // POR EMITIR: leads en pipeline COTIZADOR/SARLAFT o COTIZADOR/emitir
+  LEADS_VIEW.forEach(function(l){
+    if(l.estado === 'Aceptada')  a.porEmitir.sarlaft++;
+    if(l.estado === 'SarlaftOK') a.porEmitir.emisor++;
+  });
+  a.porEmitir.total = a.porEmitir.sarlaft + a.porEmitir.emisor;
   // Siniestros activos (de la lista cargada)
   if(typeof SINIESTROS_LIST !== 'undefined' && SINIESTROS_LIST && SINIESTROS_LIST.length){
     var SIN_VIEW = filtrarPorPermiso_(SINIESTROS_LIST, 'intermediario');
@@ -4174,6 +4181,13 @@ function renderPolizas(filter){
       drill: drill([
         {color:'o', label:'Esta semana', n:A.cumples.esta_semana, action:"filtrarPolizasAlerta_('cumple-7')"},
         {color:'g', label:'En 30 dias', n:A.cumples.este_mes, action:"filtrarPolizasAlerta_('cumple-30')"}
+      ])
+    },
+    {
+      c:'c-brand', l:'Por emitir', v:A.porEmitir.total,
+      drill: drill([
+        {color:'y', label:'SARLAFT pendiente', n:A.porEmitir.sarlaft, action:"switchMod('cotizador');switchSub('sarlaft')"},
+        {color:'o', label:'Esperando aseguradora', n:A.porEmitir.emisor, action:"switchMod('cotizador');switchSub('emitir')"}
       ])
     }
   ];
