@@ -4228,11 +4228,32 @@ window._togglePolMenu_ = function(id, ev){
   var left = Math.min(r.right - menuW, window.innerWidth - menuW - 8);
   if(left < 8) left = 8;
   abierto.style.position = 'fixed';
-  abierto.style.top = (r.bottom + 4) + 'px';
   abierto.style.left = left + 'px';
   abierto.style.right = 'auto';
   abierto.style.zIndex = 9999;
+  abierto.style.maxHeight = '';    // reset por si venia de un flip anterior
+  abierto.style.overflowY = '';
   abierto.style.display = '';
+  // Medir despues de renderizar para saber alto real y decidir flip vertical
+  var mh = abierto.offsetHeight;
+  var espacioAbajo = window.innerHeight - r.bottom - 8;
+  var espacioArriba = r.top - 8;
+  if(mh > espacioAbajo && espacioArriba > espacioAbajo){
+    // No cabe abajo → mostrar arriba del boton
+    var topArr = Math.max(8, r.top - mh - 4);
+    abierto.style.top = topArr + 'px';
+    if(mh > espacioArriba){
+      abierto.style.maxHeight = espacioArriba + 'px';
+      abierto.style.overflowY = 'auto';
+      abierto.style.top = '8px';
+    }
+  } else {
+    abierto.style.top = (r.bottom + 4) + 'px';
+    if(mh > espacioAbajo){
+      abierto.style.maxHeight = espacioAbajo + 'px';
+      abierto.style.overflowY = 'auto';
+    }
+  }
 };
 // Cerrar al clickear fuera del menu o al hacer scroll
 document.addEventListener('click', function(){
