@@ -652,14 +652,15 @@ window._abrirUsuariosAuth_ = function(){
 
     <!-- Aviso in-app browser (WhatsApp, Telegram, Instagram, Messenger, Facebook)
          Google OAuth NO funciona en WebViews, hay que abrir en Chrome/Safari nativo -->
-    <div id="inAppWarn" style="display:none;margin-top:14px;padding:14px;background:#FFF3CD;border:1px solid #FFC107;border-radius:8px;text-align:center;color:#664D03">
-      <div style="font-size:13px;font-weight:800;margin-bottom:8px">Este navegador no permite iniciar sesion</div>
-      <div style="font-size:12px;margin-bottom:12px;line-height:1.4">
-        Estas viendo Aseguralo dentro de WhatsApp / Telegram. Por seguridad, Google no permite iniciar sesion aqui.<br><br>
-        <b>Toca los 3 puntos ( &vellip; ) arriba a la derecha</b> y elige <b>"Abrir en Chrome"</b> o <b>"Abrir en el navegador"</b>.
+    <div id="inAppWarn" style="display:none;margin-top:14px;padding:16px;background:#FFF3CD;border:2px solid #FFC107;border-radius:10px;text-align:center;color:#664D03">
+      <div style="font-size:15px;font-weight:800;margin-bottom:10px">Debes abrir en Chrome para iniciar sesion</div>
+      <div style="font-size:12px;margin-bottom:14px;line-height:1.5;text-align:left">
+        Estas viendo Aseguralo dentro de <b>Telegram / WhatsApp</b>. Google bloquea el inicio de sesion aqui por seguridad.<br><br>
+        <b>Opcion 1:</b> Toca el boton azul de abajo.<br>
+        <b>Opcion 2:</b> Toca los tres puntos <b>( &vellip; )</b> arriba a la derecha y elige <b>"Abrir en el navegador"</b> o <b>"Abrir en Chrome"</b>.
       </div>
-      <button onclick="_abrirEnChrome_()" style="padding:10px 20px;background:#45AAFF;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Abrir en Chrome</button>
-      <div style="font-size:10px;color:#856404;margin-top:10px">O copia esta direccion y abrela en Chrome:<br><b style="user-select:all;font-family:monospace">7group.site</b></div>
+      <button onclick="_abrirEnChrome_()" style="padding:12px 24px;background:#45AAFF;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;max-width:280px">Abrir en Chrome</button>
+      <div style="font-size:10px;color:#856404;margin-top:12px;padding-top:10px;border-top:1px solid #FFC107">Una vez dentro en Chrome, toca <b>&#9776; Menu &rarr; Instalar app</b> y quedara como icono en tu celular. Ya no vuelves a pasar por este paso.</div>
     </div>
 
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border2)">
@@ -2159,6 +2160,8 @@ window.entrarConCorreo=function(){
 };
 
 function handleGoogleResponse(r){
+  // Callback si llego → cancela el fallback "sign-in stuck"
+  if(window._signinStuckTimer_){ clearTimeout(window._signinStuckTimer_); window._signinStuckTimer_ = null; }
   if(isBlocked()){document.getElementById('gateBlocked').style.display='block';return;}
   var idToken = r && r.credential;
   if(!idToken){ addFailedAttempt(); return; }
@@ -2209,20 +2212,60 @@ function initGoogleSignIn(){
   var ld = document.getElementById('gateLoading'); if(ld) ld.style.display='none';
   google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleResponse});
   google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});
+  // Fallback "sign-in stuck": si el usuario toca el boton y a los 8s el callback no vino,
+  // asumimos in-app browser (Telegram/WhatsApp bloquean el postMessage) y mostramos el aviso.
+  var contenedor = document.getElementById('g_id_signin');
+  if(contenedor){
+    contenedor.addEventListener('click', function(){
+      if(window._signinStuckTimer_) clearTimeout(window._signinStuckTimer_);
+      window._signinStuckTimer_ = setTimeout(function(){
+        var w = document.getElementById('inAppWarn');
+        if(w) w.style.display = 'block';
+        // Scroll para que Fabian vea el aviso arriba
+        try{ w.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
+      }, 8000);
+    }, true);
+  }
 }
 
-// Detector de in-app browser (WhatsApp, Telegram, Instagram, Facebook, Messenger, TikTok, Line, WeChat)
+// Detector agresivo de in-app browser (WhatsApp, Telegram, Instagram, Facebook, Messenger, TikTok, Line, WeChat, X)
 function _esInAppBrowser_(){
   var ua = (navigator.userAgent || '').toLowerCase();
-  // Firmas conocidas de in-app browsers
-  var patterns = ['fbav','fban','fb_iab','fbios','instagram','line/','micromessenger','wechat','messenger','twitter','snapchat','tiktok','musical_ly'];
+  // 1) Firmas explicitas conocidas
+  var patterns = [
+    'fbav','fban','fb_iab','fbios',            // Facebook / Messenger app
+    'instagram',                                // Instagram
+    'line/','line ',                            // Line
+    'micromessenger','wechat',                  // WeChat
+    'messenger',                                // FB Messenger
+    'twitter',                                  // Twitter / X
+    'snapchat',                                 // Snapchat
+    'tiktok','musical_ly',                      // TikTok
+    'whatsapp',                                 // WhatsApp iOS (Android no siempre)
+    'telegram',                                 // Telegram (iOS y algunas Android)
+    'kakaotalk','naver','daum',                 // Corea
+    'wv)',' wv;',' wv ',                        // WebView Android generico
+  ];
   for(var i=0;i<patterns.length;i++){ if(ua.indexOf(patterns[i]) >= 0) return true; }
-  // Telegram / WhatsApp usan WebView Android sin marca clara; heuristica:
-  // Android + "wv" (WebView) o versiones de Chrome muy antiguas embebidas
-  if(ua.indexOf('android') >= 0 && ua.indexOf('wv') >= 0) return true;
-  // iOS Safari real siempre trae "safari/"; una WebView (WKWebView de WhatsApp/Telegram) NO
-  var esIOS = /iphone|ipad|ipod/.test(ua);
-  if(esIOS && ua.indexOf('safari/') < 0) return true;
+  // 2) iOS: Safari real trae "safari/"; una WKWebView (WhatsApp/Telegram/etc) NO
+  if(/iphone|ipad|ipod/.test(ua) && ua.indexOf('safari/') < 0) return true;
+  // 3) Android: si venimos referidos desde un dominio de chat, es in-app aunque el UA no lo diga
+  try{
+    var ref = (document.referrer || '').toLowerCase();
+    if(ref.indexOf('t.me') >= 0 || ref.indexOf('telegram') >= 0 ||
+       ref.indexOf('whatsapp.com') >= 0 || ref.indexOf('wa.me') >= 0 ||
+       ref.indexOf('messenger.com') >= 0 || ref.indexOf('facebook.com') >= 0){
+      return true;
+    }
+  }catch(e){}
+  // 4) Fallback Android: WebView de apps de chat carga sin API window.chrome real
+  //    Chrome nativo Android SIEMPRE define window.chrome.webstore/runtime; los WebViews NO.
+  if(ua.indexOf('android') >= 0 && ua.indexOf('chrome/') >= 0){
+    try{
+      var c = window.chrome;
+      if(!c || (!c.webstore && !c.runtime && !c.app)) return true;
+    }catch(e){ return true; }
+  }
   return false;
 }
 
