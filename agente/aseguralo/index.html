@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -76,6 +76,10 @@ code,.mono{font-family:'JetBrains Mono',monospace}
 .tb-btn:hover{background:var(--accent);color:#fff}
 .tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
 .tb-toggle:hover{border-color:var(--accent);color:var(--accent)}
+/* Menu hamburguesa consolidado */
+.tb-menu-item{display:block;width:100%;text-align:left;padding:10px 14px;background:transparent;border:none;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
+.tb-menu-item:hover{background:var(--bg3);color:var(--accent)}
+#tbMenuBtn{font-size:16px;line-height:1}
 
 /* MODULE NAV */
 .mod-nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x mandatory}
@@ -278,18 +282,13 @@ tbody tr:hover{background:var(--accent-light)}
   .tb-right::-webkit-scrollbar{display:none}
   .tb-right #syncStatus{display:none}
   .tb-toggle,.tb-btn{padding:5px 8px;font-size:9px;flex-shrink:0}
-  /* Movil: nav topbar compacto con iconos en vez de texto donde tenga sentido */
-  #cmdkBtn span{display:none} /* oculta el "Ctrl K" chip */
+  /* Movil: nav topbar compacto. Ctrl+K chip: oculto en mobile (no hay teclado) */
+  #cmdkBtn span{display:none}
   #cmdkBtn{padding:5px 10px}
   #oficinaMenuBtn{padding:5px 8px;font-size:11px}
-  #oficinaMenuBtn #oficinaActualLbl{display:none}
-  /* Oficina en movil se convierte en icono hamburguesa puro (ya lo trae) */
-  #themeBtn{padding:5px 8px;font-size:0;min-width:32px;position:relative}
-  #themeBtn::before{content:"\263C";font-size:14px} /* icono sol */
-  html.dark #themeBtn::before{content:"\263D"} /* icono luna en dark */
-  #modConfigBtn{padding:5px 8px;font-size:0;min-width:32px}
-  #modConfigBtn::before{content:"\2699";font-size:14px} /* engrane */
-  #pwaInstallBtn{padding:5px 10px;font-size:10px;letter-spacing:0}
+  #oficinaMenuBtn #oficinaActualLbl{display:inline;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+  /* Hamburguesa se ve completa (icono unicode) */
+  #tbMenuBtn{padding:5px 10px;font-size:16px}
   /* Botones compactos genericos */
   .tb-toggle,.tb-btn{padding:5px 9px;font-size:10px;flex-shrink:0}
   /* Mod-nav horizontal con scroll suave y snap */
@@ -545,7 +544,7 @@ tbody tr:hover{background:var(--accent-light)}
   <div class="accent-line"></div>
   <div class="topbar">
     <div class="tb-left">
-      <a class="tb-logo" href="#"><img src="/logo-aseguralo.png" alt="Aseguralo" style="height:28px;vertical-align:middle"></a>
+      <a class="tb-logo" href="#" id="tbLogoLink"><img src="/logo-aseguralo.png" alt="Aseguralo" style="height:28px;vertical-align:middle"></a>
       <div class="tb-sep"></div>
       <span class="tb-badge">ERP SIRILO</span>
     </div>
@@ -553,17 +552,22 @@ tbody tr:hover{background:var(--accent-light)}
       <div id="syncStatus" style="margin-right:4px"></div>
       <span id="userChip" style="font-size:11px;color:var(--dim);padding:4px 10px;background:var(--bg3);border-radius:12px;font-weight:600"></span>
       <div id="oficinaMenuWrap" style="display:none;position:relative">
-        <button class="tb-toggle" id="oficinaMenuBtn" onclick="toggleOficinaMenu(event)">&#9776; Oficina: <span id="oficinaActualLbl">Aseguralo</span></button>
+        <button class="tb-toggle" id="oficinaMenuBtn" onclick="toggleOficinaMenu(event)">Oficina: <span id="oficinaActualLbl">Aseguralo</span> &#9662;</button>
         <div id="oficinaMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);padding:6px 0;min-width:220px;z-index:9999">
           <div class="oficina-opt" data-of="Aseguralo" onclick="setOficinaActiva('Aseguralo')" style="padding:10px 14px;cursor:pointer">Aseguralo</div>
           <div class="oficina-opt" data-of="Sandra Marin Seguros" onclick="setOficinaActiva('Sandra Marin Seguros')" style="padding:10px 14px;cursor:pointer;opacity:.55">Sandra Marin Seguros <span style="font-size:10px;color:var(--muted)">(pendiente Sheet)</span></div>
         </div>
       </div>
-      <button class="tb-toggle" onclick="_cmdkOpen_()" id="cmdkBtn" title="Buscar cualquier registro del ERP (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px">Buscar todo <span style="font-size:9px;padding:1px 5px;background:var(--bg);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace">Ctrl K</span></button>
-      <button class="tb-toggle" onclick="_pwaInstalar_()" id="pwaInstallBtn" title="Instalar Aseguralo como app en tu dispositivo" style="display:none;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);font-weight:700">Instalar app</button>
-      <button class="tb-toggle" onclick="openModConfig()" id="modConfigBtn" style="display:none">Modulos</button>
-      <button class="tb-toggle" onclick="toggleTheme()" id="themeBtn">Claro</button>
-      <a class="tb-btn" href="/agente/" id="tb7gBtn" style="display:none">7Group</a>
+      <button class="tb-toggle" onclick="_cmdkOpen_()" id="cmdkBtn" title="Buscar cualquier registro del ERP (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px">Buscar por <span style="font-size:9px;padding:1px 5px;background:var(--bg);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace">Ctrl K</span></button>
+      <!-- Menu hamburguesa consolidado -->
+      <div id="tbMenuWrap" style="position:relative">
+        <button class="tb-toggle" id="tbMenuBtn" onclick="_tbMenuToggle_(event)" title="Menu" style="padding:5px 10px;font-weight:700">&#9776;</button>
+        <div id="tbMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.3);padding:6px 0;min-width:210px;z-index:9999">
+          <button class="tb-menu-item" id="menuThemeBtn" onclick="toggleTheme();_tbMenuClose_()">Modo noche</button>
+          <button class="tb-menu-item" id="menuInstallBtn" onclick="_pwaInstalar_();_tbMenuClose_()">Instalar app</button>
+          <button class="tb-menu-item" id="menuModConfigBtn" onclick="openModConfig();_tbMenuClose_()" style="display:none">Configurar modulos</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1911,20 +1915,26 @@ function aplicarPermisosUI_(){
 
 function setAdminMode(email){
   IS_ADMIN = ADMIN_EMAILS.indexOf(email) !== -1;
-  // Selector de oficina solo visible para admin master
+  // Selector de oficina SOLO admin 7GROUP (Andres). Dueno y asesor NO lo ven.
   var ofWrap = document.getElementById('oficinaMenuWrap');
   if(ofWrap) ofWrap.style.display = IS_ADMIN ? 'inline-block' : 'none';
   var ofLbl = document.getElementById('oficinaActualLbl');
-  if(ofLbl) ofLbl.textContent = OFICINA_ACTIVA;
-  // Modulos: admin 7GROUP + dueno Aseguralo (Fabian, varios emails) pueden gestionar
-  // aseguraloseguros@gmail.com se reasigno a Monica Torres (asesora); ya no es dueno.
+  if(ofLbl) ofLbl.textContent = OFICINA_ACTIVA || 'Aseguralo';
+  // "Buscar por" (Ctrl+K): dueno + asesor SI lo ven. Admin NO lo necesita.
+  var cmdkBtn = document.getElementById('cmdkBtn');
+  if(cmdkBtn) cmdkBtn.style.display = IS_ADMIN ? 'none' : 'inline-flex';
+  // Dueños Aseguralo (Fabian, varios emails). Monica es asesora.
   var DUENOS_FABIAN = ['aseguralo@outlook.com','celcarov@gmail.com','celso.carrera@allia2.com.co','asesorias@aseguralo.com.co'];
   var esDueno = DUENOS_FABIAN.indexOf(email) >= 0;
-  var modBtn = document.getElementById('modConfigBtn');
-  if(modBtn) modBtn.style.display = (IS_ADMIN || esDueno) ? '' : 'none';
-  // Link 7Group: solo admin 7GROUP (no Fabian)
-  var g7Btn = document.getElementById('tb7gBtn');
-  if(g7Btn) g7Btn.style.display = IS_ADMIN ? '' : 'none';
+  // "Configurar modulos" en el hamburguesa: SOLO admin 7GROUP (dueno NO lo ve).
+  var menuMod = document.getElementById('menuModConfigBtn');
+  if(menuMod) menuMod.style.display = IS_ADMIN ? '' : 'none';
+  // Logo Aseguralo: para admin lleva a /agente/ (home 7group). Dueno/asesor: link inerte.
+  var logoLink = document.getElementById('tbLogoLink');
+  if(logoLink){
+    if(IS_ADMIN){ logoLink.setAttribute('href','/agente/'); logoLink.setAttribute('title','Volver al home 7Group'); }
+    else { logoLink.setAttribute('href','#'); logoLink.removeAttribute('title'); }
+  }
   // Cargar perfil del usuario (rol/permisos)
   if(typeof loadCurrentUser_==='function') loadCurrentUser_(email);
 }
@@ -3378,12 +3388,37 @@ if('serviceWorker' in navigator){
       .catch(function(err){ console.warn('[PWA] SW registro fallo:', err); });
   });
 }
+// ==============================
+// MENU HAMBURGUESA TOPBAR
+// ==============================
+window._tbMenuToggle_ = function(ev){
+  if(ev){ ev.stopPropagation(); }
+  var m = document.getElementById('tbMenu');
+  if(!m) return;
+  var open = m.style.display === 'block';
+  m.style.display = open ? 'none' : 'block';
+  if(!open){
+    // Cerrar al hacer click fuera
+    setTimeout(function(){
+      document.addEventListener('click', _tbMenuOutside_, { once:true });
+    }, 0);
+  }
+};
+window._tbMenuClose_ = function(){
+  var m = document.getElementById('tbMenu');
+  if(m) m.style.display = 'none';
+};
+function _tbMenuOutside_(e){
+  var wrap = document.getElementById('tbMenuWrap');
+  if(wrap && !wrap.contains(e.target)) _tbMenuClose_();
+}
+
 // Prompt de instalacion Android/Chrome desktop (iOS necesita "Agregar a inicio" manual)
 var _pwaDeferredPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault();
   _pwaDeferredPrompt = e;
-  var btn = document.getElementById('pwaInstallBtn');
+  var btn = document.getElementById('menuInstallBtn');
   if(btn) btn.style.display = '';
 });
 window._pwaInstalar_ = function(){
@@ -3392,7 +3427,7 @@ window._pwaInstalar_ = function(){
     _pwaDeferredPrompt.userChoice.then(function(choice){
       if(choice.outcome === 'accepted'){
         if(typeof toast === 'function') toast('Aseguralo se instalo como app en tu dispositivo', {type:'ok', title:'Instalado'});
-        var btn = document.getElementById('pwaInstallBtn'); if(btn) btn.style.display='none';
+        var btn = document.getElementById('menuInstallBtn'); if(btn) btn.style.display='none';
       }
       _pwaDeferredPrompt = null;
     });
@@ -3412,7 +3447,7 @@ window._pwaInstalar_ = function(){
 window.addEventListener('DOMContentLoaded', function(){
   var yaInstalada = window.matchMedia('(display-mode: standalone)').matches ||
                     window.navigator.standalone === true;
-  var btn = document.getElementById('pwaInstallBtn');
+  var btn = document.getElementById('menuInstallBtn');
   if(yaInstalada){
     if(btn) btn.style.display='none';
     document.documentElement.classList.add('pwa-standalone');
@@ -3423,7 +3458,7 @@ window.addEventListener('DOMContentLoaded', function(){
   if(esIOS && btn) btn.style.display = '';
 });
 window.addEventListener('appinstalled', function(){
-  var btn = document.getElementById('pwaInstallBtn'); if(btn) btn.style.display='none';
+  var btn = document.getElementById('menuInstallBtn'); if(btn) btn.style.display='none';
   if(typeof toast === 'function') toast('Aseguralo ya esta disponible como app en tu dispositivo', {type:'ok', title:'Instalada'});
 });
 // Manejo de shortcuts del manifest (?cmdk=1 abre buscador; ?goto=cartera cambia modulo)
@@ -3728,8 +3763,25 @@ window.closeModal=function(id){
 window.toggleTheme=function(){
   document.documentElement.classList.toggle('dark');
   var isDark=document.documentElement.classList.contains('dark');
-  document.getElementById('themeBtn').textContent=isDark?'Claro':'Oscuro';
+  try{ localStorage.setItem('aseg_theme', isDark?'dark':'light'); }catch(e){}
+  var btn = document.getElementById('themeBtn');
+  if(btn) btn.textContent = isDark?'Modo día':'Modo noche';
+  var mm = document.getElementById('menuThemeBtn');
+  if(mm) mm.textContent = isDark?'Modo día':'Modo noche';
 };
+// Cargar preferencia de tema guardada (default: claro)
+(function(){
+  try{
+    var t = localStorage.getItem('aseg_theme');
+    if(t === 'dark') document.documentElement.classList.add('dark');
+  }catch(e){}
+})();
+// Sincroniza el label del boton "Modo dia/noche" en el hamburguesa al cargar DOM
+window.addEventListener('DOMContentLoaded', function(){
+  var isDark = document.documentElement.classList.contains('dark');
+  var mm = document.getElementById('menuThemeBtn');
+  if(mm) mm.textContent = isDark ? 'Modo día' : 'Modo noche';
+});
 
 window.toggleDetail=function(id){
   var row=document.getElementById(id);
