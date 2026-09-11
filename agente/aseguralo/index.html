@@ -278,6 +278,24 @@ tbody tr:hover{background:var(--accent-light)}
   .tb-right::-webkit-scrollbar{display:none}
   .tb-right #syncStatus{display:none}
   .tb-toggle,.tb-btn{padding:5px 8px;font-size:9px;flex-shrink:0}
+  /* Movil: nav topbar compacto con iconos en vez de texto donde tenga sentido */
+  #cmdkBtn span{display:none} /* oculta el "Ctrl K" chip */
+  #cmdkBtn{padding:5px 10px}
+  #oficinaMenuBtn{padding:5px 8px;font-size:11px}
+  #oficinaMenuBtn #oficinaActualLbl{display:none}
+  /* Oficina en movil se convierte en icono hamburguesa puro (ya lo trae) */
+  #themeBtn{padding:5px 8px;font-size:0;min-width:32px;position:relative}
+  #themeBtn::before{content:"\263C";font-size:14px} /* icono sol */
+  html.dark #themeBtn::before{content:"\263D"} /* icono luna en dark */
+  #modConfigBtn{padding:5px 8px;font-size:0;min-width:32px}
+  #modConfigBtn::before{content:"\2699";font-size:14px} /* engrane */
+  #pwaInstallBtn{padding:5px 10px;font-size:10px;letter-spacing:0}
+  /* Botones compactos genericos */
+  .tb-toggle,.tb-btn{padding:5px 9px;font-size:10px;flex-shrink:0}
+  /* Mod-nav horizontal con scroll suave y snap */
+  .mod-nav{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;padding:0 8px}
+  .mod-nav::-webkit-scrollbar{display:none}
+  .mod-link{scroll-snap-align:start}
   .mod-nav{padding:0 12px;gap:0}
   .mod-nav .mod-link{padding:10px 8px;font-size:11px}
   .sec-header{flex-direction:column;align-items:stretch;gap:12px}
@@ -541,7 +559,7 @@ tbody tr:hover{background:var(--accent-light)}
           <div class="oficina-opt" data-of="Sandra Marin Seguros" onclick="setOficinaActiva('Sandra Marin Seguros')" style="padding:10px 14px;cursor:pointer;opacity:.55">Sandra Marin Seguros <span style="font-size:10px;color:var(--muted)">(pendiente Sheet)</span></div>
         </div>
       </div>
-      <button class="tb-toggle" onclick="_cmdkOpen_()" id="cmdkBtn" title="Búsqueda global (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px">Buscar <span style="font-size:9px;padding:1px 5px;background:var(--bg);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace">Ctrl K</span></button>
+      <button class="tb-toggle" onclick="_cmdkOpen_()" id="cmdkBtn" title="Buscar cualquier registro del ERP (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px">Buscar todo <span style="font-size:9px;padding:1px 5px;background:var(--bg);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace">Ctrl K</span></button>
       <button class="tb-toggle" onclick="_pwaInstalar_()" id="pwaInstallBtn" title="Instalar Aseguralo como app en tu dispositivo" style="display:none;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);font-weight:700">Instalar app</button>
       <button class="tb-toggle" onclick="openModConfig()" id="modConfigBtn" style="display:none">Modulos</button>
       <button class="tb-toggle" onclick="toggleTheme()" id="themeBtn">Claro</button>
@@ -570,7 +588,7 @@ tbody tr:hover{background:var(--accent-light)}
           <div class="sec-desc">Base de polizas — foco en renovacion: vencidas y proximas a vencer</div>
         </div>
         <div class="tbl-actions">
-          <input class="tbl-search" placeholder="Buscar cliente..." id="searchPolizas" oninput="filterPolizas()">
+          <input class="tbl-search" placeholder="Filtrar clientes en esta tabla..." id="searchPolizas" oninput="filterPolizas()">
         </div>
       </div>
 
@@ -3388,14 +3406,21 @@ window._pwaInstalar_ = function(){
     else alert('Instalar Aseguralo:\n\n'+msg);
   }
 };
-// Detectar si ya esta instalado (modo standalone) → esconder boton
+// Detectar si ya esta instalado (modo standalone) → esconder boton.
+// En iOS Safari NO se dispara beforeinstallprompt, asi que mostramos el boton siempre
+// (al hacer clic mostramos las instrucciones manuales de "Agregar a inicio").
 window.addEventListener('DOMContentLoaded', function(){
   var yaInstalada = window.matchMedia('(display-mode: standalone)').matches ||
                     window.navigator.standalone === true;
+  var btn = document.getElementById('pwaInstallBtn');
   if(yaInstalada){
-    var btn = document.getElementById('pwaInstallBtn'); if(btn) btn.style.display='none';
+    if(btn) btn.style.display='none';
     document.documentElement.classList.add('pwa-standalone');
+    return;
   }
+  // iOS Safari: mostrar el boton para que el usuario pueda ver instrucciones
+  var esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if(esIOS && btn) btn.style.display = '';
 });
 window.addEventListener('appinstalled', function(){
   var btn = document.getElementById('pwaInstallBtn'); if(btn) btn.style.display='none';
