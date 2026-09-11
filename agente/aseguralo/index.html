@@ -3729,9 +3729,23 @@ function fmt(n){return '$'+n.toLocaleString('es-CO')}
    ============================================================ */
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('/agente/aseguralo/service-worker.js', {scope:'/agente/aseguralo/'})
-      .then(function(reg){ console.info('[PWA] Service worker registrado', reg.scope); })
+    navigator.serviceWorker.register('/agente/aseguralo/service-worker.js', {
+      scope: '/agente/aseguralo/',
+      updateViaCache: 'none'   // Chrome NO cachea el SW mismo, actualizacion rapida
+    })
+      .then(function(reg){
+        console.info('[PWA] Service worker registrado', reg.scope);
+        // Forzar chequeo de update en cada carga
+        try{ reg.update(); }catch(e){}
+      })
       .catch(function(err){ console.warn('[PWA] SW registro fallo:', err); });
+    // Si el SW nuevo tomo control, recarga la pagina UNA vez para asegurar recursos frescos
+    var recargado = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if(recargado) return;
+      recargado = true;
+      window.location.reload();
+    });
   });
 }
 // ==============================

@@ -2,7 +2,7 @@
    Estrategia: network-first para HTML/JSON (frescura primero), cache-first para assets estaticos.
    Version: bump el CACHE_NAME cuando cambies el shell para forzar invalidacion. */
 
-var CACHE_NAME = 'aseguralo-v1-2026-09-11';
+var CACHE_NAME = 'aseguralo-v3-2026-09-11-gate-fix';
 var STATIC_ASSETS = [
   '/agente/aseguralo/',
   '/agente/aseguralo/index.html',
@@ -37,13 +37,14 @@ self.addEventListener('fetch', function(event){
   // Solo interceptar GET
   if(req.method !== 'GET') return;
   var url = new URL(req.url);
-  // NO cachear peticiones al Apps Script (siempre red fresca)
-  if(url.host.indexOf('script.google') >= 0 || url.host.indexOf('googleapis') >= 0){
-    return; // sin interceptar, va a red normal
-  }
-  // NO cachear peticiones a Drive
-  if(url.host.indexOf('drive.google') >= 0){
-    return;
+  // NO interceptar peticiones a APIs y auth de Google — el SW rompe FedCM/OAuth si las toca
+  if(url.host.indexOf('script.google') >= 0 ||
+     url.host.indexOf('googleapis') >= 0 ||
+     url.host.indexOf('accounts.google.com') >= 0 ||    // ← Google Identity Services / Sign-In
+     url.host.indexOf('gstatic.com') >= 0 ||            // ← assets de Google auth
+     url.host.indexOf('drive.google') >= 0 ||
+     url.host.indexOf('generativelanguage.googleapis') >= 0){ // ← Gemini
+    return; // sin interceptar, va a red normal (indispensable para OAuth y FedCM)
   }
   // Network-first para HTML (queremos siempre lo nuevo). Cache-first para el resto (rapido).
   var isHTML = req.headers.get('accept') && req.headers.get('accept').indexOf('text/html') >= 0;
