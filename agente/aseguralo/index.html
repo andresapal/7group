@@ -13,6 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Aseguralo">
 <link rel="apple-touch-icon" href="/logo-aseguralo.png">
+<!-- FedCM: obligatorio para Google Identity en Chrome Android sin third-party cookies -->
+<meta http-equiv="Permissions-Policy" content="identity-credentials-get=(self &quot;https://accounts.google.com&quot;)">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -650,17 +652,23 @@ window._abrirUsuariosAuth_ = function(){
     <div class="gate-error" id="gateError">Acceso denegado. Correo no autorizado.</div>
     <div class="gate-error" id="gateBlocked" style="color:var(--red)">Cuenta bloqueada por intentos fallidos. Intente mas tarde.</div>
 
+    <!-- Boton diagnostico: cualquier usuario puede tocarlo y ver que esta pasando -->
+    <div style="text-align:center;margin-top:10px">
+      <button onclick="_gateDiag_()" style="background:transparent;border:1px dashed var(--muted);color:var(--muted);font-size:10px;padding:6px 12px;border-radius:6px;cursor:pointer;letter-spacing:.3px">? Ver diagnostico tecnico</button>
+    </div>
+    <div id="gateDiagBox" style="display:none;margin-top:10px;padding:12px;background:#f8f9fa;border:1px solid #dee2e6;border-radius:8px;font-family:monospace;font-size:10px;color:#212529;text-align:left;white-space:pre-wrap;word-break:break-all"></div>
+
     <!-- Aviso in-app browser (WhatsApp, Telegram, Instagram, Messenger, Facebook)
          Google OAuth NO funciona en WebViews, hay que abrir en Chrome/Safari nativo -->
     <div id="inAppWarn" style="display:none;margin-top:14px;padding:16px;background:#FFF3CD;border:2px solid #FFC107;border-radius:10px;text-align:center;color:#664D03">
-      <div style="font-size:15px;font-weight:800;margin-bottom:10px">Debes abrir en Chrome para iniciar sesion</div>
+      <div style="font-size:15px;font-weight:800;margin-bottom:10px">El inicio de sesion no responde</div>
       <div style="font-size:12px;margin-bottom:14px;line-height:1.5;text-align:left">
-        Estas viendo Aseguralo dentro de <b>Telegram / WhatsApp</b>. Google bloquea el inicio de sesion aqui por seguridad.<br><br>
-        <b>Opcion 1:</b> Toca el boton azul de abajo.<br>
-        <b>Opcion 2:</b> Toca los tres puntos <b>( &vellip; )</b> arriba a la derecha y elige <b>"Abrir en el navegador"</b> o <b>"Abrir en Chrome"</b>.
+        Google no completo el login. Puede ser por:<br>
+        <b>1)</b> Cookies de terceros bloqueadas en tu Chrome.<br>
+        <b>2)</b> Este navegador es interno de otra app (WhatsApp/Facebook/etc).<br><br>
+        <b>Que hacer:</b> toca <b>Ver diagnostico tecnico</b> abajo y envia captura al admin (7Group).
       </div>
-      <button onclick="_abrirEnChrome_()" style="padding:12px 24px;background:#45AAFF;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;max-width:280px">Abrir en Chrome</button>
-      <div style="font-size:10px;color:#856404;margin-top:12px;padding-top:10px;border-top:1px solid #FFC107">Una vez dentro en Chrome, toca <b>&#9776; Menu &rarr; Instalar app</b> y quedara como icono en tu celular. Ya no vuelves a pasar por este paso.</div>
+      <button onclick="_gateDiag_()" style="padding:12px 24px;background:#45AAFF;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;width:100%;max-width:280px">Ver diagnostico tecnico</button>
     </div>
 
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border2)">
@@ -2210,7 +2218,15 @@ function initGoogleSignIn(){
     return;
   }
   var ld = document.getElementById('gateLoading'); if(ld) ld.style.display='none';
-  google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleResponse});
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleResponse,
+    use_fedcm_for_prompt: true,          // Chrome Android sin third-party cookies
+    use_fedcm_for_button: true,          // idem para el flujo del boton renderizado
+    itp_support: true,                   // Safari iOS (ITP)
+    ux_mode: 'popup',                    // popup en vez de redirect (mas confiable en mobile)
+    auto_select: false
+  });
   google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});
   // Fallback "sign-in stuck": si el usuario toca el boton y a los 8s el callback no vino,
   // asumimos in-app browser (Telegram/WhatsApp bloquean el postMessage) y mostramos el aviso.
@@ -2228,44 +2244,31 @@ function initGoogleSignIn(){
   }
 }
 
-// Detector agresivo de in-app browser (WhatsApp, Telegram, Instagram, Facebook, Messenger, TikTok, Line, WeChat, X)
+// Detector CONSERVADOR de in-app browser. Solo marca cuando es 100% seguro,
+// para no dar falsos positivos en Chrome mobile real. La deteccion real de
+// "sign-in colgado" la hace el timeout fallback despues del click.
 function _esInAppBrowser_(){
   var ua = (navigator.userAgent || '').toLowerCase();
-  // 1) Firmas explicitas conocidas
+  // Firmas EXPLICITAS de apps conocidas (nombre de la app en el UA)
   var patterns = [
-    'fbav','fban','fb_iab','fbios',            // Facebook / Messenger app
-    'instagram',                                // Instagram
-    'line/','line ',                            // Line
-    'micromessenger','wechat',                  // WeChat
-    'messenger',                                // FB Messenger
-    'twitter',                                  // Twitter / X
-    'snapchat',                                 // Snapchat
-    'tiktok','musical_ly',                      // TikTok
-    'whatsapp',                                 // WhatsApp iOS (Android no siempre)
-    'telegram',                                 // Telegram (iOS y algunas Android)
-    'kakaotalk','naver','daum',                 // Corea
-    'wv)',' wv;',' wv ',                        // WebView Android generico
+    'fbav','fban','fb_iab','fbios',   // Facebook / Messenger app
+    'instagram',                       // Instagram
+    'line/',                           // Line
+    'micromessenger',                  // WeChat
+    'twitter',                         // Twitter / X
+    'snapchat',                        // Snapchat
+    'tiktok','musical_ly',             // TikTok
+    'kakaotalk'                        // KakaoTalk
+    // Nota: NO incluyo 'whatsapp','telegram','messenger' porque son ambiguos
+    // (pueden aparecer en el UA de Chrome real si el usuario los tiene instalados
+    // como Custom Tabs). Esos casos caen al timeout fallback.
   ];
   for(var i=0;i<patterns.length;i++){ if(ua.indexOf(patterns[i]) >= 0) return true; }
-  // 2) iOS: Safari real trae "safari/"; una WKWebView (WhatsApp/Telegram/etc) NO
-  if(/iphone|ipad|ipod/.test(ua) && ua.indexOf('safari/') < 0) return true;
-  // 3) Android: si venimos referidos desde un dominio de chat, es in-app aunque el UA no lo diga
-  try{
-    var ref = (document.referrer || '').toLowerCase();
-    if(ref.indexOf('t.me') >= 0 || ref.indexOf('telegram') >= 0 ||
-       ref.indexOf('whatsapp.com') >= 0 || ref.indexOf('wa.me') >= 0 ||
-       ref.indexOf('messenger.com') >= 0 || ref.indexOf('facebook.com') >= 0){
-      return true;
-    }
-  }catch(e){}
-  // 4) Fallback Android: WebView de apps de chat carga sin API window.chrome real
-  //    Chrome nativo Android SIEMPRE define window.chrome.webstore/runtime; los WebViews NO.
-  if(ua.indexOf('android') >= 0 && ua.indexOf('chrome/') >= 0){
-    try{
-      var c = window.chrome;
-      if(!c || (!c.webstore && !c.runtime && !c.app)) return true;
-    }catch(e){ return true; }
-  }
+  // Android WebView explicito: firma "; wv)" solo la ponen los WebViews reales
+  if(ua.indexOf('android') >= 0 && ua.indexOf('; wv)') >= 0) return true;
+  // iOS: WKWebView de apps de chat NO tiene "safari/" (Chrome iOS es CriOS, Firefox FxiOS)
+  if(/iphone|ipad|ipod/.test(ua) && ua.indexOf('safari/') < 0 &&
+     ua.indexOf('crios') < 0 && ua.indexOf('fxios') < 0) return true;
   return false;
 }
 
@@ -2273,6 +2276,19 @@ function _esInAppBrowser_(){
 window._abrirEnChrome_ = function(){
   var url = window.location.href;
   var ua = (navigator.userAgent||'').toLowerCase();
+  // Si YA estamos en Chrome real (falso positivo del detector), no redirigir a nosotros mismos.
+  // En su lugar: ocultar aviso, mostrar boton Google, refrescar.
+  var esChromeReal = (ua.indexOf('chrome/') >= 0 || ua.indexOf('crios/') >= 0) &&
+                     ua.indexOf('; wv)') < 0 &&
+                     ua.indexOf('fbav') < 0 && ua.indexOf('instagram') < 0;
+  if(esChromeReal){
+    var w = document.getElementById('inAppWarn'); if(w) w.style.display='none';
+    var g = document.getElementById('g_id_signin'); if(g) g.style.display='';
+    var ld = document.getElementById('gateLoading'); if(ld){ ld.style.display=''; ld.textContent='Estas en Chrome. Cargando el boton de acceso...'; }
+    // Reintenta el sign-in si no cargo
+    try{ initGoogleSignIn._t = 0; initGoogleSignIn(); }catch(e){}
+    return;
+  }
   if(ua.indexOf('android') >= 0){
     // Intent que Android reenvia al navegador por defecto (usualmente Chrome)
     var noProto = url.replace(/^https?:\/\//,'');
@@ -2306,6 +2322,73 @@ window.addEventListener('DOMContentLoaded', function(){
     var ld = document.getElementById('gateLoading'); if(ld) ld.style.display='none';
   }
 });
+
+// Panel de diagnostico — cualquier usuario lo toca y ve exactamente que pasa.
+// Envia captura al admin y sabemos EXACTO por que no entra.
+window._gateDiag_ = function(){
+  var box = document.getElementById('gateDiagBox');
+  if(!box) return;
+  var ua = navigator.userAgent || '(sin UA)';
+  var google_cargo = (typeof google !== 'undefined' && google.accounts && google.accounts.id) ? 'SI' : 'NO';
+  var cookies_ok = 'DESCONOCIDO';
+  try{
+    document.cookie = 'aseg_test=1;path=/;SameSite=None;Secure';
+    cookies_ok = document.cookie.indexOf('aseg_test') >= 0 ? 'SI' : 'NO';
+    document.cookie = 'aseg_test=;max-age=0;path=/';
+  }catch(e){ cookies_ok = 'ERROR: '+e.message; }
+  var esInApp = _esInAppBrowser_() ? 'SI' : 'NO';
+  var localStorageOk = 'SI';
+  try{ localStorage.setItem('_test',1); localStorage.removeItem('_test'); }catch(e){ localStorageOk = 'NO ('+e.message+')'; }
+  var storedEmail = ''; try{ storedEmail = localStorage.getItem('aseg_erp_auth')||''; }catch(e){}
+  var pantalla = window.innerWidth + 'x' + window.innerHeight;
+  var protocolo = window.location.protocol;
+  var host = window.location.host;
+  var referrer = document.referrer || '(vacio)';
+  var idioma = navigator.language || '?';
+  var online = navigator.onLine ? 'SI' : 'NO';
+  var timestamp = new Date().toISOString();
+  var reporte = ''
+    + '=== DIAGNOSTICO SIRILO ===\n'
+    + 'Fecha: ' + timestamp + '\n'
+    + 'URL:   ' + protocolo + '//' + host + '\n'
+    + 'Online: ' + online + '   Idioma: ' + idioma + '\n'
+    + 'Pantalla: ' + pantalla + '\n'
+    + '---\n'
+    + 'Google Identity cargado: ' + google_cargo + '\n'
+    + 'In-app browser detectado: ' + esInApp + '\n'
+    + 'Cookies de terceros: ' + cookies_ok + '\n'
+    + 'localStorage: ' + localStorageOk + '\n'
+    + 'Sesion previa guardada: ' + (storedEmail ? storedEmail : '(ninguna)') + '\n'
+    + 'Referrer: ' + referrer + '\n'
+    + '---\n'
+    + 'User-Agent:\n' + ua + '\n'
+    + '=========================';
+  box.textContent = reporte;
+  box.style.display = 'block';
+  // Boton "Copiar" al final del reporte
+  if(!document.getElementById('_gateDiagCopy_')){
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'margin-top:8px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap';
+    wrap.innerHTML = '<button id="_gateDiagCopy_" style="padding:8px 14px;background:#45AAFF;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">Copiar diagnostico</button>' +
+                     '<a href="https://wa.me/573143095194?text=' + encodeURIComponent('Aseguralo SIRILO no me deja entrar. Diagnostico:\n\n') + '" target="_blank" style="padding:8px 14px;background:#25D366;color:#fff;text-decoration:none;border-radius:6px;font-size:11px;font-weight:700;display:inline-block">Enviar por WhatsApp</a>';
+    box.parentNode.insertBefore(wrap, box.nextSibling);
+    document.getElementById('_gateDiagCopy_').addEventListener('click', function(){
+      try{
+        navigator.clipboard.writeText(reporte);
+        this.textContent = 'Copiado';
+        var self = this;
+        setTimeout(function(){ self.textContent = 'Copiar diagnostico'; }, 2000);
+      }catch(e){
+        // Fallback: seleccionar texto para copiar manual
+        var range = document.createRange();
+        range.selectNode(box);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        alert('Copia el texto seleccionado y envialo por WhatsApp al admin.');
+      }
+    });
+  }
+};
 
 function autoEnter(){
   if(isBlocked()){
