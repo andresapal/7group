@@ -741,14 +741,43 @@ tbody tr:hover{background:var(--accent-light)}
       <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px" id="carteraKpi"></div>
 
       <div class="sub-nav" id="carteraSubNav" style="margin-bottom:12px">
-        <a class="sub-tab active" data-sub="pendientes" onclick="switchCarSub('pendientes')">
-          <span class="sub-lbl">Pendientes</span>
-          <span class="sub-count" id="carPendCount">0</span>
+        <a class="sub-tab active" data-sub="hoy" onclick="switchCarSub('hoy')">
+          <span class="sub-lbl">Hoy por cobrar</span>
+          <span class="sub-count" id="carHoyCount">0</span>
+        </a>
+        <a class="sub-tab" data-sub="todas" onclick="switchCarSub('todas')">
+          <span class="sub-lbl">Todas</span>
+          <span class="sub-count" id="carTodasCount">0</span>
         </a>
         <a class="sub-tab" data-sub="pagadas" onclick="switchCarSub('pagadas')">
           <span class="sub-lbl">Pagadas</span>
           <span class="sub-count" id="carPagCount">0</span>
         </a>
+      </div>
+
+      <!-- Barra de filtros CARTERA -->
+      <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="searchCartera" class="tbl-search" placeholder="Buscar poliza o tomador..." oninput="filterCartera()" style="flex:1;min-width:220px;max-width:340px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="filterCartAseg" class="form-input" onchange="renderCartera()" style="font-size:12px;padding:4px 8px;min-width:150px">
+            <option value="">Todas aseguradoras</option>
+          </select>
+          <select id="filterCartFP" class="form-input" onchange="renderCartera()" style="font-size:12px;padding:4px 8px;min-width:130px">
+            <option value="">Toda forma pago</option>
+            <option value="Mensual">Mensual</option>
+            <option value="Trimestral">Trimestral</option>
+            <option value="Semestral">Semestral</option>
+            <option value="Anual">Anual</option>
+          </select>
+          <select id="filterCartVenc" class="form-input" onchange="renderCartera()" style="font-size:12px;padding:4px 8px;min-width:140px">
+            <option value="">Todo vencimiento</option>
+            <option value="vencido">Vencidas</option>
+            <option value="urgente">Vence &lt;7 dias</option>
+            <option value="proximo">Vence 7-30 dias</option>
+            <option value="futuro">Vence &gt;30 dias</option>
+          </select>
+          <button class="btn btn-sm" onclick="_limpiarFiltrosCartera_()" style="font-size:11px" title="Limpiar filtros">Limpiar</button>
+        </div>
       </div>
 
       <div class="tbl-wrap">
@@ -760,9 +789,9 @@ tbody tr:hover{background:var(--accent-light)}
                 <th>Tomador</th>
                 <th>Aseguradora</th>
                 <th>Prima total</th>
-                <th>Forma de pago</th>
+                <th>Forma / Periodo</th>
                 <th>Cuota</th>
-                <th>Vencimiento</th>
+                <th>Estado cuota</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -3665,10 +3694,54 @@ window.irAAutorizaciones_ = function(sub){
    Fabian marca Pagada cuando verifica en la aseguradora.
    ============================================================ */
 var CARTERA = [];
-var CAR_SUB = 'pendientes';
+var CARTERA_PAGOS = [];   // registros de pagos por cuota (Opcion C)
+var CAR_SUB = 'hoy';
 var CAR_FILTER = '';
 var CARTERA_CACHE_KEY = 'aseg_cartera_cache';
 var CARTERA_CACHE_TS  = 'aseg_cartera_cache_ts';
+
+/* Devuelve el codigo del periodo actual segun forma de pago:
+   Mensual → YYYY-MM · Trimestral → YYYY-Q1..Q4 · Semestral → YYYY-H1..H2 · Anual → YYYY */
+function _periodoActualDe_(fpLabel, refDate){
+  var d = refDate || new Date();
+  var y = d.getFullYear();
+  var m = d.getMonth()+1;
+  if(fpLabel === 'Mensual')    return y+'-'+(m<10?'0'+m:m);
+  if(fpLabel === 'Trimestral'){ var q = Math.ceil(m/3); return y+'-Q'+q; }
+  if(fpLabel === 'Semestral'){ var h = m<=6 ? 1 : 2; return y+'-H'+h; }
+  return String(y); // Anual
+}
+
+/* Fecha limite de la cuota del periodo. Para Anual usa FH LIMITE DE PAGO directo. */
+function _fechaLimiteCuota_(pol, fpLabel, periodo){
+  if(fpLabel === 'Anual'){
+    return pol.fh_limite_pago || pol.fh_emision || pol.desde || '';
+  }
+  // Para las demás formas: calcular ultimo dia del periodo
+  if(fpLabel === 'Mensual'){
+    var mm = periodo.split('-'); // YYYY-MM
+    var y = parseInt(mm[0],10), m = parseInt(mm[1],10);
+    var dLast = new Date(y, m, 0); // dia 0 del mes siguiente = ultimo dia
+    return _isoFecha_(dLast);
+  }
+  if(fpLabel === 'Trimestral'){
+    var qq = periodo.split('-Q');
+    var y2 = parseInt(qq[0],10), q = parseInt(qq[1],10);
+    var mesFin = q*3; // Q1→mar, Q2→jun, Q3→sep, Q4→dic
+    return _isoFecha_(new Date(y2, mesFin, 0));
+  }
+  if(fpLabel === 'Semestral'){
+    var hh = periodo.split('-H');
+    var y3 = parseInt(hh[0],10), h = parseInt(hh[1],10);
+    var mesFin2 = h===1 ? 6 : 12;
+    return _isoFecha_(new Date(y3, mesFin2, 0));
+  }
+  return '';
+}
+function _isoFecha_(d){
+  var y=d.getFullYear(), m=d.getMonth()+1, dd=d.getDate();
+  return y+'-'+(m<10?'0'+m:m)+'-'+(dd<10?'0'+dd:dd);
+}
 
 function _diasDesde(iso){
   if(!iso) return 0;
@@ -3686,75 +3759,60 @@ function _diasDesde(iso){
      - Sheet CARTERA con estado='Pendiente' → sobrescribe/completa datos si existe
      - Poliza sin registro en sheet CARTERA → Pendiente por default */
 function loadCarteraFromSheet_(){
-  // Traigo sheet CARTERA para saber pagos ya registrados
-  var url = APPS_SCRIPT_URL + '?action=cartera&' + _apiAuthQuery_();
-  var ctrl = new AbortController();
-  var to = setTimeout(function(){ctrl.abort();}, 12000);
-  fetch(url, {redirect:'follow', signal:ctrl.signal})
+  // Traigo CARTERA_PAGOS (registros de cuotas ya pagadas)
+  var urlPagos = APPS_SCRIPT_URL + '?action=cartera-pagos&' + _apiAuthQuery_();
+  fetch(urlPagos, {redirect:'follow'})
     .then(function(r){return r.json();})
     .then(function(data){
-      clearTimeout(to);
-      var carteraSheet = (data && data.status === 'ok' && data.rows) ? data.rows : [];
-      _construirCartera_(carteraSheet);
-      try{
-        localStorage.setItem(CARTERA_CACHE_KEY, JSON.stringify({rows:carteraSheet}));
-        localStorage.setItem(CARTERA_CACHE_TS, String(Date.now()));
-      }catch(e){}
+      CARTERA_PAGOS = (data && data.status === 'ok' && data.rows) ? data.rows : [];
+      _construirCartera_();
       if(typeof renderPolizas === 'function') renderPolizas();
     })
     .catch(function(){
-      clearTimeout(to);
-      // Sin backend: usa cache
-      try{
-        var cached = JSON.parse(localStorage.getItem(CARTERA_CACHE_KEY)||'null');
-        _construirCartera_(cached && cached.rows || []);
-      }catch(e){ _construirCartera_([]); }
+      CARTERA_PAGOS = [];
+      _construirCartera_();
     });
 }
 
-/* Construye la vista CARTERA cruzando POLIZAS (base) con el sheet CARTERA (marcadores de pago). */
-function _construirCartera_(carteraSheet){
-  var porPoliza = {};
-  (carteraSheet||[]).forEach(function(c){
-    var k = String(c.poliza||'').trim();
-    if(k) porPoliza[k] = c;
+/* Construye vista CARTERA por CUOTA del periodo actual.
+   Cada póliza no-cancelada genera UNA fila con su cuota del periodo actual.
+   Si ya existe registro en CARTERA_PAGOS (poliza+periodo) → esa cuota está pagada. */
+function _construirCartera_(){
+  var pagosByKey = {};
+  (CARTERA_PAGOS||[]).forEach(function(p){
+    var k = String(p.poliza||'').trim() + '|' + String(p.periodo||'').trim();
+    pagosByKey[k] = p;
   });
   var vista = [];
+  var hoy = new Date();
   (POLIZAS||[]).forEach(function(p){
     if(p.estado === 'cancelada') return;
     var pid = String(p.id||'').trim();
-    var reg = porPoliza[pid];
-    if(reg){
-      // Existe registro (Pagada o Pendiente): usa datos del sheet + refuerza con POLIZAS
-      vista.push({
-        id: reg.id,
-        poliza: reg.poliza || pid,
-        tomador: reg.tomador || p.cliente,
-        aseguradora: reg.aseguradora || p.aseguradora,
-        prima: Number(reg.prima)||Number(p.prima)||0,
-        fecha_emision: reg.fecha_emision || p.desde || '',
-        estado: reg.estado || 'Pendiente',
-        fecha_pago: reg.fecha_pago || '',
-        lead_id: reg.lead_id || '',
-        intermediario: reg.intermediario || p.intermediario || '',
-        _virtual: false
-      });
-    } else {
-      // No registrada: aparece como Pendiente derivada de POLRES
-      vista.push({
-        id: 'V-'+pid,
-        poliza: pid,
-        tomador: p.cliente,
-        aseguradora: p.aseguradora,
-        prima: Number(p.prima)||0,
-        fecha_emision: p.desde || p.fecha_creacion || '',
-        estado: 'Pendiente',
-        fecha_pago: '',
-        lead_id: '',
-        intermediario: p.intermediario || '',
-        _virtual: true // no existe fila en sheet CARTERA todavia
-      });
-    }
+    // Determinar forma de pago
+    var fp = _formaPagoCartera_({poliza:pid});
+    var periodo = _periodoActualDe_(fp.label, hoy);
+    var fechaVence = _fechaLimiteCuota_(p, fp.label, periodo);
+    // Cuota del periodo actual
+    var cuota = Number(p.prima_modalidad_pago)>0
+      ? Number(p.prima_modalidad_pago)
+      : Math.round((Number(p.prima)||0)/fp.div);
+    var key = pid + '|' + periodo;
+    var pagoRegistrado = pagosByKey[key] || null;
+    vista.push({
+      id: pagoRegistrado ? pagoRegistrado.id : 'V-'+pid+'-'+periodo,
+      poliza: pid,
+      tomador: p.cliente,
+      aseguradora: p.aseguradora,
+      prima_total: Number(p.prima)||0,
+      cuota: cuota,
+      fp: fp,
+      periodo: periodo,
+      fecha_vence: fechaVence,
+      fecha_emision: p.fh_limite_pago || p.desde || '',
+      intermediario: p.intermediario || '',
+      estado: pagoRegistrado ? 'Pagada' : 'Pendiente',
+      fecha_pago: pagoRegistrado ? pagoRegistrado.fecha_pago : ''
+    });
   });
   CARTERA = vista;
   renderCartera();
@@ -3839,103 +3897,189 @@ function _vencChipCartera_(v){
   return '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(255,71,71,.15);color:var(--red)">'+diasV+' días vencido'+masMes+'</span>';
 }
 
+function _diasHastaFecha_(iso){
+  if(!iso) return null;
+  var d = new Date(iso+'T12:00:00');
+  if(isNaN(d.getTime())) return null;
+  var hoy = new Date(); hoy.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  return Math.round((d - hoy)/86400000);
+}
+function _chipDiasVence_(dias){
+  if(dias === null) return '<span style="color:var(--dim);font-size:11px">—</span>';
+  if(dias < 0){
+    var diasV = Math.abs(dias);
+    return '<span style="display:inline-block;padding:3px 10px;border-radius:12px;background:rgba(255,71,71,.15);color:var(--red);font-size:11px;font-weight:700">Vencida '+diasV+'d</span>';
+  }
+  if(dias === 0) return '<span style="display:inline-block;padding:3px 10px;border-radius:12px;background:rgba(255,71,71,.15);color:var(--red);font-size:11px;font-weight:700">Vence HOY</span>';
+  if(dias <= 7) return '<span style="display:inline-block;padding:3px 10px;border-radius:12px;background:rgba(255,193,7,.18);color:var(--orange);font-size:11px;font-weight:700">Vence en '+dias+'d</span>';
+  if(dias <= 30) return '<span style="display:inline-block;padding:3px 10px;border-radius:12px;background:rgba(69,170,255,.15);color:var(--accent);font-size:11px;font-weight:600">Vence en '+dias+'d</span>';
+  return '<span style="display:inline-block;padding:3px 10px;border-radius:12px;background:rgba(52,168,83,.12);color:var(--green);font-size:11px">Vence en '+dias+'d</span>';
+}
 function renderCartera(){
   var tbody = document.getElementById('carteraTable'); if(!tbody) return;
   var puedeEditar = typeof CURRENT_USER!=='undefined' && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
-  // Cada fila calcula sus dias transcurridos en runtime (no persiste, siempre actualizado)
-  var enriched = (CARTERA||[]).map(function(c){
-    var dias = _diasDesde(c.fecha_emision);
-    var fp = _formaPagoCartera_(c);
-    var venc = _vencimientoCartera_(c, fp);
-    return Object.assign({}, c, {dias:dias, fp:fp, venc:venc});
-  });
-  // Filtro por sub-tab
-  var filtered = enriched.filter(function(c){
-    if(CAR_SUB === 'pendientes') return c.estado !== 'Pagada';
-    if(CAR_SUB === 'pagadas')    return c.estado === 'Pagada';
-    return true;
-  });
-  // Filtro por buscador
-  if(CAR_FILTER){
-    var f = CAR_FILTER.toLowerCase();
-    filtered = filtered.filter(function(c){
-      return (c.poliza||'').toLowerCase().indexOf(f)>=0 || (c.tomador||'').toLowerCase().indexOf(f)>=0;
+  // Poblar dropdown de aseguradoras dinamico
+  var selA = document.getElementById('filterCartAseg');
+  if(selA && !selA.dataset.pobl){
+    var asegs = {};
+    (CARTERA||[]).forEach(function(c){ if(c.aseguradora) asegs[c.aseguradora]=1; });
+    Object.keys(asegs).sort().forEach(function(a){
+      var op = document.createElement('option'); op.value=a; op.textContent=a; selA.appendChild(op);
     });
+    selA.dataset.pobl='1';
   }
-  // Orden: pendientes por urgencia (mas vencido primero, luego lo que vence antes), pagadas al final
-  filtered.sort(function(a,b){
-    if(a.estado==='Pagada' && b.estado!=='Pagada') return 1;
-    if(a.estado!=='Pagada' && b.estado==='Pagada') return -1;
-    if(a.estado==='Pagada') return (b.fecha_pago||'').localeCompare(a.fecha_pago||'');
-    var da = (a.venc && a.venc.dias !== null) ? a.venc.dias : 9999;
-    var db = (b.venc && b.venc.dias !== null) ? b.venc.dias : 9999;
-    return da - db;
+  var filAseg = selA ? selA.value : '';
+  var filFP = (document.getElementById('filterCartFP')||{}).value || '';
+  var filVenc = (document.getElementById('filterCartVenc')||{}).value || '';
+
+  // Enriquecer con dias hasta vencimiento de la cuota
+  var enriched = (CARTERA||[]).map(function(c){
+    var dias = _diasHastaFecha_(c.fecha_vence);
+    return Object.assign({}, c, {dias:dias});
   });
+  // Ventanas críticas por forma de pago (aparece en "Hoy" si dias <= ventana O ya vencida)
+  var VENTANAS = { 'Mensual':7, 'Trimestral':15, 'Semestral':15, 'Anual':25 };
+  function esCritico(c){
+    if(c.estado === 'Pagada' || c.dias === null) return false;
+    var ventana = VENTANAS[c.fp.label] || 25;
+    return c.dias <= ventana; // negativa (vencida) o dentro de ventana
+  }
+  // Aplicar filtros (buscador + aseguradora + forma pago + vencimiento)
+  function pasaFiltros(c){
+    if(CAR_FILTER){
+      var f = CAR_FILTER.toLowerCase();
+      if((c.poliza||'').toLowerCase().indexOf(f)<0 && (c.tomador||'').toLowerCase().indexOf(f)<0) return false;
+    }
+    if(filAseg && c.aseguradora !== filAseg) return false;
+    if(filFP && c.fp.label !== filFP) return false;
+    if(filVenc){
+      if(filVenc === 'vencido' && !(c.dias !== null && c.dias < 0)) return false;
+      if(filVenc === 'urgente' && !(c.dias !== null && c.dias >= 0 && c.dias <= 7)) return false;
+      if(filVenc === 'proximo' && !(c.dias !== null && c.dias > 7 && c.dias <= 30)) return false;
+      if(filVenc === 'futuro'  && !(c.dias !== null && c.dias > 30)) return false;
+    }
+    return true;
+  }
 
-  // Contadores sub-tab
-  var nPend = enriched.filter(function(c){return c.estado !== 'Pagada'}).length;
-  var nPag  = enriched.filter(function(c){return c.estado === 'Pagada'}).length;
+  // Filtro por sub-tab
+  var filtered;
+  if(CAR_SUB === 'hoy'){
+    filtered = enriched.filter(function(c){ return esCritico(c) && pasaFiltros(c); });
+  } else if(CAR_SUB === 'pagadas'){
+    filtered = enriched.filter(function(c){ return c.estado === 'Pagada' && pasaFiltros(c); });
+  } else { // todas
+    filtered = enriched.filter(pasaFiltros);
+  }
+
+  // Contadores sub-tabs
+  var nHoy = enriched.filter(esCritico).length;
+  var nTodas = enriched.length;
+  var nPag = enriched.filter(function(c){return c.estado === 'Pagada'}).length;
   var el;
-  el = document.getElementById('carPendCount'); if(el) el.textContent = nPend;
-  el = document.getElementById('carPagCount');  if(el) el.textContent = nPag;
+  el = document.getElementById('carHoyCount');   if(el) el.textContent = nHoy;
+  el = document.getElementById('carTodasCount'); if(el) el.textContent = nTodas;
+  el = document.getElementById('carPagCount');   if(el) el.textContent = nPag;
 
-  // KPIs del modulo
-  var totalPrima = enriched.filter(function(c){return c.estado !== 'Pagada'}).reduce(function(s,c){return s+(c.prima||0)},0);
-  var nVencidas = enriched.filter(function(c){return c.estado !== 'Pagada' && c.venc && c.venc.dias !== null && c.venc.dias <= 0}).length;
-  var nPorVencer = enriched.filter(function(c){return c.estado !== 'Pagada' && c.venc && c.venc.dias !== null && c.venc.dias > 0}).length;
+  // KPIs
+  var criticas = enriched.filter(esCritico);
+  var montoHoy = criticas.reduce(function(s,c){return s+(c.cuota||0)},0);
+  var nVenc = criticas.filter(function(c){return c.dias!==null && c.dias<0}).length;
   var cobradasMes = enriched.filter(function(c){
     if(c.estado !== 'Pagada' || !c.fecha_pago) return false;
     var d = new Date(c.fecha_pago+'T00:00:00'); var h = new Date();
     return d.getMonth()===h.getMonth() && d.getFullYear()===h.getFullYear();
-  }).reduce(function(s,c){return s+(c.prima||0)},0);
+  }).reduce(function(s,c){return s+(c.cuota||0)},0);
   var kpiHtml = [
-    {l:'Pendientes',v:nPend,c:'c-orange'},
-    {l:'Vencidas',v:nVencidas,c:'c-red'},
-    {l:'Prima por cobrar',v:fmt(totalPrima),c:'c-accent'},
-    {l:'Cobradas este mes',v:fmt(cobradasMes),c:'c-green'}
-  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val">'+k.v+'</div></div>'}).join('');
+    {l:'Hoy por cobrar', v:nHoy, c:'c-orange'},
+    {l:'Vencidas', v:nVenc, c:'c-red'},
+    {l:'Monto por cobrar hoy', v:fmt(montoHoy), c:'c-accent'},
+    {l:'Cobradas este mes', v:fmt(cobradasMes), c:'c-green'}
+  ].map(function(k){return '<div class="kpi-card '+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-val" style="font-size:20px">'+k.v+'</div></div>'}).join('');
   var kEl = document.getElementById('carteraKpi'); if(kEl) kEl.innerHTML = kpiHtml;
 
   if(!filtered.length){
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--dim);font-size:13px">Sin polizas en '+CAR_SUB+'.</td></tr>';
+    var msg = CAR_SUB==='hoy' ? 'Nada por cobrar hoy. Buen momento.' : (CAR_SUB==='pagadas' ? 'Sin pagos registrados.' : 'Sin resultados.');
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--dim);font-size:13px">'+msg+'</td></tr>';
     return;
   }
-  tbody.innerHTML = filtered.map(function(c){
-    var acciones = '';
-    if(c.estado !== 'Pagada' && puedeEditar){
-      acciones =
-        '<button class="btn btn-sm btn-wa-solid" onclick="_waRecordatorioCartera_(\''+c.id+'\')" style="font-size:10px" title="Enviar recordatorio formal por WhatsApp">Recordatorio WA</button> '+
-        '<button class="btn btn-sm btn-primary" onclick="marcarPagadaCartera_(\''+c.id+'\')" style="background:var(--green);border:none">Marcar Pagada &#10003;</button>';
-    } else if(c.estado === 'Pagada'){
-      acciones = '<button class="btn btn-sm btn-wa-solid" onclick="_waCierreCartera_(\''+c.id+'\')" style="font-size:10px">WA cierre</button> '+
-                 '<span style="font-size:11px;color:var(--dim)">Pagada '+(c.fecha_pago||'')+'</span>';
-    } else {
-      acciones = '<span style="font-size:11px;color:var(--dim)">sin permiso</span>';
-    }
-    if(c.estado === 'Pagada'){
-      return '<tr>'+
-        '<td><strong>'+(c.poliza||'—')+'</strong></td>'+
-        '<td>'+(c.tomador||'—')+'</td>'+
-        '<td>'+(c.aseguradora||'—')+'</td>'+
-        '<td>'+fmt(c.prima||0)+'</td>'+
-        '<td><span style="font-size:11px;color:var(--dim)">'+(c.fp?c.fp.label:'—')+'</span></td>'+
-        '<td><span style="font-size:11px;color:var(--dim)">'+(c.venc?fmt(c.venc.cuota):'—')+'</span></td>'+
-        '<td><span style="font-size:11px;color:var(--green);font-weight:700">Pagada '+(c.fecha_pago||'')+'</span></td>'+
-        '<td>'+acciones+'</td>'+
-      '</tr>';
-    }
-    return '<tr>'+
-      '<td><strong>'+(c.poliza||'—')+'</strong></td>'+
-      '<td>'+(c.tomador||'—')+'</td>'+
-      '<td>'+(c.aseguradora||'—')+'</td>'+
-      '<td>'+fmt(c.prima||0)+'</td>'+
-      '<td><span style="font-size:11px;font-weight:700;color:var(--accent)">'+c.fp.label+'</span></td>'+
-      '<td><strong>'+fmt(c.venc.cuota)+'</strong></td>'+
-      '<td>'+_vencChipCartera_(c.venc)+'</td>'+
-      '<td>'+acciones+'</td>'+
-    '</tr>';
-  }).join('');
+
+  // Orden y agrupacion
+  if(CAR_SUB === 'todas'){
+    // Agrupar por forma de pago
+    var ORDEN_FP = ['Mensual','Trimestral','Semestral','Anual'];
+    var grupos = {};
+    filtered.forEach(function(c){ (grupos[c.fp.label] = grupos[c.fp.label] || []).push(c); });
+    var html = '';
+    ORDEN_FP.forEach(function(fpLabel){
+      var lista = grupos[fpLabel]; if(!lista || !lista.length) return;
+      lista.sort(function(a,b){ var da=a.dias!==null?a.dias:9999; var db=b.dias!==null?b.dias:9999; return da-db; });
+      html += '<tr><td colspan="8" style="padding:10px 8px;background:var(--brand-light);font-size:11px;font-weight:700;letter-spacing:1px;color:var(--accent);text-transform:uppercase">'+fpLabel+' ('+lista.length+')</td></tr>';
+      html += lista.map(_carFilaHTML_).join('');
+    });
+    tbody.innerHTML = html;
+  } else {
+    // Hoy o Pagadas: lista plana ordenada por urgencia
+    filtered.sort(function(a,b){
+      if(a.estado==='Pagada' && b.estado!=='Pagada') return 1;
+      if(a.estado!=='Pagada' && b.estado==='Pagada') return -1;
+      if(a.estado==='Pagada') return (b.fecha_pago||'').localeCompare(a.fecha_pago||'');
+      var da=a.dias!==null?a.dias:9999; var db=b.dias!==null?b.dias:9999; return da-db;
+    });
+    tbody.innerHTML = filtered.map(_carFilaHTML_).join('');
+  }
 }
+
+/* Renderiza una fila de CARTERA. Boton "Registrar pago" separado y visible + dropdown WA. */
+function _carFilaHTML_(c){
+  var puedeEditar = typeof CURRENT_USER!=='undefined' && (CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno');
+  var esPagada = c.estado === 'Pagada';
+  var accionPrincipal, dropdown;
+  if(esPagada){
+    accionPrincipal = '<span style="font-size:11px;color:var(--green);font-weight:700">Pagada '+(c.fecha_pago||'')+'</span>';
+    dropdown = '<button class="btn btn-sm" onclick="_toggleCarMenu_(\''+_jsq(c.id)+'\',event)" style="background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);padding:4px 8px;font-size:10px;font-weight:600">WA &#9662;</button>'+
+      '<div id="carMenu-'+_jsq(c.id)+'" class="car-menu-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);z-index:100;min-width:180px;overflow:hidden">'+
+        '<button class="pol-menu-item" onclick="_waCierreCartera_(\''+_jsq(c.id)+'\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:var(--green)"></span>WA cierre / agradecimiento</button>'+
+      '</div>';
+  } else if(puedeEditar){
+    accionPrincipal = '<button class="btn btn-sm btn-primary" onclick="_registrarPagoCuota_(\''+_jsq(c.id)+'\')" style="background:var(--green);border:none;font-weight:700">Marcar Pagada &#10003;</button>';
+    dropdown = '<button class="btn btn-sm" onclick="_toggleCarMenu_(\''+_jsq(c.id)+'\',event)" style="background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);padding:4px 8px;font-size:10px;font-weight:600">Mensajes WA &#9662;</button>'+
+      '<div id="carMenu-'+_jsq(c.id)+'" class="car-menu-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);z-index:100;min-width:200px;overflow:hidden">'+
+        '<button class="pol-menu-item" onclick="_waRecordatorioCartera_(\''+_jsq(c.id)+'\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:var(--orange)"></span>Recordatorio de pago</button>'+
+        '<button class="pol-menu-item" onclick="_waDocumentosCartera_(\''+_jsq(c.id)+'\');event.stopPropagation()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;background:transparent;border:none;text-align:left;font-size:12px;color:var(--text);cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></span>Solicitar documentos</button>'+
+      '</div>';
+  } else {
+    accionPrincipal = '<span style="font-size:11px;color:var(--dim)">sin permiso</span>';
+    dropdown = '';
+  }
+  return '<tr>'+
+    '<td><strong>'+(c.poliza||'—')+'</strong></td>'+
+    '<td>'+(c.tomador||'—')+'</td>'+
+    '<td>'+(c.aseguradora||'—')+'</td>'+
+    '<td>'+fmt(c.prima_total||0)+'</td>'+
+    '<td><span style="font-size:11px;font-weight:700;color:var(--accent)">'+(c.fp?c.fp.label:'—')+'</span> <span style="font-size:9px;color:var(--dim)">'+(c.periodo||'')+'</span></td>'+
+    '<td><strong>'+fmt(c.cuota||0)+'</strong></td>'+
+    '<td>'+(esPagada ? '<span style="font-size:11px;color:var(--green)">Pagada</span>' : _chipDiasVence_(c.dias))+'</td>'+
+    '<td><div style="display:flex;gap:6px;align-items:center;position:relative" onclick="event.stopPropagation()">'+accionPrincipal+dropdown+'</div></td>'+
+  '</tr>';
+}
+
+window._toggleCarMenu_ = function(id, ev){
+  if(ev) ev.stopPropagation();
+  var el = document.getElementById('carMenu-'+id); if(!el) return;
+  document.querySelectorAll('.car-menu-dropdown').forEach(function(m){ if(m.id!=='carMenu-'+id) m.style.display='none'; });
+  el.style.display = el.style.display==='none' ? '' : 'none';
+};
+document.addEventListener('click', function(){
+  document.querySelectorAll('.car-menu-dropdown').forEach(function(m){ m.style.display='none'; });
+});
+
+window._limpiarFiltrosCartera_ = function(){
+  ['searchCartera','filterCartAseg','filterCartFP','filterCartVenc'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  CAR_FILTER = '';
+  renderCartera();
+};
 
 window.filterCartera = function(){
   var inp = document.getElementById('searchCartera');
@@ -3976,7 +4120,55 @@ window._waRecordatorioCartera_ = function(id){
   _abrirWA_(tel, _fillWA('WA Recordatorio Pago', datos));
 };
 
-window.marcarPagadaCartera_ = function(id){
+/* NUEVO (Opcion C): registra pago de la CUOTA del periodo actual, no de la poliza entera.
+   Al siguiente periodo, la cuota reaparece automatico. */
+window._registrarPagoCuota_ = function(id){
+  var c = CARTERA.filter(function(x){return x.id===id})[0];
+  if(!c) return;
+  var msg = 'Registrar pago de la cuota:\n\n'+
+            'Poliza: '+c.poliza+'\n'+
+            'Tomador: '+c.tomador+'\n'+
+            'Periodo: '+c.periodo+' ('+c.fp.label+')\n'+
+            'Monto: '+fmt(c.cuota)+'\n\n'+
+            'La proxima cuota reaparecera automatico cuando toque.';
+  if(!confirm(msg)) return;
+  // Optimista local
+  c.estado = 'Pagada';
+  c.fecha_pago = new Date().toISOString().slice(0,10);
+  renderCartera();
+  // Backend
+  fetch(APPS_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({
+      action:'cartera-pago-registrar',
+      poliza: c.poliza, periodo: c.periodo,
+      monto: c.cuota, intermediario: c.intermediario
+    })
+  }).catch(function(){});
+  // Refresh completo para consolidar el estado con backend
+  setTimeout(function(){
+    if(typeof loadCarteraFromSheet_==='function') loadCarteraFromSheet_();
+    if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
+  }, 1500);
+};
+
+/* Mensaje WA de solicitud de documentos (Etapa 4) - stub, abre WA con plantilla oficial */
+window._waDocumentosCartera_ = function(id){
+  var c = CARTERA.filter(function(x){return x.id===id})[0]; if(!c) return;
+  var tel = _telefonoDePoliza_(c.poliza);
+  var datos = _datosAsesorWA_();
+  datos.nombre = c.tomador || 'cliente';
+  datos.aseguradora = c.aseguradora || '';
+  datos.proceso = 'actualizacion';
+  datos.documentos = '• Copia de cedula\n• Comprobante de pago';
+  datos.correo = 'aseguralo@outlook.com';
+  _abrirWA_(tel, _fillWA('WA Documentos', datos));
+};
+
+/* Legacy: marcarPagadaCartera_ ahora delega a _registrarPagoCuota_ */
+window.marcarPagadaCartera_ = function(id){ return window._registrarPagoCuota_(id); };
+window.marcarPagadaCartera_legacy = function(id){
   var c = CARTERA.filter(function(x){return x.id===id})[0];
   if(!c) return;
   if(!confirm('Marcar poliza '+c.poliza+' ('+c.tomador+') como PAGADA?\n\nEsto la mueve de Pendientes → Pagadas y alimenta COMISIONES.')) return;
