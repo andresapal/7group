@@ -304,9 +304,32 @@ tbody tr:hover{background:var(--accent-light)}
 .pd-link:hover{text-decoration:underline}
 
 /* TOAST */
+/* Toast legacy (compat) */
 .toast{position:fixed;bottom:24px;right:24px;z-index:600;padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;color:#fff;background:var(--accent);box-shadow:var(--shadow-lg);transform:translateY(100px);opacity:0;transition:all .3s}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.success{background:var(--green)}.toast.error{background:var(--red)}
+/* ============================================================
+   TOASTS v2 — stack, tipos, iconos, animacion mejorada
+   ============================================================ */
+#toastStack{position:fixed;bottom:20px;right:20px;z-index:99998;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:calc(100vw - 40px)}
+.toast-item{background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:10px;padding:12px 16px;box-shadow:0 12px 32px rgba(0,0,0,.35);color:var(--text);font-size:13px;line-height:1.4;min-width:280px;max-width:420px;display:flex;align-items:flex-start;gap:10px;pointer-events:auto;animation:toastIn .28s cubic-bezier(.2,.9,.3,1.2);position:relative}
+.toast-item.toast-out{animation:toastOut .22s ease forwards}
+.toast-item.ok{border-left-color:var(--green)}
+.toast-item.error{border-left-color:var(--red)}
+.toast-item.warn{border-left-color:var(--orange)}
+.toast-item.info{border-left-color:var(--accent)}
+.toast-icon{flex-shrink:0;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
+.toast-item.ok .toast-icon{background:var(--green)}
+.toast-item.error .toast-icon{background:var(--red)}
+.toast-item.warn .toast-icon{background:var(--orange)}
+.toast-item.info .toast-icon{background:var(--accent)}
+.toast-body{flex:1;color:var(--text)}
+.toast-body strong{display:block;margin-bottom:2px;font-size:13px}
+.toast-body .toast-msg{font-size:12px;color:var(--dim)}
+.toast-close{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:16px;padding:0;line-height:1;margin-left:6px}
+.toast-close:hover{color:var(--text)}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
 
 /* ACCENT LINE */
 .accent-line{height:3px;background:linear-gradient(90deg,var(--brand),var(--accent));border-radius:0 0 2px 2px}
@@ -3554,11 +3577,51 @@ function getAlertLabel(dias){
   return 'Sin prisa';
 }
 
-function showToast(msg,type){
-  var t=document.getElementById('toast');
-  t.textContent=msg;
-  t.className='toast '+(type||'')+' show';
-  setTimeout(function(){t.classList.remove('show')},3000);
+/* Toasts v2 — con stack, iconos y tipos. Backward compatible con showToast(msg,type). */
+function _toastStack_(){
+  var s = document.getElementById('toastStack');
+  if(!s){ s = document.createElement('div'); s.id='toastStack'; document.body.appendChild(s); }
+  return s;
+}
+function _toastMap_(t){
+  // Mapear tipos legacy y nuevos
+  if(t==='success' || t==='ok') return {c:'ok', i:'&#10003;'};
+  if(t==='error'   || t==='fail')   return {c:'error', i:'!'};
+  if(t==='warn'    || t==='warning') return {c:'warn', i:'!'};
+  return {c:'info', i:'i'};
+}
+window.toast = function(msg, opts){
+  opts = opts || {};
+  var m = _toastMap_(opts.type || opts);  // permite toast('hola','ok')
+  var stack = _toastStack_();
+  var el = document.createElement('div');
+  el.className = 'toast-item ' + m.c;
+  var titulo = opts.title || '';
+  var texto = String(msg||'').replace(/[<>]/g,'');
+  el.innerHTML =
+    '<span class="toast-icon">'+m.i+'</span>'+
+    '<div class="toast-body">'+
+      (titulo ? '<strong>'+String(titulo).replace(/[<>]/g,'')+'</strong>' : '')+
+      '<div class="toast-msg">'+texto+'</div>'+
+    '</div>'+
+    '<button class="toast-close" onclick="this.parentNode.classList.add(\'toast-out\');setTimeout(function(t){t.remove()},220,this.parentNode)">&times;</button>';
+  stack.appendChild(el);
+  var dur = opts.duration || 4000;
+  setTimeout(function(){
+    el.classList.add('toast-out');
+    setTimeout(function(){ if(el && el.parentNode) el.remove(); }, 250);
+  }, dur);
+  return el;
+};
+// Backward compat: showToast(msg, 'success'|'error') sigue funcionando pero usa el nuevo sistema
+function showToast(msg, type){
+  return window.toast(msg, {type: type||'info'});
+}
+// Legacy element por si algo lo referencia
+var _legacyToast = document.getElementById('toast');
+if(!_legacyToast){
+  var lt = document.createElement('div'); lt.id='toast'; lt.className='toast';
+  document.body.appendChild(lt);
 }
 
 window.openModal=function(id){
@@ -3582,7 +3645,7 @@ window.toggleDetail=function(id){
 
 window.sendWA=function(phone,name,tipo){
   var p=(phone||'').replace(/\D/g,'');
-  if(!p){ alert('Esta poliza no tiene telefono registrado'); return; }
+  if(!p){ toast('Esta poliza no tiene telefono registrado', {type:'warn', title:'Sin telefono'}); return; }
   if(p.length===10) p='57'+p;
   // Si viene tipo, usa la plantilla completa (misma que en Inbox de leads).
   // Si no, un saludo corto de contacto.
@@ -4613,7 +4676,7 @@ window.generarCuentaCobro = function(){
   var mes = document.getElementById('ccMes').value;
   if(!intermed) return alert('Selecciona un intermediario.');
   var inter = (INTERMED_FULL||[]).filter(function(x){return x.nombre===intermed})[0];
-  if(!inter || !inter.cedula) return alert('El intermediario no tiene cedula registrada. Ve a pestaña Asesores y completala.');
+  if(!inter || !inter.cedula){ toast('El intermediario no tiene cedula registrada. Ve a pestaña Asesores y completala.', {type:'warn', title:'Falta cedula', duration:6000}); return; }
 
   var seleccionadas = (LIQUIDACIONES||[]).filter(function(l){ return LIQUIDAR_SELECCION[l.id]; });
   if(!seleccionadas.length) return alert('Marca al menos una poliza para incluir.');
@@ -4651,7 +4714,7 @@ window.generarCuentaCobro = function(){
   .then(function(j){
     if(btn){ btn.disabled=false; btn.textContent='Generar cuenta de cobro'; }
     if(j && j.status==='ok'){
-      alert('Cuenta de cobro '+j.consecutivo+' generada.\nTotal a pagar: '+fmt(j.totalPagar)+'\n\nEl PDF esta en Drive.');
+      toast('Total a pagar: '+fmt(j.totalPagar)+' · PDF en Drive', {type:'ok', title:'Cuenta de cobro '+j.consecutivo+' generada', duration:6000});
       // Refrescar tanto historial CC como LIQUIDACIONES (las marcadas ya no reaparecen)
       loadCuentasCobroHist_();
       if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
@@ -4990,7 +5053,7 @@ window._confirmarAnulacion_ = function(polizaId){
       p.estado = 'cancelada';
       if(typeof renderPolizas === 'function') renderPolizas();
       _cerrarModalAnular_();
-      alert('Poliza '+polizaId+' anulada.');
+      toast('Se movio al historico como cancelada.', {type:'ok', title:'Poliza '+polizaId+' anulada'});
       // Refresh completo desde backend
       setTimeout(function(){ if(typeof loadFromSheet==='function') loadFromSheet(); }, 800);
     } else {
@@ -5283,7 +5346,7 @@ window._ejecutarRenovacion_ = function(polizaId, ruta, force){
     if(j && j.status === 'ok'){
       _cerrarModalRenovacion_();
       var destino = ruta === 'limpia' ? 'POR EMITIR' : (ruta === 'recotizar' ? 'EN COTIZACION' : 'INBOX');
-      alert('Renovacion creada ('+ruta+'). Lead: '+j.lead_id+'\n\nDestino: COTIZADOR → '+destino+'\n\nRefrescando pipeline...');
+      toast('Destino: COTIZADOR → '+destino+' · Lead '+j.lead_id, {type:'ok', title:'Renovacion creada ('+ruta+')', duration:5000});
       if(typeof loadLeadsFromSheet==='function') loadLeadsFromSheet();
       if(typeof loadLiquidacionesFromSheet==='function') loadLiquidacionesFromSheet();
       setTimeout(function(){
@@ -6495,7 +6558,7 @@ window.exportarComisionesMes_ = function(formato){
   }
   var LIQ_ROL = filtrarPorPermiso_(LIQUIDACIONES, 'intermediario');
   var liqsMes = LIQ_ROL.filter(function(l){ return String(l.fecha_venta||'').slice(0,7) === mesSel; });
-  if(!liqsMes.length){ alert('No hay comisiones registradas en '+mesSel); return; }
+  if(!liqsMes.length){ toast('No hay comisiones registradas en '+mesSel, {type:'info'}); return; }
 
   // Agrupar por intermediario para subtotales
   var grupos = {};
@@ -7268,7 +7331,7 @@ window.subirPDFCotizacion = async function(inputEl, leadId){
 window._reintentarUltimoPDF_ = function(leadId){
   var u = window._PDF_ULTIMO_INTENTO;
   if(!u || !u.file || u.leadId !== leadId){
-    alert('No hay PDF guardado para reintentar. Subelo de nuevo.');
+    toast('Subelo de nuevo. No hay copia local guardada.', {type:'warn', title:'No hay PDF para reintentar'});
     return;
   }
   // Simular re-subida creando un input file temporal
@@ -8748,7 +8811,7 @@ window.borrarSeleccionados_ = function(){
     cancelarLimpieza_();
     if(typeof renderLeads==='function') renderLeads();
     setTimeout(function(){ if(typeof loadLeadsFromSheet==='function') loadLeadsFromSheet(); }, 2000);
-    alert(ids.length+' prospecto(s) eliminado(s).');
+    toast('Se limpiaron sus cotizaciones y liquidaciones vinculadas.', {type:'ok', title:ids.length+' prospecto(s) eliminado(s)'});
   }).catch(function(err){
     alert('Error: '+err.message);
     if(btnB){ btnB.textContent = 'Borrar ('+ids.length+')'; btnB.disabled = false; btnB.style.opacity=1; btnB.style.cursor='pointer'; }
