@@ -447,6 +447,83 @@ window.__closeAllMenus = function(){
     if(bd) bd.style.display = 'none';
   }catch(e){}
 };
+
+/* ==============================
+   USUARIOS Y ACCESOS — vista solo lectura
+   Lee ALLOWED_EMAILS + ADMIN_EMAILS del propio index (fuente de verdad hoy).
+   Solo admin y dueno lo abren (visibilidad controlada en setAdminMode).
+   ============================== */
+window._abrirUsuariosAuth_ = function(){
+  try{
+    var modal = document.getElementById('modalUsuariosAuth');
+    var wrap  = document.getElementById('uaTablaWrap');
+    if(!modal || !wrap) return;
+    // Diccionario nombre+rol por email
+    var ROLES = {
+      'andresapalt@gmail.com':      { nombre:'Andres Palacios',   rol:'admin' },
+      'andresapal@gmail.com':       { nombre:'Andres Palacios',   rol:'admin' },
+      '7groupcorp@zohomail.com':    { nombre:'7Group Corp',       rol:'admin' },
+      'aseguralo@outlook.com':      { nombre:'Fabian Carrera',    rol:'dueno' },
+      'celcarov@gmail.com':         { nombre:'Fabian Carrera',    rol:'dueno' },
+      'celso.carrera@allia2.com.co':{ nombre:'Fabian Carrera',    rol:'dueno' },
+      'asesorias@aseguralo.com.co': { nombre:'Fabian Carrera',    rol:'dueno' },
+      'aseguraloseguros@gmail.com': { nombre:'Monica Torres',     rol:'asesor' },
+      'judithneirarey@hotmail.com': { nombre:'Judith Neira',      rol:'asesor' },
+      'erikapinzonc@hotmail.com':   { nombre:'Erika Pinzon',      rol:'asesor' },
+      'sanmarin58@hotmail.com':     { nombre:'Sandra Marin',      rol:'asesor' }
+    };
+    var lista = (typeof ALLOWED_EMAILS !== 'undefined') ? ALLOWED_EMAILS.slice() : Object.keys(ROLES);
+    // Ordena admin > dueno > asesor > otros, y despues alfabetico
+    var ordenRol = { admin:0, dueno:1, asesor:2 };
+    lista.sort(function(a,b){
+      var ra = (ROLES[a] && ROLES[a].rol) || 'otro';
+      var rb = (ROLES[b] && ROLES[b].rol) || 'otro';
+      var da = ordenRol[ra]==null?9:ordenRol[ra];
+      var db = ordenRol[rb]==null?9:ordenRol[rb];
+      if(da!==db) return da-db;
+      return a.localeCompare(b);
+    });
+    // Colores por rol
+    var COLOR = {
+      admin:  { bg:'#E3F2FD', fg:'#1565C0', txt:'ADMIN' },
+      dueno:  { bg:'#FFF3E0', fg:'#E65100', txt:'DUENO' },
+      asesor: { bg:'#E8F5E9', fg:'#2E7D32', txt:'ASESOR' },
+      otro:   { bg:'#F5F5F5', fg:'#616161', txt:'—' }
+    };
+    // Cuenta por rol
+    var cnt = { admin:0, dueno:0, asesor:0, otro:0 };
+    lista.forEach(function(em){
+      var r = (ROLES[em] && ROLES[em].rol) || 'otro';
+      cnt[r] = (cnt[r]||0) + 1;
+    });
+    var html = ''
+      + '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
+      +   '<span style="background:'+COLOR.admin.bg+';color:'+COLOR.admin.fg+';padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700">'+cnt.admin+' Admin</span>'
+      +   '<span style="background:'+COLOR.dueno.bg+';color:'+COLOR.dueno.fg+';padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700">'+cnt.dueno+' Dueno</span>'
+      +   '<span style="background:'+COLOR.asesor.bg+';color:'+COLOR.asesor.fg+';padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700">'+cnt.asesor+' Asesores</span>'
+      +   '<span style="margin-left:auto;font-size:11px;color:var(--muted);align-self:center">Total: '+lista.length+'</span>'
+      + '</div>'
+      + '<div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">'
+      + '<table style="width:100%;border-collapse:collapse;font-size:12px">'
+      + '<thead><tr style="background:var(--bg3);border-bottom:1px solid var(--border)">'
+      +   '<th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--dim);font-size:10px;letter-spacing:.5px;text-transform:uppercase">Nombre</th>'
+      +   '<th style="padding:9px 10px;text-align:left;font-weight:700;color:var(--dim);font-size:10px;letter-spacing:.5px;text-transform:uppercase">Correo</th>'
+      +   '<th style="padding:9px 10px;text-align:center;font-weight:700;color:var(--dim);font-size:10px;letter-spacing:.5px;text-transform:uppercase">Rol</th>'
+      + '</tr></thead><tbody>';
+    lista.forEach(function(em){
+      var meta = ROLES[em] || { nombre:'(sin nombre)', rol:'otro' };
+      var col = COLOR[meta.rol] || COLOR.otro;
+      html += '<tr style="border-bottom:1px solid var(--border)">'
+        +   '<td style="padding:9px 10px;color:var(--text);font-weight:600">'+meta.nombre+'</td>'
+        +   '<td style="padding:9px 10px;color:var(--dim);font-family:monospace;font-size:11px;word-break:break-all">'+em+'</td>'
+        +   '<td style="padding:9px 10px;text-align:center"><span style="background:'+col.bg+';color:'+col.fg+';padding:3px 9px;border-radius:10px;font-size:9px;font-weight:800;letter-spacing:.5px">'+col.txt+'</span></td>'
+        + '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+    modal.style.display = 'flex';
+  }catch(e){ try{ alert('No se pudo abrir el panel: '+e.message); }catch(_){} }
+};
 </script>
 </head>
 <body>
@@ -616,7 +693,28 @@ window.__closeAllMenus = function(){
   <div id="tbMenu" style="display:none;position:fixed;top:60px;right:8px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.35);padding:6px 0;min-width:220px;z-index:99999">
     <button class="tb-menu-item" id="menuThemeBtn" onclick="toggleTheme();window.__closeAllMenus()">Modo noche</button>
     <button class="tb-menu-item" id="menuInstallBtn" onclick="_pwaInstalar_();window.__closeAllMenus()">Instalar app</button>
+    <button class="tb-menu-item" id="menuUsuariosBtn" onclick="_abrirUsuariosAuth_();window.__closeAllMenus()" style="display:none">Usuarios y accesos</button>
     <button class="tb-menu-item" id="menuModConfigBtn" onclick="openModConfig();window.__closeAllMenus()" style="display:none">Configurar modulos</button>
+  </div>
+
+  <!-- MODAL: Usuarios y accesos (solo admin + dueno). Vista de solo lectura de correos autorizados. -->
+  <div id="modalUsuariosAuth" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99998;align-items:flex-start;justify-content:center;padding:40px 12px;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;max-width:640px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:14px;font-weight:800;color:var(--text)">Usuarios y accesos</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Correos autorizados para iniciar sesion en SIRILO</div>
+        </div>
+        <button onclick="document.getElementById('modalUsuariosAuth').style.display='none'" style="background:transparent;border:none;color:var(--dim);font-size:22px;cursor:pointer;padding:4px 10px;line-height:1">&times;</button>
+      </div>
+      <div id="uaTablaWrap" style="padding:14px 16px 8px"></div>
+      <div style="padding:12px 20px 18px;border-top:1px solid var(--border);background:var(--bg3);border-radius:0 0 12px 12px">
+        <div style="font-size:11px;color:var(--muted);line-height:1.5">
+          Para <b>agregar o quitar</b> un usuario, contacta al administrador 7Group.<br>
+          <a href="https://wa.me/573143095194?text=Aseguralo%20SIRILO%3A%20necesito%20gestionar%20un%20usuario%20autorizado" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600">Solicitar cambio por WhatsApp &rarr;</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <nav class="mod-nav" id="modNav">
@@ -1967,6 +2065,9 @@ function setAdminMode(email){
   // "Configurar modulos" en el hamburguesa: SOLO admin 7GROUP (dueno NO lo ve).
   var menuMod = document.getElementById('menuModConfigBtn');
   if(menuMod) menuMod.style.display = IS_ADMIN ? '' : 'none';
+  // "Usuarios y accesos" en el hamburguesa: admin 7GROUP + dueno (Fabian). Asesor NO lo ve.
+  var menuUA = document.getElementById('menuUsuariosBtn');
+  if(menuUA) menuUA.style.display = (IS_ADMIN || esDueno) ? '' : 'none';
   // Logo Aseguralo: para admin lleva a /agente/ (home 7group). Dueno/asesor: link inerte.
   var logoLink = document.getElementById('tbLogoLink');
   if(logoLink){
