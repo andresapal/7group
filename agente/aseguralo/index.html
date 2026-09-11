@@ -345,6 +345,29 @@ tbody tr:hover{background:var(--accent-light)}
 .dias-pill.pronto{background:rgba(202,138,4,.1);color:#ca8a04}
 .dias-pill.ok{background:var(--green-bg);color:var(--green)}
 .dias-pill.lejano{background:var(--bg3);color:var(--dim)}
+/* ============================================================
+   COMMAND PALETTE (Ctrl+K) — busqueda global instantanea
+   ============================================================ */
+#cmdkOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);z-index:99997;display:none;align-items:flex-start;justify-content:center;padding-top:12vh;animation:cmdkFadeIn .12s ease}
+#cmdkOverlay.open{display:flex}
+@keyframes cmdkFadeIn{from{opacity:0}to{opacity:1}}
+.cmdk-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.55);width:100%;max-width:640px;overflow:hidden;animation:cmdkSlideIn .15s ease-out}
+@keyframes cmdkSlideIn{from{transform:translateY(-10px);opacity:.7}to{transform:translateY(0);opacity:1}}
+.cmdk-input-wrap{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border)}
+.cmdk-icon{color:var(--dim);font-size:16px;font-weight:700}
+.cmdk-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:15px;font-family:inherit;padding:2px 0}
+.cmdk-input::placeholder{color:var(--muted)}
+.cmdk-kbd{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+.cmdk-results{max-height:56vh;overflow-y:auto;padding:6px 0}
+.cmdk-group{padding:6px 18px 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.cmdk-item{display:flex;align-items:center;gap:12px;padding:10px 18px;cursor:pointer;font-size:13px;color:var(--text);border-left:3px solid transparent}
+.cmdk-item:hover,.cmdk-item.selected{background:var(--brand-light);border-left-color:var(--accent)}
+.cmdk-item .cmdk-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.cmdk-item .cmdk-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmdk-item .cmdk-meta{font-size:11px;color:var(--dim);white-space:nowrap}
+.cmdk-empty{padding:32px 18px;text-align:center;color:var(--dim);font-size:13px}
+.cmdk-hint{padding:10px 18px;border-top:1px solid var(--border);font-size:10px;color:var(--dim);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cmdk-hint b{color:var(--text);font-weight:600}
 </style>
 </head>
 <body>
@@ -352,6 +375,22 @@ tbody tr:hover{background:var(--accent-light)}
 <!-- SPLASH INTRO ASEGURALO (~3.2s. Fondo oscuro brand + logo HD + sonido intro tipo streaming) -->
 <div id="asegSplash" onclick="asegSplashOut()" style="position:fixed;inset:0;z-index:99999;background:radial-gradient(ellipse at center, #17233b 0%, #0a1424 70%, #050b17 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .5s ease;overflow:hidden">
   <img src="/logo-aseguralo.png" alt="Aseguralo" style="position:relative;max-width:min(81vw,567px);height:auto;opacity:0;transform:scale(.92);image-rendering:-webkit-optimize-contrast;animation:asegLogoIn 1.1s .2s cubic-bezier(.2,.9,.3,1.15) forwards">
+</div>
+
+<!-- COMMAND PALETTE (Ctrl+K) — busqueda global -->
+<div id="cmdkOverlay" onclick="if(event.target===this) _cmdkClose_()">
+  <div class="cmdk-box">
+    <div class="cmdk-input-wrap">
+      <span class="cmdk-icon">&#9906;</span>
+      <input id="cmdkInput" class="cmdk-input" type="text" placeholder="Buscar poliza, cliente, lead, cotizacion..." autocomplete="off" spellcheck="false">
+      <span class="cmdk-kbd">ESC</span>
+    </div>
+    <div id="cmdkResults" class="cmdk-results"></div>
+    <div class="cmdk-hint">
+      <span><b>&uarr;&darr;</b> navegar &middot; <b>Enter</b> abrir &middot; <b>Esc</b> cerrar</span>
+      <span>Aseguralo &middot; <b>Ctrl+K</b> desde cualquier lugar</span>
+    </div>
+  </div>
 </div>
 <style>
   @keyframes asegLogoIn    { 0%{opacity:0;transform:scale(.92)} 100%{opacity:1;transform:scale(1)} }
@@ -472,6 +511,7 @@ tbody tr:hover{background:var(--accent-light)}
           <div class="oficina-opt" data-of="Sandra Marin Seguros" onclick="setOficinaActiva('Sandra Marin Seguros')" style="padding:10px 14px;cursor:pointer;opacity:.55">Sandra Marin Seguros <span style="font-size:10px;color:var(--muted)">(pendiente Sheet)</span></div>
         </div>
       </div>
+      <button class="tb-toggle" onclick="_cmdkOpen_()" id="cmdkBtn" title="Búsqueda global (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px">Buscar <span style="font-size:9px;padding:1px 5px;background:var(--bg);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace">Ctrl K</span></button>
       <button class="tb-toggle" onclick="openModConfig()" id="modConfigBtn" style="display:none">Modulos</button>
       <button class="tb-toggle" onclick="toggleTheme()" id="themeBtn">Claro</button>
       <a class="tb-btn" href="/agente/" id="tb7gBtn" style="display:none">7Group</a>
@@ -3278,6 +3318,153 @@ function _registrarEnCartera_(lead, emitida){
    HELPERS
    ==================================== */
 function fmt(n){return '$'+n.toLocaleString('es-CO')}
+
+/* ============================================================
+   COMMAND PALETTE (Ctrl+K) — busqueda global instantanea
+   Busca en POLIZAS, LEADS, CARTERA, COTIZACIONES, CUENTAS_COBRO, SINIESTROS.
+   Enter navega al modulo correspondiente + highlight del registro.
+   ============================================================ */
+var _CMDK_STATE = { open:false, results:[], selected:0 };
+
+window._cmdkOpen_ = function(){
+  var ov = document.getElementById('cmdkOverlay'); if(!ov) return;
+  ov.classList.add('open');
+  _CMDK_STATE.open = true;
+  _CMDK_STATE.selected = 0;
+  var inp = document.getElementById('cmdkInput');
+  if(inp){ inp.value=''; setTimeout(function(){ inp.focus(); _cmdkRender_(''); }, 40); }
+};
+window._cmdkClose_ = function(){
+  var ov = document.getElementById('cmdkOverlay'); if(!ov) return;
+  ov.classList.remove('open');
+  _CMDK_STATE.open = false;
+};
+function _cmdkNormalizar_(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+}
+function _cmdkBuscar_(q){
+  q = _cmdkNormalizar_(q).trim();
+  var res = [];
+  if(!q){
+    // Sin query: mostrar accesos rapidos a módulos + últimos leads
+    ['polizas','cotizador','cartera','comisiones','renovaciones','siniestros','dashboard'].forEach(function(m){
+      res.push({tipo:'modulo', modulo:m, title:m.charAt(0).toUpperCase()+m.slice(1), meta:'ir al modulo'});
+    });
+    return res;
+  }
+  // POLIZAS
+  (POLIZAS||[]).forEach(function(p){
+    var hay = _cmdkNormalizar_(p.id+' '+p.cliente+' '+p.aseguradora+' '+(p.telefono||'')+' '+(p.documento||''));
+    if(hay.indexOf(q)>=0){
+      res.push({tipo:'poliza', modulo:'polizas', id:p.id, title:p.cliente+' · '+p.id, meta:p.aseguradora+' · '+p.tipo+' · '+p.estado, badge:'PÓLIZA', badgeCss:'background:rgba(69,170,255,.15);color:var(--accent)'});
+    }
+  });
+  // LEADS
+  (typeof LEADS!=='undefined'?LEADS:[]).forEach(function(l){
+    var hay = _cmdkNormalizar_(l.id+' '+l.nombre+' '+(l.telefono||'')+' '+(l.correo||'')+' '+(l.tipo||''));
+    if(hay.indexOf(q)>=0){
+      res.push({tipo:'lead', modulo:'cotizador', id:l.id, title:l.nombre+' · '+(l.tipo||'—'), meta:(l.estado||'Nuevo')+' · '+(l.origen||''), badge:'LEAD', badgeCss:'background:rgba(255,193,7,.15);color:var(--orange)'});
+    }
+  });
+  // CARTERA
+  (typeof CARTERA!=='undefined'?CARTERA:[]).forEach(function(c){
+    var hay = _cmdkNormalizar_(c.poliza+' '+c.tomador);
+    if(hay.indexOf(q)>=0){
+      res.push({tipo:'cartera', modulo:'cartera', id:c.poliza, title:c.tomador+' · '+c.poliza, meta:'Cartera · '+(c.estado||'Pendiente')+' · '+fmt(c.cuota||0), badge:'CARTERA', badgeCss:'background:rgba(69,170,255,.15);color:var(--accent)'});
+    }
+  });
+  // SINIESTROS
+  (typeof SINIESTROS_LIST!=='undefined'?SINIESTROS_LIST:[]).forEach(function(s){
+    var hay = _cmdkNormalizar_(s.poliza+' '+s.tomador+' '+(s.aseguradora||''));
+    if(hay.indexOf(q)>=0){
+      res.push({tipo:'siniestro', modulo:'siniestros', id:s.id, title:s.tomador+' · '+s.poliza, meta:'Siniestro · '+s.estado+' · '+s.ramo_siniestro, badge:'SINIESTRO', badgeCss:'background:rgba(255,71,71,.15);color:var(--red)'});
+    }
+  });
+  // CUENTAS COBRO
+  (typeof CUENTAS_COBRO_HIST!=='undefined'?CUENTAS_COBRO_HIST:[]).forEach(function(cc){
+    var hay = _cmdkNormalizar_(cc.consecutivo+' '+cc.intermediario+' '+cc.periodo);
+    if(hay.indexOf(q)>=0){
+      res.push({tipo:'cc', modulo:'comisiones', id:cc.id, title:cc.consecutivo+' · '+cc.intermediario, meta:'Cuenta cobro · '+cc.periodo+' · '+fmt(cc.totalPagar||0), badge:'CTA COBRO', badgeCss:'background:rgba(155,89,182,.18);color:#9b59b6'});
+    }
+  });
+  return res.slice(0, 40);
+}
+function _cmdkRender_(q){
+  var box = document.getElementById('cmdkResults'); if(!box) return;
+  var res = _cmdkBuscar_(q);
+  _CMDK_STATE.results = res;
+  if(_CMDK_STATE.selected >= res.length) _CMDK_STATE.selected = 0;
+  if(!res.length){
+    box.innerHTML = '<div class="cmdk-empty">Sin resultados para "'+String(q||'').replace(/[<>]/g,'')+'"</div>';
+    return;
+  }
+  // Agrupar por tipo
+  var groups = {}, orden = ['modulo','poliza','lead','cartera','siniestro','cc'];
+  res.forEach(function(r,i){ r._idx = i; (groups[r.tipo] = groups[r.tipo] || []).push(r); });
+  var html = '';
+  orden.forEach(function(t){
+    var arr = groups[t]; if(!arr) return;
+    var labels = {modulo:'Módulos',poliza:'Pólizas',lead:'Leads',cartera:'Cartera',siniestro:'Siniestros',cc:'Cuentas de cobro'};
+    html += '<div class="cmdk-group">'+labels[t]+'</div>';
+    html += arr.map(function(r){
+      var badge = r.badge ? '<span class="cmdk-badge" style="'+(r.badgeCss||'')+'">'+r.badge+'</span>' : '';
+      var sel = r._idx === _CMDK_STATE.selected ? ' selected' : '';
+      return '<div class="cmdk-item'+sel+'" data-idx="'+r._idx+'" onclick="_cmdkIr_('+r._idx+')">'+badge+'<span class="cmdk-title">'+r.title+'</span><span class="cmdk-meta">'+r.meta+'</span></div>';
+    }).join('');
+  });
+  box.innerHTML = html;
+}
+window._cmdkIr_ = function(idx){
+  var r = _CMDK_STATE.results[idx]; if(!r) return;
+  _cmdkClose_();
+  if(typeof switchMod === 'function' && r.modulo) switchMod(r.modulo);
+  // Highlight del registro despues de que renderice el modulo
+  setTimeout(function(){
+    if(r.tipo === 'poliza'){
+      var inp = document.getElementById('searchPolizas');
+      if(inp){ inp.value = r.title.split('·')[0].trim(); if(typeof filterPolizas==='function') filterPolizas(); }
+    } else if(r.tipo === 'cartera'){
+      var inpC = document.getElementById('searchCartera');
+      if(inpC){ inpC.value = r.id; if(typeof filterCartera==='function') filterCartera(); }
+    } else if(r.tipo === 'lead'){
+      // saltar a inbox del cotizador
+      if(typeof switchSub === 'function') switchSub('inbox');
+    } else if(r.tipo === 'siniestro'){
+      if(typeof switchSinSub === 'function') switchSinSub('activos');
+    } else if(r.tipo === 'cc'){
+      if(typeof switchComSub === 'function') switchComSub('liquidar');
+    }
+  }, 200);
+};
+// Listeners globales: Ctrl+K abre, Esc cierra, flechas + Enter navegan
+document.addEventListener('keydown', function(e){
+  // Ctrl+K (o Cmd+K en Mac)
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){
+    e.preventDefault(); _cmdkOpen_(); return;
+  }
+  if(!_CMDK_STATE.open) return;
+  if(e.key === 'Escape'){ e.preventDefault(); _cmdkClose_(); return; }
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    _CMDK_STATE.selected = Math.min(_CMDK_STATE.results.length-1, _CMDK_STATE.selected+1);
+    _cmdkRefreshSelection_();
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    _CMDK_STATE.selected = Math.max(0, _CMDK_STATE.selected-1);
+    _cmdkRefreshSelection_();
+  } else if(e.key === 'Enter'){
+    e.preventDefault(); _cmdkIr_(_CMDK_STATE.selected);
+  }
+});
+function _cmdkRefreshSelection_(){
+  var items = document.querySelectorAll('.cmdk-item');
+  items.forEach(function(el){ el.classList.remove('selected'); });
+  items.forEach(function(el){ if(parseInt(el.dataset.idx)===_CMDK_STATE.selected){ el.classList.add('selected'); el.scrollIntoView({block:'nearest'}); } });
+}
+// Input handler
+document.addEventListener('input', function(e){
+  if(e.target && e.target.id === 'cmdkInput'){ _CMDK_STATE.selected=0; _cmdkRender_(e.target.value); }
+});
 /* Escape para strings dentro de onclick="fn('...')" — previene ruptura por comilla o backslash */
 function escHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function _jsq(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
