@@ -458,23 +458,33 @@ window._abrirUsuariosAuth_ = function(){
     var modal = document.getElementById('modalUsuariosAuth');
     var wrap  = document.getElementById('uaTablaWrap');
     if(!modal || !wrap) return;
-    // Diccionario nombre+rol por email
+    // Diccionario nombre+rol por email.
+    // Jerarquia real: DUENO (Andres/7Group) > ADMIN (Fabian, opera Aseguralo) > ASESOR
     var ROLES = {
-      'andresapalt@gmail.com':      { nombre:'Andres Palacios',   rol:'admin' },
-      'andresapal@gmail.com':       { nombre:'Andres Palacios',   rol:'admin' },
-      '7groupcorp@zohomail.com':    { nombre:'7Group Corp',       rol:'admin' },
-      'aseguralo@outlook.com':      { nombre:'Fabian Carrera',    rol:'dueno' },
-      'celcarov@gmail.com':         { nombre:'Fabian Carrera',    rol:'dueno' },
-      'celso.carrera@allia2.com.co':{ nombre:'Fabian Carrera',    rol:'dueno' },
-      'asesorias@aseguralo.com.co': { nombre:'Fabian Carrera',    rol:'dueno' },
-      'aseguraloseguros@gmail.com': { nombre:'Monica Torres',     rol:'asesor' },
-      'judithneirarey@hotmail.com': { nombre:'Judith Neira',      rol:'asesor' },
-      'erikapinzonc@hotmail.com':   { nombre:'Erika Pinzon',      rol:'asesor' },
-      'sanmarin58@hotmail.com':     { nombre:'Sandra Marin',      rol:'asesor' }
+      'andresapalt@gmail.com':      { nombre:'Andres Aparicio',  rol:'dueno' },
+      'andresapal@gmail.com':       { nombre:'Andres Aparicio',  rol:'dueno' },
+      '7groupcorp@zohomail.com':    { nombre:'Andres Aparicio',  rol:'dueno' },
+      'aseguralo@outlook.com':      { nombre:'Fabian Carrera',   rol:'admin' },
+      'celcarov@gmail.com':         { nombre:'Fabian Carrera',   rol:'admin' },
+      'celso.carrera@allia2.com.co':{ nombre:'Fabian Carrera',   rol:'admin' },
+      'asesorias@aseguralo.com.co': { nombre:'Fabian Carrera',   rol:'admin' },
+      'aseguraloseguros@gmail.com': { nombre:'Monica Torres',    rol:'asesor' },
+      'judithneirarey@hotmail.com': { nombre:'Judith Neira',     rol:'asesor' },
+      'erikapinzonc@hotmail.com':   { nombre:'Erika Pinzon',     rol:'asesor' },
+      'sanmarin58@hotmail.com':     { nombre:'Sandra Marin',     rol:'asesor' }
     };
     var lista = (typeof ALLOWED_EMAILS !== 'undefined') ? ALLOWED_EMAILS.slice() : Object.keys(ROLES);
-    // Ordena admin > dueno > asesor > otros, y despues alfabetico
-    var ordenRol = { admin:0, dueno:1, asesor:2 };
+    // El DUENO es invisible para todos los demas roles. Solo el dueno se ve a si mismo.
+    // IS_ADMIN aqui identifica a Andres (7Group). Si NO es Andres, oculta filas rol=dueno.
+    var soyDueno = (typeof IS_ADMIN !== 'undefined') && IS_ADMIN;
+    if(!soyDueno){
+      lista = lista.filter(function(em){
+        var r = (ROLES[em] && ROLES[em].rol) || 'otro';
+        return r !== 'dueno';
+      });
+    }
+    // Ordena dueno > admin > asesor > otros, luego alfabetico
+    var ordenRol = { dueno:0, admin:1, asesor:2 };
     lista.sort(function(a,b){
       var ra = (ROLES[a] && ROLES[a].rol) || 'otro';
       var rb = (ROLES[b] && ROLES[b].rol) || 'otro';
@@ -483,23 +493,23 @@ window._abrirUsuariosAuth_ = function(){
       if(da!==db) return da-db;
       return a.localeCompare(b);
     });
-    // Colores por rol
+    // Colores por rol (DUENO con enie)
     var COLOR = {
+      dueno:  { bg:'#FFF3E0', fg:'#E65100', txt:'DUEÑO' },
       admin:  { bg:'#E3F2FD', fg:'#1565C0', txt:'ADMIN' },
-      dueno:  { bg:'#FFF3E0', fg:'#E65100', txt:'DUENO' },
       asesor: { bg:'#E8F5E9', fg:'#2E7D32', txt:'ASESOR' },
       otro:   { bg:'#F5F5F5', fg:'#616161', txt:'—' }
     };
-    // Cuenta por rol
-    var cnt = { admin:0, dueno:0, asesor:0, otro:0 };
+    // Cuenta por rol (solo lo visible)
+    var cnt = { dueno:0, admin:0, asesor:0, otro:0 };
     lista.forEach(function(em){
       var r = (ROLES[em] && ROLES[em].rol) || 'otro';
       cnt[r] = (cnt[r]||0) + 1;
     });
     var html = ''
       + '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
+      + (cnt.dueno ? '<span style="background:'+COLOR.dueno.bg+';color:'+COLOR.dueno.fg+';padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700">'+cnt.dueno+' Dueño</span>' : '')
       +   '<span style="background:'+COLOR.admin.bg+';color:'+COLOR.admin.fg+';padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700">'+cnt.admin+' Admin</span>'
-      +   '<span style="background:'+COLOR.dueno.bg+';color:'+COLOR.dueno.fg+';padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700">'+cnt.dueno+' Dueno</span>'
       +   '<span style="background:'+COLOR.asesor.bg+';color:'+COLOR.asesor.fg+';padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700">'+cnt.asesor+' Asesores</span>'
       +   '<span style="margin-left:auto;font-size:11px;color:var(--muted);align-self:center">Total: '+lista.length+'</span>'
       + '</div>'
