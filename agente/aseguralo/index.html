@@ -527,8 +527,21 @@ tbody tr:hover{background:var(--accent-light)}
       Conexion segura SSL / Google OAuth 2.0
     </div>
     <div id="g_id_signin" style="display:flex;justify-content:center;margin-bottom:8px"></div>
+    <div id="gateLoading" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0">Cargando boton de acceso...</div>
     <div class="gate-error" id="gateError">Acceso denegado. Correo no autorizado.</div>
     <div class="gate-error" id="gateBlocked" style="color:var(--red)">Cuenta bloqueada por intentos fallidos. Intente mas tarde.</div>
+
+    <!-- Aviso in-app browser (WhatsApp, Telegram, Instagram, Messenger, Facebook)
+         Google OAuth NO funciona en WebViews, hay que abrir en Chrome/Safari nativo -->
+    <div id="inAppWarn" style="display:none;margin-top:14px;padding:14px;background:#FFF3CD;border:1px solid #FFC107;border-radius:8px;text-align:center;color:#664D03">
+      <div style="font-size:13px;font-weight:800;margin-bottom:8px">Este navegador no permite iniciar sesion</div>
+      <div style="font-size:12px;margin-bottom:12px;line-height:1.4">
+        Estas viendo Aseguralo dentro de WhatsApp / Telegram. Por seguridad, Google no permite iniciar sesion aqui.<br><br>
+        <b>Toca los 3 puntos ( &vellip; ) arriba a la derecha</b> y elige <b>"Abrir en Chrome"</b> o <b>"Abrir en el navegador"</b>.
+      </div>
+      <button onclick="_abrirEnChrome_()" style="padding:10px 20px;background:#45AAFF;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Abrir en Chrome</button>
+      <div style="font-size:10px;color:#856404;margin-top:10px">O copia esta direccion y abrela en Chrome:<br><b style="user-select:all;font-family:monospace">7group.site</b></div>
+    </div>
 
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border2)">
       <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase">Acceso solo con cuenta Google verificada</div>
@@ -1742,16 +1755,41 @@ window.setOficinaActiva = function(of){
   document.getElementById('oficinaMenu').style.display = 'none';
   location.reload();
 };
+// Helper: posiciona un menu con position:fixed anclado al boton que lo abre.
+// Evita que overflow del contenedor (tb-right en mobile) lo recorte.
+window._posMenuFixed_ = function(btnId, menuId){
+  var b = document.getElementById(btnId);
+  var m = document.getElementById(menuId);
+  if(!b || !m) return;
+  var r = b.getBoundingClientRect();
+  m.style.position = 'fixed';
+  m.style.top = (r.bottom + 4) + 'px';
+  // Ancla a la derecha del boton
+  var vw = window.innerWidth || document.documentElement.clientWidth;
+  m.style.right = Math.max(4, vw - r.right) + 'px';
+  m.style.left = 'auto';
+  m.style.zIndex = '99999';
+};
+
 window.toggleOficinaMenu = function(ev){
   if(ev) ev.stopPropagation();
   var m = document.getElementById('oficinaMenu');
   if(!m) return;
-  m.style.display = m.style.display === 'block' ? 'none' : 'block';
+  var abierto = m.style.display === 'block';
+  if(abierto){ m.style.display = 'none'; return; }
+  _posMenuFixed_('oficinaMenuBtn','oficinaMenu');
+  m.style.display = 'block';
+  setTimeout(function(){
+    document.addEventListener('click', _oficinaMenuOutside_, { once:true });
+  }, 0);
 };
-document.addEventListener('click', function(){
+function _oficinaMenuOutside_(e){
   var m = document.getElementById('oficinaMenu');
-  if(m) m.style.display = 'none';
-});
+  var b = document.getElementById('oficinaMenuBtn');
+  if(!m) return;
+  if(m.contains(e.target) || (b && b.contains(e.target))) return;
+  m.style.display = 'none';
+}
 
 function esAdminODueno_(){ return CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno'; }
 function esAsesor_(){ return CURRENT_USER.rol==='asesor'; }
@@ -2039,10 +2077,81 @@ function handleGoogleResponse(r){
 }
 
 function initGoogleSignIn(){
-  if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleSignIn,200);return;}
+  if(typeof google==='undefined'||!google.accounts){
+    // Si despues de 6s (30 intentos x 200ms) Google no cargo → aviso al usuario
+    initGoogleSignIn._t = (initGoogleSignIn._t||0) + 1;
+    if(initGoogleSignIn._t > 30){
+      var ld = document.getElementById('gateLoading');
+      if(ld){
+        ld.style.color = '#c62828';
+        ld.innerHTML = 'No se pudo cargar el acceso Google.<br>Revisa tu conexion o abre en Chrome (no en WhatsApp/Telegram).';
+      }
+      // Si es in-app browser, muestra el aviso
+      if(_esInAppBrowser_()){
+        var w = document.getElementById('inAppWarn'); if(w) w.style.display='block';
+      }
+      return;
+    }
+    setTimeout(initGoogleSignIn,200);
+    return;
+  }
+  var ld = document.getElementById('gateLoading'); if(ld) ld.style.display='none';
   google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleResponse});
   google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});
 }
+
+// Detector de in-app browser (WhatsApp, Telegram, Instagram, Facebook, Messenger, TikTok, Line, WeChat)
+function _esInAppBrowser_(){
+  var ua = (navigator.userAgent || '').toLowerCase();
+  // Firmas conocidas de in-app browsers
+  var patterns = ['fbav','fban','fb_iab','fbios','instagram','line/','micromessenger','wechat','messenger','twitter','snapchat','tiktok','musical_ly'];
+  for(var i=0;i<patterns.length;i++){ if(ua.indexOf(patterns[i]) >= 0) return true; }
+  // Telegram / WhatsApp usan WebView Android sin marca clara; heuristica:
+  // Android + "wv" (WebView) o versiones de Chrome muy antiguas embebidas
+  if(ua.indexOf('android') >= 0 && ua.indexOf('wv') >= 0) return true;
+  // iOS Safari real siempre trae "safari/"; una WebView (WKWebView de WhatsApp/Telegram) NO
+  var esIOS = /iphone|ipad|ipod/.test(ua);
+  if(esIOS && ua.indexOf('safari/') < 0) return true;
+  return false;
+}
+
+// Boton "Abrir en Chrome" — intent:// en Android, fallback iOS a Safari
+window._abrirEnChrome_ = function(){
+  var url = window.location.href;
+  var ua = (navigator.userAgent||'').toLowerCase();
+  if(ua.indexOf('android') >= 0){
+    // Intent que Android reenvia al navegador por defecto (usualmente Chrome)
+    var noProto = url.replace(/^https?:\/\//,'');
+    var intent = 'intent://' + noProto + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+    window.location.href = intent;
+  } else if(/iphone|ipad|ipod/.test(ua)){
+    // iOS: googlechrome:// abre Chrome si esta instalado
+    var chromeURL = url.replace(/^https:\/\//,'googlechromes://').replace(/^http:\/\//,'googlechrome://');
+    var t = Date.now();
+    window.location.href = chromeURL;
+    // Fallback: si Chrome no responde en 800ms, copia URL al portapapeles
+    setTimeout(function(){
+      if(Date.now() - t < 1500){
+        try{
+          navigator.clipboard.writeText(url);
+          alert('URL copiada. Pegala en Safari o Chrome.');
+        }catch(e){ alert('Copia esta URL y abrela en Safari o Chrome:\n\n' + url); }
+      }
+    }, 800);
+  } else {
+    try{ navigator.clipboard.writeText(url); }catch(e){}
+    alert('Copia esta URL y abrela en Chrome o el navegador de tu dispositivo:\n\n' + url);
+  }
+};
+
+// Al cargar DOM: si detectamos in-app browser, mostramos el aviso inmediatamente
+window.addEventListener('DOMContentLoaded', function(){
+  if(_esInAppBrowser_()){
+    var w = document.getElementById('inAppWarn'); if(w) w.style.display='block';
+    var g = document.getElementById('g_id_signin'); if(g) g.style.display='none';
+    var ld = document.getElementById('gateLoading'); if(ld) ld.style.display='none';
+  }
+});
 
 function autoEnter(){
   if(isBlocked()){
@@ -3396,21 +3505,24 @@ window._tbMenuToggle_ = function(ev){
   var m = document.getElementById('tbMenu');
   if(!m) return;
   var open = m.style.display === 'block';
-  m.style.display = open ? 'none' : 'block';
-  if(!open){
-    // Cerrar al hacer click fuera
-    setTimeout(function(){
-      document.addEventListener('click', _tbMenuOutside_, { once:true });
-    }, 0);
-  }
+  if(open){ m.style.display = 'none'; return; }
+  // Posicion fixed anclada al boton (evita recorte por overflow del tb-right)
+  if(typeof _posMenuFixed_ === 'function') _posMenuFixed_('tbMenuBtn','tbMenu');
+  m.style.display = 'block';
+  setTimeout(function(){
+    document.addEventListener('click', _tbMenuOutside_, { once:true });
+  }, 0);
 };
 window._tbMenuClose_ = function(){
   var m = document.getElementById('tbMenu');
   if(m) m.style.display = 'none';
 };
 function _tbMenuOutside_(e){
-  var wrap = document.getElementById('tbMenuWrap');
-  if(wrap && !wrap.contains(e.target)) _tbMenuClose_();
+  var m = document.getElementById('tbMenu');
+  var b = document.getElementById('tbMenuBtn');
+  if(!m) return;
+  if(m.contains(e.target) || (b && b.contains(e.target))) return;
+  _tbMenuClose_();
 }
 
 // Prompt de instalacion Android/Chrome desktop (iOS necesita "Agregar a inicio" manual)
