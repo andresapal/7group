@@ -6,6 +6,13 @@
 <title>Aseguralo ERP -- 7Group</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<!-- PWA installable (2026-09-11) -->
+<link rel="manifest" href="/agente/aseguralo/manifest.json">
+<meta name="theme-color" content="#45AAFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aseguralo">
+<link rel="apple-touch-icon" href="/logo-aseguralo.png">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -535,6 +542,7 @@ tbody tr:hover{background:var(--accent-light)}
         </div>
       </div>
       <button class="tb-toggle" onclick="_cmdkOpen_()" id="cmdkBtn" title="Búsqueda global (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px">Buscar <span style="font-size:9px;padding:1px 5px;background:var(--bg);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace">Ctrl K</span></button>
+      <button class="tb-toggle" onclick="_pwaInstalar_()" id="pwaInstallBtn" title="Instalar Aseguralo como app en tu dispositivo" style="display:none;background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);font-weight:700">Instalar app</button>
       <button class="tb-toggle" onclick="openModConfig()" id="modConfigBtn" style="display:none">Modulos</button>
       <button class="tb-toggle" onclick="toggleTheme()" id="themeBtn">Claro</button>
       <a class="tb-btn" href="/agente/" id="tb7gBtn" style="display:none">7Group</a>
@@ -3341,6 +3349,67 @@ function _registrarEnCartera_(lead, emitida){
    HELPERS
    ==================================== */
 function fmt(n){return '$'+n.toLocaleString('es-CO')}
+
+/* ============================================================
+   PWA (2026-09-11) — installable + service worker offline
+   ============================================================ */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('/agente/aseguralo/service-worker.js', {scope:'/agente/aseguralo/'})
+      .then(function(reg){ console.info('[PWA] Service worker registrado', reg.scope); })
+      .catch(function(err){ console.warn('[PWA] SW registro fallo:', err); });
+  });
+}
+// Prompt de instalacion Android/Chrome desktop (iOS necesita "Agregar a inicio" manual)
+var _pwaDeferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _pwaDeferredPrompt = e;
+  var btn = document.getElementById('pwaInstallBtn');
+  if(btn) btn.style.display = '';
+});
+window._pwaInstalar_ = function(){
+  if(_pwaDeferredPrompt){
+    _pwaDeferredPrompt.prompt();
+    _pwaDeferredPrompt.userChoice.then(function(choice){
+      if(choice.outcome === 'accepted'){
+        if(typeof toast === 'function') toast('Aseguralo se instalo como app en tu dispositivo', {type:'ok', title:'Instalado'});
+        var btn = document.getElementById('pwaInstallBtn'); if(btn) btn.style.display='none';
+      }
+      _pwaDeferredPrompt = null;
+    });
+  } else {
+    // Instrucciones manuales segun navegador (iOS Safari sobre todo)
+    var esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    var msg = esIOS
+      ? 'iPhone: toca el boton Compartir (cuadro con flecha arriba) y luego "Agregar a pantalla de inicio".'
+      : 'En Chrome: menu (3 puntitos) → "Instalar app" o "Agregar a pantalla principal".';
+    if(typeof toast === 'function') toast(msg, {type:'info', title:'Instalar Aseguralo', duration:8000});
+    else alert('Instalar Aseguralo:\n\n'+msg);
+  }
+};
+// Detectar si ya esta instalado (modo standalone) → esconder boton
+window.addEventListener('DOMContentLoaded', function(){
+  var yaInstalada = window.matchMedia('(display-mode: standalone)').matches ||
+                    window.navigator.standalone === true;
+  if(yaInstalada){
+    var btn = document.getElementById('pwaInstallBtn'); if(btn) btn.style.display='none';
+    document.documentElement.classList.add('pwa-standalone');
+  }
+});
+window.addEventListener('appinstalled', function(){
+  var btn = document.getElementById('pwaInstallBtn'); if(btn) btn.style.display='none';
+  if(typeof toast === 'function') toast('Aseguralo ya esta disponible como app en tu dispositivo', {type:'ok', title:'Instalada'});
+});
+// Manejo de shortcuts del manifest (?cmdk=1 abre buscador; ?goto=cartera cambia modulo)
+window.addEventListener('DOMContentLoaded', function(){
+  try{
+    var q = new URLSearchParams(location.search);
+    if(q.get('cmdk') === '1') setTimeout(function(){ if(typeof _cmdkOpen_==='function') _cmdkOpen_(); }, 800);
+    var goto = q.get('goto');
+    if(goto) setTimeout(function(){ if(typeof switchMod==='function') switchMod(goto); }, 800);
+  }catch(e){}
+});
 
 /* ============================================================
    COMMAND PALETTE (Ctrl+K) — busqueda global instantanea

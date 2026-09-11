@@ -1,0 +1,46 @@
+{
+  "name": "Aseguralo · ERP SIRILO",
+  "short_name": "Aseguralo",
+  "description": "ERP de gestión de pólizas, cartera, comisiones y siniestros para Aseguralo Agentes de Seguros.",
+  "start_url": "/agente/aseguralo/",
+  "scope": "/agente/aseguralo/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a1424",
+  "theme_color": "#45AAFF",
+  "lang": "es-CO",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "finance"],
+  "icons": [
+    {
+      "src": "/logo-aseguralo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-aseguralo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buscar (Ctrl+K)",
+      "short_name": "Buscar",
+      "description": "Búsqueda global en el ERP",
+      "url": "/agente/aseguralo/?cmdk=1"
+    },
+    {
+      "name": "Cartera",
+      "short_name": "Cartera",
+      "url": "/agente/aseguralo/?goto=cartera"
+    },
+    {
+      "name": "Cotizador",
+      "short_name": "Cotizador",
+      "url": "/agente/aseguralo/?goto=cotizador"
+    }
+  ]
+}
