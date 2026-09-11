@@ -5795,6 +5795,7 @@ function syncCotToSheet_(leadId, slot){
       valor_asegurado:d.valorAsegurado||0, deducible:d.deducible||0,
       coberturas:d.coberturas||'', nombre_archivo:d.nombreArchivo||'',
       drive_url:d.driveUrl||'',
+      resumen_experto:d.resumenExperto||'',
       ganadora: COT_PDFS[leadId].__ganadora===slot
     })}).catch(function(){});
 }
@@ -6535,6 +6536,7 @@ function loadCotizacionesFromSheet_(){
             valorAsegurado: r.valor_asegurado, deducible: r.deducible,
             coberturas: r.coberturas, nombreArchivo: r.nombre_archivo,
             driveUrl: r.drive_url || '',
+            resumenExperto: r.resumen_experto || '',
             ts: sheetTs
           };
         } else if(local && r.drive_url && !local.driveUrl){
@@ -6701,6 +6703,25 @@ function promptGemini_(tipo){
     camposEspecificos = '  "tomador": { "nombre":"...", "documento":"..." }';
   }
 
+  // Guia extra "agente experto" segun ramo (2026-09-11) — SOLO para no-Vehiculo.
+  // Vehiculo se mantiene 100% intacto. Hogar Allianz no se toca por instruccion del admin.
+  var guiaResumen = '';
+  var isVeh = (t.indexOf('veh')>=0 || t.indexOf('auto')>=0 || t==='soat');
+  if(!isVeh){
+    if(t.indexOf('salud')>=0){
+      guiaResumen = 'PARA SALUD — actua como agente experto en seguros de salud. Extrae lo mas relevante del plan cotizado en "resumen_experto" (500-800 caracteres, texto continuo): cobertura ambulatoria/hospitalaria/urgencias/mundial, red de clinicas y medicos, deducibles, copagos, periodos de carencia, exclusiones clave, si incluye maternidad/oncologia/salud mental, personas incluidas. Solo lo que aparezca literal en el PDF — no inventes.';
+    } else if(t.indexOf('vida')>=0){
+      guiaResumen = 'PARA VIDA — como agente experto, en "resumen_experto" (500-800 caracteres): valor asegurado por muerte, ITP/ITT (Incapacidad Total Permanente/Temporal), enfermedades graves cubiertas, adelanto por diagnostico terminal, indemnizacion adicional por accidente, edad maxima permanencia, beneficiarios, exclusiones criticas. Si es Allianz Vida con 3 planes, resumen solo del plan Optima. Solo lo del PDF.';
+    } else if(t.indexOf('hogar')>=0 || t.indexOf('inmueble')>=0){
+      guiaResumen = 'PARA HOGAR — como agente experto, en "resumen_experto" (500-800 caracteres): coberturas de estructura, contenido, responsabilidad civil, hurto (calificado y simple), filtraciones/inundaciones, terremoto/temblor, rayo/explosion, todo riesgo, asistencia hogar 24/7, sub-limites clave, deducibles. Solo lo del PDF.';
+    } else if(t.indexOf('empresa')>=0){
+      guiaResumen = 'PARA EMPRESA — como agente experto, en "resumen_experto" (500-800 caracteres): coberturas de danos materiales (incendio, sustraccion, danos electricos), responsabilidad civil, lucro cesante, transporte de mercancias/valores, sub-limites, deducibles, exclusiones criticas, asistencia empresarial si incluye. Solo lo del PDF.';
+    } else if(t.indexOf('arrendamiento')>=0){
+      guiaResumen = 'PARA ARRENDAMIENTO — como agente experto, en "resumen_experto" (500-800 caracteres): meses cubiertos, servicios publicos incluidos, danos al inmueble, honorarios juridicos, permanencia minima, asistencia juridica, exclusiones. Solo lo del PDF.';
+    } else {
+      guiaResumen = 'PARA ESTE RAMO — como agente experto, en "resumen_experto" (500-800 caracteres) resume las coberturas mas relevantes, sub-limites, deducibles y exclusiones clave. Solo lo del PDF, no inventes.';
+    }
+  }
   return 'Este documento PDF es una cotizacion de seguro de una aseguradora colombiana. '+
     'El prospecto esta solicitando seguro de tipo "'+tipoEsperado+'". '+
     'Analiza el PDF con cuidado y devuelve UNICAMENTE un objeto JSON valido (sin markdown, sin explicaciones) con esta estructura exacta:\n\n'+
@@ -6716,8 +6737,10 @@ function promptGemini_(tipo){
     '  "deducible": <numero o null>,\n'+
     '  "coberturas_principales": "texto breve DEL PLAN SELECCIONADO — con montos EXACTOS del plan cotizado, nunca de otros planes",\n'+
     '  "coberturas_detalle": [ { "nombre": "Cobertura X", "valor": <numero o null>, "condicion": "opcional (ej: hasta 65 anos)" } ],\n'+
+    (isVeh ? '' : '  "resumen_experto": "sintesis en 500-800 caracteres redactada como agente experto — se muestra al cliente en el PDF de propuesta comercial. Ver instrucciones al final segun el ramo.",\n')+
     camposEspecificos+'\n'+
     '}\n\n'+
+    (guiaResumen ? guiaResumen+'\n\n' : '')+
     'IMPORTANTE: en "tipo_detectado" pon lo que REALMENTE es el PDF (auto, vida, salud, hogar...) sin importar lo que dijimos que espera el prospecto. Si el PDF es un seguro de auto, pon "Auto" — asi el sistema puede detectar si no corresponde al tipo del prospecto.\n'+
     'IMPORTANTE 2: "titular" es el TOMADOR/PROPIETARIO/CONTRATANTE de la poliza, la persona a nombre de quien va la cotizacion. Extraelo siempre, incluso si tambien aparece en "tomador"/"propietario". Nombre completo con apellidos tal cual figura en el PDF.\n'+
     'IMPORTANTE 3 (SOLO Allianz + Vida): los estudios de Vida de Allianz traen 3 opciones en un mismo PDF (usualmente Basica, Optima y Superior — o nombres equivalentes con distintas coberturas/primas). Debes:\n'+
@@ -6737,25 +6760,54 @@ function promptGemini_(tipo){
 /* Llama al Apps Script que hace de proxy hacia Gemini (key server-side, oculta).
    Ademas guarda el PDF original en Drive (subcarpeta por nombre del lead) y
    devuelve {data, drive:{url,...}} para que el slot recuerde el link. */
-async function llamarGemini_(file, tipo, leadNombre){
+async function llamarGemini_(file, tipo, leadNombre, onProgress){
   var b64 = await fileToBase64_(file);
-  var res = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    redirect: 'follow',
-    headers: {'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify({
-      action: 'gemini-pdf',
-      pdfBase64: b64,
-      prompt: promptGemini_(tipo),
-      leadNombre: leadNombre || ''
-    })
+  var body = JSON.stringify({
+    action: 'gemini-pdf',
+    pdfBase64: b64,
+    prompt: promptGemini_(tipo),
+    leadNombre: leadNombre || ''
   });
-  if(!res.ok) throw new Error('Apps Script HTTP '+res.status);
-  var j = await res.json();
-  if(j.error){
-    throw new Error(j.error + (j.raw?' | '+j.raw.slice(0,150):''));
+  // 2 intentos totales: primero con timeout 90s, si falla reintento con timeout 60s
+  var timeouts = [90000, 60000];
+  var lastErr = null;
+  for(var attempt=0; attempt<timeouts.length; attempt++){
+    // Fabian ve solo "Analizando..." — los reintentos son silenciosos por dentro
+    if(attempt>0 && onProgress) onProgress('Analizando... (tomando un momento mas)');
+    var ctrl = new AbortController();
+    var to = setTimeout(function(){ ctrl.abort(); }, timeouts[attempt]);
+    try{
+      var res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST', redirect: 'follow',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: body, signal: ctrl.signal
+      });
+      clearTimeout(to);
+      if(!res.ok){ lastErr = new Error('Apps Script HTTP '+res.status); continue; }
+      var j = await res.json();
+      if(j && j.error){
+        // Reintentar si el backend reporta problema transitorio
+        var eStr = String(j.error).toLowerCase();
+        if(eStr.indexOf('json invalido')>=0 || eStr.indexOf('vacia')>=0 || eStr.indexOf('gemini http 5')>=0){
+          lastErr = new Error(j.error + (j.raw?' | '+j.raw.slice(0,150):'')); continue;
+        }
+        // Error definitivo (no reintenta): key invalida, permisos, etc.
+        throw new Error(j.error + (j.raw?' | '+j.raw.slice(0,150):''));
+      }
+      // Exito
+      return { data: j.data, drive: j.drive || null };
+    } catch(err){
+      clearTimeout(to);
+      lastErr = err;
+      // Si abortado (timeout) o red caida → reintentar
+      var msg = String(err && err.message || err);
+      if(msg.indexOf('abort')>=0 || msg.indexOf('network')>=0 || msg.indexOf('failed')>=0){
+        continue;
+      }
+      // Otro error → sale y reintenta con el mismo criterio del loop
+    }
   }
-  return { data: j.data, drive: j.drive || null };
+  throw lastErr || new Error('OCR fallo tras 2 intentos');
 }
 
 /* ============================================
@@ -6928,10 +6980,12 @@ window.subirPDFCotizacion = async function(inputEl, leadId){
   var file = inputEl.files[0]; if(!file) return;
   var statusEl = document.getElementById('pdf-status-'+leadId+'-new');
   var setStatus = function(msg,color){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=color||'var(--dim)'; } };
-  setStatus('Enviando a Gemini para analizar...','var(--accent)');
+  setStatus('Analizando...','var(--accent)');
+  // Guardar referencia al archivo por si Fabian quiere reintentar sin volver a seleccionarlo
+  window._PDF_ULTIMO_INTENTO = { file: file, leadId: leadId };
   try {
     var lead = LEADS.filter(function(x){return x.id===leadId})[0] || {tipo:'Otro'};
-    var resp = await llamarGemini_(file, lead.tipo, lead.nombre);
+    var resp = await llamarGemini_(file, lead.tipo, lead.nombre, setStatus);
     var data = resp.data;
     var driveInfo = resp.drive || {};
     // Diagnostico visible si Drive fallo en el backend
@@ -6990,6 +7044,7 @@ window.subirPDFCotizacion = async function(inputEl, leadId){
       valorAsegurado: Number(data.valor_asegurado)||0,
       deducible: Number(data.deducible)||0,
       coberturas: data.coberturas_principales || '',
+      resumenExperto: data.resumen_experto || '',  // sintesis para no-vehiculo (PDF comercial)
       titularNombre: tit.nombre_completo || tit.nombre || '',
       titularDoc: tit.numero_documento || tit.documento || '',
       planSeleccionado: data.plan_seleccionado || '',
@@ -7009,9 +7064,29 @@ window.subirPDFCotizacion = async function(inputEl, leadId){
     syncCotToSheet_(leadId, slotKey);  // sync web<->mobile
     renderEnCotizacion();
   } catch(err){
-    setStatus('Error: '+err.message,'var(--red)');
+    var msg = String(err && err.message || err);
+    // Mensaje amable segun tipo de error
+    var friendly = 'Error al procesar el PDF. ';
+    if(msg.indexOf('abort')>=0 || msg.indexOf('timeout')>=0)  friendly = 'El PDF esta tardando demasiado. ';
+    else if(msg.indexOf('HTTP 5')>=0 || msg.indexOf('http 5')>=0) friendly = 'Servidor Gemini saturado. ';
+    else if(msg.indexOf('vacia')>=0 || msg.indexOf('JSON')>=0)    friendly = 'La respuesta llego mal formada. ';
+    else if(msg.indexOf('network')>=0 || msg.indexOf('failed')>=0) friendly = 'Problema de red. ';
+    friendly += '<a href="#" onclick="_reintentarUltimoPDF_(\''+_jsq(leadId)+'\');return false;" style="color:var(--accent);text-decoration:underline">Reintentar</a>';
+    if(statusEl){ statusEl.innerHTML = friendly; statusEl.style.color='var(--red)'; }
     console.error('OCR error:', err);
   }
+};
+
+/* Reintenta el ultimo PDF subido sin que Fabian tenga que volver a seleccionar el archivo. */
+window._reintentarUltimoPDF_ = function(leadId){
+  var u = window._PDF_ULTIMO_INTENTO;
+  if(!u || !u.file || u.leadId !== leadId){
+    alert('No hay PDF guardado para reintentar. Subelo de nuevo.');
+    return;
+  }
+  // Simular re-subida creando un input file temporal
+  var fake = { files: [u.file] };
+  subirPDFCotizacion(fake, leadId);
 };
 
 window.borrarPDFCotizacion = function(leadId, slot){
@@ -7339,8 +7414,20 @@ window.descargarComparativoPDF = async function(leadId){
     var coberturasSeguras = fijas
       ? fijas
       : 'Coberturas segun cotizacion oficial de '+ (d.aseguradora||'la aseguradora') +'. Consulte el PDF anexo para el detalle exacto por cobertura, valor asegurado y deducibles.';
+    // NUEVO (2026-09-11): para ramos que NO son Vehiculo, preferir resumen_experto del OCR (Gemini como agente experto).
+    // Vehiculo mantiene catalogo fijo intacto. Hogar Allianz tambien queda quieto por orden del admin.
+    var esVehiculo = /veh|auto|soat/i.test(String(lead.tipo||''));
+    var esAllianzHogar = /allianz/i.test(String(d.aseguradora||'')) && /hogar|inmueble/i.test(String(lead.tipo||''));
+    var coberturasFinal;
+    if(esVehiculo || esAllianzHogar){
+      coberturasFinal = coberturasSeguras; // intacto
+    } else if(d.resumenExperto && String(d.resumenExperto).trim().length >= 30){
+      coberturasFinal = String(d.resumenExperto).trim(); // sintesis experto del PDF
+    } else {
+      coberturasFinal = coberturasSeguras; // fallback si Gemini no devolvio resumen
+    }
     return {slot:k, nombre:d.aseguradora||k, prima:Number(d.prima)||0, desde:d.desde||'', hasta:d.hasta||'',
-            deducible:Number(d.deducible)||0, coberturas:coberturasSeguras, valorAseg:Number(d.valorAsegurado)||0,
+            deducible:Number(d.deducible)||0, coberturas:coberturasFinal, valorAseg:Number(d.valorAsegurado)||0,
             aseguradora:d.aseguradora||k, plan:d.planSeleccionado||'',
             coberturasWarning: !!d.coberturasWarning,
             driveUrl: d.driveUrl || ''};
