@@ -2168,7 +2168,13 @@ function transformApiRows(rows){
       pdfUrl:'',
       observaciones:r.observaciones||'',
       fechaCreacion:r.fecha_creacion||'',
-      fnac:r.fnac||''
+      fnac:r.fnac||'',
+      // Campos usados por CARTERA
+      forma_pago:r.forma_pago||'',
+      num_cuotas:r.num_cuotas||'',
+      fh_emision:r.fh_emision||'',           // alias legacy
+      fh_limite_pago:r.fh_limite_pago||'',   // col T: FH LIMITE DE PAGO (fuente de verdad de vencimiento)
+      prima_modalidad_pago:Number(r.prima_modalidad_pago)||0 // col AE: valor real de la cuota
     };
   }).filter(function(p){return p.id;});
 }
@@ -3244,6 +3250,7 @@ function _registrarEnCartera_(lead, emitida){
    ==================================== */
 function fmt(n){return '$'+n.toLocaleString('es-CO')}
 /* Escape para strings dentro de onclick="fn('...')" — previene ruptura por comilla o backslash */
+function escHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function _jsq(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
 /* ====== INTERMEDIARIO HELPERS ====== */
@@ -3770,30 +3777,52 @@ function _formaPagoCartera_(c){
   var fp = '';
   var pol = (POLIZAS||[]).filter(function(p){return p.id===c.poliza})[0];
   if(pol){
-    var m = /forma\s*pago\s*[:：]\s*([a-záéíóú]+)/i.exec(String(pol.observaciones||''));
-    if(m) fp = m[1].toLowerCase();
+    // 1) Columna de POLRES detectada por header (forma_pago / periodicidad / frecuencia)
+    fp = String(pol.forma_pago||'').toLowerCase().trim();
+    // 2) Fallback: "Forma pago: X" en observaciones (pólizas emitidas por el ERP/OCR)
+    if(!fp){
+      var m = /forma\s*pago\s*[:：]\s*([a-záéíóú]+)/i.exec(String(pol.observaciones||''));
+      if(m) fp = m[1].toLowerCase().trim();
+    }
+    // 3) Fallback: numero de cuotas (12/4/2/1) desde la columna detectada
+    if(!fp && /^\d+$/.test(String(pol.num_cuotas||'').trim())) fp = String(pol.num_cuotas||'').trim();
+  }
+  // Si llega como numero de cuotas, convertir
+  if(/^\d+$/.test(fp)){
+    var n = parseInt(fp,10);
+    fp = n>=12 ? 'mensual' : n===4 ? 'trimestral' : n===2 ? 'semestral' : 'anual';
   }
   if(fp.indexOf('mensual')>=0)    return {label:'Mensual',    div:12, alerta:7,  ventana:30};
   if(fp.indexOf('trimestral')>=0) return {label:'Trimestral', div:4,  alerta:15, ventana:90};
   if(fp.indexOf('semestral')>=0)  return {label:'Semestral',  div:2,  alerta:15, ventana:180};
   return {label:'Anual', div:1, alerta:25, ventana:25};
 }
-/* Fecha base de cartera: la de la fila CARTERA o, si falta, la FH EMISION del POLRES (col T). */
-function _fechaEmisionCartera_(c){
-  if(c.fecha_emision) return c.fecha_emision;
+/* Fecha LIMITE DE PAGO: viene directa de POLRES col T (FH LIMITE DE PAGO).
+   Fallback: fh_emision, desde, fecha_creacion. */
+function _fechaLimitePagoCartera_(c){
   var pol = (POLIZAS||[]).filter(function(p){return p.id===c.poliza})[0];
+  if(pol && pol.fh_limite_pago) return pol.fh_limite_pago;
+  if(c.fecha_emision) return c.fecha_emision;
   if(pol) return pol.fh_emision || pol.desde || pol.fecha_creacion || '';
   return '';
 }
-/* Vencimiento del pago segun forma de pago: {cuota, dias}. dias<0 = vencido */
+/* Alias legacy por compatibilidad. */
+function _fechaEmisionCartera_(c){ return _fechaLimitePagoCartera_(c); }
+
+/* Vencimiento del pago: usa FH LIMITE DE PAGO directamente (no calcula por forma_pago).
+   Cuota: prefiere PRIMA MODALIDAD PAGO (col AE) que ya trae el valor real; si viene 0, cae al calculo prima/div. */
 function _vencimientoCartera_(c, fp){
-  var cuota = (Number(c.prima)||0)/fp.div;
-  var emi = _fechaEmisionCartera_(c);
-  emi = emi ? new Date(emi+'T12:00:00') : null;
-  if(!emi || isNaN(emi.getTime())) return {cuota:cuota, dias:null, fp:fp};
-  var vence = new Date(emi.getTime()); vence.setDate(vence.getDate()+fp.ventana);
-  var hoy = new Date(); hoy.setHours(0,0,0,0); vence.setHours(0,0,0,0);
-  var dias = Math.round((vence - hoy)/86400000);
+  var pol = (POLIZAS||[]).filter(function(p){return p.id===c.poliza})[0];
+  // Cuota real: prefiere el valor cargado en POLRES (PRIMA MODALIDAD PAGO)
+  var cuota = pol && Number(pol.prima_modalidad_pago)>0
+    ? Number(pol.prima_modalidad_pago)
+    : (Number(c.prima)||0)/fp.div;
+  // Vencimiento = FH LIMITE DE PAGO directamente (fuente de verdad segun Fabian)
+  var limStr = _fechaLimitePagoCartera_(c);
+  var lim = limStr ? new Date(limStr+'T12:00:00') : null;
+  if(!lim || isNaN(lim.getTime())) return {cuota:cuota, dias:null, fp:fp};
+  var hoy = new Date(); hoy.setHours(0,0,0,0); lim.setHours(0,0,0,0);
+  var dias = Math.round((lim - hoy)/86400000);
   return {cuota:cuota, dias:dias, fp:fp};
 }
 /* Chip visual del vencimiento */
