@@ -416,6 +416,38 @@ tbody tr:hover{background:var(--accent-light)}
 .cmdk-hint{padding:10px 18px;border-top:1px solid var(--border);font-size:10px;color:var(--dim);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .cmdk-hint b{color:var(--text);font-weight:600}
 </style>
+<script>
+/* MENU UTILS — inline en head para que EXISTAN aunque el resto del JS falle */
+window.__openMenu = function(menuId, btn, ev){
+  try{
+    if(ev){ ev.stopPropagation(); if(ev.preventDefault) ev.preventDefault(); }
+    window.__closeAllMenus();
+    var m = document.getElementById(menuId);
+    if(!m) return;
+    if(btn && btn.getBoundingClientRect){
+      var r = btn.getBoundingClientRect();
+      m.style.top = (r.bottom + 6) + 'px';
+      var vw = window.innerWidth || document.documentElement.clientWidth;
+      m.style.right = Math.max(4, vw - r.right) + 'px';
+      m.style.left = 'auto';
+    }
+    m.style.display = 'block';
+    var bd = document.getElementById('menuBackdrop');
+    if(bd) bd.style.display = 'block';
+  }catch(e){ try{ console.warn('openMenu error', e); }catch(_){} }
+};
+window.__closeAllMenus = function(){
+  try{
+    var ids = ['oficinaMenu','tbMenu'];
+    for(var i=0;i<ids.length;i++){
+      var m = document.getElementById(ids[i]);
+      if(m) m.style.display = 'none';
+    }
+    var bd = document.getElementById('menuBackdrop');
+    if(bd) bd.style.display = 'none';
+  }catch(e){}
+};
+</script>
 </head>
 <body>
 
@@ -564,24 +596,27 @@ tbody tr:hover{background:var(--accent-light)}
     <div class="tb-right">
       <div id="syncStatus" style="margin-right:4px"></div>
       <span id="userChip" style="font-size:11px;color:var(--dim);padding:4px 10px;background:var(--bg3);border-radius:12px;font-weight:600"></span>
-      <div id="oficinaMenuWrap" style="display:none;position:relative">
-        <button class="tb-toggle" id="oficinaMenuBtn" onclick="toggleOficinaMenu(event)">Oficina: <span id="oficinaActualLbl">Aseguralo</span> &#9662;</button>
-        <div id="oficinaMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.25);padding:6px 0;min-width:220px;z-index:9999">
-          <div class="oficina-opt" data-of="Aseguralo" onclick="setOficinaActiva('Aseguralo')" style="padding:10px 14px;cursor:pointer">Aseguralo</div>
-          <div class="oficina-opt" data-of="Sandra Marin Seguros" onclick="setOficinaActiva('Sandra Marin Seguros')" style="padding:10px 14px;cursor:pointer;opacity:.55">Sandra Marin Seguros <span style="font-size:10px;color:var(--muted)">(pendiente Sheet)</span></div>
-        </div>
+      <div id="oficinaMenuWrap" style="display:none">
+        <button class="tb-toggle" id="oficinaMenuBtn" onclick="window.__openMenu('oficinaMenu',this,event)">Oficina: <span id="oficinaActualLbl">Aseguralo</span> &#9662;</button>
       </div>
       <button class="tb-toggle" onclick="_cmdkOpen_()" id="cmdkBtn" title="Buscar cualquier registro del ERP (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px">Buscar por <span style="font-size:9px;padding:1px 5px;background:var(--bg);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace">Ctrl K</span></button>
-      <!-- Menu hamburguesa consolidado -->
-      <div id="tbMenuWrap" style="position:relative">
-        <button class="tb-toggle" id="tbMenuBtn" onclick="_tbMenuToggle_(event)" title="Menu" style="padding:5px 10px;font-weight:700">&#9776;</button>
-        <div id="tbMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.3);padding:6px 0;min-width:210px;z-index:9999">
-          <button class="tb-menu-item" id="menuThemeBtn" onclick="toggleTheme();_tbMenuClose_()">Modo noche</button>
-          <button class="tb-menu-item" id="menuInstallBtn" onclick="_pwaInstalar_();_tbMenuClose_()">Instalar app</button>
-          <button class="tb-menu-item" id="menuModConfigBtn" onclick="openModConfig();_tbMenuClose_()" style="display:none">Configurar modulos</button>
-        </div>
-      </div>
+      <button class="tb-toggle" id="tbMenuBtn" onclick="window.__openMenu('tbMenu',this,event)" title="Menu" style="padding:5px 10px;font-weight:700;font-size:16px">&#9776;</button>
     </div>
+  </div>
+
+  <!-- MENUS DESPLEGABLES: montados fuera del topbar para evitar clipping.
+       Posicion fixed calculada por __openMenu segun el boton anclado. -->
+  <div id="menuBackdrop" onclick="window.__closeAllMenus()" style="display:none;position:fixed;inset:0;background:transparent;z-index:99990"></div>
+
+  <div id="oficinaMenu" style="display:none;position:fixed;top:60px;right:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.35);padding:6px 0;min-width:220px;z-index:99999">
+    <div class="oficina-opt" onclick="setOficinaActiva('Aseguralo')" style="padding:12px 16px;cursor:pointer;font-size:12px;font-weight:600">Aseguralo</div>
+    <div class="oficina-opt" onclick="setOficinaActiva('Sandra Marin Seguros')" style="padding:12px 16px;cursor:pointer;opacity:.55;font-size:12px;font-weight:600">Sandra Marin Seguros <span style="font-size:10px;color:var(--muted)">(pendiente Sheet)</span></div>
+  </div>
+
+  <div id="tbMenu" style="display:none;position:fixed;top:60px;right:8px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.35);padding:6px 0;min-width:220px;z-index:99999">
+    <button class="tb-menu-item" id="menuThemeBtn" onclick="toggleTheme();window.__closeAllMenus()">Modo noche</button>
+    <button class="tb-menu-item" id="menuInstallBtn" onclick="_pwaInstalar_();window.__closeAllMenus()">Instalar app</button>
+    <button class="tb-menu-item" id="menuModConfigBtn" onclick="openModConfig();window.__closeAllMenus()" style="display:none">Configurar modulos</button>
   </div>
 
   <nav class="mod-nav" id="modNav">
@@ -1752,44 +1787,9 @@ window.setOficinaActiva = function(of){
   try { localStorage.setItem('aseg_oficina_activa', of); } catch(e){}
   var lbl = document.getElementById('oficinaActualLbl');
   if(lbl) lbl.textContent = of;
-  document.getElementById('oficinaMenu').style.display = 'none';
+  if(typeof window.__closeAllMenus === 'function') window.__closeAllMenus();
   location.reload();
 };
-// Helper: posiciona un menu con position:fixed anclado al boton que lo abre.
-// Evita que overflow del contenedor (tb-right en mobile) lo recorte.
-window._posMenuFixed_ = function(btnId, menuId){
-  var b = document.getElementById(btnId);
-  var m = document.getElementById(menuId);
-  if(!b || !m) return;
-  var r = b.getBoundingClientRect();
-  m.style.position = 'fixed';
-  m.style.top = (r.bottom + 4) + 'px';
-  // Ancla a la derecha del boton
-  var vw = window.innerWidth || document.documentElement.clientWidth;
-  m.style.right = Math.max(4, vw - r.right) + 'px';
-  m.style.left = 'auto';
-  m.style.zIndex = '99999';
-};
-
-window.toggleOficinaMenu = function(ev){
-  if(ev) ev.stopPropagation();
-  var m = document.getElementById('oficinaMenu');
-  if(!m) return;
-  var abierto = m.style.display === 'block';
-  if(abierto){ m.style.display = 'none'; return; }
-  _posMenuFixed_('oficinaMenuBtn','oficinaMenu');
-  m.style.display = 'block';
-  setTimeout(function(){
-    document.addEventListener('click', _oficinaMenuOutside_, { once:true });
-  }, 0);
-};
-function _oficinaMenuOutside_(e){
-  var m = document.getElementById('oficinaMenu');
-  var b = document.getElementById('oficinaMenuBtn');
-  if(!m) return;
-  if(m.contains(e.target) || (b && b.contains(e.target))) return;
-  m.style.display = 'none';
-}
 
 function esAdminODueno_(){ return CURRENT_USER.rol==='admin' || CURRENT_USER.rol==='dueno'; }
 function esAsesor_(){ return CURRENT_USER.rol==='asesor'; }
@@ -3500,30 +3500,9 @@ if('serviceWorker' in navigator){
 // ==============================
 // MENU HAMBURGUESA TOPBAR
 // ==============================
-window._tbMenuToggle_ = function(ev){
-  if(ev){ ev.stopPropagation(); }
-  var m = document.getElementById('tbMenu');
-  if(!m) return;
-  var open = m.style.display === 'block';
-  if(open){ m.style.display = 'none'; return; }
-  // Posicion fixed anclada al boton (evita recorte por overflow del tb-right)
-  if(typeof _posMenuFixed_ === 'function') _posMenuFixed_('tbMenuBtn','tbMenu');
-  m.style.display = 'block';
-  setTimeout(function(){
-    document.addEventListener('click', _tbMenuOutside_, { once:true });
-  }, 0);
-};
-window._tbMenuClose_ = function(){
-  var m = document.getElementById('tbMenu');
-  if(m) m.style.display = 'none';
-};
-function _tbMenuOutside_(e){
-  var m = document.getElementById('tbMenu');
-  var b = document.getElementById('tbMenuBtn');
-  if(!m) return;
-  if(m.contains(e.target) || (b && b.contains(e.target))) return;
-  _tbMenuClose_();
-}
+// _tbMenuToggle_/_tbMenuClose_ ahora son alias del helper global bulletproof
+window._tbMenuToggle_ = function(ev){ window.__openMenu('tbMenu', document.getElementById('tbMenuBtn'), ev); };
+window._tbMenuClose_ = function(){ window.__closeAllMenus(); };
 
 // Prompt de instalacion Android/Chrome desktop (iOS necesita "Agregar a inicio" manual)
 var _pwaDeferredPrompt = null;
