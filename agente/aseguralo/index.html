@@ -12,7 +12,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Aseguralo">
-<link rel="apple-touch-icon" href="/logo-aseguralo.png">
+<link rel="apple-touch-icon" href="/agente/aseguralo/icon-aseguralo.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/agente/aseguralo/icon-aseguralo.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/agente/aseguralo/icon-aseguralo.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/agente/aseguralo/icon-aseguralo.png">
 <!-- FedCM: obligatorio para Google Identity en Chrome Android sin third-party cookies -->
 <meta http-equiv="Permissions-Policy" content="identity-credentials-get=(self &quot;https://accounts.google.com&quot;)">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -2272,6 +2275,20 @@ function _esInAppBrowser_(){
   return false;
 }
 
+// Detector especifico de navegadores propietarios Android que rompen Google Sign-In
+// (MiuiBrowser Xiaomi, HuaweiBrowser, SamsungBrowser, UCBrowser, etc).
+// Google Identity carga pero el popup de auth no retorna el token en estos navegadores.
+function _navegadorProblematico_(){
+  var ua = (navigator.userAgent || '').toLowerCase();
+  if(ua.indexOf('miuibrowser') >= 0) return {marca:'Mi Browser (Xiaomi)', clave:'miui'};
+  if(ua.indexOf('huaweibrowser') >= 0) return {marca:'Huawei Browser', clave:'huawei'};
+  if(ua.indexOf('samsungbrowser') >= 0) return {marca:'Samsung Internet', clave:'samsung'};
+  if(ua.indexOf('ucbrowser') >= 0) return {marca:'UC Browser', clave:'uc'};
+  if(ua.indexOf('opera') >= 0 || ua.indexOf('opr/') >= 0) return {marca:'Opera Mini', clave:'opera'};
+  if(ua.indexOf('yabrowser') >= 0) return {marca:'Yandex Browser', clave:'yandex'};
+  return null;
+}
+
 // Boton "Abrir en Chrome" — intent:// en Android, fallback iOS a Safari
 window._abrirEnChrome_ = function(){
   var url = window.location.href;
@@ -2314,12 +2331,29 @@ window._abrirEnChrome_ = function(){
   }
 };
 
-// Al cargar DOM: si detectamos in-app browser, mostramos el aviso inmediatamente
+// Al cargar DOM: si detectamos in-app browser O navegador propietario problematico,
+// mostramos el aviso inmediatamente (Google Sign-In no funciona bien en esos).
 window.addEventListener('DOMContentLoaded', function(){
-  if(_esInAppBrowser_()){
+  var esInApp = _esInAppBrowser_();
+  var navProblem = _navegadorProblematico_();
+  if(esInApp || navProblem){
     var w = document.getElementById('inAppWarn'); if(w) w.style.display='block';
     var g = document.getElementById('g_id_signin'); if(g) g.style.display='none';
     var ld = document.getElementById('gateLoading'); if(ld) ld.style.display='none';
+    // Titulo especifico segun el caso
+    var titulo = document.querySelector('#inAppWarn > div:first-child');
+    var cuerpo = document.querySelector('#inAppWarn > div:nth-child(2)');
+    if(navProblem && titulo && cuerpo){
+      titulo.textContent = 'Tu navegador ('+navProblem.marca+') no funciona con Google';
+      cuerpo.innerHTML = 'Estas usando <b>'+navProblem.marca+'</b>. Google no permite iniciar sesion desde este navegador.<br><br>' +
+                        '<b>Solucion en 30 segundos:</b><br>' +
+                        '1) Ve a la <b>Play Store</b><br>' +
+                        '2) Busca e instala <b>"Google Chrome"</b> (si no lo tienes)<br>' +
+                        '3) Abre <b>Chrome</b> (icono redondo azul-rojo-amarillo-verde)<br>' +
+                        '4) En Chrome escribe: <b style="user-select:all;font-family:monospace">7group.site/agente/aseguralo/</b><br>' +
+                        '5) Ahi si podras iniciar sesion.<br>' +
+                        '6) Una vez dentro: <b>&#9776; Menu &rarr; Instalar app</b> = queda como icono en tu celular.';
+    }
   }
 });
 
@@ -2337,6 +2371,8 @@ window._gateDiag_ = function(){
     document.cookie = 'aseg_test=;max-age=0;path=/';
   }catch(e){ cookies_ok = 'ERROR: '+e.message; }
   var esInApp = _esInAppBrowser_() ? 'SI' : 'NO';
+  var navProb = _navegadorProblematico_();
+  var navProbTxt = navProb ? (navProb.marca + ' (bloquea Google)') : 'NO (navegador OK)';
   var localStorageOk = 'SI';
   try{ localStorage.setItem('_test',1); localStorage.removeItem('_test'); }catch(e){ localStorageOk = 'NO ('+e.message+')'; }
   var storedEmail = ''; try{ storedEmail = localStorage.getItem('aseg_erp_auth')||''; }catch(e){}
@@ -2356,6 +2392,7 @@ window._gateDiag_ = function(){
     + '---\n'
     + 'Google Identity cargado: ' + google_cargo + '\n'
     + 'In-app browser detectado: ' + esInApp + '\n'
+    + 'Navegador propietario: ' + navProbTxt + '\n'
     + 'Cookies de terceros: ' + cookies_ok + '\n'
     + 'localStorage: ' + localStorageOk + '\n'
     + 'Sesion previa guardada: ' + (storedEmail ? storedEmail : '(ninguna)') + '\n'

@@ -2,12 +2,13 @@
    Estrategia: network-first para HTML/JSON (frescura primero), cache-first para assets estaticos.
    Version: bump el CACHE_NAME cuando cambies el shell para forzar invalidacion. */
 
-var CACHE_NAME = 'aseguralo-v3-2026-09-11-gate-fix';
+var CACHE_NAME = 'aseguralo-v4-2026-09-11-icon';
 var STATIC_ASSETS = [
   '/agente/aseguralo/',
   '/agente/aseguralo/index.html',
   '/agente/aseguralo/manifest.json',
-  '/logo-aseguralo.png'
+  '/logo-aseguralo.png',
+  '/agente/aseguralo/icon-aseguralo.png'
 ];
 
 self.addEventListener('install', function(event){

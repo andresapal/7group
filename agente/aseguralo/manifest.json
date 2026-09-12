@@ -13,13 +13,13 @@
   "categories": ["business", "productivity", "finance"],
   "icons": [
     {
-      "src": "/logo-aseguralo.png",
+      "src": "/agente/aseguralo/icon-aseguralo.png",
       "sizes": "192x192 512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo-aseguralo.png",
+      "src": "/agente/aseguralo/icon-aseguralo.png",
       "sizes": "192x192 512x512",
       "type": "image/png",
       "purpose": "maskable"
