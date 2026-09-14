@@ -328,6 +328,14 @@ function sesionValida(){
     return edad<SESION_DIAS;
   }catch(e){return false;}
 }
+// Reuso de la sesion del sitio padre /agente/ (email guardado como sessionStorage['7g-auth']).
+function sesionPadre(){
+  try{
+    var e=sessionStorage.getItem('7g-auth');
+    if(e && ADMIN_7GROUP.indexOf(e.toLowerCase())!==-1) return e.toLowerCase();
+  }catch(x){}
+  return null;
+}
 function entrarApp(email){
   document.getElementById('gate').classList.add('hidden');
   document.getElementById('app').classList.add('ready');
@@ -335,13 +343,27 @@ function entrarApp(email){
   cargarTodo();
 }
 function autoEnter(){
-  if(sesionValida()) entrarApp(localStorage.getItem(EMAIL_KEY));
-  else initGoogleAuth();
+  // 1) Sesion propia con token de backend
+  if(sesionValida()){ entrarApp(localStorage.getItem(EMAIL_KEY)); return; }
+  // 2) Sesion heredada de /agente/ (mismo Google, sin volver a loguear)
+  var e=sesionPadre();
+  if(e){
+    localStorage.setItem(EMAIL_KEY,e);
+    localStorage.setItem(TS_KEY,Date.now().toString());
+    entrarApp(e);
+    return;
+  }
+  // 3) Nada, gate Google normal
+  initGoogleAuth();
 }
 
+// Auth query: prefiere token, fallback a email (backend acepta ambos).
 function authQuery(){
   var t=localStorage.getItem(TOKEN_KEY);
-  return t?'token='+encodeURIComponent(t):'';
+  if(t) return 'token='+encodeURIComponent(t);
+  var e=localStorage.getItem(EMAIL_KEY);
+  if(e) return 'email='+encodeURIComponent(e);
+  return '';
 }
 
 function cargarTodo(){
@@ -508,7 +530,7 @@ function marcarRecibido(id){
   fetch(APPS_SCRIPT_URL,{
     method:'POST',redirect:'follow',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify({action:'pagos-7g-marcar-recibido',id:id,monto:pago?pago.monto:0,token:localStorage.getItem(TOKEN_KEY)})
+    body:JSON.stringify({action:'pagos-7g-marcar-recibido',id:id,monto:pago?pago.monto:0,token:localStorage.getItem(TOKEN_KEY)||'',email:localStorage.getItem(EMAIL_KEY)||''})
   }).then(function(r){return r.json();}).then(function(j){
     if(j.error){toast(j.error,'error');return;}
     toast('Pago recibido confirmado');
@@ -538,7 +560,7 @@ function guardarConfig(){
   fetch(APPS_SCRIPT_URL,{
     method:'POST',redirect:'follow',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify({action:'pagos-7g-config-set',config:config,token:localStorage.getItem(TOKEN_KEY)})
+    body:JSON.stringify({action:'pagos-7g-config-set',config:config,token:localStorage.getItem(TOKEN_KEY)||'',email:localStorage.getItem(EMAIL_KEY)||''})
   }).then(function(r){return r.json();}).then(function(j){
     if(j.error){toast(j.error,'error');return;}
     toast('Datos guardados');
