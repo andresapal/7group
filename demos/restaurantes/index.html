@@ -230,7 +230,12 @@ tr:hover td{background:var(--accent-light)}
 .prop-sim-head strong{font-size:14px}
 .prop-sim-head .ps-count{font-size:20px;font-weight:900;color:var(--highlight)}
 .prop-range{width:100%;accent-color:var(--highlight);height:6px;cursor:pointer;margin:6px 0 18px;display:block}
+.prop-breakdown{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:12px;display:flex;flex-direction:column;gap:8px}
+.prop-breakdown .pb-row{display:flex;justify-content:space-between;font-size:12px}
+.prop-breakdown .pb-row span:first-child{color:var(--dim)}
+.prop-breakdown .pb-row span:last-child{font-weight:700;font-family:'JetBrains Mono',monospace}
 .prop-out{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.prop-out.two{grid-template-columns:repeat(2,1fr)}
 .prop-out .po-cell{background:var(--bg2);padding:16px;text-align:center}
 .prop-out .po-cell.total{background:var(--accent-light)}
 .prop-out .po-label{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
@@ -347,45 +352,48 @@ tr:hover td{background:var(--accent-light)}
 <div class="mod-section" id="mod-propuesta">
   <div class="prop-hero">
     <div class="sec-title">Plan 7Group Domicilios</div>
-    <p>Paga por infraestructura fija, no por pedidos que no llegan. El agente de voz solo te cobra lo que realmente atiende.</p>
+    <p>Paga por infraestructura fija, no por pedidos que no llegan. El agente de voz solo te cobra los minutos que realmente habla: minuto cobrado, minuto ganado.</p>
   </div>
 
   <div class="prop-cards">
     <div class="prop-card">
       <div class="pc-tag">Infraestructura</div>
       <div class="pc-name">Plataforma ERP</div>
-      <div class="pc-price">$160.000 <small>COP/mes</small></div>
+      <div class="pc-price"><span id="pcErp">$160.000</span> <small>COP/mes</small></div>
       <div class="pc-desc">Acceso completo, soporte tecnico y mantenimiento de tu sistema de pedidos.</div>
     </div>
     <div class="prop-card">
       <div class="pc-tag">Uso real</div>
       <div class="pc-name">Agente de voz IA</div>
-      <div class="pc-price">$573 <small>COP / pedido atendido</small></div>
-      <div class="pc-desc">Solo pagas por las llamadas que el agente realmente gestiona. Meses lentos, factura mas baja: nada de planes fijos sobredimensionados.</div>
+      <div class="pc-price"><span id="pcAgente">$620</span> <small>COP / minuto hablado</small></div>
+      <div class="pc-desc">Solo pagas los minutos que el agente realmente habla. Tu factura sube y baja con el uso real: nunca pagas capacidad ociosa ni planes fijos sobredimensionados.</div>
     </div>
     <div class="prop-card compare">
       <div class="pc-tag">Comparativo</div>
       <div class="pc-name">Vs. empleado telefonico</div>
-      <div class="pc-price">Mucho mas costoso</div>
-      <div class="pc-desc">Un empleado tomando pedidos por telefono cuesta muchas veces mas por pedido que el agente de voz: sin turnos, sin errores de digitacion, sin lineas ocupadas.</div>
+      <div class="pc-price">Sueldo fijo</div>
+      <div class="pc-desc">Un empleado cuesta un sueldo fijo asi conteste 10 o 1000 llamadas. El agente solo cobra los minutos que habla: sin turnos, sin errores de digitacion, sin lineas ocupadas.</div>
     </div>
   </div>
 
   <div class="prop-sim">
     <div class="prop-sim-head">
       <strong>Simula tu costo mensual</strong>
-      <span><span class="ps-count" id="propPedidosVal">433</span> pedidos / mes</span>
+      <span><span class="ps-count" id="propPedidosVal">20</span> pedidos / mes <span style="color:var(--dim);font-weight:600">&middot; ~<span id="propMinVal">70</span> min hablados</span></span>
     </div>
-    <input type="range" class="prop-range" id="propRange" min="100" max="1000" step="1" value="433" oninput="calcPropuesta()">
-    <div class="prop-out">
-      <div class="po-cell"><div class="po-label">ERP fijo</div><div class="po-val" id="propErp">$160.000 COP</div></div>
-      <div class="po-cell"><div class="po-label">Agente de voz</div><div class="po-val" id="propAgente">$248.109 COP</div></div>
-      <div class="po-cell total"><div class="po-label">Total mensual</div><div class="po-val" id="propTotal">$408.109 COP</div></div>
+    <input type="range" class="prop-range" id="propRange" min="20" max="1000" step="1" value="20" oninput="calcPropuesta()">
+    <div class="prop-breakdown">
+      <div class="pb-row"><span>Minutos hablados</span><span id="propAgente">$43.400 COP</span></div>
+      <div class="pb-row"><span>Suscripcion ERP / mes</span><span id="propErp">$160.000 COP</span></div>
+    </div>
+    <div class="prop-out two">
+      <div class="po-cell"><div class="po-label">Total sin ERP</div><div class="po-val" id="propTotalSin">$43.400 COP</div></div>
+      <div class="po-cell total"><div class="po-label">Total con ERP</div><div class="po-val" id="propTotalCon">$203.400 COP</div></div>
     </div>
   </div>
 
   <div class="prop-note">
-    <strong>Transparencia:</strong> Precio calculado con un margen operativo del 25% sobre el costo real de infraestructura, sin sobrecostos ocultos ni penalizacion por crecer.
+    <strong>Minuto cobrado, minuto ganado:</strong> facturacion por minuto de conversacion, no por plan fijo. Estimado con una duracion promedio de <span id="propDur">3,5</span> min por llamada y un margen del <span id="propMargen">25</span>% sobre el costo real de infraestructura. Sin sobrecostos ocultos ni penalizacion por crecer.
   </div>
 
   <div class="prop-cta">
@@ -444,6 +452,30 @@ tr:hover td{background:var(--accent-light)}
 var TODAY=new Date();
 var fmt=function(n){return '$'+Number(n).toLocaleString('es-CO')};
 var CALL_LOG=[];
+
+/* ============================================================
+   TARIFAS — EDITA AQUI PARA CAMBIAR PRECIOS (un solo lugar)
+   Alimenta las cards de la seccion Propuesta y el simulador.
+   ============================================================ */
+var TARIFAS={
+  erp_mensual:    160000,  // costo fijo mensual (Plataforma ERP)
+  tarifa_minuto:  620,     // lo que se COBRA por minuto de conversacion (minuto cobrado, minuto ganado)
+
+  /* --- Costo real (Vapi y Twilio cobran por MINUTO en USD) ---
+     costo por minuto      = (vapi + twilio + llm) * trm
+     tarifa_minuto sugerida = costo por minuto * (1 + margen)
+     Con los valores de abajo el costo real da ~$496 COP/min y la tarifa ~$620 COP/min. */
+  vapi_usd_min:      0.09,   // plataforma de voz IA
+  twilio_usd_min:    0.014,  // linea telefonica
+  llm_usd_min:       0.02,   // modelo (si se cobra aparte)
+  duracion_prom_min: 3.5,    // duracion promedio por llamada (para estimar minutos desde pedidos)
+  trm:               4000,   // pesos por dolar
+  margen:            0.25    // 25%
+};
+/* Costo real por minuto segun los componentes. Tarifa sugerida = costo * (1+margen).
+   Use estos helpers para fijar tarifa_minuto cuando cambien Vapi/Twilio/TRM. */
+function costoRealMinuto(){var t=TARIFAS;return Math.round((t.vapi_usd_min+t.twilio_usd_min+t.llm_usd_min)*t.trm);}
+function tarifaSugeridaMinuto(){return Math.round(costoRealMinuto()*(1+TARIFAS.margen));}
 
 /* ===== MENU ===== */
 var MENU=[
@@ -558,11 +590,19 @@ function cambiarEstado(id,nuevoEstado){
 function calcPropuesta(){
   var r=document.getElementById('propRange');if(!r)return;
   var pedidos=parseInt(r.value,10)||0;
-  var erp=160000,agente=pedidos*573,total=erp+agente;
+  var minutos=Math.round(pedidos*TARIFAS.duracion_prom_min);
+  var erp=TARIFAS.erp_mensual,agente=minutos*TARIFAS.tarifa_minuto;
+  var totalSin=agente,totalCon=agente+erp;
   document.getElementById('propPedidosVal').textContent=pedidos.toLocaleString('es-CO');
+  document.getElementById('propMinVal').textContent=minutos.toLocaleString('es-CO');
   document.getElementById('propErp').textContent=fmt(erp)+' COP';
   document.getElementById('propAgente').textContent=fmt(agente)+' COP';
-  document.getElementById('propTotal').textContent=fmt(total)+' COP';
+  document.getElementById('propTotalSin').textContent=fmt(totalSin)+' COP';
+  document.getElementById('propTotalCon').textContent=fmt(totalCon)+' COP';
+  var pe=document.getElementById('pcErp');if(pe)pe.textContent=fmt(TARIFAS.erp_mensual);
+  var pa=document.getElementById('pcAgente');if(pa)pa.textContent=fmt(TARIFAS.tarifa_minuto);
+  var pd=document.getElementById('propDur');if(pd)pd.textContent=TARIFAS.duracion_prom_min.toLocaleString('es-CO');
+  var pm=document.getElementById('propMargen');if(pm)pm.textContent=Math.round(TARIFAS.margen*100);
 }
 
 function renderCallLog(){
