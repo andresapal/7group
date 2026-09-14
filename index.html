@@ -1,2078 +1,843 @@
 <!DOCTYPE html>
-<html lang="en-US">
-
+<html lang="es">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-H9127FSW7K"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-H9127FSW7K');
-</script>
-  <meta charset="UTF-8" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentes -- 7Group</title>
+<meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="theme-color" content="#0a0a0a">
-<link rel="manifest" href="/site.webmanifest">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- SEO PRINCIPAL -->
-  <meta name="description" content="7Group designs and implements artificial intelligence, business automation, and logistics technology solutions for companies in Florida, Texas, and Georgia.">
-  <meta name="keywords" content="artificial intelligence consulting Florida, AI business solutions Texas, AI automation Georgia, logistics technology USA, business automation, digital transformation, AI consulting, business intelligence, machine learning solutions">
-  <meta name="author" content="7Group">
-  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-  <link rel="canonical" href="https://7group.site/">
-
-  <!-- HREFLANG -->
-  <link rel="alternate" hreflang="en" href="https://7group.site/" />
-  <link rel="alternate" hreflang="es" href="https://7group.site/es/" />
-  <link rel="alternate" hreflang="es-CO" href="https://7group.site/colombia/" />
-  <link rel="alternate" hreflang="x-default" href="https://7group.site/" />
-
-  <!-- GEO SEO -->
-  <meta name="geo.region" content="US-FL">
-  <meta name="geo.placename" content="Florida, United States">
-  <meta name="ICBM" content="27.9944024,-81.7602544">
-
-  <!-- OPEN GRAPH -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://7group.site/">
-  <meta property="og:title" content="7Group | Artificial Intelligence & Business Automation">
-  <meta property="og:description" content="AI consulting, business automation, and logistics technology for companies in Florida, Texas, and Georgia.">
-  <meta property="og:site_name" content="7Group">
-  <meta property="og:image" content="https://7group.site/ciudad-datos.webp">
-  <meta property="og:image:secure_url" content="https://7group.site/ciudad-datos.webp">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-
-  <!-- TWITTER -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="7Group | Artificial Intelligence & Business Automation">
-  <meta name="twitter:description" content="AI consulting, business automation, and logistics technology solutions for the US market.">
-  <meta name="twitter:image" content="https://7group.site/ciudad-datos.webp">
-
-  <!-- GOOGLE / BING -->
-  <meta name="googlebot" content="index,follow">
-  <meta name="bingbot" content="index,follow">
-  <meta http-equiv="content-language" content="en-US">
-
-  <title>7Group | Artificial Intelligence, Business Automation & Logistics Solutions — Florida, Texas, Georgia</title>
-
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --black: #0a0a0a;
-      --white: #f5f5f5;
-      --gray: #6b6b6b;
-      --light: #e8e8e8;
-      --cyan: #5ee7f7;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background: var(--white);
-      color: var(--black);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* STICKY PROMO BAR */
-    .promo-bar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 110;
-      background: #0a0a0a;
-      border-bottom: 1px solid rgba(94,231,247,.2);
-      padding: 9px 24px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      font-size: 13px;
-      color: rgba(255,255,255,.8);
-      letter-spacing: .3px;
-      transition: transform .3s;
-    }
-    .promo-bar.hidden { transform: translateY(-100%); }
-    .promo-bar a {
-      color: #5ee7f7;
-      text-decoration: none;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .promo-bar a:hover { color: #fff; }
-    .promo-close {
-      position: absolute;
-      right: 16px;
-      background: none;
-      border: none;
-      color: rgba(255,255,255,.4);
-      font-size: 16px;
-      cursor: pointer;
-      padding: 4px 8px;
-    }
-    .promo-close:hover { color: #fff; }
-    body.has-promo nav { top: var(--promo-h, 37px); }
-    body.has-promo .hero-wrapper { margin-top: var(--promo-h, 37px); }
-    @media(max-width:600px) {
-      .promo-bar { font-size: 11px; gap: 8px; padding: 8px 40px 8px 16px; }
-      .promo-bar span.promo-hide-mobile { display: none; }
-    }
-
-    /* NAV */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      padding: 14px 48px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 100;
-      transition: background 0.4s, border-color 0.4s;
-    }
-
-    nav.scrolled {
-      background: rgba(10,10,10,0.88);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .logo {
-      display: block;
-      text-decoration: none;
-      line-height: 0;
-    }
-
-    .logo img {
-      height: 40px;
-      width: auto;
-      display: block;
-    }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 40px;
-    }
-
-    nav a {
-      text-decoration: none;
-      color: rgba(255,255,255,0.65);
-      font-size: 14px;
-      letter-spacing: 0.3px;
-      transition: color 0.2s;
-    }
-
-    nav a:hover { color: #fff; }
-
-    /* ROI MINI CALCULATOR */
-    .roi-calc {
-      border: 1px solid var(--light);
-      padding: 40px 48px;
-      margin-bottom: 64px;
-    }
-    .roi-calc-title {
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 8px;
-    }
-    .roi-calc h3 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .roi-calc-sub {
-      font-size: 0.9rem;
-      color: var(--gray);
-      margin-bottom: 28px;
-    }
-    .roi-sliders {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 28px;
-    }
-    @media (max-width: 600px) {
-      .roi-sliders { grid-template-columns: 1fr; }
-      .roi-calc { padding: 28px 24px; }
-    }
-    .roi-slider {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .roi-slider-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-    .roi-slider-label {
-      font-size: 13px;
-      color: var(--gray);
-    }
-    .roi-slider-val {
-      font-size: 18px;
-      font-weight: 700;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      letter-spacing: -0.03em;
-    }
-    .roi-calc input[type=range] {
-      width: 100%;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 4px;
-      border-radius: 4px;
-      background: var(--light);
-      outline: none;
-      cursor: pointer;
-    }
-    .roi-calc input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--black);
-      cursor: pointer;
-      border: 2px solid var(--white);
-      box-shadow: 0 1px 4px rgba(0,0,0,.15);
-    }
-    .roi-calc input[type=range]::-webkit-slider-thumb:hover { background: #5ee7f7; }
-    .roi-results {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
-      background: var(--light);
-      border: 1px solid var(--light);
-    }
-    @media (max-width: 600px) {
-      .roi-results { grid-template-columns: 1fr; }
-    }
-    .roi-result {
-      background: var(--black);
-      color: var(--white);
-      padding: 24px;
-      text-align: center;
-    }
-    .roi-result-val {
-      font-size: 1.6rem;
-      font-weight: 700;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      letter-spacing: -0.03em;
-      margin-bottom: 4px;
-    }
-    .roi-result-val.loss { color: #ff6b6b; }
-    .roi-result-val.save { color: #5ee7f7; }
-    .roi-result-val.roi { color: #22c55e; }
-    .roi-result-label {
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #888;
-    }
-
-    /* LANGUAGE SWITCH */
-    .language-switch {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-    }
-
-    .language-switch a {
-      color: rgba(255,255,255,0.5);
-      text-decoration: none;
-      font-size: 13px;
-      letter-spacing: 1px;
-      transition: 0.2s;
-    }
-
-    .language-switch a:hover { color: #fff; }
-    .language-switch a.active { color: #fff; font-weight: 600; }
-
-    /* HERO */
-    .hero-wrapper {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .hero-video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 0;
-    }
-    .hero-video.playing { pointer-events: none; }
-    .hero-video.fallback { display: none; }
-
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        105deg,
-        rgba(0,0,0,0.82) 0%,
-        rgba(0,0,0,0.55) 55%,
-        rgba(0,0,0,0.15) 100%
-      );
-      z-index: 1;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      padding: 120px 48px 80px;
-      max-width: 1100px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .hero-tag {
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 28px;
-    }
-
-    .hero-content h1 {
-      font-size: clamp(44px, 6.5vw, 88px);
-      font-weight: 700;
-      line-height: 1.02;
-      letter-spacing: -2.5px;
-      max-width: 760px;
-      margin-bottom: 28px;
-      color: #fff;
-    }
-
-    .hero-content h1 em {
-      font-style: normal;
-      color: rgba(255,255,255,0.35);
-    }
-
-    .hero-content > p {
-      font-size: 17px;
-      color: rgba(255,255,255,0.6);
-      max-width: 480px;
-      line-height: 1.75;
-      margin-bottom: 48px;
-    }
-
-    .cta-row {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .btn-primary {
-      background: #fff;
-      color: var(--black);
-      text-decoration: none;
-      padding: 16px 32px;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      border: 2px solid #fff;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .btn-primary:hover {
-      background: transparent;
-      color: #fff;
-    }
-
-    .cta-link {
-      font-size: 14px;
-      color: rgba(255,255,255,0.5);
-      text-decoration: none;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-      padding-bottom: 2px;
-      transition: color 0.2s, border-color 0.2s;
-    }
-
-    .cta-link:hover { color: #fff; border-color: #fff; }
-
-    /* SCROLL INDICATOR */
-    .scroll-hint {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      opacity: 0.4;
-    }
-
-    .scroll-hint span {
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #fff;
-    }
-
-    .scroll-line {
-      width: 1px;
-      height: 40px;
-      background: linear-gradient(to bottom, #fff, transparent);
-      animation: scrollline 2s ease-in-out infinite;
-    }
-
-    @keyframes scrollline {
-      0%, 100% { opacity: 0.4; transform: scaleY(1); }
-      50% { opacity: 1; transform: scaleY(0.6); }
-    }
-
-    /* DIVIDER */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--light);
-      margin: 0 48px;
-    }
-
-    /* SECTION BASE */
-    section {
-      padding: 100px 48px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .section-label {
-      font-size: 11px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--gray);
-      margin-bottom: 48px;
-    }
-
-    /* PROBLEM */
-    .problema h2 {
-      font-size: clamp(28px, 4vw, 48px);
-      font-weight: 600;
-      letter-spacing: -1px;
-      line-height: 1.2;
-      max-width: 700px;
-      margin-bottom: 24px;
-    }
-
-    .problema p {
-      font-size: 16px;
-      color: var(--gray);
-      max-width: 520px;
-      line-height: 1.8;
-    }
-
-    /* IMAGE BREAK */
-    .image-break {
-      width: 100%;
-      height: 520px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .image-break img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      filter: brightness(0.95);
-    }
-
-    .image-break-caption {
-      position: absolute;
-      bottom: 28px;
-      right: 36px;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
-    }
-
-    /* SOLUTIONS */
-    .soluciones-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1px;
-      background: var(--light);
-      border: 1px solid var(--light);
-    }
-
-    .solucion-card {
-      background: var(--white);
-      padding: 48px 40px;
-      transition: background 0.2s;
-    }
-
-    .solucion-card:hover { background: #efefef; }
-
-    .card-num {
-      font-size: 11px;
-      color: var(--gray);
-      letter-spacing: 2px;
-      margin-bottom: 24px;
-    }
-
-    .solucion-card h3 {
-      font-size: 21px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-      margin-bottom: 12px;
-    }
-
-    .solucion-card p {
-      font-size: 15px;
-      color: var(--gray);
-      line-height: 1.75;
-    }
-
-    /* ABOUT */
-    .nosotros-inner {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      align-items: stretch;
-      border: 1px solid var(--light);
-    }
-
-    .nosotros-text {
-      padding: 64px 56px;
-      border-right: 1px solid var(--light);
-    }
-
-    .nosotros h2 {
-      font-size: clamp(26px, 3.5vw, 40px);
-      font-weight: 600;
-      letter-spacing: -1px;
-      line-height: 1.2;
-      margin-bottom: 20px;
-    }
-
-    .nosotros p {
-      font-size: 16px;
-      color: var(--gray);
-      line-height: 1.8;
-      margin-bottom: 16px;
-    }
-
-    .nosotros-image {
-      position: relative;
-      overflow: hidden;
-      min-height: 460px;
-    }
-
-    .nosotros-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      transition: transform 0.6s ease;
-    }
-
-    .nosotros-image:hover img { transform: scale(1.03); }
-
-    /* STATS BAR */
-    .stats-bar {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      border: 1px solid var(--light);
-      border-top: none;
-    }
-
-    .stat-item {
-      padding: 40px 36px;
-      border-right: 1px solid var(--light);
-    }
-
-    .stat-item:last-child { border-right: none; }
-
-    .stat-item strong {
-      display: block;
-      font-size: 40px;
-      font-weight: 700;
-      letter-spacing: -2px;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .stat-item span {
-      font-size: 13px;
-      color: var(--gray);
-      line-height: 1.5;
-    }
-
-    /* CLIENTS CAROUSEL */
-    .clients-section {
-      padding: 80px 0;
-      border-top: 1px solid var(--light);
-      overflow: hidden;
-    }
-
-    .clients-header {
-      padding: 0 48px;
-      margin-bottom: 52px;
-    }
-
-    .clients-header .section-label { margin-bottom: 16px; }
-
-    .clients-heading {
-      font-size: clamp(22px, 3vw, 34px);
-      font-weight: 600;
-      letter-spacing: -0.8px;
-      line-height: 1.2;
-      max-width: 560px;
-    }
-
-    .client-tag {
-      display: inline-block;
-      margin-top: 18px;
-      font-size: 10px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--gray);
-      border-bottom: 1px solid var(--light);
-      padding-bottom: 2px;
-    }
-
-    @media (max-width: 768px) {
-      .clients-header { padding: 0 24px; }
-    }
-
-    /* CTA FINAL */
-    .cta-final {
-      text-align: center;
-      padding: 120px 48px;
-      border-top: 1px solid var(--light);
-    }
-
-    .cta-final h2 {
-      font-size: clamp(32px, 5vw, 64px);
-      font-weight: 700;
-      letter-spacing: -2px;
-      line-height: 1.1;
-      max-width: 600px;
-      margin: 0 auto 16px;
-    }
-
-    .cta-final > p {
-      color: var(--gray);
-      font-size: 16px;
-      margin-bottom: 40px;
-    }
-
-    /* WHATSAPP ICON */
-    .wa-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 48px;
-      height: 48px;
-      text-decoration: none;
-      color: var(--black);
-      transition: opacity 0.2s;
-    }
-
-    .wa-icon:hover { opacity: 0.35; }
-
-    .wa-icon svg { width: 28px; height: 28px; }
-
-    /* FOOTER */
-    footer {
-      padding: 32px 48px;
-      border-top: 1px solid var(--light);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    footer p { font-size: 13px; color: var(--gray); }
-
-    footer a {
-      font-size: 13px;
-      color: var(--gray);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    footer a:hover { color: var(--black); }
-
-    /* RESPONSIVE */
-    /* MOBILE MENU */
-    .menu-toggle{
-      display:none;width:36px;height:36px;background:none;border:1px solid rgba(255,255,255,.15);
-      border-radius:8px;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;
-      padding:0;z-index:200;
-    }
-    .menu-toggle span{display:block;width:18px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
-    .menu-toggle.open span:nth-child(1){transform:rotate(45deg) translate(2.5px,2.5px)}
-    .menu-toggle.open span:nth-child(2){opacity:0}
-    .menu-toggle.open span:nth-child(3){transform:rotate(-45deg) translate(2.5px,-2.5px)}
-
-    .mobile-drawer{
-      display:none;position:fixed;top:0;left:0;right:0;bottom:0;
-      background:rgba(10,10,10,.97);backdrop-filter:blur(16px);z-index:150;
-      padding:100px 32px 40px;flex-direction:column;gap:0;
-    }
-    .mobile-drawer.open{display:flex}
-    .mobile-drawer a{
-      display:block;padding:16px 0;font-size:18px;color:rgba(255,255,255,.7);
-      text-decoration:none;border-bottom:1px solid rgba(255,255,255,.06);
-      font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:-.01em;
-    }
-    .mobile-drawer a:hover{color:#fff}
-    .mobile-drawer .mob-lang{
-      display:flex;gap:16px;padding-top:24px;margin-top:auto;
-    }
-    .mobile-drawer .mob-lang a{
-      font-size:14px;letter-spacing:1px;padding:8px 16px;
-      border:1px solid rgba(255,255,255,.12);border-radius:6px;
-    }
-    .mobile-drawer .mob-lang a.active{color:#fff;font-weight:600;border-color:rgba(255,255,255,.3)}
-
-    @media (max-width: 768px) {
-      nav { padding: 14px 24px; }
-      nav ul { display: none; }
-      .language-switch { display: flex; margin-left: auto; margin-right: 12px; gap: 4px; }
-      .language-switch a {
-        font-size: 12px; letter-spacing: 0.5px;
-        padding: 5px 10px;
-        border: 1px solid rgba(255,255,255,.15);
-        border-radius: 6px;
-      }
-      .language-switch a.active {
-        background: #fff; color: #111; border-color: #fff;
-      }
-      .menu-toggle { display: flex; }
-      .hero-content { padding: 100px 24px 60px; }
-      section { padding: 72px 24px; }
-      .divider { margin: 0 24px; }
-      .image-break { height: 280px; }
-      .soluciones-grid { grid-template-columns: 1fr; }
-      .nosotros-inner { grid-template-columns: 1fr; }
-      .nosotros-text { border-right: none; border-bottom: 1px solid var(--light); padding: 48px 32px; }
-      .nosotros-image { min-height: 280px; }
-      .stats-bar { grid-template-columns: 1fr; }
-      .stat-item { border-right: none; border-bottom: 1px solid var(--light); }
-      .cta-final { padding: 80px 24px; }
-      footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
-      .plans-section { padding: 72px 24px; }
-      .plans-grid { grid-template-columns: 1fr; }
-      #heroTitle { min-height: auto; }
-      #heroSub { min-height: auto; }
-    }
-
-    /* PLANS */
-    .plans-section {
-      padding: 120px 48px;
-      background: var(--white);
-      border-top: 1px solid var(--light);
-    }
-    .plans-label {
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--gray);
-      margin-bottom: 24px;
-    }
-    .plans-heading {
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 700;
-      line-height: 1.1;
-      max-width: 600px;
-      margin-bottom: 64px;
-    }
-    .plans-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
-      background: var(--light);
-      border: 1px solid var(--light);
-    }
-    .plan-card {
-      background: var(--white);
-      padding: 48px 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-    .plan-card.featured {
-      background: #f0fdff;
-      border: 2px solid #5ee7f7;
-      position: relative;
-    }
-    .plan-tag {
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--gray);
-    }
-    .plan-card.featured .plan-tag { color: #0891b2; }
-    .plan-name { font-size: 1.5rem; font-weight: 700; }
-    .plan-price { font-size: 2rem; font-weight: 700; line-height: 1; }
-    .plan-price span { font-size: 0.95rem; font-weight: 400; color: var(--gray); }
-    .plan-card.featured .plan-price span { color: var(--gray); }
-    .plan-divider { height: 1px; background: var(--light); }
-    .plan-card.featured .plan-divider { background: rgba(94,231,247,.3); }
-    .plan-features {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      flex: 1;
-    }
-    .plan-features li {
-      font-size: 0.9rem;
-      color: var(--gray);
-      padding-left: 18px;
-      position: relative;
-    }
-    .plan-features li::before {
-      content: '→';
-      position: absolute;
-      left: 0;
-      color: var(--cyan);
-      font-size: 0.8rem;
-    }
-    .plan-card.featured .plan-features li { color: var(--gray); }
-    .plan-cta {
-      display: inline-block;
-      padding: 14px 28px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-decoration: none;
-      text-transform: uppercase;
-      transition: all 0.2s;
-      border: 1.5px solid var(--black);
-      color: var(--black);
-      background: transparent;
-      text-align: center;
-    }
-    .plan-cta:hover { background: var(--black); color: var(--white); }
-    .plan-card.featured .plan-cta { border-color: #0891b2; color: #0891b2; }
-    .plan-card.featured .plan-cta:hover { background: #0891b2; color: var(--white); }
-
-    /* HERO ROTATING */
-    #heroTitle, #heroSub { transition: opacity 0.5s ease; }
-    #heroTitle { min-height: 3.6em; }
-    #heroSub { min-height: 5.5em; }
-    #heroTitle.fading, #heroSub.fading { opacity: 0; }
-
-    /* AI AGENTS */
-    .agents-heading {
-      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-      font-weight: 700;
-      margin-bottom: 48px;
-      max-width: 500px;
-    }
-    .agents-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2px;
-      background: var(--light);
-      border: 1px solid var(--light);
-    }
-    .agent-card {
-      background: var(--white);
-      padding: 36px 28px;
-      cursor: default;
-      position: relative;
-    }
-    .agent-card:last-child { grid-column: 1 / -1; }
-    .agent-card-num {
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #bbb;
-      margin-bottom: 18px;
-    }
-    .agent-card-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      margin-bottom: 14px;
-      color: var(--black);
-    }
-    /* CARD BODY: description and demo share same grid cell */
-    .card-body {
-      display: grid;
-      grid-template-areas: "slot";
-      min-height: 88px;
-    }
-    .card-desc, .card-demo {
-      grid-area: slot;
-      transition: opacity 0.28s;
-    }
-    .card-desc {
-      font-size: 0.88rem;
-      color: var(--gray);
-      line-height: 1.65;
-    }
-    .agent-card:hover .card-desc { opacity: 0; }
-    .card-demo { opacity: 0; }
-    .agent-card:hover .card-demo { opacity: 1; }
-    /* MINI DEMO */
-    .mini-user {
-      font-size: 0.82rem;
-      color: var(--black);
-      line-height: 1.5;
-      white-space: pre-wrap;
-      padding-left: 14px;
-      position: relative;
-      min-height: 16px;
-    }
-    .mini-user::before {
-      content: '›';
-      position: absolute;
-      left: 0; top: 1px;
-      color: #bbb;
-      font-size: 0.9rem;
-    }
-    .mini-thinking {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 7px 14px;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .mini-dot {
-      width: 4px; height: 4px; border-radius: 50%;
-      background: #ccc;
-      animation: mini-pulse 1.1s ease-in-out infinite;
-    }
-    .mini-dot:nth-child(2) { animation-delay: 0.18s; }
-    .mini-dot:nth-child(3) { animation-delay: 0.36s; }
-    @keyframes mini-pulse {
-      0%, 60%, 100% { background: #ccc; transform: translateY(0); }
-      30% { background: var(--cyan); transform: translateY(-3px); }
-    }
-    .mini-response {
-      font-size: 0.82rem;
-      color: var(--gray);
-      line-height: 1.55;
-      white-space: pre-wrap;
-      border-left: 2px solid var(--cyan);
-      padding-left: 10px;
-      margin-left: 2px;
-      opacity: 0;
-      transition: opacity 0.2s;
-      min-height: 16px;
-    }
-    .mini-badge {
-      font-size: 10px;
-      color: var(--cyan);
-      letter-spacing: 0.5px;
-      margin-top: 8px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .agent-card-title a { color: inherit; text-decoration: none; }
-    .agent-card-title a:hover { color: var(--cyan); }
-    .agents-cta-band { background: var(--black); margin-top: 2px; }
-    .agents-cta-inner {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 40px 40px; gap: 32px; flex-wrap: wrap;
-    }
-    .agents-cta-tag { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #444; margin-bottom: 10px; }
-    .agents-cta-title { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 700; color: var(--white); letter-spacing: -0.5px; margin-bottom: 8px; line-height: 1.2; }
-    .agents-cta-list { font-size: 0.82rem; color: #444; letter-spacing: 0.5px; }
-    .agents-cta-btn {
-      white-space: nowrap; background: var(--white); color: var(--black);
-      padding: 16px 32px; font-size: 14px; font-weight: 600;
-      text-decoration: none; transition: background 0.2s, color 0.2s; flex-shrink: 0;
-    }
-    .agents-cta-btn:hover { background: var(--cyan); color: var(--black); }
-    @media (max-width: 600px) { .agents-cta-inner { padding: 32px 24px; } }
-    @media (max-width: 768px) {
-      .agents-grid { grid-template-columns: 1fr; }
-      .agent-card:last-child { grid-column: 1; }
-    }
-
-    /* CASE STUDIES — CAROUSEL */
-    .case-carousel-wrap {
-      overflow: hidden;
-      position: relative;
-      margin: 0 48px;
-    }
-    .case-carousel-wrap::before,
-    .case-carousel-wrap::after {
-      content: '';
-      position: absolute;
-      top: 0; bottom: 0;
-      width: 60px;
-      z-index: 2;
-      pointer-events: none;
-    }
-    .case-carousel-wrap::before {
-      left: 0;
-      background: linear-gradient(to right, var(--white), transparent);
-    }
-    .case-carousel-wrap::after {
-      right: 0;
-      background: linear-gradient(to left, var(--white), transparent);
-    }
-    .case-track {
-      display: flex;
-      gap: 1px;
-      background: var(--light);
-      width: max-content;
-      animation: caseScroll 40s linear infinite;
-    }
-    .case-track:hover {
-      animation-play-state: paused;
-    }
-    @keyframes caseScroll {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-    .case-card {
-      background: var(--white);
-      padding: 48px 40px;
-      min-width: 380px;
-      max-width: 420px;
-      flex-shrink: 0;
-    }
-    .case-card a {
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-    .case-card a:hover h4 {
-      color: var(--cyan);
-      transition: color 0.3s;
-    }
-    .case-logo-wrap {
-      background: transparent;
-      border-radius: 0;
-      padding: 0;
-      margin-bottom: 24px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 36px;
-      border: none;
-    }
-    .case-logo {
-      height: 36px;
-      width: auto;
-      max-width: 160px;
-      object-fit: contain;
-      display: block;
-      filter: none;
-    }
-    .case-logo.logo-lan {
-      height: 48px;
-    }
-    .case-card h4 {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      margin-bottom: 6px;
-      transition: color 0.3s;
-    }
-    .case-type {
-      font-size: 13px;
-      color: var(--gray);
-      margin-bottom: 20px;
-      letter-spacing: 0.3px;
-    }
-    .case-results {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-    .case-results li {
-      font-size: 14px;
-      color: var(--gray);
-      line-height: 1.6;
-      padding-left: 18px;
-      position: relative;
-    }
-    .case-results li::before {
-      content: '\2192';
-      position: absolute;
-      left: 0;
-      color: var(--cyan);
-      font-size: 13px;
-    }
-    .case-visit {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--cyan);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-top: 4px;
-      opacity: 0;
-      transform: translateX(-8px);
-      transition: opacity 0.3s, transform 0.3s;
-    }
-    .case-card:hover .case-visit {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    @media (max-width: 768px) {
-      .case-carousel-wrap { margin: 0 24px; }
-      .case-card { min-width: 300px; max-width: 340px; padding: 36px 28px; }
-      .case-visit { opacity: 1; transform: translateX(0); }
-    }
-    @media (max-width: 768px) {
-      .plans-grid {
-        grid-template-columns: repeat(3, 280px) !important;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
-        gap: 2px;
-      }
-      .plan-card { scroll-snap-align: start; }
-    }
-
-    /* FAQ */
-    .faq-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      background: var(--light);
-      border: 1px solid var(--light);
-    }
-    .faq-item {
-      background: var(--white);
-      padding: 32px 40px;
-    }
-    .faq-item h4 {
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: -0.3px;
-      margin-bottom: 10px;
-      color: var(--black);
-    }
-    .faq-item p {
-      font-size: 14px;
-      color: var(--gray);
-      line-height: 1.75;
-      max-width: 600px;
-    }
-    @media (max-width: 768px) {
-      .faq-item { padding: 28px 24px; }
-    }
-
-    /* PLANS STEPS */
-    .plans-step { margin-bottom: 64px; }
-    .step-label {
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--light);
-    }
-    .pilot-banner, .impl-banner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 40px 48px;
-      border: 1px solid var(--light);
-      gap: 32px;
-    }
-    .impl-banner { background: #f8fafb; border-color: var(--gray); }
-    .pilot-left h3, .impl-left h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
-    .pilot-left p, .impl-left p { font-size: 0.9rem; color: var(--gray); max-width: 480px; }
-    .impl-left p { color: var(--gray); }
-    .pilot-right, .impl-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 16px;
-      flex-shrink: 0;
-    }
-    .pilot-price { font-size: 2.5rem; font-weight: 700; }
-    .impl-price { font-size: 1.6rem; font-weight: 700; white-space: nowrap; }
-    .impl-price em { font-style: normal; font-size: 1rem; font-weight: 400; color: var(--gray); }
-    .plan-cta-dark {
-      border-color: var(--black) !important;
-      color: var(--black) !important;
-    }
-    .plan-cta-dark:hover { background: var(--black) !important; color: var(--white) !important; }
-
-    /* EXTRAS */
-    .plans-extras {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2px;
-      background: var(--light);
-      border: 1px solid var(--light);
-      margin-top: 2px;
-    }
-    .extra-card {
-      background: var(--white);
-      padding: 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .extra-card h4 { font-size: 1.2rem; font-weight: 700; }
-    .extra-card p { font-size: 0.9rem; color: var(--gray); flex: 1; }
-
-    @media (max-width: 768px) {
-      .pilot-banner, .impl-banner { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
-      .pilot-right, .impl-right { align-items: flex-start; }
-      .plans-extras { grid-template-columns: 1fr; }
-    }
-  </style>
-
-  <!-- SCHEMA.ORG -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    "name": "7Group",
-    "url": "https://7group.site",
-    "logo": "https://7group.site/logo7group.webp",
-    "description": "Artificial Intelligence, Business Automation, Logistics Technology and Digital Transformation solutions for companies in Florida, Texas, and Georgia.",
-    "areaServed": [
-      { "@type": "State", "name": "Florida" },
-      { "@type": "State", "name": "Texas" },
-      { "@type": "State", "name": "Georgia" }
-    ],
-    "serviceType": [
-      "Artificial Intelligence Consulting",
-      "Business Automation",
-      "Logistics Technology",
-      "Digital Transformation",
-      "Business Intelligence"
-    ],
-    "availableLanguage": ["English", "Spanish"],
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "US"
-    }
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How is 7Group different from off-the-shelf software?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Every module we offer was built for and tested in a real logistics operation. We don't resell generic tools. We deploy platforms configured specifically for how your team works."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is 7Group suitable for small teams?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Most of our clients start with one or two modules and a team of under 10. The platform scales with you, not ahead of you. No bloated enterprise contracts."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How long until we see results?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The free pilot runs 15 days. Most clients have their first module live in under 4 weeks. No long onboarding cycles, no months of integration work."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What happens after implementation?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "You get 90 days of dedicated support included. After that, monthly plans cover ongoing access, updates, and priority assistance."
-        }
-      }
-    ]
-  }
-  </script>
-
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em}
+code,.mono{font-family:'JetBrains Mono',monospace}
+:root{
+  --bg:#060a0e;--bg2:#0c1117;--bg3:#131a24;--bg4:#1a2332;
+  --white:#e2e8f0;--dim:#64748b;--muted:#334155;
+  --cyan:#5ee7f7;--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+  --blue:#3b82f6;--purple:#a78bfa;
+  --border:rgba(148,163,184,.08);--border2:rgba(148,163,184,.12);--border3:rgba(148,163,184,.18);
+  --topbar-bg:rgba(6,10,14,.95);--topbar-border:var(--border2);
+}
+:root.light{
+  --bg:#eef1f5;--bg2:#f5f7fa;--bg3:#e8ecf1;--bg4:#dce1e8;
+  --white:#0f172a;--dim:#64748b;--muted:#94a3b8;
+  --border:rgba(15,23,42,.06);--border2:rgba(15,23,42,.1);--border3:rgba(15,23,42,.16);
+  --topbar-bg:rgba(238,241,245,.95);--topbar-border:rgba(15,23,42,.08);
+}
+
+/* AUTH */
+.auth-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.auth-gate.hidden{opacity:0;pointer-events:none}
+.auth-box{text-align:center;max-width:380px;padding:40px 32px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:6px}
+.auth-sub{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.auth-desc{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.5}
+.auth-divider{height:1px;background:var(--border2);margin:20px 0}
+.auth-error{font-size:12px;color:var(--red);margin-top:14px;display:none}
+.auth-footer{font-size:10px;color:var(--muted);margin-top:24px;letter-spacing:.5px}
+#g_id_signin{display:flex;justify-content:center}
+.app-wrap{display:none}.app-wrap.visible{display:block}
+
+/* TOPBAR */
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--topbar-border);transition:background .3s}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-logo{font-size:14px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none}
+.tb-sep{width:1px;height:18px;background:var(--border3)}
+.tb-badge{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:6px 12px;background:rgba(94,231,247,.08);border:1px solid rgba(94,231,247,.15);border-radius:5px;color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none}
+.tb-btn:hover{background:rgba(94,231,247,.15)}
+.tb-toggle{padding:5px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);letter-spacing:.5px}
+.tb-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+.lang-switch{display:flex;border:1px solid var(--border3);border-radius:5px;overflow:hidden}
+.lang-opt{padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;color:var(--dim);background:var(--bg3);border:none;letter-spacing:.5px}
+.lang-opt:first-child{border-right:1px solid var(--border3)}
+.lang-opt:hover{color:var(--cyan)}.lang-opt.active{background:rgba(94,231,247,.1);color:var(--cyan)}
+.theme-icon{width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px}
+
+/* HAMBURGUESA ADMIN */
+.admin-hamb{padding:5px 8px;display:flex;align-items:center;justify-content:center}
+.admin-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--bg2);border:1px solid var(--border3);border-radius:8px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,.35);padding:6px;display:none;z-index:1000}
+.admin-menu.open{display:block}
+.admin-menu-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:8px 10px 6px;font-weight:700;border-bottom:1px solid var(--border3);margin-bottom:4px}
+.admin-menu-item{display:flex;align-items:center;gap:10px;padding:9px 10px;color:var(--text);text-decoration:none;font-size:12px;font-weight:600;border-radius:6px;background:none;border:none;cursor:pointer;font-family:inherit;width:100%;text-align:left;transition:.15s}
+.admin-menu-item:hover{background:var(--bg3);color:var(--cyan)}
+.admin-menu-item svg{opacity:.7;flex-shrink:0}
+
+/* MODAL AGENTS */
+.admin-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000;padding:16px}
+.admin-modal-overlay.open{display:flex}
+.admin-modal{background:var(--bg2);border:1px solid var(--border3);border-radius:12px;max-width:520px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.admin-modal-head{padding:18px 20px;border-bottom:1px solid var(--border3);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.admin-modal-title{font-size:15px;font-weight:800;color:var(--text)}
+.admin-modal-sub{font-size:11px;color:var(--dim);margin-top:2px}
+.admin-modal-close{background:none;border:none;color:var(--dim);font-size:24px;cursor:pointer;line-height:1;padding:0}
+.admin-modal-close:hover{color:var(--cyan)}
+.admin-modal-body{padding:12px 20px;overflow-y:auto;flex:1}
+.admin-modal-foot{padding:14px 20px;border-top:1px solid var(--border3);display:flex;gap:8px;justify-content:flex-end}
+.agent-toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;border:1px solid var(--border3);margin-bottom:6px;background:var(--bg3)}
+.agent-toggle-row .info{flex:1;min-width:0}
+.agent-toggle-row .name{font-size:13px;font-weight:700;color:var(--text)}
+.agent-toggle-row .meta{font-size:11px;color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.agent-toggle-row .switch{position:relative;width:40px;height:22px;background:var(--bg);border-radius:12px;cursor:pointer;transition:.2s;flex-shrink:0;margin-left:12px}
+.agent-toggle-row .switch::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--dim);border-radius:50%;transition:.2s}
+.agent-toggle-row.on .switch{background:rgba(94,231,247,.25)}
+.agent-toggle-row.on .switch::after{left:20px;background:var(--cyan)}
+
+@media(max-width:640px){
+  .admin-menu{right:-8px;min-width:200px}
+  .admin-modal{max-height:90vh}
+  .admin-modal-head{padding:14px 16px}
+  .admin-modal-body{padding:10px 14px}
+}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:24px}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.toolbar-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar-right{display:flex;align-items:center;gap:8px}
+.search-box{padding:7px 12px;background:var(--bg3);border:1px solid var(--border3);border-radius:6px;color:var(--white);font-size:12px;font-family:inherit;outline:none;transition:.2s;width:220px}
+.search-box:focus{border-color:var(--cyan)}
+.search-box::placeholder{color:var(--muted)}
+.sort-select{padding:6px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;color:var(--dim);font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;letter-spacing:.3px;outline:none;appearance:none;-webkit-appearance:none;padding-right:24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.sort-select:hover{border-color:var(--cyan);color:var(--cyan)}
+.view-btn{padding:6px 10px;background:var(--bg3);border:1px solid var(--border3);border-radius:5px;color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
+.view-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.view-btn.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+
+/* FILTER CHIPS */
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.filter-chip{padding:5px 14px;border-radius:20px;font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;border:1px solid var(--border3);background:var(--bg3);color:var(--dim);letter-spacing:.3px}
+.filter-chip:hover{border-color:var(--cyan);color:var(--cyan)}
+.filter-chip.active{background:rgba(94,231,247,.1);border-color:var(--cyan);color:var(--cyan)}
+.filter-count{font-size:9px;font-family:'JetBrains Mono',monospace;margin-left:4px;opacity:.7}
+
+/* FOLDER GRID */
+.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.folder-list{display:flex;flex-direction:column;gap:10px}
+
+/* FOLDER CARD */
+.folder{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px;cursor:pointer;transition:.25s;position:relative;overflow:hidden}
+.folder:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.folder-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.folder-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px}
+.folder-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.folder-icon svg{width:18px;height:18px}
+.folder-badge{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.folder-title{font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+.folder-client{font-size:11px;color:var(--dim);margin-bottom:10px}
+.folder-meta{display:flex;gap:16px;font-size:10px;color:var(--dim);margin-bottom:12px;flex-wrap:wrap}
+.folder-meta-item{display:flex;align-items:center;gap:4px}
+.folder-meta-dot{width:5px;height:5px;border-radius:50%}
+.folder-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.folder-tag{font-size:9px;padding:2px 8px;background:var(--bg4);border:1px solid var(--border);border-radius:3px;color:var(--dim);font-weight:600;letter-spacing:.3px}
+.folder-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
+.folder-date{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.folder-revenue{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.folder-arrow{color:var(--muted);transition:.2s}
+.folder:hover .folder-arrow{color:var(--cyan);transform:translateX(3px)}
+
+/* LIST VIEW */
+.folder-list .folder{padding:14px 18px}
+.folder-list .folder-head{margin-bottom:6px}
+.folder-list .folder-meta{margin-bottom:6px}
+.folder-list .folder-tags{margin-bottom:6px}
+
+/* STATS BAR */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:24px}
+.stat{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:14px 16px}
+.stat-val{font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em;margin-bottom:1px}
+.stat-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--dim)}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:.4}
+.empty-text{font-size:13px}
+
+/* FOOTER */
+.foot{text-align:center;padding:20px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-top:1px solid var(--border)}
+
+@media(max-width:640px){
+  .main{padding:16px}
+  .topbar{padding:0 12px}
+  .tb-right{gap:4px}
+  .folder-grid{grid-template-columns:1fr}
+  .search-box{width:100%}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .toolbar-left,.toolbar-right{justify-content:space-between}
+}
+</style>
 </head>
 <body>
 
-  <!-- PROMO BAR -->
-  <div class="promo-bar" id="promoBar">
-    <span>Delivery Voice AI</span>
-    <span class="promo-hide-mobile">—</span>
-    <a href="/demos/restaurantes/onboarding.html?lang=en">Try free for 15 days →</a>
-    <button class="promo-close" onclick="document.getElementById('promoBar').classList.add('hidden');document.body.classList.remove('has-promo');try{sessionStorage.setItem('promoHidden','1')}catch(e){}" aria-label="Close">&#10005;</button>
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">7group</div>
+    <div class="auth-sub">Logistics Intelligence</div>
+    <div class="auth-divider"></div>
+    <div class="auth-desc" id="authDesc">Acceso restringido. Inicie sesion con su cuenta Google autorizada.</div>
+    <div id="g_id_signin"></div>
+    <div class="auth-error" id="authError">Este correo no tiene acceso autorizado.</div>
+    <div class="auth-footer">Solo personal autorizado</div>
   </div>
-  <script>
-    try{
-      if(!sessionStorage.getItem('promoHidden')){document.body.classList.add('has-promo')}
-      else{document.getElementById('promoBar').classList.add('hidden')}
-    }catch(e){document.body.classList.add('has-promo')}
-  </script>
+</div>
 
-  <!-- NAV -->
-  <nav id="nav">
-    <a href="/" class="logo"><img src="logo7group.webp" alt="7group" /></a>
-    <ul>
-      <li><a href="#solutions">Solutions</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#plans">Plans</a></li>
-      <li><a href="/agendar/?lang=en">Schedule a meeting</a></li>
-      <li><a href="/agente/?lang=en">Portal</a></li>
-    </ul>
-    <div class="language-switch">
-      <a href="/" class="active">EN</a>
-      <a href="/es/">ES</a>
+<div class="app-wrap" id="appWrap">
+
+<nav class="topbar">
+  <div class="tb-left">
+    <a href="/" class="tb-logo">7group</a>
+    <div class="tb-sep"></div>
+    <span class="tb-badge" data-t="badge">Portal</span>
+  </div>
+  <div class="tb-right">
+    <!-- Reportes module hidden — PDFs generated via Claude session -->
+    <!--<a class="tb-btn" href="/agente/reportes/" id="tbReportesBtn" style="display:none">Reportes</a>-->
+    <div class="lang-switch">
+      <button class="lang-opt active" id="langES" onclick="setLang('es')">ES</button>
+      <button class="lang-opt" id="langEN" onclick="setLang('en')">EN</button>
     </div>
-    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
-      <span></span><span></span><span></span>
+    <button class="tb-toggle" id="themeToggle" onclick="toggleTheme()">
+      <svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      LIGHT
     </button>
-  </nav>
-
-  <!-- MOBILE DRAWER -->
-  <div class="mobile-drawer" id="mobileDrawer">
-    <a href="#solutions" onclick="closeMenu()">Solutions</a>
-    <a href="#about" onclick="closeMenu()">About</a>
-    <a href="#plans" onclick="closeMenu()">Plans</a>
-    <a href="/agendar/?lang=en" onclick="closeMenu()">Schedule a meeting</a>
-    <a href="/agente/?lang=en" onclick="closeMenu()">Portal</a>
-    <div class="mob-lang">
-      <a href="/" class="active">EN</a>
-      <a href="/es/">ES</a>
-    </div>
-  </div>
-
-  <!-- HERO -->
-  <div class="hero-wrapper">
-    <video class="hero-video" id="heroVid" autoplay muted loop playsinline preload="auto" poster="ciudad-datos.webp">
-      <source src="https://github.com/andresapal/7group/releases/download/v1-assets/hero-bg-opt.mp4" type="video/mp4">
-    </video>
-    <script>
-    (function(){
-      var v=document.getElementById('heroVid');
-      if(!v)return;
-      var p=v.play();
-      if(p&&p.then){
-        p.then(function(){v.classList.add('playing');})
-         .catch(function(){
-           v.classList.add('fallback');
-           v.parentElement.style.backgroundImage='url(ciudad-datos.webp)';
-           v.parentElement.style.backgroundSize='cover';
-           v.parentElement.style.backgroundPosition='center';
-         });
-      } else {
-        v.classList.add('playing');
-      }
-    })();
-    </script>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <p class="hero-tag">Applied Artificial Intelligence</p>
-      <h1 id="heroTitle" aria-live="polite">Stop operating<br>in <em>Excel</em><br>and <em>WhatsApp.</em></h1>
-      <p id="heroSub">We design and implement AI solutions that optimize your time and operational processes. Everything tested first in our own operation.</p>
-      <div class="cta-row">
-        <a href="/agendar/?lang=en" class="btn-primary">Schedule a meeting</a>
-        <a href="#solutions" class="cta-link">See solutions →</a>
-      </div>
-    </div>
-    <div class="scroll-hint">
-      <span>Scroll</span>
-      <div class="scroll-line"></div>
-    </div>
-  </div>
-
-  <!-- PROBLEM -->
-  <section class="problema">
-    <p class="section-label">The problem</p>
-    <h2>Most SMEs operate with tools that didn't scale with them.</h2>
-    <p>Manual quotes, orders lost in chats, reports nobody reads in time. It's not a lack of talent — it's a lack of digital infrastructure.</p>
-  </section>
-
-  <!-- IMAGE BREAK -->
-  <div class="image-break">
-    <img src="transicion.webp" alt="From Excel and WhatsApp to intelligent dashboards" loading="lazy" />
-    <span class="image-break-caption">Before · After</span>
-  </div>
-
-  <!-- SOLUTIONS -->
-  <section id="solutions">
-    <p class="section-label">What we build</p>
-    <div class="soluciones-grid">
-      <div class="solucion-card">
-        <p class="card-num">01</p>
-        <h3>Automated Quoting</h3>
-        <p>Generate accurate quotes in seconds. No manual errors, no delays. Your sales team closes more deals, faster.</p>
-      </div>
-      <div class="solucion-card">
-        <p class="card-num">02</p>
-        <h3>Real-Time Order Management</h3>
-        <p>Full visibility of every order, at every stage. Your operators act on data, not assumptions.</p>
-      </div>
-      <div class="solucion-card">
-        <p class="card-num">03</p>
-        <h3>Business Dashboards</h3>
-        <p>Your most important metrics, always updated and in one place. Decisions based on reality, not intuition.</p>
-      </div>
-      <div class="solucion-card">
-        <p class="card-num">04</p>
-        <h3>Smart Campaigns</h3>
-        <p>Automated communication with your customers at the right moment. More conversions, less manual effort.</p>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider" />
-
-  <!-- AI AGENTS -->
-  <section id="agents">
-    <p class="section-label">AI Agents</p>
-    <h2 class="agents-heading">Agents that work while you sleep.</h2>
-    <div class="agents-grid">
-
-      <div class="agent-card" data-demo="sales">
-        <div class="agent-card-num">01</div>
-        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-01">Sales Agent — Automatic Quoting</a></div>
-        <div class="card-body">
-          <p class="card-desc">Generates accurate quotes in seconds. No manual errors, no delays. Your team closes more deals, faster.</p>
-          <div class="card-demo">
-            <div class="mini-user"></div>
-            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
-            <div class="mini-response"></div>
-            <div class="mini-badge"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="agent-card" data-demo="operations">
-        <div class="agent-card-num">02</div>
-        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-02">Operations Agent</a></div>
-        <div class="card-body">
-          <p class="card-desc">Full visibility on every order at every stage. Your team operates on data, not assumptions.</p>
-          <div class="card-demo">
-            <div class="mini-user"></div>
-            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
-            <div class="mini-response"></div>
-            <div class="mini-badge"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="agent-card" data-demo="finance">
-        <div class="agent-card-num">03</div>
-        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-03">Finance Agent</a></div>
-        <div class="card-body">
-          <p class="card-desc">Your most important metrics, always up to date in one place. Decisions based on reality, not intuition.</p>
-          <div class="card-demo">
-            <div class="mini-user"></div>
-            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
-            <div class="mini-response"></div>
-            <div class="mini-badge"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="agent-card" data-demo="support">
-        <div class="agent-card-num">04</div>
-        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-04">Support Agent — 24/7 Response</a></div>
-        <div class="card-body">
-          <p class="card-desc">Automated communication with your clients at exactly the right moment. More conversions, less manual effort.</p>
-          <div class="card-demo">
-            <div class="mini-user"></div>
-            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
-            <div class="mini-response"></div>
-            <div class="mini-badge"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="agent-card" data-demo="logistics">
-        <div class="agent-card-num">05</div>
-        <div class="agent-card-title"><a href="/agentes/?lang=en#agent-05">Logistics Agent — Smart Dispatch</a></div>
-        <div class="card-body">
-          <p class="card-desc">No route visibility means clients call and your team wastes time. The agent dispatches, tracks, and notifies without manual intervention.</p>
-          <div class="card-demo">
-            <div class="mini-user"></div>
-            <div class="mini-thinking"><div class="mini-dot"></div><div class="mini-dot"></div><div class="mini-dot"></div></div>
-            <div class="mini-response"></div>
-            <div class="mini-badge"></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-    <div class="agents-cta-band">
-      <div class="agents-cta-inner">
-        <div>
-          <p class="agents-cta-tag">Full suite · 5 agents</p>
-          <h3 class="agents-cta-title">See every agent working in real time.</h3>
-          <p class="agents-cta-list">Commercial &nbsp;·&nbsp; Operations &nbsp;·&nbsp; Finance &nbsp;·&nbsp; Support &nbsp;·&nbsp; Logistics</p>
-        </div>
-        <a href="/agentes/?lang=en" class="agents-cta-btn">Explore agents →</a>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider" />
-
-  <!-- ABOUT -->
-  <section id="about" class="nosotros">
-    <p class="section-label">Who we are</p>
-    <div class="nosotros-inner">
-      <div class="nosotros-text">
-        <h2>We started by solving our own problem.</h2>
-        <p>We're a startup born from a real logistics operation. We built these tools for ourselves first — and they worked.</p>
-        <p>When we saw the impact, we decided to bring what we learned to other companies. We don't sell generic software: we sell what we ourselves use to operate.</p>
-      </div>
-      <div class="nosotros-image">
-        <img src="operador-futuro.webp" alt="The operator of the future — real-time dashboards" loading="lazy" />
-      </div>
-    </div>
-    <div class="stats-bar">
-      <div class="stat-item">
-        <strong>2</strong>
-        <span>Platforms running in production today</span>
-      </div>
-      <div class="stat-item">
-        <strong>5</strong>
-        <span>AI agents built and deployed</span>
-      </div>
-      <div class="stat-item">
-        <strong>&lt;4 wk</strong>
-        <span>From concept to live platform</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- CASE STUDIES -->
-  <div class="clients-section">
-    <div class="clients-header">
-      <p class="section-label">Built. Deployed. Running.</p>
-      <h2 class="clients-heading">Technology we built for real operations — not demos.</h2>
-    </div>
-    <div class="case-carousel-wrap">
-      <div class="case-track" id="caseTrack">
-        <!-- Set 1 -->
-        <div class="case-card">
-          <a href="https://trasteosya.online" target="_blank" rel="noopener">
-            <div class="case-logo-wrap"><img src="logo-trasteosya.png" alt="Trasteos Ya" class="case-logo" /></div>
-            <h4>Trasteos Ya</h4>
-            <p class="case-type">Urban logistics platform · Bogota, Colombia</p>
-            <ul class="case-results">
-              <li>Automated quoting engine — replaced a fully manual, phone-based process</li>
-              <li>Real-time order tracking from request through delivery</li>
-              <li>CEO dashboard with live operational KPIs</li>
-              <li>Automated customer campaigns and review collection</li>
-            </ul>
-            <span class="client-tag">In production · Web & Mobile</span>
-            <span class="case-visit">Visit site &#8594;</span>
-          </a>
-        </div>
-        <div class="case-card">
-          <a href="https://gettygo.app" target="_blank" rel="noopener">
-            <div class="case-logo-wrap"><img src="logo-tygo.png" alt="TYGO" class="case-logo" /></div>
-            <h4>TYGO</h4>
-            <p class="case-type">AI freight marketplace · United States</p>
-            <ul class="case-results">
-              <li>Real-time load posting and carrier matching</li>
-              <li>Bilingual platform — built for the US and Latin American markets</li>
-              <li>AI-powered pricing and route optimization</li>
-              <li>Active in Florida, Texas, and Georgia</li>
-            </ul>
-            <span class="client-tag">In production · AI-powered</span>
-            <span class="case-visit">Visit site &#8594;</span>
-          </a>
-        </div>
-        <div class="case-card">
-          <a href="https://7group.site/agente/aseguralo/" target="_blank" rel="noopener">
-            <div class="case-logo-wrap"><img src="logo-aseguralo.png" alt="Aseguralo" class="case-logo" /></div>
-            <h4>Aseguralo</h4>
-            <p class="case-type">Insurance broker ERP · Bogota, Colombia</p>
-            <ul class="case-results">
-              <li>Full ERP with 7 modules — policies, commissions, billing, renewals, claims</li>
-              <li>Live sync with Google Sheets — 96 real policies connected</li>
-              <li>Multi-insurer quoting engine (Allianz, AXA, Seguros del Estado)</li>
-              <li>Role-based access with Google Sign-In authentication</li>
-            </ul>
-            <span class="client-tag">In production · Full ERP</span>
-            <span class="case-visit">Visit site &#8594;</span>
-          </a>
-        </div>
-        <div class="case-card">
-          <a href="https://lanmarmoles.online" target="_blank" rel="noopener">
-            <div class="case-logo-wrap"><img src="logo-lanmarmoles.png" alt="Lan Marmoles" class="case-logo logo-lan" /></div>
-            <h4>Lan Marmoles</h4>
-            <p class="case-type">Marble & stone supplier · Bogota, Colombia</p>
-            <ul class="case-results">
-              <li>Full ERP with quoting, invoicing, and commission tracking</li>
-              <li>Real-time lead alerts via Telegram bot</li>
-              <li>Landing page with WhatsApp-first contact flow</li>
-              <li>PDF proposal generator with brand customization</li>
-            </ul>
-            <span class="client-tag">In production · ERP & Lead gen</span>
-            <span class="case-visit">Visit site &#8594;</span>
-          </a>
-        </div>
-        <!-- Set 2 (duplicate for seamless loop) -->
-        <div class="case-card">
-          <a href="https://trasteosya.online" target="_blank" rel="noopener">
-            <div class="case-logo-wrap"><img src="logo-trasteosya.png" alt="Trasteos Ya" class="case-logo" /></div>
-            <h4>Trasteos Ya</h4>
-            <p class="case-type">Urban logistics platform · Bogota, Colombia</p>
-            <ul class="case-results">
-              <li>Automated quoting engine — replaced a fully manual, phone-based process</li>
-              <li>Real-time order tracking from request through delivery</li>
-              <li>CEO dashboard with live operational KPIs</li>
-              <li>Automated customer campaigns and review collection</li>
-            </ul>
-            <span class="client-tag">In production · Web & Mobile</span>
-            <span class="case-visit">Visit site &#8594;</span>
-          </a>
-        </div>
-        <div class="case-card">
-          <a href="https://gettygo.app" target="_blank" rel="noopener">
-            <div class="case-logo-wrap"><img src="logo-tygo.png" alt="TYGO" class="case-logo" /></div>
-            <h4>TYGO</h4>
-            <p class="case-type">AI freight marketplace · United States</p>
-            <ul class="case-results">
-              <li>Real-time load posting and carrier matching</li>
-              <li>Bilingual platform — built for the US and Latin American markets</li>
-              <li>AI-powered pricing and route optimization</li>
-              <li>Active in Florida, Texas, and Georgia</li>
-            </ul>
-            <span class="client-tag">In production · AI-powered</span>
-            <span class="case-visit">Visit site &#8594;</span>
-          </a>
-        </div>
-        <div class="case-card">
-          <a href="https://7group.site/agente/aseguralo/" target="_blank" rel="noopener">
-            <div class="case-logo-wrap"><img src="logo-aseguralo.png" alt="Aseguralo" class="case-logo" /></div>
-            <h4>Aseguralo</h4>
-            <p class="case-type">Insurance broker ERP · Bogota, Colombia</p>
-            <ul class="case-results">
-              <li>Full ERP with 7 modules — policies, commissions, billing, renewals, claims</li>
-              <li>Live sync with Google Sheets — 96 real policies connected</li>
-              <li>Multi-insurer quoting engine (Allianz, AXA, Seguros del Estado)</li>
-              <li>Role-based access with Google Sign-In authentication</li>
-            </ul>
-            <span class="client-tag">In production · Full ERP</span>
-            <span class="case-visit">Visit site &#8594;</span>
-          </a>
-        </div>
-        <div class="case-card">
-          <a href="https://lanmarmoles.online" target="_blank" rel="noopener">
-            <div class="case-logo-wrap"><img src="logo-lanmarmoles.png" alt="Lan Marmoles" class="case-logo logo-lan" /></div>
-            <h4>Lan Marmoles</h4>
-            <p class="case-type">Marble & stone supplier · Bogota, Colombia</p>
-            <ul class="case-results">
-              <li>Full ERP with quoting, invoicing, and commission tracking</li>
-              <li>Real-time lead alerts via Telegram bot</li>
-              <li>Landing page with WhatsApp-first contact flow</li>
-              <li>PDF proposal generator with brand customization</li>
-            </ul>
-            <span class="client-tag">In production · ERP & Lead gen</span>
-            <span class="case-visit">Visit site &#8594;</span>
-          </a>
-        </div>
+    <!-- Hamburguesa admin (solo para andresapalt) -->
+    <div class="admin-menu-wrap" id="adminMenuWrap" style="display:none;position:relative">
+      <button class="tb-toggle admin-hamb" onclick="toggleAdminMenu(event)" aria-label="Menu admin">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <div class="admin-menu" id="adminMenu">
+        <div class="admin-menu-title" data-t-opt="adminTitle">7GROUP Admin</div>
+        <a href="/agente/portafolio/" class="admin-menu-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+          <span data-t-opt="adminPortafolio">Portafolio 7GROUP</span>
+        </a>
+        <a href="/agente/reportes/" class="admin-menu-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12V4a1 1 0 011-1h6l3 3v6a1 1 0 01-1 1H3a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h4M5 9h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span data-t-opt="adminReportes">Reportes</span>
+        </a>
+        <a href="/agente/finanzas/" class="admin-menu-item">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12V2m10 10V2M2 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M4 10V7M7 10V5M10 10V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span data-t-opt="adminFinanzas">Finanzas 7GROUP</span>
+        </a>
+        <button class="admin-menu-item" onclick="abrirGestionAgents()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M3 12v-1a2 2 0 012-2h4a2 2 0 012 2v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span data-t-opt="adminAgents">Habilitar / deshabilitar agentes</span>
+        </button>
       </div>
     </div>
   </div>
+</nav>
 
-  <!-- PLANS -->
-  <section id="plans" class="plans-section">
-    <p class="plans-label">Pricing model</p>
-    <h2 class="plans-heading">Schedule a meeting.<br>Scale when it works.</h2>
-
-    <!-- ROI CALCULATOR -->
-    <div class="roi-calc">
-      <p class="roi-calc-title">Impact calculator</p>
-      <h3>How much is manual operation costing you?</h3>
-      <p class="roi-calc-sub">Adjust the sliders to match your operation and see your potential savings in real time.</p>
-      <div class="roi-sliders">
-        <div class="roi-slider">
-          <div class="roi-slider-top">
-            <span class="roi-slider-label">Quotes per day</span>
-            <span class="roi-slider-val" id="roiValQ">15</span>
-          </div>
-          <input type="range" id="roiQ" min="1" max="100" value="15" oninput="calcROI()">
-        </div>
-        <div class="roi-slider">
-          <div class="roi-slider-top">
-            <span class="roi-slider-label">Minutes per quote</span>
-            <span class="roi-slider-val" id="roiValM">25</span>
-          </div>
-          <input type="range" id="roiM" min="5" max="120" value="25" oninput="calcROI()">
-        </div>
-        <div class="roi-slider">
-          <div class="roi-slider-top">
-            <span class="roi-slider-label">Team members</span>
-            <span class="roi-slider-val" id="roiValT">3</span>
-          </div>
-          <input type="range" id="roiT" min="1" max="20" value="3" oninput="calcROI()">
-        </div>
-        <div class="roi-slider">
-          <div class="roi-slider-top">
-            <span class="roi-slider-label">Avg. monthly salary (USD)</span>
-            <span class="roi-slider-val" id="roiValS">$3,000</span>
-          </div>
-          <input type="range" id="roiS" min="500" max="15000" value="3000" step="100" oninput="calcROI()">
-        </div>
+<!-- Modal: gestion de visibilidad de agents -->
+<div class="admin-modal-overlay" id="agentsModalOverlay" onclick="if(event.target===this)cerrarGestionAgents()">
+  <div class="admin-modal" onclick="event.stopPropagation()">
+    <div class="admin-modal-head">
+      <div>
+        <div class="admin-modal-title" data-t-opt="agModalTitle">Habilitar / deshabilitar agentes</div>
+        <div class="admin-modal-sub" data-t-opt="agModalSub">Los desactivados se ocultan de la grilla (solo para tu vista admin).</div>
       </div>
-      <div class="roi-results">
-        <div class="roi-result">
-          <div class="roi-result-val loss" id="roiLoss">$0</div>
-          <div class="roi-result-label">Monthly loss</div>
-        </div>
-        <div class="roi-result">
-          <div class="roi-result-val save" id="roiSave">$0</div>
-          <div class="roi-result-label">Monthly savings</div>
-        </div>
-        <div class="roi-result">
-          <div class="roi-result-val roi" id="roiYear">$0</div>
-          <div class="roi-result-label">Net savings (12 months)</div>
-        </div>
-      </div>
+      <button class="admin-modal-close" onclick="cerrarGestionAgents()">&times;</button>
     </div>
-
-    <!-- Step 1: Pilot -->
-    <div class="plans-step">
-      <div class="step-label">Step 1 — Free pilot</div>
-      <div class="pilot-banner">
-        <div class="pilot-left">
-          <h3>Try it free for 15 days</h3>
-          <p>5 automated workflows. No credit card. Your brand, your platform.</p>
-        </div>
-        <div class="pilot-right">
-          <span class="pilot-price">$0</span>
-          <a href="/agendar/?lang=en" class="plan-cta">Schedule a meeting →</a>
-        </div>
-      </div>
+    <div class="admin-modal-body" id="agentsToggleList"></div>
+    <div class="admin-modal-foot">
+      <button class="tb-toggle" onclick="cerrarGestionAgents()" data-t-opt="agModalCerrar">Cerrar</button>
+      <button class="tb-toggle" onclick="restaurarAgentsTodos()" data-t-opt="agModalRestaurar">Habilitar todos</button>
     </div>
-
-    <!-- Step 2: Implementation -->
-    <div class="plans-step">
-      <div class="step-label">Step 2 — One-time implementation</div>
-      <div class="impl-banner">
-        <div class="impl-left">
-          <h3>White-label platform setup</h3>
-          <p>Full deployment of the platform under your brand: all 5 AI agents (Commercial, Operations, Finance, Support, Logistics), quoting engine, order management, KPI dashboard, WhatsApp integration, team onboarding, and 90-day dedicated support. Scope and price vary by operation size.</p>
-        </div>
-        <div class="impl-right">
-          <span class="impl-price">From $3,500 <em>USD</em></span>
-          <a href="/agendar/?lang=en" class="plan-cta plan-cta-dark">Schedule a meeting →</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: Monthly subscription -->
-    <div class="plans-step">
-      <div class="step-label">Step 3 — Monthly subscription</div>
-      <div class="plans-grid">
-
-        <div class="plan-card">
-          <p class="plan-tag">Starter</p>
-          <h3 class="plan-name">Core</h3>
-          <div class="plan-price">$280 <span>USD/mo</span></div>
-          <div class="plan-divider"></div>
-          <ul class="plan-features">
-            <li>3 active modules</li>
-            <li>Up to 5 users</li>
-            <li>500 operations/month</li>
-            <li>Email support</li>
-            <li>Basic KPI dashboard</li>
-          </ul>
-          <a href="/agendar/?lang=en" class="plan-cta">Schedule a meeting →</a>
-        </div>
-
-        <div class="plan-card featured">
-          <p class="plan-tag">Most popular</p>
-          <h3 class="plan-name">Professional</h3>
-          <div class="plan-price">$450 <span>USD/mo</span></div>
-          <div class="plan-divider"></div>
-          <ul class="plan-features">
-            <li>All core modules</li>
-            <li>Up to 20 users</li>
-            <li>Unlimited operations</li>
-            <li>AI chat agent</li>
-            <li>Advanced analytics</li>
-            <li>Priority support</li>
-          </ul>
-          <a href="/agendar/?lang=en" class="plan-cta">Schedule a meeting →</a>
-        </div>
-
-        <div class="plan-card">
-          <p class="plan-tag">Enterprise</p>
-          <h3 class="plan-name">Scale</h3>
-          <div class="plan-price">Custom <span>/ scoped</span></div>
-          <div class="plan-divider"></div>
-          <ul class="plan-features">
-            <li>Unlimited users + modules</li>
-            <li>AI voice + chat agents</li>
-            <li>Multi-vertical deployment</li>
-            <li>Franchise / reseller license</li>
-            <li>Google Ads + Meta setup</li>
-            <li>Dedicated dev team</li>
-          </ul>
-          <a href="/agendar/?lang=en" class="plan-cta">Let's talk →</a>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Consulting + Commissions -->
-    <div class="plans-extras">
-      <div class="extra-card">
-        <p class="plan-tag">Technical consulting</p>
-        <h4>Need strategy, not software?</h4>
-        <p>We offer standalone consulting: process mapping, automation roadmap, AI implementation strategy. Billed by project or retainer.</p>
-        <a href="/agendar/?lang=en" class="plan-cta">Talk to us →</a>
-      </div>
-      <div class="extra-card">
-        <p class="plan-tag">Partner program</p>
-        <h4>Sell it. Earn on every deal.</h4>
-        <p>Refer a client and earn commission on implementation + a recurring cut of their monthly subscription. Ideal for consultants, agencies, and business networks.</p>
-        <a href="/agendar/?lang=en" class="plan-cta">Become a partner →</a>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- FAQ -->
-  <section id="faq">
-    <p class="section-label">Common questions</p>
-    <div class="faq-grid">
-      <div class="faq-item">
-        <h4>How is this different from off-the-shelf software?</h4>
-        <p>Every module we offer was built for — and tested in — a real logistics operation. We don't resell generic tools. We deploy platforms configured specifically for how your team works.</p>
-      </div>
-      <div class="faq-item">
-        <h4>We're a small team — is this for us?</h4>
-        <p>Most of our clients start with one or two modules and a team of under 10. The platform scales with you, not ahead of you. No bloated enterprise contracts.</p>
-      </div>
-      <div class="faq-item">
-        <h4>How long until we see results?</h4>
-        <p>The free pilot runs 15 days. Most clients have their first module live in under 4 weeks. No long onboarding cycles, no months of integration work.</p>
-      </div>
-      <div class="faq-item">
-        <h4>What happens after implementation?</h4>
-        <p>You get 90 days of dedicated support included. After that, our monthly plans cover ongoing access, updates, and priority assistance. You're never left without support.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA FINAL -->
-  <div id="contact" class="cta-final">
-    <h2>Ready to leave Excel behind?</h2>
-    <p>Tell us how your business operates. We'll find where to start.</p>
-    <div class="cta-row" style="justify-content:center; margin-top:40px;">
-      <a href="/agendar/?lang=en" class="btn-primary" style="background:var(--black);color:#fff;border-color:var(--black);">Schedule a meeting</a>
-    </div>
-    <p style="font-size:13px;color:var(--gray);margin-top:24px;">No commitment. Free pilot available for qualified businesses.</p>
   </div>
+</div>
 
-  <!-- FOOTER -->
-  <footer>
-    <p>© 2026 7group. All rights reserved.</p>
-    <a href="https://trasteosya.online" target="_blank">trasteosya.online</a>
-  </footer>
+<div class="main">
 
-  <script>
-    // Nav scroll effect
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => {
-      nav.classList.toggle('scrolled', window.scrollY > 60);
-    });
+<div class="stats-bar" id="statsBar"></div>
 
-    // Promo bar height sync (bug #1)
-    (function(){
-      var bar = document.getElementById('promoBar');
-      if (!bar) return;
-      function sync(){
-        if (document.body.classList.contains('has-promo')) {
-          var h = bar.getBoundingClientRect().height;
-          document.documentElement.style.setProperty('--promo-h', h + 'px');
-        }
-      }
-      sync();
-      window.addEventListener('resize', sync);
-    })();
+<div class="toolbar">
+  <div class="toolbar-left">
+    <input type="text" class="search-box" id="searchBox" placeholder="Buscar proyecto..." oninput="renderProjects()">
+  </div>
+  <div class="toolbar-right">
+    <select class="sort-select" id="sortSelect" onchange="renderProjects()">
+      <option value="revenue" data-t-opt="sortRevenue">Mayor ingreso</option>
+      <option value="recent" data-t-opt="sortRecent">Mas reciente</option>
+      <option value="oldest" data-t-opt="sortOldest">Mas antiguo</option>
+      <option value="az" data-t-opt="sortAZ">A - Z</option>
+      <option value="za" data-t-opt="sortZA">Z - A</option>
+    </select>
+    <button class="view-btn active" id="viewGrid" onclick="setView('grid')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+    </button>
+    <button class="view-btn" id="viewList" onclick="setView('list')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M1 7h12M1 11h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</div>
 
-    // Mobile menu
-    const menuToggle = document.getElementById('menuToggle');
-    const mobileDrawer = document.getElementById('mobileDrawer');
-    menuToggle.addEventListener('click', () => {
-      menuToggle.classList.toggle('open');
-      mobileDrawer.classList.toggle('open');
-      document.body.style.overflow = mobileDrawer.classList.contains('open') ? 'hidden' : '';
-    });
-    function closeMenu() {
-      menuToggle.classList.remove('open');
-      mobileDrawer.classList.remove('open');
-      document.body.style.overflow = '';
-    }
+<div class="filter-row" id="filterRow"></div>
 
-    // Hero rotating messages
-    const heroMessages = [
-      { title: 'Stop operating<br>in <em>Excel</em><br>and <em>WhatsApp.</em>', sub: 'We design and implement AI solutions that optimize your time and operational processes. Everything tested first in our own operation.' },
-      { title: 'Quote in seconds.<br>Close in minutes.<br><em>Deliver every time.</em>', sub: 'Automated quoting, real-time order management, and KPI dashboards — in one platform.' },
-      { title: 'One platform.<br>Every operation.<br><em>Zero chaos.</em>', sub: 'From quoting to delivery, fully automated and white-labeled for your brand.' },
-      { title: 'Your competitors<br>already automated.<br><em>Will you?</em>', sub: "The companies winning in logistics aren't working harder. They built smarter systems." },
-      { title: 'Built for logistics.<br><em>Proven in real operations.</em>', sub: "We didn't build this in a lab. We built it to run our own business — then opened it to yours." },
-      { title: 'AI agents that<br><em>work while you sleep.</em>', sub: 'Transport, logistics, cargo generation, warehousing, and CEO-level insights — fully automated.' }
-    ];
-    (function() {
-      const ht = document.getElementById('heroTitle');
-      const hs = document.getElementById('heroSub');
-      if (!ht || !hs) return;
-      let cur = 0, paused = false;
-      ht.addEventListener('mouseenter', () => paused = true);
-      ht.addEventListener('mouseleave', () => paused = false);
-      function setHeroMinHeights() {
-        ht.style.minHeight = '0';
-        hs.style.minHeight = '0';
-        var origTitle = ht.innerHTML, origSub = hs.textContent;
-        var maxTH = 0, maxSH = 0;
-        heroMessages.forEach(function(m) {
-          ht.innerHTML = m.title;
-          hs.textContent = m.sub;
-          maxTH = Math.max(maxTH, ht.scrollHeight);
-          maxSH = Math.max(maxSH, hs.scrollHeight);
-        });
-        ht.innerHTML = origTitle;
-        hs.textContent = origSub;
-        ht.style.minHeight = maxTH + 'px';
-        hs.style.minHeight = maxSH + 'px';
-      }
-      if (window.innerWidth > 760) {
-        setHeroMinHeights();
-        var _hrt;
-        window.addEventListener('resize', function() { clearTimeout(_hrt); _hrt = setTimeout(setHeroMinHeights, 200); });
-      }
+<div class="folder-grid" id="projectsContainer"></div>
 
-      if (window.innerWidth > 760) {
-        setInterval(() => {
-          if (paused) return;
-          cur = (cur + 1) % heroMessages.length;
-          ht.classList.add('fading'); hs.classList.add('fading');
-          setTimeout(() => {
-            ht.innerHTML = heroMessages[cur].title;
-            hs.textContent = heroMessages[cur].sub;
-            ht.classList.remove('fading'); hs.classList.remove('fading');
-          }, 500);
-        }, 4000);
-      }
-    })();
+</div>
+<div class="foot">7group -- Logistics Intelligence Platform</div>
+</div>
 
-    // Agent demo system
-    const DEMOS = {
-      'sales': {
-        input: 'Quote 200 units ref. B-221\nClient: Central Hardware',
-        output: 'Quote #2847\nRef. B-221 · 200 u. · $12.50 ea.\nTotal: $2,500 (5% disc.)\nDelivery: 2 days · Valid: 5 days',
-        badge: '— ready in 1.6s'
-      },
-      'operations': {
-        input: 'Supplier: 2-day delay\nOrder #8823 affected',
-        output: '→ Ops team notified\n→ Client updated (WhatsApp)\n→ New date: Aug 10 · Task #T-4421',
-        badge: '— handled in 1.8s'
-      },
-      'finance': {
-        input: 'Order #8823 delivered\nClient: TechCorp LLC',
-        output: 'Invoice INV-2026-08471\nTechCorp · $2,340 · due Aug 15\n→ Sent · Registered ✓',
-        badge: '— invoiced in 2.1s'
-      },
-      'support': {
-        input: '10:47 PM · Where is\nmy order #8823?',
-        output: 'Order #8823 in transit for 2h.\nArrives tomorrow before 11:00 AM.\nReal-time tracking → [link]',
-        badge: '— replied in 0.9s'
-      },
-      'logistics': {
-        input: 'Dispatch #8823\nNorth Zone — Miami',
-        output: 'Carlos M. · Route N7 · 2 boxes 18kg\nDepart: 08:30 · ETA: 10:15–10:45 AM\n→ Client notified (WhatsApp) ✓',
-        badge: '— assigned in 1.2s'
-      }
-    };
-    const demoGen = {};
-    const demoSleep = ms => new Promise(r => setTimeout(r, ms));
-    function getDemoEls(card) {
-      const demo = card.querySelector('.card-demo');
-      return {
-        user:     demo.querySelector('.mini-user'),
-        thinking: demo.querySelector('.mini-thinking'),
-        response: demo.querySelector('.mini-response'),
-        badge:    demo.querySelector('.mini-badge'),
-      };
-    }
-    async function runDemo(id, card, myGen) {
-      const s = DEMOS[id];
-      const e = getDemoEls(card);
-      e.user.textContent = ''; e.response.textContent = ''; e.badge.textContent = '';
-      e.thinking.style.opacity = '0'; e.response.style.opacity = '0'; e.badge.style.opacity = '0';
-      await demoSleep(350); if (demoGen[id] !== myGen) return;
-      for (const ch of s.input) { if (demoGen[id] !== myGen) return; e.user.textContent += ch; await demoSleep(36); }
-      await demoSleep(280); if (demoGen[id] !== myGen) return;
-      e.thinking.style.opacity = '1';
-      await demoSleep(950); if (demoGen[id] !== myGen) return;
-      e.thinking.style.opacity = '0';
-      await demoSleep(100); if (demoGen[id] !== myGen) return;
-      e.response.style.opacity = '1';
-      const lines = s.output.split('\n');
-      for (let i = 0; i < lines.length; i++) { if (demoGen[id] !== myGen) return; e.response.textContent += (i > 0 ? '\n' : '') + lines[i]; await demoSleep(180); }
-      await demoSleep(200); if (demoGen[id] !== myGen) return;
-      e.badge.textContent = s.badge;
-      e.badge.style.opacity = '1';
-    }
-    document.querySelectorAll('.agent-card[data-demo]').forEach(card => {
-      const id = card.dataset.demo;
-      card.addEventListener('mouseenter', () => { const gen = (demoGen[id] || 0) + 1; demoGen[id] = gen; runDemo(id, card, gen); });
-      card.addEventListener('mouseleave', () => { demoGen[id] = (demoGen[id] || 0) + 1; });
-    });
-  </script>
+<script>
+/* =============== AUTH =============== */
+var GOOGLE_CLIENT_ID='160799874692-04oqnmsrhumi85g45dlej2ce0dlknl5n.apps.googleusercontent.com';
 
-  <script>
-  /* ROI CALCULATOR */
-  function calcROI() {
-    var q = parseInt(document.getElementById('roiQ').value);
-    var m = parseInt(document.getElementById('roiM').value);
-    var t = parseInt(document.getElementById('roiT').value);
-    var s = parseInt(document.getElementById('roiS').value);
-    document.getElementById('roiValQ').textContent = q;
-    document.getElementById('roiValM').textContent = m;
-    document.getElementById('roiValT').textContent = t;
-    document.getElementById('roiValS').textContent = '$' + s.toLocaleString('en-US');
-    var hourly = s / (22 * 8);
-    var hoursMonth = (q * m / 60) * 22;
-    var totalTeamHours = t * 22 * 8;
-    var fraction = Math.min(hoursMonth / totalTeamHours, 1);
-    var manualCost = fraction * t * s;
-    var errorCost = t * 5 * 4.3 * 1.5 * hourly;
-    var totalLoss = manualCost + errorCost;
-    var savings = totalLoss * 0.78;
-    var planCost = 450;
-    var roi12 = (savings - planCost) * 12;
-    function f(n) { var sign = n < 0 ? '-' : ''; n = Math.abs(n); return sign + (n >= 1000 ? '$' + (n/1000).toFixed(1).replace('.0','') + 'K' : '$' + Math.round(n).toLocaleString('en-US')); }
-    document.getElementById('roiLoss').textContent = f(totalLoss);
-    document.getElementById('roiSave').textContent = f(savings);
-    var yearEl = document.getElementById('roiYear');
-    yearEl.textContent = f(roi12);
-    yearEl.className = 'roi-result-val ' + (roi12 < 0 ? 'loss' : 'roi');
+/* =============== PROJECTS DATA =============== */
+var PROJECTS=[
+  {
+    id:'delivery-voice',
+    title:{es:'Delivery Voice IA',en:'Delivery Voice AI'},
+    client:'Agente de Voz Restaurantes',
+    type:'technology',
+    scope:'demo',
+    status:'active',
+    phase:'onboarding',
+    revenue:0,
+    created:'2026-08-29',
+    lastActivity:'2026-08-29',
+    docs:5,
+    tags:['Voz Tiempo Real','Simulador E2E','Motor Conversacional','Tools','Ordenes','Validacion'],
+    link:'/demos/restaurantes/index.html',
+    region:'Colombia'
+  },
+  {
+    id:'aseguralo',
+    title:{es:'Aseguralo',en:'Aseguralo'},
+    client:'Fabian Carrera',
+    type:'insurance',
+    scope:'agent',
+    status:'active',
+    phase:'onboarding',
+    revenue:0,
+    created:'2026-08-12',
+    lastActivity:'2026-08-14',
+    docs:8,
+    tags:['Cotizador','Polizas','Comisiones','Facturacion','Renovaciones'],
+    link:'/agente/aseguralo/',
+    region:'Bogota, Colombia'
+  },
+  {
+    id:'land-marmoles',
+    title:{es:'Lan Marmoles',en:'Lan Marmoles'},
+    client:'Ricardo Lancheros',
+    type:'construction',
+    scope:'agent',
+    status:'active',
+    phase:'onboarding',
+    revenue:4800,
+    created:'2026-06-20',
+    lastActivity:'2026-07-18',
+    docs:3,
+    tags:['Cotizador','ERP','Comisiones','Cuenta de Cobro'],
+    link:'/agente/land-marmoles/',
+    region:'Bogota, Colombia'
+  },
+  {
+    id:'crm-mudanzas',
+    title:{es:'CRM Mudanzas',en:'Moving CRM'},
+    client:'White-label Demo',
+    type:'logistics',
+    scope:'demo',
+    status:'active',
+    phase:'onboarding',
+    revenue:8500,
+    created:'2026-08-01',
+    lastActivity:'2026-08-08',
+    docs:5,
+    tags:['Cotizador','Orden de Servicio','KPIs','Campanas','Finanzas'],
+    link:'/demos/crm-mudanzas/',
+    region:'Colombia'
+  },
+  {
+    id:'logistics-pyme',
+    title:{es:'ERP Logistics',en:'ERP Logistics'},
+    client:'TechRetail Inc.',
+    type:'logistics',
+    scope:'demo',
+    status:'active',
+    phase:'diagnostic',
+    revenue:12500,
+    created:'2026-07-15',
+    lastActivity:'2026-07-20',
+    docs:5,
+    tags:['Receiving','Inventory','Warehouse','Dispatches','CEO Dashboard'],
+    link:'/demos/logistica-pyme/shipment/',
+    region:'Florida, US'
+  },
+  {
+    id:'bike-shop-base',
+    title:{es:'Ultimate Bike Shop',en:'Ultimate Bike Shop'},
+    client:'Ultimate Bike Shop',
+    type:'retail',
+    scope:'demo',
+    status:'active',
+    phase:'diagnostic',
+    revenue:3200,
+    created:'2026-07-01',
+    lastActivity:'2026-07-28',
+    docs:4,
+    tags:['Recibo','Inventario','Despachos','Arme su Bici'],
+    link:'/demos/bike-shop/',
+    region:'Honda, Tolima CO'
+  },
+  {
+    id:'contabilidad-7g',
+    title:{es:'Contabilidad 7Group',en:'7Group Accounting'},
+    client:'7Group Corp.',
+    type:'accounting',
+    scope:'demo',
+    status:'active',
+    phase:'onboarding',
+    revenue:0,
+    created:'2026-07-20',
+    lastActivity:'2026-08-26',
+    docs:0,
+    tags:['Invoicing','Expenses','P&L','Tax Reports'],
+    link:'/demos/contabilidad/',
+    region:'Internal'
+  },
+  {
+    id:'consulting-demo',
+    title:{es:'Consultoria Operativa',en:'Operational Consulting'},
+    client:'Pipeline Lead',
+    type:'consulting',
+    scope:'demo',
+    status:'pending',
+    phase:'lead',
+    revenue:0,
+    created:'2026-07-10',
+    lastActivity:'2026-07-14',
+    docs:1,
+    tags:['Process Audit','KPIs'],
+    link:null,
+    region:'Georgia, US'
+  },
+  {
+    id:'tech-saas-lead',
+    title:{es:'SaaS Startup Setup',en:'SaaS Startup Setup'},
+    client:'Pipeline Lead',
+    type:'technology',
+    scope:'demo',
+    status:'pending',
+    phase:'lead',
+    revenue:0,
+    created:'2026-07-12',
+    lastActivity:'2026-07-13',
+    docs:1,
+    tags:['Infrastructure','CI/CD','MVP'],
+    link:null,
+    region:'Texas, US'
+  },
+  {
+    id:'tygo',
+    title:{es:'TYGO',en:'TYGO'},
+    client:'7Group Internal',
+    type:'technology',
+    scope:'demo',
+    status:'active',
+    phase:'onboarding',
+    revenue:0,
+    created:'2026-06-15',
+    lastActivity:'2026-09-01',
+    docs:8,
+    tags:['Next.js','Supabase','Marketplace','Logistics OS'],
+    link:'https://gettygo.app',
+    region:'Colombia'
+  },
+  {
+    id:'trasteos-ya-kpi',
+    title:{es:'Trasteos Ya KPI',en:'Trasteos Ya KPI'},
+    client:'Trasteos Ya',
+    type:'logistics',
+    scope:'agent',
+    status:'active',
+    phase:'active',
+    revenue:0,
+    created:'2026-01-10',
+    lastActivity:'2026-09-03',
+    docs:12,
+    tags:['KPI','BI','Operacion','Empaque','Geointeligencia'],
+    link:'https://trasteosya.online/kpi-empresa',
+    region:'Bogota, Colombia'
   }
-  calcROI();
-  </script>
+];
 
+/* =============== STATE =============== */
+var currentView='grid';
+var currentFilter='all';
+var currentScope='all'; /* all | agent | demo */
+
+/* ROLES: admin sees all, client sees only their projects */
+var USER_ROLES={
+  'andresapalt@gmail.com':'admin',
+  'andresapal@gmail.com':'admin',
+  '7groupcorp@zohomail.com':'admin',
+  'aseguralo@outlook.com':'client',
+  'celcarov@gmail.com':'client',
+  'celso.carrera@allia2.com.co':'client',
+  'asesorias@aseguralo.com.co':'client',
+  'aseguraloseguros@gmail.com':'client'
+};
+/* Map client emails to project IDs they can see */
+var CLIENT_PROJECTS={
+  'aseguralo@outlook.com':['aseguralo'],
+  'celcarov@gmail.com':['aseguralo'],
+  'celso.carrera@allia2.com.co':['aseguralo'],
+  'asesorias@aseguralo.com.co':['aseguralo'],
+  'aseguraloseguros@gmail.com':['aseguralo']
+};
+var ALLOWED_EMAILS=Object.keys(USER_ROLES);
+var CURRENT_USER='';
+var CURRENT_ROLE='admin';
+
+function handleCredentialResponse(r){var p=JSON.parse(atob(r.credential.split('.')[1]));var e=p.email.toLowerCase();if(ALLOWED_EMAILS.indexOf(e)!==-1){sessionStorage.setItem('7g-auth',e);CURRENT_USER=e;CURRENT_ROLE=USER_ROLES[e]||'client';unlockApp();}else{document.getElementById('authError').style.display='block';}}
+function unlockApp(){document.getElementById('authGate').classList.add('hidden');document.getElementById('appWrap').classList.add('visible');applyRoleFilter();}
+function initGoogleAuth(){if(typeof google==='undefined'||!google.accounts){setTimeout(initGoogleAuth,200);return;}google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleCredentialResponse});google.accounts.id.renderButton(document.getElementById('g_id_signin'),{theme:'outline',size:'large',shape:'pill',text:'signin_with',width:280});}
+/* Auto-login IIFE moved to end of script (after all functions are defined) */
+
+function applyRoleFilter(){
+  /* Hamburguesa admin: 3 admins de 7GROUP */
+  var adminMenuUsers = ['andresapalt@gmail.com','andresapal@gmail.com','7groupcorp@zohomail.com'];
+  if(adminMenuUsers.indexOf(CURRENT_USER) >= 0){
+    var wrap = document.getElementById('adminMenuWrap');
+    if(wrap) wrap.style.display = '';
+  }
+  if(CURRENT_ROLE==='admin'){renderAll();return;}
+  /* Client: filter PROJECTS to only show their assigned projects */
+  var allowed=CLIENT_PROJECTS[CURRENT_USER]||[];
+  PROJECTS=PROJECTS.filter(function(p){return allowed.indexOf(p.id)!==-1;});
+  renderAll();
+}
+
+/* =============== THEME =============== */
+function toggleTheme(){var l=document.documentElement.classList.toggle('light');localStorage.setItem('7g-theme',l?'light':'dark');updateThemeButton(l);}
+function updateThemeButton(l){document.getElementById('themeToggle').innerHTML=l?'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8.5a5.5 5.5 0 01-6-6 5.5 5.5 0 106 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DARK':'<svg class="theme-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> LIGHT';}
+
+/* =============== LANG =============== */
+var LANG='es';
+(function(){
+  // Precedencia: query string > localStorage > default 'es'
+  var q = new URLSearchParams(window.location.search).get('lang');
+  if(q==='en'||q==='es'){ LANG = q; }
+  else { try{ var stored=localStorage.getItem('7g-lang'); if(stored==='en'||stored==='es') LANG=stored; }catch(e){} }
+})();
+
+var T={
+  badge:{es:'Agentes',en:'Agents'},
+  navClients:{es:'Clientes',en:'Clients'},
+  navDash:{es:'Dashboard',en:'Dashboard'},
+  schedule:{es:'Agendar llamada',en:'Schedule a call'},
+  searchPlaceholder:{es:'Buscar proyecto...',en:'Search project...'},
+  sortRevenue:{es:'Mayor ingreso',en:'Highest revenue'},
+  sortRecent:{es:'Mas reciente',en:'Most recent'},
+  sortOldest:{es:'Mas antiguo',en:'Oldest'},
+  sortAZ:{es:'A - Z',en:'A - Z'},
+  sortZA:{es:'Z - A',en:'Z - A'},
+  statProjects:{es:'Proyectos',en:'Projects'},
+  statActive:{es:'Activos',en:'Active'},
+  statRevenue:{es:'Ingresos Totales',en:'Total Revenue'},
+  statPending:{es:'Pendientes',en:'Pending'},
+  filterAll:{es:'Todos',en:'All'},
+  logistics:{es:'Logistica',en:'Logistics'},
+  construction:{es:'Construccion',en:'Construction'},
+  retail:{es:'Retail',en:'Retail'},
+  accounting:{es:'Contabilidad',en:'Accounting'},
+  consulting:{es:'Consultoria',en:'Consulting'},
+  technology:{es:'Tecnologia',en:'Technology'},
+  insurance:{es:'Seguros',en:'Insurance'},
+  lblOnboarding:{es:'Onboarding',en:'Onboarding'},
+  lblDiagnostic:{es:'Diagnostico',en:'Diagnostic'},
+  lblActive:{es:'Activo',en:'Active'},
+  lblPending:{es:'Pendiente',en:'Pending'},
+  lblCompleted:{es:'Completado',en:'Completed'},
+  lblLead:{es:'Lead',en:'Lead'},
+  lblDocs:{es:'docs',en:'docs'},
+  lblLastActivity:{es:'Ultima actividad',en:'Last activity'},
+  lblCreated:{es:'Creado',en:'Created'},
+  scopeAll:{es:'Todos',en:'All'},
+  scopeAgent:{es:'Agentes',en:'Agents'},
+  scopeDemo:{es:'Demos',en:'Demos'},
+  demoTag:{es:'DEMO',en:'DEMO'},
+  agentTag:{es:'ACTIVO',en:'LIVE'},
+  // Menu hamburguesa admin
+  adminTitle:{es:'7GROUP Admin', en:'7GROUP Admin'},
+  adminPortafolio:{es:'Portafolio 7GROUP', en:'7GROUP Portfolio'},
+  adminReportes:{es:'Reportes', en:'Reports'},
+  adminFinanzas:{es:'Finanzas 7GROUP', en:'7GROUP Finance'},
+  adminAgents:{es:'Habilitar / deshabilitar agentes', en:'Enable / disable agents'},
+  // Modal habilitar agents
+  agModalTitle:{es:'Habilitar / deshabilitar agentes', en:'Enable / disable agents'},
+  agModalSub:{es:'Los desactivados se ocultan de la grilla (solo para tu vista admin).', en:'Disabled ones are hidden from the grid (admin view only).'},
+  agModalCerrar:{es:'Cerrar', en:'Close'},
+  agModalRestaurar:{es:'Habilitar todos', en:'Enable all'}
+};
+function t(k){return T[k]?(T[k][LANG]||T[k].en):k;}
+function tl(o){if(!o)return'';if(typeof o==='string')return o;return o[LANG]||o.en||'';}
+
+/* =============== BUSINESS TYPE CONFIG =============== */
+var BIZ_TYPES={
+  logistics:{color:'var(--cyan)',bg:'rgba(94,231,247,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 4v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'},
+  construction:{color:'var(--orange)',bg:'rgba(249,115,22,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"/><path d="M5 20V8l7-5 7 5v12"/><path d="M9 20v-6h6v6"/></svg>'},
+  retail:{color:'var(--green)',bg:'rgba(34,197,94,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 7v13a1 1 0 001 1h16a1 1 0 001-1V7l-3-5z"/><path d="M3 7h18"/><path d="M16 11a4 4 0 01-8 0"/></svg>'},
+  accounting:{color:'var(--yellow)',bg:'rgba(234,179,8,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M8 3v18"/><path d="M12 13h4M12 17h4"/></svg>'},
+  consulting:{color:'var(--purple)',bg:'rgba(167,139,250,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'},
+  technology:{color:'var(--blue)',bg:'rgba(59,130,246,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>'},
+  insurance:{color:'#10B981',bg:'rgba(16,185,129,.08)',icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'}
+};
+
+function setView(v){
+  currentView=v;
+  document.getElementById('viewGrid').classList.toggle('active',v==='grid');
+  document.getElementById('viewList').classList.toggle('active',v==='list');
+  renderProjects();
+}
+
+/* =============== RENDER =============== */
+function renderAll(){renderStats();renderFilters();renderProjects();}
+
+function renderStats(){
+  var total=0;
+  var active=0,rev=0,pending=0;
+  for(var i=0;i<PROJECTS.length;i++){
+    var p=PROJECTS[i];
+    if(currentScope!=='all'&&p.scope!==currentScope)continue;
+    total++;
+    if(p.status==='active')active++;
+    if(p.status==='pending')pending++;
+    rev+=p.revenue;
+  }
+  document.getElementById('statsBar').innerHTML=
+    '<div class="stat"><div class="stat-val" style="color:var(--cyan)">'+total+'</div><div class="stat-label">'+t('statProjects')+'</div></div>'+
+    '<div class="stat"><div class="stat-val" style="color:var(--green)">'+active+'</div><div class="stat-label">'+t('statActive')+'</div></div>'+
+    '<div class="stat"><div class="stat-val" style="color:var(--yellow)">$'+formatNum(rev)+'</div><div class="stat-label">'+t('statRevenue')+'</div></div>'+
+    '<div class="stat"><div class="stat-val" style="color:var(--orange)">'+pending+'</div><div class="stat-label">'+t('statPending')+'</div></div>';
+}
+
+function formatNum(n){if(n>=1000)return(n/1000).toFixed(1)+'K';return n.toString();}
+
+function renderFilters(){
+  /* Scope row: Todos | Agentes | Demos (admin only) */
+  var sh='';
+  if(CURRENT_ROLE==='admin'){
+    var scopes=['all','agent','demo'];
+    var scopeLabels={all:t('scopeAll'),agent:t('scopeAgent'),demo:t('scopeDemo')};
+    var scopeCounts={all:PROJECTS.length,agent:0,demo:0};
+    for(var i=0;i<PROJECTS.length;i++){scopeCounts[PROJECTS[i].scope]=(scopeCounts[PROJECTS[i].scope]||0)+1;}
+    for(var i=0;i<scopes.length;i++){
+      var sc=scopes[i];
+      sh+='<button class="filter-chip'+(currentScope===sc?' active':'')+'" style="'+(sc==='agent'?'border-color:var(--green);':'')+(sc==='demo'?'border-color:var(--purple);':'')+'" onclick="setScope(\''+sc+'\')">'+scopeLabels[sc]+'<span class="filter-count">'+scopeCounts[sc]+'</span></button>';
+    }
+    sh+='<span style="width:1px;height:20px;background:var(--border3);margin:0 4px"></span>';
+  }
+  /* Type filters - count only within current scope */
+  var counts={all:0};
+  for(var i=0;i<PROJECTS.length;i++){
+    if(currentScope!=='all'&&PROJECTS[i].scope!==currentScope)continue;
+    counts.all++;
+    var tp=PROJECTS[i].type;
+    counts[tp]=(counts[tp]||0)+1;
+  }
+  var types=['all','insurance','construction','logistics','retail','accounting','consulting','technology'];
+  var h='';
+  for(var i=0;i<types.length;i++){
+    var tp=types[i];
+    var cnt=counts[tp]||0;
+    if(tp!=='all'&&cnt===0)continue;
+    var label=tp==='all'?t('filterAll'):t(tp);
+    h+='<button class="filter-chip'+(currentFilter===tp?' active':'')+'" onclick="setFilter(\''+tp+'\')">'+label+'<span class="filter-count">'+cnt+'</span></button>';
+  }
+  document.getElementById('filterRow').innerHTML=sh+h;
+}
+
+function setScope(s){currentScope=s;currentFilter='all';renderFilters();renderProjects();}
+function setFilter(f){currentFilter=f;renderFilters();renderProjects();}
+
+function getSortedProjects(){
+  var search=document.getElementById('searchBox').value.toLowerCase();
+  var sort=document.getElementById('sortSelect').value;
+  var disabled = getDisabledAgents_();
+  var list=[];
+  for(var i=0;i<PROJECTS.length;i++){
+    var p=PROJECTS[i];
+    if(disabled.indexOf(p.id)>=0) continue; // oculto por admin
+    if(currentScope!=='all'&&p.scope!==currentScope)continue;
+    if(currentFilter!=='all'&&p.type!==currentFilter)continue;
+    if(search){
+      var haystack=(tl(p.title)+' '+p.client+' '+p.tags.join(' ')+' '+p.region).toLowerCase();
+      if(haystack.indexOf(search)===-1)continue;
+    }
+    list.push(p);
+  }
+  list.sort(function(a,b){
+    if(sort==='revenue')return b.revenue-a.revenue;
+    if(sort==='recent')return new Date(b.lastActivity)-new Date(a.lastActivity);
+    if(sort==='oldest')return new Date(a.created)-new Date(b.created);
+    if(sort==='az')return tl(a.title).localeCompare(tl(b.title));
+    if(sort==='za')return tl(b.title).localeCompare(tl(a.title));
+    return 0;
+  });
+  return list;
+}
+
+function renderProjects(){
+  var list=getSortedProjects();
+  var container=document.getElementById('projectsContainer');
+  container.className=currentView==='grid'?'folder-grid':'folder-list';
+
+  if(list.length===0){
+    container.innerHTML='<div class="empty"><div class="empty-icon">--</div><div class="empty-text">'+(LANG==='es'?'No se encontraron proyectos':'No projects found')+'</div></div>';
+    return;
+  }
+
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var p=list[i];
+    var biz=BIZ_TYPES[p.type]||BIZ_TYPES.logistics;
+    var statusLabel=t('lbl'+p.status.charAt(0).toUpperCase()+p.status.slice(1));
+    var phaseLabel=t('lbl'+p.phase.charAt(0).toUpperCase()+p.phase.slice(1));
+    var statusColor=p.status==='active'?'var(--green)':p.status==='pending'?'var(--yellow)':'var(--dim)';
+    var revStr=p.revenue>0?'$'+formatNum(p.revenue):'--';
+    var revColor=p.revenue>0?'color:var(--green)':'color:var(--muted)';
+    var onclick=p.link?'onclick="window.location.href=\''+p.link+'\'"':'';
+
+    h+='<div class="folder" '+onclick+' style="'+(p.link?'':'opacity:.85;cursor:default')+'">'+
+      '<div class="folder-accent" style="background:'+biz.color+'"></div>'+
+      '<div class="folder-head">'+
+        '<div style="display:flex;align-items:center;gap:10px">'+
+          '<div class="folder-icon" style="background:'+biz.bg+';color:'+biz.color+'">'+biz.icon+'</div>'+
+          '<div>'+
+            '<div class="folder-title">'+tl(p.title)+'</div>'+
+            '<div class="folder-client">'+p.client+' &middot; '+p.region+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+
+          '<span class="folder-badge" style="background:'+biz.bg+';color:'+biz.color+';border:1px solid '+biz.color.replace(')',',0.15)')+'">'+t(p.type)+'</span>'+
+          '<span class="folder-badge" style="background:'+(p.scope==='agent'?'rgba(34,197,94,.1)':'rgba(167,139,250,.1)')+';color:'+(p.scope==='agent'?'var(--green)':'var(--purple)')+';border:1px solid '+(p.scope==='agent'?'rgba(34,197,94,.15)':'rgba(167,139,250,.15)')+';font-size:7px">'+t(p.scope==='agent'?'agentTag':'demoTag')+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="folder-meta">'+
+        '<div class="folder-meta-item"><div class="folder-meta-dot" style="background:'+statusColor+'"></div>'+statusLabel+'</div>'+
+        '<div class="folder-meta-item">'+phaseLabel+'</div>'+
+        '<div class="folder-meta-item">'+p.docs+' '+t('lblDocs')+'</div>'+
+      '</div>'+
+      '<div class="folder-tags">';
+    for(var j=0;j<p.tags.length;j++){
+      h+='<span class="folder-tag">'+p.tags[j]+'</span>';
+    }
+    h+='</div>'+
+      '<div class="folder-footer">'+
+        '<span class="folder-date">'+t('lblLastActivity')+': '+p.lastActivity+'</span>'+
+        '<div style="display:flex;align-items:center;gap:12px">'+
+          '<span class="folder-revenue" style="'+revColor+'">'+revStr+'</span>'+
+          (p.link?'<span class="folder-arrow">&rarr;</span>':'')+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }
+  container.innerHTML=h;
+}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.title=LANG==='es'?'Agentes -- 7Group':'Agents -- 7Group';
+  var els=document.querySelectorAll('[data-t]');
+  for(var i=0;i<els.length;i++){var k=els[i].getAttribute('data-t');if(T[k])els[i].textContent=T[k][LANG];}
+  document.getElementById('langES').classList.toggle('active',LANG==='es');
+  document.getElementById('langEN').classList.toggle('active',LANG==='en');
+  var sl=document.getElementById('scheduleLink');if(sl)sl.href='/agendar/'+(LANG==='en'?'?lang=en':'');
+  document.getElementById('searchBox').placeholder=t('searchPlaceholder');
+  var opts=document.querySelectorAll('[data-t-opt]');
+  for(var i=0;i<opts.length;i++){var k=opts[i].getAttribute('data-t-opt');if(T[k])opts[i].textContent=T[k][LANG];}
+  renderAll();
+}
+
+function setLang(l){LANG=l;try{localStorage.setItem('7g-lang',l);}catch(e){}var u=new URL(window.location);if(l==='en')u.searchParams.set('lang','en');else u.searchParams.delete('lang');window.history.replaceState({},'',u);applyLang();}
+
+/* =============== INIT =============== */
+(function(){if(localStorage.getItem('7g-theme')==='light'){document.documentElement.classList.add('light');updateThemeButton(true);}})();
+applyLang();
+
+/* ============ MENU ADMIN (hamburguesa) ============ */
+var DISABLED_AGENTS_KEY = '7g-disabled-agents';
+function getDisabledAgents_(){
+  try{ var s = localStorage.getItem(DISABLED_AGENTS_KEY); return s ? JSON.parse(s) : []; }catch(e){ return []; }
+}
+function setDisabledAgents_(arr){
+  try{ localStorage.setItem(DISABLED_AGENTS_KEY, JSON.stringify(arr)); }catch(e){}
+}
+window.toggleAdminMenu = function(ev){
+  if(ev) ev.stopPropagation();
+  document.getElementById('adminMenu').classList.toggle('open');
+};
+// Cerrar dropdown al click fuera
+document.addEventListener('click', function(ev){
+  var wrap = document.getElementById('adminMenuWrap');
+  var menu = document.getElementById('adminMenu');
+  if(!wrap || !menu) return;
+  if(!wrap.contains(ev.target)) menu.classList.remove('open');
+});
+
+window.abrirGestionAgents = function(){
+  document.getElementById('adminMenu').classList.remove('open');
+  var body = document.getElementById('agentsToggleList');
+  var disabled = getDisabledAgents_();
+  body.innerHTML = PROJECTS.map(function(p){
+    var on = disabled.indexOf(p.id) < 0;
+    var titulo = (p.title && (p.title.es || p.title.en)) || p.id;
+    return '<div class="agent-toggle-row '+(on?'on':'')+'" data-id="'+p.id+'" onclick="toggleAgent_(\''+p.id+'\')">'+
+      '<div class="info">'+
+        '<div class="name">'+titulo+'</div>'+
+        '<div class="meta">'+(p.client||'')+' &middot; '+(p.scope||'')+' &middot; '+(p.tags||[]).slice(0,3).join(', ')+'</div>'+
+      '</div>'+
+      '<div class="switch"></div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('agentsModalOverlay').classList.add('open');
+};
+window.cerrarGestionAgents = function(){
+  document.getElementById('agentsModalOverlay').classList.remove('open');
+};
+window.toggleAgent_ = function(id){
+  var disabled = getDisabledAgents_();
+  var idx = disabled.indexOf(id);
+  if(idx >= 0) disabled.splice(idx, 1);
+  else disabled.push(id);
+  setDisabledAgents_(disabled);
+  // Refrescar visual del toggle
+  var row = document.querySelector('.agent-toggle-row[data-id="'+id+'"]');
+  if(row){
+    if(disabled.indexOf(id) >= 0) row.classList.remove('on');
+    else row.classList.add('on');
+  }
+  // Re-render grilla
+  if(typeof renderProjects === 'function') renderProjects();
+  if(typeof renderStats === 'function') renderStats();
+};
+window.restaurarAgentsTodos = function(){
+  setDisabledAgents_([]);
+  abrirGestionAgents();
+  if(typeof renderProjects === 'function') renderProjects();
+  if(typeof renderStats === 'function') renderStats();
+};
+
+/* Auto-login: check portal session, then Aseguralo session as fallback */
+(function(){
+  var s=sessionStorage.getItem('7g-auth');
+  if(!s||ALLOWED_EMAILS.indexOf(s)===-1){s=sessionStorage.getItem('aseg_erp_auth');}
+  if(s&&ALLOWED_EMAILS.indexOf(s)!==-1){CURRENT_USER=s;CURRENT_ROLE=USER_ROLES[s]||'client';sessionStorage.setItem('7g-auth',s);unlockApp();}
+  else initGoogleAuth();
+})();
+</script>
 </body>
 </html>
