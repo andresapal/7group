@@ -266,6 +266,7 @@ code,.mono{font-family:'JetBrains Mono',monospace}
   </div>
   <div class="toolbar-right">
     <select class="sort-select" id="sortSelect" onchange="renderProjects()">
+      <option value="default" data-t-opt="sortDefault">Activos primero</option>
       <option value="revenue" data-t-opt="sortRevenue">Mayor ingreso</option>
       <option value="recent" data-t-opt="sortRecent">Mas reciente</option>
       <option value="oldest" data-t-opt="sortOldest">Mas antiguo</option>
@@ -539,6 +540,7 @@ var T={
   navDash:{es:'Dashboard',en:'Dashboard'},
   schedule:{es:'Agendar llamada',en:'Schedule a call'},
   searchPlaceholder:{es:'Buscar proyecto...',en:'Search project...'},
+  sortDefault:{es:'Activos primero',en:'Active first'},
   sortRevenue:{es:'Mayor ingreso',en:'Highest revenue'},
   sortRecent:{es:'Mas reciente',en:'Most recent'},
   sortOldest:{es:'Mas antiguo',en:'Oldest'},
