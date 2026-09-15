@@ -796,6 +796,7 @@ window._abrirUsuariosAuth_ = function(){
       <div id="oficinaMenuWrap" style="display:none">
         <button class="tb-toggle" id="oficinaMenuBtn" onclick="window.__openMenu('oficinaMenu',this,event)">Oficina: <span id="oficinaActualLbl">Aseguralo</span> &#9662;</button>
       </div>
+      <span id="ocrChip" title="OCRs procesados este mes / cupo Aseguralo" style="display:none;font-size:10px;font-weight:700;padding:5px 10px;border-radius:14px;background:var(--bg3);border:1px solid var(--border3);color:var(--dim);letter-spacing:.4px;font-family:'JetBrains Mono',monospace"></span>
       <button class="tb-toggle" onclick="_cmdkOpen_()" id="cmdkBtn" title="Buscar cualquier registro del ERP (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px">Buscar por <span style="font-size:9px;padding:1px 5px;background:var(--bg);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace">Ctrl K</span></button>
       <button class="tb-toggle" id="tbMenuBtn" onclick="window.__openMenu('tbMenu',this,event)" title="Menu" style="padding:5px 10px;font-weight:700;font-size:16px">&#9776;</button>
     </div>
@@ -9914,6 +9915,42 @@ window.openModal = function(name){
 
 /* Boot – defer to next tick so all declarations resolve */
 setTimeout(autoEnter, 0);
+
+// ==============================
+// Chip OCR: consumo mes vs cupo Aseguralo (40) — refresca cada 2 min
+// ==============================
+window._cargarChipOcr_ = function(){
+  try{
+    var q = (typeof _apiAuthQuery_==='function') ? _apiAuthQuery_() : '';
+    fetch(APPS_SCRIPT_URL + '?action=ocr-stats' + (q?('&'+q):''))
+      .then(function(r){return r.json();})
+      .then(function(j){
+        if(!j || j.error) return;
+        var chip = document.getElementById('ocrChip');
+        if(!chip) return;
+        var a = j.aseguralo || {usados:0,limite:40,pct:0};
+        chip.style.display = 'inline-flex';
+        chip.textContent = 'OCR ' + a.usados + '/' + a.limite;
+        // Colores por umbral
+        if(a.pct >= 100){
+          chip.style.background = '#fee2e2';
+          chip.style.color = '#c62828';
+          chip.style.borderColor = '#f5b5b5';
+        } else if(a.pct >= 80){
+          chip.style.background = '#fff3cd';
+          chip.style.color = '#8a5a00';
+          chip.style.borderColor = '#e8d090';
+        } else {
+          chip.style.background = 'var(--bg3)';
+          chip.style.color = 'var(--dim)';
+          chip.style.borderColor = 'var(--border3)';
+        }
+        chip.title = 'OCRs procesados este mes: ' + a.usados + ' de ' + a.limite + ' (' + a.pct + '%)';
+      }).catch(function(){});
+  }catch(e){}
+};
+setTimeout(_cargarChipOcr_, 3000);          // primera carga tras auth
+setInterval(_cargarChipOcr_, 120000);        // cada 2 minutos
 
 })();
 </script>
