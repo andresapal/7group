@@ -152,6 +152,20 @@ button{font-family:inherit;cursor:pointer}
 .form-row input,.form-row select,.form-row textarea{background:#1a1a1a;color:var(--ink);border:1px solid var(--hair2);padding:9px 12px;border-radius:6px;font-family:inherit;font-size:13px;width:100%}
 .btn-primary{background:var(--accent);color:#0a0a0a;border:none;padding:9px 20px;border-radius:6px;font-weight:800}
 .btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--hair2);padding:9px 16px;border-radius:6px;font-weight:600}
+.ocr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+.ocr-card{background:var(--card);border:1px solid var(--hair);border-radius:10px;padding:14px 16px}
+.ocr-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.ocr-val{font-size:18px;font-weight:900;color:var(--accent);font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:8px}
+.ocr-bar{height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden}
+html.light .ocr-bar{background:#e5e5e5}
+.ocr-bar-fill{height:100%;background:var(--accent);transition:width .4s}
+.ocr-bar-fill.warn{background:var(--warn)}
+.ocr-bar-fill.bad{background:var(--bad)}
+.ocr-hint{font-size:10px;color:var(--muted);margin-top:6px}
+.ocr-clients{grid-column:auto}
+.ocr-cli-item{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}
+.ocr-cli-item span:last-child{color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:700}
+@media(max-width:720px){.ocr-grid{grid-template-columns:1fr}}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--card);border-left:4px solid var(--accent);padding:12px 18px;border-radius:8px;color:var(--ink);font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:99999;display:none}
 .toast.error{border-color:var(--bad)}
 .toast.show{display:block;animation:slideIn .3s ease}
@@ -207,6 +221,30 @@ button{font-family:inherit;cursor:pointer}
     <div class="kpi"><div class="kpi-lbl">Enviados</div><div class="kpi-val" id="kEnv">$0</div><div class="kpi-hint" id="kEnvN">0 pagos</div></div>
     <div class="kpi"><div class="kpi-lbl">Recibidos (mes)</div><div class="kpi-val" id="kRec">$0</div><div class="kpi-hint" id="kRecN">0 pagos</div></div>
     <div class="kpi"><div class="kpi-lbl">Recibidos (total)</div><div class="kpi-val" id="kTot">$0</div><div class="kpi-hint">acumulado</div></div>
+  </div>
+
+  <!-- Consumo OCR: cupo Google Cloud + por cliente -->
+  <div class="sec-head">
+    <div class="sec-title">Consumo OCR</div>
+    <div class="sec-sub">Google Cloud free tier · mes actual</div>
+  </div>
+  <div class="ocr-grid">
+    <div class="ocr-card">
+      <div class="ocr-lbl">7GROUP total (free tier)</div>
+      <div class="ocr-val" id="ocrTotVal">0 / 1000</div>
+      <div class="ocr-bar"><div class="ocr-bar-fill" id="ocrTotBar" style="width:0%"></div></div>
+      <div class="ocr-hint" id="ocrTotHint">0% consumido este mes</div>
+    </div>
+    <div class="ocr-card">
+      <div class="ocr-lbl">Aseguralo (cupo interno)</div>
+      <div class="ocr-val" id="ocrAseVal">0 / 40</div>
+      <div class="ocr-bar"><div class="ocr-bar-fill" id="ocrAseBar" style="width:0%"></div></div>
+      <div class="ocr-hint" id="ocrAseHint">0% consumido este mes</div>
+    </div>
+    <div class="ocr-card ocr-clients">
+      <div class="ocr-lbl">Por cliente</div>
+      <div id="ocrPorCliente" style="margin-top:6px;font-size:11px;color:var(--ink-dim)">Sin datos</div>
+    </div>
   </div>
 
   <!-- Alertas -->
@@ -390,6 +428,7 @@ function cargarTodo(){
   cargarPagos();
   cargarAnalytics();
   cargarConfig();
+  cargarOcr();
   setTimeout(function(){
     var l=document.getElementById('syncLbl');
     if(l){
@@ -397,6 +436,33 @@ function cargarTodo(){
       l.textContent='actualizado '+String(h.getHours()).padStart(2,'0')+':'+String(h.getMinutes()).padStart(2,'0');
     }
   }, 1500);
+}
+function cargarOcr(){
+  fetch(APPS_SCRIPT_URL+'?action=ocr-stats&'+authQuery())
+    .then(function(r){return r.json();}).then(function(j){
+      if(!j||j.error) return;
+      var pintar=function(pref,d){
+        var v=document.getElementById('ocr'+pref+'Val');
+        var b=document.getElementById('ocr'+pref+'Bar');
+        var h=document.getElementById('ocr'+pref+'Hint');
+        if(v) v.textContent=(d.usados||0)+' / '+(d.limite||0);
+        if(b){
+          var pct=Math.min(100,d.pct||0);
+          b.style.width=pct+'%';
+          b.className='ocr-bar-fill'+(pct>=100?' bad':(pct>=80?' warn':''));
+        }
+        if(h) h.textContent=(d.pct||0)+'% consumido este mes';
+      };
+      pintar('Tot', j.total_7group||{});
+      pintar('Ase', j.aseguralo||{});
+      var box=document.getElementById('ocrPorCliente');
+      var pc=j.por_cliente||{};
+      var claves=Object.keys(pc);
+      if(box){
+        if(!claves.length) box.innerHTML='<div style="color:var(--muted);font-size:11px">Sin actividad este mes</div>';
+        else box.innerHTML=claves.map(function(k){return '<div class="ocr-cli-item"><span>'+esc(k)+'</span><span>'+pc[k]+'</span></div>';}).join('');
+      }
+    }).catch(function(){});
 }
 // Auto-refresh cada 60s + al volver a la pestaña
 setInterval(function(){ if(document.getElementById('app').classList.contains('ready')) cargarTodo(); }, 60000);
